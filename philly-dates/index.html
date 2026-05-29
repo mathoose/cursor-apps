@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Philly Dates</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Philly Dates" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#43a047" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>Philly Dates</h1>
+        <p class="sub">Happy hours · tap a name for details</p>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-map" id="map-btn" href="https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14" target="_blank" rel="noopener">Map</a>
+        <button type="button" class="btn btn-icon" id="settings-btn" title="Settings" aria-label="Settings">⚙️</button>
+      </div>
+    </div>
+    <div class="search-row">
+      <input type="search" id="search" placeholder="Search by name…" autocomplete="off" enterkeyhint="search" />
+      <button type="button" class="btn btn-add" id="add-btn">+ Add</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="import-status" class="status" hidden></div>
+    <div id="load-error" class="error" hidden role="alert"></div>
+
+    <div class="filters">
+      <label>Area
+        <select id="neighborhood"><option value="">All neighborhoods</option></select>
+      </label>
+      <label>Day
+        <select id="day">
+          <option value="Sunday">Sunday</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+        </select>
+      </label>
+      <label>Time
+        <select id="time"></select>
+      </label>
+    </div>
+
+    <div class="summary" id="summary"></div>
+
+    <div class="grid-wrap">
+      <table id="grid"><thead></thead><tbody></tbody></table>
+    </div>
+
+    <div class="legend">
+      <span><span class="swatch on"></span> Happy hour</span>
+      <span><span class="swatch now"></span> Selected time</span>
+      <span><span class="swatch off"></span> Off</span>
+    </div>
+  </main>
+
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal" id="detail-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-title"></h2>
+          <div class="modal-meta" id="modal-meta"></div>
+        </div>
+        <div class="modal-header-actions">
+          <button type="button" class="modal-edit" id="modal-edit" aria-label="Edit" title="Edit">✏️</button>
+          <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal wide">
+      <div class="modal-header">
+        <div><h2 id="settings-title">Settings</h2></div>
+        <button type="button" class="modal-close" id="settings-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h3>Appearance</h3>
+          <label class="settings-row"><input type="checkbox" id="dark-mode-toggle" /> Night mode</label>
+        </div>
+        <div class="settings-section">
+          <h3>Map link</h3>
+          <input type="url" id="map-url-input" placeholder="Google My Maps URL" class="full" />
+          <p class="hint">Used by the Map button in the header.</p>
+          <button type="button" class="btn btn-primary" id="save-map-url">Save map link</button>
+        </div>
+        <div class="settings-section">
+          <h3>Edit any place</h3>
+          <select id="edit-any-select" class="full"><option value="">Choose a place…</option></select>
+        </div>
+        <div class="settings-section">
+          <h3>Backup</h3>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="export-btn">Export Excel</button>
+            <button type="button" class="btn btn-secondary" id="import-btn">Import Excel</button>
+          </div>
+          <input type="file" id="import-file" accept=".xlsx,.xls" hidden />
+          <p class="hint">Export / import updates names, times, and links. Menu photos stay on this device only.</p>
+        </div>
+        <div class="settings-section">
+          <h3>Reset</h3>
+          <button type="button" class="btn btn-danger" id="clear-edits-btn">Clear saved edits &amp; photos</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="app.js" defer></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

@@ -20,6 +20,11 @@
       "id": "adhd-task-tracker",
       "name": "Focus",
       "subtitle": "ADHD tasks & habits"
+    },
+    {
+      "id": "philly-dates",
+      "name": "Philly Dates",
+      "subtitle": "Happy hours & menus"
     }
   ]
 }

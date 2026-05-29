@@ -1,0 +1,3939 @@
+[
+  {
+    "name": "Prunella",
+    "address": "112 S 13th st Philadelphia, PA 19102",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* 8/10 https://prunellaphl.com/menu * https://www.tiktok.com/t/ZP8yeeEqF/ * Spicy chicken ceasar Deals: $7 wines, $8 cocktails, $4-$10 snacks Mon-Fri 4-6 PM (Rittenhouse natural wine spot). Happy hour menu: https://www.prunellaphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.prunellaphilly.com/",
+    "instagram": "https://www.instagram.com/prunellarestaurant/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Mona",
+    "address": "1308 Chesnut St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "8.5/10 best happy hour\n* HH Mon-Fri 4-6:30 PM https://monaphilly.com/wp-content/uploads/2025/09/Mona-Happy-Hour-September-2025.pdf * Greek place with the cool speakeasy we haven't gotten to try yet\n* Gorgeous interior: https://www.instagram.com/reel/DMxsgYFt-zz/?igsh=M2l1NWczZXluaDlw * Speakeasy opens at 6:30 PM Friday Deals: $6 wine, $8 cocktails plus discounted bar bites Mon-Fri 4-6:30 PM. Happy hour menu: https://www.monaphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.monaphilly.com/",
+    "instagram": "https://www.instagram.com/monaphiladelphia/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Vintage Wine Bar",
+    "address": "129 S 13th St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* 6.5/10 https://www.vintage-philadelphia.com/menus?menu=happy-hour\n* Always a spot\n* Calamari is small portion but good\n* Fries are good\n* Sangria and wine are nice Deals: $6 wines by the glass, $8 cocktails plus $5-$10 small plates Mon-Fri 4-6 PM.",
+    "social": "https://www.instagram.com/reel/DATQz3VvAf5/?igsh=NTU3aWc4bHBpYWY=",
+    "hh_menu": "https://www.vintage-philadelphia.com/",
+    "instagram": "https://www.instagram.com/reel/DATQz3VvAf5/?igsh=NTU3aWc4bHBpYWY=",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Darling Jack's Tavern",
+    "address": "104 S 13th St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 4:00 PM-7:00 PM* https://www.darlingjacks.com/happy-hour * American bar food. $8 cocktails $7 wine * Burger is fountain porter level Deals: $5 drafts, $6 wines, $7 cocktails plus $5-$10 bar food Mon-Fri 4-7 PM. Happy hour menu: https://darlingjackstavern.com/",
+    "social": "https://www.instagram.com/reel/DSyJi4Jkly6/?igsh=cGlwdnhzZnpyNnB0",
+    "hh_menu": "https://darlingjackstavern.com/",
+    "instagram": "https://www.instagram.com/reel/DSyJi4Jkly6/?igsh=cGlwdnhzZnpyNnB0",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Moriarty's Irish Pub",
+    "address": "1116 Walnut St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* French onion soup $7\n* Classic spot Deals: $1 off drafts, $5 well drinks plus discounted Irish bar food Mon-Fri 4-6 PM. Happy hour menu: https://www.moriartyspub.com/",
+    "social": "https://www.instagram.com/reel/CoK17NEp1z0/?igsh=MXkxdzFsY2EyNjJwMg==",
+    "hh_menu": "https://www.moriartyspub.com/",
+    "instagram": "https://www.instagram.com/reel/CoK17NEp1z0/?igsh=MXkxdzFsY2EyNjJwMg==",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Double Knot",
+    "address": "120 S 13th St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Everyday 5PM-7PM* https://www.doubleknotphilly.com/menu * Sushi\n* https://www.tiktok.com/@emmayums/video/7597261514008956190?q=double%20knot%20happy%20hour&t=1772414963542 Deals: $5 sakes, $7 cocktails, $5-$10 sushi/yakitori specials daily 5-7 PM.",
+    "social": "",
+    "hh_menu": "https://www.doubleknotphilly.com/",
+    "instagram": "https://www.instagram.com/doubleknot_phl/",
+    "schedule": {
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The Bread Room",
+    "address": "834 Chesnut St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* Bakery: https://www.instagram.com/reel/DR472oSkWh_/?igsh=Y3cxN3AyOHo1cWg=",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/thebreadroomphl/",
+    "schedule": {}
+  },
+  {
+    "name": "Botld",
+    "address": "117 S 13th St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* $9 cocktail https://www.instagram.com/reel/DJk4GLxtHzD/?igsh=Y3Ntcm12ZjF2bWtq",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Giuseppe & Sons",
+    "address": "1523 Sansom St Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Everyday 4PM-6PM* 8/10 https://giuseppesons.com/happy-hour * Speakeasy hidden in rittenhouse. Stunning. Wish I could experience walking into it for the first time Deals: $7 wines, $8 cocktails, $5-$10 antipasti daily 4-6 PM (Schulson's Italian). Happy hour menu: https://giuseppeandsons.com/",
+    "social": "https://www.instagram.com/reel/CxyICVDLc0w/?igsh=cnZuMXZ0dnoxcTJ6",
+    "hh_menu": "https://giuseppeandsons.com/",
+    "instagram": "https://www.instagram.com/reel/CxyICVDLc0w/?igsh=cnZuMXZ0dnoxcTJ6",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Harp & Crown",
+    "address": "1525 Sansom St Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Sat 4:00 PM-7:00 PM* 9/10 $50 bowling lane rental during happy house\n* $38 per person bunch we could try (Sat/Sun)\n* https://harpcrown.com/brunch * $55 9 course dinner https://www.instagram.com/reel/DJY9_oiOP91/?igsh=cHB2eTgxMnpiNjUw Deals: $7 drafts, $9 wines, $10 cocktails plus $5-$10 small plates Mon-Sat 4-7 PM (Midtown Village). Happy hour menu: https://harpcrown.com/menus",
+    "social": "",
+    "hh_menu": "https://harpcrown.com/menus",
+    "instagram": "https://www.instagram.com/harpcrown/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The black Sheep Pub & Restaurant",
+    "address": "1516 South St Philadelphia, PA 19146",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 4:00 PM-7:00 PM* Got a pair of beers in the basement and it was cool. Definitely need to go back Deals: $4 drafts, $5 wines, $6 cocktails plus discounted apps Mon-Fri 4-7 PM. Tuesday taco specials all day. Happy hour menu: https://www.theblacksheeppub.com/",
+    "social": "",
+    "hh_menu": "https://www.theblacksheeppub.com/",
+    "instagram": "https://www.instagram.com/theblacksheepphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Almyra Restaurant",
+    "address": "1636 Chancellor St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "Happy hour every day: 4-6PM\n* https://www.almyrarestaurant.com/assets/pdfs/almyra-happy-hour-122025.pdf * 7.75/10\n* Been here once for happy hour. cheap, good spread and weirdly nobody else was there\n* Greek Deals: $5 ouzo, $7 Greek wines, $5-$8 mezze plates daily 4-6 PM (modern Greek).",
+    "social": "",
+    "hh_menu": "https://www.almyrarestaurant.com/",
+    "instagram": "https://www.instagram.com/almyraphl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Midnight & The Wicked",
+    "address": "1500 Sansom St Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* Speakeasy https://www.instagram.com/reel/DIO94_POm9b/?igsh=MXQ2MW5vZ3Vuanh6eg==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Saigon Cafe",
+    "address": "1516 South St Philadelphia, PA 19146",
+    "neighborhood": "Rittenhouse",
+    "description": "* 8/10 brunch \n* really good coffee and tasty food",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Pine Street Grill",
+    "address": "2227 Pine St Philadelphia, PA 19103",
+    "neighborhood": "Graduate Hospital",
+    "description": "* Actually graduate hospital \n* Michelin star chef \n* https://www.instagram.com/reel/DUQt6FZjeay/?igsh=MWpvaTRjNjlwY3k5Zw==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "The Franklin Mortgage & Investment",
+    "address": "1715 Rittenhouse Square Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* Speakeasy https://www.instagram.com/reel/DIO94_POm9b/?igsh=MXQ2MW5vZ3Vuanh6eg==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Ranstead Room",
+    "address": "2013 Ranstead St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* Speakeasy https://www.instagram.com/reel/DIO94_POm9b/?igsh=MXQ2MW5vZ3Vuanh6eg==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Rosy's Taco Bar",
+    "address": "624 S sixth st, Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* $1 taco and $5 margs: https://www.instagram.com/reel/DJFZ7FMywzp/?igsh=MWFveWhma3hyd2JqZg== Happy hour menu: https://rosystacobar.com/",
+    "social": "https://www.instagram.com/reel/DXXqakLDeY5/?igsh=MXV1MDVlODRzM2UwbQ==",
+    "hh_menu": "https://rosystacobar.com/",
+    "instagram": "https://www.instagram.com/reel/DXXqakLDeY5/?igsh=MXV1MDVlODRzM2UwbQ==",
+    "schedule": {}
+  },
+  {
+    "name": "Human Robot",
+    "address": "1646 S 12th St, Philadelphia, PA 19122",
+    "neighborhood": "East Passyunk",
+    "description": "* Bar. I dont think theres food. Beer is fine. They have tables outside.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/humanrobotsud/",
+    "schedule": {}
+  },
+  {
+    "name": "Dance Robot",
+    "address": "1710 Sansom St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* Japanese izakaya: https://www.instagram.com/reel/DPXmLQpjHGq/?igsh=MWdqbTRxZjd0YmhyOQ==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/dancerobot.phl/",
+    "schedule": {}
+  },
+  {
+    "name": "Ambrosia",
+    "address": "231 S 24th St Philadelphia, PA 19103",
+    "neighborhood": "Fitler Square",
+    "description": "* BYOB Italian\n* Gorgeous interior: https://www.instagram.com/reel/DM-Yw4yRvRO/?igsh=NjN2MnE2dm9yYXY2",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Dear Daphni",
+    "address": "125 S 20th St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Everyday 4PM-6PM* $7 marg/cocktail, $6 wine, $5 beer, many eats under $10\n* Outdoor seating and gorgeous interior\nhttps://www.instagram.com/reel/DFgh6HnxiEj/?igsh=MWJ4MGNrc3R3aXA2NQ== Deals: $7 wines, $8 cocktails plus discounted mezze daily 4-6 PM (sister to Almyra). Happy hour menu: https://www.deardaphni.com/",
+    "social": "",
+    "hh_menu": "https://www.deardaphni.com/",
+    "instagram": "https://www.instagram.com/deardaphni/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Enswell",
+    "address": "1528 Spurce St Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* Restaurant and bottle shop\n* Gorgeous interior https://www.instagram.com/p/DKrlHUgxnzA/?img_index=3&igsh=MW9pczhtMXlmNXZwaw==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Wilder",
+    "address": "2009 Sansom St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* New American cuisine like pastas and pizzas \n* https://www.instagram.com/reel/DKm4xbvRrPT/?igsh=ODdjNnU1M3ZubXRk",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/wilderphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Tequilas Restaurant",
+    "address": "1602 Locust St Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "Mexican food - 5-6pm happy hour on Fridays\n* https://www.instagram.com/reel/DJ9Jr1hRZHm/?igsh=ZjFoaTdtenJ6YjN3 Deals: $3 drafts, $3.50 bottled beer, $6 sangria & margaritas, plus $6-$8.50 appetizer specials Mon-Fri 2-6:30 PM (Rittenhouse Mexican mainstay). Happy hour menu: https://www.tequilasphilly.com/",
+    "social": "https://www.tequilasphilly.com/menu-1-2",
+    "hh_menu": "https://www.tequilasphilly.com/",
+    "instagram": "https://www.instagram.com/tequilasphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "2:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "2:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "2:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "2:00 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "2:00 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Brauhaus Schmitz",
+    "address": "718 South St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* HH: Mon-Fri 4:00 PM-7:00 PM* bar only* ($6 all beers, $7 wine, $8 sausage sandwiches)\n* menu: https://brauhausschmitz.com/food-menu/ * Been here > $10 somestimes\n* Good for parties\n* Really good doner on shareable plates\n* $16 liters Deals: $6 all beers, $7 house wine, $8 sausage sandwiches - bar only.",
+    "social": "",
+    "hh_menu": "https://brauhausschmitz.com/food-menu/",
+    "instagram": "https://www.instagram.com/brauhausschmitz/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Lorenzo and Sons Pizza",
+    "address": "305 South St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* 10/10\n* Perfect for what it is. $5.50 for the biggest pizza slice in the world\n* Location is perfect to grab a slice while out \n* Cash only but there's an atm",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "O'Neals",
+    "address": "611 S 3rd St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* 10/10\n* Kareoke Fridays and Sats starting at 9pm",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Cavannaugh's headhouse",
+    "address": "421 S Second St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* 10/10 \n* great food (fish and chips, chili tater tots)",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Bridget Foy's",
+    "address": "200 South St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "7/10 * Cheap happy hour options Deals: $6 select drafts, $7 wines, $8 cocktails plus $5-$10 bar bites Mon-Fri 4-7 PM (South Street fixture). Happy hour menu: https://bridgetfoys.com/menu/",
+    "social": "",
+    "hh_menu": "https://bridgetfoys.com/menu/",
+    "instagram": "https://www.instagram.com/bridgetfoys/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Paddy Whacks Irish sports pup",
+    "address": "150 South St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* 6/10 \n* poor service here before we just left",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Marsha's South Street",
+    "address": "430 South St Philadlephia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* Female's sports bar https://www.instagram.com/reel/DOyPaAqkY6r/?igsh=c2t4azIweThoaTd5",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Spasso",
+    "address": "34 S Front St Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* Italian: https://www.instagram.com/reel/DP1lifGEQPP/?igsh=YmNodXZseHlhcno0",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Bistro Romano",
+    "address": "120 Lombard St Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* Italian\n* Gorgeous interior: https://www.instagram.com/reel/DT6J4bBEq1P/?igsh=eGNlcWVmcDdhbTlw",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Bok Bar",
+    "address": "800 Mifflin St Philadelphia, PA 19148",
+    "neighborhood": "South Philadelphia",
+    "description": "* One of the best views of Philly\n* Ok drinks and pricey food\n* Cool events sometimes",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/bok_bar/",
+    "schedule": {}
+  },
+  {
+    "name": "Ristorante Pesto",
+    "address": "1915 S Broad St Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* Italian restaurant with pizzeria place next door. Could be cute date",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Cafe y chocolate",
+    "address": "1532 Snyder Ave Philadelphia, PA 19145",
+    "neighborhood": "East Passyunk",
+    "description": "* Mexican food \nhttps://www.instagram.com/reel/DUYI1CdkRa5/?igsh=NG9xanBjaXhjOGxy",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Next of Kin",
+    "address": "1414 Frankford Ave Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "* Cocktail bar: \nhttps://www.instagram.com/reel/DJ78v-Op8LT/?igsh=cGJiYnk4aGlrOHZw",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/nextofkin1755/",
+    "schedule": {}
+  },
+  {
+    "name": "Love and Honey Fried Chicken",
+    "address": "1100 N Front St Philadelphia, PA 19123",
+    "neighborhood": "Fishtown",
+    "description": "* Fried chicken: \nhttps://www.instagram.com/reel/DUE5VhYDjK6/?igsh=NGtkZDMwOXpiaWoy",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/loveandhoneyfriedchicken/",
+    "schedule": {}
+  },
+  {
+    "name": "Percy Diner and Bar",
+    "address": "1700 N Front St Philadelphia, PA 19122",
+    "neighborhood": "Fishtown",
+    "description": "- Brunch in fishtown \nhttps://www.instagram.com/reel/DJ7G4hkRLDY/?igsh=dzFqbDM3anoxZWJw",
+    "social": "https://www.instagram.com/reel/DU_r9cUj4Tx/?igsh=eDBsNmtyZXp2NG9k",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DU_r9cUj4Tx/?igsh=eDBsNmtyZXp2NG9k",
+    "schedule": {}
+  },
+  {
+    "name": "Amy's Pastelillos",
+    "address": "2001 Memphis St Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "- Empanadas in fishtown \nhttps://www.instagram.com/reel/DLKwJTsAsqh/?igsh=MW1yenJsNDhucWd3Yw==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/amys_pastelillos/",
+    "schedule": {}
+  },
+  {
+    "name": "Picnic",
+    "address": "2421 Martha St Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "* HH: Sun-Sun 12:00 PM-9:00 PM, Mon-Fri 5:00 PM-6:30 PM* FAR - Cool spot in Kensington https://www.instagram.com/reel/DOTRyrxEtna/?igsh=MXV6NjIxa2Q0bnowMw== Happy hour (per picnicphilly.com): Mon-Fri 5:00-6:30 PM AND all day Sunday (12-9 PM). Saturday is NOT a happy hour day. Deals include $1.50 oysters (vs $3.50-$4.50 regular), plus discounted wines by the glass, drafts, and bar snacks. Picnic is a wood-fired rotisserie + oyster + wine spot in a converted 1899 brewery boiler house in East Kensington. Happy hour menu: https://www.picnicphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.picnicphilly.com/",
+    "instagram": "https://www.instagram.com/picnicphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "6:30 PM"
+      },
+      "Sunday": {
+        "start": "12:00 PM",
+        "end": "9:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Front Street Cafe",
+    "address": "1253 N Front St Philadelphia, PA 19122",
+    "neighborhood": "Fishtown",
+    "description": "https://www.instagram.com/reel/DLKwJTsAsqh/?igsh=MW1yenJsNDhucWd3Yw==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/frontstreetcafe/",
+    "schedule": {}
+  },
+  {
+    "name": "Attico Rooftoop",
+    "address": "219 S Broad St Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "Place you can https://www.instagram.com/reel/DLKwJTsAsqh/?igsh=MW1yenJsNDhucWd3Yw==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/atticorooftop/",
+    "schedule": {}
+  },
+  {
+    "name": "Good dog bar",
+    "address": "224 S 15th St Philadelphia, PA  19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* HH Mon-Fri 3-6 PM https://gooddogbar.com/menu/ 50% off drafts and apps (ex: $34 for 4 beers, wings and empanadas) Deals: $4 select drafts, $5 wine, $6 cocktails plus $5-$8 bar food Mon-Fri 3-6 PM (famous for the Good Dog Burger). Happy hour menu: https://www.gooddogbar.com/",
+    "social": "",
+    "hh_menu": "https://www.gooddogbar.com/",
+    "instagram": "https://www.instagram.com/gooddogbar/",
+    "schedule": {
+      "Monday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Square 1682",
+    "address": "121 S 17th St Philadelphia, PA 19103",
+    "neighborhood": "Center City",
+    "description": "HH: Mon-Sat 4-6 PM https://www.square1682.com/menus/happy-hour-menu $6 wine, $5 beer, $10 Cocktails, many $8 bites Deals: $5 drafts, $7 wines, $8 cocktails plus discounted small plates Mon-Sat 4-6 PM (hotel bar in Rittenhouse). Happy hour menu: https://square1682.com/",
+    "social": "",
+    "hh_menu": "https://square1682.com/",
+    "instagram": "https://www.instagram.com/square1682/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Cellar Dog",
+    "address": "258 S 15th St Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Tue-Fri 4:00 PM-7:00 PM* https://www.cellardogphiladelphia.com/happy-hour * 50% select drafts, well drinks, wine, games ($4 for 2 to play 30 min of ping pong\n* Eats under $10 (fries, nachos, cheeseburger)\n* table games (ping pong, billiards Tue-Thu $8 per person per hour. Deals: $4 drafts, $5 wines, $6 cocktails plus discounted bar food Tue-Fri 4-7 PM.",
+    "social": "",
+    "hh_menu": "https://www.cellardogphiladelphia.com/happy-hour",
+    "instagram": "https://www.instagram.com/cellardogphilly/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "El Camino",
+    "address": "1040 N 2nd St Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "Brunch happy hour Sat-Sun 10am-12pm (50% off mimosa and bloody mary's, $20 champagne bottle deal)\n* Taco Tuesday $5pm-12AM Deals: 1/2-price El Camino margaritas (excludes Cadillac), $3 beers, $5 select appetizers Mon/Wed/Thu/Fri. Plus weekend brunch HH Sat-Sun 10am-12pm: 1/2 price classic mimosas & house bloody marys, $10 Good Morning Tijuana, $20 mimosa deal (bottle of bubbly + 32oz fresh OJ). Happy hour menu: https://elcaminophilly.com/",
+    "social": "",
+    "hh_menu": "https://elcaminophilly.com/",
+    "instagram": "https://www.instagram.com/elcaminophilly/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "10:00 AM",
+        "end": "12:00 PM"
+      },
+      "Sunday": {
+        "start": "10:00 AM",
+        "end": "12:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Murph's Bar (Fishtown)",
+    "address": "202 E Girard Ave, Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "$6 wine, $4.50 craft beer, $2.50 domestic beer Bar specials (verified via fishtown.app): $1 off on-call alcohol, $1 off seasonal cocktails, $2.50 domestics, $4.50 craft beer, $6 glass Wine of the Week. CASH ONLY (ATM inside), no reservations. Classic Irish dive on Girard Ave that secretly serves some of the best Italian food in the city - lobster ravioli, veal tortellacci, Murph's pasta, meatballs. Open Mon-Thu 1pm-2am, Fri-Sun 12:30pm-2am; kitchen closed Tuesdays. Happy hour menu: https://www.murphsbarfishtown.com/",
+    "social": "",
+    "hh_menu": "https://www.murphsbarfishtown.com/",
+    "instagram": "https://www.instagram.com/murphsbar/",
+    "schedule": {}
+  },
+  {
+    "name": "Loco Pez",
+    "address": "700 S 20th St, Philadelphia, PA 19146",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Thu 5:00 PM-7:00 PM, Fri-Sat 1:00 PM-3:00 PM* Brunch Sat-Sun 11am-3PM\n* menu: https://locopez.com/wp-content/uploads/2024/03/LPS-01-05-26_WEB.pdf Deals: $1 off all drafts, $5 tequila shots, $4 micheladas, $3 tacos. Schedule: Mon-Fri 5-7 PM + Sat-Sun 1-3 PM.",
+    "social": "",
+    "hh_menu": "https://locopez.com/",
+    "instagram": "https://www.instagram.com/locopez/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "1:00 PM",
+        "end": "3:00 PM"
+      },
+      "Saturday": {
+        "start": "1:00 PM",
+        "end": "3:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Loco Pez (Fishtown)",
+    "address": "2401 E Norris St, Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "* HH: Mon-Thu 5:00 PM-7:00 PM, Fri-Sat 1:00 PM-3:00 PM* Brunch Sat-Sun 11am-3PM\n* menu: https://locopez.com/wp-content/uploads/2024/03/LPF_02-24-2025_WEB.pdf * Outdoor seating available Deals: $1 off all drafts, $5 tequila shots, $4 micheladas, $3 tacos. Schedule: Mon-Fri 5-7 PM + Sat-Sun 1-3 PM.",
+    "social": "",
+    "hh_menu": "https://locopez.com/",
+    "instagram": "https://www.instagram.com/locopez/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "1:00 PM",
+        "end": "3:00 PM"
+      },
+      "Saturday": {
+        "start": "1:00 PM",
+        "end": "3:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Glory Beer and Kitchen",
+    "address": "126 Chestnut St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Mon-Fri 4:30 PM-6:30 PM* menu: https://www.gloryphilly.com/ * Monday board game night 6 PM Deals: $4 select drafts every weekday 4:30-6:30 PM (plus full Old City cocktail and beer list). Happy hour menu: https://www.gloryphilly.com/menus.php",
+    "social": "",
+    "hh_menu": "https://www.gloryphilly.com/menus.php",
+    "instagram": "https://www.instagram.com/glorybeerbarandkitchen/",
+    "schedule": {
+      "Monday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Cuba Libre",
+    "address": "10 S 2nd St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Sun-Sun 12:00 PM-4:00 PM, Mon-Thu 4:00 PM-7:00 PM, Fri-Fri 4:00 PM-7:30 PM* https://www.cubalibrerestaurant.com/en/philadelphia/menus/happy-hour/ * Beautiful interior Deals: mojito specials, sangria, and discounted Cuban small plates. Schedule: Mon-Thu 4-7 PM, Fri 4-7:30 PM, plus Sun brunch HH 12-4 PM. Happy hour menu: https://www.cubalibrerestaurant.com/philadelphia/",
+    "social": "",
+    "hh_menu": "https://www.cubalibrerestaurant.com/philadelphia/",
+    "instagram": "https://www.instagram.com/cubalibrephiladelphia/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:30 PM"
+      },
+      "Sunday": {
+        "start": "12:00 PM",
+        "end": "4:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Khyber pass pub",
+    "address": "56 S 2nd St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* Select drafts 50% off\n* Brunch til 3 PM everyday\n* menu: https://www.khyberpasspub.com/eat Cajun/Creole pub with vegan-friendly menu (boudin balls, vegan chicken po'boy, seitan wings) - HH features rotating craft beer specials. Confirm current HH times by phone.",
+    "social": "",
+    "hh_menu": "https://www.khyberpasspub.com/eat",
+    "instagram": "https://www.instagram.com/khyberpasspub/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Revolution House",
+    "address": "200 Market St, Philadelphia PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Tue-Thu 4:00 PM-6:00 PM* $10 eats, pizza, hummus, calamari, wings, nachos https://revolutionhouse.com/page/happy-hour Deals: $5 drafts, $6 wines plus pizza/small-plate specials Tue-Thu 4-6 PM.",
+    "social": "",
+    "hh_menu": "https://revolutionhouse.com/",
+    "instagram": "https://www.instagram.com/revhouse200/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Sassafras Bar",
+    "address": "48 S 2nd St, Philadelphia PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Mon-Thu 5:00 PM-7:00 PM* menu: https://www.sassafrasbar.com/menu Deals: $5 house wine, $5 well drinks, $4 select drafts and domestic bottles Mon-Thu 5-7 PM (old-school Old City cocktail bar with single malts and craft beer).",
+    "social": "",
+    "hh_menu": "https://www.sassafrasbar.com/",
+    "instagram": "https://www.instagram.com/sassafrasbar/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "JJ Bootleggers",
+    "address": "35 S 2nd St, Philadelphia PA 19106",
+    "neighborhood": "Old City",
+    "description": "Late night HH: 9PM - 11 PM ($5 drafts and 1/2 price select apps)\n* menu: https://jjbootleggers.com/happy-hour/ Deals: $5 select drafts, $6 wine, $7 cocktails plus discounted bar bites Mon-Fri 5-7 PM. Happy hour menu: https://www.jjbootleggers.com/",
+    "social": "",
+    "hh_menu": "https://www.jjbootleggers.com/",
+    "instagram": "https://www.instagram.com/jjbootleggers/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "National Mechanics",
+    "address": "22 S 3rd St Philadelphia PA 19106",
+    "neighborhood": "Old City",
+    "description": "https://www.nationalmechanics.com/ * Late-nite HH: Fri-Sat 9-11PM (Sun 8-10PM) $5 Draft Cocktail + $5 Select Draft + $7 Well Drinks Deals: $4 drafts, $5 well drinks, $6 cocktails plus $5-$8 bar food Mon-Fri 4-7 PM (Old City craft beer bar).",
+    "social": "",
+    "hh_menu": "https://www.nationalmechanics.com/",
+    "instagram": "https://www.instagram.com/nationalmechanicsphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Spasso's Italian",
+    "address": "34 S Front St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "HH: Mon-Thu 5-7 PM ($5 martini, $4 mixed drinks, $3 beers, < $4 small plates)\nmenu: https://www.spassoitaliangrill.com/happyhour.html Deals: half-priced bar bites and select drinks Tue-Fri 5-7 PM (Old City Italian). Happy hour menu: https://www.spassoitalian.com/",
+    "social": "",
+    "hh_menu": "https://www.spassoitalian.com/",
+    "instagram": "",
+    "schedule": {
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Umami",
+    "address": "727 Walnut st, philadelphia PA 19106",
+    "neighborhood": "Old City",
+    "description": "HH: Mon-Fri 5-7 PM Deals: $5 select sake, $7 cocktails, $5-$8 sushi/dumpling specials Mon-Fri 5-7 PM. Happy hour menu: https://umamiphilly.com/",
+    "social": "",
+    "hh_menu": "https://umamiphilly.com/",
+    "instagram": "",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Independence beer garden",
+    "address": "100 S Independence Mall W, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Everyday 3PM-7PM* menu: https://www.phlbeergarden.com/#menu-section Deals: $5 drafts, $6 cocktails, $7 wines plus bar bites daily 3-7 PM (huge outdoor beer garden on 6th). Happy hour menu: https://www.phlbeergarden.com/menu",
+    "social": "",
+    "hh_menu": "https://www.phlbeergarden.com/menu",
+    "instagram": "https://www.instagram.com/phlbeergarden/",
+    "schedule": {
+      "Sunday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "3:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Tuna Bar",
+    "address": "205 Race St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "HH: Tues-Fri 4-6 PM very little food options only not sure need to see\nmenu: https://www.tunabar.com/wp-content/uploads/2020/12/Legal-Menu-123.pdf Deals: $2 oysters, $5 California rolls, $7 karaage, plus rotating discounted wine and bubbly. Happy hour menu: https://www.tunabar.com/menus/",
+    "social": "",
+    "hh_menu": "https://www.tunabar.com/menus/",
+    "instagram": "https://www.instagram.com/tunabarphl/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Pearl and Mary Oyster Bar",
+    "address": "114 S 13th St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "HH: everyday 4-7 PM ($6 wine, $5 beer, cheap eats, incl not seafood)\nmenu: https://www.pearlandmary.com/menu Deals: $1 oysters, $5 happy-hour cocktails, $6 wines plus rotating snacks - everyday 4-7 PM. Happy hour menu: https://www.pearlandmaryphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.pearlandmaryphilly.com/",
+    "instagram": "https://www.instagram.com/pearlandmary_phl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Village Whiskey",
+    "address": "118 S 20th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Sun-Fri 4-6 PM ($9 cocktails (orange crush, etc), $5 snacks)\nmenu: https://www.villagewhiskey.com/uploads/165942VW-HHMenu-1125-V2.pdf * outdoor seating, good shrimp Deals: $5 beer, $6 wine, $7 cocktails plus discounted bar bites (truffle popcorn, sliders). Sun-Fri 4-6 PM.",
+    "social": "",
+    "hh_menu": "https://www.villagewhiskey.com/",
+    "instagram": "https://www.instagram.com/villagewhiskeyphl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "QU Japan",
+    "address": "1635 Market St # 103, Philadelphia, PA 19103",
+    "neighborhood": "Center City",
+    "description": "HH: Mon-Fri 4-6:30 PM, Sat 1-3 PM ($6.50 rolls, $6 wine, $8 cocktail, $5 beer)\nmenu: https://38be19dc-f0fc-4b0b-be3b-7568ffbd1c60.filesusr.com/ugd/538020_08adf47c97be49dd825c24673c7ff96c.pdf Deals: $6 any roll on the HH menu, $6 well drinks / sake / draft beer, $2 double shots, $1 juice mixers - dine-in only. Happy hour menu: https://www.instagram.com/p/DF51oWKB1L4/?hl=en",
+    "social": "",
+    "hh_menu": "https://www.instagram.com/p/DF51oWKB1L4/?hl=en",
+    "instagram": "https://www.instagram.com/qujapan_phl/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Saturday": {
+        "start": "1:00 PM",
+        "end": "3:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The Lesiuer",
+    "address": "1523 Sansom St, Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Tues-Sat 4-6 PM ($6 wine, $7 cocktails, $5 beer) https://thelesieur.com/menu Deals: $6 well drinks, $8 wine pours, $5-$10 snacks (Tue-Sat 4-6 PM).",
+    "social": "",
+    "hh_menu": "https://thelesieur.com/menu",
+    "instagram": "https://www.instagram.com/barlesieur/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Calandrino's old city vino",
+    "address": "110 N Second St, Philadelphia, PA  19106",
+    "neighborhood": "Old City",
+    "description": "4.9 stars, Italian food",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Tesiny",
+    "address": "719 Dickinson St, Philadelphia, PA  19147",
+    "neighborhood": "South Philadelphia",
+    "description": "South Philly nice restaurant. https://www.tesiny.com/menu",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Indo Spice Restaurant",
+    "address": "1423 W Passyunk Ave, Philadelphia, PA 19145",
+    "neighborhood": "Passyunk Square",
+    "description": "* nice photos, good looking rice,",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Drury Beer Garden (DBG)",
+    "address": "1311 Sansom St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "HH: Everyday 4-7 PM (Cheap food, $4 burger, $6 wine, $5 beer, $8 city-wide, )\nmenu: https://dbgphilly.com/menu-2 Deals: $3 shots, $4 beers, $4 well drinks, $5 wine glasses, appetizers under $10. Closed Mon-Tue.",
+    "social": "https://www.instagram.com/reel/DWzi5JeEde1/?igsh=OW56OWpjeWZkYmJy",
+    "hh_menu": "https://dbgphilly.com/menu-2",
+    "instagram": "https://www.instagram.com/reel/DWzi5JeEde1/?igsh=OW56OWpjeWZkYmJy",
+    "schedule": {
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Southgate",
+    "address": "1801 Lombard St, Philadelphia, PA 19146",
+    "neighborhood": "Graduate Hospital",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* HH Mon-Fri 4-6 PM (Good korean food and drinks) https://www.southgatephilly.com/happy-hour Deals: $5 select beers, $7 wines, $8 cocktails plus Korean small-plate specials (mandu, japchae, KFC wings) Mon-Fri 4-6 PM.",
+    "social": "",
+    "hh_menu": "https://www.southgatephilly.com/",
+    "instagram": "https://www.instagram.com/southgatephilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Amada Restaurant",
+    "address": "219 Chestnut St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Sun-Thu 4:30 PM-6:30 PM* HH ($7 sangria, $8 wine, $6 beer, $9 cocktails) https://www.amadarestaurant.com/uploads/195438AMAHappyHourMenu0825-5.pdf Deals: $7 Spanish wines by the glass, $8 cocktails, $4-$9 tapas (croquetas, gambas al ajillo, patatas bravas) Mon-Fri 4:30-6:30 PM.",
+    "social": "",
+    "hh_menu": "https://www.amadarestaurant.com/uploads/195438AMAHappyHourMenu0825-5.pdf",
+    "instagram": "https://www.instagram.com/amadarestaurants/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Monday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Butcher bar",
+    "address": "2034 Chestnut St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* menu: https://butcherbarphilly.com/page/menu-pdf * $28 bottomless mimosa, bloodies, margs\n* live DJ spins Saturdays only from 10:30am\u20132:30pm Deals: $5 drafts, $7 wines, $8 cocktails plus charcuterie specials Mon-Fri 3-6 PM (Rittenhouse meat-forward bar).",
+    "social": "",
+    "hh_menu": "https://butcherbarphilly.com/",
+    "instagram": "https://www.instagram.com/butcherbarphl/",
+    "schedule": {
+      "Monday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "SolarMyth",
+    "address": "1131 S Broad St, Philadelphia, PA 19147",
+    "neighborhood": "South Philadelphia",
+    "description": "HH: Mon-Fri 4-6 PM, Sat-Sun 12-2PM ($1 off beer, $2 off wine) Deals: $1 off draft beer, $2 off draft wine by the glass, $6 off carafes. Mon-Fri 4-6 PM, Sat-Sun 12-2 PM (natural wines, amaro, jazz vinyl). Happy hour menu: http://solarmythbar.com/",
+    "social": "",
+    "hh_menu": "http://solarmythbar.com/",
+    "instagram": "https://www.instagram.com/solarmythbar/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "12:00 PM",
+        "end": "2:00 PM"
+      },
+      "Saturday": {
+        "start": "12:00 PM",
+        "end": "2:00 PM"
+      }
+    }
+  },
+  {
+    "name": "La llorona cantina mexicana",
+    "address": "1551 W Passyunk Ave, Philadelphia, PA 19145",
+    "neighborhood": "Passyunk Square",
+    "description": "* HH: Tue-Fri 4:00 PM-7:00 PM, Sat-Sat 2:00 PM-5:00 PM* $5 beer, $7 margs/sangria, $9 cocktails, food < $10 https://lalloronaphilly.com/happy-hour/ Deals: $2 off margaritas, $5 beers, $4 tacos and other discounted small plates. Schedule: Tue-Fri 4-7 PM + Sat 2-5 PM. Happy hour menu: https://www.lallorona.com/",
+    "social": "",
+    "hh_menu": "https://www.lallorona.com/",
+    "instagram": "https://www.instagram.com/lalloronaphilly/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "2:00 PM",
+        "end": "5:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Cantinas los caballitos",
+    "address": "1651 Passyunk Ave, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Thu 4:00 PM-6:00 PM* $3 beer, $6 marg ($20 pitcher), $8 baja-rita, food < $10 https://www.cantinaloscaballitos.com/happy-hour Deals: $5 margaritas, $4 beers, $6 small plates. Schedule: Mon-Thu 4-6 PM only (no HH Fri-Sun). Happy hour menu: https://cantinaloscaballitos.com/",
+    "social": "",
+    "hh_menu": "https://cantinaloscaballitos.com/",
+    "instagram": "https://www.instagram.com/cantinaphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Barcelona Wine Bar",
+    "address": "1709 Passyunk Ave, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://barcelonawinebar.com/media/2-26-26-Passyunk-Happy-Hour.pdf * Outdoor seating, cool people go here Deals: half-price tapas, $6 wines by the glass and $8 cocktails Mon-Fri 4-6 PM. Happy hour menu: https://www.barcelonawinebar.com/locations/philadelphia",
+    "social": "",
+    "hh_menu": "https://www.barcelonawinebar.com/locations/philadelphia",
+    "instagram": "https://www.instagram.com/barcelonawinebar/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Pistolas del sur",
+    "address": "1934 Passyunk Ave, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Thu 5:00 PM-7:00 PM* https://www.instagram.com/p/DBO_kf2RQyG/?img_index=2 * Phillies/Eagles specials: * Taco Tuesday: $13 for 5 tacos Deals: $5 micheladas, $7 margaritas, $5 tacos plus chips & guac specials Mon-Thu 5-7 PM (East Passyunk Mexican). Happy hour menu: https://www.pistolasdelsur.com/",
+    "social": "",
+    "hh_menu": "https://www.pistolasdelsur.com/",
+    "instagram": "https://www.instagram.com/pistolasdelsur/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Fountain Porter",
+    "address": "1601 S 10th St, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 5-7 PM ($1.50 off all drafts)\n* $6 cheeseburgers, $5 fries, $4 fried pickles\n* Classic spot",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Sidecar",
+    "address": "2201 Christian St, Philadelphia, PA 19146",
+    "neighborhood": "Graduate Hospital",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* latenight HH Fri 10 PM -12 AM * https://www.thesidecarbar.com/ Deals: drink and food specials Mon-Fri 4-6 PM + late-night HH Thu-Fri 10pm-12am. Wednesday $2 tacos 4-6 PM ($3 after 6 PM, eat-in only).",
+    "social": "",
+    "hh_menu": "https://www.thesidecarbar.com/",
+    "instagram": "https://www.instagram.com/thesidecarbar/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Fringe Bar",
+    "address": "140 N Christopher Columbus Blvd, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Wed-Wed 5:00 PM-9:00 PM* Espresso martini power hour 6pm-7pm $5 Mini Espresso Martinis\n* HH menu https://fringebarphilly.com/philadelphia-old-city-delaware-waterfront-fringe-bar-food-menu * Brunch Sat & Sun 11 AM - 2 PM ($35 bottomless mimosas) Deals: $4 drafts, $5 well drinks plus discounted bites Wednesday only 5-9 PM (Old City after-show bar).",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/fringebarphilly/",
+    "schedule": {
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "9:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Tamalex Bar and Grille",
+    "address": "122 Lombard St, Philadelphia, PA 19147",
+    "neighborhood": "Old City",
+    "description": "* HH: Everyday 4PM-7PM* Food menu: https://tamalexbarandgrill.com/index.php/tamalex-menu/ Deals: ~$10 margaritas and sangrias plus drink specials every day 4-7 PM (classic $13 / seasonal $13 / paloma $14 drop during HH). Happy hour menu: https://tamalexbarandgrill.com/index.php/cocktails-2/",
+    "social": "",
+    "hh_menu": "https://tamalexbarandgrill.com/index.php/cocktails-2/",
+    "instagram": "https://www.instagram.com/tamalexbarandgrill/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Han Dynasty",
+    "address": "110 Chestnut St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Everyday 4:30PM-6:30PM* Good for big groups\n* Beautiful interior Deals: $5 beers, $8 cocktails, $8 wine, $10 citywides, $4-$14 snacks (chicken fried dumplings, dan dan noodles, vegetable fried rice, wings). Late-night HH also Fri-Sat 10-11 PM. Happy hour menu: https://handynasty.net/",
+    "social": "",
+    "hh_menu": "https://handynasty.net/",
+    "instagram": "",
+    "schedule": {
+      "Sunday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Monday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Saturday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Oyster House",
+    "address": "1516 Sansom St, Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Tues-Fri 4-6 PM ($2 oysters, $4 drafts, $7 cocktail, snacks) Deals: $2 oysters, $5 oyster shooters, $7 punch, plus discounted snacks - bar area only, no HH reservations. Happy hour menu: https://oysterhousephilly.com/",
+    "social": "",
+    "hh_menu": "https://oysterhousephilly.com/",
+    "instagram": "https://www.instagram.com/phloysterhouse/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "El Rey",
+    "address": "2013 Chestnut St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://elreyrestaurant.com/menus/happy-hour/ Deals: $4 Tecate cans, $5 Modelo draft, $6 classic or flavored margarita del dia, $2 esquites popcorn, $4 chips & salsa / street corn / botana / veggie taco / chicken taco / carnitas taco, $6 fish taco / eggplant enchilada / quesadilla gringa / veggie empanadas, $8 spiced wings.",
+    "social": "",
+    "hh_menu": "https://elreyrestaurant.com/",
+    "instagram": "https://www.instagram.com/elreyphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Lion Sports Bar",
+    "address": "1021 Arch St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "Latenite HH: Sun, Mon, Wed, & Thur 10pm-12am\n* menu: https://lionsportsbar.com/menu/ * soccer bar and lots of deals like 50 cent wings Deals: rotating beer/wine/cocktail specials daily 4-6 PM (Center City sports bar, Pearl & Mary's sister concept). Happy hour menu: https://www.lionsportsbar.com/",
+    "social": "",
+    "hh_menu": "https://www.lionsportsbar.com/",
+    "instagram": "https://www.instagram.com/lionbarphilly/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "La Chinesca",
+    "address": "1036 Spring Garden St, Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "* HH: Sun-Fri 4:00 PM-6:00 PM* https://www.lachinescaphl.com/ * Chinese/Mexican Fusion Deals: $5 birria tacos, $7 margaritas, $6 michelada Mon-Sat 4-6 PM (Northern Liberties Tijuana-style spot). Happy hour menu: https://lachinescaphilly.com/",
+    "social": "",
+    "hh_menu": "https://lachinescaphilly.com/",
+    "instagram": "https://www.instagram.com/lachinescaphl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Kelliann\u2019s Bar & Grill",
+    "address": "1549 Spring Garden St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://kellianns.com/philadelphia-kelliann-s-bar-and-grill-food-menu * irish pub Deals: discounted drafts, $5 well drinks plus bar-bite specials Mon-Fri 4-6 PM (Fairmount neighborhood bar). Happy hour menu: https://www.kelliannsbarphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.kelliannsbarphilly.com/",
+    "instagram": "",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Osteria",
+    "address": "640 N Broad St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "* HH: Mon-Thu 5:00 PM-7:00 PM, Fri-Fri 4:00 PM-7:00 PM, Sat-Sat 4:00 PM-6:00 PM* Only at the bar, outdoors, or the kitchen counter) Deals: $7-$10 wines by the glass, $8 cocktails plus discounted small plates (pizzettes, polpette). Mon-Thu 5-7 PM, Fri-Sat 4-7 PM, Sun 4-6 PM. Happy hour menu: https://www.osteriaphilly.com/",
+    "social": "https://www.instagram.com/reel/DU6vo2dDXUd/?igsh=MWczaWtjejAydDR6OQ==",
+    "hh_menu": "https://www.osteriaphilly.com/",
+    "instagram": "https://www.instagram.com/reel/DU6vo2dDXUd/?igsh=MWczaWtjejAydDR6OQ==",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The International",
+    "address": "1624 N Front St, Philadelphia, PA 19122",
+    "neighborhood": "Fishtown",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://www.theintlbar.com/happy-hour * Outdoor seating available Deals: discounted draft beer, wine, and cocktails (e.g. $7 gimlets). Tuesday Fishtown Taps 5-7 PM: $5 beer, $6 wine, $7 cocktails (Old Fashioned/Amaro & Club/Daiquiri), hot dogs with fixins.",
+    "social": "",
+    "hh_menu": "https://www.theintlbar.com/happy-hour",
+    "instagram": "https://www.instagram.com/the_international_bar/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Via Locusta",
+    "address": "1723 Locust St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Everyday 4PM-6PM* https://www.vialocusta.com/menu * Brunch 10-3 PM\n* Gorgeous interior Deals: discounted cocktails plus small plates everyday 4-6 PM (walk-in only at the bar).",
+    "social": "",
+    "hh_menu": "https://www.vialocusta.com/menu",
+    "instagram": "https://www.instagram.com/vialocusta/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Repes on the row",
+    "address": "1400 S Second St, Philadelphia, PA  19147",
+    "neighborhood": "Queen Village",
+    "description": "* live music 3x a week * https://www.instagram.com/reel/DV9aH73kSvp/?igsh=MWdyZDNpZWZ1bTRwNQ==",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "La jefe cafe",
+    "address": "1605 Latimer St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* Mexican inspired brunch",
+    "social": "https://www.tiktok.com/t/ZP8byDa6y/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/lajefaphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "The love",
+    "address": "130 S 18th St, Philadelphia, PA  19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* brunch $$$",
+    "social": "https://www.tiktok.com/t/ZP8byXN75/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/thelovephilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Sofia corner cafe",
+    "address": "1112 Locust St, Philadelphia, PA  19107",
+    "neighborhood": "Center City",
+    "description": "* center city brunch",
+    "social": "https://www.instagram.com/reel/DWynQJ7DfhK/?igsh=MTRxbXowMGFhMG5pcw==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWynQJ7DfhK/?igsh=MTRxbXowMGFhMG5pcw==",
+    "schedule": {}
+  },
+  {
+    "name": "The black taxi",
+    "address": "747 N 25th St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "* Irish pub with outdoor seating",
+    "social": "https://www.instagram.com/reel/DWHg7O2kbpY/?igsh=MXZwNjhwdnM5MmJ6cQ==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWHg7O2kbpY/?igsh=MXZwNjhwdnM5MmJ6cQ==",
+    "schedule": {}
+  },
+  {
+    "name": "P\u00eder bar",
+    "address": "2025 Fairmount Ave, Philadelphia, PA  19130",
+    "neighborhood": "Fairmount",
+    "description": "* outdoor seating next to",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Ios Restobar",
+    "address": "2028 Fairmount Ave, Philadelphia, PA  19130",
+    "neighborhood": "Fairmount",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* Description: Outdoor and indoor Greek restaurant, really good food https://www.yelp.com/biz_photos/ios-restobar-philadelphia?select=808u0iyaalIVRXB6ymewgw&tab=menu;\n* Social media: https://www.instagram.com/iosrestobar Deals: bar bites, draft beers and wine on the HH menu (Greek small plates + drinks). Happy hour menu: https://iosbar.com/",
+    "social": "",
+    "hh_menu": "https://iosbar.com/",
+    "instagram": "https://www.instagram.com/iosrestobar/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The Dandelion",
+    "address": "124 S 18th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 4:30 PM-6:30 PM* Description: Dark British bar that has tea, drinks, fish and chips) https://thedandelionpub.com/menus/happy-hour/ * Social media: https://thedandelionpub.com/menus/happy-hour/ Deals: $7 imperial pint draughts, $8 house red/white/sparkling wine, $8 cocktails (rose mimosa, English paloma, hibiscus-elderflower gin & tonic), $2.50 oysters on the half shell, $5 Welsh rarebit / deviled eggs / spiced bar nuts / warm marinated olives, $7 pickled beetroot jar, $8 chip butty.",
+    "social": "https://thedandelionpub.com/menus/happy-hour/",
+    "hh_menu": "https://thedandelionpub.com/",
+    "instagram": "https://www.instagram.com/thedandelionpub/",
+    "schedule": {
+      "Monday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Standard tap",
+    "address": "901 N 2nd St, Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "* HH: Mon-Fri 4-6 PM ($6 small plates, $6 drafts, $10 wines, $10 daily special cocktails)\n* Description: The cool-looking building in Northern libs, outdoor and indoor seating\n* Happy hour menu: https://standardtap.com/happy-hour\n* Social media: https://www.instagram.com/standardtap/",
+    "social": "",
+    "hh_menu": "https://standardtap.com/happy-hour",
+    "instagram": "https://www.instagram.com/standardtap/",
+    "schedule": {}
+  },
+  {
+    "name": "Assembly rooftop lounge",
+    "address": "1840 Benjamin Franklin Pkwy, Philadelphia, PA 19103",
+    "neighborhood": "Logan Square",
+    "description": "* HH: Sun-Thu 4:00 PM-6:00 PM* Description: Inside the Logan Hotel, pretty view https://www.assemblyrooftop.com/menu/alpine-happy-hour/\n* Social media: https://www.instagram.com/assemblyphl/ Deals (Sun-Thu 4-6 PM): $10 cocktails (Golden Hour Toddy with Jim Beam Black/chai/cinnamon, Rooftop Remedy with Bacardi Ocho/apple cider/honey), $6 featured beer, $9 wine, $10 flatbreads (Margherita, Calabrese, Speck & Arugula). Rooftop bar 9 floors up at The Logan with panoramic Ben Franklin Parkway views. Happy hour menu: https://assemblyrooftop.com/menus/",
+    "social": "",
+    "hh_menu": "https://assemblyrooftop.com/menus/",
+    "instagram": "https://www.instagram.com/assemblyphl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Cilantro",
+    "address": "613 S 4th St, Philadelphia, PA 19147",
+    "neighborhood": "Queen Village",
+    "description": "* HH: \n* Description\n* Happy hour menu:\n* https://www.tiktok.com/t/ZP8bp5pDQ/",
+    "social": "https://www.instagram.com/reel/DWmswtOERJM/?igsh=ZTVqY2d3aDV3NnZv",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWmswtOERJM/?igsh=ZTVqY2d3aDV3NnZv",
+    "schedule": {}
+  },
+  {
+    "name": "The wayward",
+    "address": "1170 Ludlow St Philadelphia, PA  19107",
+    "neighborhood": "Center City",
+    "description": "1170 Ludlow St Philadelphia, PA  19107",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/thewaywardphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Figo",
+    "address": "1033 N Second St Philadelphia, PA  19123",
+    "neighborhood": "Northern Liberties",
+    "description": "HH: Mon-Fri 3-6 ($5 wine, $6 pizza, $7 apps, $3 peroni)",
+    "social": "https://www.tiktok.com/t/ZP8bp63EN/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/figoitalian/",
+    "schedule": {}
+  },
+  {
+    "name": "Superfolie",
+    "address": "1602 Spruce St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Mon-Thur 3-5 PM, Fri-Sat 4-6 PM ($8 wine, $6 ipa, $8 snacks)",
+    "social": "https://www.superfoliephl.com/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/superfoliephl/",
+    "schedule": {}
+  },
+  {
+    "name": "Cavannaughs Rittenhouse",
+    "address": "1913 Sansom St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Mon-Fri 5-7 PM ($4 Michelob Ultra Drafts, $5 White Claw Hard Seltzers, $6 Haku Vodka Drinks, Personal Nachos, Pierogies, 1/2 LB Chicken Nuggets) Deals (Mon-Fri 5-7 PM): $4 Michelob Ultra drafts, $5 White Claw seltzers, $6 Haku vodka drinks, $6 personal nachos, $6 pierogies, $6 1/2 lb chicken nuggets. Sports bar (Eagles, Sixers, Union games on TVs). Monday late-night HH 10pm-12am with DJ: $4 PBR pounders, $5 Sam Gelston's shots. Happy hour menu: https://cavanaughsrittenhouse.com/menus/happy-hour-menu/",
+    "social": "",
+    "hh_menu": "https://cavanaughsrittenhouse.com/menus/happy-hour-menu/",
+    "instagram": "https://www.instagram.com/cavsritt/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Restaurant Aleksandar",
+    "address": "126 S 19th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Tue-Sat 4:30 PM-7:00 PM* HH Tues-Sat | 4:30-7pm (select wines deals, small bites)\nLate Night HH, every Friday 9-11pm Deals (Tue-Sat 4:30-7 PM + Fri late-night 9-11 PM): contemporary Mediterranean-European small plates (brussels sprouts, pork belly, short rib pasta) plus craft cocktails (dirty martini highly recommended). Brunch Sat-Sun 11am-3pm with bottomless mimosa option. Happy hour menu: https://www.restaurantaleksandar.com/menus",
+    "social": "",
+    "hh_menu": "https://www.restaurantaleksandar.com/menus",
+    "instagram": "https://www.instagram.com/restaurant_aleksandar/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:30 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:30 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "DanDan Rittenhouse",
+    "address": "126 S 16th St, Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "HH: Everyday 4pm-6pm (< $10 snacks, cheap beer, $8 wine) Deals (every day 4-6 PM, 1st floor and patio only, no holidays): discounted Sichuan/Taiwanese small plates - baby DanDan noodles, dry-seasoned wings, spicy crispy cucumbers, pork dumplings in chili oil. Happy hour menu: https://www.dandanphilly.com/",
+    "social": "",
+    "hh_menu": "https://www.dandanphilly.com/",
+    "instagram": "https://www.instagram.com/dandanrittenhouse/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Hi-Lo taco",
+    "address": "1109 Walnut St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Tue-Sat 4:00 PM-6:00 PM* HH Tues-Sat | 4:00-6 PM ($4 tacos, $5 beer, $6 wine)\nLate Night HH, Fri-Sat 9-10 PM Deals (Tue-Sat 4-6 PM + Fri-Sat late-night 9-10 PM): half-priced tacos and tequila cocktails (Hi-Lo Silver margarita is the move). Tex-Mex tacos with handmade tortillas - cajun cauliflower, pineapple pulled pork, crispy shrimp, smash burger taco. Closed Sunday. Happy hour menu: https://www.hi-lotaco.com/menu",
+    "social": "",
+    "hh_menu": "https://www.hi-lotaco.com/menu",
+    "instagram": "https://www.instagram.com/hilotacoco/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Strangelove's",
+    "address": "216 S 11th St, Philadelphia, PA 19107",
+    "neighborhood": "Washington Square West",
+    "description": "HH: Everyday 4-6 PM ($7 WELL DRINKS - $6 WINE - LOTS OF FOOD - $2 OFF SELECT DRAFTS) * Sunday Karaoke 3-6 PM Deals (everyday 4-6 PM, HH food Mon-Fri only): $7 well drinks, $6 wine, $2 off select drafts, 10% off select beer pitchers. Famous for 30+ wing flavors, Gold Leaf cheesesteak, FREE upstairs arcade. Medical & SEPTA workers get 10% off all day. Happy hour menu: https://www.strangelovesphl.com/",
+    "social": "http://www.strangelovesbeerbar.com/happy-hour",
+    "hh_menu": "https://www.strangelovesphl.com/",
+    "instagram": "https://www.instagram.com/strangelovesphilly/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Walnut street cafe",
+    "address": "2929 Walnut St, Philadelphia, PA 19104",
+    "neighborhood": "University City",
+    "description": "* HH: Tue-Sat 4:00 PM-8:00 PM* Description: Big menu, good price apps, very modern looking, big windows https://www.walnutstreetcafe.com/menu\n* https://www.tiktok.com/t/ZP8bpaqeJ/ Deals - 'Golden Hour' (Tue-Sat 4-8 PM): $5 drinks and snacks. Ask for the 'Citywide Specials' menu pairing a beer + shot daily (e.g. High Life & Jim Beam, Bitburger & Underberg). All-day caf\u00e9 at FMC Tower with raw bar, natural wines, and a wide whiskey list. Happy hour menu: https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
+    "social": "https://www.tiktok.com/t/ZP8bpaqeJ/, https://www.instagram.com/p/DKAwgvSO_18/",
+    "hh_menu": "https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
+    "instagram": "https://www.instagram.com/p/DKAwgvSO_18/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "8:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "8:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "8:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "8:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "8:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Monks bar",
+    "address": "264 S 16th St, Philadelphia, PA  19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: They do not have one\n* Description\n* Happy hour menu:\n* Social media",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/monkscafephilly/",
+    "schedule": {}
+  },
+  {
+    "name": "The lodge",
+    "address": "738 S 11th St, Philadelphia, PA 19147",
+    "neighborhood": "Bella Vista",
+    "description": "* HH: Tues-Fri 4-6PM, (half off cans, $10 cocktail, $10-12 burger w fries)\n* Description: Looks dark and woodsy inside, outdoor seating too\n* Happy hour menu: https://www.yelp.com/biz_photos/the-lodge-philadelphia?select=AoBWGZl2s8NMIjf7w1h0BQ\n* Social media: https://www.instagram.com/tworobberslodge/",
+    "social": "",
+    "hh_menu": "https://www.yelp.com/biz_photos/the-lodge-philadelphia?select=AoBWGZl2s8NMIjf7w1h0BQ",
+    "instagram": "https://www.instagram.com/tworobberslodge/",
+    "schedule": {}
+  },
+  {
+    "name": "Louie Louie",
+    "address": "3611 Walnut St, Philadelphia, PA 19104",
+    "neighborhood": "University City",
+    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* Description: Fashionable French-American restaurant & bar with weekend brunch, a cocktail salon & outdoor seats. https://louielouie.restaurant/admin/uploads/ll-happy-hour-3-26-26_001.pdf\n* Social media: https://www.instagram.com/louielouiephl/ Deals - 'Happiest Hour' (Mon-Fri 3-6 PM at bar/lounge/select outdoor tables): $9 specialty cocktails, $8 wine by the glass, $6 draft beer, $1 oysters, plus small plates ($8 onion soup, $10 short rib poutine, $10 macaroni au gratin). Sunday brunch HH 10am-3pm: $9 boozy brunch cocktails. Wednesday Girls Night Out 6-9 PM (extended HH). Monday $7 martinis w/ entree. Happy hour menu: https://louielouie.restaurant/happy-hour",
+    "social": "",
+    "hh_menu": "https://louielouie.restaurant/happy-hour",
+    "instagram": "",
+    "schedule": {
+      "Monday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Saloon",
+    "address": "750 S 7th St, Philadelphia, PA 19147",
+    "neighborhood": "Bella Vista",
+    "description": "* HH: I cannot find a menu for this\n* Description: Italian restaurant in Philly that is very swanky inside \n* Happy hour menu:N/A\n* Social media: https://www.instagram.com/thesaloonrestaurant/?hl=en",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Helm",
+    "address": "1303 N 5th St, Philadelphia, PA 19122",
+    "neighborhood": "Northern Liberties",
+    "description": "* HH: No happy hour, looks cute inside, BYOB\n* Description: helm is a contemporary American BYOB highlighting seasonal ingredients from local urban farms.\n* Happy hour menu: N/A\n* https://www.instagram.com/reel/DU1sY2aDTUQ/?igsh=MXh1aTIzd2x1OTJ5OA==",
+    "social": "https://www.instagram.com/reel/DU1sY2aDTUQ/?igsh=MXh1aTIzd2x1OTJ5OA==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DU1sY2aDTUQ/?igsh=MXh1aTIzd2x1OTJ5OA==",
+    "schedule": {}
+  },
+  {
+    "name": "Agr\u00edcola",
+    "address": "1180 S 10th St, Philadelphia, PA 19147",
+    "neighborhood": "Italian Market",
+    "description": "* pizza making experience\n* https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
+    "social": "https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
+    "schedule": {}
+  },
+  {
+    "name": "Terrain cafe",
+    "address": "138 Lancaster Ave Suite 120, Devon, PA 19333",
+    "neighborhood": "Devon (Main Line)",
+    "description": "* beatuiful cafe with attached anthropologie like store\n* https://www.instagram.com/reel/DShw5_FDcdo/?igsh=d2E4OTQya3J2YTZo",
+    "social": "https://www.instagram.com/reel/DShw5_FDcdo/?igsh=d2E4OTQya3J2YTZo",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DShw5_FDcdo/?igsh=d2E4OTQya3J2YTZo",
+    "schedule": {}
+  },
+  {
+    "name": "Secondhand ranch",
+    "address": "1148 Frankford Ave, Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "* HH: Mon - Fri 4pm - 7pm ($3 off on eligible items) (hot dogs and hot peanuts)\n* hrift store that's also a bar\n* https://www.instagram.com/reel/DSIY8V1DrXA/?igsh=Mm96Z2pndDJvZ2F5",
+    "social": "https://www.instagram.com/reel/DSIY8V1DrXA/?igsh=Mm96Z2pndDJvZ2F5",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DSIY8V1DrXA/?igsh=Mm96Z2pndDJvZ2F5",
+    "schedule": {}
+  },
+  {
+    "name": "Casablanca",
+    "address": "947 Federal St, Philadelphia, PA 19147",
+    "neighborhood": "Italian Market",
+    "description": "* mediterranian grill fun interior\n* https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
+    "social": "https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
+    "schedule": {}
+  },
+  {
+    "name": "LMNO",
+    "address": "1739-1749 N Front St, Philadelphia, PA 19122",
+    "neighborhood": "Fishtown",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://lmnophilly.com/menu/?utm_source=GoogleBusinessProfile&utm_medium=Menu&utm_campaign=MapLabs * https://www.instagram.com/reel/DWUdB9mD444/?igsh=a2NqaTlvZDJjazB3 Deals (Mon-Fri 4-6 PM, bar & patio only): discounted Mexican cocktails (coconut and spiced mango margaritas), beer and snacks (Aguachile, Guacamole, Grilled Esquites, Birria Tacos, Duck Tostadas). Stephen Starr's 70s-inspired Mexican restaurant + cocktail lounge in Fishtown.",
+    "social": "https://www.instagram.com/reel/DWUdB9mD444/?igsh=a2NqaTlvZDJjazB3",
+    "hh_menu": "https://lmnophilly.com/menu/",
+    "instagram": "https://www.instagram.com/lmnophilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Middle child",
+    "address": "248 S 11th St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* center city sandwich shop \n* https://middlechildphilly.com/menu/ \n* https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
+    "social": "https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
+    "schedule": {}
+  },
+  {
+    "name": "Terra Grill",
+    "address": "1099 Germantown Ave, Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "* HH: Wed-Fri 4:30-6PM\n* menu: https://terragrillrestaurant.com/#Menus https://terragrillrestaurant.com/wp-content/uploads/2026/04/Terra-Grill-Happy-Hour-Spring-2026.pdf \n* stunnning interior https://www.instagram.com/reel/DWWO3AoDeWx/?igsh=Zm1hMnJucmlwMm56",
+    "social": "https://www.instagram.com/reel/DWWO3AoDeWx/?igsh=Zm1hMnJucmlwMm56",
+    "hh_menu": "https://terragrillrestaurant.com/#Menus",
+    "instagram": "https://www.instagram.com/reel/DWWO3AoDeWx/?igsh=Zm1hMnJucmlwMm56",
+    "schedule": {}
+  },
+  {
+    "name": "Fork restaurant",
+    "address": "306 Market St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Tue-Fri 4:00 PM-6:00 PM* gorgeos interior breakfast food (pancakes and burger too)\n* Brunch Sat-Sun 11am-3pm (https://forkrestaurant.com/fork-brunch-menu/)\n* https://www.instagram.com/reels/DWcftnDkUR2/ Deals (Tue-Fri 4-6 PM): rotating bites and drinks from menu. Old City flagship of James Beard winner Ellen Yin since 1997 - seasonal Mid-Atlantic American with craft cocktails and acclaimed wine program.",
+    "social": "https://www.instagram.com/reel/DWcftnDkUR2/?igsh=N2ppZW8zN2tsdWk5",
+    "hh_menu": "https://forkrestaurant.com/",
+    "instagram": "https://www.instagram.com/forkrestaurant/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Madi's coffee roaster (the Curtis)",
+    "address": "601 Walnut St # L10, Philadelphia, PA 19106",
+    "neighborhood": "Center City",
+    "description": "* coffee shop at curtis overlooking park\n* https://madis-coffee-roasters.square.site/s/order?location=LV36V8BG77GWD#most-popular",
+    "social": "https://www.instagram.com/reel/DLfH4ggRIez/?igsh=MTJ5Y2JoN3NoMnQ3Ng==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DLfH4ggRIez/?igsh=MTJ5Y2JoN3NoMnQ3Ng==",
+    "schedule": {}
+  },
+  {
+    "name": "Balcony bar (Curtain Call)",
+    "address": "300 S Broad St, Philadelphia, PA 19102",
+    "neighborhood": "Center City",
+    "description": "* HH: Wed-Fri 4:30-6:30 PM ($8 wine, $10 cocktails, $5 beer, 50% bar food)\n* balcony at the kimmel center\n* Happy hour Menu: https://www.curtain-call-lounge.com/_files/ugd/87ec2a_db37ae1db8a54faca940426e78d1ecbf.pdf \n* https://www.instagram.com/reel/DKztUSRx0Wh/?igsh=azNrN3R0Mjdjc25s",
+    "social": "https://www.instagram.com/reel/DKztUSRx0Wh/?igsh=azNrN3R0Mjdjc25s",
+    "hh_menu": "https://www.curtain-call-lounge.com/_files/ugd/87ec2a_db37ae1db8a54faca940426e78d1ecbf.pdf",
+    "instagram": "https://www.instagram.com/reel/DKztUSRx0Wh/?igsh=azNrN3R0Mjdjc25s",
+    "schedule": {}
+  },
+  {
+    "name": "48 record bar",
+    "address": "48 S 2nd St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* coctail bar \n* groovy record bar",
+    "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "schedule": {}
+  },
+  {
+    "name": "Doom",
+    "address": "421 N 7th St, Philadelphia, PA 19123",
+    "neighborhood": "Callowhill",
+    "description": "* cocktail bar\n* high ceilings",
+    "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "schedule": {}
+  },
+  {
+    "name": "Poison heart",
+    "address": "931 Spring Garden St, Philadelphia, PA 19123",
+    "neighborhood": "Callowhill",
+    "description": "* cocktail bar\n* dark interior",
+    "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
+    "schedule": {}
+  },
+  {
+    "name": "Mi vida",
+    "address": "1150 Ludlow St, Philadelphia, PA 19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 2:00 PM-6:00 PM* https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Happy-Hour-2.pdf * regular menu: https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Dinner-Menu.pdf\n* beautiful interior: https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ== Deals (Mon-Fri 2-6 PM, bar only): $5 drafts (Modelo, Pacifico, Dos Equis), $5 bottled beers (Victoria, Tecate), $7 wines, $8 cocktails (Ponche de Lola), $2 each alitas adobadas, $6 tacos dorados, $8 queso fundido, $11 tatanachos. Mezcal Mondays: 1/2 off mezcal margaritas all day. Chef Roberto Santiba\u00f1ez's modern Mexican in East Market.",
+    "social": "https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==",
+    "hh_menu": "https://www.mividamexico.com/",
+    "instagram": "https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==",
+    "schedule": {
+      "Monday": {
+        "start": "2:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "2:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "2:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "2:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "2:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Piccolina",
+    "address": "301 Chestnut St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* newly opened italian food\n* menu: https://www.piccolinaphl.com/#menu-section",
+    "social": "https://www.instagram.com/reel/DUnsffrgFsl/?igsh=MTk2cXQ0N21lZHBxZA==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DUnsffrgFsl/?igsh=MTk2cXQ0N21lZHBxZA==",
+    "schedule": {}
+  },
+  {
+    "name": "Griddle and rice",
+    "address": "2151 S 22nd St, Philadelphia, PA 19145",
+    "neighborhood": "Girard Estates",
+    "description": "* MUST TRY SOON appears to be amazing breakfast food\n* menu: https://www.griddlericephilly.com/menu\n* https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
+    "social": "https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
+    "schedule": {}
+  },
+  {
+    "name": "Rhythm and spirits",
+    "address": "1617 John F Kennedy Blvd, Philadelphia, PA 19103",
+    "neighborhood": "Center City",
+    "description": "* HH: Sun, Wed, Thu, Fri, Sat 4:00 PM-6:00 PM* Menu: https://rhythmandspirits.com/menu * https://www.instagram.com/reel/DWRYQe2kbqX/?igsh=dGRqMGZ6OTUzeHVy Deals (Wed-Sun 4-6 PM): $5 cicchetti (Boardwalk Fries, Mama's Meatball Slider, Empanada ai quattro formaggi, S Philly Roast Pork Slider, Shrimp Taco), $9 wine, $7 Aperol/Zeide Spritz. Italian-American above Suburban Station in One Penn Center, live music after dinner. Happy hour menu: https://rhythmandspirits.com/menu/",
+    "social": "https://www.instagram.com/reel/DQz2cQiEbNZ/?igsh=cHFhd2YxZ3A5MXgy",
+    "hh_menu": "https://rhythmandspirits.com/menu/",
+    "instagram": "https://www.instagram.com/reel/DQz2cQiEbNZ/?igsh=cHFhd2YxZ3A5MXgy",
+    "schedule": {
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Lucky duck",
+    "address": "501 N Christopher Columbus Blvd Suite 2003, Philadelphia, PA 19123",
+    "neighborhood": "Penn's Landing",
+    "description": "* HH: Tue-Thu 4:00 PM-6:00 PM* pasta and guiness\n* menu: https://static1.squarespace.com/static/689bb5e21974a33ec971def3/t/69c3476577b7707580b38b04/1774405477507/LUCKY+DUCK++-+FOR+WEB+-+03-24-26.pdf * https://www.instagram.com/reel/DWRYQe2kbqX/?igsh=dGRqMGZ6OTUzeHVy Deals (Tue-Thu weekday HH): $10 cocktails (Clarified Cosmopolitan, Caramelized Onion Martini, Espresso Martini), citywide specials, plus house-made chicken nuggets, pub burgers (pasture-raised beef), fresh oysters, deviled eggs, pizza dough bao. New (March 2026) riverside tavern with Delaware River views & Ben Franklin Bridge view; Guinness pours; late-night pizza window Fri-Sat 'til 1am. Happy hour menu: https://www.luckyduckphl.com/menu",
+    "social": "https://www.instagram.com/reel/DWRYQe2kbqX/?igsh=dGRqMGZ6OTUzeHVy",
+    "hh_menu": "https://www.luckyduckphl.com/menu",
+    "instagram": "https://www.instagram.com/reel/DWRYQe2kbqX/?igsh=dGRqMGZ6OTUzeHVy",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Leo",
+    "address": "300 S Broad St, Philadelphia, PA 19102",
+    "neighborhood": "Center City",
+    "description": "* HH: Wed-Fri 4-6 PM ($8 wine, $10 cocktails, $5 beer, 50% bar food)\n* Mediterranian food at the kimmel center\n* Happy hour Menu: https://www.leo-restaurant.com/_files/ugd/87ec2a_e0e339b52d884d83a057e5d77ff1f0ac.pdf \n* https://www.instagram.com/reel/DPUw459jTOx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "social": "https://www.instagram.com/reel/DPUw459jTOx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "hh_menu": "https://www.leo-restaurant.com/_files/ugd/87ec2a_e0e339b52d884d83a057e5d77ff1f0ac.pdf",
+    "instagram": "https://www.instagram.com/reel/DPUw459jTOx/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    "schedule": {}
+  },
+  {
+    "name": "Watkins Drinkery",
+    "address": "1712 S 10th St, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Everyday 5PM-7PM* Phillies specials: $1 hot dogs and beers\n* Good food. Pool table and penne checiken parm sandwich https://www.instagram.com/p/DO69VMJktt6/?img_index=2 * Social media Deals (daily 5-7 PM): discounted draft specials. Gastropub with cheesesteak, burgers, hot dogs, mac & cheese - kitchen open until 1am. Game-day specials, upstairs game room with darts/pool. Open every day 5pm-2am. Happy hour menu: https://www.watkinsdrinkery.com/",
+    "social": "",
+    "hh_menu": "https://www.watkinsdrinkery.com/",
+    "instagram": "https://www.instagram.com/watkinsdrinkery/",
+    "schedule": {
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Stateside",
+    "address": "1536 Passyunk Ave, Philadelphia, PA 19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Wed-Fri 5:00 PM-7:00 PM* Not much food. Fun corner. Outdoor seating. Open windows https://statesidephiladelphia.com/happy-hour Deals (Wed-Fri 5-7 PM): $6 Old Fashioned (Old Forester 86), $6 Manhattan (Dad's Hat Rye), $6 Pinot Grigio/Cabernet, $5 select drafts (rotates daily), $16 half-dozen oysters, $8 Wagyu hot dog, $15 Raw Bar Snack (2 oysters + 2 shrimp cocktail). Domestic-only bar with 100+ bourbons/ryes. Happy hour menu: https://statesidephilly.com/",
+    "social": "",
+    "hh_menu": "https://statesidephilly.com/",
+    "instagram": "https://www.instagram.com/statesidephilly/",
+    "schedule": {
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Lucky 13 Pub",
+    "address": "1820 S 13th St, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "HH: $6 wine, $5 beer, $3 off apps, $4 rail drinks https://www.luckys13pub.com/specials * Menu: https://lucky13pubphilly.com/philadelphia-lucky-13-pub-food-menu Deals (Mon-Fri 5-7 PM): $1 off ALL drinks. Craft beer, famous waffle fries, seitan wings, lucky burger. Cocktails: sour cherry lemontini, sazerac. Neighborhood bar since 2008. Happy hour menu: https://www.lucky13pub.com/menus",
+    "social": "",
+    "hh_menu": "https://www.lucky13pub.com/menus",
+    "instagram": "https://www.instagram.com/luckys13pubofficial/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Honeysuckle",
+    "address": "631 N Broad St, Philadelphia, PA 19123",
+    "neighborhood": "Center City",
+    "description": "https://www.tiktok.com/t/ZP8gJhbMK/",
+    "social": "https://www.tiktok.com/t/ZP8gJhbMK/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/honeysuckle_restaurant/",
+    "schedule": {}
+  },
+  {
+    "name": "Aqimero",
+    "address": "10 Ave Of The Arts, Philadelphia, PA 19102",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 4:00 PM-6:30 PM* Brunch with gorgeous interior\n* https://www.instagram.com/reel/DWwDOqODqr6/?igsh=MWpzZXRrbWRyNTE5Zg== Deals (Mon-Fri 4-6:30 PM, bar only): $1.50 oysters, $7 cocktails, $6 wines, $5 draft beers. Modern Latin restaurant at the Ritz-Carlton by Chef Richard Sandoval - wood-fired grill, ceviches, ~60 mezcals (largest selection in city). Also weekend bottomless brunch. Happy hour menu: https://www.aqimero.com/menus",
+    "social": "https://www.instagram.com/reel/DWwDOqODqr6/?igsh=MWpzZXRrbWRyNTE5Zg==",
+    "hh_menu": "https://www.aqimero.com/menus",
+    "instagram": "https://www.instagram.com/aqimero/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Paffuto",
+    "address": "1009 S Eighth St, Philadelphia, PA  19147",
+    "neighborhood": "Italian Market",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DVzK78hPjqZ/?igsh=MXZjamE5cXBmcDV0",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DVzK78hPjqZ/?igsh=MXZjamE5cXBmcDV0",
+    "schedule": {}
+  },
+  {
+    "name": "Samurai Asian Fusion",
+    "address": "1420 Locust St Philadelphia, PA  19102",
+    "neighborhood": "Center City",
+    "description": "* $27 happy hour https://samuraiasianfusion.com/menu.html",
+    "social": "https://samuraiasianfusion.com/menu.html?fbclid=PAZnRzaAQ_v3NleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAaejY1-kHXQnIs55O2UexqozOd72_gMuRgUAcdBtleztwJUMIXqGnWvclPrmeg_aem__7nKzRYoqiCdSelJRwXQ-g",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "1 Tipping Place",
+    "address": "2006 Chestnut St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Sun-Sun 6:00 PM-9:00 PM, Tue-Fri 5:00 PM-7:00 PM* big cocktail bar nice interior\n* https://www.instagram.com/reel/DV7CuX2jehI/?igsh=MTh6amRhcWJzaW1kZA== Deals (Tue-Fri 5-7 PM + Sun 6-9 PM with live jazz): cocktails $7-$10 plus snacks (bacon-wrapped dates, sausage rolls, artisanal grilled cheese, sweet-and-spicy nuts). Living-room-style craft cocktail bar with sofas/chaises - barrel-aged cocktails, dozens of seasonal cocktails. Closed Monday. Happy hour menu: https://www.1tippingplace.com/",
+    "social": "https://www.instagram.com/reel/DV7CuX2jehI/?igsh=MTh6amRhcWJzaW1kZA==",
+    "hh_menu": "https://www.1tippingplace.com/",
+    "instagram": "https://www.instagram.com/reel/DV7CuX2jehI/?igsh=MTh6amRhcWJzaW1kZA==",
+    "schedule": {
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Sunday": {
+        "start": "6:00 PM",
+        "end": "9:00 PM"
+      }
+    }
+  },
+  {
+    "name": "El techo",
+    "address": "1830 Ludlow St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Wed-Fri 5:00 PM-7:00 PM* unconfirmed* Mon-Fri 4-7 PM\n* rooftop * https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1 Deals (Wed-Fri 5-7 PM): $6 Modelo/Negra Modelo drafts, $7 natural wines (red/white/sparkling/rose), $9 mezcal or tequila margaritas, $10 specialty cocktails. Botanas: $9 alitas (chicken wings, guajillo-lime), $9 guacamole, $7 chicharr\u00f3nes, $7 empanadas, $7 elote, $7 tamales. Bonus: Mezcal Monday 1/2 price, Taco Tuesday $6 mix-and-match (carnitas, brisket, pescado, coliflor). Happy hour menu: https://www.eltechophilly.com/menu",
+    "social": "https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1",
+    "hh_menu": "https://www.eltechophilly.com/menu",
+    "instagram": "https://www.instagram.com/eltechophilly/",
+    "schedule": {
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Bar 1010",
+    "address": "701 N 2nd St, Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://www.canva.com/design/DAFyLw_phZk/OfEAwrraoaencLBtVXlj3A/view?utm_content=DAFyLw_phZk&utm_campaign=designshare&utm_medium=link&utm_source=editor * https://www.instagram.com/reel/DUqUYVejSjX/?igsh=eWJ6aXRvdzc0MnFo Deals (Mon-Fri 4-6 PM): drink specials including their famous Parmigiano Reggiano Espresso Martini, plus wood-fired pizza bites. Neighborhood Italian pizza & cocktail bar in Northern Liberties. QR/Braille menus, inclusive vibe, 3 TVs for sports. Happy hour menu: https://www.bar1010.com/",
+    "social": "https://www.instagram.com/reel/DUqUYVejSjX/?igsh=eWJ6aXRvdzc0MnFo",
+    "hh_menu": "https://www.bar1010.com/",
+    "instagram": "https://www.instagram.com/bar1010philly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The Rittenhouse",
+    "address": "210 W Rittenhouse Square, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Tues-Sat 5-7 PM\n* Happy hour Menu: https://www.lacroixrestaurant.com/menus \n* Michelin Key \n* https://www.instagram.com/reel/DUPEVf1DXrn/?igsh=aGhzdzE4MmxsaHE5",
+    "social": "https://www.instagram.com/reel/DUPEVf1DXrn/?igsh=aGhzdzE4MmxsaHE5",
+    "hh_menu": "https://www.lacroixrestaurant.com/menus",
+    "instagram": "https://www.instagram.com/reel/DUPEVf1DXrn/?igsh=aGhzdzE4MmxsaHE5",
+    "schedule": {}
+  },
+  {
+    "name": "Drinkers pub",
+    "address": "1903 Chestnut St, Philadelphia, PA  19103",
+    "neighborhood": "Rittenhouse",
+    "description": "Happy hour menu: http://www.drinkersrittenhouse.com/",
+    "social": "https://www.instagram.com/reel/DWrzbYWEcve/?igsh=MWw4dGw4ZXlsNjMwYg==",
+    "hh_menu": "http://www.drinkersrittenhouse.com/",
+    "instagram": "https://www.instagram.com/drinkerspub/",
+    "schedule": {}
+  },
+  {
+    "name": "Green Elephant",
+    "address": "1500 Locust St, Philadelphia, PA  19102",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* espresso martini bar (lots of different options) Deals (Mon-Fri 4-6 PM): half-priced cocktails including 11+ varieties of their signature espresso martinis (banana-cream pudding, classic, etc) plus elevated New American small plates. Velvet-draped Rittenhouse lounge by Teddy Sourias - Philly's first espresso martini bar. Note: 'Green Elephant' is the seasonal St. Patrick's version of The Elephant. Happy hour menu: https://www.elephantphilly.com/",
+    "social": "https://www.instagram.com/reel/DWkQHm6jaA6/?igsh=MW5sN2Vya2Uya2N2bw==",
+    "hh_menu": "https://www.elephantphilly.com/",
+    "instagram": "https://www.instagram.com/reel/DWkQHm6jaA6/?igsh=MW5sN2Vya2Uya2N2bw==",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "El Vez",
+    "address": "121 S 13th St, Philadelphia, PA  19107",
+    "neighborhood": "Center City",
+    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* big interior Deals (Mon-Fri 3-6 PM): margaritas (Frozen Blood Orange, Pink Cadillac, Golden Gloves), tequila flights, plus snacks. Stephen Starr Mex-Eclectic spot with one of Philly's largest tequila selections, vintage photo booth, lively party vibe. Happy hour menu: https://www.elvezrestaurant.com/",
+    "social": "https://www.instagram.com/reel/DWhhKOuEXv9/?igsh=MWcwcmxjeG13eWVqeQ==",
+    "hh_menu": "https://www.elvezrestaurant.com/",
+    "instagram": "https://www.instagram.com/elvezphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Static",
+    "address": "1137 Spruce St, Philadelphia, PA  19107",
+    "neighborhood": "Gayborhood",
+    "description": "* cool bar playing movies on projectors",
+    "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
+    "schedule": {}
+  },
+  {
+    "name": "Homegrown 215",
+    "address": "1515 W Porter St, Philadelphia, PA  19145",
+    "neighborhood": "Girard Estates",
+    "description": "South Philly neighborhood breakfast & lunch cafe (also Callowhill location). Bean2bean coffee, free WiFi, full breakfast/lunch menu, seasonal Frobo blended drinks. Open Mon-Fri 7 AM-4 PM, Sat-Sun 8 AM-4 PM - daytime cafe only, no bar/happy hour.",
+    "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
+    "schedule": {}
+  },
+  {
+    "name": "Juana Tamala",
+    "address": "1941 E Passyunk Ave, Philadelphia, PA  19148",
+    "neighborhood": "East Passyunk",
+    "description": "Vibrant neon-colored Mexican BYOB on East Passyunk from Chef Jennifer Zavala (Top Chef). Famous for queso birria tacos and birria ramen with rich dipping consomme - plus vegan birria tacos, handmade Oaxacan tamales, seitan wings, and churros. 20% student discount. Closed Mondays. No traditional happy hour (BYOB).",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/JuanaTamale/",
+    "schedule": {}
+  },
+  {
+    "name": "Noir",
+    "address": "1909 E Passyunk Ave, Philadelphia, PA  19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 5:00 PM-7:00 PM* Deals (Mon-Fri 5-7 PM): $7 wines (Pinot Grigio, Chardonnay, Cabernet, Merlot), $3 off all appetizers, plus rotating $5 happy-hour specials. Italian-French restaurant with a Montreal twist from Chef Marco DeCotiis - 50-seat dining room on East Passyunk's restaurant row with seasonal cocktails, full craft beer list, and lunch/dinner daily.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/noirphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Stogie Joe's Tavern",
+    "address": "1803 E Passyunk Ave, Philadelphia, PA  19148",
+    "neighborhood": "East Passyunk",
+    "description": "Deals: $2 Lions Head, $5 PBR + Beam/Old Grandad/Wild Turkey shot. Happy hour days/times per their Instagram (not all-day) \u2014 see Website / Menu link. Famous South Philly pizza, wings, chicken cutlet sandwich. Diners Drive-Ins & Dives. Happy hour menu: https://www.instagram.com/p/DXZcDgkk7dy/",
+    "social": "",
+    "hh_menu": "https://www.instagram.com/p/DXZcDgkk7dy/",
+    "instagram": "https://www.instagram.com/stogiejoestavern/",
+    "schedule": {}
+  },
+  {
+    "name": "Ember and Ash",
+    "address": "1520 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 5:00 PM-7:00 PM* Deals (Mon-Fri 5-7 PM): $1 off all draft beer, $2 off all wine by the glass, $6 Prosecco, $10 half dozen oysters, plus rotating food specials. Wood-fire kitchen on Passyunk - octopus, lamb ribs, ember burger, beef shin with green curry sauce. Open Wed-Sun (closed Mon-Tue). Happy hour menu: https://emberandashphilly.com/menus/",
+    "social": "",
+    "hh_menu": "https://emberandashphilly.com/menus/",
+    "instagram": "https://www.instagram.com/emberandashphl/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Superette",
+    "address": "1538 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "French-inspired wine bar + bottle shop + epicerie at 1538 E Passyunk (former Primal Supply space) from the team behind Superfolie and Good King Tavern. Curated French wines, charcuterie/cheese boards, comte ravioli, parsley-soaked octopus, merguez, and the famous black olive tapenade to-go. Hours: Tue-Thu 12-8, Fri-Sat 12-10, Sun 11-7. Closed Mondays.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Tiffin Indian cuisine",
+    "address": "1100 Federal St, Philadelphia, PA  19147",
+    "neighborhood": "Italian Market",
+    "description": "South Philly outpost of Munish Narula's mini-chain bringing North Indian cuisine (curries, tandoor naan, samosas, chaats) to 9+ locations across the region. Full bar with happy hour listed by OpenTable but specific deals not published online - call ahead. BYO wine welcome with corkage. Open daily until 10-11 PM.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Pho 75",
+    "address": "1122 Washington Ave F, Philadelphia, PA  19147",
+    "neighborhood": "Italian Market",
+    "description": "South Philly's iconic Vietnamese pho shop in the Wing Phat Plaza strip mall - look for the big yellow banner. Short menu, steaming bowls of rich aromatic broth, tender beef cuts (eye-round, flank, brisket, tendon, tripe, meatballs), plus fresh herbs and sprouts. Open daily 9 AM-8 PM. No bar/happy hour - cash-friendly comfort food.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Garage",
+    "address": "1231 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 5:00 PM-7:00 PM* Deals (Mon-Fri 5-7 PM): $1 off drafts plus $5 'phatties' menu (Bacon Mac N Cheese, Vietnamese Banh Mi, Duck Fat Burger, Peking Duck). 300+ canned beers, pool, skeeball. Right between Pat's and Geno's - BYO cheesesteaks encouraged. Happy hour menu: https://garagepassyunk.com/",
+    "social": "",
+    "hh_menu": "https://garagepassyunk.com/",
+    "instagram": "https://www.instagram.com/garagephilly/",
+    "schedule": {
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Happy Birthday Bar",
+    "address": "1200 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "South Philly dive (Ray's Happy Birthday Bar) - an 85-year-old 'everybody knows your name' neighborhood spot at Passyunk & Federal, around the corner from Pat's and Geno's. Free cake-flavored vodka shot on your birthday (ID required), karaoke Fridays at 9 PM with DJ Lars. Cheap drinks, eclectic decor. CASH ONLY (ATM inside). Open 7 AM-2 AM Mon-Sat, 9 AM-2 AM Sun. No formal HH but drinks always cheap.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/rayshappybirthdaybar/",
+    "schedule": {}
+  },
+  {
+    "name": "Casablanca Mediterranean grill",
+    "address": "947 Federal St, Philadelphia, PA  19147",
+    "neighborhood": "Italian Market",
+    "description": "Family-run Moroccan/Mediterranean grill in the former Bitar's space near the Italian Market from Walid and Tala Baruki. Shawarma, falafel, silky hummus, lamb tagine, Moroccan chicken plus a lovely attached market with Middle Eastern groceries and Soumaya & Sons pita. Now has a full bar (no longer BYOB). Hours Mon-Thu 2-10, Fri-Sat 12-10. No published happy hour specials - call to confirm.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Agricola",
+    "address": "1180 S Tenth St, Philadelphia, PA  19147",
+    "neighborhood": "Italian Market",
+    "description": "Tiny South Philly pizza + cocktail spot at 10th & Federal (former SliCE Pizza space) from Aaron Gordon of 13th Street Cocktails. Thin-crust 14-inch pies ($14-$18) made with house-milled local wheat & farro and housemade duck prosciutto; all available gluten-free. Owner Aaron mixes complimentary mocktails (free booze add) and runs pizza-making classes. Outdoor seating, honey lavender gelato, BYOB. Open Thu-Sun. 'More product-focused than profit' - 100 pies a night max.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "The Dive",
+    "address": "947 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Everyday 5PM-7PM* Deals (5-7 PM daily): $3 drafts, $6 Citywides (PBR + Jim Beam shot). CASH ONLY, no ATM inside - bring $20 cash. Classic Queen Village dive bar, friendly regulars, dog-friendly, open every day 5pm-2am. Happy hour menu: https://www.facebook.com/diveqv/",
+    "social": "",
+    "hh_menu": "https://www.facebook.com/diveqv/",
+    "instagram": "https://www.instagram.com/thedivebarphiladelphia/",
+    "schedule": {
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Royal Tavern",
+    "address": "937 E Passyunk Ave, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* Deals (Mon-Fri 4-6 PM): 1/2 price drafts, $3 well drinks. Famous Royal Burger ($15 single / $22 double) with smoked gouda, caramelized onions, bacon, chili mayo, pickled long hots on potato roll - also smoked beef round sandwich, vegan options. Open 'til 1am. Happy hour menu: https://royaltavern.com/",
+    "social": "",
+    "hh_menu": "https://royaltavern.com/",
+    "instagram": "https://www.instagram.com/royaltavern/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Grace and Proper",
+    "address": "941 S 8th St, Philadelphia, PA 19147",
+    "neighborhood": "Bella Vista",
+    "description": "* HH: Mon-Mon 8:00 PM-11:59 PM* Deals - 'M For Monday' HH (Mon 8 PM-midnight): rotating bevs and small bites all $8 or under (Phil Mag Best of Philly 2024). Bella Vista vintage European corner cafe/bar with a Portuguese-inspired tapas menu, obscure spirits, and one of Philly's longest wine/cocktail lists. Signature 'Good Giving & Game' uses saffron-infused gin + 24k gold leaf. Walk-in only, kitchen open 'til midnight. Closed Tuesdays.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/graceandproperphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "8:00 PM",
+        "end": "11:59 PM"
+      }
+    }
+  },
+  {
+    "name": "Saloon restaurant",
+    "address": "750 S 7th St, Philadelphia, PA 19147",
+    "neighborhood": "Bella Vista",
+    "description": "Family-owned upscale Italian since 1967 in Bella Vista - one of Philly's most legendary old-school spots. Dark oak paneling, brass accents, vintage antiques, and two dining rooms each with their own bar. Famous for steaks, veal chops, fried long hot peppers, grilled octopus, and Dover sole. House-made desserts and gelatos. FREE parking. Dinner only Mon-Sat 5-9:30 PM, closed Sunday. No happy hour - jacket-and-tie upscale dining.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/saloonphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "The continental",
+    "address": "138 Market St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Assembly rooftop",
+    "address": "1840 Benjamin Franklin Pkwy, Philadelphia, PA 19103",
+    "neighborhood": "Logan Square",
+    "description": "* HH: Sun-Thu 4:00 PM-6:00 PM* Deals (Sun-Thu 4-6 PM): $10 cocktails, $6 featured beer, $9 wine, $10 flatbreads. Rooftop bar at The Logan Hotel - panoramic city views. Happy hour menu: https://assemblyrooftop.com/menus/",
+    "social": "",
+    "hh_menu": "https://assemblyrooftop.com/menus/",
+    "instagram": "https://www.instagram.com/assemblyphl/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Stratus Lounge",
+    "address": "433 Chestnut St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "* HH: Thu-Fri 5:00 PM-8:00 PM* Deals (Thu-Sat 5-8 PM): $5 call drinks, house wines, select bubbly, and specialty cocktails; half-price flatbreads + snacks (kettle popcorn, pretzels); half-price bottles. Kimpton Hotel Monaco rooftop lounge with Liberty Bell view; reservations recommended. Happy hour menu: https://www.stratuslounge.com/",
+    "social": "",
+    "hh_menu": "https://www.stratuslounge.com/",
+    "instagram": "https://www.instagram.com/stratusloungephl/",
+    "schedule": {
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      }
+    }
+  },
+  {
+    "name": "Sunset Social/Cira Green",
+    "address": "129 S 30th St, Philadelphia, PA 19104",
+    "neighborhood": "University City",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/sunsetsocialphl/",
+    "schedule": {}
+  },
+  {
+    "name": "Mug Coffee",
+    "address": "4631 Baltimore Ave, Philadelphia, PA 19143",
+    "neighborhood": "West Philadelphia",
+    "description": "* Lots of sun, outdoor seating, packed with cute dogs",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Kanella Grill",
+    "address": "1001 Spruce St, Philadelphia, PA 19107",
+    "neighborhood": "Washington Square West",
+    "description": "* Greek place, outdoor seating with lots of sun * Emily recommends. Good dips",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {}
+  },
+  {
+    "name": "Giovanni's bar and grill",
+    "address": "115 Race St, Philadelphia, PA 19106",
+    "neighborhood": "Old City",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DXIJfKkEfY8/?igsh=Mm50c2VvbmhpcWFk",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DXIJfKkEfY8/?igsh=Mm50c2VvbmhpcWFk",
+    "schedule": {}
+  },
+  {
+    "name": "Trattoria Carina",
+    "address": "21 S 16th St, Philadelphia, PA 19102",
+    "neighborhood": "Rittenhouse",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DXIM5pUCKyF/?igsh=MW0wcHo2YmhxZ2RheA==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DXIM5pUCKyF/?igsh=MW0wcHo2YmhxZ2RheA==",
+    "schedule": {}
+  },
+  {
+    "name": "Mish Mish",
+    "address": "1046 Tasker St, Philadelphia, PA  19148",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Sun, Mon, Thu, Fri, Sat 5:00 PM-7:00 PM* Deals - 'Sunshine Hour' (Thu-Mon 5-7 PM, outdoor sidewalk only, weather permitting): $10 'sunshine wines' from across the Mediterranean, $8 snacks (marinated olives, grilled potatoes with anchovy or vegetarian mayo, sourdough toast with tomato butter). Chef Alex Tewfik's Mediterranean. Closed Tue-Wed. Happy hour menu: https://www.mishmishphilly.com/menus",
+    "social": "",
+    "hh_menu": "https://www.mishmishphilly.com/menus",
+    "instagram": "https://www.instagram.com/mishmishphilly/",
+    "schedule": {
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "The Dutch",
+    "address": "1537 S 11th St, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "* HH: Sun, Wed, Thu 5:00 PM-7:00 PM* Deals (Wed/Thu/Sun 5-7 PM): $5 local brews, $6 bartender's cocktail, $7 house wine (red/white/sparkling), $5 Chow Chow Pickles & House-Cut Fries, $7 Fond's Chicken Liver Mousse, $7 Cheesesteak Tater Tots, $7 Country-Style Pat\u00e9, $7 Dutch Queso Dip. Modern Pennsylvania Dutch fusion. Also daily brunch 8am-3pm. Happy hour menu: https://www.thedutchphilly.com/menus",
+    "social": "",
+    "hh_menu": "https://www.thedutchphilly.com/menus",
+    "instagram": "",
+    "schedule": {
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      },
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "7:00 PM"
+      }
+    }
+  },
+  {
+    "name": "El Chingon",
+    "address": "1524 S Tenth St, Philadelphia, PA  19147",
+    "neighborhood": "East Passyunk",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/elchingonphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Topside Tavern",
+    "address": "10 S 20th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Mon-Thu 4:00 PM-6:30 PM* Rooftop lounge\n* https://www.instagram.com/reel/DUbtLzJkjhY/?igsh=azN1cGc1eGwxcXc2 Deals (Mon-Thu 4-6:30 PM + late-night Thu/Fri 9-11 PM): 1/2 off burgers, crispy brussels sprouts, wings; $10 Red Curry Duck Bao Bun; cocktails $10-13 (City of Spice Margarita, Market Street Manhattan, Topside Old Fashioned); drafts $7-8. Plus Margarita Monday $7 all day, Taco Tuesday $4 tacos. Happy hour menu: https://topsidetavern.com/happy-hour-menu/",
+    "social": "",
+    "hh_menu": "https://topsidetavern.com/happy-hour-menu/",
+    "instagram": "https://www.instagram.com/topsidetavernphilly/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Tempo",
+    "address": "1701 E Passyunk Ave, Philadelphia, PA 19148",
+    "neighborhood": "East Passyunk",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DXSo2rjjiiL/?igsh=cTE0MXR5bTM4czZt",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DXSo2rjjiiL/?igsh=cTE0MXR5bTM4czZt",
+    "schedule": {}
+  },
+  {
+    "name": "Yamaga Kappo",
+    "address": "1734 Sansom St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "",
+    "social": "https://www.tiktok.com/t/ZP8pm7NsM/",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/yanaga_kappo_izakaya/",
+    "schedule": {}
+  },
+  {
+    "name": "Mawn",
+    "address": "764 S 9th St, Philadelphia, PA 19147",
+    "neighborhood": "Italian Market",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/mawnphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Emmet",
+    "address": "1500 N 5th St, Philadelphia, PA 19122",
+    "neighborhood": "Northern Liberties",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/emmettphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Friday Saturday Sunday",
+    "address": "261 S 21st St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/friday.saturday.sunday/",
+    "schedule": {}
+  },
+  {
+    "name": "Her place",
+    "address": "1740 Sansom St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/herplacesupperclub/",
+    "schedule": {}
+  },
+  {
+    "name": "Kalaya",
+    "address": "4 W Palmer St, Philadelphia, PA 19122",
+    "neighborhood": "Fishtown",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/kalayaphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Vernick Fish",
+    "address": "1 N 19th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "* HH: Sun-Thu 4:30 PM-6:30 PM* 'Social Hour' (Sun-Thu 4:30-6:30 PM): discounted raw bar (oysters, shrimp cocktail), small plates (broiled oysters, blackened shrimp, octopus), plus cocktails and wine. James Beard chef Greg Vernick's American oyster bar in the Four Seasons / Comcast Tech Center. Happy hour menu: https://www.vernickfish.com/menus",
+    "social": "",
+    "hh_menu": "https://www.vernickfish.com/menus",
+    "instagram": "https://www.instagram.com/vernickfish/",
+    "schedule": {
+      "Sunday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Monday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Tuesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Wednesday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      },
+      "Thursday": {
+        "start": "4:30 PM",
+        "end": "6:30 PM"
+      }
+    }
+  },
+  {
+    "name": "Royal Izakaya and Omikase",
+    "address": "780 S 2nd St, Philadelphia, PA 19147",
+    "neighborhood": "Queen Village",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/royal_izakaya/",
+    "schedule": {}
+  },
+  {
+    "name": "Emelia",
+    "address": "1218 Spruce St, Philadelphia, PA 19107",
+    "neighborhood": "Washington Square West",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/emiliaphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Fiorella",
+    "address": "817 Christian St, Philadelphia, PA 19147",
+    "neighborhood": "Italian Market",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/fiorellaphilly/",
+    "schedule": {}
+  },
+  {
+    "name": "Kiddo restaurant",
+    "address": "1138 Pine St, Philadelphia, PA  19107",
+    "neighborhood": "Gayborhood",
+    "description": "",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/kiddorestaurant/",
+    "schedule": {}
+  },
+  {
+    "name": "Post haste",
+    "address": "1314 Frankford Ave, Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DYfiqlHKhX8/?igsh=MWV6YmZzZGhmM2wxaA==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DYfiqlHKhX8/?igsh=MWV6YmZzZGhmM2wxaA==",
+    "schedule": {}
+  },
+  {
+    "name": "Picolina",
+    "address": "303 Bainbridge St, Philadelphia, PA 19147",
+    "neighborhood": "Society Hill",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DYkVg87xOLA/?igsh=bHR1b3Rvd3ZiZHFl",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DYkVg87xOLA/?igsh=bHR1b3Rvd3ZiZHFl",
+    "schedule": {}
+  },
+  {
+    "name": "Alice",
+    "address": "1041 Spring Garden St, Philadelphia, PA 19123",
+    "neighborhood": "Northern Liberties",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DYnRNpiKB1f/?igsh=MXYzNmo3dXRvbmdzOA==",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DYnRNpiKB1f/?igsh=MXYzNmo3dXRvbmdzOA==",
+    "schedule": {}
+  },
+  {
+    "name": "Love and honey fried chicken",
+    "address": "1100 N Front St, Philadelphia, PA 19123",
+    "neighborhood": "Fishtown",
+    "description": "",
+    "social": "https://www.instagram.com/reel/DYm-pFXRF28/?igsh=OW40dXd1dXZtazk4",
+    "hh_menu": "",
+    "instagram": "https://www.instagram.com/reel/DYm-pFXRF28/?igsh=OW40dXd1dXZtazk4",
+    "schedule": {}
+  }
+]
