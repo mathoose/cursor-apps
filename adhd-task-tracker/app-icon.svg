@@ -1,18 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <rect width="180" height="180" rx="40" fill="#6366f1"/>
-  <!-- notepad -->
-  <rect x="36" y="32" width="108" height="116" rx="10" fill="#fff"/>
-  <rect x="36" y="32" width="108" height="18" rx="10" fill="#e0e7ff"/>
-  <!-- lines + checkmarks -->
-  <g fill="none" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round">
-    <line x1="72" y1="68" x2="128" y2="68"/>
-    <line x1="72" y1="92" x2="128" y2="92"/>
-    <line x1="72" y1="116" x2="128" y2="116"/>
-    <line x1="72" y1="140" x2="110" y2="140"/>
+  <!-- notepad: centered, fills most of icon -->
+  <rect x="22" y="18" width="136" height="144" rx="14" fill="#fff"/>
+  <rect x="22" y="18" width="136" height="22" rx="14" fill="#e0e7ff"/>
+  <rect x="22" y="32" width="136" height="8" fill="#e0e7ff"/>
+  <g fill="none" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round">
+    <line x1="68" y1="58" x2="142" y2="58"/>
+    <line x1="68" y1="88" x2="142" y2="88"/>
+    <line x1="68" y1="118" x2="142" y2="118"/>
+    <line x1="68" y1="148" x2="128" y2="148"/>
   </g>
-  <g stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M48 68l8 8 14-18"/>
-    <path d="M48 92l8 8 14-18"/>
-    <path d="M48 116l8 8 14-18"/>
+  <g stroke="#22c55e" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M38 58l10 10 18-22"/>
+    <path d="M38 88l10 10 18-22"/>
+    <path d="M38 118l10 10 18-22"/>
+    <path d="M38 148l10 10 12-14"/>
   </g>
 </svg>

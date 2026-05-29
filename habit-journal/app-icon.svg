@@ -1,77 +1,60 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <rect width="180" height="180" rx="40" fill="#faf8f5"/>
   <defs>
-    <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1" fill="#e8e2d9"/>
+    <pattern id="dots" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="0.9" fill="#e8e2d9"/>
     </pattern>
   </defs>
-  <rect x="16" y="16" width="148" height="148" rx="12" fill="url(#dots)"/>
-  <!-- year-view grid: 12 months x 5 weeks, colored squares -->
-  <g transform="translate(28,36)">
-    <!-- row 1 -->
-    <rect x="0" y="0" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="12" y="0" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="24" y="0" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="36" y="0" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="48" y="0" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="60" y="0" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="72" y="0" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="84" y="0" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="96" y="0" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="108" y="0" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="120" y="0" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="132" y="0" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <!-- row 2 -->
-    <rect x="0" y="14" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="12" y="14" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="24" y="14" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="36" y="14" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="48" y="14" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="60" y="14" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="72" y="14" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="84" y="14" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="96" y="14" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="108" y="14" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="120" y="14" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="132" y="14" width="10" height="10" rx="2" fill="#e080a8"/>
-    <!-- row 3 -->
-    <rect x="0" y="28" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="12" y="28" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="24" y="28" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="36" y="28" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="48" y="28" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="60" y="28" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="72" y="28" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="84" y="28" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="96" y="28" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="108" y="28" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="120" y="28" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="132" y="28" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <!-- row 4 -->
-    <rect x="0" y="42" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="12" y="42" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="24" y="42" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="36" y="42" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="48" y="42" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="60" y="42" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="72" y="42" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="84" y="42" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="96" y="42" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="108" y="42" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="120" y="42" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="132" y="42" width="10" height="10" rx="2" fill="#e080a8"/>
-    <!-- row 5 -->
-    <rect x="0" y="56" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="12" y="56" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="24" y="56" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="36" y="56" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="48" y="56" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="60" y="56" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="72" y="56" width="10" height="10" rx="2" fill="#c94d78"/>
-    <rect x="84" y="56" width="10" height="10" rx="2" fill="#efb8d0"/>
-    <rect x="96" y="56" width="10" height="10" rx="2" fill="#7a1f45"/>
-    <rect x="108" y="56" width="10" height="10" rx="2" fill="#e080a8"/>
-    <rect x="120" y="56" width="10" height="10" rx="2" fill="#f8e8f0"/>
-    <rect x="132" y="56" width="10" height="10" rx="2" fill="#c94d78"/>
+  <rect x="8" y="8" width="164" height="164" rx="28" fill="url(#dots)"/>
+  <!-- one month: 7 days × 5 weeks, fills icon -->
+  <g transform="translate(18,22)">
+    <!-- day headers -->
+    <text x="7" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">S</text>
+    <text x="25" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">M</text>
+    <text x="43" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">T</text>
+    <text x="61" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">W</text>
+    <text x="79" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">T</text>
+    <text x="97" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">F</text>
+    <text x="115" y="10" font-family="-apple-system,sans-serif" font-size="7" font-weight="700" fill="#7a6f62" text-anchor="middle">S</text>
+    <!-- week 1 -->
+    <rect x="0" y="16" width="16" height="16" rx="4" fill="#f8e8f0"/>
+    <rect x="18" y="16" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="36" y="16" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="54" y="16" width="16" height="16" rx="4" fill="#c94d78"/>
+    <rect x="72" y="16" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="90" y="16" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="108" y="16" width="16" height="16" rx="4" fill="#e080a8"/>
+    <!-- week 2 -->
+    <rect x="0" y="36" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="18" y="36" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="36" y="36" width="16" height="16" rx="4" fill="#f8e8f0"/>
+    <rect x="54" y="36" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="72" y="36" width="16" height="16" rx="4" fill="#c94d78"/>
+    <rect x="90" y="36" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="108" y="36" width="16" height="16" rx="4" fill="#e080a8"/>
+    <!-- week 3 -->
+    <rect x="0" y="56" width="16" height="16" rx="4" fill="#c94d78"/>
+    <rect x="18" y="56" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="36" y="56" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="54" y="56" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="72" y="56" width="16" height="16" rx="4" fill="#f8e8f0"/>
+    <rect x="90" y="56" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="108" y="56" width="16" height="16" rx="4" fill="#c94d78"/>
+    <!-- week 4 -->
+    <rect x="0" y="76" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="18" y="76" width="16" height="16" rx="4" fill="#f8e8f0"/>
+    <rect x="36" y="76" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="54" y="76" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="72" y="76" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="90" y="76" width="16" height="16" rx="4" fill="#c94d78"/>
+    <rect x="108" y="76" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <!-- week 5 -->
+    <rect x="0" y="96" width="16" height="16" rx="4" fill="#7a1f45"/>
+    <rect x="18" y="96" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="36" y="96" width="16" height="16" rx="4" fill="#c94d78"/>
+    <rect x="54" y="96" width="16" height="16" rx="4" fill="#efb8d0"/>
+    <rect x="72" y="96" width="16" height="16" rx="4" fill="#f8e8f0"/>
+    <rect x="90" y="96" width="16" height="16" rx="4" fill="#e080a8"/>
+    <rect x="108" y="96" width="16" height="16" rx="4" fill="#efb8d0"/>
   </g>
 </svg>
