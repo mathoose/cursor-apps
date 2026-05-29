@@ -259,6 +259,21 @@
       border-bottom: 1px solid var(--border);
     }
     .habit-row:last-child { border-bottom: none; }
+    .add-habit-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .add-habit-row input {
+      flex: 1;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .add-habit-row .btn { flex-shrink: 0; min-width: 72px; }
     .habit-row input[type="text"] {
       flex: 1;
       height: 40px;
@@ -692,7 +707,7 @@
     if (habit.type === "counter") {
       html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">High: <strong>' + Math.round(high) + "</strong> · tap +step · hold −step</p>";
     } else {
-      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">Tap: empty → Yes → No → empty</p>";
+      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">Tap: empty, Yes, No, then empty</p>';
     }
     return html;
   }
@@ -817,13 +832,28 @@
       html += "</div></div>";
     });
 
-    html += '<button type="button" class="btn btn-primary btn-block" id="addHabit">+ Add habit</button>';
+    html += '<div class="add-habit-row">';
+    html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
+    html += '<button type="button" class="btn btn-primary" id="addHabit">Add</button></div>';
     root.innerHTML = html;
 
-    document.getElementById("addHabit").onclick = function () {
-      state.habits.push({ id: uid(), name: "New habit", type: "counter", step: 1 });
-      save(); render();
-    };
+    function addNewHabit() {
+      const inp = document.getElementById("newHabitName");
+      const name = (inp && inp.value.trim()) || "New habit";
+      state.habits.push({ id: uid(), name: name.slice(0, 40), type: "counter", step: 1 });
+      if (inp) inp.value = "";
+      if (!save()) return;
+      toast("Added " + name);
+      render();
+    }
+
+    document.getElementById("addHabit").onclick = addNewHabit;
+    const newInp = document.getElementById("newHabitName");
+    if (newInp) {
+      newInp.onkeydown = function (e) {
+        if (e.key === "Enter") { e.preventDefault(); addNewHabit(); }
+      };
+    }
 
     root.querySelectorAll("[data-del]").forEach(function (btn) {
       btn.onclick = function () {
@@ -839,10 +869,12 @@
     });
 
     root.querySelectorAll("[data-name]").forEach(function (inp) {
-      inp.onchange = function () {
+      function syncName() {
         const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
-        if (h) { h.name = inp.value.trim() || "Habit"; save(); render(); }
-      };
+        if (h) { h.name = inp.value.trim() || "Habit"; save(); }
+      }
+      inp.onchange = syncName;
+      inp.onblur = syncName;
     });
 
     root.querySelectorAll(".type-pill").forEach(function (btn) {

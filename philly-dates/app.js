@@ -14,6 +14,7 @@ var loadError = document.getElementById('load-error');
 var currentModalName = '';
 var editMode = false;
 var addingNewPlace = false;
+var viewMode = 'grid';
 
 function showError(msg) {
   if (!loadError) return;
@@ -146,6 +147,95 @@ function filterBySearch(list) {
   var q = getSearchQuery();
   if (!q) return list;
   return list.filter(function(r) { return r.name.toLowerCase().indexOf(q) !== -1; });
+}
+
+function getFavorites() {
+  var st = loadAppState();
+  return Array.isArray(st.favorites) ? st.favorites.slice() : [];
+}
+
+function isFavorite(name) {
+  return getFavorites().indexOf(name) >= 0;
+}
+
+function renameFavorite(oldName, newName) {
+  if (!oldName || !newName || oldName === newName) return;
+  var st = loadAppState();
+  if (!Array.isArray(st.favorites)) return;
+  var i = st.favorites.indexOf(oldName);
+  if (i >= 0) {
+    st.favorites[i] = newName;
+    saveAppState(st);
+  }
+}
+
+function toggleFavorite(name) {
+  if (!name) return;
+  var st = loadAppState();
+  if (!st.favorites) st.favorites = [];
+  var i = st.favorites.indexOf(name);
+  var removing = i >= 0;
+  if (removing) st.favorites.splice(i, 1);
+  else st.favorites.push(name);
+  saveAppState(st);
+  updateModalFavButton();
+  if (viewMode === 'list') render();
+  else showStatus(removing ? 'Removed from favorites' : 'Added to favorites');
+}
+
+function updateModalFavButton() {
+  var btn = document.getElementById('modal-fav');
+  if (!btn) return;
+  if (!currentModalName || addingNewPlace) {
+    btn.hidden = true;
+    return;
+  }
+  btn.hidden = false;
+  var on = isFavorite(currentModalName);
+  btn.textContent = on ? '\u2605' : '\u2606';
+  btn.classList.toggle('on', on);
+}
+
+function getListPlaces() {
+  var list = Object.keys(byName).map(function(n) { return byName[n]; });
+  if (nSel && nSel.value) {
+    list = list.filter(function(r) { return r.neighborhood === nSel.value; });
+  }
+  list = filterBySearch(list);
+  var sortMode = document.getElementById('list-sort');
+  var favoritesFirst = !sortMode || sortMode.value !== 'alpha';
+  var favs = getFavorites();
+  list.sort(function(a, b) {
+    if (favoritesFirst) {
+      var af = favs.indexOf(a.name) >= 0 ? 0 : 1;
+      var bf = favs.indexOf(b.name) >= 0 ? 0 : 1;
+      if (af !== bf) return af - bf;
+    }
+    return a.name.localeCompare(b.name);
+  });
+  return list;
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  var gridBtn = document.getElementById('view-grid');
+  var listBtn = document.getElementById('view-list');
+  if (gridBtn) gridBtn.classList.toggle('on', mode === 'grid');
+  if (listBtn) listBtn.classList.toggle('on', mode === 'list');
+  document.querySelectorAll('.filter-grid-only').forEach(function(el) {
+    el.hidden = mode !== 'grid';
+  });
+  document.querySelectorAll('.filter-list-only').forEach(function(el) {
+    el.hidden = mode !== 'list';
+  });
+  var gw = document.getElementById('grid-wrap');
+  var lw = document.getElementById('list-wrap');
+  var leg = document.getElementById('legend-grid');
+  if (gw) gw.hidden = mode !== 'grid';
+  if (lw) lw.hidden = mode !== 'list';
+  if (leg) leg.hidden = mode === 'list';
+  if (mode === 'grid') refreshFilters();
+  else render();
 }
 
 function applySettings(settings) {
@@ -357,6 +447,7 @@ function renderViewMode(r) {
   modalBody.innerHTML = '<div id="modal-menu-photo" class="menu-photo-block" hidden></div>' + body;
   showMenuPhotoInModal(r.name);
   renderModalFooter(r);
+  updateModalFavButton();
 }
 
 function wireCopyPrevious() {
@@ -605,6 +696,7 @@ function saveEdit(originalName) {
     schedule: schedule
   };
   saveAppState(state);
+  if (!isNew && originalName !== name) renameFavorite(originalName, name);
   modalTitle.textContent = r.name;
   modalMeta.textContent = [r.neighborhood, r.address].filter(Boolean).join(' · ');
   populateEditAnySelect();
@@ -836,7 +928,44 @@ function buildTimeOptions(day, selectTime) {
   if (tSel.querySelector('option[value="' + want + '"]')) tSel.value = want;
   else if (tSel.options.length) tSel.selectedIndex = 0;
 }
+function renderListView() {
+  var list = getListPlaces();
+  var q = getSearchQuery();
+  var hood = nSel && nSel.value ? nSel.value : '';
+  var summary = document.getElementById('summary');
+  var parts = ['<strong>' + list.length + '</strong> place' + (list.length === 1 ? '' : 's')];
+  if (hood) parts.push(' in <strong>' + escapeHtml(hood) + '</strong>');
+  if (q) parts.push(' matching search');
+  summary.innerHTML = parts.join('') + '. Tap a name for details. Star your favorites.';
+  var container = document.getElementById('place-list');
+  if (!container) return;
+  if (!list.length) {
+    container.innerHTML = '<p class="list-empty" style="padding:16px;color:var(--muted)">No places match these filters.</p>';
+    return;
+  }
+  container.innerHTML = list.map(function(r) {
+    var fav = isFavorite(r.name);
+    var hasHH = r.schedule && Object.keys(r.schedule).length;
+    var sub = escapeHtml(r.neighborhood || 'No neighborhood');
+    if (!hasHH) sub += ' · <span class="list-tag">no HH times yet</span>';
+    return '<div class="list-row">'
+      + '<button type="button" class="fav-toggle' + (fav ? ' on' : '') + '" data-fav="' + escapeHtml(r.name) + '" aria-label="' + (fav ? 'Unfavorite' : 'Favorite') + '">' + (fav ? '\u2605' : '\u2606') + '</button>'
+      + '<button type="button" class="list-link" data-name="' + escapeHtml(r.name) + '">'
+      + '<span class="list-title">' + escapeHtml(r.name) + '</span>'
+      + '<span class="list-sub">' + sub + '</span>'
+      + '</button></div>';
+  }).join('');
+}
+
 function render() {
+  if (viewMode === 'list') {
+    renderListView();
+    return;
+  }
+  renderGridView();
+}
+
+function renderGridView() {
   const day = daySel.value;
   const selectedTime = +document.getElementById('time').value;
   let filtered = RESTAURANTS.filter(r => r.schedule && r.schedule[day]);
@@ -885,11 +1014,48 @@ document.querySelector('#grid tbody').addEventListener('click', e => {
   if (btn) openModal(btn.dataset.name);
 });
 function refreshFilters() {
+  if (viewMode === 'list') {
+    render();
+    return;
+  }
   buildTimeOptions(daySel.value, pickDefaultTime(daySel.value));
   render();
 }
+
+var placeListEl = document.getElementById('place-list');
+if (placeListEl) {
+  placeListEl.addEventListener('click', function(e) {
+    var favBtn = e.target.closest('.fav-toggle');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleFavorite(favBtn.getAttribute('data-fav'));
+      return;
+    }
+    var link = e.target.closest('.list-link');
+    if (link) openModal(link.getAttribute('data-name'));
+  });
+}
+
+var modalFavBtn = document.getElementById('modal-fav');
+if (modalFavBtn) {
+  modalFavBtn.addEventListener('click', function() {
+    if (currentModalName) toggleFavorite(currentModalName);
+  });
+}
+
+var viewGridBtn = document.getElementById('view-grid');
+var viewListBtn = document.getElementById('view-list');
+if (viewGridBtn) viewGridBtn.addEventListener('click', function() { setViewMode('grid'); });
+if (viewListBtn) viewListBtn.addEventListener('click', function() { setViewMode('list'); });
+
+var listSortEl = document.getElementById('list-sort');
+if (listSortEl) listSortEl.addEventListener('change', function() { if (viewMode === 'list') render(); });
+
 nSel.addEventListener('change', refreshFilters);
 daySel.addEventListener('change', refreshFilters);
-document.getElementById('time').addEventListener('change', render);
+document.getElementById('time').addEventListener('change', function() {
+  if (viewMode === 'grid') render();
+});
 startApp();
 })();

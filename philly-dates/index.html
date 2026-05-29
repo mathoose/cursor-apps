@@ -33,17 +33,21 @@
       <input type="search" id="search" placeholder="Search by name…" autocomplete="off" enterkeyhint="search" />
       <button type="button" class="btn btn-add" id="add-btn">+ Add</button>
     </div>
+    <div class="view-toggle" role="tablist" aria-label="View">
+      <button type="button" class="view-btn on" id="view-grid" data-view="grid">Schedule</button>
+      <button type="button" class="view-btn" id="view-list" data-view="list">All places</button>
+    </div>
   </header>
 
   <main>
     <div id="import-status" class="status" hidden></div>
     <div id="load-error" class="error" hidden role="alert"></div>
 
-    <div class="filters">
-      <label>Area
+    <div class="filters" id="filters-bar">
+      <label>Neighborhood
         <select id="neighborhood"><option value="">All neighborhoods</option></select>
       </label>
-      <label>Day
+      <label class="filter-grid-only">Day
         <select id="day">
           <option value="Sunday">Sunday</option>
           <option value="Monday">Monday</option>
@@ -54,18 +58,28 @@
           <option value="Saturday">Saturday</option>
         </select>
       </label>
-      <label>Time
+      <label class="filter-grid-only">Time
         <select id="time"></select>
+      </label>
+      <label class="filter-list-only" hidden>Sort
+        <select id="list-sort">
+          <option value="favorites">Favorites first, then A–Z</option>
+          <option value="alpha">Alphabetical only</option>
+        </select>
       </label>
     </div>
 
     <div class="summary" id="summary"></div>
 
-    <div class="grid-wrap">
+    <div class="grid-wrap" id="grid-wrap">
       <table id="grid"><thead></thead><tbody></tbody></table>
     </div>
 
-    <div class="legend">
+    <div class="list-wrap" id="list-wrap" hidden>
+      <div class="place-list" id="place-list"></div>
+    </div>
+
+    <div class="legend" id="legend-grid">
       <span><span class="swatch on"></span> Happy hour</span>
       <span><span class="swatch now"></span> Selected time</span>
       <span><span class="swatch off"></span> Off</span>
@@ -79,10 +93,11 @@
           <h2 id="modal-title"></h2>
           <div class="modal-meta" id="modal-meta"></div>
         </div>
-        <div class="modal-header-actions">
-          <button type="button" class="modal-edit" id="modal-edit" aria-label="Edit" title="Edit">✏️</button>
-          <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
-        </div>
+      <div class="modal-header-actions">
+        <button type="button" class="modal-fav" id="modal-fav" aria-label="Favorite" title="Favorite">☆</button>
+        <button type="button" class="modal-edit" id="modal-edit" aria-label="Edit" title="Edit">✏️</button>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
       </div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer"></div>

@@ -2463,10 +2463,14 @@ function renderListsManager() {
 
 function addList(name) {
   name = (name || '').trim();
-  if (!name) return;
+  if (!name) {
+    showToast('Enter a list name', { error: true });
+    return;
+  }
   const id = 'l_' + Date.now().toString(36);
   state.lists.push({ id, name });
   saveState();
+  showToast('Added list: ' + name);
 }
 
 // ============================================================================
