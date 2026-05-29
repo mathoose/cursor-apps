@@ -38,6 +38,9 @@
       background-size: 18px 18px;
       padding-top: calc(60px + var(--safe-top));
       padding-bottom: calc(64px + var(--safe-bottom));
+    }
+    body.has-mode-bar {
+      padding-bottom: calc(120px + var(--safe-bottom));
       overscroll-behavior: none;
     }
     button, .cell, .tab, .nav-btn { touch-action: manipulation; }
@@ -81,6 +84,19 @@
       cursor: pointer;
     }
     .nav-btn:active { background: #f5f0e8; }
+    .nav-btn.eraser-btn {
+      padding: 0 8px;
+      color: var(--muted);
+    }
+    .nav-btn.eraser-btn.on {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    .nav-btn.eraser-btn svg { display: block; }
+    body.eraser-mode .cell:not(.invalid):not(:disabled) {
+      box-shadow: inset 0 0 0 1px rgba(196, 92, 92, 0.35);
+    }
     .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
     main { max-width: 520px; margin: 0 auto; padding: 12px 10px 16px; }
     .panel { display: none; }
@@ -350,6 +366,43 @@
       white-space: nowrap;
     }
     .toast.show { opacity: 1; }
+    .mode-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(52px + var(--safe-bottom));
+      z-index: 49;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.97);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 12px rgba(44, 36, 25, 0.06);
+    }
+    .mode-bar[hidden] { display: none !important; }
+    .mode-btn {
+      flex: 1;
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .mode-btn.on {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    .mode-btn:not(.on):active { background: #f5f0e8; }
     #importInput {
       position: fixed;
       left: 0; top: 0;
@@ -375,6 +428,11 @@
     <section class="panel" id="panelHabits" aria-label="Habits"></section>
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
+
+  <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
+    <button type="button" class="mode-btn on" id="modeMark" aria-pressed="true">✏️ Mark</button>
+    <button type="button" class="mode-btn" id="modeEraser" aria-pressed="false">🧹 Eraser</button>
+  </div>
 
   <nav class="tabbar" aria-label="Main">
     <button type="button" class="tab on" data-tab="month">
@@ -534,6 +592,7 @@
 
   let state = loadState();
   let activeTab = "month";
+  let eraserMode = false;
 
   function ensureHabitsReady() {
     if (!Array.isArray(state.habits) || !state.habits.length) {
@@ -671,18 +730,48 @@
     render();
   }
 
-  function decrementCell(habitId, y, m, d) {
+  function eraseCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
-    if (!habit || habit.type !== "counter") return;
+    if (!habit) return;
     const key = cellKey(habitId, y, m, d);
     const v = getCellValue(key);
     if (v === null) return;
-    const step = habit.step || 1;
-    const next = v - step;
-    if (next <= 0) delete state.cells[key];
-    else state.cells[key] = next;
+    if (habit.type === "yesno") {
+      if (v === 1) state.cells[key] = 0;
+      else delete state.cells[key];
+    } else {
+      const step = habit.step || 1;
+      const next = v - step;
+      if (next <= 0) delete state.cells[key];
+      else state.cells[key] = next;
+    }
     save();
     render();
+  }
+
+  function decrementCell(habitId, y, m, d) {
+    eraseCell(habitId, y, m, d);
+  }
+
+  function setEraserMode(on) {
+    eraserMode = !!on;
+    updateModeBar();
+    if (eraserMode) toast("Eraser on — tap a cell to subtract or clear");
+    else toast("Mark mode — tap to add");
+  }
+
+  function updateModeBar() {
+    const bar = document.getElementById("modeBar");
+    const markBtn = document.getElementById("modeMark");
+    const eraseBtn = document.getElementById("modeEraser");
+    if (!bar || !markBtn || !eraseBtn) return;
+    const show = activeTab === "month" || activeTab === "year";
+    bar.hidden = !show;
+    document.body.classList.toggle("has-mode-bar", show);
+    markBtn.classList.toggle("on", !eraserMode);
+    eraseBtn.classList.toggle("on", eraserMode);
+    markBtn.setAttribute("aria-pressed", String(!eraserMode));
+    eraseBtn.setAttribute("aria-pressed", String(eraserMode));
   }
 
   function renderTopNav() {
@@ -727,9 +816,9 @@
     }
     html += "</div>";
     if (habit.type === "counter") {
-      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">High: <strong>' + Math.round(high) + "</strong> · tap +step · hold −step</p>";
+      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">High: <strong>' + Math.round(high) + "</strong> · Mark: tap +step · Eraser or hold: −step</p>";
     } else {
-      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">Tap: empty, Yes, No, then empty</p>';
+      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">Tap: empty → Yes → No → empty · eraser steps back</p>';
     }
     return html;
   }
@@ -754,9 +843,10 @@
       btn.onclick = function () {
         if (held) { held = false; return; }
         const p = btn.dataset.key.split("|");
-        tapCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+        if (eraserMode) eraseCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+        else tapCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
       };
-      if (btn.dataset.counter) {
+      if (btn.dataset.counter && !eraserMode) {
         btn.addEventListener("touchstart", function () {
           held = false;
           holdTimer = setTimeout(function () {
@@ -784,7 +874,8 @@
     let cols = "72px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
 
-    let html = '<p class="hint">Counter: tap +step · hold to subtract. Yes/No: tap to cycle. Colors use 5 steps up to your all-time high.</p>';
+    const eraserNote = eraserMode ? " <strong>Eraser on</strong> — tap cells to subtract." : "";
+    let html = '<p class="hint">Use <strong>Mark</strong> or <strong>Eraser</strong> below. Hold a counter cell to subtract without Eraser.' + eraserNote + "</p>";
     html += '<div class="card scroll-x"><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
     for (let d = 1; d <= dim; d++) {
@@ -805,7 +896,8 @@
 
   function renderYear() {
     const root = document.getElementById("panelYear");
-    let html = '<p class="hint">Year view uses the same counts and yes/no marks as Month. Darkest = your all-time high.</p>';
+    const eraserNote = eraserMode ? " <strong>Eraser on</strong> — tap cells to undo." : "";
+    let html = '<p class="hint">Same data as Month. Tap <strong>Eraser</strong> below, then tap a cell to undo.' + eraserNote + "</p>";
 
     state.habits.forEach(function (habit) {
       html += '<div class="card year-block">';
@@ -993,6 +1085,9 @@
 
   const panelIds = { month: "panelMonth", year: "panelYear", habits: "panelHabits", data: "panelData" };
 
+  document.getElementById("modeMark").addEventListener("click", function () { setEraserMode(false); render(); });
+  document.getElementById("modeEraser").addEventListener("click", function () { setEraserMode(true); render(); });
+
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
       activeTab = tab.dataset.tab;
@@ -1006,6 +1101,8 @@
   function render() {
     try {
       ensureHabitsReady();
+      document.body.classList.toggle("eraser-mode", eraserMode && (activeTab === "month" || activeTab === "year"));
+      updateModeBar();
       renderTopNav();
       if (activeTab === "month") renderMonth();
       else if (activeTab === "year") renderYear();
