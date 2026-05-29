@@ -9,6 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <!-- build: hj-eraser-v2 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -41,7 +42,7 @@
       overscroll-behavior: none;
     }
     body.has-mode-bar {
-      padding-bottom: calc(120px + var(--safe-bottom));
+      padding-bottom: calc(128px + var(--safe-bottom));
     }
     button, .cell, .tab, .nav-btn { touch-action: manipulation; }
     .topbar {
@@ -322,16 +323,22 @@
     }
     .level-row input[type="color"] { width: 40px; height: 32px; border: none; padding: 0; }
     .level-row input[type="text"] { flex: 1; height: 36px; border: 1px solid var(--border); border-radius: 8px; padding: 0 8px; font-size: 0.875rem; }
-    .tabbar {
+    .bottom-dock {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
-      display: flex;
-      background: rgba(255,255,255,0.95);
-      border-top: 1px solid var(--border);
-      padding-bottom: var(--safe-bottom);
-      z-index: 50;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 55;
       max-width: 520px;
       margin: 0 auto;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 16px rgba(44, 36, 25, 0.08);
+    }
+    .tabbar {
+      display: flex;
+      background: rgba(255, 255, 255, 0.98);
+      padding-bottom: var(--safe-bottom);
     }
     .tab {
       flex: 1;
@@ -367,21 +374,23 @@
     }
     .toast.show { opacity: 1; }
     .mode-bar {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: calc(52px + var(--safe-bottom));
-      z-index: 49;
-      max-width: 520px;
-      margin: 0 auto;
       display: flex;
       gap: 8px;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.97);
-      border-top: 1px solid var(--border);
-      box-shadow: 0 -2px 12px rgba(44, 36, 25, 0.06);
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border);
+      background: #faf8f5;
     }
     .mode-bar[hidden] { display: none !important; }
+    .mode-inline {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      position: sticky;
+      top: calc(52px + var(--safe-top));
+      z-index: 12;
+      padding: 4px 0;
+      background: rgba(250, 248, 245, 0.95);
+    }
     .mode-btn {
       flex: 1;
       min-height: 44px;
@@ -429,29 +438,30 @@
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
 
-  <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
-    <button type="button" class="mode-btn on" id="modeMark" aria-pressed="true">✏️ Mark</button>
-    <button type="button" class="mode-btn" id="modeEraser" aria-pressed="false">🧹 Eraser</button>
+  <div class="bottom-dock" id="bottomDock">
+    <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
+      <button type="button" class="mode-btn on" data-mode-action="mark" aria-pressed="true">Mark</button>
+      <button type="button" class="mode-btn" data-mode-action="eraser" aria-pressed="false">Eraser</button>
+    </div>
+    <nav class="tabbar" aria-label="Main">
+      <button type="button" class="tab on" data-tab="month">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Month
+      </button>
+      <button type="button" class="tab" data-tab="year">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Year
+      </button>
+      <button type="button" class="tab" data-tab="habits">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Habits
+      </button>
+      <button type="button" class="tab" data-tab="data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
+        Data
+      </button>
+    </nav>
   </div>
-
-  <nav class="tabbar" aria-label="Main">
-    <button type="button" class="tab on" data-tab="month">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      Month
-    </button>
-    <button type="button" class="tab" data-tab="year">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      Year
-    </button>
-    <button type="button" class="tab" data-tab="habits">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      Habits
-    </button>
-    <button type="button" class="tab" data-tab="data">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
-      Data
-    </button>
-  </nav>
 
   <input type="file" id="importInput" accept="application/json,.json" />
   <div class="toast" id="toast" role="status"></div>
@@ -760,18 +770,30 @@
     else toast("Mark mode — tap to add");
   }
 
+  function modeBarHtml() {
+    return (
+      '<div class="mode-inline" role="toolbar" aria-label="Mark or erase">' +
+      '<button type="button" class="mode-btn' + (!eraserMode ? " on" : "") + '" data-mode-action="mark" aria-pressed="' + !eraserMode + '">Mark</button>' +
+      '<button type="button" class="mode-btn' + (eraserMode ? " on" : "") + '" data-mode-action="eraser" aria-pressed="' + eraserMode + '">Eraser</button>' +
+      "</div>"
+    );
+  }
+
+  function syncModeButtons() {
+    document.querySelectorAll("[data-mode-action]").forEach(function (btn) {
+      const isEraser = btn.getAttribute("data-mode-action") === "eraser";
+      btn.classList.toggle("on", isEraser ? eraserMode : !eraserMode);
+      btn.setAttribute("aria-pressed", String(isEraser ? eraserMode : !eraserMode));
+    });
+  }
+
   function updateModeBar() {
     const bar = document.getElementById("modeBar");
-    const markBtn = document.getElementById("modeMark");
-    const eraseBtn = document.getElementById("modeEraser");
-    if (!bar || !markBtn || !eraseBtn) return;
+    if (!bar) return;
     const show = activeTab === "month" || activeTab === "year";
     bar.hidden = !show;
     document.body.classList.toggle("has-mode-bar", show);
-    markBtn.classList.toggle("on", !eraserMode);
-    eraseBtn.classList.toggle("on", eraserMode);
-    markBtn.setAttribute("aria-pressed", String(!eraserMode));
-    eraseBtn.setAttribute("aria-pressed", String(eraserMode));
+    syncModeButtons();
   }
 
   function renderTopNav() {
@@ -874,8 +896,8 @@
     let cols = "72px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
 
-    const eraserNote = eraserMode ? " <strong>Eraser on</strong> — tap cells to subtract." : "";
-    let html = '<p class="hint">Use <strong>Mark</strong> or <strong>Eraser</strong> below. Hold a counter cell to subtract without Eraser.' + eraserNote + "</p>";
+    const eraserNote = eraserMode ? " Eraser on — tap a cell to subtract." : "";
+    let html = modeBarHtml() + '<p class="hint">Pick Mark or Eraser above.' + eraserNote + " Hold a counter cell to subtract without Eraser.</p>";
     html += '<div class="card scroll-x"><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
     for (let d = 1; d <= dim; d++) {
@@ -897,7 +919,7 @@
   function renderYear() {
     const root = document.getElementById("panelYear");
     const eraserNote = eraserMode ? " <strong>Eraser on</strong> — tap cells to undo." : "";
-    let html = '<p class="hint">Same data as Month. Tap <strong>Eraser</strong> below, then tap a cell to undo.' + eraserNote + "</p>";
+    let html = modeBarHtml() + '<p class="hint">Pick Mark or Eraser above, then tap a day.' + eraserNote + "</p>";
 
     state.habits.forEach(function (habit) {
       html += '<div class="card year-block">';
@@ -1085,8 +1107,12 @@
 
   const panelIds = { month: "panelMonth", year: "panelYear", habits: "panelHabits", data: "panelData" };
 
-  document.getElementById("modeMark").addEventListener("click", function () { setEraserMode(false); render(); });
-  document.getElementById("modeEraser").addEventListener("click", function () { setEraserMode(true); render(); });
+  document.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-mode-action]");
+    if (!btn) return;
+    setEraserMode(btn.getAttribute("data-mode-action") === "eraser");
+    render();
+  });
 
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
