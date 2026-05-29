@@ -573,23 +573,11 @@
       color: #b45309;
     }
 
-    .btn-cursor {
-      background: #171717;
-      color: #fff;
-    }
-
     .btn-stack {
       display: flex;
       flex-direction: column;
       gap: 10px;
       margin-top: 4px;
-    }
-
-    .btn-hint {
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: -4px;
     }
 
     .toast {
@@ -770,7 +758,6 @@
     toast: document.getElementById('toast')
   };
 
-  var CURSOR_AGENTS_URL = 'https://cursor.com/agents';
   var toastTimer = null;
 
   function uid() {
@@ -1141,20 +1128,10 @@
       actionsHtml +
       '<p style="font-size:0.75rem;color:var(--muted);margin-bottom:12px">' + formatDate(note.createdAt) + '</p>' +
       '<div class="btn-stack">' +
-        '<button type="button" class="btn btn-cursor" id="sendToCursor">Send to Cursor</button>' +
-        '<p class="btn-hint">Copies this note and opens cursor.com/agents — paste to start.</p>' +
         '<button type="button" class="btn btn-primary" id="saveDetail">Save changes</button>' +
       '</div>';
 
     els.detailOverlay.classList.add('open');
-
-    document.getElementById('sendToCursor').addEventListener('click', function () {
-      sendToCursor(note, {
-        title: document.getElementById('editTitle').value.trim(),
-        body: document.getElementById('editBody').value.trim(),
-        category: document.getElementById('editCategory').value
-      });
-    });
 
     document.getElementById('starToggle').addEventListener('click', function () {
       note.starred = !note.starred;
@@ -1177,25 +1154,6 @@
     return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   }
 
-  function formatNoteForCursor(data) {
-    var cat = getCategory(data.category);
-    var lines = [
-      'From Voice Notes (' + formatDate(data.createdAt) + ' · ' + cat.label + ')',
-      '',
-      '**' + data.title + '**',
-      '',
-      data.body
-    ];
-    if (data.actions && data.actions.length) {
-      lines.push('', 'Action items:');
-      data.actions.forEach(function (action) {
-        lines.push('- ' + action);
-      });
-    }
-    lines.push('', '---', 'Please help with the above.');
-    return lines.join('\n');
-  }
-
   function showToast(message) {
     els.toast.textContent = message;
     els.toast.classList.add('show');
@@ -1203,45 +1161,6 @@
     toastTimer = setTimeout(function () {
       els.toast.classList.remove('show');
     }, 2800);
-  }
-
-  function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text);
-    }
-    return new Promise(function (resolve, reject) {
-      var area = document.createElement('textarea');
-      area.value = text;
-      area.setAttribute('readonly', '');
-      area.style.position = 'fixed';
-      area.style.left = '-9999px';
-      document.body.appendChild(area);
-      area.select();
-      try {
-        document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
-      } catch (err) {
-        reject(err);
-      } finally {
-        document.body.removeChild(area);
-      }
-    });
-  }
-
-  function sendToCursor(note, formData) {
-    var data = {
-      title: formData.title || note.title,
-      body: formData.body || note.body,
-      category: formData.category || note.category,
-      actions: extractActions(formData.body || note.body),
-      createdAt: note.createdAt
-    };
-    var text = formatNoteForCursor(data);
-    copyText(text).then(function () {
-      showToast('Copied! Opening Cursor…');
-      window.open(CURSOR_AGENTS_URL, '_blank');
-    }).catch(function () {
-      showToast('Could not copy — select text manually');
-    });
   }
 
   function closeDetail() {

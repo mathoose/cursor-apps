@@ -48,5 +48,4 @@ Or drag the `voice-notes` folder into [Netlify Drop](https://app.netlify.com/dro
 - Speak in full sentences for better transcription
 - Say “need to buy filament” or “vet appointment for the dog” — categories detect keywords automatically
 - You can edit any note after saving (title, category, body)
-- **Send to Cursor** — copies a formatted note and opens [cursor.com/agents](https://cursor.com/agents); paste to kick off an agent
 - Toggle **By date** / **By category** to browse your notes
