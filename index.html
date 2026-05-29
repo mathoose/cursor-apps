@@ -136,6 +136,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
+  const ICON_VERSION = "2";
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
   const FALLBACK_MANIFEST = {
@@ -219,11 +220,12 @@
 
   function iconUrl(appId) {
     const base = appId + "/";
-    return ICON_FILES.map(function (f) { return base + f; });
+    const q = "?v=" + ICON_VERSION;
+    return ICON_FILES.map(function (f) { return base + f + q; });
   }
 
   function renderApp(app) {
-    const firstIcon = app.id + "/app-icon.png";
+    const firstIcon = app.id + "/app-icon.png?v=" + ICON_VERSION;
     return (
       '<a class="app" href="' + escapeHtml(app.href) + '" data-app-id="' + escapeHtml(app.id) + '">' +
         '<div class="icon-wrap"><img src="' + escapeHtml(firstIcon) + '" alt="" loading="lazy" /></div>' +

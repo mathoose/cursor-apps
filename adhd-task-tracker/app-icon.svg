@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="40" fill="#6366f1"/>
+  <!-- notepad -->
+  <rect x="36" y="32" width="108" height="116" rx="10" fill="#fff"/>
+  <rect x="36" y="32" width="108" height="18" rx="10" fill="#e0e7ff"/>
+  <!-- lines + checkmarks -->
+  <g fill="none" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round">
+    <line x1="72" y1="68" x2="128" y2="68"/>
+    <line x1="72" y1="92" x2="128" y2="92"/>
+    <line x1="72" y1="116" x2="128" y2="116"/>
+    <line x1="72" y1="140" x2="110" y2="140"/>
+  </g>
+  <g stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M48 68l8 8 14-18"/>
+    <path d="M48 92l8 8 14-18"/>
+    <path d="M48 116l8 8 14-18"/>
+  </g>
+</svg>
