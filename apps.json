@@ -1,0 +1,20 @@
+{
+  "title": "Emily's Apps",
+  "apps": [
+    {
+      "id": "habit-journal",
+      "name": "Habit Journal",
+      "subtitle": "Bullet-style dots"
+    },
+    {
+      "id": "aruba-packing",
+      "name": "Aruba Pack",
+      "subtitle": "7-day packing"
+    },
+    {
+      "id": "voice-notes",
+      "name": "Voice Notes",
+      "subtitle": "Speak & transcribe"
+    }
+  ]
+}

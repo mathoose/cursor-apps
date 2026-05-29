@@ -3,38 +3,298 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>mathoose apps</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Apps" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <title>Apps</title>
   <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; height: -webkit-fill-available; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      max-width: 420px;
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: #fff;
+      background: linear-gradient(165deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+      padding: calc(20px + var(--safe-top)) 20px calc(24px + var(--safe-bottom));
+      overscroll-behavior: none;
+    }
+    .status {
+      text-align: center;
+      font-size: 0.8125rem;
+      opacity: 0.7;
+      margin-bottom: 20px;
+      min-height: 1.2em;
+    }
+    .page-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px 12px;
+      max-width: 400px;
       margin: 0 auto;
-      padding: 24px 20px;
-      background: #f5f5f5;
-      color: #1a1a1a;
     }
-    h1 { font-size: 1.5rem; margin-bottom: 8px; }
-    p { color: #555; font-size: 0.9375rem; line-height: 1.5; margin-bottom: 20px; }
-    a {
-      display: block;
-      padding: 16px 18px;
-      margin-bottom: 10px;
-      background: #fff;
-      border-radius: 12px;
+    .app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-decoration: none;
-      color: #0d9488;
-      font-weight: 600;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      color: inherit;
+      -webkit-touch-callout: none;
     }
-    a:active { background: #f0fdfa; }
-    small { display: block; color: #888; font-weight: 400; margin-top: 4px; }
+    .app:active .icon-wrap { transform: scale(0.92); opacity: 0.85; }
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow:
+        0 2px 6px rgba(0,0,0,0.35),
+        0 0 0 0.5px rgba(255,255,255,0.12) inset;
+      transition: transform 0.15s, opacity 0.15s;
+      background: rgba(255,255,255,0.08);
+    }
+    .icon-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .app-name {
+      margin-top: 6px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 72px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+    .dock-wrap {
+      margin-top: 36px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 22px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .dock-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.65;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .hint {
+      text-align: center;
+      font-size: 0.75rem;
+      opacity: 0.55;
+      margin-top: 24px;
+      line-height: 1.45;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .skeleton .icon-wrap {
+      background: rgba(255,255,255,0.15);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.5; } }
+    @media (min-width: 420px) {
+      .icon-wrap { width: 72px; height: 72px; border-radius: 16px; }
+      .app-name { font-size: 0.75rem; max-width: 80px; }
+    }
   </style>
 </head>
 <body>
-  <h1>My apps</h1>
-  <p>Tap to open. Add to Home Screen in Safari for full-screen use.</p>
-  <a href="habit-journal/">Habit journal <small>Monthly & yearly habit dots</small></a>
-  <a href="aruba-packing/">Aruba packing <small>7-day packing list + wardrobe photos</small></a>
-  <a href="voice-notes/">Voice notes <small>Quick voice memos</small></a>
+  <p class="status" id="status" aria-live="polite">Loading apps…</p>
+  <h1 class="page-title" id="pageTitle">Apps</h1>
+  <div class="grid" id="grid"></div>
+  <p class="hint">Tap an icon to open. In Safari: Share → Add to Home Screen to pin this launcher.</p>
+
+  <script>
+(function () {
+  "use strict";
+
+  const REPO = "mathoose/cursor-apps";
+  const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
+  const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
+  const FALLBACK_MANIFEST = {
+    title: "Apps",
+    apps: [
+      { id: "habit-journal", name: "Habit Journal", subtitle: "Bullet-style dots" },
+      { id: "aruba-packing", name: "Aruba Pack", subtitle: "7-day packing" },
+      { id: "voice-notes", name: "Voice Notes", subtitle: "Speak & transcribe" }
+    ]
+  };
+
+  function humanize(slug) {
+    return slug.replace(/-/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function loadManifest() {
+    return fetch("apps.json?" + Date.now())
+      .then(function (r) { return r.ok ? r.json() : FALLBACK_MANIFEST; })
+      .catch(function () { return FALLBACK_MANIFEST; });
+  }
+
+  function fetchRootDirs() {
+    return fetch("https://api.github.com/repos/" + REPO + "/contents/?ref=main")
+      .then(function (r) {
+        if (!r.ok) throw new Error("GitHub API");
+        return r.json();
+      })
+      .then(function (items) {
+        return items.filter(function (x) {
+          return x.type === "dir" && !IGNORE.has(x.name) && !x.name.startsWith(".");
+        });
+      });
+  }
+
+  function dirHasIndex(dirName) {
+    return fetch("https://api.github.com/repos/" + REPO + "/contents/" + encodeURIComponent(dirName) + "?ref=main")
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (items) {
+        return Array.isArray(items) && items.some(function (f) { return f.name === "index.html"; });
+      });
+  }
+
+  function discoverApps(manifest) {
+    const meta = {};
+    (manifest.apps || []).forEach(function (a) {
+      meta[a.id] = { name: a.name, subtitle: a.subtitle || "" };
+    });
+
+    return fetchRootDirs()
+      .then(function (dirs) {
+        return Promise.all(dirs.map(function (d) {
+          return dirHasIndex(d.name).then(function (ok) {
+            return ok ? d.name : null;
+          });
+        }));
+      })
+      .then(function (ids) {
+        return ids.filter(Boolean).map(function (id) {
+          const m = meta[id] || {};
+          return {
+            id: id,
+            name: m.name || humanize(id),
+            subtitle: m.subtitle || "",
+            href: id + "/",
+          };
+        });
+      })
+      .then(function (apps) {
+        apps.sort(function (a, b) { return a.name.localeCompare(b.name); });
+        return { title: manifest.title || "Apps", apps: apps };
+      });
+  }
+
+  function iconUrl(appId) {
+    const base = appId + "/";
+    return ICON_FILES.map(function (f) { return base + f; });
+  }
+
+  function renderApp(app) {
+    const firstIcon = app.id + "/app-icon.png";
+    return (
+      '<a class="app" href="' + escapeHtml(app.href) + '" data-app-id="' + escapeHtml(app.id) + '">' +
+        '<div class="icon-wrap"><img src="' + escapeHtml(firstIcon) + '" alt="" loading="lazy" /></div>' +
+        '<span class="app-name">' + escapeHtml(app.name) + "</span>" +
+      "</a>"
+    );
+  }
+
+  function bindIconFallbacks() {
+    document.querySelectorAll(".app[data-app-id]").forEach(function (link) {
+      const id = link.getAttribute("data-app-id");
+      const img = link.querySelector("img");
+      if (!img) return;
+      const candidates = iconUrl(id);
+      let idx = 0;
+      img.onerror = function () {
+        idx += 1;
+        if (idx < candidates.length) {
+          img.src = candidates[idx];
+        } else {
+          img.onerror = null;
+          img.style.display = "none";
+        }
+      };
+    });
+  }
+
+  function renderSkeleton(n) {
+    let h = "";
+    for (let i = 0; i < (n || 4); i++) {
+      h += '<div class="app skeleton"><div class="icon-wrap"></div><span class="app-name">…</span></div>';
+    }
+    document.getElementById("grid").innerHTML = h;
+  }
+
+  function render(data) {
+    document.getElementById("pageTitle").textContent = data.title;
+    document.getElementById("status").textContent = data.apps.length + " app" + (data.apps.length === 1 ? "" : "s");
+    document.getElementById("grid").innerHTML = data.apps.map(renderApp).join("");
+    bindIconFallbacks();
+  }
+
+  function renderOffline(manifest) {
+    const apps = (manifest.apps || []).map(function (a) {
+      return {
+        id: a.id,
+        name: a.name || humanize(a.id),
+        subtitle: a.subtitle || "",
+        href: a.id + "/",
+      };
+    });
+    document.getElementById("status").textContent = "Offline list";
+    render({ title: manifest.title || "Apps", apps: apps });
+  }
+
+  renderSkeleton(4);
+
+  loadManifest()
+    .then(function (manifest) {
+      return discoverApps(manifest).catch(function () {
+        document.getElementById("status").textContent = "Using local list";
+        return { title: manifest.title, apps: (manifest.apps || []).map(function (a) {
+          return { id: a.id, name: a.name, subtitle: a.subtitle, href: a.id + "/" };
+        })};
+      });
+    })
+    .then(render)
+    .catch(function () {
+      renderOffline(FALLBACK_MANIFEST);
+    });
+})();
+  </script>
 </body>
 </html>
