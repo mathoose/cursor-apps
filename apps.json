@@ -15,6 +15,11 @@
       "id": "voice-notes",
       "name": "Voice Notes",
       "subtitle": "Speak & transcribe"
+    },
+    {
+      "id": "adhd-task-tracker",
+      "name": "Focus",
+      "subtitle": "ADHD tasks & habits"
     }
   ]
 }
