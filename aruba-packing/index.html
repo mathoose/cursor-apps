@@ -10,6 +10,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#0d9488" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
   <title>Aruba · 7 Days</title>
   <style>
     :root {
@@ -854,8 +855,9 @@
 </head>
 <body>
   <header class="hero list-only">
-    <div class="hero-top">
-      <div>
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
         <h1>Aruba</h1>
         <p class="hero-meta">7 days · Tropical · Beach</p>
       </div>
@@ -879,8 +881,9 @@
   </header>
 
   <header class="hero grid-only" id="gridHero">
-    <div class="hero-top">
-      <div>
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
         <h1>Wardrobe</h1>
         <p class="hero-meta" id="gridHeroMeta">Photo grid · synced with your list</p>
       </div>
@@ -1728,15 +1731,18 @@
     }
   }
 
+  function flushSaveState() {
+    clearTimeout(saveTimer);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      toast("Could not save — storage may be full");
+    }
+  }
+
   function saveState() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        toast("Could not save — storage may be full");
-      }
-    }, 80);
+    saveTimer = setTimeout(flushSaveState, 80);
   }
 
   function toast(msg) {
@@ -2191,8 +2197,14 @@
 
   populateAddCategory();
   renderActivities();
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flushSaveState();
+  });
+  window.addEventListener("pagehide", flushSaveState);
+
   render();
 })();
   </script>
+  <script src="../apps-shell.js" defer></script>
 </body>
 </html>

@@ -12,6 +12,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="../apps-shell.css" />
   <title>Voice Notes</title>
   <style>
     :root {
@@ -619,7 +620,8 @@
 </head>
 <body>
   <header class="hero">
-    <div class="hero-top">
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div class="app-logo" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
           <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"/>
@@ -785,7 +787,13 @@
   }
 
   function saveNotes() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.notes));
+    try {
+      var json = JSON.stringify(state.notes);
+      localStorage.setItem(STORAGE_KEY, json);
+      sessionStorage.setItem(STORAGE_KEY + '-backup', json);
+    } catch (e) {
+      toast('Could not save notes');
+    }
     updateStats();
     render();
   }
@@ -1295,10 +1303,22 @@
   });
 
   loadNotes();
+  if (!state.notes.length) {
+    try {
+      var backup = sessionStorage.getItem(STORAGE_KEY + '-backup');
+      if (backup) state.notes = JSON.parse(backup);
+    } catch (e) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') saveNotes();
+  });
+  window.addEventListener('pagehide', saveNotes);
+
   showSupportBanner();
   updateStats();
   render();
 })();
   </script>
+  <script src="../apps-shell.js" defer></script>
 </body>
 </html>

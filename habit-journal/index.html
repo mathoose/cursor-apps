@@ -9,6 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
   <title>Habit Journal</title>
   <style>
     :root {
@@ -32,7 +33,7 @@
       background-color: var(--paper);
       background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
       background-size: 18px 18px;
-      padding-top: calc(56px + var(--safe-top));
+      padding-top: calc(60px + var(--safe-top));
       padding-bottom: calc(64px + var(--safe-bottom));
       overscroll-behavior: none;
     }
@@ -45,15 +46,23 @@
       background: rgba(250, 248, 245, 0.92);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--border);
+    }
+    .topbar-inner {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
     }
     .topbar h1 {
-      font-size: 1.125rem;
+      flex: 1;
+      min-width: 0;
+      font-size: 1.0625rem;
       font-weight: 700;
       font-family: Georgia, "Times New Roman", serif;
+    }
+    .habit-journal .apps-home-back {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--ink);
     }
     .nav-row { display: flex; align-items: center; gap: 6px; }
     .nav-btn {
@@ -272,10 +281,14 @@
     }
   </style>
 </head>
-<body>
+<body class="habit-journal">
+  <div class="storage-banner" id="storageBanner" role="alert"></div>
   <header class="topbar">
-    <h1>Habit Journal</h1>
-    <div class="nav-row" id="topNav"></div>
+    <div class="topbar-inner">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <h1>Habit Journal</h1>
+      <div class="nav-row" id="topNav"></div>
+    </div>
   </header>
 
   <main>
@@ -312,6 +325,8 @@
   "use strict";
 
   const STORAGE_KEY = "habit-journal-v1";
+  const STORAGE_BACKUP_KEY = "habit-journal-v1-backup";
+  let storageOk = true;
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -342,9 +357,28 @@
     return "h" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   }
 
+  function storageAvailable() {
+    try {
+      const t = "__hj_w__";
+      localStorage.setItem(t, "1");
+      localStorage.removeItem(t);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function showStorageBanner(msg) {
+    const el = document.getElementById("storageBanner");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+  }
+
   function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      let raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) raw = sessionStorage.getItem(STORAGE_BACKUP_KEY);
       if (!raw) return defaultState();
       const p = JSON.parse(raw);
       if (!p || !Array.isArray(p.habits)) return defaultState();
@@ -377,11 +411,28 @@
   let activeTab = "month";
 
   function save() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    } catch (e) {
-      toast("Could not save");
+    if (!storageOk) {
+      toast("Saving disabled — use Safari, not Private mode");
+      return false;
     }
+    const json = JSON.stringify(state);
+    try {
+      localStorage.setItem(STORAGE_KEY, json);
+      sessionStorage.setItem(STORAGE_BACKUP_KEY, json);
+      return true;
+    } catch (e) {
+      try {
+        sessionStorage.setItem(STORAGE_BACKUP_KEY, json);
+        toast("Saved to session only — check storage");
+      } catch (e2) {
+        toast("Could not save");
+      }
+      return false;
+    }
+  }
+
+  function flushSave() {
+    save();
   }
 
   function toast(msg) {
@@ -710,8 +761,21 @@
     else if (activeTab === "data") renderData();
   }
 
+  storageOk = storageAvailable();
+  if (!storageOk) {
+    showStorageBanner("Data won't save in Private Browsing. Use Safari normal mode and always open the same URL (mathoose.github.io).");
+  } else if ("storage" in navigator && navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(function () {});
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flushSave();
+  });
+  window.addEventListener("pagehide", flushSave);
+
   render();
 })();
   </script>
+  <script src="../apps-shell.js" defer></script>
 </body>
 </html>
