@@ -208,7 +208,7 @@
             id: id,
             name: m.name || humanize(id),
             subtitle: m.subtitle || "",
-            href: id + "/",
+            href: id === "habit-journal" ? id + "/?v=eraser2" : id + "/",
           };
         });
       })
@@ -274,7 +274,7 @@
         id: a.id,
         name: a.name || humanize(a.id),
         subtitle: a.subtitle || "",
-        href: a.id + "/",
+        href: a.id === "habit-journal" ? a.id + "/?v=eraser2" : a.id + "/",
       };
     });
     document.getElementById("status").textContent = "Offline list";
