@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Voice Notes" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#6366f1" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <title>Voice Notes</title>
+  <style>
+    :root {
+      --bg: #eef2ff;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #6366f1;
+      --accent-soft: #e0e7ff;
+      --accent-dark: #4338ca;
+      --danger: #ef4444;
+      --danger-soft: #fee2e2;
+      --success: #10b981;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06);
+      --radius: 14px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --tap: 44px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      -webkit-tap-highlight-color: transparent;
+      height: -webkit-fill-available;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      overscroll-behavior: none;
+      padding-bottom: calc(100px + var(--safe-bottom));
+    }
+
+    button { touch-action: manipulation; font: inherit; }
+
+    .hero {
+      background: linear-gradient(145deg, #6366f1 0%, #7c3aed 55%, #8b5cf6 100%);
+      color: #fff;
+      padding: calc(16px + var(--safe-top)) 20px 24px;
+      border-radius: 0 0 28px 28px;
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .app-logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .app-logo svg { width: 32px; height: 32px; }
+
+    .hero h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-meta {
+      font-size: 0.875rem;
+      opacity: 0.92;
+      margin-top: 2px;
+    }
+
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .search {
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px 12px 42px;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--text);
+      outline: none;
+    }
+
+    .search::placeholder { color: #94a3b8; }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      min-height: 36px;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+
+    .chip.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .chip .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 6px;
+      padding: 0 16px;
+      margin-top: 10px;
+    }
+
+    .view-btn {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .view-btn.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    main {
+      padding: 12px 16px 0;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+
+    .empty h2 {
+      font-size: 1.125rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .empty p { font-size: 0.9375rem; line-height: 1.5; }
+
+    .group-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding: 16px 4px 8px;
+    }
+
+    .note-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .note-card:active { border-color: var(--accent-soft); }
+
+    .note-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .note-cat {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .note-title {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.35;
+      flex: 1;
+    }
+
+    .note-star {
+      color: #f59e0b;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .note-preview {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .note-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .action-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .fab-wrap {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(16px + var(--safe-bottom));
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .fab {
+      pointer-events: auto;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(145deg, #6366f1, #7c3aed);
+      color: #fff;
+      box-shadow: 0 8px 28px rgba(99, 102, 241, 0.45);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .fab:active { transform: scale(0.96); }
+
+    .fab.recording {
+      background: linear-gradient(145deg, #ef4444, #dc2626);
+      box-shadow: 0 8px 28px rgba(239, 68, 68, 0.45);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 8px 28px rgba(239, 68, 68, 0.45); }
+      50% { box-shadow: 0 8px 36px rgba(239, 68, 68, 0.65); }
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      padding-bottom: calc(16px + var(--safe-bottom));
+    }
+
+    .overlay.open { display: flex; }
+
+    .sheet {
+      background: var(--surface);
+      border-radius: 24px 24px 20px 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sheet-head h2 { font-size: 1.125rem; font-weight: 700; }
+
+    .icon-btn {
+      width: var(--tap);
+      height: var(--tap);
+      border: none;
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn.danger { background: var(--danger-soft); color: var(--danger); }
+
+    .sheet-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .record-panel {
+      text-align: center;
+      padding: 8px 0 16px;
+    }
+
+    .record-visual {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .record-visual.live {
+      background: var(--danger-soft);
+      color: var(--danger);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .record-status {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .record-hint {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .live-text {
+      text-align: left;
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 100px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .live-text.empty { color: var(--muted); font-style: italic; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      min-height: var(--tap);
+      border-radius: 12px;
+      border: none;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--surface);
+      outline: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--accent);
+    }
+
+    .field textarea {
+      min-height: 140px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .actions-list {
+      list-style: none;
+      background: #fffbeb;
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .actions-list li {
+      font-size: 0.875rem;
+      padding: 6px 0;
+      border-bottom: 1px solid #fde68a;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .actions-list li:last-child { border-bottom: none; }
+
+    .banner {
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      padding: 12px 16px;
+      margin: 12px 16px 0;
+      border-radius: 12px;
+      max-width: 488px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .banner.hidden { display: none; }
+
+    .star-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    .star-toggle.on {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    .btn-cursor {
+      background: #171717;
+      color: #fff;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: -4px;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(96px + var(--safe-bottom));
+      transform: translateX(-50%) translateY(12px);
+      background: #171717;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 200;
+      max-width: calc(100% - 32px);
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-top">
+      <div class="app-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"/>
+          <path d="M5 10a7 7 0 0 0 14 0"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <path d="M18 6c1.5 1 2.5 2.8 2.5 5" opacity=".7"/>
+          <path d="M20 4c2 1.6 3.5 4 3.5 7" opacity=".4"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Voice Notes</h1>
+        <p class="hero-meta" id="statsLine">Tap the mic to start</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="search" id="searchInput" type="search" placeholder="Search notes…" autocomplete="off" />
+    </div>
+  </header>
+
+  <div class="banner hidden" id="supportBanner"></div>
+
+  <div class="toolbar" id="categoryFilters"></div>
+
+  <div class="view-toggle">
+    <button type="button" class="view-btn on" data-view="date">By date</button>
+    <button type="button" class="view-btn" data-view="category">By category</button>
+  </div>
+
+  <main id="notesMain"></main>
+
+  <div class="fab-wrap">
+    <button type="button" class="fab" id="recordFab" aria-label="Record voice note">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"/>
+        <path d="M5 10a7 7 0 0 0 14 0"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="overlay" id="recordOverlay" role="dialog" aria-modal="true" aria-labelledby="recordTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="recordTitle">New voice note</h2>
+        <button type="button" class="icon-btn" id="closeRecord" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-body">
+        <div class="record-panel">
+          <div class="record-visual" id="recordVisual">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"/>
+              <path d="M5 10a7 7 0 0 0 14 0"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+            </svg>
+          </div>
+          <p class="record-status" id="recordStatus">Ready to listen</p>
+          <p class="record-hint" id="recordHint">Tap Start and speak clearly. Your words appear below.</p>
+          <div class="live-text empty" id="liveText">Your transcript will show here…</div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="toggleRecord">Start</button>
+            <button type="button" class="btn btn-primary" id="saveRecord" disabled>Save note</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="detailTitle">Note</h2>
+        <button type="button" class="icon-btn danger" id="deleteNote" aria-label="Delete note">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-body" id="detailBody"></div>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'voice-notes-v1';
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  var CATEGORIES = [
+    { id: 'work', label: 'Work', color: '#3b82f6', bg: '#dbeafe', keywords: ['work', 'process', 'batch', 'plant', 'meeting', 'project', 'engineering', 'sop', 'production', 'shift', 'report', 'client', 'deadline'] },
+    { id: 'print', label: '3D Print', color: '#8b5cf6', bg: '#ede9fe', keywords: ['print', 'printing', 'filament', 'pla', 'petg', 'asa', 'abs', 'slicer', 'nozzle', 'bed', 'bambu', 'prusa', 'ender', 'model', 'stl', 'supports'] },
+    { id: 'dog', label: 'Dog', color: '#f59e0b', bg: '#fef3c7', keywords: ['dog', 'puppy', 'vet', 'walk', 'treat', 'leash', 'groom', 'kennel', 'boarding', 'heartworm', 'flea'] },
+    { id: 'home', label: 'Home', color: '#10b981', bg: '#d1fae5', keywords: ['home', 'house', 'fix', 'repair', 'filter', 'maintenance', 'kitchen', 'hvac', 'yard', 'clean', 'wife', 'apartment', 'lease'] },
+    { id: 'shop', label: 'Shopping', color: '#ec4899', bg: '#fce7f3', keywords: ['buy', 'get', 'pick up', 'grocery', 'order', 'amazon', 'store', 'shopping', 'need to grab'] },
+    { id: 'ideas', label: 'Ideas', color: '#06b6d4', bg: '#cffafe', keywords: ['idea', 'maybe', 'what if', 'could build', 'app', 'invention', 'brainstorm'] },
+    { id: 'personal', label: 'Personal', color: '#64748b', bg: '#f1f5f9', keywords: [] }
+  ];
+
+  var ACTION_PATTERNS = [
+    /\b(?:need to|have to|must|should|remember to|don't forget to|todo|to do|action item)\s+(.+?)(?:\.|$)/gi,
+    /\b(?:remind me to)\s+(.+?)(?:\.|$)/gi
+  ];
+
+  var state = {
+    notes: [],
+    filterCategory: 'all',
+    searchQuery: '',
+    viewMode: 'date',
+    recording: false,
+    transcript: '',
+    interim: '',
+    recognition: null,
+    activeNoteId: null
+  };
+
+  var els = {
+    statsLine: document.getElementById('statsLine'),
+    searchInput: document.getElementById('searchInput'),
+    categoryFilters: document.getElementById('categoryFilters'),
+    notesMain: document.getElementById('notesMain'),
+    recordFab: document.getElementById('recordFab'),
+    recordOverlay: document.getElementById('recordOverlay'),
+    closeRecord: document.getElementById('closeRecord'),
+    recordVisual: document.getElementById('recordVisual'),
+    recordStatus: document.getElementById('recordStatus'),
+    recordHint: document.getElementById('recordHint'),
+    liveText: document.getElementById('liveText'),
+    toggleRecord: document.getElementById('toggleRecord'),
+    saveRecord: document.getElementById('saveRecord'),
+    detailOverlay: document.getElementById('detailOverlay'),
+    detailBody: document.getElementById('detailBody'),
+    deleteNote: document.getElementById('deleteNote'),
+    supportBanner: document.getElementById('supportBanner'),
+    toast: document.getElementById('toast')
+  };
+
+  var CURSOR_AGENTS_URL = 'https://cursor.com/agents';
+  var toastTimer = null;
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function loadNotes() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      state.notes = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      state.notes = [];
+    }
+  }
+
+  function saveNotes() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.notes));
+    updateStats();
+    render();
+  }
+
+  function getCategory(id) {
+    for (var i = 0; i < CATEGORIES.length; i++) {
+      if (CATEGORIES[i].id === id) return CATEGORIES[i];
+    }
+    return CATEGORIES[CATEGORIES.length - 1];
+  }
+
+  function detectCategory(text) {
+    var lower = text.toLowerCase();
+    var best = { id: 'personal', score: 0 };
+    CATEGORIES.forEach(function (cat) {
+      if (!cat.keywords.length) return;
+      var score = 0;
+      cat.keywords.forEach(function (kw) {
+        if (lower.indexOf(kw) !== -1) score += kw.split(' ').length;
+      });
+      if (score > best.score) best = { id: cat.id, score: score };
+    });
+    return best.id;
+  }
+
+  function extractActions(text) {
+    var actions = [];
+    var seen = {};
+    ACTION_PATTERNS.forEach(function (pattern) {
+      var copy = new RegExp(pattern.source, pattern.flags);
+      var match;
+      while ((match = copy.exec(text)) !== null) {
+        var item = match[1].trim().replace(/[,;]+$/, '');
+        if (item.length > 2 && !seen[item.toLowerCase()]) {
+          seen[item.toLowerCase()] = true;
+          actions.push(item);
+        }
+      }
+    });
+    return actions;
+  }
+
+  function makeTitle(text) {
+    var cleaned = text.replace(/\s+/g, ' ').trim();
+    if (!cleaned) return 'Untitled note';
+    var sentence = cleaned.split(/[.!?]/)[0].trim();
+    var title = sentence || cleaned;
+    if (title.length > 72) title = title.slice(0, 69) + '…';
+    return title;
+  }
+
+  function formatDate(iso) {
+    var d = new Date(iso);
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = (today - noteDay) / 86400000;
+    var time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    if (diff === 0) return 'Today · ' + time;
+    if (diff === 1) return 'Yesterday · ' + time;
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' · ' + time;
+  }
+
+  function dateGroupLabel(iso) {
+    var d = new Date(iso);
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var noteDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diff = (today - noteDay) / 86400000;
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Yesterday';
+    if (diff < 7) return 'This week';
+    if (diff < 30) return 'This month';
+    return 'Earlier';
+  }
+
+  function filteredNotes() {
+    var q = state.searchQuery.trim().toLowerCase();
+    return state.notes.filter(function (note) {
+      if (state.filterCategory !== 'all' && note.category !== state.filterCategory) return false;
+      if (!q) return true;
+      var hay = (note.title + ' ' + note.body + ' ' + (note.actions || []).join(' ')).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    }).sort(function (a, b) {
+      if (a.starred !== b.starred) return a.starred ? -1 : 1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+  }
+
+  function updateStats() {
+    var count = state.notes.length;
+    var actions = state.notes.reduce(function (n, note) { return n + (note.actions ? note.actions.length : 0); }, 0);
+    if (!count) {
+      els.statsLine.textContent = 'Tap the mic to start';
+      return;
+    }
+    els.statsLine.textContent = count + ' note' + (count === 1 ? '' : 's') + (actions ? ' · ' + actions + ' action' + (actions === 1 ? '' : 's') : '');
+  }
+
+  function renderFilters() {
+    var html = '<button type="button" class="chip' + (state.filterCategory === 'all' ? ' on' : '') + '" data-cat="all">All</button>';
+    CATEGORIES.forEach(function (cat) {
+      var count = state.notes.filter(function (n) { return n.category === cat.id; }).length;
+      if (count === 0 && state.filterCategory !== cat.id) return;
+      html += '<button type="button" class="chip' + (state.filterCategory === cat.id ? ' on' : '') + '" data-cat="' + cat.id + '">' +
+        '<span class="dot" style="background:' + cat.color + '"></span>' + cat.label +
+        (count ? ' (' + count + ')' : '') + '</button>';
+    });
+    els.categoryFilters.innerHTML = html;
+  }
+
+  function renderNoteCard(note) {
+    var cat = getCategory(note.category);
+    return '<article class="note-card" data-id="' + note.id + '">' +
+      '<div class="note-head">' +
+        '<span class="note-cat" style="color:' + cat.color + ';background:' + cat.bg + '">' + cat.label + '</span>' +
+        '<h3 class="note-title">' + escapeHtml(note.title) + '</h3>' +
+        (note.starred ? '<span class="note-star" aria-label="Starred">★</span>' : '') +
+      '</div>' +
+      '<p class="note-preview">' + escapeHtml(note.body) + '</p>' +
+      '<div class="note-meta">' +
+        '<span>' + formatDate(note.createdAt) + '</span>' +
+        (note.actions && note.actions.length ? '<span class="action-badge">⚡ ' + note.actions.length + ' action' + (note.actions.length === 1 ? '' : 's') + '</span>' : '') +
+      '</div>' +
+    '</article>';
+  }
+
+  function render() {
+    renderFilters();
+    var notes = filteredNotes();
+
+    if (!notes.length) {
+      els.notesMain.innerHTML = state.notes.length
+        ? '<div class="empty"><h2>No matches</h2><p>Try a different search or category filter.</p></div>'
+        : '<div class="empty">' +
+            '<div class="empty-icon">' +
+              '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+                '<rect x="9" y="2" width="6" height="11" rx="3" fill="currentColor" stroke="none"/>' +
+                '<path d="M5 10a7 7 0 0 0 14 0"/>' +
+              '</svg>' +
+            '</div>' +
+            '<h2>No notes yet</h2>' +
+            '<p>Tap the microphone button and say something like:<br>“Need to buy dog food and tune the PETG print settings.”</p>' +
+          '</div>';
+      return;
+    }
+
+    var html = '';
+    if (state.viewMode === 'category') {
+      CATEGORIES.forEach(function (cat) {
+        var group = notes.filter(function (n) { return n.category === cat.id; });
+        if (!group.length) return;
+        html += '<h2 class="group-label">' + cat.label + '</h2>';
+        group.forEach(function (note) { html += renderNoteCard(note); });
+      });
+    } else {
+      var groups = {};
+      var order = ['Today', 'Yesterday', 'This week', 'This month', 'Earlier'];
+      notes.forEach(function (note) {
+        var label = dateGroupLabel(note.createdAt);
+        if (!groups[label]) groups[label] = [];
+        groups[label].push(note);
+      });
+      order.forEach(function (label) {
+        if (!groups[label]) return;
+        html += '<h2 class="group-label">' + label + '</h2>';
+        groups[label].forEach(function (note) { html += renderNoteCard(note); });
+      });
+    }
+
+    els.notesMain.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function showSupportBanner() {
+    if (SpeechRecognition) return;
+    els.supportBanner.classList.remove('hidden');
+    els.supportBanner.textContent = 'Speech recognition is not available in this browser. Open the deployed HTTPS site in Safari or Chrome on your phone, or type notes manually after tapping the mic button.';
+  }
+
+  function setupRecognition() {
+    if (!SpeechRecognition) return null;
+    var rec = new SpeechRecognition();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = navigator.language || 'en-US';
+
+    rec.onresult = function (event) {
+      var interim = '';
+      var final = state.transcript;
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        var piece = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += (final && !final.endsWith(' ') ? ' ' : '') + piece.trim();
+        } else {
+          interim += piece;
+        }
+      }
+      state.transcript = final;
+      state.interim = interim;
+      updateLiveText();
+    };
+
+    rec.onerror = function (event) {
+      if (event.error === 'no-speech') return;
+      if (event.error === 'aborted') return;
+      stopRecording();
+      els.recordStatus.textContent = 'Error: ' + event.error;
+      els.recordHint.textContent = 'Check microphone permission in Settings and try again.';
+    };
+
+    rec.onend = function () {
+      if (state.recording) {
+        try { rec.start(); } catch (e) { stopRecording(); }
+      }
+    };
+
+    return rec;
+  }
+
+  function updateLiveText() {
+    var text = (state.transcript + (state.interim ? ' ' + state.interim : '')).trim();
+    els.liveText.textContent = text || 'Your transcript will show here…';
+    els.liveText.classList.toggle('empty', !text);
+    els.saveRecord.disabled = !state.transcript.trim();
+  }
+
+  function openRecordSheet() {
+    state.transcript = '';
+    state.interim = '';
+    updateLiveText();
+    els.recordStatus.textContent = SpeechRecognition ? 'Ready to listen' : 'Type or paste below';
+    els.recordHint.textContent = SpeechRecognition
+      ? 'Tap Start and speak clearly. Your words appear below.'
+      : 'Speech is unavailable here — you can still type your note manually.';
+    els.toggleRecord.textContent = 'Start';
+    els.toggleRecord.classList.remove('btn-danger');
+    els.toggleRecord.classList.add('btn-secondary');
+    els.recordVisual.classList.remove('live');
+    els.recordOverlay.classList.add('open');
+    if (state.recording) stopRecording();
+  }
+
+  function closeRecordSheet() {
+    stopRecording();
+    els.recordOverlay.classList.remove('open');
+    els.recordFab.classList.remove('recording');
+  }
+
+  function startRecording() {
+    if (!SpeechRecognition) {
+      els.liveText.contentEditable = 'true';
+      els.liveText.focus();
+      els.recordStatus.textContent = 'Type your note';
+      return;
+    }
+    if (!state.recognition) state.recognition = setupRecognition();
+    state.transcript = '';
+    state.interim = '';
+    updateLiveText();
+    state.recording = true;
+    els.recordFab.classList.add('recording');
+    els.recordVisual.classList.add('live');
+    els.recordStatus.textContent = 'Listening…';
+    els.recordHint.textContent = 'Tap Stop when you\'re done speaking.';
+    els.toggleRecord.textContent = 'Stop';
+    els.toggleRecord.classList.remove('btn-secondary');
+    els.toggleRecord.classList.add('btn-danger');
+    try {
+      state.recognition.start();
+    } catch (e) {
+      els.recordStatus.textContent = 'Could not start microphone';
+    }
+  }
+
+  function stopRecording() {
+    state.recording = false;
+    els.recordFab.classList.remove('recording');
+    els.recordVisual.classList.remove('live');
+    els.toggleRecord.textContent = 'Start';
+    els.toggleRecord.classList.remove('btn-danger');
+    els.toggleRecord.classList.add('btn-secondary');
+    if (state.recognition) {
+      try { state.recognition.stop(); } catch (e) {}
+    }
+    if (SpeechRecognition) {
+      els.recordStatus.textContent = state.transcript.trim() ? 'Review and save' : 'Ready to listen';
+      els.recordHint.textContent = 'Edit the text below if needed, then tap Save note.';
+    }
+  }
+
+  function saveCurrentNote() {
+    var body = els.liveText.contentEditable === 'true'
+      ? els.liveText.innerText.trim()
+      : (state.transcript + (state.interim ? ' ' + state.interim : '')).trim();
+    if (!body) return;
+
+    var note = {
+      id: uid(),
+      title: makeTitle(body),
+      body: body,
+      category: detectCategory(body),
+      actions: extractActions(body),
+      starred: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    state.notes.unshift(note);
+    saveNotes();
+    closeRecordSheet();
+    openDetail(note.id);
+  }
+
+  function openDetail(id) {
+    var note = state.notes.find(function (n) { return n.id === id; });
+    if (!note) return;
+    state.activeNoteId = id;
+
+    var catOptions = CATEGORIES.map(function (cat) {
+      return '<option value="' + cat.id + '"' + (note.category === cat.id ? ' selected' : '') + '>' + cat.label + '</option>';
+    }).join('');
+
+    var actionsHtml = '';
+    if (note.actions && note.actions.length) {
+      actionsHtml = '<div class="field"><label>Action items</label><ul class="actions-list">' +
+        note.actions.map(function (a) { return '<li>⚡ ' + escapeHtml(a) + '</li>'; }).join('') +
+        '</ul></div>';
+    }
+
+    els.detailBody.innerHTML =
+      '<button type="button" class="star-toggle' + (note.starred ? ' on' : '') + '" id="starToggle">' +
+        (note.starred ? '★ Starred' : '☆ Star this note') +
+      '</button>' +
+      '<div class="field"><label>Title</label><input type="text" id="editTitle" value="' + escapeAttr(note.title) + '" /></div>' +
+      '<div class="field"><label>Category</label><select id="editCategory">' + catOptions + '</select></div>' +
+      '<div class="field"><label>Note</label><textarea id="editBody">' + escapeHtml(note.body) + '</textarea></div>' +
+      actionsHtml +
+      '<p style="font-size:0.75rem;color:var(--muted);margin-bottom:12px">' + formatDate(note.createdAt) + '</p>' +
+      '<div class="btn-stack">' +
+        '<button type="button" class="btn btn-cursor" id="sendToCursor">Send to Cursor</button>' +
+        '<p class="btn-hint">Copies this note and opens cursor.com/agents — paste to start.</p>' +
+        '<button type="button" class="btn btn-primary" id="saveDetail">Save changes</button>' +
+      '</div>';
+
+    els.detailOverlay.classList.add('open');
+
+    document.getElementById('sendToCursor').addEventListener('click', function () {
+      sendToCursor(note, {
+        title: document.getElementById('editTitle').value.trim(),
+        body: document.getElementById('editBody').value.trim(),
+        category: document.getElementById('editCategory').value
+      });
+    });
+
+    document.getElementById('starToggle').addEventListener('click', function () {
+      note.starred = !note.starred;
+      openDetail(id);
+      saveNotes();
+    });
+
+    document.getElementById('saveDetail').addEventListener('click', function () {
+      note.title = document.getElementById('editTitle').value.trim() || makeTitle(note.body);
+      note.body = document.getElementById('editBody').value.trim();
+      note.category = document.getElementById('editCategory').value;
+      note.actions = extractActions(note.body);
+      note.updatedAt = new Date().toISOString();
+      saveNotes();
+      closeDetail();
+    });
+  }
+
+  function escapeAttr(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  }
+
+  function formatNoteForCursor(data) {
+    var cat = getCategory(data.category);
+    var lines = [
+      'From Voice Notes (' + formatDate(data.createdAt) + ' · ' + cat.label + ')',
+      '',
+      '**' + data.title + '**',
+      '',
+      data.body
+    ];
+    if (data.actions && data.actions.length) {
+      lines.push('', 'Action items:');
+      data.actions.forEach(function (action) {
+        lines.push('- ' + action);
+      });
+    }
+    lines.push('', '---', 'Please help with the above.');
+    return lines.join('\n');
+  }
+
+  function showToast(message) {
+    els.toast.textContent = message;
+    els.toast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      els.toast.classList.remove('show');
+    }, 2800);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.left = '-9999px';
+      document.body.appendChild(area);
+      area.select();
+      try {
+        document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+      } catch (err) {
+        reject(err);
+      } finally {
+        document.body.removeChild(area);
+      }
+    });
+  }
+
+  function sendToCursor(note, formData) {
+    var data = {
+      title: formData.title || note.title,
+      body: formData.body || note.body,
+      category: formData.category || note.category,
+      actions: extractActions(formData.body || note.body),
+      createdAt: note.createdAt
+    };
+    var text = formatNoteForCursor(data);
+    copyText(text).then(function () {
+      showToast('Copied! Opening Cursor…');
+      window.open(CURSOR_AGENTS_URL, '_blank');
+    }).catch(function () {
+      showToast('Could not copy — select text manually');
+    });
+  }
+
+  function closeDetail() {
+    els.detailOverlay.classList.remove('open');
+    state.activeNoteId = null;
+  }
+
+  function deleteActiveNote() {
+    if (!state.activeNoteId) return;
+    if (!confirm('Delete this note?')) return;
+    state.notes = state.notes.filter(function (n) { return n.id !== state.activeNoteId; });
+    saveNotes();
+    closeDetail();
+  }
+
+  els.recordFab.addEventListener('click', openRecordSheet);
+  els.closeRecord.addEventListener('click', closeRecordSheet);
+  els.toggleRecord.addEventListener('click', function () {
+    if (state.recording) stopRecording();
+    else startRecording();
+  });
+  els.saveRecord.addEventListener('click', saveCurrentNote);
+  els.deleteNote.addEventListener('click', deleteActiveNote);
+
+  els.detailOverlay.addEventListener('click', function (e) {
+    if (e.target === els.detailOverlay) closeDetail();
+  });
+
+  els.recordOverlay.addEventListener('click', function (e) {
+    if (e.target === els.recordOverlay) closeRecordSheet();
+  });
+
+  els.searchInput.addEventListener('input', function () {
+    state.searchQuery = els.searchInput.value;
+    render();
+  });
+
+  els.categoryFilters.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-cat]');
+    if (!btn) return;
+    state.filterCategory = btn.getAttribute('data-cat');
+    render();
+  });
+
+  document.querySelector('.view-toggle').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-view]');
+    if (!btn) return;
+    state.viewMode = btn.getAttribute('data-view');
+    document.querySelectorAll('.view-btn').forEach(function (b) {
+      b.classList.toggle('on', b === btn);
+    });
+    render();
+  });
+
+  els.notesMain.addEventListener('click', function (e) {
+    var card = e.target.closest('.note-card');
+    if (!card) return;
+    openDetail(card.getAttribute('data-id'));
+  });
+
+  loadNotes();
+  showSupportBanner();
+  updateStats();
+  render();
+})();
+  </script>
+</body>
+</html>

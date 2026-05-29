@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Aruba Pack" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#0d9488" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <title>Aruba · 7 Days</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #0d9488;
+      --accent-soft: #ccfbf1;
+      --accent-dark: #0f766e;
+      --danger: #ef4444;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06);
+      --radius: 14px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --tap: 44px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      -webkit-tap-highlight-color: transparent;
+      height: -webkit-fill-available;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      overscroll-behavior: none;
+      padding-bottom: calc(132px + var(--safe-bottom));
+    }
+
+    body.view-grid {
+      padding-bottom: calc(72px + var(--safe-bottom));
+    }
+
+    button, .tab, .photo-slot, .chip, .section-head, .icon-btn {
+      touch-action: manipulation;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, #0d9488 0%, #0891b2 55%, #0284c7 100%);
+      color: #fff;
+      padding: calc(16px + var(--safe-top)) 20px 28px;
+      border-radius: 0 0 28px 28px;
+      box-shadow: 0 8px 24px rgba(13, 148, 136, 0.25);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-meta {
+      font-size: 0.875rem;
+      opacity: 0.92;
+      margin-top: 4px;
+    }
+
+    .icon-btn {
+      width: var(--tap);
+      height: var(--tap);
+      border: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:active { background: rgba(255, 255, 255, 0.35); }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ring {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .ring svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+
+    .ring-bg { fill: none; stroke: rgba(255,255,255,0.25); stroke-width: 6; }
+
+    .ring-fg {
+      fill: none;
+      stroke: #fff;
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.35s ease;
+    }
+
+    .ring-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .progress-text h2 { font-size: 1.125rem; font-weight: 600; }
+    .progress-text p { font-size: 0.8125rem; opacity: 0.9; margin-top: 2px; }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      white-space: nowrap;
+      min-height: 36px;
+    }
+
+    .chip.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .chip input { display: none; }
+
+    main { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
+
+    .section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+      min-height: var(--tap);
+    }
+
+    .section-head:active { background: #f8fafc; }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.125rem;
+      background: var(--accent-soft);
+    }
+
+    .section-title { flex: 1; font-weight: 600; font-size: 0.9375rem; }
+
+    .section-count {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .chevron {
+      width: 20px;
+      height: 20px;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+
+    .section.collapsed .chevron { transform: rotate(-90deg); }
+    .section.collapsed .section-body { display: none; }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px 0 8px;
+      min-height: 52px;
+      border-top: 1px solid var(--border);
+      position: relative;
+      touch-action: pan-y;
+    }
+
+    .item.packed .item-label {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .check {
+      width: var(--tap);
+      height: var(--tap);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .check-box {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .item.packed .check-box {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .item.packed .check-box::after {
+      content: "";
+      width: 6px;
+      height: 10px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) translateY(-1px);
+    }
+
+    .item-body { flex: 1; min-width: 0; padding: 10px 0; }
+
+    .item-label {
+      font-size: 0.9375rem;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .item-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .qty button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-size: 1.125rem;
+      color: var(--accent-dark);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .qty button:disabled { opacity: 0.35; cursor: default; }
+
+    .qty span {
+      min-width: 22px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .item-delete {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 72px;
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transform: translateX(100%);
+      transition: transform 0.2s;
+    }
+
+    .item.reveal-delete .item-delete { transform: translateX(0); }
+    .item.reveal-delete { padding-right: 72px; }
+
+    .empty-cat {
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .fab-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 16px calc(12px + var(--safe-bottom));
+      background: linear-gradient(transparent, var(--bg) 24%);
+      display: flex;
+      gap: 10px;
+      max-width: 520px;
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .fab-bar > * { pointer-events: auto; flex: 1; }
+
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 48px;
+      border: none;
+      border-radius: 14px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+    }
+
+    .btn-primary:active { background: var(--accent-dark); }
+
+    .btn-secondary {
+      height: 48px;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0 14px;
+      flex: 0 0 auto;
+    }
+
+    /* Modals */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .overlay.open { opacity: 1; visibility: visible; }
+
+    .sheet {
+      width: 100%;
+      max-width: 520px;
+      max-height: 85dvh;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      padding: 12px 20px calc(24px + var(--safe-bottom));
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+      overflow-y: auto;
+    }
+
+    .overlay.open .sheet { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: #cbd5e1;
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+
+    .sheet h3 { font-size: 1.125rem; margin-bottom: 16px; }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 48px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      min-height: var(--tap);
+    }
+
+    .toggle-row:last-child { border-bottom: none; }
+
+    .toggle-row span { font-size: 0.9375rem; }
+
+    .switch {
+      width: 51px;
+      height: 31px;
+      border-radius: 16px;
+      background: #cbd5e1;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .switch.on { background: var(--accent); }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 27px;
+      height: 27px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    .switch.on::after { transform: translateX(20px); }
+
+    .activity-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .activity-card {
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      text-align: left;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .activity-card.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .activity-card strong {
+      display: block;
+      font-size: 0.875rem;
+      margin-bottom: 2px;
+    }
+
+    .activity-card small {
+      font-size: 0.6875rem;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .sheet-actions button { flex: 1; height: 48px; border-radius: 12px; font-weight: 600; font-size: 0.9375rem; cursor: pointer; }
+
+    .btn-cancel { border: 1.5px solid var(--border); background: #fff; color: var(--text); }
+    .btn-save { border: none; background: var(--accent); color: #fff; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(100px + var(--safe-bottom));
+      transform: translateX(-50%) translateY(12px);
+      background: #1e293b;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .tips {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      color: #92400e;
+    }
+
+    .tips strong { display: block; margin-bottom: 4px; color: #78350f; }
+
+    body.view-grid .list-only { display: none !important; }
+    body:not(.view-grid) .grid-only { display: none !important; }
+
+    .grid-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
+
+    .grid-intro {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .grid-group {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .grid-group-head {
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .grid-group-head h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .grid-group-head .count {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .grid-photo-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .grid-photo-badge.done { background: #dcfce7; color: #166534; }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+
+    .photo-slot {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      border: 2px dashed #cbd5e1;
+      background: #f8fafc;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-slot.has-photo {
+      border-style: solid;
+      border-color: var(--border);
+    }
+
+    .photo-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-slot .slot-add {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .photo-slot .slot-add svg { color: var(--accent); }
+
+    .photo-slot .slot-num {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      background: rgba(15, 23, 42, 0.55);
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-slot.has-photo .slot-num { background: rgba(255,255,255,0.9); color: var(--text); }
+
+    .photo-slot.is-loading {
+      pointer-events: none;
+      border-color: var(--accent);
+    }
+
+    .photo-slot.is-loading::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.75);
+    }
+
+    .photo-slot.is-loading .slot-spinner {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border: 3px solid var(--accent-soft);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      z-index: 2;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .grid-intro-tip {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: var(--accent-soft);
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      color: var(--accent-dark);
+      line-height: 1.45;
+    }
+
+    .grid-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+
+    .tab-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 16px calc(8px + var(--safe-bottom));
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+      z-index: 50;
+      box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 4px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 12px;
+      min-height: var(--tap);
+    }
+
+    .tab.on { color: var(--accent-dark); background: var(--accent-soft); }
+
+    .tab svg { width: 22px; height: 22px; }
+
+    .fab-bar { bottom: calc(60px + var(--safe-bottom)); }
+
+    .photo-viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(15, 23, 42, 0.92);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .photo-viewer.open { opacity: 1; visibility: visible; }
+
+    .photo-viewer img {
+      max-width: 100%;
+      max-height: 70dvh;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+
+    .photo-viewer-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .photo-viewer-actions button {
+      flex: 1;
+      height: 48px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .pv-close { background: rgba(255,255,255,0.15); color: #fff; }
+    .pv-replace { background: var(--accent); color: #fff; }
+    .pv-delete { background: var(--danger); color: #fff; }
+
+    .photo-viewer-caption {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.875rem;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    #fileInput {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 1px;
+      height: 1px;
+      opacity: 0.01;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    @media (min-width: 521px) {
+      body { padding-top: 12px; }
+      .hero { border-radius: var(--radius); margin: 0 16px 0; max-width: 488px; margin-left: auto; margin-right: auto; }
+      .overlay { align-items: center; }
+      .sheet { border-radius: 20px; max-height: 80vh; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero list-only">
+    <div class="hero-top">
+      <div>
+        <h1>Aruba</h1>
+        <p class="hero-meta">7 days · Tropical · Beach</p>
+      </div>
+      <button type="button" class="icon-btn" id="btnSettings" aria-label="Settings and activities">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+    <div class="progress-wrap">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 36 36">
+          <circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+          <circle class="ring-fg" id="ringFg" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/>
+        </svg>
+        <span class="ring-label" id="ringPct">0%</span>
+      </div>
+      <div class="progress-text">
+        <h2 id="progressTitle">Ready to pack</h2>
+        <p id="progressSub">0 of 0 items packed</p>
+      </div>
+    </div>
+  </header>
+
+  <header class="hero grid-only" id="gridHero">
+    <div class="hero-top">
+      <div>
+        <h1>Wardrobe</h1>
+        <p class="hero-meta" id="gridHeroMeta">Photo grid · synced with your list</p>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 36 36">
+          <circle class="ring-bg" cx="18" cy="18" r="15.5"/>
+          <circle class="ring-fg" id="gridRingFg" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/>
+        </svg>
+        <span class="ring-label" id="gridRingPct">0%</span>
+      </div>
+      <div class="progress-text">
+        <h2 id="gridProgressTitle">Snap your outfits</h2>
+        <p id="gridProgressSub">0 photos added</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar list-only" role="toolbar" aria-label="Quick filters">
+    <label class="chip" id="chipHide">
+      <input type="checkbox" id="hidePacked" />
+      Hide packed
+    </label>
+    <label class="chip" id="chipLaundry">
+      <input type="checkbox" id="optLaundry" />
+      Laundry
+    </label>
+    <label class="chip" id="chipRepeat">
+      <input type="checkbox" id="optRepeat" />
+      Repeat basics
+    </label>
+  </div>
+
+  <main id="listRoot" class="list-only" aria-live="polite"></main>
+
+  <div class="grid-page grid-only" id="gridRoot" aria-live="polite"></div>
+
+  <input type="file" id="fileInput" accept="image/*,.heic,.heif" />
+
+  <div class="photo-viewer" id="photoViewer" role="dialog" aria-modal="true" hidden>
+    <img id="viewerImg" alt="" />
+    <p class="photo-viewer-caption" id="viewerCaption"></p>
+    <div class="photo-viewer-actions">
+      <button type="button" class="pv-close" id="viewerClose">Close</button>
+      <button type="button" class="pv-replace" id="viewerReplace">Replace</button>
+      <button type="button" class="pv-delete" id="viewerDelete">Remove</button>
+    </div>
+  </div>
+
+  <nav class="tab-bar" aria-label="Main navigation">
+    <button type="button" class="tab on" id="tabList" data-view="list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+      List
+    </button>
+    <button type="button" class="tab" id="tabGrid" data-view="grid">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Wardrobe
+    </button>
+  </nav>
+
+  <div class="fab-bar list-only">
+    <button type="button" class="btn-secondary" id="btnReset" title="Reset list">Reset</button>
+    <button type="button" class="btn-primary" id="btnAdd">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      Add item
+    </button>
+  </div>
+
+  <!-- Add item -->
+  <div class="overlay" id="addOverlay" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="addTitle">Add to your list</h3>
+      <div class="field">
+        <label for="addName">Item name</label>
+        <input type="text" id="addName" placeholder="e.g. GoPro charger" autocomplete="off" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="addCategory">Category</label>
+        <select id="addCategory"></select>
+      </div>
+      <div class="field">
+        <label for="addQty">Quantity</label>
+        <input type="number" id="addQty" min="1" max="99" value="1" />
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="addOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="addSave">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="settingsTitle">Trip setup</h3>
+      <p style="font-size:0.875rem;color:var(--muted);margin:-8px 0 14px;">Toggle activities to add or remove related items.</p>
+      <div class="activity-grid" id="activityGrid"></div>
+      <div class="toggle-row">
+        <span>Hide packed items</span>
+        <button type="button" class="switch" id="swHide" aria-pressed="false"></button>
+      </div>
+      <div class="toggle-row">
+        <span>Laundry at hotel</span>
+        <button type="button" class="switch" id="swLaundry" aria-pressed="false"></button>
+      </div>
+      <div class="toggle-row">
+        <span>Repeat basics (fewer tops)</span>
+        <button type="button" class="switch" id="swRepeat" aria-pressed="false"></button>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-save" data-close="settingsOverlay" style="flex:1">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "aruba-pack-v1";
+  const RING_CIRC = 97.4;
+  const DAYS = 7;
+
+  const CATEGORIES = [
+    { id: "documents", label: "Documents & Money", icon: "📄" },
+    { id: "clothing", label: "Clothing", icon: "👕" },
+    { id: "beach", label: "Beach & Sun", icon: "🏖️" },
+    { id: "toiletries", label: "Toiletries", icon: "🧴" },
+    { id: "electronics", label: "Electronics", icon: "📱" },
+    { id: "health", label: "Health & Safety", icon: "💊" },
+    { id: "misc", label: "Essentials", icon: "🎒" },
+  ];
+
+  const ACTIVITIES = [
+    { id: "snorkel", label: "Snorkeling", desc: "Mask, fins, rash guard" },
+    { id: "dining", label: "Nice dinners", desc: "Dressier outfits" },
+    { id: "offroad", label: "Jeep / off-road", desc: "Closed shoes, bandana" },
+    { id: "golf", label: "Golf", desc: "Collared shirts, shoes" },
+    { id: "casino", label: "Casino / nightlife", desc: "Smart casual" },
+    { id: "diving", label: "Scuba diving", desc: "Cert card, log book" },
+  ];
+
+  /** @type {Record<string, {label:string, note?:string, qty:number, category:string, activity?:string, base?:boolean}>} */
+  const CATALOG = {};
+
+  function reg(id, data) {
+    CATALOG[id] = { ...data, base: data.base !== false };
+  }
+
+  // Documents — Aruba is Dutch Caribbean; US plugs work (127V Type A/B)
+  reg("passport", { label: "Passport (6+ months validity)", category: "documents", qty: 1 });
+  reg("edcard", { label: "Aruba ED card", note: "Complete online before arrival; save confirmation", category: "documents", qty: 1 });
+  reg("boarding", { label: "Boarding passes & hotel confirmation", note: "Save offline copies", category: "documents", qty: 1 });
+  reg("insurance", { label: "Travel insurance card / policy", category: "documents", qty: 1 });
+  reg("license", { label: "Driver's license", note: "If renting a car", category: "documents", qty: 1 });
+  reg("cards", { label: "Credit / debit cards", note: "Notify bank of travel", category: "documents", qty: 1 });
+  reg("cash", { label: "Some US cash", note: "USD widely accepted; small AWG useful", category: "documents", qty: 1 });
+  reg("copies", { label: "Photocopies of passport", note: "Separate from original", category: "documents", qty: 1 });
+  reg("emergency", { label: "Emergency contacts list", category: "documents", qty: 1 });
+
+  // Clothing — quantities adjust with laundry / repeat
+  reg("swim", { label: "Swimsuits", gridLabel: "Swimsuits", category: "clothing", qty: 3, laundryQty: 2, repeatQty: 2, grid: true });
+  reg("coverups", { label: "Cover-ups / sarongs", gridLabel: "Cover-ups", category: "clothing", qty: 2, grid: true });
+  reg("shorts", { label: "Shorts / lightweight pants", gridLabel: "Shorts & pants", category: "clothing", qty: 4, laundryQty: 3, repeatQty: 3, grid: true });
+  reg("tops", { label: "T-shirts & tanks", gridLabel: "Shirts & tanks", category: "clothing", qty: 7, laundryQty: 5, repeatQty: 4, grid: true });
+  reg("sleep", { label: "Sleepwear", gridLabel: "Sleepwear", category: "clothing", qty: 2, laundryQty: 1, grid: true });
+  reg("underwear", { label: "Underwear", gridLabel: "Underwear", category: "clothing", qty: 8, laundryQty: 5, grid: true });
+  reg("bras", { label: "Bras / sports bras", gridLabel: "Bras", category: "clothing", qty: 3, laundryQty: 2, grid: true });
+  reg("socks", { label: "Socks", gridLabel: "Socks", note: "For sneakers & closed shoes", category: "clothing", qty: 4, laundryQty: 2, grid: true });
+  reg("sandals", { label: "Sandals / flip-flops", gridLabel: "Sandals", category: "clothing", qty: 1, grid: true });
+  reg("sneakers", { label: "Comfortable walking shoes", gridLabel: "Walking shoes", category: "clothing", qty: 1, grid: true });
+  reg("lightjacket", { label: "Light cardigan or wrap", gridLabel: "Cardigan / wrap", category: "clothing", qty: 1, grid: true });
+  reg("hat", { label: "Wide-brim sun hat", gridLabel: "Sun hat", category: "clothing", qty: 1, grid: true });
+  reg("sunglasses", { label: "Sunglasses", gridLabel: "Sunglasses", category: "clothing", qty: 1, grid: true });
+
+  reg("dresscasual", { label: "Casual dresses / polos", gridLabel: "Casual outfits", category: "clothing", qty: 3, activity: "dining", grid: true });
+  reg("dressnice", { label: "Dressier outfit for dinners", gridLabel: "Dressy outfits", category: "clothing", qty: 2, activity: "dining", grid: true });
+  reg("dressshoes", { label: "Dress shoes / nice sandals", gridLabel: "Dress shoes", category: "clothing", qty: 1, activity: "dining", grid: true });
+  reg("smartcasino", { label: "Smart casual outfit", gridLabel: "Smart casual", category: "clothing", qty: 1, activity: "casino", grid: true });
+
+  reg("golfshirt", { label: "Golf polos", gridLabel: "Golf shirts", category: "clothing", qty: 2, activity: "golf", grid: true });
+  reg("golfpants", { label: "Golf pants / shorts", gridLabel: "Golf bottoms", category: "clothing", qty: 2, activity: "golf", grid: true });
+  reg("golfshoes", { label: "Golf shoes", gridLabel: "Golf shoes", category: "clothing", qty: 1, activity: "golf", grid: true });
+
+  reg("closedshoes", { label: "Closed-toe shoes", gridLabel: "Closed-toe shoes", note: "Dusty trails", category: "clothing", qty: 1, activity: "offroad", grid: true });
+  reg("bandana", { label: "Bandana / buff", gridLabel: "Bandana", category: "clothing", qty: 1, activity: "offroad", grid: true });
+  reg("rashguard", { label: "Rash guard / UV shirt", gridLabel: "Rash guards", category: "beach", qty: 1, activity: "snorkel", grid: true });
+
+  // Beach
+  reg("sunscreen", { label: "Reef-safe sunscreen SPF 50+", category: "beach", qty: 1 });
+  reg("aftersun", { label: "Aloe / after-sun lotion", category: "beach", qty: 1 });
+  reg("beachbag", { label: "Beach bag", category: "beach", qty: 1 });
+  reg("beachtowel", { label: "Travel beach towel", note: "Many hotels provide one", category: "beach", qty: 1 });
+  reg("watershoes", { label: "Water shoes", note: "Rocky shores & reef entry", category: "beach", qty: 1 });
+  reg("snorkelmask", { label: "Snorkel mask & snorkel", category: "beach", qty: 1, activity: "snorkel" });
+  reg("fins", { label: "Snorkel fins", category: "beach", qty: 1, activity: "snorkel" });
+  reg("gopro", { label: "Waterproof camera / GoPro", category: "beach", qty: 1, activity: "snorkel", base: false });
+
+  // Toiletries
+  reg("toothbrush", { label: "Toothbrush & toothpaste", category: "toiletries", qty: 1 });
+  reg("deodorant", { label: "Deodorant", category: "toiletries", qty: 1 });
+  reg("shampoo", { label: "Shampoo & conditioner", note: "Travel sizes", category: "toiletries", qty: 1 });
+  reg("soap", { label: "Body wash / soap", category: "toiletries", qty: 1 });
+  reg("razor", { label: "Razor & shaving cream", category: "toiletries", qty: 1 });
+  reg("skincare", { label: "Skincare & moisturizer", category: "toiletries", qty: 1 });
+  reg("makeup", { label: "Makeup & remover", category: "toiletries", qty: 1, base: false });
+  reg("brush", { label: "Hairbrush / comb", category: "toiletries", qty: 1 });
+  reg("bug", { label: "Insect repellent", note: "Evenings near vegetation", category: "toiletries", qty: 1 });
+  reg("lipbalm", { label: "Lip balm with SPF", category: "toiletries", qty: 1 });
+  reg("sanitizer", { label: "Hand sanitizer", category: "toiletries", qty: 1 });
+  reg("wipes", { label: "Face / cleansing wipes", category: "toiletries", qty: 1 });
+  reg("tampons", { label: "Feminine products", category: "toiletries", qty: 1, base: false });
+
+  // Electronics — same plugs as US
+  reg("phone", { label: "Phone & charger", category: "electronics", qty: 1 });
+  reg("battery", { label: "Portable power bank", category: "electronics", qty: 1 });
+  reg("headphones", { label: "Headphones / earbuds", category: "electronics", qty: 1 });
+  reg("adapter", { label: "Power adapter", note: "US Type A works; optional if all USB", category: "electronics", qty: 0, base: false });
+  reg("camera", { label: "Camera & charger", category: "electronics", qty: 1, base: false });
+  reg("ebook", { label: "E-reader / tablet", category: "electronics", qty: 1, base: false });
+  reg("watch", { label: "Watch charger", category: "electronics", qty: 1, base: false });
+
+  // Health
+  reg("meds", { label: "Prescription medications", note: "Keep in original bottles", category: "health", qty: 1 });
+  reg("pain", { label: "Pain reliever & antihistamine", category: "health", qty: 1 });
+  reg("stomach", { label: "Anti-nausea / antacid", category: "health", qty: 1 });
+  reg("bandaids", { label: "Band-aids & blister pads", category: "health", qty: 1 });
+  reg("hydration", { label: "Electrolyte packets", note: "Heat & sun", category: "health", qty: 1 });
+  reg("certs", { label: "Dive certification card", category: "health", qty: 1, activity: "diving" });
+  reg("divelog", { label: "Dive log book", category: "health", qty: 1, activity: "diving", base: false });
+
+  // Misc
+  reg("suitcase", { label: "Suitcase / carry-on", category: "misc", qty: 1 });
+  reg("daypack", { label: "Small daypack", category: "misc", qty: 1 });
+  reg("packingcubes", { label: "Packing cubes", category: "misc", qty: 1, base: false });
+  reg("laundrybag", { label: "Laundry bag", category: "misc", qty: 1, activity: "laundryOnly", base: false });
+  reg("ziploc", { label: "Ziploc bags", note: "Wet swimsuits & TSA liquids", category: "misc", qty: 1 });
+  reg("pen", { label: "Pen", note: "Customs / immigration forms", category: "misc", qty: 1 });
+  reg("waterbottle", { label: "Reusable water bottle", category: "misc", qty: 1 });
+  reg("umbrella", { label: "Compact travel umbrella", note: "Brief tropical showers", category: "misc", qty: 1, base: false });
+  reg("book", { label: "Book / magazine", category: "misc", qty: 1, base: false });
+
+  /** Build default active item ids for current options */
+  function buildDefaultItems(opts) {
+    const ids = [];
+    for (const [id, item] of Object.entries(CATALOG)) {
+      if (item.activity === "laundryOnly") {
+        if (opts.laundry) ids.push(id);
+        continue;
+      }
+      if (item.activity) {
+        if (opts.activities[item.activity]) ids.push(id);
+        continue;
+      }
+      if (item.base === false) continue;
+      if (item.qty === 0) continue;
+      ids.push(id);
+    }
+    return ids;
+  }
+
+  function resolveQty(id, opts) {
+    const item = CATALOG[id];
+    if (!item) return 1;
+    let q = item.qty;
+    if (opts.laundry && item.laundryQty != null) q = item.laundryQty;
+    else if (opts.repeat && item.repeatQty != null) q = item.repeatQty;
+    return Math.max(0, q);
+  }
+
+  function defaultState() {
+    const opts = {
+      laundry: false,
+      repeat: false,
+      hidePacked: false,
+      activities: { snorkel: true, dining: true, offroad: false, golf: false, casino: false, diving: false },
+    };
+    const items = {};
+    const ids = buildDefaultItems(opts);
+    for (const id of ids) {
+      items[id] = { packed: false, qty: resolveQty(id, opts), custom: false };
+    }
+    return {
+      version: 1,
+      opts,
+      collapsed: {},
+      items,
+      removed: [],
+    };
+  }
+
+  function isRemoved(id) {
+    return Array.isArray(state.removed) && state.removed.indexOf(id) !== -1;
+  }
+
+  function removeItemCompletely(id) {
+    if (!state.removed) state.removed = [];
+    const row = state.items[id];
+    if (CATALOG[id] && !(row && row.custom)) {
+      if (!isRemoved(id)) state.removed.push(id);
+    }
+    prunePhotosForItem(id, 0);
+    delete state.items[id];
+    openDeleteId = null;
+    saveState();
+    render();
+    if (currentView === "grid") renderGrid();
+    toast("Removed from list");
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object" || !parsed.items) return defaultState();
+      const base = defaultState();
+      base.opts = { ...base.opts, ...parsed.opts, activities: { ...base.opts.activities, ...(parsed.opts && parsed.opts.activities) } };
+      base.collapsed = parsed.collapsed || {};
+      base.removed = Array.isArray(parsed.removed) ? parsed.removed.filter(function (id) { return CATALOG[id]; }) : [];
+      const removedSet = new Set(base.removed);
+      base.items = {};
+      const validIds = new Set(buildDefaultItems(base.opts));
+      for (const id of validIds) {
+        if (removedSet.has(id)) continue;
+        const saved = parsed.items[id];
+        if (saved && typeof saved.qty === "number" && saved.qty < 1 && !saved.custom) {
+          removedSet.add(id);
+          continue;
+        }
+        base.items[id] = {
+          packed: !!(saved && saved.packed),
+          qty: saved && typeof saved.qty === "number" ? Math.min(99, Math.max(1, saved.qty)) : resolveQty(id, base.opts),
+          custom: !!(saved && saved.custom),
+        };
+      }
+      base.removed = Array.from(removedSet);
+      for (const [id, saved] of Object.entries(parsed.items || {})) {
+        if (base.items[id] || !saved || !saved.custom) continue;
+        base.items[id] = {
+          packed: !!saved.packed,
+          qty: Math.min(99, Math.max(1, saved.qty || 1)),
+          custom: true,
+          label: saved.label,
+          category: saved.category || "misc",
+        };
+      }
+      return base;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  let state = loadState();
+  let saveTimer = null;
+  let openDeleteId = null;
+  let currentView = "list";
+  let pendingPhoto = null;
+  let viewerPhoto = null;
+  const thumbCache = {};
+  const IDB_NAME = "aruba-pack-photos-v1";
+  const IDB_STORE = "photos";
+
+  function photoKey(itemId, slot) {
+    return itemId + ":" + slot;
+  }
+
+  function openPhotoDb() {
+    return new Promise(function (resolve, reject) {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onupgradeneeded = function (e) {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(IDB_STORE)) {
+          db.createObjectStore(IDB_STORE);
+        }
+      };
+    });
+  }
+
+  function idbPut(key, blob) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).put(blob, key);
+        tx.oncomplete = function () { db.close(); resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function idbGet(key) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, "readonly");
+        const req = tx.objectStore(IDB_STORE).get(key);
+        req.onsuccess = function () { resolve(req.result || null); };
+        req.onerror = function () { reject(req.error); };
+        tx.oncomplete = function () { db.close(); };
+      });
+    });
+  }
+
+  function idbDelete(key) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).delete(key);
+        tx.oncomplete = function () { db.close(); resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function idbClearAll() {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, "readwrite");
+        tx.objectStore(IDB_STORE).clear();
+        tx.oncomplete = function () { db.close(); resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function revokeThumbCache() {
+    Object.keys(thumbCache).forEach(function (k) {
+      if (thumbCache[k]) URL.revokeObjectURL(thumbCache[k]);
+      delete thumbCache[k];
+    });
+  }
+
+  const MAX_ORIGINAL_BYTES = 8 * 1024 * 1024;
+  let loadingSlotEl = null;
+
+  function isValidImageFile(file) {
+    if (!file) return false;
+    const type = (file.type || "").toLowerCase();
+    if (type.startsWith("image/")) return true;
+    if (!type) {
+      const name = (file.name || "").toLowerCase();
+      return /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(name);
+    }
+    return false;
+  }
+
+  function readExifOrientation(file) {
+    return new Promise(function (resolve) {
+      const reader = new FileReader();
+      reader.onerror = function () { resolve(1); };
+      reader.onload = function () {
+        const view = new DataView(reader.result);
+        if (view.getUint16(0, false) !== 0xffd8) {
+          resolve(1);
+          return;
+        }
+        let offset = 2;
+        const len = view.byteLength;
+        while (offset < len) {
+          if (view.getUint16(offset + 2, false) <= 8) break;
+          const marker = view.getUint16(offset, false);
+          offset += 2;
+          if (marker === 0xffe1) {
+            if (view.getUint32(offset + 2, false) !== 0x45786966) {
+              resolve(1);
+              return;
+            }
+            const little = view.getUint16(offset + 6, false) === 0x4949;
+            offset += 10;
+            const tags = view.getUint16(offset, little);
+            offset += 2;
+            for (let i = 0; i < tags; i++) {
+              if (view.getUint16(offset + i * 12, little) === 0x0112) {
+                resolve(view.getUint16(offset + i * 12 + 8, little) || 1);
+                return;
+              }
+            }
+          } else if ((marker & 0xff00) !== 0xff00) {
+            break;
+          } else {
+            offset += view.getUint16(offset, false);
+          }
+        }
+        resolve(1);
+      };
+      reader.readAsArrayBuffer(file.slice(0, 128 * 1024));
+    });
+  }
+
+  function canvasToJpeg(canvas, quality) {
+    return new Promise(function (resolve, reject) {
+      canvas.toBlob(function (blob) {
+        if (blob) resolve(blob);
+        else reject(new Error("Could not compress image"));
+      }, "image/jpeg", quality);
+    });
+  }
+
+  function drawOrientedImage(ctx, img, orientation, width, height) {
+    switch (orientation) {
+      case 2: ctx.transform(-1, 0, 0, 1, width, 0); break;
+      case 3: ctx.transform(-1, 0, 0, -1, width, height); break;
+      case 4: ctx.transform(1, 0, 0, -1, 0, height); break;
+      case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
+      case 6: ctx.transform(0, 1, -1, 0, height, 0); break;
+      case 7: ctx.transform(0, -1, -1, 0, height, width); break;
+      case 8: ctx.transform(0, -1, 1, 0, 0, width); break;
+      default: break;
+    }
+    ctx.drawImage(img, 0, 0, width, height);
+  }
+
+  function loadImageFromFile(file) {
+    return new Promise(function (resolve, reject) {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        resolve(img);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Invalid image"));
+      };
+      img.src = url;
+    });
+  }
+
+  function compressImageWithOrientation(file, maxEdge, orientation) {
+    return loadImageFromFile(file).then(function (img) {
+      let w = img.naturalWidth;
+      let h = img.naturalHeight;
+      if (!w || !h) throw new Error("Invalid image dimensions");
+      if (w > maxEdge || h > maxEdge) {
+        if (w >= h) {
+          h = Math.round(h * (maxEdge / w));
+          w = maxEdge;
+        } else {
+          w = Math.round(w * (maxEdge / h));
+          h = maxEdge;
+        }
+      }
+      const rot = orientation >= 5 && orientation <= 8;
+      const canvas = document.createElement("canvas");
+      canvas.width = rot ? h : w;
+      canvas.height = rot ? w : h;
+      const ctx = canvas.getContext("2d");
+      drawOrientedImage(ctx, img, orientation, w, h);
+      return canvasToJpeg(canvas, 0.82);
+    });
+  }
+
+  function compressImage(file) {
+    return readExifOrientation(file).then(function (orientation) {
+      return compressImageWithOrientation(file, 1200, orientation).catch(function () {
+        return compressImageWithOrientation(file, 800, orientation);
+      });
+    });
+  }
+
+  function preparePhotoBlob(file) {
+    return compressImage(file).catch(function () {
+      if (file.size <= MAX_ORIGINAL_BYTES && isValidImageFile(file)) {
+        return file;
+      }
+      throw new Error("Could not process image");
+    });
+  }
+
+  function setSlotLoading(itemId, slot, on) {
+    const sel = '.photo-slot[data-item="' + itemId + '"][data-slot="' + slot + '"]';
+    const el = document.querySelector(sel);
+    if (!el) return;
+    if (on) {
+      el.classList.add("is-loading");
+      if (!el.querySelector(".slot-spinner")) {
+        const sp = document.createElement("span");
+        sp.className = "slot-spinner";
+        sp.setAttribute("aria-hidden", "true");
+        el.appendChild(sp);
+      }
+      loadingSlotEl = el;
+    } else {
+      el.classList.remove("is-loading");
+      const sp = el.querySelector(".slot-spinner");
+      if (sp) sp.remove();
+      if (loadingSlotEl === el) loadingSlotEl = null;
+    }
+  }
+
+  function idbErrorMessage(err) {
+    const name = err && err.name;
+    if (name === "QuotaExceededError" || name === "NS_ERROR_DOM_QUOTA_REACHED") {
+      return "Storage full — remove some photos";
+    }
+    return "Photos need normal Safari (not Private browsing)";
+  }
+
+  function savePhotoForSlot(target, file) {
+    setSlotLoading(target.itemId, target.slot, true);
+    return preparePhotoBlob(file).then(function (blob) {
+      const key = photoKey(target.itemId, target.slot);
+      if (thumbCache[key]) {
+        URL.revokeObjectURL(thumbCache[key]);
+        delete thumbCache[key];
+      }
+      return idbPut(key, blob);
+    }).then(function () {
+      toast("Photo saved");
+      if (currentView === "grid") renderGrid();
+    }).catch(function (err) {
+      const msg = err && err.message === "Could not process image"
+        ? "Could not process this photo — try another"
+        : idbErrorMessage(err);
+      toast(msg);
+    }).finally(function () {
+      setSlotLoading(target.itemId, target.slot, false);
+    });
+  }
+
+  function gridDisplayName(id) {
+    const cat = CATALOG[id];
+    if (cat && cat.gridLabel) return cat.gridLabel;
+    return itemLabel(id);
+  }
+
+  function isGridItem(id) {
+    const row = state.items[id];
+    if (!row || row.qty < 1) return false;
+    const cat = CATALOG[id];
+    if (cat && cat.grid) return true;
+    if (row.custom && row.category === "clothing") return true;
+    return false;
+  }
+
+  function gridGroups() {
+    return Object.keys(state.items)
+      .filter(isGridItem)
+      .map(function (id) {
+        return {
+          id: id,
+          name: gridDisplayName(id),
+          qty: state.items[id].qty,
+        };
+      })
+      .sort(function (a, b) {
+        return a.name.localeCompare(b.name);
+      });
+  }
+
+  function prunePhotosForItem(itemId, maxQty) {
+    const tasks = [];
+    for (let s = maxQty; s < 99; s++) {
+      const key = photoKey(itemId, s);
+      if (thumbCache[key]) {
+        URL.revokeObjectURL(thumbCache[key]);
+        delete thumbCache[key];
+      }
+      tasks.push(idbDelete(key).catch(function () {}));
+    }
+    return Promise.all(tasks);
+  }
+
+  function pruneAllGridPhotos() {
+    const groups = gridGroups();
+    const promises = groups.map(function (g) {
+      return prunePhotosForItem(g.id, g.qty);
+    });
+    return Promise.all(promises);
+  }
+
+  function gridPhotoStats(photoCounts) {
+    let slots = 0;
+    let filled = 0;
+    gridGroups().forEach(function (g) {
+      slots += g.qty;
+      for (let i = 0; i < g.qty; i++) {
+        if (photoCounts[photoKey(g.id, i)]) filled++;
+      }
+    });
+    return { slots, filled };
+  }
+
+  function updateGridProgress(photoCounts) {
+    const { slots, filled } = gridPhotoStats(photoCounts);
+    const pct = slots ? Math.round((filled / slots) * 100) : 0;
+    const ring = document.getElementById("gridRingFg");
+    if (ring) ring.style.strokeDashoffset = String(RING_CIRC * (1 - pct / 100));
+    const pctEl = document.getElementById("gridRingPct");
+    if (pctEl) pctEl.textContent = pct + "%";
+    const sub = document.getElementById("gridProgressSub");
+    if (sub) sub.textContent = filled + " of " + slots + " photos added";
+    const title = document.getElementById("gridProgressTitle");
+    if (!title) return;
+    if (pct === 100 && slots > 0) title.textContent = "Wardrobe complete!";
+    else if (pct >= 50) title.textContent = "Looking good";
+    else title.textContent = "Snap your outfits";
+  }
+
+  function loadPhotoCounts(groups) {
+    const counts = {};
+    const promises = [];
+    groups.forEach(function (g) {
+      for (let i = 0; i < g.qty; i++) {
+        const key = photoKey(g.id, i);
+        promises.push(
+          idbGet(key).then(function (blob) {
+            if (blob) counts[key] = true;
+          })
+        );
+      }
+    });
+    return Promise.all(promises).then(function () { return counts; });
+  }
+
+  function bindSlotButtons(photoCounts) {
+    document.querySelectorAll(".photo-slot").forEach(function (slot) {
+      slot.onclick = function () {
+        if (slot.classList.contains("is-loading")) return;
+        const itemId = slot.dataset.item;
+        const index = parseInt(slot.dataset.slot, 10);
+        const key = photoKey(itemId, index);
+        if (photoCounts[key] || slot.classList.contains("has-photo")) {
+          openPhotoViewer(itemId, index, gridDisplayName(itemId) + " · #" + (index + 1));
+        } else {
+          pendingPhoto = { itemId: itemId, slot: index };
+          document.getElementById("fileInput").click();
+        }
+      };
+    });
+  }
+
+  function renderGrid() {
+    const root = document.getElementById("gridRoot");
+    const groups = gridGroups();
+
+    if (!groups.length) {
+      root.innerHTML = '<div class="grid-empty">No wardrobe items on your list yet. Add clothing from the List tab, or turn on activities in Settings.</div>';
+      updateGridProgress({});
+      return;
+    }
+
+    const showTip = !localStorage.getItem("aruba-pack-homescreen-tip");
+    root.innerHTML = '<p class="grid-intro">Tap <strong>+</strong> on each slot to add a photo of the exact piece you’re packing. Counts match your list (e.g. 7 shirts → 7 slots). Photos stay on this device only.' +
+      (showTip ? '<span class="grid-intro-tip"><strong>iPhone tip:</strong> In Safari, tap Share → <strong>Add to Home Screen</strong> for the best full-screen experience.</span>' : '') +
+      '</p>';
+    if (showTip) localStorage.setItem("aruba-pack-homescreen-tip", "1");
+
+    loadPhotoCounts(groups).then(function (photoCounts) {
+      groups.forEach(function (g) {
+        let filled = 0;
+        for (let i = 0; i < g.qty; i++) {
+          if (photoCounts[photoKey(g.id, i)]) filled++;
+        }
+
+        let block = '<section class="grid-group" data-item="' + escapeHtml(g.id) + '">';
+        block += '<div class="grid-group-head"><div><h3>' + escapeHtml(g.qty) + " " + escapeHtml(g.name) + '</h3>';
+        block += '<div class="count">Tap a slot to add a photo</div></div>';
+        block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + " photos</span></div>";
+        block += '<div class="slot-grid">';
+
+        for (let i = 0; i < g.qty; i++) {
+          const key = photoKey(g.id, i);
+          const has = !!photoCounts[key];
+          block += '<button type="button" class="photo-slot' + (has ? " has-photo" : "") + '" data-item="' + escapeHtml(g.id) + '" data-slot="' + i + '" aria-label="' + (has ? "View photo" : "Add photo") + " for " + escapeHtml(g.name) + " " + (i + 1) + '">';
+          block += '<span class="slot-num">' + (i + 1) + "</span>";
+          if (has) {
+            block += '<img data-photo-key="' + escapeHtml(key) + '" alt="" />';
+          } else {
+            block += '<span class="slot-add"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>';
+          }
+          block += "</button>";
+        }
+
+        block += "</div></section>";
+        root.innerHTML += block;
+      });
+
+      updateGridProgress(photoCounts);
+      bindSlotButtons(photoCounts);
+
+      root.querySelectorAll("img[data-photo-key]").forEach(function (img) {
+        const key = img.getAttribute("data-photo-key");
+        if (thumbCache[key]) {
+          img.src = thumbCache[key];
+          return;
+        }
+        idbGet(key).then(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          thumbCache[key] = url;
+          img.src = url;
+        });
+      });
+    });
+  }
+
+  function openPhotoViewer(itemId, slot, caption) {
+    const key = photoKey(itemId, slot);
+    viewerPhoto = { itemId: itemId, slot: slot, key: key };
+    idbGet(key).then(function (blob) {
+      if (!blob) {
+        toast("Photo not found");
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const viewer = document.getElementById("photoViewer");
+      const img = document.getElementById("viewerImg");
+      img.onload = function () { URL.revokeObjectURL(url); };
+      img.src = url;
+      document.getElementById("viewerCaption").textContent = caption;
+      viewer.hidden = false;
+      viewer.classList.add("open");
+      document.body.style.overflow = "hidden";
+    });
+  }
+
+  function closePhotoViewer() {
+    const viewer = document.getElementById("photoViewer");
+    viewer.classList.remove("open");
+    viewer.hidden = true;
+    document.getElementById("viewerImg").removeAttribute("src");
+    viewerPhoto = null;
+    if (currentView === "grid") document.body.style.overflow = "";
+    else if (!document.querySelector(".overlay.open")) document.body.style.overflow = "";
+  }
+
+  function setView(view) {
+    currentView = view;
+    document.body.classList.toggle("view-grid", view === "grid");
+    document.getElementById("tabList").classList.toggle("on", view === "list");
+    document.getElementById("tabGrid").classList.toggle("on", view === "grid");
+    if (view === "grid") {
+      revokeThumbCache();
+      renderGrid();
+    } else {
+      closePhotoViewer();
+      render();
+    }
+  }
+
+  function saveState() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        toast("Could not save — storage may be full");
+      }
+    }, 80);
+  }
+
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function itemLabel(id) {
+    const row = state.items[id];
+    if (row && row.custom && row.label) return row.label;
+    return CATALOG[id] ? CATALOG[id].label : id;
+  }
+
+  function itemNote(id) {
+    return CATALOG[id] && CATALOG[id].note;
+  }
+
+  function itemCategory(id) {
+    const row = state.items[id];
+    if (row && row.custom && row.category) return row.category;
+    return CATALOG[id] ? CATALOG[id].category : "misc";
+  }
+
+  function visibleItems() {
+    return Object.keys(state.items).filter(function (id) {
+      const row = state.items[id];
+      if (!row || row.qty < 1 && !row.custom) return false;
+      if (state.opts.hidePacked && row.packed) return false;
+      return true;
+    });
+  }
+
+  function syncOptionsFromChips() {
+    state.opts.hidePacked = document.getElementById("hidePacked").checked;
+    state.opts.laundry = document.getElementById("optLaundry").checked;
+    state.opts.repeat = document.getElementById("optRepeat").checked;
+    document.getElementById("chipHide").classList.toggle("on", state.opts.hidePacked);
+    document.getElementById("chipLaundry").classList.toggle("on", state.opts.laundry);
+    document.getElementById("chipRepeat").classList.toggle("on", state.opts.repeat);
+    document.getElementById("swHide").classList.toggle("on", state.opts.hidePacked);
+    document.getElementById("swLaundry").classList.toggle("on", state.opts.laundry);
+    document.getElementById("swRepeat").classList.toggle("on", state.opts.repeat);
+  }
+
+  function applyOptionQuantities() {
+    for (const id of Object.keys(state.items)) {
+      if (state.items[id].custom) continue;
+      if (isRemoved(id)) continue;
+      if (CATALOG[id]) {
+        const q = resolveQty(id, state.opts);
+        if (q === 0) {
+          delete state.items[id];
+        } else {
+          state.items[id].qty = q;
+        }
+      }
+    }
+  }
+
+  function rebuildActivityItems() {
+    const target = new Set(buildDefaultItems(state.opts));
+    for (const id of target) {
+      if (isRemoved(id)) continue;
+      if (!state.items[id] && CATALOG[id]) {
+        state.items[id] = { packed: false, qty: resolveQty(id, state.opts), custom: false };
+      }
+    }
+    for (const id of Object.keys(state.items)) {
+      if (state.items[id].custom) continue;
+      const cat = CATALOG[id];
+      if (!cat) continue;
+      if (cat.activity === "laundryOnly" && !state.opts.laundry) {
+        delete state.items[id];
+        continue;
+      }
+      if (cat.activity && cat.activity !== "laundryOnly" && !state.opts.activities[cat.activity]) {
+        delete state.items[id];
+      }
+    }
+    applyOptionQuantities();
+    pruneAllGridPhotos();
+  }
+
+  function stats() {
+    const all = Object.values(state.items).filter(function (r) { return r.qty >= 1; });
+    const packed = all.filter(function (r) { return r.packed; }).length;
+    const total = all.length;
+    return { packed, total };
+  }
+
+  function updateProgress() {
+    const { packed, total } = stats();
+    const pct = total ? Math.round((packed / total) * 100) : 0;
+    const ring = document.getElementById("ringFg");
+    ring.style.strokeDashoffset = String(RING_CIRC * (1 - pct / 100));
+    document.getElementById("ringPct").textContent = pct + "%";
+    document.getElementById("progressSub").textContent = packed + " of " + total + " items packed";
+    const title = document.getElementById("progressTitle");
+    if (pct === 100 && total > 0) title.textContent = "All packed!";
+    else if (pct >= 75) title.textContent = "Almost there";
+    else if (pct >= 40) title.textContent = "Making progress";
+    else title.textContent = "Ready to pack";
+  }
+
+  function render() {
+    syncOptionsFromChips();
+    const root = document.getElementById("listRoot");
+    const byCat = {};
+    for (const cat of CATEGORIES) byCat[cat.id] = [];
+
+    visibleItems().forEach(function (id) {
+      const c = itemCategory(id);
+      if (!byCat[c]) byCat[c] = [];
+      byCat[c].push(id);
+    });
+
+    let html = "";
+    if (!state.opts.hidePacked && stats().packed > 0) {
+      html += '<div class="tips"><strong>Tip</strong>Turn on “Hide packed” while you fill your bag so only what’s left stays on screen.</div>';
+    }
+
+    CATEGORIES.forEach(function (cat) {
+      const ids = byCat[cat.id] || [];
+      if (!ids.length) return;
+
+      const packedInCat = ids.filter(function (id) { return state.items[id].packed; }).length;
+      const collapsed = !!state.collapsed[cat.id];
+
+      html += '<section class="section' + (collapsed ? " collapsed" : "") + '" data-cat="' + cat.id + '">';
+      html += '<div class="section-head" role="button" tabindex="0" aria-expanded="' + !collapsed + '">';
+      html += '<span class="section-icon">' + cat.icon + '</span>';
+      html += '<span class="section-title">' + escapeHtml(cat.label) + '</span>';
+      html += '<span class="section-count">' + packedInCat + "/" + ids.length + '</span>';
+      html += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+      html += '</div><div class="section-body">';
+
+      ids.sort(function (a, b) {
+        const pa = state.items[a].packed ? 1 : 0;
+        const pb = state.items[b].packed ? 1 : 0;
+        if (pa !== pb) return pa - pb;
+        return itemLabel(a).localeCompare(itemLabel(b));
+      });
+
+      ids.forEach(function (id) {
+        const row = state.items[id];
+        const note = itemNote(id);
+        html += '<div class="item' + (row.packed ? " packed" : "") + (openDeleteId === id ? " reveal-delete" : "") + '" data-id="' + escapeHtml(id) + '">';
+        html += '<button type="button" class="check" aria-label="' + (row.packed ? "Unpack" : "Pack") + ' ' + escapeHtml(itemLabel(id)) + '"><span class="check-box"></span></button>';
+        html += '<div class="item-body"><div class="item-label">' + escapeHtml(itemLabel(id)) + '</div>';
+        if (note) html += '<div class="item-note">' + escapeHtml(note) + '</div>';
+        html += '</div>';
+        html += '<div class="qty"><button type="button" class="qty-minus" aria-label="' + (row.qty <= 1 ? "Remove from list" : "Decrease quantity") + '">−</button>';
+        html += '<span aria-label="Quantity">' + row.qty + '</span>';
+        html += '<button type="button" class="qty-plus" aria-label="Increase quantity">+</button></div>';
+        html += '<button type="button" class="item-delete">Delete</button></div>';
+      });
+
+      html += '</div></section>';
+    });
+
+    if (!html || !visibleItems().length) {
+      html = '<div class="section"><div class="empty-cat">' +
+        (state.opts.hidePacked ? "Everything visible is packed. Turn off “Hide packed” to review." : "Your list is empty. Add items or reset to defaults.") +
+        '</div></div>';
+    }
+
+    root.innerHTML = html;
+    updateProgress();
+    bindListEvents();
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function bindListEvents() {
+    document.querySelectorAll(".section-head").forEach(function (head) {
+      head.onclick = function () {
+        const cat = head.closest(".section").dataset.cat;
+        state.collapsed[cat] = !state.collapsed[cat];
+        saveState();
+        render();
+      };
+      head.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); head.click(); }
+      };
+    });
+
+    document.querySelectorAll(".item .check").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const id = btn.closest(".item").dataset.id;
+        state.items[id].packed = !state.items[id].packed;
+        saveState();
+        render();
+      };
+    });
+
+    document.querySelectorAll(".qty-minus").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const id = btn.closest(".item").dataset.id;
+        if (state.items[id].qty <= 1) {
+          removeItemCompletely(id);
+          return;
+        }
+        state.items[id].qty--;
+        prunePhotosForItem(id, state.items[id].qty);
+        saveState();
+        render();
+        if (currentView === "grid") renderGrid();
+      };
+    });
+
+    document.querySelectorAll(".qty-plus").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const id = btn.closest(".item").dataset.id;
+        if (state.items[id].qty < 99) {
+          state.items[id].qty++;
+          saveState();
+          render();
+          if (currentView === "grid") renderGrid();
+        }
+      };
+    });
+
+    document.querySelectorAll(".item-delete").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        removeItemCompletely(btn.closest(".item").dataset.id);
+      };
+    });
+
+    // Swipe to delete (touch)
+    document.querySelectorAll(".item").forEach(function (row) {
+      let startX = 0;
+      let tracking = false;
+
+      row.addEventListener("touchstart", function (e) {
+        if (e.touches.length !== 1) return;
+        startX = e.touches[0].clientX;
+        tracking = true;
+      }, { passive: true });
+
+      row.addEventListener("touchmove", function (e) {
+        if (!tracking) return;
+        const dx = e.touches[0].clientX - startX;
+        if (dx < -40) {
+          openDeleteId = row.dataset.id;
+          document.querySelectorAll(".item.reveal-delete").forEach(function (el) {
+            if (el !== row) el.classList.remove("reveal-delete");
+          });
+          row.classList.add("reveal-delete");
+        } else if (dx > 20) {
+          row.classList.remove("reveal-delete");
+          if (openDeleteId === row.dataset.id) openDeleteId = null;
+        }
+      }, { passive: true });
+
+      row.addEventListener("touchend", function () { tracking = false; });
+    });
+  }
+
+  function openOverlay(id) {
+    document.getElementById(id).classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeOverlay(id) {
+    document.getElementById(id).classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function renderActivities() {
+    const grid = document.getElementById("activityGrid");
+    grid.innerHTML = ACTIVITIES.map(function (a) {
+      const on = state.opts.activities[a.id];
+      return '<button type="button" class="activity-card' + (on ? " on" : "") + '" data-activity="' + a.id + '">' +
+        '<strong>' + escapeHtml(a.label) + '</strong><small>' + escapeHtml(a.desc) + '</small></button>';
+    }).join("");
+
+    grid.querySelectorAll(".activity-card").forEach(function (card) {
+      card.onclick = function () {
+        const id = card.dataset.activity;
+        state.opts.activities[id] = !state.opts.activities[id];
+        card.classList.toggle("on", state.opts.activities[id]);
+        rebuildActivityItems();
+        saveState();
+        render();
+        if (currentView === "grid") renderGrid();
+      };
+    });
+  }
+
+  function populateAddCategory() {
+    const sel = document.getElementById("addCategory");
+    sel.innerHTML = CATEGORIES.map(function (c) {
+      return '<option value="' + c.id + '">' + escapeHtml(c.label) + '</option>';
+    }).join("");
+  }
+
+  // Chip / switch sync
+  ["hidePacked", "optLaundry", "optRepeat"].forEach(function (id) {
+    document.getElementById(id).addEventListener("change", function () {
+      state.opts.hidePacked = document.getElementById("hidePacked").checked;
+      state.opts.laundry = document.getElementById("optLaundry").checked;
+      state.opts.repeat = document.getElementById("optRepeat").checked;
+      rebuildActivityItems();
+      saveState();
+      render();
+      if (currentView === "grid") renderGrid();
+    });
+  });
+
+  function bindSwitch(swId, optKey) {
+    document.getElementById(swId).addEventListener("click", function () {
+      state.opts[optKey] = !state.opts[optKey];
+      document.getElementById(optKey === "hidePacked" ? "hidePacked" : optKey === "laundry" ? "optLaundry" : "optRepeat").checked = state.opts[optKey];
+      if (optKey === "laundry" || optKey === "repeat") rebuildActivityItems();
+      saveState();
+      render();
+      if (currentView === "grid") renderGrid();
+    });
+  }
+
+  bindSwitch("swHide", "hidePacked");
+  bindSwitch("swLaundry", "laundry");
+  bindSwitch("swRepeat", "repeat");
+
+  document.getElementById("btnSettings").onclick = function () {
+    renderActivities();
+    syncOptionsFromChips();
+    openOverlay("settingsOverlay");
+  };
+
+  document.getElementById("btnAdd").onclick = function () {
+    document.getElementById("addName").value = "";
+    document.getElementById("addQty").value = "1";
+    populateAddCategory();
+    openOverlay("addOverlay");
+    setTimeout(function () { document.getElementById("addName").focus(); }, 300);
+  };
+
+  document.getElementById("addSave").onclick = function () {
+    const name = document.getElementById("addName").value.trim();
+    if (!name) {
+      toast("Enter an item name");
+      return;
+    }
+    const qty = Math.min(99, Math.max(1, parseInt(document.getElementById("addQty").value, 10) || 1));
+    const category = document.getElementById("addCategory").value;
+    const id = "custom-" + Date.now();
+    state.items[id] = { packed: false, qty: qty, custom: true, label: name, category: category };
+    saveState();
+    closeOverlay("addOverlay");
+    render();
+    if (currentView === "grid") renderGrid();
+    toast("Added “" + name + "”");
+  };
+
+  document.getElementById("btnReset").onclick = function () {
+    if (confirm("Reset your entire packing list? Checked items, custom additions, and wardrobe photos will be cleared.")) {
+      state = defaultState();
+      revokeThumbCache();
+      idbClearAll().then(function () {
+        saveState();
+        render();
+        if (currentView === "grid") renderGrid();
+        toast("List reset for Aruba · 7 days");
+      }).catch(function () {
+        saveState();
+        render();
+        toast("List reset; some photos may remain");
+      });
+    }
+  };
+
+  document.getElementById("tabList").onclick = function () { setView("list"); };
+  document.getElementById("tabGrid").onclick = function () { setView("grid"); };
+
+  document.getElementById("fileInput").addEventListener("change", function (e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file || !pendingPhoto) return;
+    if (!isValidImageFile(file)) {
+      toast("Please choose an image");
+      pendingPhoto = null;
+      return;
+    }
+    const target = pendingPhoto;
+    pendingPhoto = null;
+    savePhotoForSlot(target, file);
+  });
+
+  document.getElementById("viewerClose").onclick = closePhotoViewer;
+  document.getElementById("viewerReplace").onclick = function () {
+    if (!viewerPhoto) return;
+    pendingPhoto = { itemId: viewerPhoto.itemId, slot: viewerPhoto.slot };
+    closePhotoViewer();
+    document.getElementById("fileInput").click();
+  };
+  document.getElementById("viewerDelete").onclick = function () {
+    if (!viewerPhoto) return;
+    const key = viewerPhoto.key;
+    idbDelete(key).then(function () {
+      if (thumbCache[key]) {
+        URL.revokeObjectURL(thumbCache[key]);
+        delete thumbCache[key];
+      }
+      closePhotoViewer();
+      toast("Photo removed");
+      if (currentView === "grid") renderGrid();
+    });
+  };
+
+  document.getElementById("photoViewer").addEventListener("click", function (e) {
+    if (e.target.id === "photoViewer") closePhotoViewer();
+  });
+
+  document.querySelectorAll("[data-close]").forEach(function (btn) {
+    btn.onclick = function () { closeOverlay(btn.getAttribute("data-close")); };
+  });
+
+  document.querySelectorAll(".overlay").forEach(function (ov) {
+    ov.addEventListener("click", function (e) {
+      if (e.target === ov) closeOverlay(ov.id);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (document.getElementById("photoViewer").classList.contains("open")) {
+        closePhotoViewer();
+        return;
+      }
+      document.querySelectorAll(".overlay.open").forEach(function (ov) { closeOverlay(ov.id); });
+    }
+  });
+
+  // Init chips from state
+  document.getElementById("hidePacked").checked = state.opts.hidePacked;
+  document.getElementById("optLaundry").checked = state.opts.laundry;
+  document.getElementById("optRepeat").checked = state.opts.repeat;
+
+  populateAddCategory();
+  renderActivities();
+  render();
+})();
+  </script>
+</body>
+</html>
