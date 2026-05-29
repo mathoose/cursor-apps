@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Habit Journal" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="theme-color" content="#5c4d3c" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <title>Habit Journal</title>
+  <style>
+    :root {
+      --paper: #faf8f5;
+      --dot: #e8e2d9;
+      --ink: #2c2419;
+      --muted: #7a6f62;
+      --accent: #c45c5c;
+      --border: #ddd5c8;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --tap: 44px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-tap-highlight-color: transparent; height: -webkit-fill-available; }
+    body {
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+      background-size: 18px 18px;
+      padding-top: calc(56px + var(--safe-top));
+      padding-bottom: calc(64px + var(--safe-bottom));
+      overscroll-behavior: none;
+    }
+    button, .cell, .tab, .nav-btn { touch-action: manipulation; }
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      padding: calc(8px + var(--safe-top)) 12px 8px;
+      background: rgba(250, 248, 245, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .topbar h1 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .nav-row { display: flex; align-items: center; gap: 6px; }
+    .nav-btn {
+      min-width: var(--tap);
+      min-height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .nav-btn:active { background: #f5f0e8; }
+    .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
+    main { max-width: 520px; margin: 0 auto; padding: 12px 10px 16px; }
+    .panel { display: none; }
+    .panel.on { display: block; }
+    .card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(44, 36, 25, 0.06);
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-family: Georgia, serif;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .habit-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+    .scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 4px; }
+    .month-grid {
+      display: grid;
+      gap: 3px;
+      min-width: min-content;
+    }
+    .month-grid .corner { width: 72px; min-width: 72px; }
+    .month-grid .day-head {
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      padding: 4px 0;
+      min-width: 28px;
+    }
+    .month-grid .habit-label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 6px 4px;
+      display: flex;
+      align-items: center;
+      line-height: 1.2;
+      min-height: 32px;
+    }
+    .cell {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s;
+    }
+    .cell:active { transform: scale(0.92); }
+    .cell.invalid {
+      opacity: 0.25;
+      pointer-events: none;
+      background: transparent;
+      border-color: transparent;
+    }
+    .year-block { margin-bottom: 20px; }
+    .year-grid {
+      display: grid;
+      grid-template-columns: 28px repeat(12, 1fr);
+      gap: 2px;
+      font-size: 0.625rem;
+    }
+    .year-grid .m-head {
+      text-align: center;
+      font-weight: 700;
+      color: var(--muted);
+      padding: 4px 0;
+    }
+    .year-grid .d-label {
+      text-align: right;
+      padding-right: 4px;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.1;
+      font-size: 0.5625rem;
+    }
+    .year-grid .cell { width: 100%; height: 14px; min-width: 0; border-radius: 3px; min-height: 14px; }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.625rem;
+      color: var(--muted);
+    }
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+    .habit-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .habit-row:last-child { border-bottom: none; }
+    .habit-row input[type="text"] {
+      flex: 1;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 1rem;
+    }
+    .btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--ink); }
+    .btn-danger { background: #fff; border: 1px solid #f5c6c6; color: #b91c1c; }
+    .btn-block { width: 100%; margin-top: 8px; }
+    .hint { font-size: 0.8125rem; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+    .level-editor { margin-top: 8px; }
+    .level-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .level-row input[type="color"] { width: 40px; height: 32px; border: none; padding: 0; }
+    .level-row input[type="text"] { flex: 1; height: 36px; border: 1px solid var(--border); border-radius: 8px; padding: 0 8px; font-size: 0.875rem; }
+    .tabbar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      display: flex;
+      background: rgba(255,255,255,0.95);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bottom);
+      z-index: 50;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 4px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.625rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .tab.on { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(72px + var(--safe-bottom));
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+    #importInput {
+      position: fixed;
+      left: 0; top: 0;
+      width: 1px; height: 1px;
+      opacity: 0.01;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Habit Journal</h1>
+    <div class="nav-row" id="topNav"></div>
+  </header>
+
+  <main>
+    <section class="panel on" id="panelMonth" aria-label="Monthly view"></section>
+    <section class="panel" id="panelYear" aria-label="Yearly view"></section>
+    <section class="panel" id="panelHabits" aria-label="Habits"></section>
+    <section class="panel" id="panelData" aria-label="Export and import"></section>
+  </main>
+
+  <nav class="tabbar" aria-label="Main">
+    <button type="button" class="tab on" data-tab="month">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Month
+    </button>
+    <button type="button" class="tab" data-tab="year">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Year
+    </button>
+    <button type="button" class="tab" data-tab="habits">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Habits
+    </button>
+    <button type="button" class="tab" data-tab="data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
+      Data
+    </button>
+  </nav>
+
+  <input type="file" id="importInput" accept="application/json,.json" />
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "habit-journal-v1";
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  const DEFAULT_LEVELS = [
+    { label: "None", color: "#ffffff" },
+    { label: "10 min", color: "#fce4ec" },
+    { label: "20 min", color: "#f8bbd9" },
+    { label: "30 min", color: "#f48fb1" },
+    { label: "40 min", color: "#f06292" },
+    { label: "50 min", color: "#ec407a" },
+    { label: "60 min", color: "#e91e63" },
+    { label: "60+ min", color: "#ab47bc" },
+  ];
+
+  function defaultState() {
+    return {
+      version: 1,
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      habits: [
+        { id: uid(), name: "Running", levels: JSON.parse(JSON.stringify(DEFAULT_LEVELS)) },
+      ],
+      cells: {},
+    };
+  }
+
+  function uid() {
+    return "h" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const p = JSON.parse(raw);
+      if (!p || !Array.isArray(p.habits)) return defaultState();
+      const s = defaultState();
+      s.year = typeof p.year === "number" ? p.year : s.year;
+      s.month = typeof p.month === "number" ? Math.min(11, Math.max(0, p.month)) : s.month;
+      s.cells = p.cells && typeof p.cells === "object" ? p.cells : {};
+      s.habits = p.habits.map(function (h) {
+        return {
+          id: h.id || uid(),
+          name: String(h.name || "Habit").slice(0, 40),
+          levels: Array.isArray(h.levels) && h.levels.length ? h.levels.map(normalizeLevel) : JSON.parse(JSON.stringify(DEFAULT_LEVELS)),
+        };
+      });
+      if (!s.habits.length) s.habits = defaultState().habits;
+      return s;
+    } catch (e) {
+      return defaultState();
+    }
+  }
+
+  function normalizeLevel(l) {
+    return {
+      label: String(l.label || "").slice(0, 24),
+      color: /^#[0-9a-fA-F]{6}$/.test(l.color) ? l.color : "#ffffff",
+    };
+  }
+
+  let state = loadState();
+  let activeTab = "month";
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      toast("Could not save");
+    }
+  }
+
+  function toast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function cellKey(habitId, y, m, d) {
+    const mm = String(m + 1).padStart(2, "0");
+    const dd = String(d).padStart(2, "0");
+    return habitId + "-" + y + "-" + mm + "-" + dd;
+  }
+
+  function daysInMonth(y, m) {
+    return new Date(y, m + 1, 0).getDate();
+  }
+
+  function getLevel(habit, key) {
+    const v = state.cells[key];
+    if (typeof v !== "number" || v < 0) return 0;
+    return Math.min(v, habit.levels.length - 1);
+  }
+
+  function cycleLevel(habitId, y, m, d) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    const key = cellKey(habitId, y, m, d);
+    const cur = getLevel(habit, key);
+    const next = (cur + 1) % habit.levels.length;
+    if (next === 0) delete state.cells[key];
+    else state.cells[key] = next;
+    save();
+    render();
+  }
+
+  function levelStyle(habit, levelIndex) {
+    const lv = habit.levels[levelIndex] || habit.levels[0];
+    return "background:" + lv.color + ";border-color:" + (levelIndex ? "transparent" : "var(--border)");
+  }
+
+  function renderTopNav() {
+    const nav = document.getElementById("topNav");
+    if (activeTab === "habits" || activeTab === "data") {
+      nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
+      return;
+    }
+    if (activeTab === "year") {
+      nav.innerHTML =
+        '<button type="button" class="nav-btn" id="yearPrev" aria-label="Previous year">‹</button>' +
+        '<span class="nav-label">' + state.year + "</span>" +
+        '<button type="button" class="nav-btn" id="yearNext" aria-label="Next year">›</button>';
+      document.getElementById("yearPrev").onclick = function () { state.year--; save(); render(); };
+      document.getElementById("yearNext").onclick = function () { state.year++; save(); render(); };
+      return;
+    }
+    nav.innerHTML =
+      '<button type="button" class="nav-btn" id="monthPrev" aria-label="Previous month">‹</button>' +
+      '<span class="nav-label">' + MONTHS_FULL[state.month] + " " + state.year + "</span>" +
+      '<button type="button" class="nav-btn" id="monthNext" aria-label="Next month">›</button>';
+    document.getElementById("monthPrev").onclick = function () {
+      state.month--;
+      if (state.month < 0) { state.month = 11; state.year--; }
+      save(); render();
+    };
+    document.getElementById("monthNext").onclick = function () {
+      state.month++;
+      if (state.month > 11) { state.month = 0; state.year++; }
+      save(); render();
+    };
+  }
+
+  function renderLegend(habit) {
+    return habit.levels.map(function (lv, i) {
+      return '<span class="legend-item"><span class="legend-swatch" style="background:' + lv.color + '"></span>' + escapeHtml(lv.label) + "</span>";
+    }).join("");
+  }
+
+  function bindCells(root) {
+    root.querySelectorAll(".cell[data-key]").forEach(function (btn) {
+      btn.onclick = function () {
+        const parts = btn.dataset.key.split("|");
+        cycleLevel(parts[0], parseInt(parts[1], 10), parseInt(parts[2], 10), parseInt(parts[3], 10));
+      };
+    });
+  }
+
+  function renderMonth() {
+    const root = document.getElementById("panelMonth");
+    const dim = daysInMonth(state.year, state.month);
+    let cols = "72px";
+    for (let d = 1; d <= dim; d++) cols += " 28px";
+
+    let html = '<p class="hint">Tap a dot to cycle colors. Same data as the Year view.</p>';
+    html += '<div class="card scroll-x"><div class="month-grid" style="grid-template-columns:' + cols + '">';
+    html += '<div class="corner"></div>';
+    for (let d = 1; d <= dim; d++) {
+      html += '<div class="day-head">' + d + "</div>";
+    }
+
+    state.habits.forEach(function (habit) {
+      html += '<div class="habit-label">' + escapeHtml(habit.name) + "</div>";
+      for (let d = 1; d <= dim; d++) {
+        const key = cellKey(habit.id, state.year, state.month, d);
+        const lv = getLevel(habit, key);
+        const dataKey = habit.id + "|" + state.year + "|" + state.month + "|" + d;
+        html += '<button type="button" class="cell" data-key="' + dataKey + '" style="' + levelStyle(habit, lv) + '" aria-label="' + escapeHtml(habit.name) + " day " + d + '"></button>';
+      }
+    });
+
+    html += "</div></div>";
+    root.innerHTML = html;
+    bindCells(root);
+  }
+
+  function renderYear() {
+    const root = document.getElementById("panelYear");
+    let html = '<p class="hint">All habits on one page — like a bullet journal spread. Tap any square to mark that day.</p>';
+
+    state.habits.forEach(function (habit) {
+      html += '<div class="card year-block">';
+      html += '<h2><span>' + escapeHtml(habit.name) + '</span><span class="habit-tag">' + state.year + "</span></h2>";
+      html += '<div class="year-grid">';
+      html += '<div></div>';
+      MONTHS.forEach(function (m) { html += '<div class="m-head">' + m + "</div>"; });
+
+      for (let d = 1; d <= 31; d++) {
+        html += '<div class="d-label">' + d + "</div>";
+        for (let m = 0; m < 12; m++) {
+          const dim = daysInMonth(state.year, m);
+          const dataKey = habit.id + "|" + state.year + "|" + m + "|" + d;
+          if (d > dim) {
+            html += '<button type="button" class="cell invalid" disabled aria-hidden="true"></button>';
+          } else {
+            const key = cellKey(habit.id, state.year, m, d);
+            const lv = getLevel(habit, key);
+            html += '<button type="button" class="cell" data-key="' + dataKey + '" style="' + levelStyle(habit, lv) + '" aria-label="' + escapeHtml(habit.name) + " " + MONTHS_FULL[m] + " " + d + '"></button>';
+          }
+        }
+      }
+      html += "</div>";
+      html += '<div class="legend">' + renderLegend(habit) + "</div></div>";
+    });
+
+    root.innerHTML = html;
+    bindCells(root);
+  }
+
+  function renderHabits() {
+    const root = document.getElementById("panelHabits");
+    let html = '<p class="hint">Add habits, rename them, and set color levels. Changes apply to Month and Year instantly.</p>';
+
+    state.habits.forEach(function (habit, idx) {
+      html += '<div class="card" data-habit="' + habit.id + '">';
+      html += '<div class="habit-row">';
+      html += '<input type="text" value="' + escapeHtml(habit.name) + '" data-name="' + habit.id + '" maxlength="40" />';
+      html += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+      html += '<div class="level-editor">';
+      habit.levels.forEach(function (lv, i) {
+        html += '<div class="level-row">';
+        html += '<input type="color" value="' + lv.color + '" data-hid="' + habit.id + '" data-li="' + i + '" />';
+        html += '<input type="text" value="' + escapeHtml(lv.label) + '" data-hlabel="' + habit.id + '" data-li="' + i + '" maxlength="24" />';
+        if (i > 0) html += '<button type="button" class="btn btn-secondary" data-rmlv="' + habit.id + '" data-li="' + i + '">×</button>';
+        html += "</div>";
+      });
+      if (habit.levels.length < 10) {
+        html += '<button type="button" class="btn btn-secondary btn-block" data-addlv="' + habit.id + '">+ Add color level</button>';
+      }
+      html += "</div></div>";
+    });
+
+    html += '<button type="button" class="btn btn-primary btn-block" id="addHabit">+ Add habit</button>';
+    root.innerHTML = html;
+
+    document.getElementById("addHabit").onclick = function () {
+      state.habits.push({
+        id: uid(),
+        name: "New habit",
+        levels: JSON.parse(JSON.stringify(DEFAULT_LEVELS)),
+      });
+      save(); render();
+    };
+
+    root.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
+        if (!confirm("Remove this habit and all its dots?")) return;
+        const id = btn.dataset.del;
+        state.habits = state.habits.filter(function (h) { return h.id !== id; });
+        Object.keys(state.cells).forEach(function (k) {
+          if (k.indexOf(id + "-") === 0) delete state.cells[k];
+        });
+        save(); render();
+      };
+    });
+
+    root.querySelectorAll("[data-name]").forEach(function (inp) {
+      inp.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
+        if (h) { h.name = inp.value.trim() || "Habit"; save(); render(); }
+      };
+    });
+
+    root.querySelectorAll("[data-hid]").forEach(function (inp) {
+      inp.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.hid; });
+        if (h) h.levels[parseInt(inp.dataset.li, 10)].color = inp.value;
+        save(); render();
+      };
+    });
+
+    root.querySelectorAll("[data-hlabel]").forEach(function (inp) {
+      inp.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.hlabel; });
+        if (h) h.levels[parseInt(inp.dataset.li, 10)].label = inp.value;
+        save(); render();
+      };
+    });
+
+    root.querySelectorAll("[data-addlv]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.addlv; });
+        if (h) h.levels.push({ label: "Level " + h.levels.length, color: "#e0e0e0" });
+        save(); render();
+      };
+    });
+
+    root.querySelectorAll("[data-rmlv]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.rmlv; });
+        const i = parseInt(btn.dataset.li, 10);
+        if (!h || h.levels.length <= 2) return;
+        h.levels.splice(i, 1);
+        Object.keys(state.cells).forEach(function (k) {
+          if (k.indexOf(h.id + "-") === 0 && state.cells[k] >= i) {
+            if (state.cells[k] === i) delete state.cells[k];
+            else state.cells[k]--;
+          }
+        });
+        save(); render();
+      };
+    });
+  }
+
+  function renderData() {
+    const root = document.getElementById("panelData");
+    root.innerHTML =
+      '<p class="hint">Backup everything (habits, colors, all dots) as JSON. Import on a new phone to restore.</p>' +
+      '<div class="card">' +
+      '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export JSON</button>' +
+      '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import JSON</button>' +
+      '<button type="button" class="btn btn-secondary btn-block" id="btnReset" style="margin-top:16px;color:#b91c1c;border-color:#fecaca">Reset all data</button>' +
+      "</div>";
+
+    document.getElementById("btnExport").onclick = function () {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "habit-journal-" + state.year + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Exported");
+    };
+
+    document.getElementById("btnImport").onclick = function () {
+      document.getElementById("importInput").click();
+    };
+
+    document.getElementById("btnReset").onclick = function () {
+      if (!confirm("Erase all habits and dots?")) return;
+      state = defaultState();
+      save();
+      render();
+      toast("Reset complete");
+    };
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  document.getElementById("importInput").addEventListener("change", function (e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function () {
+      try {
+        const p = JSON.parse(reader.result);
+        if (!p || !Array.isArray(p.habits)) throw new Error("Invalid");
+        if (!confirm("Replace all current data with this file?")) return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+        state = loadState();
+        render();
+        toast("Import complete");
+      } catch (err) {
+        toast("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  const panelIds = { month: "panelMonth", year: "panelYear", habits: "panelHabits", data: "panelData" };
+
+  document.querySelectorAll(".tab").forEach(function (tab) {
+    tab.onclick = function () {
+      activeTab = tab.dataset.tab;
+      document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
+      document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
+      document.getElementById(panelIds[activeTab]).classList.add("on");
+      render();
+    };
+  });
+
+  function render() {
+    renderTopNav();
+    if (activeTab === "month") renderMonth();
+    else if (activeTab === "year") renderYear();
+    else if (activeTab === "habits") renderHabits();
+    else if (activeTab === "data") renderData();
+  }
+
+  render();
+})();
+  </script>
+</body>
+</html>
