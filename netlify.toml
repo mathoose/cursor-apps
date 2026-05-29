@@ -1,7 +1,7 @@
 # Shared headers for all Netlify sites in this repo.
 # Publish directory is set per-site in the Netlify dashboard:
-#   voice-notes-emily  →  voice-notes
-#   aruba-pack-emily   →  aruba-packing
+#   voice-notes-mattheus  →  voice-notes
+#   aruba-pack-emily      →  aruba-packing
 
 [[headers]]
   for = "/*"
