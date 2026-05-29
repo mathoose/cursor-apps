@@ -8,6 +8,7 @@
   <meta name="apple-mobile-web-app-title" content="Habit Journal" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -507,23 +508,23 @@
       const legacyHabits = p.habits.slice();
       s.habits = legacyHabits.map(normalizeHabit);
       if (!s.habits.length) s.habits = defaultState().habits;
-      const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h.levels; });
+      const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h && h.levels; });
       if (isLegacy) {
-        legacyHabits.forEach(function (oldH, i) {
-          const nh = s.habits[i];
-          if (!nh || !oldH.levels) return;
-          Object.keys(s.cells).forEach(function (k) {
-            if (k.indexOf(nh.id + "-") !== 0) return;
-            const idx = s.cells[k];
-            if (typeof idx !== "number" || idx < 1) return;
-            const v = migrateCellValue(nh, idx, oldH.levels);
-            if (v == null) delete s.cells[k];
-            else s.cells[k] = v;
-          });
-        });
         try {
+          legacyHabits.forEach(function (oldH, i) {
+            const nh = s.habits[i];
+            if (!nh || !oldH || !oldH.levels) return;
+            Object.keys(s.cells).forEach(function (k) {
+              if (k.indexOf(nh.id + "-") !== 0) return;
+              const idx = s.cells[k];
+              if (typeof idx !== "number" || idx < 1) return;
+              const v = migrateCellValue(nh, idx, oldH.levels);
+              if (v == null) delete s.cells[k];
+              else s.cells[k] = v;
+            });
+          });
           localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, year: s.year, month: s.month, habits: s.habits, cells: s.cells }));
-        } catch (e) { /* session-only ok */ }
+        } catch (e) { /* migration optional */ }
       }
       return s;
     } catch (e) {
@@ -533,6 +534,26 @@
 
   let state = loadState();
   let activeTab = "month";
+
+  function ensureHabitsReady() {
+    if (!Array.isArray(state.habits) || !state.habits.length) {
+      state.habits = defaultState().habits;
+      save();
+    }
+    state.habits = state.habits.map(function (h) {
+      var n = normalizeHabit(h || {});
+      if (n.type === "counter" && !n.step) n.step = 1;
+      return n;
+    });
+  }
+
+  function showFatalError(msg) {
+    var html = '<div class="card"><p class="hint">' + escapeHtml(msg) + "</p></div>";
+    ["panelMonth", "panelYear", "panelHabits", "panelData"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = html;
+    });
+  }
 
   function save() {
     if (!storageOk) {
@@ -666,6 +687,7 @@
 
   function renderTopNav() {
     const nav = document.getElementById("topNav");
+    if (!nav) return;
     if (activeTab === "habits" || activeTab === "data") {
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
@@ -757,6 +779,7 @@
 
   function renderMonth() {
     const root = document.getElementById("panelMonth");
+    if (!root) return;
     const dim = daysInMonth(state.year, state.month);
     let cols = "72px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
@@ -981,11 +1004,17 @@
   });
 
   function render() {
-    renderTopNav();
-    if (activeTab === "month") renderMonth();
-    else if (activeTab === "year") renderYear();
-    else if (activeTab === "habits") renderHabits();
-    else if (activeTab === "data") renderData();
+    try {
+      ensureHabitsReady();
+      renderTopNav();
+      if (activeTab === "month") renderMonth();
+      else if (activeTab === "year") renderYear();
+      else if (activeTab === "habits") renderHabits();
+      else if (activeTab === "data") renderData();
+    } catch (err) {
+      console.error("Habit Journal render error:", err);
+      showFatalError("Could not display habits. Open the Data tab, tap Reset, then reload. If it persists, clear Safari website data for mathoose.github.io.");
+    }
   }
 
   storageOk = storageAvailable();
@@ -1000,7 +1029,12 @@
   });
   window.addEventListener("pagehide", flushSave);
 
-  render();
+  try {
+    render();
+  } catch (err) {
+    console.error("Habit Journal startup error:", err);
+    showFatalError("Could not start Habit Journal. Open the Data tab, tap Reset, then reload the page.");
+  }
 })();
   </script>
   <script src="../apps-shell.js" defer></script>
