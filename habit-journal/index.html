@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-year-gallery-v1 -->
+  <!-- build: hj-year-gallery-v2 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -102,6 +102,7 @@
     main { max-width: 520px; margin: 0 auto; padding: 12px 10px 16px; }
     .panel { display: none; }
     .panel.on { display: block; }
+    #panelYear { padding-bottom: 8px; }
     .card {
       background: rgba(255, 255, 255, 0.88);
       border: 1px solid var(--border);
@@ -253,6 +254,19 @@
       text-align: center;
       font-size: 1rem;
     }
+    .step-row-locked .step-locked-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .step-locked-note {
+      margin: 0 0 8px;
+      font-size: 0.75rem;
+    }
+    .type-pill:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
     .legend-scale {
       display: flex;
       gap: 4px;
@@ -329,7 +343,7 @@
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 8px;
       width: 100%;
-      align-items: start;
+      align-items: stretch;
     }
     .year-grid-card {
       min-width: 0;
@@ -341,7 +355,8 @@
     }
     .year-grid-card.is-collapsed { padding: 0; }
     .year-grid-card.is-expanded {
-      padding: 6px 4px 8px;
+      overflow: visible;
+      padding: 6px 4px 10px;
       cursor: pointer;
     }
     .year-grid-card-head {
@@ -536,6 +551,7 @@
       gap: 2px;
     }
     .year-grid-heatmap .cell,
+    .year-grid-heatmap .cell.cell-year-shade,
     .year-grid-heatmap .cell.cell-count,
     .year-grid-heatmap .cell.cell-yes,
     .year-grid-heatmap .cell.cell-pad {
@@ -887,11 +903,18 @@
   ];
   const MAX_CATEGORIES = 20;
   const MAX_STEP = 5000;
+  const STEPS_BASELINE = 5000;
+  const STEPS_BASELINE_NAME = "Steps";
+
+  function isStepsHabitName(name) {
+    return /^steps$/i.test(String(name || "").trim());
+  }
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
   let yearExpandedHabits = {};
   let yearExpandOrder = [];
   let yearFullscreenHabitId = null;
+  let yearDefaultExpandDone = false;
   let habitsCatPanelOpen = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
@@ -907,7 +930,15 @@
         return { id: c.id, label: c.label };
       }),
       habits: [
-        { id: uid(), name: "Steps", type: "counter", step: 5000, category: "fitness", pinned: false },
+        {
+          id: uid(),
+          name: STEPS_BASELINE_NAME,
+          type: "counter",
+          step: STEPS_BASELINE,
+          stepLocked: true,
+          category: "fitness",
+          pinned: false,
+        },
       ],
       cells: {},
     };
@@ -985,17 +1016,30 @@
       category: normalizeCategory(h.category, categories),
       pinned: !!h.pinned,
     };
+    const name = String(h.name || "Habit").slice(0, 40);
+    if (isStepsHabitName(name)) {
+      return {
+        id: h.id || uid(),
+        name: STEPS_BASELINE_NAME,
+        type: "counter",
+        step: STEPS_BASELINE,
+        stepLocked: true,
+        category: base.category,
+        pinned: base.pinned,
+      };
+    }
     if (h.type === "yesno" || h.type === "counter") {
       const type = h.type;
       const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
-      return {
+      const out = {
         id: h.id || uid(),
-        name: String(h.name || "Habit").slice(0, 40),
+        name: name,
         type: type,
         step: type === "counter" ? step : 1,
         category: base.category,
         pinned: base.pinned,
       };
+      return out;
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
     let type = "counter";
@@ -1003,9 +1047,37 @@
       const blob = levels.map(function (l) { return String(l.label || "").toLowerCase(); }).join(" ");
       if (/yes|no|done|skip|miss|✓|✗/.test(blob)) type = "yesno";
     }
-    const name = String(h.name || "Habit").slice(0, 40);
     if (/meditat|stretch|read|journal|floss|vitamin/i.test(name)) type = "yesno";
     return { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
+  }
+
+  function enforceStepsBaseline() {
+    let changed = false;
+    state.habits = state.habits.map(function (h) {
+      if (!isStepsHabitName(h.name)) return h;
+      const fixed = normalizeHabit(
+        {
+          id: h.id,
+          name: STEPS_BASELINE_NAME,
+          type: "counter",
+          step: STEPS_BASELINE,
+          stepLocked: true,
+          category: h.category,
+          pinned: h.pinned,
+        },
+        state.categories
+      );
+      if (
+        h.name !== fixed.name ||
+        h.type !== fixed.type ||
+        h.step !== fixed.step ||
+        !h.stepLocked
+      ) {
+        changed = true;
+      }
+      return fixed;
+    });
+    if (changed) save();
   }
 
   function sortHabitsList(habits) {
@@ -1261,6 +1333,7 @@
         s.categories = cloneDefaultCategories();
       }
       s.categoryFilter = typeof p.categoryFilter === "string" ? p.categoryFilter : "all";
+      s.migratedStepsDefault = !!p.migratedStepsDefault;
       const legacyHabits = p.habits.slice();
       s.habits = legacyHabits.map(function (h) {
         return normalizeHabit(h, s.categories);
@@ -1291,6 +1364,7 @@
               cells: s.cells,
               categories: s.categories,
               categoryFilter: s.categoryFilter,
+              migratedStepsDefault: s.migratedStepsDefault,
             })
           );
         } catch (e) { /* migration optional */ }
@@ -1358,6 +1432,7 @@
       return n;
     });
     migrateLegacyFactoryHabits();
+    enforceStepsBaseline();
   }
 
   function showFatalError(msg) {
@@ -1507,9 +1582,10 @@
       return;
     }
     if (running && (!meditation || habits.length <= 2)) {
-      running.name = "Steps";
+      running.name = STEPS_BASELINE_NAME;
       running.type = "counter";
-      running.step = 5000;
+      running.step = STEPS_BASELINE;
+      running.stepLocked = true;
       running.category = running.category || "fitness";
       if (meditation) {
         const medPrefix = meditation.id + "-";
@@ -1551,12 +1627,41 @@
     const mo = parseInt(p[2], 10);
     const d = parseInt(p[3], 10);
     const value = getCellValue(cellKey(habit.id, y, mo, d));
-    const disp = cellDisplay(habit, value);
     const todayCls = isTodayColumn(y, mo, d) ? " col-today" : "";
+    if (btn.classList.contains("cell-year-shade")) {
+      btn.className = ("cell cell-year-shade" + todayCls).trim();
+      btn.style.cssText = cellStyle(habit, value);
+      btn.textContent = "";
+      btn.setAttribute("aria-label", habit.name + " " + (value != null ? value : "empty"));
+      return;
+    }
+    const disp = cellDisplay(habit, value);
     btn.className = ("cell " + disp.cls + todayCls).trim();
     btn.style.cssText = cellStyle(habit, value);
     btn.textContent = disp.text;
     btn.setAttribute("aria-label", habit.name + " " + (value != null ? value : "empty"));
+  }
+
+  function renderYearHeatmapCell(habit, y, m, d) {
+    const value = getCellValue(cellKey(habit.id, y, m, d));
+    const dataKey = habit.id + "|" + y + "|" + m + "|" + d;
+    const todayCls = isTodayColumn(y, m, d) ? " col-today" : "";
+    const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    return (
+      '<button type="button" class="cell cell-year-shade' +
+      todayCls +
+      '" data-key="' +
+      dataKey +
+      '"' +
+      counterAttr +
+      ' style="' +
+      cellStyle(habit, value) +
+      '" aria-label="' +
+      escapeHtml(habit.name) +
+      " " +
+      (value != null ? value : "empty") +
+      '"></button>'
+    );
   }
 
   function afterCellChange(habitId, y, m, d) {
@@ -1590,7 +1695,7 @@
         if (d > dim) {
           html += '<span class="cell cell-pad" aria-hidden="true"></span>';
         } else {
-          html += renderCellButton(habit, state.year, m, d);
+          html += renderYearHeatmapCell(habit, state.year, m, d);
         }
       }
     }
@@ -1861,6 +1966,10 @@
     yearExpandOrder = yearExpandOrder.filter(function (id) {
       return filteredIds[id] && yearExpandedHabits[id];
     });
+    if (filtered.length > 0 && !yearDefaultExpandDone) {
+      expandAllYearHabits(filtered);
+      yearDefaultExpandDone = true;
+    }
     const allExpanded =
       filtered.length > 0 &&
       filtered.every(function (h) {
@@ -1882,7 +1991,7 @@
     html += "</div>";
     html += renderCategoryFiltersHtml();
     html +=
-      '<p class="hint">Tap a name to expand (fills top-left) · tap grid for full screen · Mark/Eraser below' +
+      '<p class="hint">12×31 shade grids · tap a name to expand or collapse · tap grid for full screen · Mark/Eraser below' +
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
@@ -1950,10 +2059,29 @@
       html += "</div>";
       html += '<div class="habit-settings">';
       html += '<div class="type-row">';
-      html += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
-      html += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
+      html +=
+        '<button type="button" class="type-pill' +
+        (habit.type === "counter" ? " on" : "") +
+        '" data-type="counter" data-hid="' +
+        habit.id +
+        '"' +
+        (habit.stepLocked ? " disabled" : "") +
+        ">Counter</button>";
+      html +=
+        '<button type="button" class="type-pill' +
+        (habit.type === "yesno" ? " on" : "") +
+        '" data-type="yesno" data-hid="' +
+        habit.id +
+        '"' +
+        (habit.stepLocked ? " disabled" : "") +
+        ">Yes / No</button>";
       html += "</div>";
-      if (habit.type === "counter") {
+      if (habit.stepLocked) {
+        html +=
+          '<div class="step-row step-row-locked"><span>+ per tap</span><span class="step-locked-value">' +
+          escapeHtml(formatStepBracket(STEPS_BASELINE)) +
+          '</span></div><p class="hint step-locked-note">Fixed baseline — does not change.</p>';
+      } else if (habit.type === "counter") {
         html +=
           '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
           MAX_STEP +
@@ -2094,8 +2222,9 @@
 
     root.querySelectorAll(".type-pill").forEach(function (btn) {
       btn.onclick = function () {
+        if (btn.disabled) return;
         const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
-        if (!h) return;
+        if (!h || h.stepLocked) return;
         h.type = btn.dataset.type;
         if (h.type === "counter" && !h.step) h.step = 1;
         save(); render();
@@ -2105,10 +2234,10 @@
     root.querySelectorAll("[data-step]").forEach(function (inp) {
       inp.onchange = function () {
         const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
-        if (h) {
-          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
-          save(); render();
-        }
+        if (!h || h.stepLocked) return;
+        h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
+        save();
+        render();
       };
     });
 
@@ -2213,6 +2342,7 @@
           cells: p.cells || {},
           categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
           categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
+          migratedStepsDefault: !!p.migratedStepsDefault,
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         state = loadState();
