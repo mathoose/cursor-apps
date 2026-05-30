@@ -97,10 +97,7 @@
             tasks: p.tasks,
             lists: p.lists || [],
             activeListId: p.activeListId,
-            counters: p.counters || [],
-            counterLogs: p.counterLogs || {},
-            matrixFilter: p.matrixFilter,
-            compareHabitIds: p.compareHabitIds || [],
+            matrixFilter: p.matrixFilter || "all",
           };
         } catch (e) {
           return null;
@@ -115,10 +112,7 @@
             tasks: slice.tasks,
             lists: slice.lists || [],
             activeListId: slice.activeListId || "inbox",
-            counters: slice.counters || [],
-            counterLogs: slice.counterLogs || {},
             matrixFilter: slice.matrixFilter || "all",
-            compareHabitIds: slice.compareHabitIds || [],
           })
         );
       },

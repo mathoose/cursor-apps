@@ -1446,12 +1446,7 @@ let state = {
   activeListId: 'inbox',
   calendarMonth: null,
   selectedDate: null,
-  counters: [],
-  counterLogs: {},
-  fitnessDate: null,
-  bulletDate: null,
-  matrixFilter: 'all',
-  compareHabitIds: []
+  matrixFilter: 'all'
 };
 
 let currentView = 'lists';
@@ -1536,10 +1531,7 @@ function loadState() {
     if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
     if (Array.isArray(parsed.lists) && parsed.lists.length) state.lists = ensureSystemLists(parsed.lists);
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
-    if (Array.isArray(parsed.counters)) state.counters = parsed.counters.map(normalizeCounter);
-    if (parsed.counterLogs && typeof parsed.counterLogs === 'object') state.counterLogs = parsed.counterLogs;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
-    if (Array.isArray(parsed.compareHabitIds)) state.compareHabitIds = parsed.compareHabitIds;
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -1596,10 +1588,7 @@ function saveState() {
       tasks: state.tasks,
       lists: state.lists,
       activeListId: state.activeListId,
-      counters: state.counters,
-      counterLogs: state.counterLogs,
-      matrixFilter: state.matrixFilter,
-      compareHabitIds: state.compareHabitIds
+      matrixFilter: state.matrixFilter
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -2416,9 +2405,8 @@ function exportBackup() {
       exportedAt: new Date().toISOString(),
       tasks: state.tasks,
       lists: state.lists,
-      counters: state.counters,
-      counterLogs: state.counterLogs,
-      compareHabitIds: state.compareHabitIds
+      activeListId: state.activeListId,
+      matrixFilter: state.matrixFilter
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -2453,10 +2441,7 @@ function handleImportFile(file) {
       pendingImport = parsed;
       const taskCount = parsed.tasks.length;
       const listCount = (parsed.lists || []).length;
-      const counterCount = (parsed.counters || []).length;
-      const logDays = parsed.counterLogs ? Object.keys(parsed.counterLogs).length : 0;
-      let summary = `Backup contains ${taskCount} task${taskCount === 1 ? '' : 's'} and ${listCount} list${listCount === 1 ? '' : 's'}.`;
-      if (counterCount) summary += ` Also ${counterCount} counter${counterCount === 1 ? '' : 's'} across ${logDays} logged day${logDays === 1 ? '' : 's'}.`;
+      const summary = `Backup contains ${taskCount} task${taskCount === 1 ? '' : 's'} and ${listCount} list${listCount === 1 ? '' : 's'}.`;
       document.getElementById('importSummary').textContent = summary;
       openModal('importModal');
     } catch (e) {
@@ -2479,19 +2464,6 @@ function importMerge() {
       if (!existingListIds.has(l.id)) state.lists.push(l);
     });
   }
-  if (Array.isArray(pendingImport.counters)) {
-    const existingCounterIds = new Set(state.counters.map(c => c.id));
-    pendingImport.counters.forEach(c => {
-      if (!existingCounterIds.has(c.id)) state.counters.push(normalizeCounter(c));
-    });
-  }
-  if (pendingImport.counterLogs && typeof pendingImport.counterLogs === 'object') {
-    for (const date in pendingImport.counterLogs) {
-      state.counterLogs[date] = state.counterLogs[date] || {};
-      Object.assign(state.counterLogs[date], pendingImport.counterLogs[date]);
-    }
-  }
-  if (Array.isArray(pendingImport.compareHabitIds)) state.compareHabitIds = pendingImport.compareHabitIds;
   saveState();
   pendingImport = null;
   closeModal('importModal');
@@ -2508,9 +2480,6 @@ function importReplace() {
     ? ensureSystemLists(pendingImport.lists)
     : DEFAULT_LISTS.slice();
   state.activeListId = 'inbox';
-  state.counters = Array.isArray(pendingImport.counters) ? pendingImport.counters.map(normalizeCounter) : [];
-  state.counterLogs = (pendingImport.counterLogs && typeof pendingImport.counterLogs === 'object') ? pendingImport.counterLogs : {};
-  state.compareHabitIds = Array.isArray(pendingImport.compareHabitIds) ? pendingImport.compareHabitIds : [];
   saveState();
   pendingImport = null;
   closeModal('importModal');
@@ -3493,8 +3462,13 @@ function wireHeaderScroll() {
 // ============================================================================
 // INIT
 // ============================================================================
+function purgeLegacyFitnessHabitStorage() {
+  saveState();
+}
+
 function init() {
   loadState();
+  purgeLegacyFitnessHabitStorage();
   wireNav();
   wireQuickAdds();
   wireTaskEditor();

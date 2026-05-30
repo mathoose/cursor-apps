@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-eraser-v2 -->
+  <!-- build: hj-year-gallery-v1 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -268,12 +268,138 @@
       border-color: transparent;
     }
     .year-block { margin-bottom: 20px; }
+    .year-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .year-toolbar .btn { min-height: 40px; padding: 0 14px; font-size: 0.8125rem; }
+    .year-toolbar-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      flex: 1 1 100%;
+    }
+    .year-gallery-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -4px;
+      padding: 4px 2px 12px;
+    }
+    .year-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(76px, 1fr));
+      gap: 10px;
+      width: max(100%, calc(4 * 82px + 30px));
+    }
+    .year-gallery.expanded {
+      grid-template-columns: 1fr;
+      width: 100%;
+    }
+    .year-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 8px 12px;
+      cursor: pointer;
+      min-width: 0;
+      box-shadow: 0 2px 6px rgba(44, 36, 25, 0.05);
+    }
+    .year-gallery.expanded .year-card { cursor: default; }
+    .year-card-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: Georgia, serif;
+      margin-bottom: 8px;
+      line-height: 1.2;
+      text-align: center;
+      min-height: 2.4em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .year-card-preview { pointer-events: none; }
+    .year-card-tap {
+      font-size: 0.625rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 6px;
+    }
+    .year-card-expanded .legend { margin-top: 8px; }
+    .year-fullscreen {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--paper);
+      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+      background-size: 18px 18px;
+      display: flex;
+      flex-direction: column;
+      padding: calc(8px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+    }
+    .year-fullscreen[hidden] { display: none !important; }
+    body.year-fs-open { overflow: hidden; }
+    .year-fs-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .year-fs-head h2 {
+      flex: 1;
+      font-family: Georgia, serif;
+      font-size: 1.125rem;
+    }
+    .year-fs-year {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .year-fs-close {
+      min-width: 44px;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .year-fs-body {
+      flex: 1;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .year-fs-body .year-grid { margin: 0 auto; }
     .year-grid {
       display: grid;
       grid-template-columns: 28px repeat(12, 1fr);
       gap: 2px;
       font-size: 0.625rem;
     }
+    .year-grid-mini {
+      grid-template-columns: 14px repeat(12, 1fr);
+      gap: 1px;
+      font-size: 0.5rem;
+    }
+    .year-grid-mini .m-head { font-size: 0.45rem; padding: 0; }
+    .year-grid-mini .d-label { font-size: 0.45rem; line-height: 1; padding-right: 2px; }
+    .year-grid-mini .cell {
+      width: 100%;
+      height: 7px;
+      min-width: 0;
+      min-height: 7px;
+      border-radius: 2px;
+      border-width: 1px;
+      pointer-events: none;
+    }
+    .year-grid-mini .cell.cell-count { font-size: 0; }
+    .year-grid-mini .cell.cell-yes { font-size: 0.5rem; }
     .year-grid .m-head {
       text-align: center;
       font-weight: 700;
@@ -489,6 +615,17 @@
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
 
+  <div class="year-fullscreen" id="yearFullscreen" hidden role="dialog" aria-modal="true" aria-labelledby="yearFsTitle">
+    <div class="year-fs-head">
+      <div>
+        <h2 id="yearFsTitle">Habit</h2>
+        <div class="year-fs-year" id="yearFsYear"></div>
+      </div>
+      <button type="button" class="year-fs-close" id="yearFsClose" aria-label="Close">×</button>
+    </div>
+    <div class="year-fs-body" id="yearFsBody"></div>
+  </div>
+
   <div class="bottom-dock" id="bottomDock">
     <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
       <button type="button" class="mode-btn on" data-mode-action="mark" aria-pressed="true">Mark</button>
@@ -532,6 +669,8 @@
   const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
+  let yearGalleryExpanded = false;
+  let yearFullscreenHabitId = null;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -858,14 +997,67 @@
 
   function afterCellChange(habitId, y, m, d) {
     save();
+    const key = habitId + "|" + y + "|" + m + "|" + d;
+    const btn =
+      document.querySelector('#yearFsBody .cell[data-key="' + key + '"]') ||
+      document.querySelector('#panelYear .cell[data-key="' + key + '"]') ||
+      document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
+    if (btn) {
+      refreshCellButton(btn);
+      if (activeTab === "month") return;
+      if (activeTab === "year" && (yearFullscreenHabitId || yearGalleryExpanded)) return;
+    }
     if (activeTab === "month") {
-      const key = habitId + "|" + y + "|" + m + "|" + d;
-      const btn = document.querySelector('.cell[data-key="' + key + '"]');
-      if (btn) refreshCellButton(btn);
-      else renderMonth();
+      renderMonth();
+      return;
+    }
+    if (activeTab === "year") {
+      renderYear();
       return;
     }
     render();
+  }
+
+  function buildYearGridHtml(habit, mini) {
+    const gridCls = mini ? "year-grid year-grid-mini" : "year-grid";
+    let html = '<div class="' + gridCls + '">';
+    html += "<div></div>";
+    MONTHS.forEach(function (m) {
+      html += '<div class="m-head">' + m + "</div>";
+    });
+    for (let d = 1; d <= 31; d++) {
+      html += '<div class="d-label">' + d + "</div>";
+      for (let m = 0; m < 12; m++) {
+        const dim = daysInMonth(state.year, m);
+        if (d > dim) {
+          html += '<button type="button" class="cell invalid" disabled aria-hidden="true"></button>';
+        } else {
+          html += renderCellButton(habit, state.year, m, d);
+        }
+      }
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function openYearFullscreen(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    yearFullscreenHabitId = habitId;
+    document.getElementById("yearFsTitle").textContent = habit.name;
+    document.getElementById("yearFsYear").textContent = String(state.year);
+    const body = document.getElementById("yearFsBody");
+    body.innerHTML = buildYearGridHtml(habit, false) + '<div class="legend">' + renderLegend(habit) + "</div>";
+    document.getElementById("yearFullscreen").hidden = false;
+    document.body.classList.add("year-fs-open");
+    bindCells(body);
+  }
+
+  function closeYearFullscreen() {
+    yearFullscreenHabitId = null;
+    const overlay = document.getElementById("yearFullscreen");
+    if (overlay) overlay.hidden = true;
+    document.body.classList.remove("year-fs-open");
   }
 
   function tapCell(habitId, y, m, d) {
@@ -1086,34 +1278,52 @@
 
   function renderYear() {
     const root = document.getElementById("panelYear");
-    const eraserNote = eraserMode ? " <strong>Eraser on</strong> — tap cells to undo." : "";
-    let html = modeBarHtml() + '<p class="hint">Pick Mark or Eraser above, then tap a day.' + eraserNote + "</p>";
+    if (!root) return;
+    const eraserNote = eraserMode ? " Eraser on — tap cells to subtract or clear." : "";
+    const galleryCls = yearGalleryExpanded ? " expanded" : " collapsed";
+    let html = modeBarHtml();
+    html += '<div class="year-toolbar">';
+    html += '<button type="button" class="btn btn-secondary" id="yearExpandAll">Expand all</button>';
+    html += '<button type="button" class="btn btn-secondary" id="yearCollapseAll">Collapse all</button>';
+    html += "</div>";
+    html += '<p class="hint">Scroll sideways through habits. ' + (yearGalleryExpanded ? "Full grids below — tap any day." : "Tap a habit for full-screen year view.") + eraserNote + "</p>";
+    html += '<div class="year-gallery-scroll"><div class="year-gallery ' + galleryCls + '">';
 
     state.habits.forEach(function (habit) {
-      html += '<div class="card year-block">';
-      html += '<h2><span>' + escapeHtml(habit.name) + '</span><span class="habit-tag">' + state.year + "</span></h2>";
-      html += '<div class="year-grid">';
-      html += '<div></div>';
-      MONTHS.forEach(function (m) { html += '<div class="m-head">' + m + "</div>"; });
-
-      for (let d = 1; d <= 31; d++) {
-        html += '<div class="d-label">' + d + "</div>";
-        for (let m = 0; m < 12; m++) {
-          const dim = daysInMonth(state.year, m);
-          const dataKey = habit.id + "|" + state.year + "|" + m + "|" + d;
-          if (d > dim) {
-            html += '<button type="button" class="cell invalid" disabled aria-hidden="true"></button>';
-          } else {
-            html += renderCellButton(habit, state.year, m, d);
-          }
-        }
+      html += '<article class="year-card" data-habit-id="' + escapeHtml(habit.id) + '">';
+      html += '<h3 class="year-card-title">' + escapeHtml(habit.name) + "</h3>";
+      if (yearGalleryExpanded) {
+        html += '<div class="year-card-expanded">' + buildYearGridHtml(habit, false);
+        html += '<div class="legend">' + renderLegend(habit) + "</div></div>";
+      } else {
+        html += '<div class="year-card-preview">' + buildYearGridHtml(habit, true) + "</div>";
+        html += '<p class="year-card-tap">Tap for full screen</p>";
       }
-      html += "</div>";
-      html += '<div class="legend">' + renderLegend(habit) + "</div></div>";
+      html += "</article>";
     });
 
+    html += "</div></div>";
     root.innerHTML = html;
-    bindCells(root);
+
+    document.getElementById("yearExpandAll").onclick = function () {
+      yearGalleryExpanded = true;
+      renderYear();
+    };
+    document.getElementById("yearCollapseAll").onclick = function () {
+      yearGalleryExpanded = false;
+      closeYearFullscreen();
+      renderYear();
+    };
+
+    if (yearGalleryExpanded) {
+      bindCells(root);
+    } else {
+      root.querySelectorAll(".year-card").forEach(function (card) {
+        card.onclick = function () {
+          openYearFullscreen(card.getAttribute("data-habit-id"));
+        };
+      });
+    }
   }
 
   function renderHabits() {
@@ -1303,8 +1513,14 @@
     render();
   });
 
+  document.getElementById("yearFsClose").addEventListener("click", closeYearFullscreen);
+  document.getElementById("yearFullscreen").addEventListener("click", function (e) {
+    if (e.target.id === "yearFullscreen") closeYearFullscreen();
+  });
+
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
+      if (tab.dataset.tab !== "year") closeYearFullscreen();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
       document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
@@ -1320,7 +1536,10 @@
       updateModeBar();
       renderTopNav();
       if (activeTab === "month") renderMonth();
-      else if (activeTab === "year") renderYear();
+      else if (activeTab === "year") {
+        renderYear();
+        if (yearFullscreenHabitId) openYearFullscreen(yearFullscreenHabitId);
+      }
       else if (activeTab === "habits") renderHabits();
       else if (activeTab === "data") renderData();
     } catch (err) {
