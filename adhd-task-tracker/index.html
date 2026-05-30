@@ -1140,61 +1140,6 @@
     <div id="inboxTasks"></div>
   </section>
 
-  <!-- Fitness -->
-  <section class="view" id="view-fitness" data-title="Fitness">
-    <div class="date-nav">
-      <button class="date-nav-btn" id="fitnessPrev" aria-label="Previous day">
-        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="date-nav-label">
-        <div id="fitnessDateLabel">Today</div>
-        <div class="date-nav-sub" id="fitnessDateSub"></div>
-      </div>
-      <button class="date-nav-btn" id="fitnessNext" aria-label="Next day">
-        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-      <button class="date-nav-btn" id="fitnessHeatmap" aria-label="Year view">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2M15 18h2"/></svg>
-      </button>
-      <button class="date-nav-today" id="fitnessToday">Today</button>
-    </div>
-    <div class="quick-add">
-      <input id="fitnessQuickInput" type="text" placeholder="Add workout (push-ups, squats…)" autocomplete="off">
-      <button class="quick-add-btn" id="fitnessQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
-    </div>
-    <div id="fitnessSuggestions" class="suggest-chips"></div>
-    <div id="fitnessCounters"></div>
-  </section>
-
-  <!-- Habits (internal category: 'bullet' for backward-compat with old backups) -->
-  <section class="view" id="view-bullet" data-title="Habits">
-    <div class="date-nav">
-      <button class="date-nav-btn" id="bulletPrev" aria-label="Previous day">
-        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
-      <div class="date-nav-label">
-        <div id="bulletDateLabel">Today</div>
-        <div class="date-nav-sub" id="bulletDateSub"></div>
-      </div>
-      <button class="date-nav-btn" id="bulletNext" aria-label="Next day">
-        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
-      <button class="date-nav-btn" id="bulletHeatmap" aria-label="Year view">
-        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h2M11 14h2M15 14h2M7 18h2M11 18h2M15 18h2"/></svg>
-      </button>
-      <button class="date-nav-today" id="bulletToday">Today</button>
-    </div>
-    <div class="quick-add">
-      <input id="bulletQuickInput" type="text" placeholder="Add habit (water, coffee, exercise…)" autocomplete="off">
-      <button class="quick-add-btn" id="bulletQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
-    </div>
-    <div id="bulletSuggestions" class="suggest-chips"></div>
-    <div id="bulletCounters"></div>
-  </section>
 </main>
 
 <nav class="bottom-nav" role="tablist">
@@ -1213,14 +1158,6 @@
   <button class="nav-btn" data-view="inbox" role="tab">
     <svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
     <span class="nav-btn-label">Inbox</span>
-  </button>
-  <button class="nav-btn" data-view="fitness" role="tab">
-    <svg viewBox="0 0 24 24"><path d="M6.5 6.5l11 11"/><path d="M21 21l-1-1"/><path d="M3 3l1 1"/><path d="M18 22l4-4"/><path d="M2 6l4-4"/><path d="M3 10l7-7"/><path d="M14 21l7-7"/></svg>
-    <span class="nav-btn-label">Fitness</span>
-  </button>
-  <button class="nav-btn" data-view="bullet" role="tab">
-    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-    <span class="nav-btn-label">Habit</span>
   </button>
 </nav>
 
@@ -1881,8 +1818,7 @@ function render() {
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'lists') renderListsView();
   else if (currentView === 'inbox') renderInbox();
-  else if (currentView === 'fitness') renderCounterView('fitness');
-  else if (currentView === 'bullet') renderCounterView('bullet');
+  else renderListsView();
 }
 
 function renderHeader() {
@@ -1902,10 +1838,6 @@ function renderHeader() {
   } else if (currentView === 'lists') {
     const list = state.lists.find(l => l.id === state.activeListId);
     sub.textContent = list ? list.name : '';
-  } else if (currentView === 'fitness') {
-    sub.textContent = 'Track workouts day by day';
-  } else if (currentView === 'bullet') {
-    sub.textContent = 'Yes/no or count, every day';
   } else {
     sub.textContent = '';
   }
@@ -3303,6 +3235,7 @@ function renderCompareHeatmap() {
 // EVENT WIRING
 // ============================================================================
 function switchView(view) {
+  if (view === 'fitness' || view === 'bullet') view = 'lists';
   currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
@@ -3343,40 +3276,10 @@ function wireQuickAdds() {
   listBtn.addEventListener('click', addToList);
   listInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addToList(); });
 
-  // Fitness + Bullet quick adds
-  ['fitness', 'bullet'].forEach(category => {
-    const input = document.getElementById(category + 'QuickInput');
-    const btn = document.getElementById(category + 'QuickBtn');
-    const add = () => {
-      const v = input.value.trim();
-      if (!v) return;
-      addCounter(v, category);
-      input.value = '';
-      render();
-    };
-    btn.addEventListener('click', add);
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') add(); });
-  });
 }
 
 function wireDateNav() {
-  ['fitness', 'bullet'].forEach(category => {
-    document.getElementById(category + 'Prev').addEventListener('click', () => {
-      setActiveDateFor(category, addDaysStr(activeDateFor(category), -1));
-      renderCounterView(category);
-    });
-    document.getElementById(category + 'Next').addEventListener('click', () => {
-      setActiveDateFor(category, addDaysStr(activeDateFor(category), 1));
-      renderCounterView(category);
-    });
-    document.getElementById(category + 'Today').addEventListener('click', () => {
-      setActiveDateFor(category, todayStr());
-      renderCounterView(category);
-    });
-    document.getElementById(category + 'Heatmap').addEventListener('click', () => {
-      openHeatmap(category);
-    });
-  });
+  /* Fitness / Habit tabs removed — counter data kept in backups only */
 }
 
 function wireHeatmap() {
