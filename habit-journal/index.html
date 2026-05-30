@@ -254,19 +254,6 @@
       text-align: center;
       font-size: 1rem;
     }
-    .step-row-locked .step-locked-value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-    .step-locked-note {
-      margin: 0 0 8px;
-      font-size: 0.75rem;
-    }
-    .type-pill:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
     .legend-scale {
       display: flex;
       gap: 4px;
@@ -935,7 +922,6 @@
           name: STEPS_BASELINE_NAME,
           type: "counter",
           step: STEPS_BASELINE,
-          stepLocked: true,
           category: "fitness",
           pinned: false,
         },
@@ -1018,12 +1004,12 @@
     };
     const name = String(h.name || "Habit").slice(0, 40);
     if (isStepsHabitName(name)) {
+      const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || STEPS_BASELINE));
       return {
         id: h.id || uid(),
         name: STEPS_BASELINE_NAME,
         type: "counter",
-        step: STEPS_BASELINE,
-        stepLocked: true,
+        step: step,
         category: base.category,
         pinned: base.pinned,
       };
@@ -1051,33 +1037,21 @@
     return { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
   }
 
-  function enforceStepsBaseline() {
-    let changed = false;
-    state.habits = state.habits.map(function (h) {
-      if (!isStepsHabitName(h.name)) return h;
-      const fixed = normalizeHabit(
-        {
-          id: h.id,
-          name: STEPS_BASELINE_NAME,
-          type: "counter",
-          step: STEPS_BASELINE,
-          stepLocked: true,
-          category: h.category,
-          pinned: h.pinned,
-        },
-        state.categories
-      );
-      if (
-        h.name !== fixed.name ||
-        h.type !== fixed.type ||
-        h.step !== fixed.step ||
-        !h.stepLocked
-      ) {
-        changed = true;
-      }
-      return fixed;
+  function pruneUnmarkedMeditation() {
+    const habits = state.habits || [];
+    const meditation = habits.find(function (h) {
+      return /^meditation$/i.test(String(h.name || "").trim());
     });
-    if (changed) save();
+    if (!meditation) return;
+    const medPrefix = meditation.id + "-";
+    const medMarks = Object.keys(state.cells || {}).filter(function (k) {
+      return k.indexOf(medPrefix) === 0;
+    }).length;
+    if (medMarks > 0) return;
+    state.habits = habits.filter(function (h) {
+      return h.id !== meditation.id;
+    });
+    save();
   }
 
   function sortHabitsList(habits) {
@@ -1432,7 +1406,7 @@
       return n;
     });
     migrateLegacyFactoryHabits();
-    enforceStepsBaseline();
+    pruneUnmarkedMeditation();
   }
 
   function showFatalError(msg) {
@@ -1582,11 +1556,15 @@
       return;
     }
     if (running && (!meditation || habits.length <= 2)) {
+      const prevStep = parseInt(running.step, 10);
       running.name = STEPS_BASELINE_NAME;
       running.type = "counter";
-      running.step = STEPS_BASELINE;
-      running.stepLocked = true;
+      running.step = Math.min(
+        MAX_STEP,
+        Math.max(1, prevStep > 1 ? prevStep : STEPS_BASELINE)
+      );
       running.category = running.category || "fitness";
+      delete running.stepLocked;
       if (meditation) {
         const medPrefix = meditation.id + "-";
         const medMarks = Object.keys(state.cells).filter(function (k) {
@@ -2059,29 +2037,10 @@
       html += "</div>";
       html += '<div class="habit-settings">';
       html += '<div class="type-row">';
-      html +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "counter" ? " on" : "") +
-        '" data-type="counter" data-hid="' +
-        habit.id +
-        '"' +
-        (habit.stepLocked ? " disabled" : "") +
-        ">Counter</button>";
-      html +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "yesno" ? " on" : "") +
-        '" data-type="yesno" data-hid="' +
-        habit.id +
-        '"' +
-        (habit.stepLocked ? " disabled" : "") +
-        ">Yes / No</button>";
+      html += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
+      html += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
       html += "</div>";
-      if (habit.stepLocked) {
-        html +=
-          '<div class="step-row step-row-locked"><span>+ per tap</span><span class="step-locked-value">' +
-          escapeHtml(formatStepBracket(STEPS_BASELINE)) +
-          '</span></div><p class="hint step-locked-note">Fixed baseline — does not change.</p>';
-      } else if (habit.type === "counter") {
+      if (habit.type === "counter") {
         html +=
           '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
           MAX_STEP +
@@ -2092,6 +2051,10 @@
           '" /><span class="hint" style="margin:0">max ' +
           MAX_STEP +
           "</span></div>";
+        if (isStepsHabitName(habit.name)) {
+          html +=
+            '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
+        }
       }
       html += '<div class="legend">' + renderLegend(habit) + "</div>";
       html += "</div></div>";
@@ -2222,11 +2185,10 @@
 
     root.querySelectorAll(".type-pill").forEach(function (btn) {
       btn.onclick = function () {
-        if (btn.disabled) return;
         const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
-        if (!h || h.stepLocked) return;
+        if (!h) return;
         h.type = btn.dataset.type;
-        if (h.type === "counter" && !h.step) h.step = 1;
+        if (h.type === "counter" && !h.step) h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
         save(); render();
       };
     });
@@ -2234,7 +2196,7 @@
     root.querySelectorAll("[data-step]").forEach(function (inp) {
       inp.onchange = function () {
         const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
-        if (!h || h.stepLocked) return;
+        if (!h) return;
         h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
         save();
         render();
