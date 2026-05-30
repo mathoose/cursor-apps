@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-year-gallery-v5 -->
+  <!-- build: hj-year-gallery-v6 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -326,12 +326,36 @@
       background: #fdeaea;
       color: var(--accent-dark);
     }
-    .year-grid-3 {
+    /* YEAR COLLAPSED (3-across name chips): approved layout — ask user before changing. */
+    .year-collapsed-grid.year-grid-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
       width: 100%;
       align-items: start;
+    }
+    .year-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .year-expanded-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      width: 100%;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+    .year-expanded-row[data-expanded-count="2"],
+    .year-expanded-row[data-expanded-count="3"] {
+      justify-content: center;
+    }
+    .year-expanded-row .year-grid-card.is-expanded {
+      flex: 0 0 calc((100% - 12px) / 3);
+      max-width: calc((100% - 12px) / 3);
+      width: calc((100% - 12px) / 3);
     }
     .year-grid-card {
       min-width: 0;
@@ -344,8 +368,11 @@
     .year-grid-card.is-collapsed { padding: 0; }
     .year-grid-card.is-expanded {
       overflow: hidden;
-      padding: 4px 3px 5px;
+      padding: 3px 2px 4px;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
     }
     .year-grid-card-head {
       display: flex;
@@ -387,8 +414,11 @@
     }
     .year-grid-card.is-collapsed .year-caret { transform: none; }
     .year-grid-card-open-fs {
-      display: block;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
       width: 100%;
+      min-height: 0;
       border: none;
       background: transparent;
       padding: 0;
@@ -619,9 +649,10 @@
     .year-grid-card.is-expanded .year-gallery-heatmap {
       gap: 1px;
       width: 100%;
+      flex: 1 1 auto;
       aspect-ratio: 12 / 31;
-      max-height: min(32dvh, 188px);
       grid-template-rows: repeat(31, minmax(0, 1fr));
+      margin: 0;
     }
     #panelYear .year-gallery-heatmap .cell,
     #panelYear .year-gallery-heatmap .cell.cell-year-shade,
@@ -1014,7 +1045,6 @@
   let yearExpandedHabits = {};
   let yearExpandOrder = [];
   let yearFullscreenHabitId = null;
-  let yearDefaultExpandDone = false;
   let habitsCatPanelOpen = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
@@ -1235,24 +1265,6 @@
     }
   }
 
-  function yearGridHabitOrder(habits) {
-    const byId = {};
-    habits.forEach(function (h) {
-      byId[h.id] = h;
-    });
-    const expanded = [];
-    yearExpandOrder.forEach(function (id) {
-      if (yearExpandedHabits[id] && byId[id]) expanded.push(byId[id]);
-    });
-    habits.forEach(function (h) {
-      if (yearExpandedHabits[h.id] && yearExpandOrder.indexOf(h.id) < 0) expanded.push(h);
-    });
-    const collapsed = habits.filter(function (h) {
-      return !yearExpandedHabits[h.id];
-    });
-    return expanded.concat(collapsed);
-  }
-
   function expandAllYearHabits(habits) {
     yearExpandOrder = [];
     habits.forEach(function (h) {
@@ -1311,15 +1323,51 @@
     return html;
   }
 
+  function getYearExpandedHabits(habits) {
+    const byId = {};
+    habits.forEach(function (h) {
+      byId[h.id] = h;
+    });
+    const expanded = [];
+    yearExpandOrder.forEach(function (id) {
+      if (yearExpandedHabits[id] && byId[id]) expanded.push(byId[id]);
+    });
+    habits.forEach(function (h) {
+      if (yearExpandedHabits[h.id] && yearExpandOrder.indexOf(h.id) < 0) expanded.push(h);
+    });
+    return expanded;
+  }
+
+  function getYearCollapsedHabits(habits) {
+    return habits.filter(function (h) {
+      return !yearExpandedHabits[h.id];
+    });
+  }
+
   function renderYearGridHtml(habits) {
     if (!habits.length) {
       return '<p class="month-empty">No habits in this category.</p>';
     }
-    const ordered = yearGridHabitOrder(habits);
-    let html = '<div class="year-grid-3">';
-    ordered.forEach(function (habit) {
-      html += renderYearGridCard(habit);
-    });
+    const expanded = getYearExpandedHabits(habits);
+    const collapsed = getYearCollapsedHabits(habits);
+    let html = '<div class="year-gallery">';
+    if (expanded.length) {
+      html +=
+        '<div class="year-expanded-row" data-expanded-count="' +
+        Math.min(expanded.length, 3) +
+        '">';
+      expanded.forEach(function (habit) {
+        html += renderYearGridCard(habit);
+      });
+      html += "</div>";
+    }
+    if (collapsed.length) {
+      html += '<div class="year-collapsed-grid year-grid-3">';
+      collapsed.forEach(function (habit) {
+        html += renderYearGridCard(habit);
+      });
+      html += "</div>";
+    }
     html += "</div>";
     return html;
   }
@@ -1328,7 +1376,8 @@
     root.querySelectorAll("[data-year-toggle]").forEach(function (btn) {
       btn.onclick = function (e) {
         e.stopPropagation();
-        setYearHabitExpanded(btn.getAttribute("data-year-toggle"), true);
+        const id = btn.getAttribute("data-year-toggle");
+        setYearHabitExpanded(id, !isYearHabitExpanded(id));
         renderYear();
       };
     });
@@ -2101,10 +2150,6 @@
     yearExpandOrder = yearExpandOrder.filter(function (id) {
       return filteredIds[id] && yearExpandedHabits[id];
     });
-    if (filtered.length > 0 && !yearDefaultExpandDone) {
-      expandAllYearHabits(filtered);
-      yearDefaultExpandDone = true;
-    }
     const allExpanded =
       filtered.length > 0 &&
       filtered.every(function (h) {
@@ -2126,7 +2171,7 @@
     html += "</div>";
     html += renderCategoryFiltersHtml();
     html +=
-      '<p class="hint">3 across · tap name to expand · tap grid for full page (months + days + legend) · Mark/Eraser below' +
+      '<p class="hint">Tap a name to expand (up to 3 across) · collapsed list below · tap grid for full page · Mark/Eraser below' +
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
