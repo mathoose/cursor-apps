@@ -281,52 +281,174 @@
       color: var(--muted);
       flex: 1 1 100%;
     }
-    .year-gallery-scroll {
+    .category-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      margin: 0 -4px;
-      padding: 4px 2px 12px;
+      scrollbar-width: none;
+      padding: 2px 0;
     }
-    .year-gallery {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(76px, 1fr));
-      gap: 10px;
-      width: max(100%, calc(4 * 82px + 30px));
+    .category-filters::-webkit-scrollbar { display: none; }
+    .category-filters .chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
     }
-    .year-gallery.expanded {
-      grid-template-columns: 1fr;
-      width: 100%;
+    .category-filters .chip.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
     }
-    .year-card {
-      background: rgba(255, 255, 255, 0.92);
+    .year-toolbar .btn[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .year-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 10px 8px 12px;
-      cursor: pointer;
-      min-width: 0;
-      box-shadow: 0 2px 6px rgba(44, 36, 25, 0.05);
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.92);
     }
-    .year-gallery.expanded .year-card { cursor: default; }
-    .year-card-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: Georgia, serif;
-      margin-bottom: 8px;
-      line-height: 1.2;
-      text-align: center;
-      min-height: 2.4em;
+    .year-cat-row {
+      border-bottom: 1px solid var(--border);
+      background: rgba(250, 248, 245, 0.95);
+    }
+    .year-cat-toggle,
+    .year-habit-head {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: var(--ink);
     }
-    .year-card-preview { pointer-events: none; }
-    .year-card-tap {
+    .year-cat-toggle {
+      font-weight: 700;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .year-cat-count {
+      margin-left: auto;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .year-habit-row {
+      border-bottom: 1px solid var(--border);
+    }
+    .year-habit-row:last-child { border-bottom: none; }
+    .year-habit-name {
+      flex: 1;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .year-habit-row.pin .year-habit-name::before {
+      content: "★ ";
+      color: var(--accent);
+    }
+    .year-caret {
+      flex-shrink: 0;
+      width: 18px;
+      font-size: 0.6875rem;
+      color: var(--muted);
+      line-height: 1;
+      transition: transform 0.15s ease;
+    }
+    .year-habit-row.is-open .year-habit-head .year-caret,
+    .year-cat-row.is-open .year-cat-toggle .year-caret {
+      transform: rotate(90deg);
+    }
+    .year-habit-panel {
+      display: none;
+      padding: 0 12px 12px;
+    }
+    .year-habit-row.is-open .year-habit-panel { display: block; }
+    .year-heatmap-open {
+      display: block;
+      width: 100%;
+      border: none;
+      background: transparent;
+      padding: 4px 0 0;
+      cursor: pointer;
+      text-align: left;
+    }
+    .year-heatmap-open .year-grid-heatmap .cell {
+      pointer-events: none;
+    }
+    .year-habit-panel .legend-compact { margin-top: 8px; }
+    .year-fs-tap-hint {
       font-size: 0.625rem;
       color: var(--muted);
       text-align: center;
       margin-top: 6px;
     }
-    .year-card-expanded .legend { margin-top: 8px; }
+    .habit-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .habit-cat-select {
+      flex: 1;
+      min-width: 120px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    .habit-pin-btn {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .habit-pin-btn.on {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #b45309;
+    }
+    .add-habit-row select {
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      background: #fff;
+      min-width: 100px;
+    }
     .year-fullscreen {
       position: fixed;
       inset: 0;
@@ -375,46 +497,103 @@
       border-radius: 14px;
       padding: 10px;
     }
-    .year-fs-body .year-grid { margin: 0 auto; }
-    .year-grid {
+    .year-fs-body .year-grid-heatmap { margin: 0 auto; max-width: 100%; }
+    .year-grid-heatmap {
       display: grid;
-      grid-template-columns: 28px repeat(12, 1fr);
-      gap: 2px;
-      font-size: 0.625rem;
-    }
-    .year-grid-mini {
-      grid-template-columns: 14px repeat(12, 1fr);
+      grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 1px;
-      font-size: 0.5rem;
-    }
-    .year-grid-mini .m-head { font-size: 0.45rem; padding: 0; }
-    .year-grid-mini .d-label { font-size: 0.45rem; line-height: 1; padding-right: 2px; }
-    .year-grid-mini .cell {
       width: 100%;
-      height: 7px;
+    }
+    .year-grid-heatmap .cell {
+      width: 100%;
+      aspect-ratio: 1;
       min-width: 0;
-      min-height: 7px;
-      border-radius: 2px;
-      border-width: 1px;
+      min-height: 0;
+      height: auto;
+      border-radius: 1px;
+      border-width: 0;
+      padding: 0;
+      pointer-events: none;
+      font-size: 0;
+      line-height: 0;
+    }
+    .year-grid-heatmap .cell.cell-yes { font-size: 0; }
+    .year-grid-heatmap .cell.invalid {
+      opacity: 0.12;
+      background: transparent;
+      border: none;
       pointer-events: none;
     }
-    .year-grid-mini .cell.cell-count { font-size: 0; }
-    .year-grid-mini .cell.cell-yes { font-size: 0.5rem; }
-    .year-grid .m-head {
-      text-align: center;
-      font-weight: 700;
-      color: var(--muted);
-      padding: 4px 0;
+    .year-fs-body .year-grid-heatmap { gap: 3px; }
+    .legend-compact {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
-    .year-grid .d-label {
-      text-align: right;
-      padding-right: 4px;
-      color: var(--muted);
-      font-weight: 600;
-      line-height: 1.1;
+    .legend-compact .legend-item-compact {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
       font-size: 0.5625rem;
+      color: var(--muted);
+      min-width: 36px;
     }
-    .year-grid .cell { width: 100%; height: 14px; min-width: 0; border-radius: 3px; min-height: 14px; }
+    .legend-compact .legend-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+    }
+    .legend-high-note {
+      font-size: 0.625rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 4px;
+    }
+    .categories-card { margin-bottom: 14px; }
+    .categories-card h2 { font-size: 0.9375rem; margin-bottom: 10px; }
+    .category-manage-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .category-manage-row input {
+      flex: 1;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    .category-manage-row .btn-danger {
+      flex-shrink: 0;
+      min-height: 40px;
+      padding: 0 10px;
+      font-size: 0.75rem;
+    }
+    .add-cat-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .add-cat-row input {
+      flex: 1;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .month-empty {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
     .legend {
       display: flex;
       flex-wrap: wrap;
@@ -667,9 +846,19 @@
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+  const DEFAULT_CATEGORIES = [
+    { id: "general", label: "General" },
+    { id: "health", label: "Health" },
+    { id: "fitness", label: "Fitness" },
+    { id: "mind", label: "Mind" },
+    { id: "work", label: "Work" },
+    { id: "home", label: "Home" },
+  ];
+  const MAX_CATEGORIES = 20;
+  const MAX_STEP = 5000;
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
-  let yearGalleryExpanded = false;
+  let yearExpandedHabits = {};
   let yearFullscreenHabitId = null;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
@@ -680,23 +869,99 @@
       version: 2,
       year: new Date().getFullYear(),
       month: new Date().getMonth(),
+      categoryFilter: "all",
+      categories: DEFAULT_CATEGORIES.map(function (c) {
+        return { id: c.id, label: c.label };
+      }),
       habits: [
-        { id: uid(), name: "Running", type: "counter", step: 1 },
-        { id: uid(), name: "Meditation", type: "yesno", step: 1 },
+        { id: uid(), name: "Steps", type: "counter", step: 5000, category: "fitness", pinned: false },
       ],
       cells: {},
     };
   }
 
-  function normalizeHabit(h) {
+  function cloneDefaultCategories() {
+    return DEFAULT_CATEGORIES.map(function (c) {
+      return { id: c.id, label: c.label };
+    });
+  }
+
+  function categoryLabel(catId) {
+    const c = (state.categories || []).find(function (x) { return x.id === catId; });
+    return c ? c.label : "General";
+  }
+
+  function slugCategoryId(label) {
+    const base = String(label || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_|_$/g, "")
+      .slice(0, 28);
+    let id = base || "category";
+    if (id === "general") id = "cat_custom";
+    let n = 0;
+    while ((state.categories || []).some(function (c) { return c.id === id; })) {
+      n++;
+      id = (base || "category") + "_" + n;
+    }
+    return id;
+  }
+
+  function normalizeCategory(cat, categories) {
+    const list = categories || state.categories || DEFAULT_CATEGORIES;
+    const id = String(cat || "general").toLowerCase();
+    if (list.some(function (c) { return c.id === id; })) return id;
+    return "general";
+  }
+
+  function ensureCategories() {
+    if (!Array.isArray(state.categories) || !state.categories.length) {
+      state.categories = cloneDefaultCategories();
+    }
+    const seen = {};
+    state.categories = state.categories
+      .map(function (c) {
+        const id = String(c.id || "").toLowerCase() || "general";
+        const label = String(c.label || id).slice(0, 32);
+        if (seen[id]) return null;
+        seen[id] = true;
+        return { id: id, label: label };
+      })
+      .filter(Boolean);
+    if (!state.categories.some(function (c) { return c.id === "general"; })) {
+      state.categories.unshift({ id: "general", label: "General" });
+    }
+    state.habits.forEach(function (h) {
+      const cat = h.category;
+      if (cat && cat !== "general" && !state.categories.some(function (c) { return c.id === cat; })) {
+        state.categories.push({ id: cat, label: cat.replace(/_/g, " ") });
+      }
+    });
+    if (state.categoryFilter && state.categoryFilter !== "all") {
+      if (!state.categories.some(function (c) { return c.id === state.categoryFilter; })) {
+        state.categoryFilter = "all";
+      }
+    } else if (!state.categoryFilter) {
+      state.categoryFilter = "all";
+    }
+  }
+
+  function normalizeHabit(h, categories) {
+    const base = {
+      category: normalizeCategory(h.category, categories),
+      pinned: !!h.pinned,
+    };
     if (h.type === "yesno" || h.type === "counter") {
       const type = h.type;
-      const step = Math.min(999, Math.max(1, parseInt(h.step, 10) || 1));
+      const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
       return {
         id: h.id || uid(),
         name: String(h.name || "Habit").slice(0, 40),
         type: type,
         step: type === "counter" ? step : 1,
+        category: base.category,
+        pinned: base.pinned,
       };
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
@@ -707,7 +972,195 @@
     }
     const name = String(h.name || "Habit").slice(0, 40);
     if (/meditat|stretch|read|journal|floss|vitamin/i.test(name)) type = "yesno";
-    return { id: h.id || uid(), name: name, type: type, step: 1 };
+    return { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
+  }
+
+  function sortHabitsList(habits) {
+    return habits.slice().sort(function (a, b) {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function getFilteredHabits() {
+    let habits = state.habits;
+    if (state.categoryFilter && state.categoryFilter !== "all") {
+      habits = habits.filter(function (h) {
+        return h.category === state.categoryFilter;
+      });
+    }
+    return sortHabitsList(habits);
+  }
+
+  function renderCategoryFiltersHtml() {
+    let html = '<div class="category-filters">';
+    html +=
+      '<button type="button" class="chip' +
+      (state.categoryFilter === "all" ? " on" : "") +
+      '" data-cat-filter="all">All</button>';
+    state.categories.forEach(function (cat) {
+      const count = state.habits.filter(function (h) { return h.category === cat.id; }).length;
+      if (count === 0 && state.categoryFilter !== cat.id) return;
+      html +=
+        '<button type="button" class="chip' +
+        (state.categoryFilter === cat.id ? " on" : "") +
+        '" data-cat-filter="' +
+        escapeHtml(cat.id) +
+        '">' +
+        escapeHtml(cat.label) +
+        (count ? " (" + count + ")" : "") +
+        "</button>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function bindCategoryFilters(root) {
+    if (!root) return;
+    root.querySelectorAll("[data-cat-filter]").forEach(function (btn) {
+      btn.onclick = function () {
+        state.categoryFilter = btn.getAttribute("data-cat-filter");
+        save();
+        render();
+      };
+    });
+  }
+
+  function isYearHabitExpanded(habitId) {
+    return !!yearExpandedHabits[habitId];
+  }
+
+  function setYearHabitExpanded(habitId, open) {
+    if (open) yearExpandedHabits[habitId] = true;
+    else {
+      delete yearExpandedHabits[habitId];
+      if (yearFullscreenHabitId === habitId) closeYearFullscreen();
+    }
+  }
+
+  function expandAllYearHabits(habits) {
+    habits.forEach(function (h) {
+      yearExpandedHabits[h.id] = true;
+    });
+  }
+
+  function collapseAllYearHabits() {
+    yearExpandedHabits = {};
+    closeYearFullscreen();
+  }
+
+  function isYearCategoryExpanded(catId, habits) {
+    return habits.length > 0 && habits.every(function (h) {
+      return isYearHabitExpanded(h.id);
+    });
+  }
+
+  function yearGroupsForRender() {
+    const filtered = getFilteredHabits();
+    if (state.categoryFilter !== "all") {
+      return [{ id: null, label: null, habits: filtered }];
+    }
+    const groups = [];
+    state.categories.forEach(function (cat) {
+      const habits = filtered.filter(function (h) {
+        return h.category === cat.id;
+      });
+      if (habits.length) groups.push({ id: cat.id, label: cat.label, habits: habits });
+    });
+    return groups;
+  }
+
+  function renderYearHabitRow(habit) {
+    const open = isYearHabitExpanded(habit.id);
+    let html =
+      '<article class="year-habit-row' +
+      (habit.pinned ? " pin" : "") +
+      (open ? " is-open" : "") +
+      '" data-habit-id="' +
+      escapeHtml(habit.id) +
+      '">';
+    html +=
+      '<button type="button" class="year-habit-head" data-year-habit-toggle="' +
+      escapeHtml(habit.id) +
+      '" aria-expanded="' +
+      open +
+      '">';
+    html += '<span class="year-caret" aria-hidden="true">▶</span>';
+    html += '<span class="year-habit-name">' + escapeHtml(habit.name) + "</span>";
+    html += "</button>";
+    html += '<div class="year-habit-panel">';
+    html +=
+      '<button type="button" class="year-heatmap-open" data-year-open-fs="' +
+      escapeHtml(habit.id) +
+      '" aria-label="Open ' +
+      escapeHtml(habit.name) +
+      ' full screen">';
+    html += buildYearHeatmapHtml(habit);
+    html += renderLegendCompact(habit);
+    html += '<p class="year-fs-tap-hint">Tap grid for full screen</p>';
+    html += "</button></div></article>";
+    return html;
+  }
+
+  function renderYearAccordionHtml() {
+    const groups = yearGroupsForRender();
+    if (!groups.length) {
+      return '<p class="month-empty">No habits in this category.</p>';
+    }
+    let html = '<div class="year-accordion">';
+    groups.forEach(function (group) {
+      if (group.label && group.id) {
+        const catOpen = isYearCategoryExpanded(group.id, group.habits);
+        html += '<div class="year-cat-row' + (catOpen ? " is-open" : "") + '">';
+        html +=
+          '<button type="button" class="year-cat-toggle" data-year-cat-toggle="' +
+          escapeHtml(group.id) +
+          '" aria-expanded="' +
+          catOpen +
+          '">';
+        html += '<span class="year-caret" aria-hidden="true">▶</span>';
+        html += "<span>" + escapeHtml(group.label) + "</span>";
+        html += '<span class="year-cat-count">' + group.habits.length + "</span>";
+        html += "</button></div>";
+      }
+      group.habits.forEach(function (habit) {
+        html += renderYearHabitRow(habit);
+      });
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function bindYearAccordion(root) {
+    root.querySelectorAll("[data-year-habit-toggle]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const id = btn.getAttribute("data-year-habit-toggle");
+        setYearHabitExpanded(id, !isYearHabitExpanded(id));
+        renderYear();
+      };
+    });
+    root.querySelectorAll("[data-year-cat-toggle]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const catId = btn.getAttribute("data-year-cat-toggle");
+        const group = yearGroupsForRender().find(function (g) {
+          return g.id === catId;
+        });
+        if (!group) return;
+        const expand = !isYearCategoryExpanded(catId, group.habits);
+        group.habits.forEach(function (h) {
+          setYearHabitExpanded(h.id, expand);
+        });
+        renderYear();
+      };
+    });
+    root.querySelectorAll("[data-year-open-fs]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        openYearFullscreen(btn.getAttribute("data-year-open-fs"));
+      };
+    });
   }
 
   function parseLevelLabelValue(label) {
@@ -781,8 +1234,18 @@
           if (typeof v === "number") s.cells[k] = v;
         });
       }
+      if (Array.isArray(p.categories) && p.categories.length) {
+        s.categories = p.categories.map(function (c) {
+          return { id: String(c.id || "general").toLowerCase(), label: String(c.label || "Category").slice(0, 32) };
+        });
+      } else {
+        s.categories = cloneDefaultCategories();
+      }
+      s.categoryFilter = typeof p.categoryFilter === "string" ? p.categoryFilter : "all";
       const legacyHabits = p.habits.slice();
-      s.habits = legacyHabits.map(normalizeHabit);
+      s.habits = legacyHabits.map(function (h) {
+        return normalizeHabit(h, s.categories);
+      });
       if (!s.habits.length) s.habits = defaultState().habits;
       const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h && h.levels; });
       if (isLegacy) {
@@ -799,7 +1262,18 @@
               else s.cells[k] = v;
             });
           });
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, year: s.year, month: s.month, habits: s.habits, cells: s.cells }));
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              version: 2,
+              year: s.year,
+              month: s.month,
+              habits: s.habits,
+              cells: s.cells,
+              categories: s.categories,
+              categoryFilter: s.categoryFilter,
+            })
+          );
         } catch (e) { /* migration optional */ }
       }
       if (recoveredFrom) window.__hjRecoveredFrom = recoveredFrom;
@@ -854,12 +1328,13 @@
   let eraserMode = false;
 
   function ensureHabitsReady() {
+    ensureCategories();
     if (!Array.isArray(state.habits) || !state.habits.length) {
       state.habits = defaultState().habits;
       save();
     }
     state.habits = state.habits.map(function (h) {
-      var n = normalizeHabit(h || {});
+      var n = normalizeHabit(h || {}, state.categories);
       if (n.type === "counter" && !n.step) n.step = 1;
       return n;
     });
@@ -960,7 +1435,15 @@
   function cellStyle(habit, value) {
     const high = getAllTimeHigh(habit.id);
     const b = valueToBucket(habit, value, high);
-    return "background:" + GRADIENT[b] + ";border-color:" + (b === 0 ? "var(--border)" : "transparent");
+    let style = "background:" + GRADIENT[b] + ";border-color:" + (b === 0 ? "var(--border)" : "transparent");
+    if (b === 5) style += ";color:#fff";
+    return style;
+  }
+
+  function formatCounterDisplay(value) {
+    const v = Math.round(value);
+    if (v >= 1000) return String(Math.round(v / 1000)) + "k";
+    return String(v);
   }
 
   function cellDisplay(habit, value) {
@@ -969,7 +1452,7 @@
       if (value >= 1) return { text: "✓", cls: "cell-yes" };
       if (value === 0) return { text: "✗", cls: "cell-yes" };
     }
-    if (value > 0) return { text: String(Math.round(value)), cls: "cell-count" };
+    if (value > 0) return { text: formatCounterDisplay(value), cls: "cell-count" };
     return { text: "", cls: "" };
   }
 
@@ -1005,7 +1488,7 @@
     if (btn) {
       refreshCellButton(btn);
       if (activeTab === "month") return;
-      if (activeTab === "year" && (yearFullscreenHabitId || yearGalleryExpanded)) return;
+      if (activeTab === "year" && yearFullscreenHabitId) return;
     }
     if (activeTab === "month") {
       renderMonth();
@@ -1018,19 +1501,13 @@
     render();
   }
 
-  function buildYearGridHtml(habit, mini) {
-    const gridCls = mini ? "year-grid year-grid-mini" : "year-grid";
-    let html = '<div class="' + gridCls + '">';
-    html += "<div></div>";
-    MONTHS.forEach(function (m) {
-      html += '<div class="m-head">' + m + "</div>";
-    });
+  function buildYearHeatmapHtml(habit) {
+    let html = '<div class="year-grid-heatmap" role="img" aria-label="' + escapeHtml(habit.name) + ' year">';
     for (let d = 1; d <= 31; d++) {
-      html += '<div class="d-label">' + d + "</div>";
       for (let m = 0; m < 12; m++) {
         const dim = daysInMonth(state.year, m);
         if (d > dim) {
-          html += '<button type="button" class="cell invalid" disabled aria-hidden="true"></button>';
+          html += '<button type="button" class="cell invalid" disabled aria-hidden="true" tabindex="-1"></button>';
         } else {
           html += renderCellButton(habit, state.year, m, d);
         }
@@ -1047,7 +1524,11 @@
     document.getElementById("yearFsTitle").textContent = habit.name;
     document.getElementById("yearFsYear").textContent = String(state.year);
     const body = document.getElementById("yearFsBody");
-    body.innerHTML = buildYearGridHtml(habit, false) + '<div class="legend">' + renderLegend(habit) + "</div>";
+    body.innerHTML = buildYearHeatmapHtml(habit) + renderLegendCompact(habit);
+    body.querySelectorAll(".year-grid-heatmap .cell").forEach(function (cell) {
+      cell.style.pointerEvents = "auto";
+      cell.style.cursor = "pointer";
+    });
     document.getElementById("yearFullscreen").hidden = false;
     document.body.classList.add("year-fs-open");
     bindCells(body);
@@ -1168,19 +1649,31 @@
     };
   }
 
-  function renderLegend(habit) {
+  function renderLegendCompact(habit) {
     const high = Math.max(getAllTimeHigh(habit.id), habit.type === "counter" ? (habit.step || 1) : 1);
-    let html = '<div class="legend-scale">';
-    for (let b = 0; b <= 5; b++) {
-      html += '<div style="display:flex;flex-direction:column;align-items:center;gap:2px">';
+    const buckets = habit.type === "yesno" ? [0, 2, 5] : [0, 3, 5];
+    let html = '<div class="legend-scale legend-compact">';
+    buckets.forEach(function (b) {
+      html += '<div class="legend-item-compact">';
       html += '<span class="legend-swatch" style="background:' + GRADIENT[b] + '"></span>';
       html += "<span>" + escapeHtml(bucketThresholdLabel(habit, b, high)) + "</span></div>";
-    }
+    });
     html += "</div>";
     if (habit.type === "counter") {
-      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">High: <strong>' + Math.round(high) + "</strong> · Mark: tap +step · Eraser or hold: −step</p>";
+      html +=
+        '<p class="legend-high-note">High: <strong>' +
+        escapeHtml(formatCounterDisplay(high)) +
+        "</strong></p>";
+    }
+    return html;
+  }
+
+  function renderLegend(habit) {
+    let html = renderLegendCompact(habit);
+    if (habit.type === "counter") {
+      html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Mark: tap +step. Eraser or hold: -step</p>";
     } else {
-      html += '<p style="font-size:0.6875rem;color:var(--muted);margin-top:6px">Tap: empty → Yes → No → empty · eraser steps back</p>';
+      html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap: empty, Yes, No, clear. Eraser steps back.</p>";
     }
     return html;
   }
@@ -1241,7 +1734,15 @@
     for (let d = 1; d <= dim; d++) cols += " 28px";
 
     const eraserNote = eraserMode ? " Eraser on — tap a cell to subtract." : "";
-    let html = modeBarHtml() + '<p class="hint">Pick Mark or Eraser above.' + eraserNote + " Hold a counter cell to subtract without Eraser.</p>";
+    const filtered = getFilteredHabits();
+    let html = modeBarHtml() + renderCategoryFiltersHtml();
+    html += '<p class="hint">Pick Mark or Eraser above.' + eraserNote + " Hold a counter cell to subtract without Eraser.</p>";
+    if (!filtered.length) {
+      html += '<p class="month-empty">No habits in this category. Change the filter or assign habits on the Habits tab.</p>';
+      root.innerHTML = html;
+      bindCategoryFilters(root);
+      return;
+    }
     html += '<div class="card scroll-x month-scroll"><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
     for (let d = 1; d <= dim; d++) {
@@ -1250,8 +1751,8 @@
       html += '<div class="day-head' + todayCls + '"><span class="day-num">' + d + '</span><span class="day-dow">' + dow + "</span></div>";
     }
 
-    state.habits.forEach(function (habit) {
-      html += '<div class="habit-label">' + escapeHtml(habit.name) + "</div>";
+    filtered.forEach(function (habit) {
+      html += '<div class="habit-label">' + (habit.pinned ? "★ " : "") + escapeHtml(habit.name) + "</div>";
       for (let d = 1; d <= dim; d++) {
         html += renderCellButton(habit, state.year, state.month, d);
       }
@@ -1259,6 +1760,7 @@
 
     html += "</div></div>";
     root.innerHTML = html;
+    bindCategoryFilters(root);
     bindCells(root);
 
     const scroller = root.querySelector(".scroll-x");
@@ -1279,69 +1781,102 @@
   function renderYear() {
     const root = document.getElementById("panelYear");
     if (!root) return;
+    const filtered = getFilteredHabits();
+    const anyExpanded = filtered.some(function (h) {
+      return isYearHabitExpanded(h.id);
+    });
     const eraserNote = eraserMode ? " Eraser on — tap cells to subtract or clear." : "";
-    const galleryCls = yearGalleryExpanded ? " expanded" : " collapsed";
     let html = modeBarHtml();
     html += '<div class="year-toolbar">';
-    html += '<button type="button" class="btn btn-secondary" id="yearExpandAll">Expand all</button>';
-    html += '<button type="button" class="btn btn-secondary" id="yearCollapseAll">Collapse all</button>';
+    html +=
+      '<button type="button" class="btn btn-secondary" id="yearExpandAll" aria-pressed="' +
+      (filtered.length > 0 && filtered.every(function (h) { return isYearHabitExpanded(h.id); })) +
+      '">Expand all</button>';
+    html +=
+      '<button type="button" class="btn btn-secondary" id="yearCollapseAll" aria-pressed="' +
+      !anyExpanded +
+      '">Collapse all</button>';
     html += "</div>";
-    html += '<p class="hint">Scroll sideways through habits. ' + (yearGalleryExpanded ? "Full grids below — tap any day." : "Tap a habit for full-screen year view.") + eraserNote + "</p>";
-    html += '<div class="year-gallery-scroll"><div class="year-gallery ' + galleryCls + '">';
-
-    state.habits.forEach(function (habit) {
-      html += '<article class="year-card" data-habit-id="' + escapeHtml(habit.id) + '">';
-      html += '<h3 class="year-card-title">' + escapeHtml(habit.name) + "</h3>";
-      if (yearGalleryExpanded) {
-        html += '<div class="year-card-expanded">' + buildYearGridHtml(habit, false);
-        html += '<div class="legend">' + renderLegend(habit) + "</div></div>";
-      } else {
-        html += '<div class="year-card-preview">' + buildYearGridHtml(habit, true) + "</div>";
-        html += '<p class="year-card-tap">Tap for full screen</p>';
-      }
-      html += "</article>";
-    });
-
-    html += "</div></div>";
+    html += renderCategoryFiltersHtml();
+    html +=
+      '<p class="hint">Caret = preview year colors · Tap colors = full screen to edit' +
+      eraserNote +
+      "</p>";
+    html += renderYearAccordionHtml();
     root.innerHTML = html;
+    bindCategoryFilters(root);
+    bindYearAccordion(root);
 
     document.getElementById("yearExpandAll").onclick = function () {
-      yearGalleryExpanded = true;
+      expandAllYearHabits(filtered);
       renderYear();
     };
     document.getElementById("yearCollapseAll").onclick = function () {
-      yearGalleryExpanded = false;
-      closeYearFullscreen();
+      collapseAllYearHabits();
       renderYear();
     };
-
-    if (yearGalleryExpanded) {
-      bindCells(root);
-    } else {
-      root.querySelectorAll(".year-card").forEach(function (card) {
-        card.onclick = function () {
-          openYearFullscreen(card.getAttribute("data-habit-id"));
-        };
-      });
-    }
   }
 
   function renderHabits() {
     const root = document.getElementById("panelHabits");
-    let html = '<p class="hint">Choose Counter or Yes/No per habit. Scale shows 5 shades from 0 to your all-time high.</p>';
+    let html =
+      '<div class="card categories-card"><h2>Categories</h2>' +
+      '<p class="hint" style="margin-bottom:10px">Add your own groups, then assign each habit below.</p>';
+    state.categories.forEach(function (cat) {
+      const count = state.habits.filter(function (h) { return h.category === cat.id; }).length;
+      html +=
+        '<div class="category-manage-row" data-cat-row="' +
+        escapeHtml(cat.id) +
+        '">' +
+        '<input type="text" value="' +
+        escapeHtml(cat.label) +
+        '" data-cat-label="' +
+        escapeHtml(cat.id) +
+        '" maxlength="32" ' +
+        (cat.id === "general" ? "readonly" : "") +
+        " />" +
+        '<button type="button" class="btn btn-danger" data-cat-del="' +
+        escapeHtml(cat.id) +
+        '"' +
+        (cat.id === "general" ? " disabled" : "") +
+        ">Delete</button>" +
+        (count ? '<span style="font-size:0.75rem;color:var(--muted)">' + count + " habit" + (count === 1 ? "" : "s") + "</span>" : "") +
+        "</div>";
+    });
+    html +=
+      '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
+      '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
+    html += '<p class="hint">Pin ★ favorites (shown first). Counter vs Yes/No per habit.</p>';
 
-    state.habits.forEach(function (habit) {
+    sortHabitsList(state.habits).forEach(function (habit) {
       html += '<div class="card" data-habit="' + habit.id + '">';
       html += '<div class="habit-row">';
       html += '<input type="text" value="' + escapeHtml(habit.name) + '" data-name="' + habit.id + '" maxlength="40" />';
       html += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+      html += '<div class="habit-meta-row">';
+      html += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
+      state.categories.forEach(function (cat) {
+        html += '<option value="' + cat.id + '"' + (habit.category === cat.id ? " selected" : "") + ">" + escapeHtml(cat.label) + "</option>";
+      });
+      html += "</select>";
+      html += '<button type="button" class="habit-pin-btn' + (habit.pinned ? " on" : "") + '" data-pin="' + habit.id + '">' + (habit.pinned ? "★ Pinned" : "☆ Pin") + "</button>";
+      html += "</div>";
       html += '<div class="habit-settings">';
       html += '<div class="type-row">';
       html += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
       html += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
       html += "</div>";
       if (habit.type === "counter") {
-        html += '<div class="step-row"><span>Step size</span><input type="number" min="1" max="999" value="' + habit.step + '" data-step="' + habit.id + '" /></div>';
+        html +=
+          '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
+          MAX_STEP +
+          '" value="' +
+          habit.step +
+          '" data-step="' +
+          habit.id +
+          '" /><span class="hint" style="margin:0">max ' +
+          MAX_STEP +
+          "</span></div>";
       }
       html += '<div class="legend">' + renderLegend(habit) + "</div>";
       html += "</div></div>";
@@ -1349,13 +1884,86 @@
 
     html += '<div class="add-habit-row">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
-    html += '<button type="button" class="btn btn-primary" id="addHabit">Add</button></div>';
+    html += '<select id="newHabitCategory" aria-label="Category">';
+    state.categories.forEach(function (cat) {
+      html += '<option value="' + cat.id + '">' + escapeHtml(cat.label) + "</option>";
+    });
+    html += '</select><button type="button" class="btn btn-primary" id="addHabit">Add</button></div>';
     root.innerHTML = html;
+
+    document.getElementById("addCategory").onclick = function () {
+      const inp = document.getElementById("newCategoryName");
+      const label = (inp && inp.value.trim()) || "";
+      if (!label) {
+        toast("Enter a category name");
+        return;
+      }
+      if (state.categories.length >= MAX_CATEGORIES) {
+        toast("Maximum " + MAX_CATEGORIES + " categories");
+        return;
+      }
+      const id = slugCategoryId(label);
+      if (state.categories.some(function (c) { return c.label.toLowerCase() === label.toLowerCase(); })) {
+        toast("Category already exists");
+        return;
+      }
+      state.categories.push({ id: id, label: label.slice(0, 32) });
+      if (inp) inp.value = "";
+      save();
+      toast("Added " + label);
+      render();
+    };
+    const newCatInp = document.getElementById("newCategoryName");
+    if (newCatInp) {
+      newCatInp.onkeydown = function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          document.getElementById("addCategory").click();
+        }
+      };
+    }
+
+    root.querySelectorAll("[data-cat-label]").forEach(function (inp) {
+      if (inp.readOnly) return;
+      function syncLabel() {
+        const id = inp.getAttribute("data-cat-label");
+        const cat = state.categories.find(function (c) { return c.id === id; });
+        if (!cat) return;
+        const label = inp.value.trim().slice(0, 32) || cat.label;
+        cat.label = label;
+        inp.value = label;
+        save();
+      }
+      inp.onchange = syncLabel;
+      inp.onblur = syncLabel;
+    });
+
+    root.querySelectorAll("[data-cat-del]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-cat-del");
+        if (!id || id === "general") return;
+        const count = state.habits.filter(function (h) { return h.category === id; }).length;
+        if (count) {
+          if (!confirm(count + " habit(s) use this category. Move them to General and delete category?")) return;
+          state.habits.forEach(function (h) {
+            if (h.category === id) h.category = "general";
+          });
+        } else if (!confirm("Delete category \"" + categoryLabel(id) + "\"?")) {
+          return;
+        }
+        state.categories = state.categories.filter(function (c) { return c.id !== id; });
+        if (state.categoryFilter === id) state.categoryFilter = "all";
+        save();
+        render();
+      };
+    });
 
     function addNewHabit() {
       const inp = document.getElementById("newHabitName");
       const name = (inp && inp.value.trim()) || "New habit";
-      state.habits.push({ id: uid(), name: name.slice(0, 40), type: "counter", step: 1 });
+      const catEl = document.getElementById("newHabitCategory");
+      const cat = catEl ? normalizeCategory(catEl.value) : "general";
+      state.habits.push({ id: uid(), name: name.slice(0, 40), type: "counter", step: 1, category: cat, pinned: false });
       if (inp) inp.value = "";
       if (!save()) return;
       toast("Added " + name);
@@ -1406,7 +2014,27 @@
       inp.onchange = function () {
         const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
         if (h) {
-          h.step = Math.min(999, Math.max(1, parseInt(inp.value, 10) || 1));
+          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
+          save(); render();
+        }
+      };
+    });
+
+    root.querySelectorAll("[data-cat]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.dataset.cat; });
+        if (h) {
+          h.category = normalizeCategory(sel.value);
+          save(); render();
+        }
+      };
+    });
+
+    root.querySelectorAll("[data-pin]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.pin; });
+        if (h) {
+          h.pinned = !h.pinned;
           save(); render();
         }
       };
@@ -1491,6 +2119,8 @@
           month: typeof p.month === "number" ? p.month : new Date().getMonth(),
           habits: p.habits,
           cells: p.cells || {},
+          categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
+          categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
         state = loadState();
@@ -1538,7 +2168,9 @@
       if (activeTab === "month") renderMonth();
       else if (activeTab === "year") {
         renderYear();
-        if (yearFullscreenHabitId) openYearFullscreen(yearFullscreenHabitId);
+        if (yearFullscreenHabitId) {
+          openYearFullscreen(yearFullscreenHabitId);
+        }
       }
       else if (activeTab === "habits") renderHabits();
       else if (activeTab === "data") renderData();

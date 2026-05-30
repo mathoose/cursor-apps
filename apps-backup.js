@@ -24,6 +24,8 @@
             month: p.month,
             habits: p.habits,
             cells: p.cells || {},
+            categories: Array.isArray(p.categories) ? p.categories : undefined,
+            categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : undefined,
           };
         } catch (e) {
           return null;
@@ -38,6 +40,12 @@
           habits: slice.habits,
           cells: slice.cells || {},
         };
+        if (Array.isArray(slice.categories) && slice.categories.length) {
+          out.categories = slice.categories;
+        }
+        if (typeof slice.categoryFilter === "string") {
+          out.categoryFilter = slice.categoryFilter;
+        }
         return writeKey("habit-journal-v2", JSON.stringify(out));
       },
       isLegacy: function (obj) {
