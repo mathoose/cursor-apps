@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-year-gallery-v4 -->
+  <!-- build: hj-year-gallery-v5 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -95,7 +95,8 @@
       color: #fff;
     }
     .nav-btn.eraser-btn svg { display: block; }
-    body.eraser-mode .cell:not(.invalid):not(:disabled) {
+    body.eraser-mode .month-grid .cell:not(.invalid):not(:disabled),
+    body.eraser-mode .year-fs-cells .cell:not(.invalid):not(:disabled) {
       box-shadow: inset 0 0 0 1px rgba(196, 92, 92, 0.35);
     }
     .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
@@ -199,7 +200,7 @@
     .month-grid .cell.col-today {
       box-shadow: inset 0 0 0 2px var(--accent);
     }
-    .cell {
+    .month-grid .cell {
       width: 28px;
       height: 28px;
       min-width: 28px;
@@ -210,15 +211,15 @@
       padding: 0;
       transition: transform 0.1s;
     }
-    .cell:active { transform: scale(0.92); }
-    .cell.cell-count {
+    .month-grid .cell:active { transform: scale(0.92); }
+    .month-grid .cell.cell-count {
       border-radius: 8px;
       font-size: 0.5625rem;
       font-weight: 700;
       color: #3d2c2c;
     }
     .year-grid .cell.cell-count { font-size: 0.5rem; }
-    .cell.cell-yes { font-size: 0.75rem; font-weight: 700; }
+    .month-grid .cell.cell-yes { font-size: 0.75rem; font-weight: 700; }
     .habit-settings { margin-top: 10px; }
     .type-row {
       display: flex;
@@ -271,7 +272,7 @@
       text-align: center;
       min-width: 22px;
     }
-    .cell.invalid {
+    .month-grid .cell.invalid {
       opacity: 0.25;
       pointer-events: none;
       background: transparent;
@@ -475,12 +476,14 @@
       position: fixed;
       inset: 0;
       z-index: 200;
+      height: 100dvh;
+      max-height: 100dvh;
       background: var(--paper);
       background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
       background-size: 18px 18px;
       display: flex;
       flex-direction: column;
-      padding: calc(8px + var(--safe-top)) 12px calc(12px + var(--safe-bottom));
+      padding: calc(6px + var(--safe-top)) 10px calc(8px + var(--safe-bottom));
     }
     .year-fullscreen[hidden] { display: none !important; }
     body.year-fs-open { overflow: hidden; }
@@ -488,7 +491,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
     .year-fs-head h2 {
@@ -512,14 +515,93 @@
     }
     .year-fs-body {
       flex: 1;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       background: rgba(255, 255, 255, 0.9);
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 10px;
+      padding: 8px;
     }
-    .year-fs-body .year-grid-heatmap { margin: 0 auto; max-width: 100%; }
+    .year-fs-layout {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+    }
+    .year-fs-chart {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 4px 6px;
+      width: 100%;
+    }
+    .year-fs-corner {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .year-fs-months {
+      grid-column: 2;
+      grid-row: 1;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 2px;
+      align-items: end;
+    }
+    .year-fs-month {
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1;
+    }
+    .year-fs-days {
+      grid-column: 1;
+      grid-row: 2;
+      display: grid;
+      grid-template-rows: repeat(31, minmax(0, 1fr));
+      gap: 2px;
+      align-items: center;
+      justify-items: end;
+      padding-right: 2px;
+    }
+    .year-fs-day {
+      font-size: 0.4375rem;
+      font-weight: 600;
+      color: var(--muted);
+      line-height: 1;
+    }
+    .year-fs-cells {
+      grid-column: 2;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: repeat(31, minmax(0, 1fr));
+      gap: 2px;
+      min-height: 0;
+    }
+    .year-fs-mode-bar {
+      flex-shrink: 0;
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .year-fs-mode-bar .mode-btn {
+      flex: 1;
+      min-height: 40px;
+    }
+    .year-fs-legend {
+      flex-shrink: 0;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .year-fs-legend .legend-compact { margin-top: 0; }
+    .year-fs-legend .legend-high-note { margin-top: 4px; }
     .year-grid-heatmap {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -527,24 +609,29 @@
       gap: 2px;
       width: 100%;
     }
-    .year-grid-card.is-expanded .year-grid-heatmap {
+    .year-grid-heatmap,
+    .year-gallery-heatmap {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-auto-rows: auto;
+      width: 100%;
+    }
+    .year-grid-card.is-expanded .year-gallery-heatmap {
       gap: 1px;
       width: 100%;
       aspect-ratio: 12 / 31;
-      max-height: min(34dvh, 200px);
+      max-height: min(32dvh, 188px);
       grid-template-rows: repeat(31, minmax(0, 1fr));
     }
-    .year-grid-heatmap .cell,
-    .year-grid-heatmap .cell.cell-year-shade,
-    .year-grid-heatmap .cell.cell-count,
-    .year-grid-heatmap .cell.cell-yes,
-    .year-grid-heatmap .cell.cell-pad {
+    #panelYear .year-gallery-heatmap .cell,
+    #panelYear .year-gallery-heatmap .cell.cell-year-shade,
+    #panelYear .year-gallery-heatmap .cell.cell-pad {
       width: 100% !important;
       min-width: 0 !important;
-      max-width: none;
+      max-width: none !important;
       height: auto !important;
+      min-height: 0 !important;
       aspect-ratio: 1;
-      min-height: 0;
       border-radius: 1px !important;
       border: 1px solid rgba(44, 36, 25, 0.35) !important;
       padding: 0 !important;
@@ -553,18 +640,46 @@
       line-height: 0 !important;
       box-sizing: border-box;
       display: block;
+      cursor: default;
+      transition: none;
     }
-    .year-grid-heatmap button.cell {
+    #panelYear .year-gallery-heatmap button.cell {
       appearance: none;
       -webkit-appearance: none;
     }
-    .year-grid-heatmap .cell.cell-pad {
+    #panelYear .year-gallery-heatmap .cell.cell-pad {
       background: #fff;
       opacity: 1;
     }
-    .year-fs-body .year-grid-heatmap {
-      gap: 3px;
-      max-width: min(100%, 420px);
+    .year-fs-cells .cell,
+    .year-fs-cells .cell.cell-year-shade,
+    .year-fs-cells .cell.cell-pad {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: 100% !important;
+      min-height: 0 !important;
+      aspect-ratio: unset;
+      border-radius: 2px !important;
+      border: 1px solid rgba(44, 36, 25, 0.35) !important;
+      padding: 0 !important;
+      font-size: 0 !important;
+      line-height: 0 !important;
+      box-sizing: border-box;
+      display: block;
+      cursor: pointer;
+    }
+    .year-fs-cells button.cell {
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .year-fs-cells .cell.cell-pad {
+      background: #fff;
+      opacity: 1;
+      pointer-events: none;
+    }
+    .year-fs-cells .cell.col-today {
+      box-shadow: inset 0 0 0 2px var(--accent);
     }
     .legend-compact {
       display: flex;
@@ -875,6 +990,7 @@
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
   const DEFAULT_CATEGORIES = [
@@ -1642,7 +1758,7 @@
     save();
     const key = habitId + "|" + y + "|" + m + "|" + d;
     const btn =
-      document.querySelector('#yearFsBody .cell[data-key="' + key + '"]') ||
+      document.querySelector('#yearFsBody .year-fs-cells .cell[data-key="' + key + '"]') ||
       document.querySelector('#panelYear .cell[data-key="' + key + '"]') ||
       document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
     if (btn) {
@@ -1661,8 +1777,8 @@
     render();
   }
 
-  function buildYearHeatmapHtml(habit) {
-    let html = '<div class="year-grid-heatmap" role="img" aria-label="' + escapeHtml(habit.name) + ' year">';
+  function buildYearHeatmapCellsHtml(habit) {
+    let html = "";
     for (let d = 1; d <= 31; d++) {
       for (let m = 0; m < 12; m++) {
         const dim = daysInMonth(state.year, m);
@@ -1673,8 +1789,53 @@
         }
       }
     }
+    return html;
+  }
+
+  function buildYearGalleryHeatmapHtml(habit) {
+    return (
+      '<div class="year-grid-heatmap year-gallery-heatmap" role="img" aria-label="' +
+      escapeHtml(habit.name) +
+      ' year overview">' +
+      buildYearHeatmapCellsHtml(habit) +
+      "</div>"
+    );
+  }
+
+  function buildYearDetailHtml(habit) {
+    let html = '<div class="year-fs-layout">';
+    html += '<div class="year-fs-chart">';
+    html += '<div class="year-fs-corner" aria-hidden="true"></div>';
+    html += '<div class="year-fs-months">';
+    MONTH_LETTERS.forEach(function (letter) {
+      html += '<span class="year-fs-month">' + letter + "</span>";
+    });
+    html += '</div><div class="year-fs-days">';
+    for (let d = 1; d <= 31; d++) {
+      html += '<span class="year-fs-day">' + d + "</span>";
+    }
+    html += '</div><div class="year-fs-cells">';
+    html += buildYearHeatmapCellsHtml(habit);
+    html += "</div></div>";
+    html +=
+      '<div class="year-fs-mode-bar" role="toolbar" aria-label="Mark or erase">' +
+      '<button type="button" class="mode-btn' +
+      (eraserMode ? "" : " on") +
+      '" data-mode-action="mark" aria-pressed="' +
+      !eraserMode +
+      '">Mark</button>' +
+      '<button type="button" class="mode-btn' +
+      (eraserMode ? " on" : "") +
+      '" data-mode-action="eraser" aria-pressed="' +
+      eraserMode +
+      '">Eraser</button></div>';
+    html += '<div class="year-fs-legend">' + renderLegendCompact(habit) + "</div>";
     html += "</div>";
     return html;
+  }
+
+  function buildYearHeatmapHtml(habit) {
+    return buildYearGalleryHeatmapHtml(habit);
   }
 
   function openYearFullscreen(habitId) {
@@ -1684,8 +1845,8 @@
     document.getElementById("yearFsTitle").textContent = yearHabitFullscreenTitle(habit);
     document.getElementById("yearFsYear").textContent = String(state.year);
     const body = document.getElementById("yearFsBody");
-    body.innerHTML = buildYearHeatmapHtml(habit) + renderLegendCompact(habit);
-    body.querySelectorAll(".year-grid-heatmap .cell").forEach(function (cell) {
+    body.innerHTML = buildYearDetailHtml(habit);
+    body.querySelectorAll(".year-fs-cells .cell[data-key]").forEach(function (cell) {
       cell.style.pointerEvents = "auto";
       cell.style.cursor = "pointer";
     });
@@ -1965,7 +2126,7 @@
     html += "</div>";
     html += renderCategoryFiltersHtml();
     html +=
-      '<p class="hint">3 across · 12 months × 31 days (shades) · tap name to expand · tap grid for full screen · Mark/Eraser below' +
+      '<p class="hint">3 across · tap name to expand · tap grid for full page (months + days + legend) · Mark/Eraser below' +
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
