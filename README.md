@@ -25,3 +25,7 @@ Each app can also import that same file and apply **only its section** (Habit Jo
 Data lives in Safari on your phone. App updates do not erase it; clearing website data for `mathoose.github.io` does. JSON backups do not include Philly menu photos or Aruba wardrobe grid photos (those stay on the device only).
 
 Push to `main` → GitHub Pages updates.
+
+## UI patterns (dev)
+
+Reusable HTML interaction demos live in [html-features/](html-features/) (local only, not on the app launcher).

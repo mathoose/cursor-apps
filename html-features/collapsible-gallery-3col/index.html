@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Collapsible gallery — 3-column reference</title>
+  <style>
+    :root {
+      --paper: #faf8f5;
+      --dot: #e8e2d9;
+      --ink: #2c2419;
+      --muted: #7a6f62;
+      --accent: #c45c5c;
+      --accent-dark: #a84a4a;
+      --border: #ddd5c8;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100dvh;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+      background-size: 18px 18px;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 1.0625rem;
+      font-weight: 700;
+      font-family: Georgia, "Times New Roman", serif;
+      margin-bottom: 4px;
+    }
+    .hint { font-size: 0.8125rem; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+    .btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-secondary { background: #fff; border: 1px solid var(--border); color: var(--ink); }
+    .year-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .year-toolbar .btn { min-height: 40px; padding: 0 14px; font-size: 0.8125rem; }
+    .year-toolbar .btn[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .category-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 2px 0;
+    }
+    .category-filters::-webkit-scrollbar { display: none; }
+    .category-filters .chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      min-height: 36px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .category-filters .chip.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    /* COLLAPSED (3-across name chips): approved layout — ask user before changing. */
+    .year-collapsed-grid.year-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      width: 100%;
+      align-items: start;
+    }
+    .year-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    .year-expanded-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 6px;
+      width: 100%;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+    .year-expanded-row[data-expanded-count="2"],
+    .year-expanded-row[data-expanded-count="3"] {
+      justify-content: center;
+    }
+    .year-expanded-row .year-grid-card.is-expanded {
+      flex: 0 0 calc((100% - 12px) / 3);
+      max-width: calc((100% - 12px) / 3);
+      width: calc((100% - 12px) / 3);
+    }
+    .year-grid-card {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 1px 4px rgba(44, 36, 25, 0.05);
+    }
+    .year-grid-card.is-collapsed { padding: 0; }
+    .year-grid-card.is-expanded {
+      overflow: hidden;
+      padding: 3px 2px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .year-grid-card-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 6px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      color: var(--ink);
+    }
+    .year-caret {
+      font-size: 0.6875rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .year-grid-card.is-collapsed .year-grid-card-title {
+      flex: 1;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .year-grid-card.is-expanded .year-grid-card-title {
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 3px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+    .year-grid-card.is-collapsed .year-caret { transform: none; }
+    .expanded-placeholder {
+      flex: 1;
+      min-height: 80px;
+      margin: 2px 4px 4px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #f5f0ea 0%, #ebe4da 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.625rem;
+      color: var(--muted);
+      text-align: center;
+      padding: 8px;
+    }
+    .empty { font-size: 0.875rem; color: var(--muted); padding: 24px 0; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Collapsible gallery (3-column)</h1>
+  <p class="hint">Tap a name to expand · up to 3 across · collapsed list below · Expand all / Collapse all</p>
+  <div id="root"></div>
+
+  <script>
+  var CATEGORIES = [
+    { id: "health", label: "Health" },
+    { id: "work", label: "Work" },
+    { id: "home", label: "Home" }
+  ];
+
+  var ITEMS = [
+    { id: "1", name: "Morning walk", category: "health" },
+    { id: "2", name: "Stretch", category: "health" },
+    { id: "3", name: "Vitamins", category: "health" },
+    { id: "4", name: "Meditation", category: "health" },
+    { id: "5", name: "Inbox zero", category: "work" },
+    { id: "6", name: "Deep work block", category: "work" },
+    { id: "7", name: "Stand-up notes", category: "work" },
+    { id: "8", name: "Email follow-ups", category: "work" },
+    { id: "9", name: "Dishes", category: "home" },
+    { id: "10", name: "Laundry", category: "home" },
+    { id: "11", name: "Tidy desk", category: "home" },
+    { id: "12", name: "Water plants", category: "home" }
+  ];
+
+  var categoryFilter = "all";
+  var expandedItems = {};
+  var expandOrder = [];
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function getFilteredItems() {
+    if (categoryFilter === "all") return ITEMS.slice();
+    return ITEMS.filter(function (item) {
+      return item.category === categoryFilter;
+    });
+  }
+
+  function isExpanded(id) {
+    return !!expandedItems[id];
+  }
+
+  function setExpanded(id, open) {
+    if (open) {
+      expandedItems[id] = true;
+      if (expandOrder.indexOf(id) < 0) expandOrder.push(id);
+    } else {
+      delete expandedItems[id];
+      expandOrder = expandOrder.filter(function (x) { return x !== id; });
+    }
+  }
+
+  function expandAll(items) {
+    expandOrder = [];
+    items.forEach(function (item) {
+      expandedItems[item.id] = true;
+      expandOrder.push(item.id);
+    });
+  }
+
+  function collapseAll() {
+    expandedItems = {};
+    expandOrder = [];
+  }
+
+  function renderCategoryFiltersHtml() {
+    var html = '<div class="category-filters">';
+    html += '<button type="button" class="chip' + (categoryFilter === "all" ? " on" : "") + '" data-cat-filter="all">All</button>';
+    CATEGORIES.forEach(function (cat) {
+      var count = ITEMS.filter(function (item) { return item.category === cat.id; }).length;
+      html += '<button type="button" class="chip' + (categoryFilter === cat.id ? " on" : "") + '" data-cat-filter="' + escapeHtml(cat.id) + '">' + escapeHtml(cat.label) + " (" + count + ")</button>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function renderGridCard(item) {
+    if (!isExpanded(item.id)) {
+      return (
+        '<article class="year-grid-card is-collapsed" data-item-id="' + escapeHtml(item.id) + '">' +
+        '<button type="button" class="year-grid-card-head" data-toggle="' + escapeHtml(item.id) + '" aria-expanded="false">' +
+        '<span class="year-caret" aria-hidden="true">▶</span>' +
+        '<span class="year-grid-card-title">' + escapeHtml(item.name) + "</span>" +
+        "</button></article>"
+      );
+    }
+    return (
+      '<article class="year-grid-card is-expanded" data-item-id="' + escapeHtml(item.id) + '">' +
+      '<button type="button" class="year-grid-card-head" data-toggle="' + escapeHtml(item.id) + '" aria-expanded="true">' +
+      '<span class="year-caret" aria-hidden="true">▶</span>' +
+      '<span class="year-grid-card-title">' + escapeHtml(item.name) + "</span>" +
+      "</button>" +
+      '<div class="expanded-placeholder">Expanded content placeholder<br>(WIP in source app)</div>' +
+      "</article>"
+    );
+  }
+
+  function getExpandedItems(items) {
+    var byId = {};
+    items.forEach(function (item) { byId[item.id] = item; });
+    var expanded = [];
+    expandOrder.forEach(function (id) {
+      if (expandedItems[id] && byId[id]) expanded.push(byId[id]);
+    });
+    items.forEach(function (item) {
+      if (expandedItems[item.id] && expandOrder.indexOf(item.id) < 0) expanded.push(item);
+    });
+    return expanded;
+  }
+
+  function getCollapsedItems(items) {
+    return items.filter(function (item) { return !expandedItems[item.id]; });
+  }
+
+  function renderGridHtml(items) {
+    if (!items.length) return '<p class="empty">No items in this category.</p>';
+    var expanded = getExpandedItems(items);
+    var collapsed = getCollapsedItems(items);
+    var html = '<div class="year-gallery">';
+    if (expanded.length) {
+      html += '<div class="year-expanded-row" data-expanded-count="' + Math.min(expanded.length, 3) + '">';
+      expanded.forEach(function (item) { html += renderGridCard(item); });
+      html += "</div>";
+    }
+    if (collapsed.length) {
+      html += '<div class="year-collapsed-grid year-grid-3">';
+      collapsed.forEach(function (item) { html += renderGridCard(item); });
+      html += "</div>";
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function bindCategoryFilters(root) {
+    root.querySelectorAll("[data-cat-filter]").forEach(function (btn) {
+      btn.onclick = function () {
+        categoryFilter = btn.getAttribute("data-cat-filter");
+        render();
+      };
+    });
+  }
+
+  function bindGrid(root) {
+    root.querySelectorAll("[data-toggle]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        var id = btn.getAttribute("data-toggle");
+        setExpanded(id, !isExpanded(id));
+        render();
+      };
+    });
+  }
+
+  function render() {
+    var filtered = getFilteredItems();
+    var filteredIds = {};
+    filtered.forEach(function (item) { filteredIds[item.id] = true; });
+    expandOrder = expandOrder.filter(function (id) {
+      return filteredIds[id] && expandedItems[id];
+    });
+    var allExpanded = filtered.length > 0 && filtered.every(function (item) { return isExpanded(item.id); });
+    var anyExpanded = filtered.some(function (item) { return isExpanded(item.id); });
+
+    var html = '<div class="year-toolbar">';
+    html += '<button type="button" class="btn btn-secondary" id="expandAll" aria-pressed="' + allExpanded + '">Expand all</button>';
+    html += '<button type="button" class="btn btn-secondary" id="collapseAll" aria-pressed="' + !anyExpanded + '">Collapse all</button>';
+    html += "</div>";
+    html += renderCategoryFiltersHtml();
+    html += renderGridHtml(filtered);
+
+    var root = document.getElementById("root");
+    root.innerHTML = html;
+    bindCategoryFilters(root);
+    bindGrid(root);
+
+    document.getElementById("expandAll").onclick = function () {
+      expandAll(filtered);
+      render();
+    };
+    document.getElementById("collapseAll").onclick = function () {
+      collapseAll();
+      render();
+    };
+  }
+
+  render();
+  </script>
+</body>
+</html>
