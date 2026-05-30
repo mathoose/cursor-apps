@@ -314,6 +314,18 @@
     .btn-danger { background: #fff; border: 1px solid #f5c6c6; color: #b91c1c; }
     .btn-block { width: 100%; margin-top: 8px; }
     .hint { font-size: 0.8125rem; color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+    .data-status {
+      background: #f0faf4;
+      border: 1px solid #b8e6c8;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .data-status strong { color: #166534; }
+    .data-status .meta { color: var(--muted); margin-top: 6px; font-size: 0.75rem; }
     .level-editor { margin-top: 8px; }
     .level-row {
       display: flex;
@@ -472,6 +484,8 @@
 
   const STORAGE_KEY = "habit-journal-v2";
   const STORAGE_BACKUP_KEY = "habit-journal-v2-backup";
+  const STORAGE_LOCAL_BACKUP_KEY = "habit-journal-v2-local-backup";
+  const STORAGE_META_KEY = "habit-journal-v2-meta";
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -558,9 +572,22 @@
   function loadState() {
     try {
       let raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) raw = sessionStorage.getItem(STORAGE_BACKUP_KEY);
+      let recoveredFrom = null;
+      if (!raw) {
+        raw = localStorage.getItem(STORAGE_LOCAL_BACKUP_KEY);
+        if (raw) recoveredFrom = "local";
+      }
+      if (!raw) {
+        raw = sessionStorage.getItem(STORAGE_BACKUP_KEY);
+        if (raw) recoveredFrom = "session";
+      }
       if (!raw) raw = localStorage.getItem(STORAGE_KEY_LEGACY);
       if (!raw) return defaultState();
+      if (recoveredFrom) {
+        try {
+          localStorage.setItem(STORAGE_KEY, raw);
+        } catch (e) { /* ok */ }
+      }
       const p = JSON.parse(raw);
       if (!p || !Array.isArray(p.habits)) return defaultState();
       const s = defaultState();
@@ -594,10 +621,51 @@
           localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, year: s.year, month: s.month, habits: s.habits, cells: s.cells }));
         } catch (e) { /* migration optional */ }
       }
+      if (recoveredFrom) window.__hjRecoveredFrom = recoveredFrom;
       return s;
     } catch (e) {
       return defaultState();
     }
+  }
+
+  function writeMeta() {
+    try {
+      localStorage.setItem(
+        STORAGE_META_KEY,
+        JSON.stringify({
+          lastSavedAt: Date.now(),
+          habits: state.habits.length,
+          marks: Object.keys(state.cells).length,
+        })
+      );
+    } catch (e) { /* ok */ }
+  }
+
+  function readMeta() {
+    try {
+      const raw = localStorage.getItem(STORAGE_META_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function formatSavedWhen(ts) {
+    if (!ts) return "not yet";
+    const sec = Math.floor((Date.now() - ts) / 1000);
+    if (sec < 10) return "just now";
+    if (sec < 60) return sec + " sec ago";
+    if (sec < 3600) return Math.floor(sec / 60) + " min ago";
+    if (sec < 86400) return Math.floor(sec / 3600) + " hr ago";
+    return new Date(ts).toLocaleString();
+  }
+
+  function clearAllStorage() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_LOCAL_BACKUP_KEY);
+    localStorage.removeItem(STORAGE_META_KEY);
+    localStorage.removeItem(STORAGE_KEY_LEGACY);
+    sessionStorage.removeItem(STORAGE_BACKUP_KEY);
   }
 
   let state = loadState();
@@ -632,7 +700,9 @@
     const json = JSON.stringify(state);
     try {
       localStorage.setItem(STORAGE_KEY, json);
+      localStorage.setItem(STORAGE_LOCAL_BACKUP_KEY, json);
       sessionStorage.setItem(STORAGE_BACKUP_KEY, json);
+      writeMeta();
       return true;
     } catch (e) {
       try {
@@ -1037,11 +1107,18 @@
 
   function renderData() {
     const root = document.getElementById("panelData");
+    const meta = readMeta() || {};
+    const marks = Object.keys(state.cells).length;
     root.innerHTML =
-      '<p class="hint">Backup habits, counts, and yes/no marks as JSON. Import on a new phone to restore.</p>' +
+      '<div class="data-status">' +
+      "<strong>Your data is saved on this phone.</strong> " +
+      "Reloading the app or pushing updates does <em>not</em> erase habits — only Reset or clearing Safari website data does." +
+      '<p class="meta">' + state.habits.length + " habits · " + marks + " marked days · last saved " +
+      escapeHtml(formatSavedWhen(meta.lastSavedAt)) + " · auto-backup on every change</p></div>" +
+      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). Import brings it back on a new phone.</p>' +
       '<div class="card">' +
-      '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export JSON</button>' +
-      '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import JSON</button>' +
+      '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export backup (JSON)</button>' +
+      '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import backup (JSON)</button>' +
       '<button type="button" class="btn btn-secondary btn-block" id="btnReset" style="margin-top:16px;color:#b91c1c;border-color:#fecaca">Reset all data</button>' +
       "</div>";
 
@@ -1049,10 +1126,15 @@
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "habit-journal-" + state.year + ".json";
+      const d = new Date();
+      const stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      a.download = "habit-journal-backup-" + stamp + ".json";
       a.click();
       URL.revokeObjectURL(a.href);
-      toast("Exported");
+      try {
+        localStorage.setItem("habit-journal-last-export", String(Date.now()));
+      } catch (e) { /* ok */ }
+      toast("Backup saved — keep the file somewhere safe");
     };
 
     document.getElementById("btnImport").onclick = function () {
@@ -1060,7 +1142,9 @@
     };
 
     document.getElementById("btnReset").onclick = function () {
-      if (!confirm("Erase all habits and dots?")) return;
+      if (!confirm("Erase all habits and marks? This cannot be undone.")) return;
+      if (!confirm("Really delete everything? Export first if you want a backup.")) return;
+      clearAllStorage();
       state = defaultState();
       save();
       render();
@@ -1154,6 +1238,22 @@
 
   try {
     render();
+    if (window.__hjRecoveredFrom) {
+      toast("Restored your data from automatic backup");
+      window.__hjRecoveredFrom = null;
+    }
+    if (storageOk && Object.keys(state.cells).length > 0) {
+      try {
+        const lastExport = parseInt(localStorage.getItem("habit-journal-last-export"), 10);
+        const lastTip = parseInt(localStorage.getItem("habit-journal-export-tip"), 10);
+        if ((!lastExport || Date.now() - lastExport > 14 * 86400000) && (!lastTip || Date.now() - lastTip > 7 * 86400000)) {
+          localStorage.setItem("habit-journal-export-tip", String(Date.now()));
+          setTimeout(function () {
+            toast("Tip: Data tab → Export backup for an extra copy");
+          }, 1200);
+        }
+      } catch (e) { /* ok */ }
+    }
   } catch (err) {
     console.error("Habit Journal startup error:", err);
     showFatalError("Could not start Habit Journal. Open the Data tab, tap Reset, then reload the page.");
