@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-year-gallery-v2 -->
+  <!-- build: hj-year-gallery-v3 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -342,9 +342,11 @@
     }
     .year-grid-card.is-collapsed { padding: 0; }
     .year-grid-card.is-expanded {
+      grid-column: 1 / -1;
       overflow: visible;
-      padding: 6px 4px 10px;
+      padding: 6px 8px 10px;
       cursor: pointer;
+      width: 100%;
     }
     .year-grid-card-head {
       display: flex;
@@ -536,6 +538,7 @@
     }
     .year-grid-card.is-expanded .year-grid-heatmap {
       gap: 2px;
+      max-width: 100%;
     }
     .year-grid-heatmap .cell,
     .year-grid-heatmap .cell.cell-year-shade,
