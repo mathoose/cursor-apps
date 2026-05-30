@@ -20,6 +20,7 @@ In your header, add:
 Before `</body>`:
 
 ```html
+<script src="../apps-backup.js"></script>
 <script src="../apps-shell.js" defer></script>
 ```
 
@@ -27,4 +28,21 @@ Before `</body>`:
 
 The launcher lists every folder that contains `index.html`. `apps.json` only customizes the display name.
 
-**Saving data on iPhone:** Use one browser (Safari), normal (not Private) mode, and always the same URL (`mathoose.github.io`). Export JSON backups for important apps.
+**Saving data on iPhone:** Use one browser (Safari), normal (not Private) mode, and always the same URL (`mathoose.github.io`).
+
+**Unified backup:** The Apps home screen has **Export all data** / **Import all data**. To include a new app in that bundle:
+
+1. Add `storageKey` (and optional `legacyKeys`) under `backup.apps` in **`apps.json`**.
+2. Register the app in **`apps-backup.js`** → `APP_REGISTRY` with `readSlice`, `writeSlice`, `isLegacy`, and `summarize`.
+3. In the app’s import handler, accept unified files:
+
+```javascript
+var slice = parsed;
+if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
+  slice = AppsBackup.getAppSlice(parsed, 'your-app-id');
+  if (!slice) { /* toast: no data for this app */ return; }
+}
+// then validate and save slice as you do for app-only JSON
+```
+
+Per-app **Export JSON** / **Import JSON** can remain; they should accept either shape.

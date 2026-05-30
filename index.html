@@ -119,6 +119,63 @@
       animation: pulse 1.2s ease-in-out infinite;
     }
     @keyframes pulse { 50% { opacity: 0.5; } }
+    .dock-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dock-btn {
+      width: 100%;
+      min-height: 44px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .dock-btn-primary {
+      background: #fff;
+      color: #1a1a2e;
+    }
+    .dock-btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .dock-btn:active { opacity: 0.85; }
+    .dock-hint {
+      font-size: 0.6875rem;
+      opacity: 0.55;
+      line-height: 1.4;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(24px + var(--safe-bottom));
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      max-width: 90%;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; }
+    #importAllInput {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
     @media (min-width: 420px) {
       .icon-wrap { width: 72px; height: 72px; border-radius: 16px; }
       .app-name { font-size: 0.75rem; max-width: 80px; }
@@ -129,8 +186,22 @@
   <p class="status" id="status" aria-live="polite">Loading apps…</p>
   <h1 class="page-title" id="pageTitle">Apps</h1>
   <div class="grid" id="grid"></div>
+
+  <div class="dock-wrap">
+    <p class="dock-label">Backup</p>
+    <div class="dock-actions">
+      <button type="button" class="dock-btn dock-btn-primary" id="exportAllBtn">Export all data</button>
+      <button type="button" class="dock-btn dock-btn-secondary" id="importAllBtn">Import all data</button>
+    </div>
+    <p class="dock-hint">One JSON file for all apps. App updates do not erase this file. Clearing Safari website data does. Philly menu photos stay on this device only.</p>
+  </div>
+
   <p class="hint">Tap an icon to open. In Safari: Share → Add to Home Screen to pin this launcher.</p>
 
+  <input type="file" id="importAllInput" accept="application/json,.json" />
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="apps-backup.js"></script>
   <script>
 (function () {
   "use strict";
@@ -281,7 +352,70 @@
     render({ title: manifest.title || "Apps", apps: apps });
   }
 
+  var toastTimer = null;
+  function showToast(msg) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.classList.remove("show");
+    }, 3500);
+  }
+
+  function initBackupDock() {
+    if (typeof AppsBackup === "undefined") {
+      showToast("Backup module failed to load");
+      return;
+    }
+    document.getElementById("exportAllBtn").addEventListener("click", function () {
+      try {
+        var bundle = AppsBackup.exportAll();
+        var n = bundle._meta.included.length;
+        if (!n) {
+          showToast("No saved data found on this device");
+          return;
+        }
+        AppsBackup.downloadBundle(bundle);
+        showToast("Exported " + n + " app" + (n === 1 ? "" : "s") + " — " + AppsBackup.summarizeBundle(bundle));
+      } catch (e) {
+        showToast("Export failed");
+      }
+    });
+    document.getElementById("importAllBtn").addEventListener("click", function () {
+      document.getElementById("importAllInput").click();
+    });
+    document.getElementById("importAllInput").addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      AppsBackup.parseBackupFile(file)
+        .then(function (parsed) {
+          if (!AppsBackup.isUnifiedBackup(parsed)) {
+            showToast("Use a cursor-apps backup file from Export all");
+            return;
+          }
+          var preview = AppsBackup.summarizeBundle(parsed);
+          if (!confirm("Replace saved data for apps in this file?\n\n" + preview)) return;
+          var result = AppsBackup.importAll(parsed);
+          if (result.imported.length) {
+            showToast("Imported: " + result.imported.join(", "));
+          } else {
+            showToast("Nothing imported");
+          }
+          if (result.failed.length) {
+            showToast("Failed: " + result.failed.join(", "));
+          }
+        })
+        .catch(function () {
+          showToast("Could not read backup file");
+        });
+    });
+  }
+
   renderSkeleton(4);
+  initBackupDock();
 
   loadManifest()
     .then(function (manifest) {

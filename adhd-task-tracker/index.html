@@ -1302,6 +1302,7 @@
       <div class="settings-row">
         <div>
           <div class="settings-label">Export backup</div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">Also works with Export all from the Apps home screen.</p>
           <div class="settings-sub">Download a JSON file you can save to Files.</div>
         </div>
         <button class="btn btn-primary" id="exportBtn2">Export</button>
@@ -2508,7 +2509,14 @@ function handleImportFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const parsed = JSON.parse(reader.result);
+      let parsed = JSON.parse(reader.result);
+      if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
+        parsed = AppsBackup.getAppSlice(parsed, 'adhd-task-tracker');
+        if (!parsed) {
+          showToast('No Focus data in this file', { error: true });
+          return;
+        }
+      }
       if (!parsed || !Array.isArray(parsed.tasks)) throw new Error('Invalid backup file');
       pendingImport = parsed;
       const taskCount = parsed.tasks.length;
@@ -3608,6 +3616,7 @@ function init() {
 document.addEventListener('DOMContentLoaded', init);
 })();
 </script>
+<script src="../apps-backup.js"></script>
 <script src="../apps-shell.js" defer></script>
 </body>
 </html>

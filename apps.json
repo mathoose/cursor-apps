@@ -1,30 +1,47 @@
 {
   "title": "Emily's Apps",
+  "backup": {
+    "format": "cursor-apps-backup",
+    "version": 1,
+    "excluded": ["philly-dates-menu-photos"],
+    "apps": {
+      "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
+      "voice-notes": { "storageKey": "voice-notes-v1" },
+      "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
+      "aruba-packing": { "storageKey": "aruba-pack-v1" },
+      "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] }
+    }
+  },
   "apps": [
     {
       "id": "habit-journal",
       "name": "Habit Journal",
-      "subtitle": "Bullet-style dots"
+      "subtitle": "Bullet-style dots",
+      "storageKey": "habit-journal-v2"
     },
     {
       "id": "aruba-packing",
       "name": "Aruba Pack",
-      "subtitle": "7-day packing"
+      "subtitle": "7-day packing",
+      "storageKey": "aruba-pack-v1"
     },
     {
       "id": "voice-notes",
       "name": "Voice Notes",
-      "subtitle": "Speak & transcribe"
+      "subtitle": "Speak & transcribe",
+      "storageKey": "voice-notes-v1"
     },
     {
       "id": "adhd-task-tracker",
       "name": "Focus",
-      "subtitle": "ADHD tasks & habits"
+      "subtitle": "ADHD tasks & habits",
+      "storageKey": "adhd-tracker-v1"
     },
     {
       "id": "philly-dates",
       "name": "Philly Dates",
-      "subtitle": "Happy hours & menus"
+      "subtitle": "Happy hours & menus",
+      "storageKey": "philly-dates-v2"
     }
   ]
 }

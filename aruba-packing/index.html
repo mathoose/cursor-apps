@@ -997,6 +997,15 @@
         <span>Repeat basics (fewer tops)</span>
         <button type="button" class="switch" id="swRepeat" aria-pressed="false"></button>
       </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <h3 style="font-size:0.9375rem;margin-bottom:8px">Backup</h3>
+        <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of packing list. Compatible with Export all on Apps home.</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn-save" id="arubaExportBackup" style="flex:1">Export JSON</button>
+          <button type="button" class="btn-save" id="arubaImportBackup" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Import JSON</button>
+        </div>
+      </div>
+      <input type="file" id="arubaImportFile" accept="application/json,.json" hidden />
       <div class="sheet-actions">
         <button type="button" class="btn-save" data-close="settingsOverlay" style="flex:1">Done</button>
       </div>
@@ -2203,9 +2212,63 @@
   });
   window.addEventListener("pagehide", flushSaveState);
 
+  function exportArubaBackup() {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    var d = new Date();
+    var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    a.href = URL.createObjectURL(blob);
+    a.download = "aruba-pack-backup-" + stamp + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("Backup downloaded");
+  }
+
+  function applyArubaImport(parsed) {
+    var slice = parsed;
+    if (typeof AppsBackup !== "undefined" && AppsBackup.isUnifiedBackup(parsed)) {
+      slice = AppsBackup.getAppSlice(parsed, "aruba-packing");
+      if (!slice) {
+        toast("No Aruba Pack data in this file");
+        return;
+      }
+    }
+    if (!slice || typeof slice.items !== "object") {
+      toast("Invalid backup file");
+      return;
+    }
+    if (!confirm("Replace your packing list with this backup?")) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(slice));
+      location.reload();
+    } catch (e) {
+      toast("Import failed");
+    }
+  }
+
+  document.getElementById("arubaExportBackup").addEventListener("click", exportArubaBackup);
+  document.getElementById("arubaImportBackup").addEventListener("click", function () {
+    document.getElementById("arubaImportFile").click();
+  });
+  document.getElementById("arubaImportFile").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        applyArubaImport(JSON.parse(reader.result));
+      } catch (err) {
+        toast("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  });
+
   render();
 })();
   </script>
+  <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

@@ -128,11 +128,16 @@
         <div class="settings-section">
           <h3>Backup</h3>
           <div class="btn-row">
+            <button type="button" class="btn btn-secondary" id="export-json-btn">Export JSON</button>
+            <button type="button" class="btn btn-secondary" id="import-json-btn">Import JSON</button>
+          </div>
+          <input type="file" id="import-json-file" accept="application/json,.json" hidden />
+          <div class="btn-row" style="margin-top:8px">
             <button type="button" class="btn btn-secondary" id="export-btn">Export Excel</button>
             <button type="button" class="btn btn-secondary" id="import-btn">Import Excel</button>
           </div>
           <input type="file" id="import-file" accept=".xlsx,.xls" hidden />
-          <p class="hint">Export / import updates names, times, and links. Menu photos stay on this device only.</p>
+          <p class="hint">JSON saves favorites and edits (works with Export all on Apps home). Excel updates names, times, and links. Menu photos stay on this device only.</p>
         </div>
         <div class="settings-section">
           <h3>Reset</h3>
@@ -143,6 +148,7 @@
   </div>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="../apps-backup.js"></script>
   <script src="app.js" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>

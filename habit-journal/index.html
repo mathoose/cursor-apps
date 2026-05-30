@@ -1115,7 +1115,7 @@
       "Reloading the app or pushing updates does <em>not</em> erase habits — only Reset or clearing Safari website data does." +
       '<p class="meta">' + state.habits.length + " habits · " + marks + " marked days · last saved " +
       escapeHtml(formatSavedWhen(meta.lastSavedAt)) + " · auto-backup on every change</p></div>" +
-      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). Import brings it back on a new phone.</p>' +
+      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). You can also use Export all on the Apps home screen. Import accepts this file or a full backup.</p>' +
       '<div class="card">' +
       '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export backup (JSON)</button>' +
       '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import backup (JSON)</button>' +
@@ -1167,7 +1167,14 @@
     const reader = new FileReader();
     reader.onload = function () {
       try {
-        const p = JSON.parse(reader.result);
+        let p = JSON.parse(reader.result);
+        if (typeof AppsBackup !== "undefined" && AppsBackup.isUnifiedBackup(p)) {
+          p = AppsBackup.getAppSlice(p, "habit-journal");
+          if (!p) {
+            toast("No Habit Journal data in this file");
+            return;
+          }
+        }
         if (!p || !Array.isArray(p.habits)) throw new Error("Invalid");
         if (!confirm("Replace all current data with this file?")) return;
         const merged = {
@@ -1260,6 +1267,7 @@
   }
 })();
   </script>
+  <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

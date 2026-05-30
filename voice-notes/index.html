@@ -159,6 +159,18 @@
       flex-shrink: 0;
     }
 
+    .backup-bar {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px 12px;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .backup-bar .btn {
+      flex: 1;
+      min-height: 40px;
+      font-size: 0.8125rem;
+    }
     .view-toggle {
       display: flex;
       gap: 6px;
@@ -641,6 +653,12 @@
     <button type="button" class="view-btn on" data-view="date">By date</button>
     <button type="button" class="view-btn" data-view="category">By category</button>
   </div>
+
+  <div class="backup-bar">
+    <button type="button" class="btn btn-secondary" id="vnExportBtn">Export notes</button>
+    <button type="button" class="btn btn-secondary" id="vnImportBtn">Import notes</button>
+  </div>
+  <input type="file" id="vnImportFile" accept="application/json,.json" hidden />
 
   <main id="notesMain"></main>
 
@@ -1221,6 +1239,62 @@
     openDetail(card.getAttribute('data-id'));
   });
 
+  function exportNotesBackup() {
+    var payload = { notes: state.notes };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'voice-notes-backup-' + stamp + '.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast('Backup downloaded');
+  }
+
+  function applyNotesImport(parsed) {
+    var notes = null;
+    if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
+      var slice = AppsBackup.getAppSlice(parsed, 'voice-notes');
+      if (!slice) {
+        showToast('No Voice Notes data in this file');
+        return;
+      }
+      notes = slice.notes;
+    } else if (Array.isArray(parsed)) {
+      notes = parsed;
+    } else if (parsed && Array.isArray(parsed.notes)) {
+      notes = parsed.notes;
+    }
+    if (!notes) {
+      showToast('Invalid backup file');
+      return;
+    }
+    if (!confirm('Replace all ' + state.notes.length + ' notes with ' + notes.length + ' from file?')) return;
+    state.notes = notes;
+    saveNotes();
+    showToast('Import complete');
+  }
+
+  document.getElementById('vnExportBtn').addEventListener('click', exportNotesBackup);
+  document.getElementById('vnImportBtn').addEventListener('click', function () {
+    document.getElementById('vnImportFile').click();
+  });
+  document.getElementById('vnImportFile').addEventListener('change', function (e) {
+    var file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        applyNotesImport(JSON.parse(reader.result));
+      } catch (err) {
+        showToast('Invalid JSON file');
+      }
+    };
+    reader.readAsText(file);
+  });
+
   loadNotes();
   if (!state.notes.length) {
     try {
@@ -1238,6 +1312,7 @@
   render();
 })();
   </script>
+  <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

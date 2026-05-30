@@ -779,6 +779,56 @@ document.getElementById('clear-edits-btn').addEventListener('click', function() 
   });
 });
 
+function exportJsonBackup() {
+  var st = loadAppState();
+  var blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  var d = new Date();
+  var stamp = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'philly-dates-backup-' + stamp + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showStatus('JSON backup downloaded (favorites & edits, not menu photos).');
+}
+
+function importJsonBackup(parsed) {
+  var slice = parsed;
+  if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
+    slice = AppsBackup.getAppSlice(parsed, 'philly-dates');
+    if (!slice) {
+      showStatus('No Philly Dates data in this file');
+      return;
+    }
+  }
+  if (!slice || typeof slice !== 'object') {
+    showStatus('Invalid JSON backup');
+    return;
+  }
+  if (!confirm('Replace saved favorites and edits with this backup? Menu photos on this device are kept.')) return;
+  saveAppState(slice);
+  location.reload();
+}
+
+document.getElementById('export-json-btn').addEventListener('click', exportJsonBackup);
+document.getElementById('import-json-btn').addEventListener('click', function() {
+  document.getElementById('import-json-file').click();
+});
+document.getElementById('import-json-file').addEventListener('change', function(e) {
+  var file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      importJsonBackup(JSON.parse(ev.target.result));
+    } catch (err) {
+      showStatus('Could not read JSON: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
 document.getElementById('import-btn').addEventListener('click', function() {
   document.getElementById('import-file').click();
 });
