@@ -138,14 +138,14 @@
         try {
           var p = JSON.parse(raw);
           if (!p || typeof p.items !== "object") return null;
-          return p;
+          return sanitizeArubaSlice(p);
         } catch (e) {
           return null;
         }
       },
       writeSlice: function (slice) {
         if (!slice || typeof slice.items !== "object") return false;
-        return writeKey("aruba-pack-v1", JSON.stringify(slice));
+        return writeKey("aruba-pack-v1", JSON.stringify(sanitizeArubaSlice(slice)));
       },
       isLegacy: function (obj) {
         return obj && typeof obj.items === "object" && obj.format !== FORMAT;
@@ -155,7 +155,7 @@
         Object.keys(slice.items || {}).forEach(function (id) {
           if (slice.items[id] && slice.items[id].packed) packed++;
         });
-        return packed + " packed / " + Object.keys(slice.items || {}).length + " items";
+        return packed + " packed / " + Object.keys(slice.items || {}).length + " items (no wardrobe photos)";
       },
     },
     "philly-dates": {
@@ -190,6 +190,32 @@
       },
     },
   };
+
+  /** Packing list only — wardrobe photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
+  function sanitizeArubaSlice(slice) {
+    var out = {
+      version: slice.version || 1,
+      opts: slice.opts || {},
+      collapsed: slice.collapsed || {},
+      items: {},
+      removed: Array.isArray(slice.removed) ? slice.removed.slice() : [],
+    };
+    if (slice.opts && slice.opts.activities) {
+      out.opts.activities = Object.assign({}, slice.opts.activities);
+    }
+    Object.keys(slice.items || {}).forEach(function (id) {
+      var row = slice.items[id];
+      if (!row || typeof row !== "object") return;
+      out.items[id] = {
+        packed: !!row.packed,
+        qty: typeof row.qty === "number" ? row.qty : 1,
+        custom: !!row.custom,
+      };
+      if (row.label) out.items[id].label = String(row.label).slice(0, 120);
+      if (row.category) out.items[id].category = String(row.category).slice(0, 40);
+    });
+    return out;
+  }
 
   function readKey(key) {
     try {
@@ -242,7 +268,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos"],
       apps: apps,
       _meta: { included: included },
     };

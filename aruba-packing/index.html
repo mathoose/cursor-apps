@@ -999,7 +999,7 @@
       </div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
         <h3 style="font-size:0.9375rem;margin-bottom:8px">Backup</h3>
-        <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of packing list. Compatible with Export all on Apps home.</p>
+        <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of your list (checked items, quantities, custom items). Wardrobe grid photos are not included — they stay on this device only.</p>
         <div style="display:flex;gap:8px">
           <button type="button" class="btn-save" id="arubaExportBackup" style="flex:1">Export JSON</button>
           <button type="button" class="btn-save" id="arubaImportBackup" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Import JSON</button>
@@ -2213,7 +2213,10 @@
   window.addEventListener("pagehide", flushSaveState);
 
   function exportArubaBackup() {
-    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    var payload = typeof AppsBackup !== "undefined" && AppsBackup.APP_REGISTRY["aruba-packing"]
+      ? AppsBackup.APP_REGISTRY["aruba-packing"].readSlice()
+      : state;
+    var blob = new Blob([JSON.stringify(payload || state, null, 2)], { type: "application/json" });
     var a = document.createElement("a");
     var d = new Date();
     var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
@@ -2221,7 +2224,7 @@
     a.download = "aruba-pack-backup-" + stamp + ".json";
     a.click();
     URL.revokeObjectURL(a.href);
-    toast("Backup downloaded");
+    toast("List backup downloaded (photos not included)");
   }
 
   function applyArubaImport(parsed) {
