@@ -528,32 +528,44 @@
     .year-grid-heatmap {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 1px;
+      grid-auto-rows: auto;
+      gap: 2px;
       width: 100%;
     }
-    .year-grid-heatmap .cell {
-      width: 100%;
+    .year-grid-card.is-expanded .year-grid-heatmap {
+      gap: 2px;
+    }
+    .year-grid-heatmap .cell,
+    .year-grid-heatmap .cell.cell-count,
+    .year-grid-heatmap .cell.cell-yes,
+    .year-grid-heatmap .cell.cell-pad {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none;
+      height: auto !important;
       aspect-ratio: 1;
-      min-width: 0;
       min-height: 0;
-      height: auto;
-      border-radius: 1px;
-      border: 1px solid var(--border);
-      padding: 0;
+      border-radius: 2px !important;
+      border: 1px solid var(--border) !important;
+      padding: 0 !important;
       pointer-events: none;
-      font-size: 0;
-      line-height: 0;
+      font-size: 0 !important;
+      line-height: 0 !important;
       box-sizing: border-box;
+      display: block;
     }
-    .year-grid-heatmap .cell.cell-yes { font-size: 0; }
-    .year-grid-heatmap .cell.cell-pad,
-    .year-grid-heatmap .cell.invalid {
+    .year-grid-heatmap button.cell {
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .year-grid-heatmap .cell.cell-pad {
       background: #fff;
-      border: 1px solid var(--border);
       opacity: 1;
-      pointer-events: none;
     }
-    .year-fs-body .year-grid-heatmap { gap: 3px; }
+    .year-fs-body .year-grid-heatmap {
+      gap: 3px;
+      max-width: min(100%, 420px);
+    }
     .legend-compact {
       display: flex;
       justify-content: center;
@@ -1870,7 +1882,7 @@
     html += "</div>";
     html += renderCategoryFiltersHtml();
     html +=
-      '<p class="hint">3 across · tap a name to expand (fills from top-left) · tap colors for full screen · Mark/Eraser below' +
+      '<p class="hint">Tap a name to expand (fills top-left) · tap grid for full screen · Mark/Eraser below' +
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
