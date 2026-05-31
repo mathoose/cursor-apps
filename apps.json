@@ -10,7 +10,8 @@
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
-      "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" }
+      "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
+      "meal-menu": { "storageKey": "meal-menu-v1" }
     }
   },
   "apps": [
@@ -49,6 +50,12 @@
       "name": "World Cup",
       "subtitle": "Group stage tracker",
       "storageKey": "world-cup-2026-scores-v1"
+    },
+    {
+      "id": "meal-menu",
+      "name": "Our Menu",
+      "subtitle": "What to eat tonight",
+      "storageKey": "meal-menu-v1"
     }
   ]
 }
