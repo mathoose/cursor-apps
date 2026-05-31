@@ -202,6 +202,20 @@
       flex: 1;
       min-width: 0;
     }
+    .habit-label-edit {
+      border: none;
+      background: transparent;
+      padding: 2px 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 4px;
+      width: 100%;
+    }
+    .habit-label-edit:active {
+      background: rgba(196, 92, 92, 0.08);
+    }
     .habit-sort-btns {
       display: flex;
       flex-direction: column;
@@ -564,6 +578,87 @@
     }
     .year-fullscreen[hidden] { display: none !important; }
     body.year-fs-open { overflow: hidden; }
+    .habit-edit-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 180;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .habit-edit-sheet[hidden] { display: none !important; }
+    body.habit-edit-open { overflow: hidden; }
+    .habit-edit-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(44, 36, 25, 0.35);
+    }
+    .habit-edit-panel {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      background: var(--paper);
+      background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
+      background-size: 18px 18px;
+      border-radius: 16px 16px 0 0;
+      padding: 14px 14px calc(14px + var(--safe-bottom));
+      border: 1px solid var(--border);
+      box-shadow: 0 -8px 32px rgba(44, 36, 25, 0.12);
+    }
+    .habit-edit-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .habit-edit-head h2 {
+      flex: 1;
+      font-family: Georgia, serif;
+      font-size: 1rem;
+    }
+    .habit-edit-close {
+      min-width: 40px;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+    }
+    .habit-edit-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .habit-edit-field span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .habit-edit-field input,
+    .habit-edit-field select {
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 0.9375rem;
+      background: #fff;
+    }
+    .habit-edit-field input[type="number"] {
+      width: 120px;
+    }
+    .habit-edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .habit-edit-actions .btn {
+      flex: 1;
+      min-height: 44px;
+    }
     .year-fs-head {
       display: flex;
       align-items: center;
@@ -1098,6 +1193,31 @@
     <div class="year-fs-body" id="yearFsBody"></div>
   </div>
 
+  <div class="habit-edit-sheet" id="habitEditSheet" hidden role="dialog" aria-modal="true" aria-labelledby="habitEditTitle">
+    <div class="habit-edit-backdrop" id="habitEditBackdrop"></div>
+    <div class="habit-edit-panel">
+      <div class="habit-edit-head">
+        <h2 id="habitEditTitle">Edit habit</h2>
+        <button type="button" class="habit-edit-close" id="habitEditClose" aria-label="Close">×</button>
+      </div>
+      <label class="habit-edit-field">
+        <span>Name</span>
+        <input type="text" id="habitEditName" maxlength="40" autocomplete="off" />
+      </label>
+      <label class="habit-edit-field">
+        <span>Category</span>
+        <select id="habitEditCategory"></select>
+      </label>
+      <label class="habit-edit-field" id="habitEditStepWrap">
+        <span>+ per tap</span>
+        <input type="number" id="habitEditStep" min="1" max="5000" />
+      </label>
+      <div class="habit-edit-actions">
+        <button type="button" class="btn btn-primary" id="habitEditSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="bottom-dock" id="bottomDock">
     <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
       <button type="button" class="mode-btn on" data-mode-action="mark" aria-pressed="true">Mark</button>
@@ -1162,6 +1282,7 @@
   let yearExpandedHabits = {};
   let yearExpandOrder = [];
   let yearFullscreenHabitId = null;
+  let habitEditId = null;
   let habitsCatPanelOpen = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
@@ -1407,7 +1528,16 @@
       escapeHtml(habit.name) +
       ' down">▼</button>';
     html += "</div>";
-    html += '<div class="habit-label-text">' + habitMonthLabelHtml(habit) + "</div>";
+    html += '<div class="habit-label-text">';
+    html +=
+      '<button type="button" class="habit-label-edit" data-habit-edit="' +
+      escapeHtml(habit.id) +
+      '" aria-label="Edit ' +
+      escapeHtml(habit.name) +
+      '">' +
+      habitMonthLabelHtml(habit) +
+      "</button>";
+    html += "</div>";
     html += "</div></div>";
     return html;
   }
@@ -1448,6 +1578,73 @@
         render();
       };
     });
+  }
+
+  function bindMonthHabitEdit(root) {
+    root.querySelectorAll("[data-habit-edit]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        openHabitEdit(btn.getAttribute("data-habit-edit"));
+      };
+    });
+  }
+
+  function openHabitEdit(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    habitEditId = habitId;
+    document.getElementById("habitEditTitle").textContent = "Edit habit";
+    document.getElementById("habitEditName").value = habit.name;
+    const catSel = document.getElementById("habitEditCategory");
+    catSel.innerHTML = "";
+    state.categories.forEach(function (cat) {
+      const opt = document.createElement("option");
+      opt.value = cat.id;
+      opt.textContent = cat.label;
+      if (habit.category === cat.id) opt.selected = true;
+      catSel.appendChild(opt);
+    });
+    const stepWrap = document.getElementById("habitEditStepWrap");
+    const stepInp = document.getElementById("habitEditStep");
+    if (habit.type === "counter") {
+      stepWrap.hidden = false;
+      stepInp.value = habit.step || 1;
+    } else {
+      stepWrap.hidden = true;
+    }
+    document.getElementById("habitEditSheet").hidden = false;
+    document.body.classList.add("habit-edit-open");
+    document.getElementById("habitEditName").focus();
+  }
+
+  function closeHabitEdit() {
+    habitEditId = null;
+    const sheet = document.getElementById("habitEditSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("habit-edit-open");
+  }
+
+  function saveHabitEdit() {
+    if (!habitEditId) return;
+    const habit = state.habits.find(function (h) { return h.id === habitEditId; });
+    if (!habit) {
+      closeHabitEdit();
+      return;
+    }
+    const name = document.getElementById("habitEditName").value.trim() || "Habit";
+    habit.name = name.slice(0, 40);
+    habit.category = normalizeCategory(document.getElementById("habitEditCategory").value);
+    if (habit.type === "counter") {
+      habit.step = Math.min(
+        MAX_STEP,
+        Math.max(1, parseInt(document.getElementById("habitEditStep").value, 10) || 1)
+      );
+    }
+    if (!save()) return;
+    const savedName = habit.name;
+    closeHabitEdit();
+    render();
+    toast("Updated " + savedName);
   }
 
   function renderCategoryFiltersHtml() {
@@ -2336,7 +2533,7 @@
     const eraserNote = eraserMode ? " Eraser on — tap a cell to subtract." : "";
     const filtered = getFilteredHabits();
     let html = renderCategoryFiltersHtml();
-    html += '<p class="hint">Mark or Eraser in the bar below.' + eraserNote + " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
+    html += '<p class="hint">Tap a name to edit · Mark or Eraser in the bar below.' + eraserNote + " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html += '<p class="month-empty">No habits in this view. Add one above.</p>';
@@ -2368,6 +2565,7 @@
     bindCells(root);
     bindMonthAddHabit(root);
     bindMonthHabitSort(root);
+    bindMonthHabitEdit(root);
 
     const scroller = root.querySelector(".scroll-x");
     if (scroller) {
@@ -2802,9 +3000,20 @@
     if (e.target.id === "yearFullscreen") closeYearFullscreen();
   });
 
+  document.getElementById("habitEditClose").addEventListener("click", closeHabitEdit);
+  document.getElementById("habitEditBackdrop").addEventListener("click", closeHabitEdit);
+  document.getElementById("habitEditSave").addEventListener("click", saveHabitEdit);
+  document.getElementById("habitEditName").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      saveHabitEdit();
+    }
+  });
+
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
       if (tab.dataset.tab !== "year") closeYearFullscreen();
+      closeHabitEdit();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
       document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
