@@ -310,7 +310,7 @@ function renderTabbar() {
   if (!bar) return;
   var html = '';
   getAllCategories().forEach(function(c) {
-    var icon = TAB_ICONS[c.id] || c.label.charAt(0);
+    var icon = TAB_ICONS[c.id] || (c.builtin ? c.label.charAt(0) : '📋');
     if (!c.builtin && c.icon) icon = c.icon;
     html += '<button type="button" class="tab' + (activeTab === c.id ? ' on' : '') + '" data-tab="' + escapeHtml(c.id) + '" aria-selected="' + (activeTab === c.id) + '">'
       + '<span class="tab-icon">' + escapeHtml(icon) + '</span>'
@@ -339,33 +339,29 @@ function updateHeaderForTab() {
 
 function switchTab(tabId) {
   if (tabId === activeTab) return;
+  ensureCategoryPanels();
   var prevPanel = document.querySelector('.panel.on');
   var nextPanel = document.getElementById('panel-' + tabId);
-  if (!nextPanel && tabId !== 'pick' && tabId !== 'manage') {
-    ensureCategoryPanels();
-    nextPanel = document.getElementById('panel-' + tabId);
-  }
   if (!nextPanel) return;
 
   activeTab = tabId;
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.classList.toggle('on', t.getAttribute('data-tab') === tabId);
-    t.setAttribute('aria-selected', t.getAttribute('data-tab') === tabId ? 'true' : 'false');
-  });
 
-  if (prevPanel && prevPanel !== nextPanel) {
-    if (!reducedMotion) {
-      prevPanel.classList.add('panel-leave');
-      prevPanel.classList.remove('on');
-      setTimeout(function() {
-        prevPanel.classList.remove('panel-leave');
-        prevPanel.hidden = true;
-      }, 220);
-    } else {
-      prevPanel.classList.remove('on');
+  if (prevPanel && prevPanel !== nextPanel && !reducedMotion) {
+    prevPanel.classList.add('panel-leave');
+    prevPanel.classList.remove('on');
+    setTimeout(function() {
+      prevPanel.classList.remove('panel-leave');
       prevPanel.hidden = true;
-    }
+    }, 220);
   }
+
+  document.querySelectorAll('.panel').forEach(function(p) {
+    if (p === nextPanel) return;
+    if (p !== prevPanel || reducedMotion) {
+      p.classList.remove('on', 'panel-leave', 'panel-enter');
+      p.hidden = true;
+    }
+  });
 
   nextPanel.hidden = false;
   nextPanel.classList.add('on');
@@ -376,7 +372,11 @@ function switchTab(tabId) {
     });
   }
 
-  if (tabId === 'pick') resetPickResult();
+  if (tabId === 'pick') {
+    resetPickResult();
+    populatePickCategorySelect();
+    refreshPicker();
+  }
   updateHeaderForTab();
   renderTabbar();
 }
