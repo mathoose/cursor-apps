@@ -160,6 +160,33 @@
         return packed + " packed / " + Object.keys(slice.items || {}).length + " items (no wardrobe photos)";
       },
     },
+    "meal-menu": {
+      storageKey: "meal-menu-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("meal-menu-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.entries)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.entries)) return false;
+        return writeKey("meal-menu-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.entries) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.entries ? slice.entries.length : 0;
+        var fav = slice.entries ? slice.entries.filter(function (e) { return e.favorite; }).length : 0;
+        return n + " meal" + (n === 1 ? "" : "s") + (fav ? ", " + fav + " favorites" : "");
+      },
+    },
     "philly-dates": {
       storageKey: "philly-dates-v2",
       legacyKeys: ["philly-hh-app-v1"],

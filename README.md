@@ -13,6 +13,7 @@ iPhone-style grid with custom icons. New app folders are picked up automatically
 | Habit journal | https://mathoose.github.io/cursor-apps/habit-journal/ |
 | Focus (ADHD tracker) | https://mathoose.github.io/cursor-apps/adhd-task-tracker/ |
 | Philly Dates | https://mathoose.github.io/cursor-apps/philly-dates/ |
+| Our Menu | https://mathoose.github.io/cursor-apps/meal-menu/ |
 | Aruba packing | https://mathoose.github.io/cursor-apps/aruba-packing/ |
 | Voice notes | https://mathoose.github.io/cursor-apps/voice-notes/ |
 
