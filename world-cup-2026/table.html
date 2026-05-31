@@ -7,10 +7,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="WC 2026" />
   <meta name="theme-color" content="#0a1628" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <!-- build: wc-modal-v2 -->
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=modal2" />
 </head>
 <body>
   <header class="top">
@@ -24,8 +26,8 @@
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
-      <a class="nav-tab" href="index.html">Matches</a>
-      <a class="nav-tab on" href="table.html" aria-current="page">Tables</a>
+      <a class="nav-tab" href="index.html?v=modal2">Matches</a>
+      <a class="nav-tab on" href="table.html?v=modal2" aria-current="page">Tables</a>
     </nav>
   </header>
 
@@ -41,9 +43,9 @@
     </div>
   </main>
 
-  <script src="matches.js"></script>
-  <script src="core.js"></script>
-  <script src="table-page.js"></script>
+  <script src="matches.js?v=modal2"></script>
+  <script src="core.js?v=modal2"></script>
+  <script src="table-page.js?v=modal2"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

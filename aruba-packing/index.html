@@ -1137,6 +1137,25 @@
 
     .scan-cat-chip.on .chip-meta { color: var(--accent-dark); opacity: 0.85; }
 
+    .scan-cat-chip.add-cat {
+      border-style: dashed;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .scan-tag-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 0 10px;
+      scrollbar-width: none;
+    }
+
+    .scan-tag-scroll::-webkit-scrollbar { display: none; }
+
+    .scan-tag-scroll .scan-cat-chip { font-size: 0.75rem; padding: 6px 12px; }
+    .grid-tag-filter { margin-bottom: 14px; }
+
     .scan-empty {
       text-align: center;
       padding: 32px 16px;
@@ -1533,6 +1552,10 @@
         <select id="editWardrobeType"></select>
         <input type="text" id="editWardrobeTypeOther" placeholder="Custom category" maxlength="60" hidden style="margin-top:8px" />
       </div>
+      <div class="field" id="editTagField" hidden>
+        <label for="editGarmentTag">Tag</label>
+        <select id="editGarmentTag"></select>
+      </div>
       <div class="field">
         <label for="editCategory" id="editCategoryLabel">Category</label>
         <select id="editCategory"></select>
@@ -1544,6 +1567,26 @@
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="editOverlay">Cancel</button>
         <button type="button" class="btn-save" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New wardrobe category -->
+  <div class="overlay" id="newCategoryOverlay" role="dialog" aria-modal="true" aria-labelledby="newCategoryTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="newCategoryTitle">New clothing category</h3>
+      <div class="field">
+        <label for="newCategoryName">Category name</label>
+        <input type="text" id="newCategoryName" placeholder="e.g. Button-up, Polo" autocomplete="off" maxlength="60" />
+      </div>
+      <div class="field">
+        <label for="newCategoryTag">Tag</label>
+        <select id="newCategoryTag"></select>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="newCategoryOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="newCategorySave">Add category</button>
       </div>
     </div>
   </div>
@@ -1638,13 +1681,70 @@
     "Soccer jersey",
     "Jersey",
     "Polo",
+    "Button-up",
+    "Short sleeve",
     "Other",
   ];
+
+  const GARMENT_TAGS = [
+    { id: "top", label: "Top" },
+    { id: "bottom", label: "Bottom" },
+    { id: "feet", label: "Feet" },
+    { id: "accessories", label: "Accessories" },
+  ];
+
+  const CATALOG_GARMENT_TAGS = {
+    swim: "bottom",
+    coverups: "top",
+    shorts: "bottom",
+    tops: "top",
+    sleep: "top",
+    underwear: "bottom",
+    bras: "top",
+    socks: "feet",
+    sandals: "feet",
+    sneakers: "feet",
+    lightjacket: "top",
+    hat: "accessories",
+    sunglasses: "accessories",
+    dresscasual: "bottom",
+    dressnice: "bottom",
+    dressshoes: "feet",
+    smartcasino: "top",
+    golfshirt: "top",
+    golfpants: "bottom",
+    golfshoes: "feet",
+    closedshoes: "feet",
+    bandana: "accessories",
+    rashguard: "top",
+  };
+
+  const WARDROBE_TYPE_TAGS = {
+    "T-shirt": "top",
+    "Tank top": "top",
+    "Polo": "top",
+    "Button-up": "top",
+    "Short sleeve": "top",
+    "Jersey": "top",
+    "Soccer jersey": "top",
+    "Jacket": "top",
+    "Shorts": "bottom",
+    "Pants": "bottom",
+    "Dress": "bottom",
+    "Swimsuit": "bottom",
+    "Sneakers": "feet",
+    "Sandals": "feet",
+    "Hat": "accessories",
+    "Sun hat": "accessories",
+    "Sunglasses": "accessories",
+  };
 
   const WARDROBE_TO_CATALOG = {
     "T-shirt": "tops",
     "Tank top": "tops",
     "Polo": "tops",
+    "Button-up": "tops",
+    "Short sleeve": "tops",
     "Jersey": "tops",
     "Soccer jersey": "tops",
     "Shorts": "shorts",
@@ -1799,13 +1899,15 @@
       items[id] = { packed: false, qty: resolveQty(id, opts), custom: false };
     }
     return {
-      version: 2,
+      version: 3,
       opts,
       collapsed: {},
       wardrobeCollapsed: {},
       items,
       removed: [],
       outfits: [],
+      closet: [],
+      customWardrobeCategories: [],
     };
   }
 
@@ -1839,6 +1941,8 @@
       base.collapsed = parsed.collapsed || {};
       base.wardrobeCollapsed = parsed.wardrobeCollapsed || {};
       base.outfits = Array.isArray(parsed.outfits) ? parsed.outfits : [];
+      base.closet = Array.isArray(parsed.closet) ? parsed.closet : [];
+      base.customWardrobeCategories = Array.isArray(parsed.customWardrobeCategories) ? parsed.customWardrobeCategories : [];
       base.removed = Array.isArray(parsed.removed) ? parsed.removed.filter(function (id) { return CATALOG[id]; }) : [];
       const removedSet = new Set(base.removed);
       base.items = {};
@@ -1857,6 +1961,7 @@
           label: saved && saved.label ? saved.label : undefined,
           category: saved && saved.category ? saved.category : undefined,
           note: saved && saved.note ? saved.note : undefined,
+          garmentTag: saved && saved.garmentTag ? saved.garmentTag : undefined,
         };
       }
       base.removed = Array.from(removedSet);
@@ -1869,6 +1974,7 @@
           label: saved.label,
           category: saved.category || "misc",
           note: saved.note || undefined,
+          garmentTag: saved.garmentTag || undefined,
         };
       }
       return base;
@@ -1884,9 +1990,11 @@
   let pendingPhoto = null;
   let viewerPhoto = null;
   let editingItemId = null;
-  let scanQueue = [];
-  let scanActiveCategoryKey = null;
-  let scanSelectedIds = {};
+  let packActiveCategoryKey = null;
+  let packActiveTag = null;
+  let gridActiveTag = null;
+  let packSelectedIds = {};
+  let closetPreviews = {};
   let planView = "library";
   let planDraft = null;
   let planActiveSlotId = null;
@@ -1903,6 +2011,120 @@
 
   function photoKey(itemId, slot) {
     return itemId + ":" + slot;
+  }
+
+  function closetKey(id) {
+    return "closet:" + id;
+  }
+
+  function ensureCloset() {
+    if (!state.closet) state.closet = [];
+  }
+
+  function getUncategorizedCloset() {
+    ensureCloset();
+    return state.closet.filter(function (c) {
+      return !c.category || c.category === "Uncategorized";
+    });
+  }
+
+  function newClosetId() {
+    return "closet-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function addClosetPhoto(blob, label) {
+    const id = newClosetId();
+    return idbPut(closetKey(id), blob).then(function () {
+      ensureCloset();
+      state.closet.push({ id: id, category: null, label: label || "", tag: null });
+      saveState();
+      return id;
+    });
+  }
+
+  function removeClosetEntry(id) {
+    ensureCloset();
+    state.closet = state.closet.filter(function (c) { return c.id !== id; });
+    if (closetPreviews[id]) {
+      URL.revokeObjectURL(closetPreviews[id]);
+      delete closetPreviews[id];
+    }
+    if (thumbCache[closetKey(id)]) {
+      URL.revokeObjectURL(thumbCache[closetKey(id)]);
+      delete thumbCache[closetKey(id)];
+    }
+    return idbDelete(closetKey(id)).catch(function () {});
+  }
+
+  function getTagForWardrobeLabel(label) {
+    if (!label) return null;
+    if (WARDROBE_TYPE_TAGS[label]) return WARDROBE_TYPE_TAGS[label];
+    const custom = (state.customWardrobeCategories || []).find(function (c) {
+      return normalizeWardrobeLabel(c.name) === normalizeWardrobeLabel(label);
+    });
+    if (custom) return custom.tag;
+    return null;
+  }
+
+  function getItemGarmentTag(itemId) {
+    const row = state.items[itemId];
+    if (row && row.garmentTag) return row.garmentTag;
+    if (row && row.note) {
+      const fromNote = getTagForWardrobeLabel(row.note);
+      if (fromNote) return fromNote;
+    }
+    if (CATALOG_GARMENT_TAGS[itemId]) return CATALOG_GARMENT_TAGS[itemId];
+    return getTagForWardrobeLabel(gridDisplayName(itemId)) || getTagForWardrobeLabel(itemNote(itemId));
+  }
+
+  function getCategoryTag(option) {
+    if (option.tag) return option.tag;
+    return getTagForWardrobeLabel(option.label || option.wardrobeType);
+  }
+
+  function populateGarmentTagSelect(selId, selected) {
+    const sel = document.getElementById(selId);
+    let html = '<option value="">No tag</option>';
+    GARMENT_TAGS.forEach(function (t) {
+      html += '<option value="' + t.id + '"' + (t.id === selected ? " selected" : "") + ">" + escapeHtml(t.label) + "</option>";
+    });
+    sel.innerHTML = html;
+  }
+
+  function getAllWardrobeTypeNames() {
+    const names = WARDROBE_TYPES.filter(function (t) { return t !== "Other"; }).slice();
+    (state.customWardrobeCategories || []).forEach(function (c) {
+      if (names.indexOf(c.name) === -1) names.push(c.name);
+    });
+    return names;
+  }
+
+  function openNewCategoryOverlay() {
+    populateGarmentTagSelect("newCategoryTag", "top");
+    document.getElementById("newCategoryName").value = "";
+    openOverlay("newCategoryOverlay");
+    setTimeout(function () { document.getElementById("newCategoryName").focus(); }, 300);
+  }
+
+  function saveNewCategory() {
+    const name = document.getElementById("newCategoryName").value.trim();
+    const tag = document.getElementById("newCategoryTag").value;
+    if (!name) {
+      toast("Enter a category name");
+      return;
+    }
+    if (!state.customWardrobeCategories) state.customWardrobeCategories = [];
+    const norm = normalizeWardrobeLabel(name);
+    if (state.customWardrobeCategories.some(function (c) { return normalizeWardrobeLabel(c.name) === norm; })) {
+      toast("Category already exists");
+      return;
+    }
+    state.customWardrobeCategories.push({ name: name, tag: tag || "top" });
+    saveState();
+    closeOverlay("newCategoryOverlay");
+    toast("Added “" + name + "”");
+    if (currentView === "pack") renderPack();
+    if (currentView === "grid") renderGrid();
   }
 
   function openPhotoDb() {
@@ -2190,10 +2412,10 @@
     const sel = document.getElementById(selId);
     const normalized = selected || "";
     let html = '<option value="">Choose category…</option>';
-    WARDROBE_TYPES.forEach(function (t) {
+    getAllWardrobeTypeNames().forEach(function (t) {
       html += '<option value="' + escapeHtml(t) + '"' + (t === normalized ? " selected" : "") + ">" + escapeHtml(t) + "</option>";
     });
-    if (normalized && WARDROBE_TYPES.indexOf(normalized) === -1) {
+    if (normalized && getAllWardrobeTypeNames().indexOf(normalized) === -1) {
       html += '<option value="' + escapeHtml(normalized) + '" selected>' + escapeHtml(normalized) + "</option>";
     }
     sel.innerHTML = html;
@@ -2269,6 +2491,7 @@
         itemId: g.id,
         wardrobeType: g.name,
         catalogId: CATALOG[g.id] ? g.id : findCatalogIdForWardrobeType(g.name),
+        tag: getItemGarmentTag(g.id),
         full: fill.full,
         filled: fill.filled,
         qty: fill.qty,
@@ -2312,6 +2535,26 @@
         itemId: customId,
         wardrobeType: type,
         catalogId: catalogId,
+        tag: WARDROBE_TYPE_TAGS[type] || null,
+        full: fill.full,
+        filled: fill.filled,
+        qty: fill.qty,
+      });
+      seen[norm] = true;
+    });
+
+    (state.customWardrobeCategories || []).forEach(function (cat) {
+      const norm = normalizeWardrobeLabel(cat.name);
+      if (seen[norm]) return;
+      const customId = findCustomItemByWardrobeType(cat.name);
+      const fill = customId ? getItemPhotoFill(customId, photoCounts) : { full: false, filled: 0, qty: 0 };
+      options.push({
+        key: "customcat:" + norm,
+        label: cat.name,
+        itemId: customId,
+        wardrobeType: cat.name,
+        catalogId: findCatalogIdForWardrobeType(cat.name),
+        tag: cat.tag || "top",
         full: fill.full,
         filled: fill.filled,
         qty: fill.qty,
@@ -2345,6 +2588,7 @@
       return id;
     }
     const id = "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+    const tag = option.tag || getTagForWardrobeLabel(option.wardrobeType);
     state.items[id] = {
       packed: false,
       qty: 0,
@@ -2352,6 +2596,7 @@
       label: option.wardrobeType,
       category: "clothing",
       note: option.wardrobeType,
+      garmentTag: tag || undefined,
     };
     return id;
   }
@@ -2373,16 +2618,16 @@
   }
 
   function scanSelectedCount() {
-    return Object.keys(scanSelectedIds).length;
+    return Object.keys(packSelectedIds).length;
   }
 
   function toggleScanSelection(id) {
-    if (scanSelectedIds[id]) delete scanSelectedIds[id];
-    else scanSelectedIds[id] = true;
+    if (packSelectedIds[id]) delete packSelectedIds[id];
+    else packSelectedIds[id] = true;
   }
 
   function clearScanSelection() {
-    scanSelectedIds = {};
+    packSelectedIds = {};
   }
 
   function updateScanPackBar(option) {
@@ -2408,7 +2653,7 @@
     btn.onclick = function () {
       btn.disabled = true;
       loadPhotoCounts(gridGroups()).then(function (photoCounts) {
-        const opt = getScanCategoryOption(scanActiveCategoryKey, photoCounts);
+        const opt = getScanCategoryOption(packActiveCategoryKey, photoCounts);
         if (!opt) {
           toast("Choose a category");
           btn.disabled = false;
@@ -2427,7 +2672,7 @@
       toast("Choose a category");
       return Promise.resolve();
     }
-    const selected = scanQueue.filter(function (e) { return scanSelectedIds[e.id]; });
+    const selected = getUncategorizedCloset().filter(function (e) { return packSelectedIds[e.id]; });
     if (!selected.length) {
       toast("Select photos to pack");
       return Promise.resolve();
@@ -2437,7 +2682,7 @@
     return loadPhotoCountsForItem(itemId, 99).then(function (counts) {
       let slot = 0;
       const tasks = [];
-      selected.forEach(function (entry, idx) {
+      selected.forEach(function (entry) {
         while (slot < 99 && counts[photoKey(itemId, slot)]) slot++;
         if (slot >= row.qty) row.qty = slot + 1;
         const key = photoKey(itemId, slot);
@@ -2445,26 +2690,20 @@
           URL.revokeObjectURL(thumbCache[key]);
           delete thumbCache[key];
         }
-        tasks.push(idbPut(key, entry.blob));
-        counts[key] = true;
-        if (row.custom && selected.length > 1 && entry.desc) {
-          /* keep existing desc if any */
-        } else if (row.custom && !row.label) {
-          row.label = option.wardrobeType;
-        }
+        tasks.push(
+          idbGet(closetKey(entry.id)).then(function (blob) {
+            if (!blob) return;
+            return idbPut(key, blob).then(function () {
+              return removeClosetEntry(entry.id);
+            });
+          })
+        );
+        if (row.custom && !row.label) row.label = option.wardrobeType;
+        if (option.tag && !row.garmentTag) row.garmentTag = option.tag;
         slot++;
       });
       return Promise.all(tasks).then(function () {
         saveState();
-        const removeIds = {};
-        selected.forEach(function (e) { removeIds[e.id] = true; });
-        scanQueue = scanQueue.filter(function (e) {
-          if (removeIds[e.id]) {
-            if (e.preview) URL.revokeObjectURL(e.preview);
-            return false;
-          }
-          return true;
-        });
         clearScanSelection();
         toast(selected.length + " packed to " + option.label);
         render();
@@ -2473,10 +2712,6 @@
     }).catch(function () {
       toast("Could not pack photos");
     });
-  }
-
-  function newScanEntryId() {
-    return "scan-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
   }
 
   function isWardrobeGroupExpanded(itemId) {
@@ -2689,19 +2924,40 @@
     }
 
     const showTip = !localStorage.getItem("aruba-pack-homescreen-tip");
-    root.innerHTML = '<p class="grid-intro">Tap a category to expand and add photos. Counts match your list — fill every slot and a new <strong>+</strong> appears. Photos stay on this device only.' +
+    root.innerHTML = '<p class="grid-intro">Filter by tag, tap a category to expand and add photos. Counts match your list — fill every slot and a new <strong>+</strong> appears. Photos stay on this device only.' +
       (showTip ? '<span class="grid-intro-tip"><strong>iPhone tip:</strong> In Safari, tap Share → <strong>Add to Home Screen</strong> for the best full-screen experience.</span>' : '') +
       '</p>';
+    root.innerHTML += '<div class="scan-tag-scroll grid-tag-filter" role="toolbar" aria-label="Filter wardrobe by tag">';
+    root.innerHTML += '<button type="button" class="scan-cat-chip' + (!gridActiveTag ? " on" : "") + '" data-grid-tag="">All</button>';
+    GARMENT_TAGS.forEach(function (t) {
+      root.innerHTML += '<button type="button" class="scan-cat-chip' + (gridActiveTag === t.id ? " on" : "") + '" data-grid-tag="' + t.id + '">' + escapeHtml(t.label) + "</button>";
+    });
+    root.innerHTML += "</div>";
     if (showTip) localStorage.setItem("aruba-pack-homescreen-tip", "1");
 
-    loadPhotoCounts(groups).then(function (photoCounts) {
-      groups.forEach(function (g) {
+    root.querySelectorAll("[data-grid-tag]").forEach(function (chip) {
+      chip.onclick = function () {
+        gridActiveTag = chip.dataset.gridTag || null;
+        renderGrid();
+      };
+    });
+
+    const visibleGroups = gridActiveTag
+      ? groups.filter(function (g) { return getItemGarmentTag(g.id) === gridActiveTag; })
+      : groups;
+
+    if (!visibleGroups.length) {
+      root.innerHTML += '<div class="grid-empty">No wardrobe items for this tag. Try <strong>All</strong> or add clothing from the List tab.</div>';
+      updateGridProgress({});
+      return;
+    }
+
+    loadPhotoCounts(visibleGroups).then(function (photoCounts) {
+      visibleGroups.forEach(function (g) {
         let filled = countFilledPhotos(g.id, g.qty, photoCounts);
         const slotCount = slotCountForGroup(g, photoCounts);
         const subtitle = gridGroupSubtitle(g.id);
         const expanded = isWardrobeGroupExpanded(g.id);
-        const isCustom = state.items[g.id].custom;
-
         let block = '<section class="grid-group' + (expanded ? "" : " collapsed") + '" data-item="' + escapeHtml(g.id) + '">';
         block += '<div class="grid-group-head" role="button" tabindex="0" aria-expanded="' + expanded + '" data-toggle-item="' + escapeHtml(g.id) + '">';
         block += '<div class="grid-group-head-main"><h3>' + escapeHtml(g.name) + '</h3>';
@@ -2709,9 +2965,7 @@
         if (subtitle) block += " · " + escapeHtml(subtitle);
         block += '</div></div>';
         block += '<div class="grid-group-head-actions">';
-        if (isCustom) {
-          block += '<button type="button" class="grid-edit-btn" data-edit-item="' + escapeHtml(g.id) + '" aria-label="Edit ' + escapeHtml(g.name) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-        }
+        block += '<button type="button" class="grid-edit-btn" data-edit-item="' + escapeHtml(g.id) + '" aria-label="Edit ' + escapeHtml(g.name) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
         block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + '</span>';
         block += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
         block += '</div></div>';
@@ -3146,46 +3400,54 @@
   function openEditItem(id) {
     if (!state.items[id]) return;
     editingItemId = id;
+    const gridItem = isGridItem(id);
     const wardrobeCustom = isWardrobeCustomItem(id);
-    document.getElementById("editNameLabel").textContent = wardrobeCustom ? "Description" : "Item name";
-    document.getElementById("editCategoryLabel").textContent = wardrobeCustom ? "List category" : "Category";
-    document.getElementById("editWardrobeField").hidden = !wardrobeCustom;
-    document.getElementById("editNoteField").hidden = wardrobeCustom;
+    document.getElementById("editNameLabel").textContent = (wardrobeCustom || gridItem) ? "Description" : "Item name";
+    document.getElementById("editCategoryLabel").textContent = gridItem ? "List category" : "Category";
+    document.getElementById("editWardrobeField").hidden = !gridItem;
+    document.getElementById("editTagField").hidden = !gridItem;
+    document.getElementById("editNoteField").hidden = wardrobeCustom || gridItem;
     document.getElementById("editName").value = itemLabel(id);
     populateCategorySelect("editCategory", itemCategory(id));
-    if (wardrobeCustom) {
-      const note = itemNote(id) || "";
-      populateWardrobeTypeSelect("editWardrobeType", WARDROBE_TYPES.indexOf(note) !== -1 ? note : (note ? "Other" : ""));
-      document.getElementById("editWardrobeTypeOther").value = WARDROBE_TYPES.indexOf(note) !== -1 ? "" : note;
+    if (gridItem) {
+      const note = itemNote(id) || gridDisplayName(id);
+      const allNames = getAllWardrobeTypeNames();
+      populateWardrobeTypeSelect("editWardrobeType", allNames.indexOf(note) !== -1 ? note : (note ? "Other" : ""));
+      document.getElementById("editWardrobeTypeOther").value = allNames.indexOf(note) !== -1 ? "" : note;
       syncWardrobeOtherField("editWardrobeType", "editWardrobeTypeOther");
+      populateGarmentTagSelect("editGarmentTag", getItemGarmentTag(id) || "");
     } else {
       document.getElementById("editNote").value = itemNote(id) || "";
     }
     openOverlay("editOverlay");
     setTimeout(function () {
-      (wardrobeCustom ? document.getElementById("editWardrobeType") : document.getElementById("editName")).focus();
+      (gridItem ? document.getElementById("editWardrobeType") : document.getElementById("editName")).focus();
     }, 300);
   }
 
   function saveEditItem() {
     if (!editingItemId || !state.items[editingItemId]) return;
+    const gridItem = isGridItem(editingItemId);
     const wardrobeCustom = isWardrobeCustomItem(editingItemId);
     const name = document.getElementById("editName").value.trim();
     if (!name) {
-      toast(wardrobeCustom ? "Enter a description" : "Enter an item name");
+      toast((wardrobeCustom || gridItem) ? "Enter a description" : "Enter an item name");
       return;
     }
     const row = state.items[editingItemId];
     const category = document.getElementById("editCategory").value;
     row.label = name;
     row.category = category;
-    if (wardrobeCustom) {
+    if (gridItem) {
       const wardrobeType = getWardrobeTypeValue("editWardrobeType", "editWardrobeTypeOther");
       if (!wardrobeType) {
         toast("Choose a wardrobe category");
         return;
       }
       row.note = wardrobeType;
+      const tag = document.getElementById("editGarmentTag").value;
+      if (tag) row.garmentTag = tag;
+      else delete row.garmentTag;
     } else {
       const note = document.getElementById("editNote").value.trim();
       if (note) row.note = note;
@@ -3196,32 +3458,45 @@
     editingItemId = null;
     render();
     if (currentView === "grid") renderGrid();
+    if (currentView === "pack") renderPack();
     toast("Item updated");
   }
 
   function renderPack() {
     const root = document.getElementById("packRoot");
     const groups = gridGroups();
+    const closetEntries = getUncategorizedCloset();
 
     loadPhotoCounts(groups).then(function (photoCounts) {
-      const categories = buildWardrobeCategoryList(photoCounts);
-      if (scanActiveCategoryKey && !categories.some(function (c) { return c.key === scanActiveCategoryKey; })) {
-        scanActiveCategoryKey = null;
+      let categories = buildWardrobeCategoryList(photoCounts);
+      if (packActiveTag) {
+        categories = categories.filter(function (c) { return getCategoryTag(c) === packActiveTag; });
+      }
+      if (packActiveCategoryKey && packActiveCategoryKey !== "newcat" && !categories.some(function (c) { return c.key === packActiveCategoryKey; })) {
+        packActiveCategoryKey = null;
         clearScanSelection();
       }
-      const activeOption = scanActiveCategoryKey
-        ? categories.find(function (c) { return c.key === scanActiveCategoryKey; })
+      const activeOption = packActiveCategoryKey && packActiveCategoryKey !== "newcat"
+        ? categories.find(function (c) { return c.key === packActiveCategoryKey; })
         : null;
 
-      let html = '<p class="scan-intro">Import or snap every garment, pick a category, tap the matching photos, then <strong>Pack</strong> to move them into your wardrobe.</p>';
+      let html = '<p class="scan-intro">Photos save to your <strong>closet</strong> as uncategorized. Filter by tag, pick a category, select photos, then <strong>Pack</strong>.</p>';
       html += '<div class="scan-actions-row">';
       html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera</button>';
       html += '<button type="button" class="btn-secondary" id="btnScanImport"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import</button>';
       html += '</div>';
 
+      html += '<div class="scan-tag-scroll" role="toolbar" aria-label="Garment tags">';
+      html += '<button type="button" class="scan-cat-chip' + (!packActiveTag ? " on" : "") + '" data-pack-tag="">All</button>';
+      GARMENT_TAGS.forEach(function (t) {
+        html += '<button type="button" class="scan-cat-chip' + (packActiveTag === t.id ? " on" : "") + '" data-pack-tag="' + t.id + '">' + escapeHtml(t.label) + "</button>";
+      });
+      html += "</div>";
+
       html += '<div class="scan-cat-scroll" role="toolbar" aria-label="Clothing categories">';
+      html += '<button type="button" class="scan-cat-chip add-cat" data-cat-key="newcat">+ New category</button>';
       categories.forEach(function (cat) {
-        const on = scanActiveCategoryKey === cat.key;
+        const on = packActiveCategoryKey === cat.key;
         html += '<button type="button" class="scan-cat-chip' + (on ? " on" : "") + (cat.full ? " full" : "") + '" data-cat-key="' + escapeHtml(cat.key) + '">';
         html += escapeHtml(cat.label);
         if (cat.qty > 0) {
@@ -3233,28 +3508,27 @@
       });
       html += "</div>";
 
-      if (!scanQueue.length) {
-        html += '<div class="scan-empty">No photos yet. Use <strong>Camera</strong> or <strong>Import</strong> to add everything you are packing.</div>';
+      if (!closetEntries.length) {
+        html += '<div class="scan-empty">Closet empty. Use <strong>Camera</strong> or <strong>Import</strong> — photos stay saved even if you leave the app.</div>';
       } else {
         if (!activeOption) {
-          html += '<p class="scan-intro" style="margin-bottom:10px">Choose a category above, then tap photos to select them.</p>';
+          html += '<p class="scan-intro" style="margin-bottom:10px">' + closetEntries.length + ' uncategorized · choose a category, then tap photos.</p>';
         } else {
           html += '<p class="scan-intro" style="margin-bottom:10px">Tap photos for <strong>' + escapeHtml(activeOption.label) + "</strong>, then hit Pack.</p>";
         }
         html += '<div class="scan-thumbs">';
-        scanQueue.forEach(function (entry) {
-          const selected = !!scanSelectedIds[entry.id];
+        closetEntries.forEach(function (entry) {
+          const selected = !!packSelectedIds[entry.id];
           const selectable = !!activeOption;
+          const preview = closetPreviews[entry.id] || "";
           html += '<div class="scan-thumb' + (selectable ? " selectable" : "") + (selected ? " selected" : "") + '" data-scan-id="' + escapeHtml(entry.id) + '">';
-          html += '<img src="' + entry.preview + '" alt="" />';
+          html += '<img data-closet-id="' + escapeHtml(entry.id) + '" src="' + preview + '" alt="" />';
           if (selectable) html += '<span class="scan-thumb-check" aria-hidden="true">✓</span>';
           html += '<button type="button" class="scan-thumb-remove" data-scan-id="' + escapeHtml(entry.id) + '" aria-label="Remove photo">×</button>';
           html += "</div>";
         });
         html += "</div>";
-        if (scanQueue.length) {
-          html += '<button type="button" class="btn-cancel" id="btnScanClear" style="width:100%;height:44px;border-radius:12px;margin-bottom:8px">Clear all photos</button>';
-        }
+        html += '<button type="button" class="btn-cancel" id="btnScanClear" style="width:100%;height:44px;border-radius:12px;margin-bottom:8px">Clear closet</button>';
       }
 
       root.innerHTML = html;
@@ -3266,14 +3540,27 @@
         document.getElementById("scanImportInput").click();
       };
 
-      root.querySelectorAll(".scan-cat-chip").forEach(function (chip) {
+      root.querySelectorAll("[data-pack-tag]").forEach(function (chip) {
+        chip.onclick = function () {
+          packActiveTag = chip.dataset.packTag || null;
+          packActiveCategoryKey = null;
+          clearScanSelection();
+          renderPack();
+        };
+      });
+
+      root.querySelectorAll(".scan-cat-chip[data-cat-key]").forEach(function (chip) {
         chip.onclick = function () {
           const key = chip.dataset.catKey;
-          if (scanActiveCategoryKey === key) {
-            scanActiveCategoryKey = null;
+          if (key === "newcat") {
+            openNewCategoryOverlay();
+            return;
+          }
+          if (packActiveCategoryKey === key) {
+            packActiveCategoryKey = null;
             clearScanSelection();
           } else {
-            scanActiveCategoryKey = key;
+            packActiveCategoryKey = key;
             clearScanSelection();
           }
           renderPack();
@@ -3286,8 +3573,8 @@
           toggleScanSelection(thumb.dataset.scanId);
           thumb.classList.toggle("selected");
           const check = thumb.querySelector(".scan-thumb-check");
-          if (check) check.style.display = scanSelectedIds[thumb.dataset.scanId] ? "flex" : "none";
-          updateScanPackBar(getScanCategoryOption(scanActiveCategoryKey, photoCounts));
+          if (check) check.style.display = packSelectedIds[thumb.dataset.scanId] ? "flex" : "none";
+          updateScanPackBar(getScanCategoryOption(packActiveCategoryKey, photoCounts));
         };
       });
 
@@ -3295,41 +3582,54 @@
         btn.onclick = function (e) {
           e.stopPropagation();
           const id = btn.dataset.scanId;
-          delete scanSelectedIds[id];
-          scanQueue = scanQueue.filter(function (entry) {
-            if (entry.id === id) {
-              if (entry.preview) URL.revokeObjectURL(entry.preview);
-              return false;
-            }
-            return true;
+          delete packSelectedIds[id];
+          removeClosetEntry(id).then(function () {
+            saveState();
+            renderPack();
           });
-          renderPack();
         };
       });
 
       const clearBtn = document.getElementById("btnScanClear");
       if (clearBtn) {
         clearBtn.onclick = function () {
-          if (!confirm("Remove all photos from the scan grid?")) return;
-          scanQueue.forEach(function (entry) {
-            if (entry.preview) URL.revokeObjectURL(entry.preview);
+          if (!confirm("Remove all uncategorized photos from your closet?")) return;
+          const tasks = closetEntries.map(function (entry) { return removeClosetEntry(entry.id); });
+          Promise.all(tasks).then(function () {
+            ensureCloset();
+            state.closet = state.closet.filter(function (c) { return c.category && c.category !== "Uncategorized"; });
+            saveState();
+            clearScanSelection();
+            renderPack();
           });
-          scanQueue = [];
-          clearScanSelection();
-          renderPack();
         };
       }
 
+      root.querySelectorAll("img[data-closet-id]").forEach(function (img) {
+        const id = img.getAttribute("data-closet-id");
+        if (closetPreviews[id]) {
+          img.src = closetPreviews[id];
+          return;
+        }
+        idbGet(closetKey(id)).then(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          closetPreviews[id] = url;
+          thumbCache[closetKey(id)] = url;
+          img.src = url;
+        });
+      });
+
       const meta = document.getElementById("packHeroMeta");
       if (meta) {
-        meta.textContent = scanQueue.length
-          ? scanQueue.length + " photo" + (scanQueue.length === 1 ? "" : "s") + " · pick a category"
-          : "Import photos · sort into wardrobe";
+        meta.textContent = closetEntries.length
+          ? closetEntries.length + " in closet · pick a category"
+          : "Import photos · saved to closet";
       }
 
-      updateScanPackBar(activeOption ? getScanCategoryOption(scanActiveCategoryKey, photoCounts) : null);
+      updateScanPackBar(activeOption ? getScanCategoryOption(packActiveCategoryKey, photoCounts) : null);
 
-      const activeChip = root.querySelector(".scan-cat-chip.on");
+      const activeChip = root.querySelector(".scan-cat-chip.on[data-cat-key]");
       if (activeChip) {
         activeChip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
       }
@@ -3346,18 +3646,15 @@
     let added = 0;
     list.forEach(function (file) {
       preparePhotoBlob(file).then(function (blob) {
-        scanQueue.push({
-          id: newScanEntryId(),
-          blob: blob,
-          preview: URL.createObjectURL(blob),
-        });
+        return addClosetPhoto(blob, file.name || "");
+      }).then(function () {
         added++;
       }).catch(function () {
         toast("Could not process a photo — skipped");
       }).finally(function () {
         pending--;
         if (pending === 0) {
-          if (added) toast(added + " photo" + (added === 1 ? "" : "s") + " added");
+          if (added) toast(added + " photo" + (added === 1 ? "" : "s") + " saved to closet");
           renderPack();
         }
       });
@@ -3757,10 +4054,10 @@
 
   document.getElementById("btnReset").onclick = function () {
     if (confirm("Reset your entire packing list? Checked items, custom additions, wardrobe photos, and saved outfits will be cleared.")) {
-      scanQueue.forEach(function (entry) {
-        if (entry.preview) URL.revokeObjectURL(entry.preview);
+      Object.keys(closetPreviews).forEach(function (id) {
+        URL.revokeObjectURL(closetPreviews[id]);
       });
-      scanQueue = [];
+      closetPreviews = {};
       clearScanSelection();
       planView = "library";
       planDraft = null;
@@ -3789,6 +4086,7 @@
   document.getElementById("tabPlan").onclick = function () { setView("plan"); };
 
   document.getElementById("editSave").onclick = saveEditItem;
+  document.getElementById("newCategorySave").onclick = saveNewCategory;
 
   document.getElementById("editWardrobeType").addEventListener("change", function () {
     syncWardrobeOtherField("editWardrobeType", "editWardrobeTypeOther");
