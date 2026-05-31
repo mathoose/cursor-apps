@@ -376,25 +376,32 @@
       gap: 10px;
       width: 100%;
     }
-    .year-expanded-row {
+    .year-expanded-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -4px;
+      padding: 4px;
+      width: 100%;
+      container-type: inline-size;
+    }
+    .year-expanded-scroll .year-expanded-row {
       display: flex;
       flex-wrap: nowrap;
       gap: 6px;
-      width: 100%;
+      width: max-content;
+      min-width: 100%;
       justify-content: flex-start;
       align-items: flex-start;
     }
-    .year-expanded-row[data-expanded-count="1"],
-    .year-expanded-row[data-expanded-count="2"],
-    .year-expanded-row[data-expanded-count="3"] {
+    .year-expanded-scroll .year-expanded-row[data-expanded-count="1"],
+    .year-expanded-scroll .year-expanded-row[data-expanded-count="2"],
+    .year-expanded-scroll .year-expanded-row[data-expanded-count="3"] {
       justify-content: center;
     }
-    .year-expanded-row[data-expanded-count="1"] .year-grid-card.is-expanded,
-    .year-expanded-row[data-expanded-count="2"] .year-grid-card.is-expanded,
-    .year-expanded-row[data-expanded-count="3"] .year-grid-card.is-expanded {
-      flex: 0 0 calc((100% - 12px) / 3);
-      max-width: calc((100% - 12px) / 3);
-      width: calc((100% - 12px) / 3);
+    .year-expanded-scroll .year-grid-card.is-expanded {
+      flex: 0 0 calc((100cqw - 12px) / 3);
+      max-width: calc((100cqw - 12px) / 3);
+      width: calc((100cqw - 12px) / 3);
     }
     .year-grid-card {
       min-width: 0;
@@ -1150,6 +1157,7 @@
     return /^steps$/i.test(String(name || "").trim());
   }
   let monthGridScrollLeft = 0;
+  let yearExpandedScrollLeft = 0;
   let monthGridScrolledToToday = false;
   let yearExpandedHabits = {};
   let yearExpandOrder = [];
@@ -1581,13 +1589,13 @@
     let html = '<div class="year-gallery">';
     if (expanded.length) {
       html +=
-        '<div class="year-expanded-row" data-expanded-count="' +
-        Math.min(expanded.length, 3) +
+        '<div class="year-expanded-scroll"><div class="year-expanded-row" data-expanded-count="' +
+        expanded.length +
         '">';
       expanded.forEach(function (habit) {
         html += renderYearGridCard(habit);
       });
-      html += "</div>";
+      html += "</div></div>";
     }
     if (collapsed.length) {
       html += '<div class="year-collapsed-grid year-grid-3">';
@@ -2379,6 +2387,8 @@
   function renderYear() {
     const root = document.getElementById("panelYear");
     if (!root) return;
+    const prevExpandedScroll = root.querySelector(".year-expanded-scroll");
+    if (prevExpandedScroll) yearExpandedScrollLeft = prevExpandedScroll.scrollLeft;
     const filtered = getFilteredHabits();
     const filteredIds = {};
     filtered.forEach(function (h) {
@@ -2415,6 +2425,8 @@
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindYearGrid(root);
+    const expandedScroll = root.querySelector(".year-expanded-scroll");
+    if (expandedScroll) expandedScroll.scrollLeft = yearExpandedScrollLeft;
 
     document.getElementById("yearExpandAll").onclick = function () {
       expandAllYearHabits(filtered);

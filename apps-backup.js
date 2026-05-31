@@ -297,7 +297,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1"],
       apps: apps,
       _meta: { included: included },
     };

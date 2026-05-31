@@ -3,7 +3,7 @@
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
-    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos"],
+    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
       "voice-notes": { "storageKey": "voice-notes-v1" },

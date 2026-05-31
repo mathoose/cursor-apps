@@ -2,6 +2,8 @@
 'use strict';
 
 var STORAGE_KEY = 'meal-menu-v1';
+var PHOTO_DB = 'meal-menu-photos-v1';
+var PHOTO_STORE = 'photos';
 var MAX_TAGS = 24;
 var MAX_CUSTOM_CATS = 12;
 
@@ -14,20 +16,6 @@ var BUILTIN_CATEGORIES = [
   { id: 'groceries', label: 'Groceries', icon: '🛒', builtin: true }
 ];
 
-var TAB_META = {
-  pick: { label: 'Pick', icon: '🎲', sub: 'Spin to decide' },
-  manage: { label: 'Manage', icon: '⚙️', sub: 'Tags & backup' }
-};
-
-var TAB_ICONS = {
-  'take-out': '🥡',
-  'eat-out': '🍽',
-  cooking: '👩‍🍳',
-  frozen: '🧊',
-  drinks: '🍷',
-  groceries: '🛒'
-};
-
 var SEED_ENTRIES = [
   { name: 'Frozen dumplings', category: 'frozen', notes: 'Costco or HMart — quick weeknight', favorite: true },
   { name: 'Sheet-pan salmon', category: 'cooking', notes: 'Broccoli + lemon, 25 min', favorite: false },
@@ -37,12 +25,15 @@ var SEED_ENTRIES = [
   { name: 'Weekly grocery run', category: 'groceries', notes: 'Trader Joe\'s / Acme', favorite: false }
 ];
 
-var activeTab = 'cooking';
+var activeRootTab = 'spin';
+var activeCategory = 'cooking';
 var currentEntryId = '';
 var editMode = false;
 var addingNew = false;
 var editSelectedTags = [];
 var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var modalPhotoUrl = null;
+var listThumbUrls = {};
 
 var pickerSelectedTags = [];
 var pickerPool = [];
@@ -81,6 +72,7 @@ function defaultState() {
     }),
     tags: [],
     tagFilter: 'all',
+    entryPhotos: {},
     entries: []
   };
 }
@@ -90,8 +82,13 @@ function normalizeState(st) {
   if (!Array.isArray(st.categories)) st.categories = defaultState().categories;
   if (!Array.isArray(st.tags)) st.tags = [];
   if (!Array.isArray(st.entries)) st.entries = [];
+  if (!st.entryPhotos || typeof st.entryPhotos !== 'object') st.entryPhotos = {};
   if (!st.tagFilter) st.tagFilter = 'all';
   st.version = 1;
+  st.entries.forEach(function(e) {
+    if (e.orderUrl) delete e.orderUrl;
+    if (!('phillyPlaceName' in e)) e.phillyPlaceName = null;
+  });
   BUILTIN_CATEGORIES.forEach(function(b) {
     if (!st.categories.some(function(c) { return c.id === b.id; })) {
       st.categories.unshift({ id: b.id, label: b.label, builtin: true });
@@ -115,7 +112,6 @@ function initState() {
         category: s.category,
         notes: s.notes || '',
         menuUrl: '',
-        orderUrl: '',
         tagIds: [],
         favorite: !!s.favorite,
         lastHad: '',
@@ -133,13 +129,101 @@ function getState() {
 }
 
 function getAllCategories() {
-  var st = getState();
-  return st.categories.filter(function(c) { return c.id !== 'pick' && c.id !== 'manage'; });
+  return getState().categories;
 }
 
 function categoryLabel(id) {
   var c = getAllCategories().find(function(x) { return x.id === id; });
   return c ? c.label : id;
+}
+
+function hasPhoto(entryId) {
+  var st = getState();
+  return !!(st.entryPhotos && st.entryPhotos[entryId]);
+}
+
+function setPhotoFlag(entryId, on) {
+  var st = getState();
+  if (!st.entryPhotos) st.entryPhotos = {};
+  if (on) st.entryPhotos[entryId] = true;
+  else delete st.entryPhotos[entryId];
+  saveAppState(st);
+}
+
+function photoDbKey(entryId) {
+  return 'entry:' + entryId;
+}
+
+function openPhotoDb() {
+  return new Promise(function(resolve, reject) {
+    var req = indexedDB.open(PHOTO_DB, 1);
+    req.onerror = function() { reject(req.error); };
+    req.onsuccess = function() { resolve(req.result); };
+    req.onupgradeneeded = function(e) {
+      var db = e.target.result;
+      if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+        db.createObjectStore(PHOTO_STORE);
+      }
+    };
+  });
+}
+
+function putEntryPhoto(entryId, blob) {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).put(blob, photoDbKey(entryId));
+      tx.oncomplete = function() { resolve(); };
+      tx.onerror = function() { reject(tx.error); };
+    });
+  });
+}
+
+function getEntryPhotoBlob(entryId) {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readonly');
+      var req = tx.objectStore(PHOTO_STORE).get(photoDbKey(entryId));
+      req.onsuccess = function() { resolve(req.result || null); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
+}
+
+function deleteEntryPhotoBlob(entryId) {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).delete(photoDbKey(entryId));
+      tx.oncomplete = function() { resolve(); };
+      tx.onerror = function() { reject(tx.error); };
+    });
+  });
+}
+
+function idbGetAllPhotoKeys() {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readonly');
+      var req = tx.objectStore(PHOTO_STORE).getAllKeys();
+      req.onsuccess = function() { resolve(req.result || []); };
+      req.onerror = function() { reject(req.error); };
+    });
+  });
+}
+
+function revokeModalPhotoUrl() {
+  if (modalPhotoUrl) {
+    URL.revokeObjectURL(modalPhotoUrl);
+    modalPhotoUrl = null;
+  }
+}
+
+function revokeListThumbUrls() {
+  Object.keys(listThumbUrls).forEach(function(k) {
+    if (listThumbUrls[k]) URL.revokeObjectURL(listThumbUrls[k]);
+  });
+  listThumbUrls = {};
 }
 
 function getTags() {
@@ -211,7 +295,8 @@ function getEntryById(id) {
 }
 
 function filterEntries(list) {
-  var q = (document.getElementById('search').value || '').trim().toLowerCase();
+  var searchEl = document.getElementById('search');
+  var q = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
   var tagFilter = getTagFilter();
   if (tagFilter && tagFilter !== 'all') {
     list = list.filter(function(e) {
@@ -256,11 +341,12 @@ function renderTagFilters() {
 }
 
 function renderListForCategory(catId) {
-  var panel = document.getElementById('panel-' + catId);
+  var panel = document.getElementById('cat-panel-' + catId);
   if (!panel) return;
   var list = entriesForCategory(catId);
   var ul = panel.querySelector('.menu-list');
   if (!ul) return;
+  revokeListThumbUrls();
   if (!list.length) {
     ul.innerHTML = '<li class="empty-state">Nothing on this page yet — tap + Add</li>';
     return;
@@ -268,57 +354,87 @@ function renderListForCategory(catId) {
   ul.innerHTML = list.map(function(e) {
     var tagsHtml = '';
     if (e.tagIds && e.tagIds.length) {
-      var first = e.tagIds[0];
-      tagsHtml = '<span class="menu-item-tag">' + escapeHtml(tagLabel(first)) + '</span>';
+      tagsHtml = '<span class="menu-item-tag">' + escapeHtml(tagLabel(e.tagIds[0])) + '</span>';
       if (e.tagIds.length > 1) tagsHtml += '<span class="menu-item-tag">+' + (e.tagIds.length - 1) + '</span>';
     }
-    return '<li class="menu-item" data-entry-id="' + escapeHtml(e.id) + '" role="button" tabindex="0">'
+    var thumb = hasPhoto(e.id)
+      ? '<img class="menu-item-thumb" data-thumb-id="' + escapeHtml(e.id) + '" alt="" hidden>'
+      : '';
+    var photoMark = hasPhoto(e.id) ? '' : '';
+    return '<li class="menu-item' + (hasPhoto(e.id) ? ' has-thumb' : '') + '" data-entry-id="' + escapeHtml(e.id) + '" role="button" tabindex="0">'
+      + thumb
       + '<span class="menu-item-name">' + escapeHtml(e.name) + '</span>'
       + '<span class="menu-item-leader" aria-hidden="true"></span>'
       + '<span class="menu-item-meta">'
       + tagsHtml
+      + photoMark
       + (e.favorite ? '<span class="fav" aria-label="Favorite">★</span>' : '')
       + '</span></li>';
   }).join('');
+
+  list.forEach(function(e) {
+    if (!hasPhoto(e.id)) return;
+    getEntryPhotoBlob(e.id).then(function(blob) {
+      if (!blob) return;
+      var img = ul.querySelector('[data-thumb-id="' + e.id + '"]');
+      if (!img) return;
+      var url = URL.createObjectURL(blob);
+      listThumbUrls[e.id] = url;
+      img.src = url;
+      img.hidden = false;
+    });
+  });
 }
 
 function renderAllLists() {
   getAllCategories().forEach(function(c) {
-    if (!c.builtin === false && c.builtin !== true) { /* ok */ }
     renderListForCategory(c.id);
   });
   refreshPicker();
 }
 
 function ensureCategoryPanels() {
-  var panels = document.getElementById('panels');
-  var pick = document.getElementById('panel-pick');
-  var manage = document.getElementById('panel-manage');
+  var wrap = document.getElementById('category-panels');
+  if (!wrap) return;
   getAllCategories().forEach(function(c) {
-    if (document.getElementById('panel-' + c.id)) return;
-    var sec = document.createElement('section');
-    sec.className = 'panel';
-    sec.id = 'panel-' + c.id;
-    sec.setAttribute('data-panel', c.id);
+    if (document.getElementById('cat-panel-' + c.id)) return;
+    var sec = document.createElement('div');
+    sec.className = 'cat-panel';
+    sec.id = 'cat-panel-' + c.id;
+    sec.setAttribute('data-category', c.id);
     sec.innerHTML = '<ul class="menu-list" role="list"></ul>';
-    panels.insertBefore(sec, pick);
+    wrap.appendChild(sec);
   });
 }
 
-function renderTabbar() {
-  var bar = document.getElementById('tabbar');
+function renderCategoryTabs() {
+  var bar = document.getElementById('category-tabs');
   if (!bar) return;
-  var html = '';
-  getAllCategories().forEach(function(c) {
-    var icon = TAB_ICONS[c.id] || (c.builtin ? c.label.charAt(0) : '📋');
-    if (!c.builtin && c.icon) icon = c.icon;
-    html += '<button type="button" class="tab' + (activeTab === c.id ? ' on' : '') + '" data-tab="' + escapeHtml(c.id) + '" aria-selected="' + (activeTab === c.id) + '">'
-      + '<span class="tab-icon">' + escapeHtml(icon) + '</span>'
-      + '<span class="tab-label">' + escapeHtml(c.label) + '</span></button>';
+  bar.innerHTML = getAllCategories().map(function(c) {
+    return '<button type="button" class="cat-tab' + (activeCategory === c.id ? ' on' : '') + '" data-category="' + escapeHtml(c.id) + '">'
+      + escapeHtml(c.label) + '</button>';
+  }).join('');
+}
+
+function updateRootTabs() {
+  document.querySelectorAll('#tabbar .tab').forEach(function(t) {
+    var on = t.getAttribute('data-tab') === activeRootTab;
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
   });
-  html += '<button type="button" class="tab' + (activeTab === 'pick' ? ' on' : '') + '" data-tab="pick"><span class="tab-icon">🎲</span><span class="tab-label">Pick</span></button>';
-  html += '<button type="button" class="tab' + (activeTab === 'manage' ? ' on' : '') + '" data-tab="manage"><span class="tab-icon">⚙️</span><span class="tab-label">Manage</span></button>';
-  bar.innerHTML = html;
+}
+
+function switchCategory(catId) {
+  if (!catId || activeCategory === catId) return;
+  activeCategory = catId;
+  document.querySelectorAll('.cat-panel').forEach(function(p) {
+    var on = p.getAttribute('data-category') === catId;
+    p.classList.toggle('on', on);
+    p.hidden = !on;
+  });
+  renderCategoryTabs();
+  updateHeaderForTab();
+  populatePickCategorySelect();
 }
 
 function updateHeaderForTab() {
@@ -326,25 +442,24 @@ function updateHeaderForTab() {
   var searchRow = document.getElementById('search-row');
   var tagWrap = document.getElementById('tag-filters-wrap');
   var addBtn = document.getElementById('add-btn');
-  var isBrowse = activeTab !== 'pick' && activeTab !== 'manage';
-  if (searchRow) searchRow.hidden = !isBrowse;
-  if (tagWrap) tagWrap.hidden = !isBrowse;
-  if (addBtn) addBtn.hidden = !isBrowse;
+  var isMenu = activeRootTab === 'menu';
+  if (searchRow) searchRow.hidden = !isMenu;
+  if (tagWrap) tagWrap.hidden = !isMenu;
+  if (addBtn) addBtn.hidden = !isMenu;
   if (sub) {
-    if (activeTab === 'pick') sub.textContent = TAB_META.pick.sub;
-    else if (activeTab === 'manage') sub.textContent = TAB_META.manage.sub;
-    else sub.textContent = categoryLabel(activeTab) + ' · tap a line for details';
+    if (activeRootTab === 'spin') sub.textContent = 'Spin to decide';
+    else if (activeRootTab === 'manage') sub.textContent = 'Tags, categories & backup';
+    else sub.textContent = categoryLabel(activeCategory) + ' · tap a line for details';
   }
 }
 
-function switchTab(tabId) {
-  if (tabId === activeTab) return;
-  ensureCategoryPanels();
+function switchRootTab(tabId) {
+  if (tabId === activeRootTab) return;
   var prevPanel = document.querySelector('.panel.on');
   var nextPanel = document.getElementById('panel-' + tabId);
   if (!nextPanel) return;
 
-  activeTab = tabId;
+  activeRootTab = tabId;
 
   if (prevPanel && prevPanel !== nextPanel && !reducedMotion) {
     prevPanel.classList.add('panel-leave');
@@ -372,13 +487,19 @@ function switchTab(tabId) {
     });
   }
 
-  if (tabId === 'pick') {
+  if (tabId === 'menu') {
+    ensureCategoryPanels();
+    switchCategory(activeCategory);
+    renderCategoryTabs();
+    renderAllLists();
+  }
+  if (tabId === 'spin') {
     resetPickResult();
     populatePickCategorySelect();
     refreshPicker();
   }
   updateHeaderForTab();
-  renderTabbar();
+  updateRootTabs();
 }
 
 function openModal() {
@@ -392,6 +513,7 @@ function closeModal() {
   editMode = false;
   addingNew = false;
   currentEntryId = '';
+  revokeModalPhotoUrl();
 }
 
 function toggleFavorite(entry) {
@@ -410,7 +532,23 @@ function updateModalFav() {
   if (!btn || !e) return;
   btn.textContent = e.favorite ? '★' : '☆';
   btn.classList.toggle('on', e.favorite);
-  btn.setAttribute('aria-label', e.favorite ? 'Unfavorite' : 'Favorite');
+}
+
+function showPhotoInModal(entryId, containerId) {
+  var block = document.getElementById(containerId);
+  if (!block) return;
+  revokeModalPhotoUrl();
+  if (!hasPhoto(entryId)) {
+    block.hidden = true;
+    block.innerHTML = '';
+    return;
+  }
+  getEntryPhotoBlob(entryId).then(function(blob) {
+    if (!blob || currentEntryId !== entryId) return;
+    modalPhotoUrl = URL.createObjectURL(blob);
+    block.innerHTML = '<img src="' + modalPhotoUrl + '" alt="Meal photo">';
+    block.hidden = false;
+  });
 }
 
 function renderViewMode(entry) {
@@ -429,7 +567,7 @@ function renderViewMode(entry) {
       }).join('') + '</div>'
     : '<p class="hint">Add tags in Manage to label meals.</p>';
 
-  var body = '';
+  var body = '<div id="modal-entry-photo" class="entry-photo-block" hidden></div>';
   if (entry.notes) body += '<p class="modal-desc">' + escapeHtml(entry.notes) + '</p>';
   else body += '<p class="modal-empty">No notes yet.</p>';
   body += tagHtml;
@@ -437,13 +575,16 @@ function renderViewMode(entry) {
   body += '<input type="date" id="view-last-had" value="' + escapeHtml(entry.lastHad || '') + '">';
 
   document.getElementById('modal-body').innerHTML = body;
+  showPhotoInModal(entry.id, 'modal-entry-photo');
 
   var footer = document.getElementById('modal-footer');
-  var links = [];
-  if (entry.menuUrl) links.push('<a href="' + escapeHtml(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>');
-  if (entry.orderUrl) links.push('<a href="' + escapeHtml(entry.orderUrl) + '" target="_blank" rel="noopener">Order</a>');
-  footer.innerHTML = links.length ? links.join('') : '';
-  footer.style.display = links.length ? 'block' : 'none';
+  if (entry.menuUrl) {
+    footer.innerHTML = '<a href="' + escapeHtml(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>';
+    footer.style.display = 'block';
+  } else {
+    footer.innerHTML = '';
+    footer.style.display = 'none';
+  }
 
   updateModalFav();
 
@@ -475,15 +616,84 @@ function renderViewMode(entry) {
   }
 }
 
+function wirePhotoEdit(entryId) {
+  var fileInp = document.getElementById('entry-photo-file');
+  var pickBtn = document.getElementById('entry-photo-pick');
+  var removeBtn = document.getElementById('entry-photo-remove');
+  if (!fileInp || !pickBtn) return;
+
+  function currentId() {
+    return entryId || currentEntryId;
+  }
+
+  function refreshPreview() {
+    var id = currentId() || entryId;
+    var prev = document.getElementById('entry-photo-preview');
+    if (!prev || !id) {
+      if (prev) prev.innerHTML = '<p class="modal-empty">No photo yet.</p>';
+      if (removeBtn) removeBtn.hidden = true;
+      return;
+    }
+    if (!hasPhoto(id)) {
+      prev.innerHTML = '<p class="modal-empty">No photo yet.</p>';
+      if (removeBtn) removeBtn.hidden = true;
+      return;
+    }
+    getEntryPhotoBlob(id).then(function(blob) {
+      if (!blob) {
+        prev.innerHTML = '<p class="modal-empty">No photo yet.</p>';
+        if (removeBtn) removeBtn.hidden = true;
+        return;
+      }
+      var url = URL.createObjectURL(blob);
+      prev.innerHTML = '<img src="' + url + '" alt="Preview">';
+      if (removeBtn) removeBtn.hidden = false;
+    });
+  }
+
+  pickBtn.onclick = function() { fileInp.click(); };
+  fileInp.onchange = function() {
+    var f = fileInp.files && fileInp.files[0];
+    fileInp.value = '';
+    var id = currentId() || entryId;
+    if (!f || !id) return;
+    if (!f.type || f.type.indexOf('image/') !== 0) {
+      alert('Please choose an image.');
+      return;
+    }
+    putEntryPhoto(id, f).then(function() {
+      setPhotoFlag(id, true);
+      refreshPreview();
+      renderAllLists();
+      showStatus('Photo saved');
+    }).catch(function() {
+      showStatus('Could not save photo');
+    });
+  };
+  if (removeBtn) {
+    removeBtn.onclick = function() {
+      var id = currentId() || entryId;
+      if (!id) return;
+      deleteEntryPhotoBlob(id).then(function() {
+        setPhotoFlag(id, false);
+        refreshPreview();
+        renderAllLists();
+        showStatus('Photo removed');
+      });
+    };
+  }
+  refreshPreview();
+}
+
 function renderEditMode(entry) {
   editMode = true;
   var isNew = addingNew;
+  var eid = entry.id || currentEntryId;
   document.getElementById('modal-edit').style.display = isNew ? 'none' : '';
   document.getElementById('modal-title').textContent = isNew ? 'Add to menu' : 'Edit';
   document.getElementById('modal-meta').textContent = '';
 
-  var cats = getAllCategories();
-  var catOpts = cats.map(function(c) {
+  var catOpts = getAllCategories().map(function(c) {
     return '<option value="' + escapeHtml(c.id) + '"' + (entry.category === c.id ? ' selected' : '') + '>' + escapeHtml(c.label) + '</option>';
   }).join('');
 
@@ -497,7 +707,14 @@ function renderEditMode(entry) {
     + '<label for="edit-category">Category</label><select id="edit-category">' + catOpts + '</select>'
     + '<label for="edit-notes">Notes</label><textarea id="edit-notes">' + escapeHtml(entry.notes || '') + '</textarea>'
     + '<label for="edit-menu-url">Menu URL</label><input type="url" id="edit-menu-url" value="' + escapeHtml(entry.menuUrl || '') + '">'
-    + '<label for="edit-order-url">Order URL</label><input type="url" id="edit-order-url" value="' + escapeHtml(entry.orderUrl || '') + '">'
+    + '<div class="entry-photo-edit"><label>Photo</label>'
+    + '<div class="entry-photo-preview" id="entry-photo-preview"></div>'
+    + '<div class="entry-photo-actions">'
+    + '<button type="button" class="btn btn-secondary" id="entry-photo-pick">Add photo</button>'
+    + '<button type="button" class="btn btn-secondary" id="entry-photo-remove" hidden>Remove photo</button>'
+    + '</div>'
+    + '<input type="file" id="entry-photo-file" accept="image/*" capture="environment" hidden>'
+    + '<p class="entry-photo-hint">Saved on this device only — included in Export photos (ZIP).</p></div>'
     + '<label>Tags</label><div class="edit-tag-chips" id="edit-tag-chips">' + tagChips + '</div>'
     + '<label class="pick-fav"><input type="checkbox" id="edit-favorite"' + (entry.favorite ? ' checked' : '') + '> Favorite</label>'
     + '<div class="edit-actions">'
@@ -518,46 +735,47 @@ function renderEditMode(entry) {
   if (!isNew) {
     document.getElementById('edit-delete').onclick = function() {
       if (!confirm('Delete “' + entry.name + '”?')) return;
-      var st = getState();
-      st.entries = st.entries.filter(function(e) { return e.id !== entry.id; });
-      saveAppState(st);
-      closeModal();
-      renderAllLists();
-      renderManage();
-      showStatus('Deleted');
+      deleteEntryPhotoBlob(entry.id).finally(function() {
+        var st = getState();
+        st.entries = st.entries.filter(function(e) { return e.id !== entry.id; });
+        if (st.entryPhotos) delete st.entryPhotos[entry.id];
+        saveAppState(st);
+        closeModal();
+        renderAllLists();
+        renderManage();
+        showStatus('Deleted');
+      });
     };
   }
 
-  var chipsEl = document.getElementById('edit-tag-chips');
-  if (chipsEl) {
-    chipsEl.onclick = function(ev) {
-      var chip = ev.target.closest('[data-edit-tag]');
-      if (!chip) return;
-      var tid = chip.getAttribute('data-edit-tag');
-      var ix = editSelectedTags.indexOf(tid);
-      if (ix >= 0) editSelectedTags.splice(ix, 1);
-      else editSelectedTags.push(tid);
-      chip.classList.toggle('on', editSelectedTags.indexOf(tid) >= 0);
-    };
-  }
+  document.getElementById('edit-tag-chips').onclick = function(ev) {
+    var chip = ev.target.closest('[data-edit-tag]');
+    if (!chip) return;
+    var tid = chip.getAttribute('data-edit-tag');
+    var ix = editSelectedTags.indexOf(tid);
+    if (ix >= 0) editSelectedTags.splice(ix, 1);
+    else editSelectedTags.push(tid);
+    chip.classList.toggle('on', editSelectedTags.indexOf(tid) >= 0);
+  };
+
+  wirePhotoEdit(eid);
 }
 
 function saveEdit(original) {
   var isNew = addingNew;
-  var nameEl = document.getElementById('edit-name');
-  var name = nameEl ? nameEl.value.trim() : original.name;
+  var name = document.getElementById('edit-name').value.trim();
   if (!name) { alert('Name is required.'); return; }
 
   var st = getState();
   var entry;
   if (isNew) {
+    var tempPhotoId = original.id;
     entry = {
       id: newId('entry'),
       name: name,
       category: document.getElementById('edit-category').value,
       notes: document.getElementById('edit-notes').value.trim(),
       menuUrl: document.getElementById('edit-menu-url').value.trim(),
-      orderUrl: document.getElementById('edit-order-url').value.trim(),
       tagIds: editSelectedTags.slice(),
       favorite: document.getElementById('edit-favorite').checked,
       lastHad: '',
@@ -565,6 +783,19 @@ function saveEdit(original) {
       phillyPlaceName: null
     };
     st.entries.push(entry);
+    if (tempPhotoId && hasPhoto(tempPhotoId)) {
+      getEntryPhotoBlob(tempPhotoId).then(function(blob) {
+        if (!blob) return;
+        return putEntryPhoto(entry.id, blob).then(function() {
+          setPhotoFlag(entry.id, true);
+          return deleteEntryPhotoBlob(tempPhotoId);
+        }).then(function() {
+          var s = getState();
+          if (s.entryPhotos) delete s.entryPhotos[tempPhotoId];
+          saveAppState(s);
+        });
+      });
+    }
   } else {
     entry = st.entries.find(function(e) { return e.id === original.id; });
     if (!entry) return;
@@ -572,9 +803,9 @@ function saveEdit(original) {
     entry.category = document.getElementById('edit-category').value;
     entry.notes = document.getElementById('edit-notes').value.trim();
     entry.menuUrl = document.getElementById('edit-menu-url').value.trim();
-    entry.orderUrl = document.getElementById('edit-order-url').value.trim();
     entry.tagIds = editSelectedTags.slice();
     entry.favorite = document.getElementById('edit-favorite').checked;
+    saveAppState(st);
   }
   saveAppState(st);
   addingNew = false;
@@ -594,49 +825,43 @@ function openEntry(id) {
 }
 
 function openAddEntry() {
-  var cat = activeTab;
-  if (cat === 'pick' || cat === 'manage') cat = 'cooking';
+  var cat = activeRootTab === 'menu' ? activeCategory : 'cooking';
   addingNew = true;
   editMode = true;
   editSelectedTags = [];
-  currentEntryId = '';
-  var blank = {
-    id: '',
+  var tempId = newId('entry');
+  currentEntryId = tempId;
+  renderEditMode({
+    id: tempId,
     name: '',
     category: cat,
     notes: '',
     menuUrl: '',
-    orderUrl: '',
     tagIds: [],
     favorite: false,
     lastHad: '',
     phillyPlaceName: null
-  };
-  document.getElementById('modal-title').textContent = 'Add to menu';
-  renderEditMode(blank);
+  });
   openModal();
 }
 
-/* ——— Manage ——— */
 function renderManage() {
   var manageList = document.getElementById('tag-manage-list');
   var tags = getTags();
   if (manageList) {
-    if (!tags.length) {
-      manageList.innerHTML = '<p class="hint" style="margin:0">No tags yet.</p>';
-    } else {
-      manageList.innerHTML = tags.map(function(tag) {
-        var count = countEntriesWithTag(tag.id);
-        return '<div class="tag-manage-row"><span class="tag-manage-label">' + escapeHtml(tag.label) + '</span>'
-          + '<span class="tag-manage-count">' + count + ' meal' + (count === 1 ? '' : 's') + '</span>'
-          + '<button type="button" class="tag-del-btn" data-tag-del="' + escapeHtml(tag.id) + '">Delete</button></div>';
-      }).join('');
-    }
+    manageList.innerHTML = !tags.length
+      ? '<p class="hint" style="margin:0">No tags yet.</p>'
+      : tags.map(function(tag) {
+          var count = countEntriesWithTag(tag.id);
+          return '<div class="tag-manage-row"><span class="tag-manage-label">' + escapeHtml(tag.label) + '</span>'
+            + '<span class="tag-manage-count">' + count + ' meal' + (count === 1 ? '' : 's') + '</span>'
+            + '<button type="button" class="tag-del-btn" data-tag-del="' + escapeHtml(tag.id) + '">Delete</button></div>';
+        }).join('');
   }
 
+  var cats = getState().categories;
   var builtinList = document.getElementById('builtin-cat-list');
   var customList = document.getElementById('custom-cat-list');
-  var cats = getState().categories;
   if (builtinList) {
     builtinList.innerHTML = cats.filter(function(c) { return c.builtin; }).map(function(c) {
       return '<li class="builtin">' + escapeHtml(c.label) + '</li>';
@@ -644,15 +869,13 @@ function renderManage() {
   }
   if (customList) {
     var custom = cats.filter(function(c) { return !c.builtin; });
-    if (!custom.length) {
-      customList.innerHTML = '<li class="hint" style="border:none">No custom categories</li>';
-    } else {
-      customList.innerHTML = custom.map(function(c) {
-        var count = getState().entries.filter(function(e) { return e.category === c.id; }).length;
-        return '<li><span>' + escapeHtml(c.label) + ' <span class="hint">(' + count + ')</span></span>'
-          + '<button type="button" class="cat-del-btn" data-cat-del="' + escapeHtml(c.id) + '">Delete</button></li>';
-      }).join('');
-    }
+    customList.innerHTML = !custom.length
+      ? '<li class="hint" style="border:none">No custom categories</li>'
+      : custom.map(function(c) {
+          var count = getState().entries.filter(function(e) { return e.category === c.id; }).length;
+          return '<li><span>' + escapeHtml(c.label) + ' <span class="hint">(' + count + ')</span></span>'
+            + '<button type="button" class="cat-del-btn" data-cat-del="' + escapeHtml(c.id) + '">Delete</button></li>';
+        }).join('');
   }
 }
 
@@ -660,18 +883,17 @@ function addCustomCategory(label) {
   var name = (label || '').trim();
   if (!name) return;
   var st = getState();
-  var custom = st.categories.filter(function(c) { return !c.builtin; });
-  if (custom.length >= MAX_CUSTOM_CATS) {
+  if (st.categories.filter(function(c) { return !c.builtin; }).length >= MAX_CUSTOM_CATS) {
     showStatus('Max ' + MAX_CUSTOM_CATS + ' custom categories');
     return;
   }
   var id = 'cat-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   if (!id || id === 'cat-') id = newId('cat');
   if (st.categories.some(function(c) { return c.id === id; })) id = newId('cat');
-  st.categories.push({ id: id, label: name, builtin: false, icon: '📋' });
+  st.categories.push({ id: id, label: name, builtin: false });
   saveAppState(st);
   ensureCategoryPanels();
-  renderTabbar();
+  renderCategoryTabs();
   renderManage();
   showStatus('Category added');
 }
@@ -682,16 +904,13 @@ function deleteCustomCategory(id) {
   if (!c) return;
   var n = st.entries.filter(function(e) { return e.category === id; }).length;
   if (n && !confirm('Delete category “' + c.label + '”? ' + n + ' meal(s) will move to Cooking.')) return;
-  st.entries.forEach(function(e) {
-    if (e.category === id) e.category = 'cooking';
-  });
+  st.entries.forEach(function(e) { if (e.category === id) e.category = 'cooking'; });
   st.categories = st.categories.filter(function(x) { return x.id !== id; });
   saveAppState(st);
-  if (activeTab === id) switchTab('cooking');
-  ensureCategoryPanels();
-  var oldPanel = document.getElementById('panel-' + id);
+  if (activeCategory === id) switchCategory('cooking');
+  var oldPanel = document.getElementById('cat-panel-' + id);
   if (oldPanel) oldPanel.remove();
-  renderTabbar();
+  renderCategoryTabs();
   renderAllLists();
   renderManage();
 }
@@ -709,12 +928,11 @@ function populatePickCategorySelect() {
     sel.appendChild(opt);
   });
   if (cur) sel.value = cur;
-  else if (activeTab !== 'pick' && activeTab !== 'manage') sel.value = activeTab;
+  else if (activeRootTab === 'menu') sel.value = activeCategory;
 }
 
 function getPickerPool() {
-  var st = getState();
-  var list = st.entries.slice();
+  var list = getState().entries.slice();
   var catSel = document.getElementById('pick-category');
   if (catSel && catSel.value) list = list.filter(function(e) { return e.category === catSel.value; });
   if (document.getElementById('pick-favorites-only').checked) {
@@ -727,8 +945,7 @@ function getPickerPool() {
       });
     });
   }
-  list.sort(function(a, b) { return a.name.localeCompare(b.name); });
-  return list;
+  return list.sort(function(a, b) { return a.name.localeCompare(b.name); });
 }
 
 function buildPickerWheelGradient(n) {
@@ -746,14 +963,12 @@ function renderPickTags() {
   var el = document.getElementById('pick-tag-chips');
   if (!el) return;
   var tags = getTags();
-  if (!tags.length) {
-    el.innerHTML = '<p class="hint" style="margin:0">No tags yet</p>';
-    return;
-  }
-  el.innerHTML = tags.map(function(tag) {
-    var on = pickerSelectedTags.indexOf(tag.id) >= 0;
-    return '<button type="button" class="picker-tag-chip' + (on ? ' on' : '') + '" data-picker-tag="' + escapeHtml(tag.id) + '">' + escapeHtml(tag.label) + '</button>';
-  }).join('');
+  el.innerHTML = !tags.length
+    ? '<p class="hint" style="margin:0">No tags yet</p>'
+    : tags.map(function(tag) {
+        var on = pickerSelectedTags.indexOf(tag.id) >= 0;
+        return '<button type="button" class="picker-tag-chip' + (on ? ' on' : '') + '" data-picker-tag="' + escapeHtml(tag.id) + '">' + escapeHtml(tag.label) + '</button>';
+      }).join('');
 }
 
 function refreshPicker() {
@@ -775,7 +990,7 @@ function refreshPicker() {
 function resetPickResult() {
   pickerWinnerId = '';
   var result = document.getElementById('pick-result');
-  var panel = document.getElementById('panel-pick');
+  var panel = document.getElementById('panel-spin');
   if (result) result.hidden = true;
   if (panel) panel.classList.remove('pick-showing-result');
 }
@@ -788,10 +1003,21 @@ function showPickResult(id) {
   document.getElementById('pick-result-notes').textContent = entry.notes || categoryLabel(entry.category);
   var links = [];
   if (entry.menuUrl) links.push('<a href="' + escapeHtml(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>');
-  if (entry.orderUrl) links.push('<a href="' + escapeHtml(entry.orderUrl) + '" target="_blank" rel="noopener">Order</a>');
   document.getElementById('pick-result-links').innerHTML = links.join('');
+  var photoEl = document.getElementById('pick-result-photo');
+  if (photoEl) {
+    photoEl.innerHTML = '';
+    photoEl.hidden = true;
+    if (hasPhoto(entry.id)) {
+      getEntryPhotoBlob(entry.id).then(function(blob) {
+        if (!blob) return;
+        photoEl.innerHTML = '<img src="' + URL.createObjectURL(blob) + '" alt="">';
+        photoEl.hidden = false;
+      });
+    }
+  }
   document.getElementById('pick-result').hidden = false;
-  document.getElementById('panel-pick').classList.add('pick-showing-result');
+  document.getElementById('panel-spin').classList.add('pick-showing-result');
 }
 
 function spinPicker() {
@@ -825,15 +1051,337 @@ function spinPicker() {
   }, 4300);
 }
 
-/* ——— Backup ——— */
+/* ——— ZIP photo export (Aruba-style) ——— */
+function sanitizeZipSegment(s) {
+  return String(s || 'item').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 80);
+}
+
+function blobExtension(blob) {
+  var t = (blob && blob.type) || '';
+  if (t.indexOf('png') >= 0) return 'png';
+  if (t.indexOf('webp') >= 0) return 'webp';
+  if (t.indexOf('gif') >= 0) return 'gif';
+  return 'jpg';
+}
+
+function blobToUint8Array(blob) {
+  return new Promise(function(resolve, reject) {
+    var r = new FileReader();
+    r.onload = function() { resolve(new Uint8Array(r.result)); };
+    r.onerror = reject;
+    r.readAsArrayBuffer(blob);
+  });
+}
+
+function entryExportMeta(entry) {
+  var tagIds = Array.isArray(entry.tagIds) ? entry.tagIds.slice() : [];
+  return {
+    entryId: entry.id,
+    name: entry.name,
+    category: entry.category,
+    categoryLabel: categoryLabel(entry.category),
+    notes: entry.notes || '',
+    menuUrl: entry.menuUrl || '',
+    tagIds: tagIds,
+    tagLabels: tagIds.map(function(id) { return tagLabel(id); }).filter(Boolean),
+    favorite: !!entry.favorite,
+    lastHad: entry.lastHad || '',
+    phillyPlaceName: entry.phillyPlaceName || null
+  };
+}
+
+function crc32(bytes) {
+  var crc = 0xffffffff;
+  for (var i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i];
+    for (var j = 0; j < 8; j++) {
+      var mask = -(crc & 1);
+      crc = (crc >>> 1) ^ (0xedb88320 & mask);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function buildStoreZip(entries) {
+  var chunks = [];
+  var central = [];
+  var offset = 0;
+  entries.forEach(function(entry) {
+    var nameBytes = new TextEncoder().encode(entry.name);
+    var data = entry.data;
+    var size = data.length;
+    var checksum = crc32(data);
+    var local = new Uint8Array(30 + nameBytes.length);
+    var lv = new DataView(local.buffer);
+    lv.setUint32(0, 0x04034b50, true);
+    lv.setUint16(4, 20, true);
+    lv.setUint32(14, checksum, true);
+    lv.setUint32(18, size, true);
+    lv.setUint32(22, size, true);
+    lv.setUint16(26, nameBytes.length, true);
+    local.set(nameBytes, 30);
+    chunks.push(local, data);
+    var centralHeader = new Uint8Array(46 + nameBytes.length);
+    var cv = new DataView(centralHeader.buffer);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint32(16, checksum, true);
+    cv.setUint32(20, size, true);
+    cv.setUint32(24, size, true);
+    cv.setUint16(28, nameBytes.length, true);
+    cv.setUint32(42, offset, true);
+    centralHeader.set(nameBytes, 46);
+    central.push(centralHeader);
+    offset += local.length + data.length;
+  });
+  var centralSize = central.reduce(function(sum, part) { return sum + part.length; }, 0);
+  var end = new Uint8Array(22);
+  var ev = new DataView(end.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, entries.length, true);
+  ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, centralSize, true);
+  ev.setUint32(16, offset, true);
+  return new Blob(chunks.concat(central, [end]), { type: 'application/zip' });
+}
+
+function findZipEocd(bytes) {
+  for (var i = bytes.length - 22; i >= 0; i--) {
+    if (bytes[i] === 0x50 && bytes[i + 1] === 0x4b && bytes[i + 2] === 0x05 && bytes[i + 3] === 0x06) return i;
+  }
+  return -1;
+}
+
+function parseStoreZip(buffer) {
+  var bytes = new Uint8Array(buffer);
+  var eocd = findZipEocd(bytes);
+  if (eocd < 0) throw new Error('Invalid zip');
+  var view = new DataView(buffer);
+  var centralOffset = view.getUint32(eocd + 16, true);
+  var totalEntries = view.getUint16(eocd + 10, true);
+  var entries = [];
+  var offset = centralOffset;
+  for (var i = 0; i < totalEntries; i++) {
+    if (view.getUint32(offset, true) !== 0x02014b50) break;
+    var compMethod = view.getUint16(offset + 10, true);
+    var uncompSize = view.getUint32(offset + 24, true);
+    var nameLen = view.getUint16(offset + 28, true);
+    var extraLen = view.getUint16(offset + 30, true);
+    var commentLen = view.getUint16(offset + 32, true);
+    var localOffset = view.getUint32(offset + 42, true);
+    var name = new TextDecoder().decode(bytes.subarray(offset + 46, offset + 46 + nameLen)).replace(/\\/g, '/');
+    offset += 46 + nameLen + extraLen + commentLen;
+    if (compMethod !== 0) continue;
+    var localNameLen = view.getUint16(localOffset + 26, true);
+    var localExtraLen = view.getUint16(localOffset + 28, true);
+    var dataStart = localOffset + 30 + localNameLen + localExtraLen;
+    entries.push({ name: name, data: bytes.subarray(dataStart, dataStart + uncompSize) });
+  }
+  return entries;
+}
+
+function mimeFromPath(path) {
+  var lower = String(path || '').toLowerCase();
+  if (lower.endsWith('.png')) return 'image/png';
+  if (lower.endsWith('.webp')) return 'image/webp';
+  if (lower.endsWith('.gif')) return 'image/gif';
+  return 'image/jpeg';
+}
+
+function downloadBlob(blob, filename) {
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportPhotosZip() {
+  var btn = document.getElementById('export-photos-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Zipping…'; }
+  var st = getState();
+  var photoEntries = (st.entries || []).filter(function(e) { return hasPhoto(e.id); });
+  if (!photoEntries.length) {
+    showStatus('No photos on this device');
+    if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+    return Promise.resolve();
+  }
+  var usedNames = {};
+  var manifestPhotos = [];
+  var tasks = photoEntries.map(function(entry) {
+    return getEntryPhotoBlob(entry.id).then(function(blob) {
+      if (!blob) return null;
+      var ext = blobExtension(blob);
+      var basePath = 'entries/' + sanitizeZipSegment(entry.id);
+      var fileName = basePath + '.' + ext;
+      if (usedNames[fileName]) {
+        usedNames[fileName] += 1;
+        fileName = basePath + '-' + usedNames[fileName] + '.' + ext;
+      } else {
+        usedNames[fileName] = 1;
+      }
+      manifestPhotos.push(Object.assign({ path: fileName }, entryExportMeta(entry)));
+      return blobToUint8Array(blob).then(function(bytes) {
+        return { name: fileName, data: bytes };
+      });
+    });
+  });
+  return Promise.all(tasks).then(function(results) {
+    var zipEntries = results.filter(Boolean);
+    if (!zipEntries.length) {
+      showStatus('No photos to export');
+      return null;
+    }
+    var menuSnapshot = normalizeState(JSON.parse(JSON.stringify(st)));
+    zipEntries.unshift({
+      name: 'manifest.json',
+      data: new TextEncoder().encode(JSON.stringify({
+        format: 'meal-menu-photos',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        photoCount: manifestPhotos.length,
+        menu: {
+          version: menuSnapshot.version,
+          categories: menuSnapshot.categories,
+          tags: menuSnapshot.tags,
+          entries: menuSnapshot.entries
+        },
+        photos: manifestPhotos
+      }, null, 2))
+    });
+    return buildStoreZip(zipEntries);
+  }).then(function(zipBlob) {
+    if (!zipBlob) return;
+    var stamp = new Date().toISOString().slice(0, 10);
+    downloadBlob(zipBlob, 'meal-menu-photos-' + stamp + '.zip');
+    showStatus('Photo backup downloaded');
+  }).catch(function() {
+    showStatus('Could not export photos');
+  }).finally(function() {
+    if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+  });
+}
+
+function ensureTagByLabel(label) {
+  if (!label) return null;
+  var st = getState();
+  var found = st.tags.find(function(t) { return t.label.toLowerCase() === String(label).toLowerCase(); });
+  if (found) return found.id;
+  if (st.tags.length >= MAX_TAGS) return null;
+  var id = newId('tag');
+  st.tags.push({ id: id, label: String(label).trim() });
+  saveAppState(st);
+  return id;
+}
+
+function mergeEntryFromPhotoMeta(photo) {
+  var st = getState();
+  var entry = st.entries.find(function(e) { return e.id === photo.entryId; });
+  if (!entry) {
+    entry = {
+      id: photo.entryId || newId('entry'),
+      name: photo.name || 'Imported meal',
+      category: photo.category || 'cooking',
+      notes: photo.notes || '',
+      menuUrl: photo.menuUrl || '',
+      tagIds: [],
+      favorite: !!photo.favorite,
+      lastHad: photo.lastHad || '',
+      createdAt: Date.now(),
+      phillyPlaceName: photo.phillyPlaceName || null
+    };
+    st.entries.push(entry);
+  } else {
+    if (photo.name) entry.name = photo.name;
+    if (photo.category) entry.category = photo.category;
+    if (photo.notes != null) entry.notes = photo.notes;
+    if (photo.menuUrl != null) entry.menuUrl = photo.menuUrl;
+    if (photo.favorite != null) entry.favorite = !!photo.favorite;
+    if (photo.lastHad != null) entry.lastHad = photo.lastHad;
+  }
+  var tagIds = [];
+  if (Array.isArray(photo.tagIds)) {
+    photo.tagIds.forEach(function(tid) {
+      if (st.tags.some(function(t) { return t.id === tid; })) tagIds.push(tid);
+    });
+  }
+  if (Array.isArray(photo.tagLabels)) {
+    photo.tagLabels.forEach(function(lbl) {
+      var id = ensureTagByLabel(lbl);
+      if (id && tagIds.indexOf(id) < 0) tagIds.push(id);
+    });
+  }
+  if (tagIds.length) entry.tagIds = tagIds;
+  saveAppState(st);
+  return entry.id;
+}
+
+function importPhotosZip(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function() {
+    try {
+      var zipEntries = parseStoreZip(reader.result);
+      var byName = {};
+      zipEntries.forEach(function(z) { byName[z.name] = z; });
+      var manifestEntry = zipEntries.find(function(z) { return z.name === 'manifest.json'; });
+      if (!manifestEntry) {
+        showStatus('Invalid backup — manifest.json missing');
+        return;
+      }
+      var manifest = JSON.parse(new TextDecoder().decode(manifestEntry.data));
+      if (manifest.format !== 'meal-menu-photos') {
+        showStatus('Not a Meal Menu photo backup');
+        return;
+      }
+      if (manifest.menu && manifest.menu.entries) {
+        var st = normalizeState(manifest.menu);
+        var existing = getState();
+        st.entryPhotos = existing.entryPhotos || {};
+        saveAppState(st);
+      }
+      var photos = Array.isArray(manifest.photos) ? manifest.photos : [];
+      if (!photos.length) {
+        showStatus('No photos in file');
+        return;
+      }
+      var imported = 0;
+      var chain = Promise.resolve();
+      photos.forEach(function(photo) {
+        chain = chain.then(function() {
+          var ze = byName[photo.path];
+          if (!ze) return;
+          var entryId = mergeEntryFromPhotoMeta(photo);
+          var blob = new Blob([ze.data], { type: mimeFromPath(photo.path) });
+          return putEntryPhoto(entryId, blob).then(function() {
+            setPhotoFlag(entryId, true);
+            imported++;
+          });
+        });
+      });
+      chain.then(function() {
+        ensureCategoryPanels();
+        renderCategoryTabs();
+        renderTagFilters();
+        renderAllLists();
+        renderManage();
+        renderPickTags();
+        showStatus('Imported ' + imported + ' photo' + (imported === 1 ? '' : 's'));
+      }).catch(function() {
+        showStatus('Import failed');
+      });
+    } catch (e) {
+      showStatus('Could not read ZIP');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function exportData() {
   var st = getState();
   var blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'meal-menu-backup-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  downloadBlob(blob, 'meal-menu-backup-' + new Date().toISOString().slice(0, 10) + '.json');
   showStatus('Exported');
 }
 
@@ -846,18 +1394,14 @@ function importData(file) {
       var slice = parsed;
       if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
         slice = AppsBackup.getAppSlice(parsed, 'meal-menu');
-        if (!slice) {
-          showStatus('No Meal Menu data in this file');
-          return;
-        }
+        if (!slice) { showStatus('No Meal Menu data in this file'); return; }
       }
-      if (!slice || !Array.isArray(slice.entries)) {
-        showStatus('Invalid backup file');
-        return;
-      }
+      if (!slice || !Array.isArray(slice.entries)) { showStatus('Invalid backup file'); return; }
+      var existing = getState();
+      slice.entryPhotos = existing.entryPhotos || {};
       saveAppState(normalizeState(slice));
       ensureCategoryPanels();
-      renderTabbar();
+      renderCategoryTabs();
       renderTagFilters();
       renderAllLists();
       renderManage();
@@ -871,28 +1415,27 @@ function importData(file) {
   reader.readAsText(file);
 }
 
-/* ——— Init ——— */
 function bindEvents() {
   document.getElementById('tag-filters').addEventListener('click', function(e) {
     var chip = e.target.closest('[data-tag-filter]');
-    if (!chip) return;
-    setTagFilter(chip.getAttribute('data-tag-filter'));
+    if (chip) setTagFilter(chip.getAttribute('data-tag-filter'));
   });
-
   document.getElementById('search').addEventListener('input', renderAllLists);
-
   document.getElementById('add-btn').addEventListener('click', openAddEntry);
 
   document.getElementById('tabbar').addEventListener('click', function(e) {
     var tab = e.target.closest('[data-tab]');
-    if (!tab) return;
-    switchTab(tab.getAttribute('data-tab'));
+    if (tab) switchRootTab(tab.getAttribute('data-tab'));
   });
 
-  document.getElementById('panels').addEventListener('click', function(e) {
+  document.getElementById('category-tabs').addEventListener('click', function(e) {
+    var tab = e.target.closest('[data-category]');
+    if (tab) switchCategory(tab.getAttribute('data-category'));
+  });
+
+  document.getElementById('category-panels').addEventListener('click', function(e) {
     var item = e.target.closest('[data-entry-id]');
-    if (!item) return;
-    openEntry(item.getAttribute('data-entry-id'));
+    if (item) openEntry(item.getAttribute('data-entry-id'));
   });
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
@@ -924,11 +1467,9 @@ function bindEvents() {
     var btn = e.target.closest('[data-tag-del]');
     if (btn) deleteTag(btn.getAttribute('data-tag-del'));
   });
-
   document.getElementById('add-cat-btn').addEventListener('click', function() {
-    var inp = document.getElementById('new-cat-name');
-    addCustomCategory(inp.value);
-    inp.value = '';
+    addCustomCategory(document.getElementById('new-cat-name').value);
+    document.getElementById('new-cat-name').value = '';
   });
   document.getElementById('custom-cat-list').addEventListener('click', function(e) {
     var btn = e.target.closest('[data-cat-del]');
@@ -941,16 +1482,18 @@ function bindEvents() {
     this.value = '';
     importData(f);
   });
+  document.getElementById('export-photos-btn').addEventListener('click', exportPhotosZip);
+  document.getElementById('import-photos-file').addEventListener('change', function() {
+    var f = this.files && this.files[0];
+    this.value = '';
+    importPhotosZip(f);
+  });
 
   document.getElementById('pick-category').addEventListener('change', function() {
-    if (pickerSpinning) return;
-    resetPickResult();
-    refreshPicker();
+    if (!pickerSpinning) { resetPickResult(); refreshPicker(); }
   });
   document.getElementById('pick-favorites-only').addEventListener('change', function() {
-    if (pickerSpinning) return;
-    resetPickResult();
-    refreshPicker();
+    if (!pickerSpinning) { resetPickResult(); refreshPicker(); }
   });
   document.getElementById('pick-tag-chips').addEventListener('click', function(e) {
     if (pickerSpinning) return;
@@ -978,6 +1521,7 @@ function bindEvents() {
 function boot() {
   initState();
   ensureCategoryPanels();
+  renderCategoryTabs();
   renderTagFilters();
   renderAllLists();
   renderManage();
@@ -990,13 +1534,14 @@ function boot() {
     p.hidden = true;
     p.classList.remove('on');
   });
-  activeTab = '';
-  var firstCat = getAllCategories()[0];
-  if (firstCat) switchTab(firstCat.id);
-  else switchTab('cooking');
-}
+  document.querySelectorAll('.cat-panel').forEach(function(p) {
+    p.hidden = true;
+    p.classList.remove('on');
+  });
 
-// Future: import visited restaurants from philly-dates-v2 placeMeta → phillyPlaceName + link
+  activeRootTab = '';
+  switchRootTab('spin');
+}
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);

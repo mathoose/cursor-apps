@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="top">
@@ -38,8 +38,7 @@
     <div id="status" class="status" hidden></div>
 
     <div class="panels" id="panels">
-      <!-- category browse panels injected by app.js -->
-      <section class="panel" id="panel-pick" data-panel="pick" hidden>
+      <section class="panel" id="panel-spin" data-panel="spin" hidden>
         <div class="pick-intro card">
           <h2 class="serif">Help us choose</h2>
           <p class="hint">Filter, then spin the wheel.</p>
@@ -64,12 +63,18 @@
         </div>
         <div class="pick-result card" id="pick-result" hidden>
           <p class="pick-result-label">Tonight…</p>
+          <div class="pick-result-photo" id="pick-result-photo" hidden></div>
           <h3 class="pick-result-name serif" id="pick-result-name"></h3>
           <p class="pick-result-notes" id="pick-result-notes"></p>
           <div class="pick-result-links" id="pick-result-links"></div>
           <button type="button" class="btn btn-secondary" id="pick-view-details">View details</button>
           <button type="button" class="btn btn-primary" id="picker-spin-again">Spin again</button>
         </div>
+      </section>
+
+      <section class="panel" id="panel-menu" data-panel="menu" hidden>
+        <nav class="category-tabs" id="category-tabs" aria-label="Menu sections"></nav>
+        <div class="category-panels" id="category-panels"></div>
       </section>
 
       <section class="panel" id="panel-manage" data-panel="manage" hidden>
@@ -94,6 +99,7 @@
         </div>
         <div class="card">
           <h2 class="serif">Backup</h2>
+          <p class="hint">JSON has meals, tags, and categories — not photos.</p>
           <div class="backup-actions">
             <button type="button" class="btn btn-secondary" id="export-btn">Export JSON</button>
             <label class="btn btn-secondary import-label">
@@ -101,13 +107,26 @@
               <input type="file" id="import-file" accept="application/json,.json" hidden />
             </label>
           </div>
+          <p class="hint" style="margin-top:14px">ZIP export includes photos plus menu metadata (tags, categories, notes).</p>
+          <div class="backup-actions">
+            <button type="button" class="btn btn-secondary" id="export-photos-btn">Export photos (ZIP)</button>
+            <label class="btn btn-secondary import-label">
+              Import photos (ZIP)
+              <input type="file" id="import-photos-file" accept=".zip,application/zip" hidden />
+            </label>
+          </div>
+          <p class="hint manage-note">Meal photos stay on this device only — not in Export all on the Apps home screen.</p>
           <p class="hint manage-note">Philly Dates stays separate. Restaurant linking may come later.</p>
         </div>
       </section>
     </div>
   </main>
 
-  <nav class="tabbar" id="tabbar" aria-label="Menu sections"></nav>
+  <nav class="tabbar" id="tabbar" aria-label="App sections">
+    <button type="button" class="tab" data-tab="spin"><span class="tab-icon">🎲</span><span class="tab-label">Spin</span></button>
+    <button type="button" class="tab" data-tab="menu"><span class="tab-icon">📖</span><span class="tab-label">Menu</span></button>
+    <button type="button" class="tab" data-tab="manage"><span class="tab-icon">⚙️</span><span class="tab-label">Manage</span></button>
+  </nav>
 
   <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal">
@@ -128,7 +147,7 @@
   </div>
 
   <script src="../apps-backup.js"></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

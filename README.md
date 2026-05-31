@@ -23,7 +23,7 @@ On the **home screen**, use **Export all data** to download one `cursor-apps-bac
 
 Each app can also import that same file and apply **only its section** (Habit Journal → Data tab, Focus → Settings, etc.).
 
-Data lives in Safari on your phone. App updates do not erase it; clearing website data for `mathoose.github.io` does. JSON backups do not include Philly menu photos or Aruba wardrobe grid photos (those stay on the device only).
+Data lives in Safari on your phone. App updates do not erase it; clearing website data for `mathoose.github.io` does. JSON backups do not include Philly menu photos, Aruba wardrobe grid photos, or Meal Menu entry photos (those stay on the device only). Use **Export photos (ZIP)** inside Our Menu to back up meal pictures.
 
 Push to `main` → GitHub Pages updates.
 
