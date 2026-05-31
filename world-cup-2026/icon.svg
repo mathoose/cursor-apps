@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" rx="40" fill="#0a1628"/>
+  <circle cx="90" cy="90" r="62" fill="none" stroke="#00a651" stroke-width="6"/>
+  <circle cx="90" cy="90" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+  <path d="M90 28 L98 52 L122 44 L110 68 L134 76 L110 84 L122 108 L98 100 L90 124 L82 100 L58 108 L70 84 L46 76 L70 68 L58 44 L82 52 Z" fill="#ffd700" opacity="0.9"/>
+  <text x="90" y="158" text-anchor="middle" font-family="-apple-system,sans-serif" font-size="22" font-weight="800" fill="#fff">26</text>
+</svg>

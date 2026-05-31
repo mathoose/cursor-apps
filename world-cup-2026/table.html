@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>World Cup 2026 — Tables</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="WC 2026" />
+  <meta name="theme-color" content="#0a1628" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>Group Tables</h1>
+        <p class="sub">Live standings · 3 pts win · GD tiebreak</p>
+      </div>
+    </div>
+    <nav class="nav-tabs" aria-label="Views">
+      <a class="nav-tab" href="index.html">Matches</a>
+      <a class="nav-tab on" href="table.html" aria-current="page">Tables</a>
+    </nav>
+  </header>
+
+  <div class="stats-bar">
+    <span id="progress">0 / 72 results entered</span>
+    <span id="updated">Updates as you enter scores</span>
+  </div>
+
+  <main>
+    <div class="groups-grid" id="groups"></div>
+    <div class="legend">
+      <span><span class="swatch"></span> Top 2 qualify</span>
+    </div>
+  </main>
+
+  <script src="matches.js"></script>
+  <script src="core.js"></script>
+  <script src="table-page.js"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

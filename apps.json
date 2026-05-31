@@ -9,7 +9,8 @@
       "voice-notes": { "storageKey": "voice-notes-v1" },
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
-      "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] }
+      "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
+      "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" }
     }
   },
   "apps": [
@@ -42,6 +43,12 @@
       "name": "Philly Dates",
       "subtitle": "Happy hours & menus",
       "storageKey": "philly-dates-v2"
+    },
+    {
+      "id": "world-cup-2026",
+      "name": "World Cup",
+      "subtitle": "Group stage tracker",
+      "storageKey": "world-cup-2026-scores-v1"
     }
   ]
 }

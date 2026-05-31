@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>World Cup 2026 — Matches</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="WC 2026" />
+  <meta name="theme-color" content="#0a1628" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>World Cup 2026</h1>
+        <p class="sub">Group stage · 72 matches · times in ET</p>
+      </div>
+    </div>
+    <nav class="nav-tabs" aria-label="Views">
+      <a class="nav-tab on" href="index.html" aria-current="page">Matches</a>
+      <a class="nav-tab" href="table.html">Tables</a>
+    </nav>
+    <div class="filters">
+      <input type="search" id="search" placeholder="Search team or venue…" autocomplete="off" />
+      <select id="filter-group" aria-label="Filter by group">
+        <option value="">All groups</option>
+      </select>
+      <select id="filter-matchday" aria-label="Filter by matchday">
+        <option value="">All matchdays</option>
+        <option value="1">Matchday 1</option>
+        <option value="2">Matchday 2</option>
+        <option value="3">Matchday 3</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <span id="progress">0 / 72 results entered</span>
+    <button type="button" id="clear-scores">Clear all scores</button>
+  </div>
+
+  <main id="matches"></main>
+
+  <script src="matches.js"></script>
+  <script src="core.js"></script>
+  <script src="matches-page.js"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

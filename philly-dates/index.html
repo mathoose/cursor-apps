@@ -37,6 +37,7 @@
       <button type="button" class="view-btn on" id="view-grid" data-view="grid">Schedule</button>
       <button type="button" class="view-btn" id="view-list" data-view="list">All places</button>
     </div>
+    <button type="button" class="btn btn-picker" id="picker-btn">Help me find a place</button>
   </header>
 
   <main>
@@ -112,6 +113,46 @@
       </div>
       <div class="modal-body" id="modal-body"></div>
       <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="picker-modal" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+    <div class="modal picker-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="picker-title">Help me find a place</h2>
+          <p class="picker-sub" id="picker-sub">Filter by tag, then spin the wheel</p>
+        </div>
+        <button type="button" class="modal-close" id="picker-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body picker-body">
+        <div class="picker-filters" id="picker-filters-wrap">
+          <p class="picker-filter-label">Filter by tags <span class="hint">(optional — leave empty for all places)</span></p>
+          <div class="picker-tag-chips" id="picker-tag-chips" role="group" aria-label="Filter by tag"></div>
+          <label class="picker-fav-filter"><input type="checkbox" id="picker-favorites-only" /> Favorites only</label>
+        </div>
+        <div class="picker-stage" id="picker-stage">
+          <div class="picker-wheel-wrap">
+            <div class="picker-pointer" aria-hidden="true"></div>
+            <div class="picker-wheel" id="picker-wheel">
+              <div class="picker-wheel-center" id="picker-wheel-center">—</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-spin" id="picker-spin-btn">Spin!</button>
+          <p class="picker-empty" id="picker-empty" hidden>No places match these filters. Try clearing some tags.</p>
+        </div>
+        <div class="picker-result" id="picker-result" hidden>
+          <p class="picker-result-label">You're going to…</p>
+          <h3 class="picker-result-name" id="picker-result-name"></h3>
+          <p class="picker-result-meta" id="picker-result-meta"></p>
+          <div class="picker-result-desc" id="picker-result-desc"></div>
+          <div class="picker-result-links" id="picker-result-links"></div>
+          <button type="button" class="btn btn-secondary picker-details-btn" id="picker-view-details">View full details</button>
+        </div>
+      </div>
+      <div class="modal-footer picker-footer">
+        <button type="button" class="btn btn-primary" id="picker-spin-again" hidden>Spin again</button>
+      </div>
     </div>
   </div>
 

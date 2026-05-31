@@ -48,7 +48,8 @@
       padding-bottom: calc(132px + var(--safe-bottom));
     }
 
-    body.view-grid {
+    body.view-grid,
+    body.view-scan {
       padding-bottom: calc(72px + var(--safe-bottom));
     }
 
@@ -280,7 +281,14 @@
       transform: rotate(45deg) translateY(-1px);
     }
 
-    .item-body { flex: 1; min-width: 0; padding: 10px 0; }
+    .item-body {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 0;
+      cursor: pointer;
+    }
+
+    .item-body:active { opacity: 0.7; }
 
     .item-label {
       font-size: 0.9375rem;
@@ -585,8 +593,10 @@
 
     .tips strong { display: block; margin-bottom: 4px; color: #78350f; }
 
-    body.view-grid .list-only { display: none !important; }
+    body.view-grid .list-only,
+    body.view-scan .list-only { display: none !important; }
     body:not(.view-grid) .grid-only { display: none !important; }
+    body:not(.view-scan) .scan-only { display: none !important; }
 
     .grid-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
 
@@ -782,6 +792,97 @@
 
     .fab-bar { bottom: calc(60px + var(--safe-bottom)); }
 
+    .scan-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
+
+    .scan-intro {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .scan-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .scan-actions .btn-primary { width: 100%; }
+
+    .scan-thumbs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .scan-thumb {
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+    }
+
+    .scan-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .scan-thumb-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.65);
+      color: #fff;
+      font-size: 1rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .scan-review-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .scan-review-bar button { flex: 1; height: 48px; border-radius: 12px; font-weight: 600; font-size: 0.9375rem; cursor: pointer; }
+
+    .scan-wizard-photo {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: #f8fafc;
+      margin-bottom: 16px;
+    }
+
+    .scan-wizard-progress {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .field textarea {
+      width: 100%;
+      min-height: 72px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      background: #fff;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
     .photo-viewer {
       position: fixed;
       inset: 0;
@@ -904,6 +1005,16 @@
     </div>
   </header>
 
+  <header class="hero scan-only" id="scanHero">
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
+        <h1>Scan</h1>
+        <p class="hero-meta">Snap items · categorize each one</p>
+      </div>
+    </div>
+  </header>
+
   <div class="toolbar list-only" role="toolbar" aria-label="Quick filters">
     <label class="chip" id="chipHide">
       <input type="checkbox" id="hidePacked" />
@@ -923,7 +1034,10 @@
 
   <div class="grid-page grid-only" id="gridRoot" aria-live="polite"></div>
 
+  <div class="scan-page scan-only" id="scanRoot" aria-live="polite"></div>
+
   <input type="file" id="fileInput" accept="image/*,.heic,.heif" />
+  <input type="file" id="scanFileInput" accept="image/*,.heic,.heif" capture="environment" multiple />
 
   <div class="photo-viewer" id="photoViewer" role="dialog" aria-modal="true" hidden>
     <img id="viewerImg" alt="" />
@@ -943,6 +1057,10 @@
     <button type="button" class="tab" id="tabGrid" data-view="grid">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Wardrobe
+    </button>
+    <button type="button" class="tab" id="tabScan" data-view="scan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Scan
     </button>
   </nav>
 
@@ -974,6 +1092,64 @@
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="addOverlay">Cancel</button>
         <button type="button" class="btn-save" id="addSave">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit item -->
+  <div class="overlay" id="editOverlay" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="editTitle">Edit item</h3>
+      <div class="field">
+        <label for="editName">Item name</label>
+        <input type="text" id="editName" autocomplete="off" maxlength="120" />
+      </div>
+      <div class="field">
+        <label for="editCategory">Category</label>
+        <select id="editCategory"></select>
+      </div>
+      <div class="field">
+        <label for="editNote">Description</label>
+        <textarea id="editNote" placeholder="Optional notes, e.g. Brazil jersey" maxlength="200"></textarea>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="editOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scan categorize wizard -->
+  <div class="overlay" id="scanWizardOverlay" role="dialog" aria-modal="true" aria-labelledby="scanWizardTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="scanWizardTitle">Describe this item</h3>
+      <p class="scan-wizard-progress" id="scanWizardProgress"></p>
+      <img class="scan-wizard-photo" id="scanWizardPhoto" alt="" />
+      <div class="field">
+        <label for="scanWizardType">Category</label>
+        <input type="text" id="scanWizardType" placeholder="e.g. T-shirt, shorts, sandals" autocomplete="off" maxlength="60" list="scanTypeSuggestions" />
+        <datalist id="scanTypeSuggestions">
+          <option value="T-shirt"></option>
+          <option value="Tank top"></option>
+          <option value="Shorts"></option>
+          <option value="Pants"></option>
+          <option value="Dress"></option>
+          <option value="Swimsuit"></option>
+          <option value="Sandals"></option>
+          <option value="Sneakers"></option>
+          <option value="Hat"></option>
+          <option value="Jacket"></option>
+        </datalist>
+      </div>
+      <div class="field">
+        <label for="scanWizardDesc">Description</label>
+        <input type="text" id="scanWizardDesc" placeholder="e.g. Brazil jersey" autocomplete="off" maxlength="120" />
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" id="scanWizardSkip">Skip</button>
+        <button type="button" class="btn-save" id="scanWizardSave">Save &amp; next</button>
       </div>
     </div>
   </div>
@@ -1233,6 +1409,9 @@
           packed: !!(saved && saved.packed),
           qty: saved && typeof saved.qty === "number" ? Math.min(99, Math.max(1, saved.qty)) : resolveQty(id, base.opts),
           custom: !!(saved && saved.custom),
+          label: saved && saved.label ? saved.label : undefined,
+          category: saved && saved.category ? saved.category : undefined,
+          note: saved && saved.note ? saved.note : undefined,
         };
       }
       base.removed = Array.from(removedSet);
@@ -1244,6 +1423,7 @@
           custom: true,
           label: saved.label,
           category: saved.category || "misc",
+          note: saved.note || undefined,
         };
       }
       return base;
@@ -1258,6 +1438,10 @@
   let currentView = "list";
   let pendingPhoto = null;
   let viewerPhoto = null;
+  let editingItemId = null;
+  let scanQueue = [];
+  let scanWizardIndex = 0;
+  let scanPendingBlobs = [];
   const thumbCache = {};
   const IDB_NAME = "aruba-pack-photos-v1";
   const IDB_STORE = "photos";
@@ -1501,6 +1685,12 @@
   function savePhotoForSlot(target, file) {
     setSlotLoading(target.itemId, target.slot, true);
     return preparePhotoBlob(file).then(function (blob) {
+      const row = state.items[target.itemId];
+      if (row && target.slot >= row.qty) {
+        row.qty = target.slot + 1;
+        saveState();
+        if (currentView === "list") render();
+      }
       const key = photoKey(target.itemId, target.slot);
       if (thumbCache[key]) {
         URL.revokeObjectURL(thumbCache[key]);
@@ -1571,6 +1761,20 @@
     return Promise.all(promises);
   }
 
+  function countFilledPhotos(itemId, qty, photoCounts) {
+    let filled = 0;
+    for (let i = 0; i < qty; i++) {
+      if (photoCounts[photoKey(itemId, i)]) filled++;
+    }
+    return filled;
+  }
+
+  function slotCountForGroup(g, photoCounts) {
+    const filled = countFilledPhotos(g.id, g.qty, photoCounts);
+    if (filled >= g.qty && g.qty < 99) return g.qty + 1;
+    return g.qty;
+  }
+
   function gridPhotoStats(photoCounts) {
     let slots = 0;
     let filled = 0;
@@ -1603,7 +1807,7 @@
     const counts = {};
     const promises = [];
     groups.forEach(function (g) {
-      for (let i = 0; i < g.qty; i++) {
+      for (let i = 0; i <= g.qty && i < 99; i++) {
         const key = photoKey(g.id, i);
         promises.push(
           idbGet(key).then(function (blob) {
@@ -1643,25 +1847,23 @@
     }
 
     const showTip = !localStorage.getItem("aruba-pack-homescreen-tip");
-    root.innerHTML = '<p class="grid-intro">Tap <strong>+</strong> on each slot to add a photo of the exact piece you’re packing. Counts match your list (e.g. 7 shirts → 7 slots). Photos stay on this device only.' +
+    root.innerHTML = '<p class="grid-intro">Tap <strong>+</strong> on each slot to add a photo of the exact piece you’re packing. Counts match your list — fill every slot and a new <strong>+</strong> appears; adding that photo bumps your list count too. Photos stay on this device only.' +
       (showTip ? '<span class="grid-intro-tip"><strong>iPhone tip:</strong> In Safari, tap Share → <strong>Add to Home Screen</strong> for the best full-screen experience.</span>' : '') +
       '</p>';
     if (showTip) localStorage.setItem("aruba-pack-homescreen-tip", "1");
 
     loadPhotoCounts(groups).then(function (photoCounts) {
       groups.forEach(function (g) {
-        let filled = 0;
-        for (let i = 0; i < g.qty; i++) {
-          if (photoCounts[photoKey(g.id, i)]) filled++;
-        }
+        let filled = countFilledPhotos(g.id, g.qty, photoCounts);
+        const slotCount = slotCountForGroup(g, photoCounts);
 
         let block = '<section class="grid-group" data-item="' + escapeHtml(g.id) + '">';
         block += '<div class="grid-group-head"><div><h3>' + escapeHtml(g.qty) + " " + escapeHtml(g.name) + '</h3>';
-        block += '<div class="count">Tap a slot to add a photo</div></div>';
+        block += '<div class="count">' + (filled >= g.qty && slotCount > g.qty ? "All slots full — tap + to add another" : "Tap a slot to add a photo") + '</div></div>';
         block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + " photos</span></div>";
         block += '<div class="slot-grid">';
 
-        for (let i = 0; i < g.qty; i++) {
+        for (let i = 0; i < slotCount; i++) {
           const key = photoKey(g.id, i);
           const has = !!photoCounts[key];
           block += '<button type="button" class="photo-slot' + (has ? " has-photo" : "") + '" data-item="' + escapeHtml(g.id) + '" data-slot="' + i + '" aria-label="' + (has ? "View photo" : "Add photo") + " for " + escapeHtml(g.name) + " " + (i + 1) + '">';
@@ -1730,11 +1932,16 @@
   function setView(view) {
     currentView = view;
     document.body.classList.toggle("view-grid", view === "grid");
+    document.body.classList.toggle("view-scan", view === "scan");
     document.getElementById("tabList").classList.toggle("on", view === "list");
     document.getElementById("tabGrid").classList.toggle("on", view === "grid");
+    document.getElementById("tabScan").classList.toggle("on", view === "scan");
     if (view === "grid") {
       revokeThumbCache();
       renderGrid();
+    } else if (view === "scan") {
+      closePhotoViewer();
+      renderScan();
     } else {
       closePhotoViewer();
       render();
@@ -1765,17 +1972,19 @@
 
   function itemLabel(id) {
     const row = state.items[id];
-    if (row && row.custom && row.label) return row.label;
+    if (row && row.label) return row.label;
     return CATALOG[id] ? CATALOG[id].label : id;
   }
 
   function itemNote(id) {
+    const row = state.items[id];
+    if (row && row.note) return row.note;
     return CATALOG[id] && CATALOG[id].note;
   }
 
   function itemCategory(id) {
     const row = state.items[id];
-    if (row && row.custom && row.category) return row.category;
+    if (row && row.category) return row.category;
     return CATALOG[id] ? CATALOG[id].category : "misc";
   }
 
@@ -1904,7 +2113,7 @@
         const note = itemNote(id);
         html += '<div class="item' + (row.packed ? " packed" : "") + (openDeleteId === id ? " reveal-delete" : "") + '" data-id="' + escapeHtml(id) + '">';
         html += '<button type="button" class="check" aria-label="' + (row.packed ? "Unpack" : "Pack") + ' ' + escapeHtml(itemLabel(id)) + '"><span class="check-box"></span></button>';
-        html += '<div class="item-body"><div class="item-label">' + escapeHtml(itemLabel(id)) + '</div>';
+        html += '<div class="item-body" role="button" tabindex="0" aria-label="Edit ' + escapeHtml(itemLabel(id)) + '"><div class="item-label">' + escapeHtml(itemLabel(id)) + '</div>';
         if (note) html += '<div class="item-note">' + escapeHtml(note) + '</div>';
         html += '</div>';
         html += '<div class="qty"><button type="button" class="qty-minus" aria-label="' + (row.qty <= 1 ? "Remove from list" : "Decrease quantity") + '">−</button>';
@@ -2022,6 +2231,206 @@
 
       row.addEventListener("touchend", function () { tracking = false; });
     });
+
+    document.querySelectorAll(".item-body").forEach(function (body) {
+      body.onclick = function (e) {
+        e.stopPropagation();
+        openEditItem(body.closest(".item").dataset.id);
+      };
+      body.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          body.click();
+        }
+      };
+    });
+  }
+
+  function populateCategorySelect(selId, selected) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = CATEGORIES.map(function (c) {
+      return '<option value="' + c.id + '"' + (c.id === selected ? " selected" : "") + '>' + escapeHtml(c.label) + '</option>';
+    }).join("");
+  }
+
+  function openEditItem(id) {
+    if (!state.items[id]) return;
+    editingItemId = id;
+    document.getElementById("editName").value = itemLabel(id);
+    populateCategorySelect("editCategory", itemCategory(id));
+    document.getElementById("editNote").value = itemNote(id) || "";
+    openOverlay("editOverlay");
+    setTimeout(function () {
+      document.getElementById("editName").focus();
+      document.getElementById("editName").select();
+    }, 300);
+  }
+
+  function saveEditItem() {
+    if (!editingItemId || !state.items[editingItemId]) return;
+    const name = document.getElementById("editName").value.trim();
+    if (!name) {
+      toast("Enter an item name");
+      return;
+    }
+    const row = state.items[editingItemId];
+    const category = document.getElementById("editCategory").value;
+    const note = document.getElementById("editNote").value.trim();
+    row.label = name;
+    row.category = category;
+    if (note) row.note = note;
+    else delete row.note;
+    saveState();
+    closeOverlay("editOverlay");
+    editingItemId = null;
+    render();
+    if (currentView === "grid") renderGrid();
+    toast("Item updated");
+  }
+
+  function renderScan() {
+    const root = document.getElementById("scanRoot");
+    let html = '<p class="scan-intro">Take photos of clothes and gear, then label each one. Example: category <strong>T-shirt</strong>, description <strong>Brazil jersey</strong>.</p>';
+    html += '<div class="scan-actions">';
+    html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Take photos</button>';
+    if (scanQueue.length) {
+      html += '<button type="button" class="btn-secondary" id="btnScanMore">Add more photos</button>';
+    }
+    html += '</div>';
+
+    if (scanQueue.length) {
+      html += '<div class="scan-thumbs">';
+      scanQueue.forEach(function (entry, idx) {
+        html += '<div class="scan-thumb"><img src="' + entry.preview + '" alt="" /><button type="button" class="scan-thumb-remove" data-idx="' + idx + '" aria-label="Remove photo">×</button></div>';
+      });
+      html += '</div>';
+      html += '<div class="scan-review-bar">';
+      html += '<button type="button" class="btn-cancel" id="btnScanClear">Clear all</button>';
+      html += '<button type="button" class="btn-save" id="btnScanStart">Describe ' + scanQueue.length + " item" + (scanQueue.length === 1 ? "" : "s") + '</button>';
+      html += '</div>';
+    }
+
+    root.innerHTML = html;
+
+    document.getElementById("btnScanCapture").onclick = function () {
+      document.getElementById("scanFileInput").click();
+    };
+    const moreBtn = document.getElementById("btnScanMore");
+    if (moreBtn) moreBtn.onclick = function () { document.getElementById("scanFileInput").click(); };
+    root.querySelectorAll(".scan-thumb-remove").forEach(function (btn) {
+      btn.onclick = function () {
+        const idx = parseInt(btn.dataset.idx, 10);
+        const removed = scanQueue.splice(idx, 1)[0];
+        if (removed && removed.preview) URL.revokeObjectURL(removed.preview);
+        renderScan();
+      };
+    });
+    const clearBtn = document.getElementById("btnScanClear");
+    if (clearBtn) clearBtn.onclick = function () {
+      scanQueue.forEach(function (entry) {
+        if (entry.preview) URL.revokeObjectURL(entry.preview);
+      });
+      scanQueue = [];
+      renderScan();
+    };
+    const startBtn = document.getElementById("btnScanStart");
+    if (startBtn) startBtn.onclick = startScanWizard;
+  }
+
+  function addScanFiles(files) {
+    const list = Array.from(files || []).filter(isValidImageFile);
+    if (!list.length) {
+      toast("Please choose image(s)");
+      return;
+    }
+    let pending = list.length;
+    list.forEach(function (file) {
+      preparePhotoBlob(file).then(function (blob) {
+        scanQueue.push({ blob: blob, preview: URL.createObjectURL(blob), type: "", desc: "" });
+      }).catch(function () {
+        toast("Could not process a photo — skipped");
+      }).finally(function () {
+        pending--;
+        if (pending === 0) renderScan();
+      });
+    });
+  }
+
+  function startScanWizard() {
+    if (!scanQueue.length) return;
+    scanWizardIndex = 0;
+    scanPendingBlobs = scanQueue.slice();
+    openScanWizardStep();
+  }
+
+  function openScanWizardStep() {
+    if (scanWizardIndex >= scanPendingBlobs.length) {
+      finishScanWizard();
+      return;
+    }
+    const entry = scanPendingBlobs[scanWizardIndex];
+    document.getElementById("scanWizardProgress").textContent =
+      "Item " + (scanWizardIndex + 1) + " of " + scanPendingBlobs.length;
+    document.getElementById("scanWizardPhoto").src = entry.preview;
+    document.getElementById("scanWizardType").value = entry.type || "";
+    document.getElementById("scanWizardDesc").value = entry.desc || "";
+    document.getElementById("scanWizardSave").textContent =
+      scanWizardIndex === scanPendingBlobs.length - 1 ? "Save & finish" : "Save & next";
+    openOverlay("scanWizardOverlay");
+    setTimeout(function () { document.getElementById("scanWizardType").focus(); }, 300);
+  }
+
+  function saveScanWizardStep(skip) {
+    const entry = scanPendingBlobs[scanWizardIndex];
+    if (!skip) {
+      const type = document.getElementById("scanWizardType").value.trim();
+      const desc = document.getElementById("scanWizardDesc").value.trim();
+      if (!type && !desc) {
+        toast("Add a category or description");
+        return;
+      }
+      entry.type = type;
+      entry.desc = desc;
+      addScannedItem(entry);
+    }
+    scanWizardIndex++;
+    closeOverlay("scanWizardOverlay");
+    if (scanWizardIndex >= scanPendingBlobs.length) {
+      finishScanWizard();
+    } else {
+      openScanWizardStep();
+    }
+  }
+
+  function addScannedItem(entry) {
+    const label = entry.desc || entry.type || "Scanned item";
+    const id = "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+    state.items[id] = {
+      packed: false,
+      qty: 1,
+      custom: true,
+      label: label,
+      category: "clothing",
+    };
+    if (entry.type) state.items[id].note = entry.type;
+    return idbPut(photoKey(id, 0), entry.blob).then(function () {
+      saveState();
+    }).catch(function () {
+      saveState();
+    });
+  }
+
+  function finishScanWizard() {
+    scanQueue.forEach(function (entry) {
+      if (entry.preview) URL.revokeObjectURL(entry.preview);
+    });
+    scanQueue = [];
+    scanPendingBlobs = [];
+    scanWizardIndex = 0;
+    closeOverlay("scanWizardOverlay");
+    renderScan();
+    toast("Items added to your list");
+    setView("list");
   }
 
   function openOverlay(id) {
@@ -2056,10 +2465,7 @@
   }
 
   function populateAddCategory() {
-    const sel = document.getElementById("addCategory");
-    sel.innerHTML = CATEGORIES.map(function (c) {
-      return '<option value="' + c.id + '">' + escapeHtml(c.label) + '</option>';
-    }).join("");
+    populateCategorySelect("addCategory", "misc");
   }
 
   // Chip / switch sync
@@ -2140,6 +2546,17 @@
 
   document.getElementById("tabList").onclick = function () { setView("list"); };
   document.getElementById("tabGrid").onclick = function () { setView("grid"); };
+  document.getElementById("tabScan").onclick = function () { setView("scan"); };
+
+  document.getElementById("editSave").onclick = saveEditItem;
+
+  document.getElementById("scanWizardSave").onclick = function () { saveScanWizardStep(false); };
+  document.getElementById("scanWizardSkip").onclick = function () { saveScanWizardStep(true); };
+
+  document.getElementById("scanFileInput").addEventListener("change", function (e) {
+    addScanFiles(e.target.files);
+    e.target.value = "";
+  });
 
   document.getElementById("fileInput").addEventListener("change", function (e) {
     const file = e.target.files && e.target.files[0];
@@ -2181,7 +2598,11 @@
   });
 
   document.querySelectorAll("[data-close]").forEach(function (btn) {
-    btn.onclick = function () { closeOverlay(btn.getAttribute("data-close")); };
+    btn.onclick = function () {
+      const id = btn.getAttribute("data-close");
+      if (id === "editOverlay") editingItemId = null;
+      closeOverlay(id);
+    };
   });
 
   document.querySelectorAll(".overlay").forEach(function (ov) {
@@ -2196,7 +2617,12 @@
         closePhotoViewer();
         return;
       }
+      if (document.getElementById("scanWizardOverlay").classList.contains("open")) {
+        closeOverlay("scanWizardOverlay");
+        return;
+      }
       document.querySelectorAll(".overlay.open").forEach(function (ov) { closeOverlay(ov.id); });
+      editingItemId = null;
     }
   });
 
