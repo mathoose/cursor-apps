@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Our Menu</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Our Menu" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#8b3a3a" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>Our Menu</h1>
+        <p class="sub" id="section-sub">What sounds good?</p>
+      </div>
+      <button type="button" class="btn btn-add" id="add-btn" hidden>+ Add</button>
+    </div>
+    <div class="search-row" id="search-row">
+      <input type="search" id="search" placeholder="Search this section…" autocomplete="off" enterkeyhint="search" />
+    </div>
+    <div class="tag-filters-wrap" id="tag-filters-wrap">
+      <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag"></div>
+    </div>
+  </header>
+
+  <main class="main" id="main">
+    <div id="status" class="status" hidden></div>
+
+    <div class="panels" id="panels">
+      <!-- category browse panels injected by app.js -->
+      <section class="panel" id="panel-pick" data-panel="pick" hidden>
+        <div class="pick-intro card">
+          <h2 class="serif">Help us choose</h2>
+          <p class="hint">Filter, then spin the wheel.</p>
+        </div>
+        <div class="card pick-filters">
+          <label class="pick-label">Category
+            <select id="pick-category"></select>
+          </label>
+          <p class="pick-label">Tags <span class="hint">(optional)</span></p>
+          <div class="picker-tag-chips" id="pick-tag-chips" role="group"></div>
+          <label class="pick-fav"><input type="checkbox" id="pick-favorites-only" /> Favorites only</label>
+        </div>
+        <div class="pick-stage card" id="pick-stage">
+          <div class="picker-wheel-wrap">
+            <div class="picker-pointer" aria-hidden="true"></div>
+            <div class="picker-wheel" id="picker-wheel">
+              <div class="picker-wheel-center" id="picker-wheel-center">—</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-spin" id="picker-spin-btn">Spin!</button>
+          <p class="picker-empty" id="picker-empty" hidden>No meals match these filters.</p>
+        </div>
+        <div class="pick-result card" id="pick-result" hidden>
+          <p class="pick-result-label">Tonight…</p>
+          <h3 class="pick-result-name serif" id="pick-result-name"></h3>
+          <p class="pick-result-notes" id="pick-result-notes"></p>
+          <div class="pick-result-links" id="pick-result-links"></div>
+          <button type="button" class="btn btn-secondary" id="pick-view-details">View details</button>
+          <button type="button" class="btn btn-primary" id="picker-spin-again">Spin again</button>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-manage" data-panel="manage" hidden>
+        <div class="card">
+          <h2 class="serif">Tags</h2>
+          <p class="hint">Filter meals on each section · assign in details</p>
+          <div class="tag-add-row">
+            <input type="text" id="new-tag-name" placeholder="New tag" maxlength="32" autocomplete="off" />
+            <button type="button" class="btn btn-primary" id="add-tag-btn">Add</button>
+          </div>
+          <div class="tag-manage-list" id="tag-manage-list"></div>
+        </div>
+        <div class="card">
+          <h2 class="serif">Custom categories</h2>
+          <p class="hint">Built-in sections cannot be removed</p>
+          <ul class="cat-list" id="builtin-cat-list"></ul>
+          <div class="tag-add-row">
+            <input type="text" id="new-cat-name" placeholder="New category name" maxlength="24" autocomplete="off" />
+            <button type="button" class="btn btn-primary" id="add-cat-btn">Add</button>
+          </div>
+          <ul class="cat-list custom" id="custom-cat-list"></ul>
+        </div>
+        <div class="card">
+          <h2 class="serif">Backup</h2>
+          <div class="backup-actions">
+            <button type="button" class="btn btn-secondary" id="export-btn">Export JSON</button>
+            <label class="btn btn-secondary import-label">
+              Import JSON
+              <input type="file" id="import-file" accept="application/json,.json" hidden />
+            </label>
+          </div>
+          <p class="hint manage-note">Philly Dates stays separate. Restaurant linking may come later.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="tabbar" id="tabbar" aria-label="Menu sections"></nav>
+
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-title" class="serif"></h2>
+          <div class="modal-meta" id="modal-meta"></div>
+        </div>
+        <div class="modal-header-actions">
+          <button type="button" class="modal-fav" id="modal-fav" aria-label="Favorite" title="Favorite">☆</button>
+          <button type="button" class="modal-edit" id="modal-edit" aria-label="Edit" title="Edit">✏️</button>
+          <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-footer" id="modal-footer"></div>
+    </div>
+  </div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="app.js?v=1"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
