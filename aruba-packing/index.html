@@ -2461,7 +2461,7 @@
     return idbPut(closetKey(id), blob).then(function () {
       ensureCloset();
       state.closet.push({ id: id, category: null, label: label || "", tag: null });
-      saveState();
+      saveStateImmediate();
       return id;
     });
   }
@@ -2944,7 +2944,7 @@
       return Promise.resolve();
     });
     return Promise.all(tasks).then(function () {
-      saveState();
+      saveStateImmediate();
       if (currentView === "grid") renderGrid();
       if (currentView === "pack") renderPack();
       if (currentView === "plan") renderPlan();
@@ -3602,7 +3602,7 @@
         slot++;
       });
       return Promise.all(tasks).then(function () {
-        saveState();
+        saveStateImmediate();
         clearScanSelection();
         toast(selected.length + " packed to " + option.label);
         render();
@@ -4507,43 +4507,121 @@
     document.getElementById("swRepeat").classList.toggle("on", state.opts.repeat);
   }
 
-  function applyOptionQuantities() {
+  function getMaxPhotoSlotForItem(itemId, photoCounts) {
+    let max = -1;
+    for (let i = 0; i < 99; i++) {
+      if (photoCounts[photoKey(itemId, i)]) max = i;
+    }
+    return max;
+  }
+
+  function loadPhotoCountsFromIdb() {
+    return idbGetAllKeys().then(function (keys) {
+      const counts = {};
+      keys.forEach(function (key) {
+        if (String(key).indexOf("closet:") === 0) return;
+        counts[key] = true;
+      });
+      return counts;
+    });
+  }
+
+  function reconcileAllWardrobeQtyFromPhotos(photoCounts) {
+    let changed = false;
+    Object.keys(state.items).forEach(function (id) {
+      const row = state.items[id];
+      if (!row) return;
+      const maxSlot = getMaxPhotoSlotForItem(id, photoCounts);
+      if (maxSlot >= 0 && row.qty < maxSlot + 1) {
+        row.qty = Math.min(99, maxSlot + 1);
+        changed = true;
+      }
+    });
+    return changed;
+  }
+
+  function saveStateImmediate() {
+    flushSaveState();
+  }
+
+  function applyOptionQuantities(photoCounts) {
+    photoCounts = photoCounts || {};
     for (const id of Object.keys(state.items)) {
       if (state.items[id].custom) continue;
       if (isRemoved(id)) continue;
       if (CATALOG[id]) {
-        const q = resolveQty(id, state.opts);
-        if (q === 0) {
+        const listQty = resolveQty(id, state.opts);
+        const maxSlot = getMaxPhotoSlotForItem(id, photoCounts);
+        const photoQty = maxSlot >= 0 ? maxSlot + 1 : 0;
+        const newQty = Math.max(listQty, photoQty);
+        if (newQty === 0) {
           delete state.items[id];
         } else {
-          state.items[id].qty = q;
+          state.items[id].qty = newQty;
         }
       }
     }
   }
 
   function rebuildActivityItems() {
-    const target = new Set(buildDefaultItems(state.opts));
-    for (const id of target) {
-      if (isRemoved(id)) continue;
-      if (!state.items[id] && CATALOG[id]) {
-        state.items[id] = { packed: false, qty: resolveQty(id, state.opts), custom: false };
+    return loadPhotoCountsFromIdb().then(function (photoCounts) {
+      const target = new Set(buildDefaultItems(state.opts));
+      for (const id of target) {
+        if (isRemoved(id)) continue;
+        if (!state.items[id] && CATALOG[id]) {
+          state.items[id] = { packed: false, qty: resolveQty(id, state.opts), custom: false };
+        }
       }
+      for (const id of Object.keys(state.items)) {
+        if (state.items[id].custom) continue;
+        const cat = CATALOG[id];
+        if (!cat) continue;
+        if (cat.activity === "laundryOnly" && !state.opts.laundry) {
+          delete state.items[id];
+          continue;
+        }
+        if (cat.activity && cat.activity !== "laundryOnly" && !state.opts.activities[cat.activity]) {
+          delete state.items[id];
+        }
+      }
+      applyOptionQuantities(photoCounts);
+      saveStateImmediate();
+    });
+  }
+
+  function afterListOptionsChanged(rebuildQuantities) {
+    const done = function () {
+      render();
+      if (currentView === "grid") renderGrid();
+    };
+    if (rebuildQuantities) {
+      rebuildActivityItems().then(done);
+    } else {
+      saveState();
+      done();
     }
-    for (const id of Object.keys(state.items)) {
-      if (state.items[id].custom) continue;
-      const cat = CATALOG[id];
-      if (!cat) continue;
-      if (cat.activity === "laundryOnly" && !state.opts.laundry) {
-        delete state.items[id];
-        continue;
+  }
+
+  function bootAppFromStorage() {
+    loadPhotoCountsFromIdb().then(function (photoCounts) {
+      if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
+        saveStateImmediate();
       }
-      if (cat.activity && cat.activity !== "laundryOnly" && !state.opts.activities[cat.activity]) {
-        delete state.items[id];
+      render();
+    }).catch(function () {
+      render();
+    });
+  }
+
+  function reconcileOnReturn() {
+    loadPhotoCountsFromIdb().then(function (photoCounts) {
+      if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
+        saveStateImmediate();
+        render();
+        if (currentView === "grid") renderGrid();
+        if (currentView === "pack") renderPack();
       }
-    }
-    applyOptionQuantities();
-    pruneAllGridPhotos();
+    }).catch(function () {});
   }
 
   function stats() {
@@ -4673,11 +4751,19 @@
           removeItemCompletely(id);
           return;
         }
-        state.items[id].qty--;
-        prunePhotosForItem(id, state.items[id].qty);
-        saveState();
-        render();
-        if (currentView === "grid") renderGrid();
+        loadPhotoCountsFromIdb().then(function (photoCounts) {
+          const maxSlot = getMaxPhotoSlotForItem(id, photoCounts);
+          const minQty = maxSlot >= 0 ? maxSlot + 1 : 1;
+          if (state.items[id].qty <= minQty) {
+            toast("Remove wardrobe photos first to lower quantity");
+            return;
+          }
+          state.items[id].qty--;
+          prunePhotosForItem(id, state.items[id].qty);
+          saveStateImmediate();
+          render();
+          if (currentView === "grid") renderGrid();
+        });
       };
     });
 
@@ -5363,10 +5449,10 @@
         const id = card.dataset.activity;
         state.opts.activities[id] = !state.opts.activities[id];
         card.classList.toggle("on", state.opts.activities[id]);
-        rebuildActivityItems();
-        saveState();
-        render();
-        if (currentView === "grid") renderGrid();
+        rebuildActivityItems().then(function () {
+          render();
+          if (currentView === "grid") renderGrid();
+        });
       };
     });
   }
@@ -5381,10 +5467,7 @@
       state.opts.hidePacked = document.getElementById("hidePacked").checked;
       state.opts.laundry = document.getElementById("optLaundry").checked;
       state.opts.repeat = document.getElementById("optRepeat").checked;
-      rebuildActivityItems();
-      saveState();
-      render();
-      if (currentView === "grid") renderGrid();
+      afterListOptionsChanged(id !== "hidePacked");
     });
   });
 
@@ -5392,10 +5475,7 @@
     document.getElementById(swId).addEventListener("click", function () {
       state.opts[optKey] = !state.opts[optKey];
       document.getElementById(optKey === "hidePacked" ? "hidePacked" : optKey === "laundry" ? "optLaundry" : "optRepeat").checked = state.opts[optKey];
-      if (optKey === "laundry" || optKey === "repeat") rebuildActivityItems();
-      saveState();
-      render();
-      if (currentView === "grid") renderGrid();
+      afterListOptionsChanged(optKey !== "hidePacked");
     });
   }
 
@@ -5563,9 +5643,16 @@
   populateAddCategory();
   renderActivities();
   document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") flushSaveState();
+    if (document.visibilityState === "hidden") {
+      flushSaveState();
+    } else if (document.visibilityState === "visible") {
+      reconcileOnReturn();
+    }
   });
   window.addEventListener("pagehide", flushSaveState);
+  window.addEventListener("pageshow", function () {
+    reconcileOnReturn();
+  });
 
   function exportArubaBackup() {
     var payload = typeof AppsBackup !== "undefined" && AppsBackup.APP_REGISTRY["aruba-packing"]
@@ -5633,7 +5720,7 @@
     reader.readAsText(file);
   });
 
-  render();
+  bootAppFromStorage();
 })();
   </script>
   <script src="../apps-backup.js"></script>
