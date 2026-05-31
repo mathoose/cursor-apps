@@ -391,7 +391,7 @@ function wirePlaceMetaPanel(name) {
   if (visitedEl) {
     visitedEl.onchange = function() {
       setPlaceMeta(name, { visited: visitedEl.checked });
-      modalMeta.textContent = formatModalMeta(byName[name]);
+      renderModalMeta(byName[name]);
       refreshFilters();
       if (viewMode === 'list') renderListView();
     };
@@ -401,7 +401,7 @@ function wirePlaceMetaPanel(name) {
     ratingEl.onchange = function() {
       var v = ratingEl.value ? parseInt(ratingEl.value, 10) : null;
       setPlaceMeta(name, { rating: v });
-      modalMeta.textContent = formatModalMeta(byName[name]);
+      renderModalMeta(byName[name]);
       refreshFilters();
       if (viewMode === 'list') renderListView();
     };
@@ -560,6 +560,9 @@ function mergeOverrides(overrides) {
     if (o.social !== undefined) r.social = o.social;
     if (o.address !== undefined) r.address = o.address;
     if (o.neighborhood !== undefined) r.neighborhood = o.neighborhood;
+    if (o.hours !== undefined) r.hours = o.hours;
+    if (o.hoursSource !== undefined) r.hoursSource = o.hoursSource;
+    if (o.googlePlaceId !== undefined) r.googlePlaceId = o.googlePlaceId;
     if (o.schedule !== undefined) {
       r.schedule = o.schedule;
       var idx = RESTAURANTS.indexOf(r);
@@ -597,7 +600,7 @@ function bootstrapData(allPlaces) {
 }
 
 function startApp() {
-  fetch('places.json')
+  fetch('places.json?v=4')
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
@@ -618,9 +621,9 @@ function startApp() {
 
 function parseTime(t) {
   if (!t) return NaN;
-  const m = String(t).match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  const m = String(t).match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
   if (!m) return NaN;
-  let h = +m[1], min = +m[2];
+  let h = +m[1], min = m[2] ? +m[2] : 0;
   if (m[3].toUpperCase() === 'PM' && h !== 12) h += 12;
   if (m[3].toUpperCase() === 'AM' && h === 12) h = 0;
   return h * 60 + min;
@@ -648,6 +651,28 @@ function isActive(r, day, slot) {
   const s = r.schedule[day];
   if (!s) return false;
   return parseTime(s.start) <= slot && slot < parseTime(s.end);
+}
+function hasGoogleHours(r) {
+  return !!(r && r.hoursSource === 'google' && r.hours && Object.keys(r.hours).length);
+}
+
+function isPlaceOpenNow(r) {
+  if (!r) return false;
+  var day = getTodayDayName();
+  var now = getNowSlot();
+  var dayHours = r.hours && r.hours[day];
+  if (!dayHours || !dayHours.open || !dayHours.close) return false;
+  var openMin = parseTime(dayHours.open);
+  var closeMin = parseTime(dayHours.close);
+  if (isNaN(openMin) || isNaN(closeMin)) return false;
+  if (closeMin <= openMin) return now >= openMin || now < closeMin;
+  return now >= openMin && now < closeMin;
+}
+function formatTodayHours(r) {
+  if (!hasGoogleHours(r)) return '';
+  var dayHours = r.hours[getTodayDayName()];
+  if (!dayHours) return 'Closed today';
+  return 'Open today ' + dayHours.open + ' – ' + dayHours.close;
 }
 function pickDefaultTime(day) {
   var now = getNowSlot();
@@ -888,10 +913,31 @@ function openAddPlace() {
     schedule: defaultQuickSchedule()
   };
   modalTitle.textContent = 'Add place';
-  modalMeta.textContent = '';
+  renderModalMeta(null);
   renderEditMode(blank);
   modal.classList.add('open');
   updateBodyModalClass();
+}
+
+function formatModalMetaHtml(r) {
+  var meta = getPlaceMeta(r.name);
+  var bits = [];
+  if (r.neighborhood) bits.push(escapeHtml(r.neighborhood));
+  if (r.address) {
+    var mapsUrl = appleMapsUrl(r);
+    if (mapsUrl) {
+      bits.push('<a class="modal-meta-link" href="' + escapeHtml(mapsUrl) + '">' + escapeHtml(r.address) + '</a>');
+    } else {
+      bits.push(escapeHtml(r.address));
+    }
+  }
+  if (meta.visited) bits.push('Visited');
+  if (meta.rating) bits.push('\u2605 ' + meta.rating + '/10');
+  return bits.join(' \u00b7 ');
+}
+
+function renderModalMeta(r) {
+  if (modalMeta) modalMeta.innerHTML = r ? formatModalMetaHtml(r) : '';
 }
 
 function formatModalMeta(r) {
@@ -921,7 +967,7 @@ function openModal(name) {
   addingNewPlace = false;
   currentModalName = name;
   modalTitle.textContent = r.name;
-  modalMeta.textContent = formatModalMeta(r);
+  renderModalMeta(r);
   renderViewMode(r);
   modal.classList.add('open');
   updateBodyModalClass();
@@ -1001,7 +1047,7 @@ function saveEdit(originalName) {
     renamePlaceMeta(originalName, name);
   }
   modalTitle.textContent = r.name;
-  modalMeta.textContent = formatModalMeta(r);
+  renderModalMeta(r);
   populateEditAnySelect();
   if (!Object.keys(schedule).length) {
     var idx = RESTAURANTS.indexOf(r);
@@ -1429,6 +1475,7 @@ var pickerModal = document.getElementById('picker-modal');
 var pickerWheel = document.getElementById('picker-wheel');
 var pickerWheelCenter = document.getElementById('picker-wheel-center');
 var pickerTagChips = document.getElementById('picker-tag-chips');
+var pickerNeighborhood = document.getElementById('picker-neighborhood');
 var pickerFavoritesOnly = document.getElementById('picker-favorites-only');
 var pickerSpinBtn = document.getElementById('picker-spin-btn');
 var pickerSpinAgainBtn = document.getElementById('picker-spin-again');
@@ -1443,8 +1490,18 @@ var pickerSpinning = false;
 var pickerWinnerName = '';
 var PICKER_COLORS = ['#43a047', '#1976d2', '#f59e0b', '#e53935', '#8e24aa', '#00897b', '#5c6bc0', '#ef6c00'];
 
+function countGoogleHoursPlaces() {
+  return Object.keys(byName).filter(function(n) { return hasGoogleHours(byName[n]); }).length;
+}
+
 function getPickerPool() {
   var list = Object.keys(byName).map(function(n) { return byName[n]; });
+  list = list.filter(function(r) {
+    return !hasGoogleHours(r) || isPlaceOpenNow(r);
+  });
+  if (pickerNeighborhood && pickerNeighborhood.value) {
+    list = list.filter(function(r) { return r.neighborhood === pickerNeighborhood.value; });
+  }
   if (pickerFavoritesOnly && pickerFavoritesOnly.checked) {
     var favs = getFavorites();
     list = list.filter(function(r) { return favs.indexOf(r.name) >= 0; });
@@ -1457,6 +1514,33 @@ function getPickerPool() {
   }
   list.sort(function(a, b) { return a.name.localeCompare(b.name); });
   return list;
+}
+
+function populatePickerNeighborhoodSelect() {
+  if (!pickerNeighborhood) return;
+  var current = pickerNeighborhood.value;
+  pickerNeighborhood.innerHTML = '<option value="">All neighborhoods</option>';
+  NEIGHBORHOODS.forEach(function(n) {
+    var opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    pickerNeighborhood.appendChild(opt);
+  });
+  if (current && NEIGHBORHOODS.indexOf(current) >= 0) pickerNeighborhood.value = current;
+}
+
+function pickerSubtitle(n) {
+  var googleN = countGoogleHoursPlaces();
+  var day = getTodayDayName();
+  var time = fmtMinutes(getNowSlot());
+  if (!n) {
+    if (googleN) return 'No places open now (' + day + ' ' + time + ') match these filters';
+    return 'No places match these filters';
+  }
+  if (googleN) {
+    return n + ' in the wheel · ' + googleN + ' have Google hours (open-now filter active)';
+  }
+  return n + ' place' + (n === 1 ? '' : 's') + ' in the wheel';
 }
 
 function renderPickerTagChips() {
@@ -1487,11 +1571,7 @@ function refreshPickerWheel() {
   pickerPool = getPickerPool();
   var n = pickerPool.length;
   var sub = document.getElementById('picker-sub');
-  if (sub) {
-    sub.textContent = n
-      ? n + ' place' + (n === 1 ? '' : 's') + ' in the wheel — filter by tag, then spin'
-      : 'No places match — adjust your filters';
-  }
+  if (sub) sub.textContent = pickerSubtitle(n);
   if (pickerWheel) {
     pickerWheel.style.background = buildPickerWheelGradient(n);
     pickerWheel.style.transform = 'rotate(' + pickerRotation + 'deg)';
@@ -1517,7 +1597,12 @@ function renderPickerResult(name) {
   if (!r || !pickerResult) return;
   pickerWinnerName = name;
   document.getElementById('picker-result-name').textContent = r.name;
-  document.getElementById('picker-result-meta').textContent = formatModalMeta(r);
+  var metaEl = document.getElementById('picker-result-meta');
+  var metaHtml = formatModalMetaHtml(r);
+  var hoursText = formatTodayHours(r);
+  metaEl.innerHTML = hoursText
+    ? metaHtml + ' \u00b7 ' + escapeHtml(hoursText)
+    : metaHtml;
   var descEl = document.getElementById('picker-result-desc');
   descEl.innerHTML = formatDescription(r.description);
   var linksEl = document.getElementById('picker-result-links');
@@ -1578,6 +1663,8 @@ function openPickerModal() {
   pickerRotation = 0;
   pickerSpinning = false;
   if (pickerFavoritesOnly) pickerFavoritesOnly.checked = false;
+  if (pickerNeighborhood) pickerNeighborhood.value = '';
+  populatePickerNeighborhoodSelect();
   resetPickerResult();
   renderPickerTagChips();
   refreshPickerWheel();
@@ -1621,6 +1708,13 @@ if (pickerTagChips) {
 }
 if (pickerFavoritesOnly) {
   pickerFavoritesOnly.addEventListener('change', function() {
+    if (pickerSpinning) return;
+    resetPickerResult();
+    refreshPickerWheel();
+  });
+}
+if (pickerNeighborhood) {
+  pickerNeighborhood.addEventListener('change', function() {
     if (pickerSpinning) return;
     resetPickerResult();
     refreshPickerWheel();

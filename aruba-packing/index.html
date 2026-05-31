@@ -53,6 +53,10 @@
       padding-bottom: calc(72px + var(--safe-bottom));
     }
 
+    body.view-scan.has-scan-pack {
+      padding-bottom: calc(140px + var(--safe-bottom));
+    }
+
     button, .tab, .photo-slot, .chip, .section-head, .icon-btn {
       touch-action: manipulation;
     }
@@ -623,6 +627,12 @@
       gap: 10px;
     }
 
+    .grid-group-head.is-editable {
+      cursor: pointer;
+    }
+
+    .grid-group-head.is-editable:active { background: #f8fafc; }
+
     .grid-group-head h3 {
       font-size: 1rem;
       font-weight: 600;
@@ -798,17 +808,84 @@
       font-size: 0.875rem;
       color: var(--muted);
       line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .scan-actions-row {
+      display: flex;
+      gap: 10px;
       margin-bottom: 14px;
     }
 
-    .scan-actions {
+    .scan-actions-row button {
+      flex: 1;
+      height: 48px;
+      border-radius: 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
       display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 16px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .scan-actions .btn-primary { width: 100%; }
+    .scan-cat-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 14px;
+      margin-bottom: 4px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .scan-cat-scroll::-webkit-scrollbar { display: none; }
+
+    .scan-cat-chip {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      white-space: nowrap;
+      min-height: 36px;
+      box-shadow: var(--shadow);
+    }
+
+    .scan-cat-chip.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .scan-cat-chip.full:not(.on) { opacity: 0.7; }
+
+    .scan-cat-chip .chip-meta {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .scan-cat-chip.on .chip-meta { color: var(--accent-dark); opacity: 0.85; }
+
+    .scan-empty {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
 
     .scan-thumbs {
       display: grid;
@@ -822,11 +899,39 @@
       border-radius: 12px;
       overflow: hidden;
       position: relative;
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
       background: #f8fafc;
     }
 
+    .scan-thumb.selectable {
+      cursor: pointer;
+    }
+
+    .scan-thumb.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
     .scan-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .scan-thumb-check {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .scan-thumb.selected .scan-thumb-check { display: flex; }
 
     .scan-thumb-remove {
       position: absolute;
@@ -841,7 +946,62 @@
       font-size: 1rem;
       line-height: 1;
       cursor: pointer;
+      z-index: 2;
     }
+
+    .scan-pack-bar {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(68px + var(--safe-bottom));
+      max-width: 488px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
+      z-index: 40;
+    }
+
+    .scan-pack-bar span {
+      flex: 1;
+      font-size: 0.875rem;
+      font-weight: 600;
+      line-height: 1.3;
+      min-width: 0;
+    }
+
+    .scan-pack-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 44px;
+      padding: 0 18px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+    }
+
+    .scan-pack-btn:disabled { opacity: 0.45; cursor: default; }
+
+    .scan-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .scan-actions .btn-primary { width: 100%; }
 
     .scan-review-bar {
       display: flex;
@@ -850,21 +1010,6 @@
     }
 
     .scan-review-bar button { flex: 1; height: 48px; border-radius: 12px; font-weight: 600; font-size: 0.9375rem; cursor: pointer; }
-
-    .scan-wizard-photo {
-      width: 100%;
-      max-height: 220px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: #f8fafc;
-      margin-bottom: 16px;
-    }
-
-    .scan-wizard-progress {
-      font-size: 0.8125rem;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
 
     .field textarea {
       width: 100%;
@@ -1010,7 +1155,7 @@
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div style="flex:1;min-width:0">
         <h1>Scan</h1>
-        <p class="hero-meta">Snap items · categorize each one</p>
+        <p class="hero-meta" id="scanHeroMeta">Import photos · sort into wardrobe</p>
       </div>
     </div>
   </header>
@@ -1037,7 +1182,8 @@
   <div class="scan-page scan-only" id="scanRoot" aria-live="polite"></div>
 
   <input type="file" id="fileInput" accept="image/*,.heic,.heif" />
-  <input type="file" id="scanFileInput" accept="image/*,.heic,.heif" capture="environment" multiple />
+  <input type="file" id="scanCameraInput" accept="image/*,.heic,.heif" capture="environment" multiple />
+  <input type="file" id="scanImportInput" accept="image/*,.heic,.heif" multiple />
 
   <div class="photo-viewer" id="photoViewer" role="dialog" aria-modal="true" hidden>
     <img id="viewerImg" alt="" />
@@ -1102,54 +1248,25 @@
       <div class="sheet-handle"></div>
       <h3 id="editTitle">Edit item</h3>
       <div class="field">
-        <label for="editName">Item name</label>
+        <label for="editName" id="editNameLabel">Item name</label>
         <input type="text" id="editName" autocomplete="off" maxlength="120" />
       </div>
-      <div class="field">
-        <label for="editCategory">Category</label>
-        <select id="editCategory"></select>
+      <div class="field" id="editWardrobeField" hidden>
+        <label for="editWardrobeType">Wardrobe category</label>
+        <select id="editWardrobeType"></select>
+        <input type="text" id="editWardrobeTypeOther" placeholder="Custom category" maxlength="60" hidden style="margin-top:8px" />
       </div>
       <div class="field">
+        <label for="editCategory" id="editCategoryLabel">Category</label>
+        <select id="editCategory"></select>
+      </div>
+      <div class="field" id="editNoteField">
         <label for="editNote">Description</label>
-        <textarea id="editNote" placeholder="Optional notes, e.g. Brazil jersey" maxlength="200"></textarea>
+        <textarea id="editNote" placeholder="Optional notes" maxlength="200"></textarea>
       </div>
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="editOverlay">Cancel</button>
         <button type="button" class="btn-save" id="editSave">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scan categorize wizard -->
-  <div class="overlay" id="scanWizardOverlay" role="dialog" aria-modal="true" aria-labelledby="scanWizardTitle">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <h3 id="scanWizardTitle">Describe this item</h3>
-      <p class="scan-wizard-progress" id="scanWizardProgress"></p>
-      <img class="scan-wizard-photo" id="scanWizardPhoto" alt="" />
-      <div class="field">
-        <label for="scanWizardType">Category</label>
-        <input type="text" id="scanWizardType" placeholder="e.g. T-shirt, shorts, sandals" autocomplete="off" maxlength="60" list="scanTypeSuggestions" />
-        <datalist id="scanTypeSuggestions">
-          <option value="T-shirt"></option>
-          <option value="Tank top"></option>
-          <option value="Shorts"></option>
-          <option value="Pants"></option>
-          <option value="Dress"></option>
-          <option value="Swimsuit"></option>
-          <option value="Sandals"></option>
-          <option value="Sneakers"></option>
-          <option value="Hat"></option>
-          <option value="Jacket"></option>
-        </datalist>
-      </div>
-      <div class="field">
-        <label for="scanWizardDesc">Description</label>
-        <input type="text" id="scanWizardDesc" placeholder="e.g. Brazil jersey" autocomplete="off" maxlength="120" />
-      </div>
-      <div class="sheet-actions">
-        <button type="button" class="btn-cancel" id="scanWizardSkip">Skip</button>
-        <button type="button" class="btn-save" id="scanWizardSave">Save &amp; next</button>
       </div>
     </div>
   </div>
@@ -1215,6 +1332,23 @@
     { id: "golf", label: "Golf", desc: "Collared shirts, shoes" },
     { id: "casino", label: "Casino / nightlife", desc: "Smart casual" },
     { id: "diving", label: "Scuba diving", desc: "Cert card, log book" },
+  ];
+
+  const WARDROBE_TYPES = [
+    "T-shirt",
+    "Tank top",
+    "Shorts",
+    "Pants",
+    "Dress",
+    "Swimsuit",
+    "Sandals",
+    "Sneakers",
+    "Hat",
+    "Jacket",
+    "Soccer jersey",
+    "Jersey",
+    "Polo",
+    "Other",
   ];
 
   /** @type {Record<string, {label:string, note?:string, qty:number, category:string, activity?:string, base?:boolean}>} */
@@ -1440,8 +1574,8 @@
   let viewerPhoto = null;
   let editingItemId = null;
   let scanQueue = [];
-  let scanWizardIndex = 0;
-  let scanPendingBlobs = [];
+  let scanActiveCategoryKey = null;
+  let scanSelectedIds = {};
   const thumbCache = {};
   const IDB_NAME = "aruba-pack-photos-v1";
   const IDB_STORE = "photos";
@@ -1713,7 +1847,314 @@
   function gridDisplayName(id) {
     const cat = CATALOG[id];
     if (cat && cat.gridLabel) return cat.gridLabel;
+    const row = state.items[id];
+    if (row && row.custom && row.note) return row.note;
     return itemLabel(id);
+  }
+
+  function gridGroupSubtitle(id) {
+    const row = state.items[id];
+    if (!row || !row.custom || !row.note) return "";
+    const label = itemLabel(id);
+    if (label && label !== row.note) return label;
+    return "";
+  }
+
+  function isWardrobeCustomItem(id) {
+    const row = state.items[id];
+    return !!(row && row.custom && itemCategory(id) === "clothing");
+  }
+
+  function populateWardrobeTypeSelect(selId, selected) {
+    const sel = document.getElementById(selId);
+    const normalized = selected || "";
+    let html = '<option value="">Choose category…</option>';
+    WARDROBE_TYPES.forEach(function (t) {
+      html += '<option value="' + escapeHtml(t) + '"' + (t === normalized ? " selected" : "") + ">" + escapeHtml(t) + "</option>";
+    });
+    if (normalized && WARDROBE_TYPES.indexOf(normalized) === -1) {
+      html += '<option value="' + escapeHtml(normalized) + '" selected>' + escapeHtml(normalized) + "</option>";
+    }
+    sel.innerHTML = html;
+  }
+
+  function syncWardrobeOtherField(selectId, otherId) {
+    const sel = document.getElementById(selectId);
+    const other = document.getElementById(otherId);
+    const show = sel.value === "Other";
+    other.hidden = !show;
+    if (show) other.required = true;
+    else other.required = false;
+  }
+
+  function getWardrobeTypeValue(selectId, otherId) {
+    const val = document.getElementById(selectId).value;
+    if (val === "Other") {
+      return document.getElementById(otherId).value.trim();
+    }
+    return val.trim();
+  }
+
+  function normalizeWardrobeLabel(s) {
+    return String(s || "").toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  function findCatalogIdForWardrobeType(type) {
+    const norm = normalizeWardrobeLabel(type);
+    const normSing = norm.replace(/s$/, "");
+    for (const [id, item] of Object.entries(CATALOG)) {
+      if (!item.grid) continue;
+      const gl = normalizeWardrobeLabel(item.gridLabel || item.label);
+      const glSing = gl.replace(/s$/, "");
+      if (gl === norm || glSing === normSing || gl.includes(norm) || norm.includes(glSing)) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  function findCustomItemByWardrobeType(type) {
+    const norm = normalizeWardrobeLabel(type);
+    for (const id of Object.keys(state.items)) {
+      const row = state.items[id];
+      if (row && row.custom && row.note && normalizeWardrobeLabel(row.note) === norm) {
+        return id;
+      }
+    }
+    return null;
+  }
+
+  function getItemPhotoFill(itemId, photoCounts) {
+    const row = state.items[itemId];
+    if (!row) return { full: false, filled: 0, qty: 0 };
+    let filled = 0;
+    for (let i = 0; i < row.qty; i++) {
+      if (photoCounts[photoKey(itemId, i)]) filled++;
+    }
+    return { filled: filled, qty: row.qty, full: row.qty > 0 && filled >= row.qty };
+  }
+
+  function buildWardrobeCategoryList(photoCounts) {
+    const options = [];
+    const seen = {};
+
+    gridGroups().forEach(function (g) {
+      const fill = getItemPhotoFill(g.id, photoCounts);
+      seen[normalizeWardrobeLabel(g.name)] = true;
+      options.push({
+        key: "item:" + g.id,
+        label: g.name,
+        itemId: g.id,
+        wardrobeType: g.name,
+        catalogId: CATALOG[g.id] ? g.id : findCatalogIdForWardrobeType(g.name),
+        full: fill.full,
+        filled: fill.filled,
+        qty: fill.qty,
+      });
+    });
+
+    Object.keys(CATALOG).forEach(function (id) {
+      const item = CATALOG[id];
+      if (!item || !item.grid) return;
+      const label = item.gridLabel || item.label;
+      const norm = normalizeWardrobeLabel(label);
+      if (seen[norm] || isRemoved(id)) return;
+      if (item.activity && item.activity !== "laundryOnly") {
+        if (!state.opts.activities[item.activity]) return;
+      }
+      options.push({
+        key: "catalog:" + id,
+        label: label,
+        itemId: state.items[id] ? id : null,
+        wardrobeType: label,
+        catalogId: id,
+        full: false,
+        filled: 0,
+        qty: state.items[id] ? state.items[id].qty : 0,
+      });
+      seen[norm] = true;
+    });
+
+    WARDROBE_TYPES.forEach(function (type) {
+      if (type === "Other") return;
+      const norm = normalizeWardrobeLabel(type);
+      const catalogId = findCatalogIdForWardrobeType(type);
+      if (catalogId && state.items[catalogId]) return;
+      if (seen[norm]) return;
+
+      const customId = findCustomItemByWardrobeType(type);
+      const fill = customId ? getItemPhotoFill(customId, photoCounts) : { full: false, filled: 0, qty: 0 };
+      options.push({
+        key: "type:" + type,
+        label: type,
+        itemId: customId,
+        wardrobeType: type,
+        catalogId: catalogId,
+        full: fill.full,
+        filled: fill.filled,
+        qty: fill.qty,
+      });
+      seen[norm] = true;
+    });
+
+    options.sort(function (a, b) {
+      if (a.full !== b.full) return a.full ? 1 : -1;
+      return a.label.localeCompare(b.label);
+    });
+    return options;
+  }
+
+  function getScanCategoryOption(key, photoCounts) {
+    return buildWardrobeCategoryList(photoCounts).find(function (o) { return o.key === key; }) || null;
+  }
+
+  function resolvePackTarget(option) {
+    if (option.itemId && state.items[option.itemId]) {
+      return option.itemId;
+    }
+    if (option.catalogId && CATALOG[option.catalogId]) {
+      const id = option.catalogId;
+      if (!state.items[id]) {
+        state.items[id] = { packed: false, qty: 0, custom: false };
+      }
+      if (isRemoved(id)) {
+        state.removed = (state.removed || []).filter(function (x) { return x !== id; });
+      }
+      return id;
+    }
+    const id = "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+    state.items[id] = {
+      packed: false,
+      qty: 0,
+      custom: true,
+      label: option.wardrobeType,
+      category: "clothing",
+      note: option.wardrobeType,
+    };
+    return id;
+  }
+
+  function loadPhotoCountsForItem(itemId, maxSlots) {
+    const row = state.items[itemId];
+    const max = maxSlots || (row ? Math.max(row.qty + 10, 12) : 12);
+    const counts = {};
+    const promises = [];
+    for (let i = 0; i < max && i < 99; i++) {
+      const key = photoKey(itemId, i);
+      promises.push(
+        idbGet(key).then(function (blob) {
+          if (blob) counts[key] = true;
+        })
+      );
+    }
+    return Promise.all(promises).then(function () { return counts; });
+  }
+
+  function scanSelectedCount() {
+    return Object.keys(scanSelectedIds).length;
+  }
+
+  function toggleScanSelection(id) {
+    if (scanSelectedIds[id]) delete scanSelectedIds[id];
+    else scanSelectedIds[id] = true;
+  }
+
+  function clearScanSelection() {
+    scanSelectedIds = {};
+  }
+
+  function updateScanPackBar(option) {
+    const count = scanSelectedCount();
+    const show = !!(option && count > 0);
+    document.body.classList.toggle("has-scan-pack", show && currentView === "scan");
+    let bar = document.getElementById("scanPackBar");
+    if (!show) {
+      if (bar) bar.remove();
+      return;
+    }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "scanPackBar";
+      bar.className = "scan-pack-bar";
+      bar.innerHTML = '<span id="scanPackLabel"></span><button type="button" class="scan-pack-btn" id="scanPackBtn">Pack <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>';
+      document.body.appendChild(bar);
+    }
+    document.getElementById("scanPackLabel").textContent =
+      count + " selected → " + option.label;
+    const btn = document.getElementById("scanPackBtn");
+    btn.disabled = false;
+    btn.onclick = function () {
+      btn.disabled = true;
+      loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+        const opt = getScanCategoryOption(scanActiveCategoryKey, photoCounts);
+        if (!opt) {
+          toast("Choose a category");
+          btn.disabled = false;
+          return;
+        }
+        packSelectedPhotos(opt).finally(function () {
+          const b = document.getElementById("scanPackBtn");
+          if (b) b.disabled = false;
+        });
+      });
+    };
+  }
+
+  function packSelectedPhotos(option) {
+    if (!option) {
+      toast("Choose a category");
+      return Promise.resolve();
+    }
+    const selected = scanQueue.filter(function (e) { return scanSelectedIds[e.id]; });
+    if (!selected.length) {
+      toast("Select photos to pack");
+      return Promise.resolve();
+    }
+    const itemId = resolvePackTarget(option);
+    const row = state.items[itemId];
+    return loadPhotoCountsForItem(itemId, 99).then(function (counts) {
+      let slot = 0;
+      const tasks = [];
+      selected.forEach(function (entry, idx) {
+        while (slot < 99 && counts[photoKey(itemId, slot)]) slot++;
+        if (slot >= row.qty) row.qty = slot + 1;
+        const key = photoKey(itemId, slot);
+        if (thumbCache[key]) {
+          URL.revokeObjectURL(thumbCache[key]);
+          delete thumbCache[key];
+        }
+        tasks.push(idbPut(key, entry.blob));
+        counts[key] = true;
+        if (row.custom && selected.length > 1 && entry.desc) {
+          /* keep existing desc if any */
+        } else if (row.custom && !row.label) {
+          row.label = option.wardrobeType;
+        }
+        slot++;
+      });
+      return Promise.all(tasks).then(function () {
+        saveState();
+        const removeIds = {};
+        selected.forEach(function (e) { removeIds[e.id] = true; });
+        scanQueue = scanQueue.filter(function (e) {
+          if (removeIds[e.id]) {
+            if (e.preview) URL.revokeObjectURL(e.preview);
+            return false;
+          }
+          return true;
+        });
+        clearScanSelection();
+        toast(selected.length + " packed to " + option.label);
+        render();
+        renderScan();
+      });
+    }).catch(function () {
+      toast("Could not pack photos");
+    });
+  }
+
+  function newScanEntryId() {
+    return "scan-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
   }
 
   function isGridItem(id) {
@@ -1827,7 +2268,10 @@
         const index = parseInt(slot.dataset.slot, 10);
         const key = photoKey(itemId, index);
         if (photoCounts[key] || slot.classList.contains("has-photo")) {
-          openPhotoViewer(itemId, index, gridDisplayName(itemId) + " · #" + (index + 1));
+          const caption = gridGroupSubtitle(itemId)
+            ? gridDisplayName(itemId) + " · " + gridGroupSubtitle(itemId) + " · #" + (index + 1)
+            : gridDisplayName(itemId) + " · #" + (index + 1);
+          openPhotoViewer(itemId, index, caption);
         } else {
           pendingPhoto = { itemId: itemId, slot: index };
           document.getElementById("fileInput").click();
@@ -1856,10 +2300,17 @@
       groups.forEach(function (g) {
         let filled = countFilledPhotos(g.id, g.qty, photoCounts);
         const slotCount = slotCountForGroup(g, photoCounts);
+        const subtitle = gridGroupSubtitle(g.id);
+        const headClass = state.items[g.id].custom ? "grid-group-head is-editable" : "grid-group-head";
 
         let block = '<section class="grid-group" data-item="' + escapeHtml(g.id) + '">';
-        block += '<div class="grid-group-head"><div><h3>' + escapeHtml(g.qty) + " " + escapeHtml(g.name) + '</h3>';
-        block += '<div class="count">' + (filled >= g.qty && slotCount > g.qty ? "All slots full — tap + to add another" : "Tap a slot to add a photo") + '</div></div>';
+        block += '<div class="' + headClass + '" data-edit-item="' + escapeHtml(g.id) + '" role="' + (state.items[g.id].custom ? "button" : "presentation") + '"><div><h3>' + escapeHtml(g.qty) + " " + escapeHtml(g.name) + '</h3>';
+        if (subtitle) {
+          block += '<div class="count">' + escapeHtml(subtitle) + '</div>';
+        } else {
+          block += '<div class="count">' + (filled >= g.qty && slotCount > g.qty ? "All slots full — tap + to add another" : "Tap a slot to add a photo") + '</div>';
+        }
+        block += '</div>';
         block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + " photos</span></div>";
         block += '<div class="slot-grid">';
 
@@ -1882,6 +2333,12 @@
 
       updateGridProgress(photoCounts);
       bindSlotButtons(photoCounts);
+
+      root.querySelectorAll(".grid-group-head.is-editable").forEach(function (head) {
+        head.onclick = function () {
+          openEditItem(head.dataset.editItem);
+        };
+      });
 
       root.querySelectorAll("img[data-photo-key]").forEach(function (img) {
         const key = img.getAttribute("data-photo-key");
@@ -1944,6 +2401,9 @@
       renderScan();
     } else {
       closePhotoViewer();
+      document.body.classList.remove("has-scan-pack");
+      const packBar = document.getElementById("scanPackBar");
+      if (packBar) packBar.remove();
       render();
     }
   }
@@ -2256,30 +2716,51 @@
   function openEditItem(id) {
     if (!state.items[id]) return;
     editingItemId = id;
+    const wardrobeCustom = isWardrobeCustomItem(id);
+    document.getElementById("editNameLabel").textContent = wardrobeCustom ? "Description" : "Item name";
+    document.getElementById("editCategoryLabel").textContent = wardrobeCustom ? "List category" : "Category";
+    document.getElementById("editWardrobeField").hidden = !wardrobeCustom;
+    document.getElementById("editNoteField").hidden = wardrobeCustom;
     document.getElementById("editName").value = itemLabel(id);
     populateCategorySelect("editCategory", itemCategory(id));
-    document.getElementById("editNote").value = itemNote(id) || "";
+    if (wardrobeCustom) {
+      const note = itemNote(id) || "";
+      populateWardrobeTypeSelect("editWardrobeType", WARDROBE_TYPES.indexOf(note) !== -1 ? note : (note ? "Other" : ""));
+      document.getElementById("editWardrobeTypeOther").value = WARDROBE_TYPES.indexOf(note) !== -1 ? "" : note;
+      syncWardrobeOtherField("editWardrobeType", "editWardrobeTypeOther");
+    } else {
+      document.getElementById("editNote").value = itemNote(id) || "";
+    }
     openOverlay("editOverlay");
     setTimeout(function () {
-      document.getElementById("editName").focus();
-      document.getElementById("editName").select();
+      (wardrobeCustom ? document.getElementById("editWardrobeType") : document.getElementById("editName")).focus();
     }, 300);
   }
 
   function saveEditItem() {
     if (!editingItemId || !state.items[editingItemId]) return;
+    const wardrobeCustom = isWardrobeCustomItem(editingItemId);
     const name = document.getElementById("editName").value.trim();
     if (!name) {
-      toast("Enter an item name");
+      toast(wardrobeCustom ? "Enter a description" : "Enter an item name");
       return;
     }
     const row = state.items[editingItemId];
     const category = document.getElementById("editCategory").value;
-    const note = document.getElementById("editNote").value.trim();
     row.label = name;
     row.category = category;
-    if (note) row.note = note;
-    else delete row.note;
+    if (wardrobeCustom) {
+      const wardrobeType = getWardrobeTypeValue("editWardrobeType", "editWardrobeTypeOther");
+      if (!wardrobeType) {
+        toast("Choose a wardrobe category");
+        return;
+      }
+      row.note = wardrobeType;
+    } else {
+      const note = document.getElementById("editNote").value.trim();
+      if (note) row.note = note;
+      else delete row.note;
+    }
     saveState();
     closeOverlay("editOverlay");
     editingItemId = null;
@@ -2290,51 +2771,139 @@
 
   function renderScan() {
     const root = document.getElementById("scanRoot");
-    let html = '<p class="scan-intro">Take photos of clothes and gear, then label each one. Example: category <strong>T-shirt</strong>, description <strong>Brazil jersey</strong>.</p>';
-    html += '<div class="scan-actions">';
-    html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Take photos</button>';
-    if (scanQueue.length) {
-      html += '<button type="button" class="btn-secondary" id="btnScanMore">Add more photos</button>';
-    }
-    html += '</div>';
+    const groups = gridGroups();
 
-    if (scanQueue.length) {
-      html += '<div class="scan-thumbs">';
-      scanQueue.forEach(function (entry, idx) {
-        html += '<div class="scan-thumb"><img src="' + entry.preview + '" alt="" /><button type="button" class="scan-thumb-remove" data-idx="' + idx + '" aria-label="Remove photo">×</button></div>';
+    loadPhotoCounts(groups).then(function (photoCounts) {
+      const categories = buildWardrobeCategoryList(photoCounts);
+      if (scanActiveCategoryKey && !categories.some(function (c) { return c.key === scanActiveCategoryKey; })) {
+        scanActiveCategoryKey = null;
+        clearScanSelection();
+      }
+      const activeOption = scanActiveCategoryKey
+        ? categories.find(function (c) { return c.key === scanActiveCategoryKey; })
+        : null;
+
+      let html = '<p class="scan-intro">Import or snap every garment, pick a category, tap the matching photos, then <strong>Pack</strong> to move them into your wardrobe.</p>';
+      html += '<div class="scan-actions-row">';
+      html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera</button>';
+      html += '<button type="button" class="btn-secondary" id="btnScanImport"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import</button>';
+      html += '</div>';
+
+      html += '<div class="scan-cat-scroll" role="toolbar" aria-label="Clothing categories">';
+      categories.forEach(function (cat) {
+        const on = scanActiveCategoryKey === cat.key;
+        html += '<button type="button" class="scan-cat-chip' + (on ? " on" : "") + (cat.full ? " full" : "") + '" data-cat-key="' + escapeHtml(cat.key) + '">';
+        html += escapeHtml(cat.label);
+        if (cat.qty > 0) {
+          html += '<span class="chip-meta">' + cat.filled + "/" + cat.qty + "</span>";
+        } else if (cat.full) {
+          html += '<span class="chip-meta">full</span>';
+        }
+        html += "</button>";
       });
-      html += '</div>';
-      html += '<div class="scan-review-bar">';
-      html += '<button type="button" class="btn-cancel" id="btnScanClear">Clear all</button>';
-      html += '<button type="button" class="btn-save" id="btnScanStart">Describe ' + scanQueue.length + " item" + (scanQueue.length === 1 ? "" : "s") + '</button>';
-      html += '</div>';
-    }
+      html += "</div>";
 
-    root.innerHTML = html;
+      if (!scanQueue.length) {
+        html += '<div class="scan-empty">No photos yet. Use <strong>Camera</strong> or <strong>Import</strong> to add everything you are packing.</div>';
+      } else {
+        if (!activeOption) {
+          html += '<p class="scan-intro" style="margin-bottom:10px">Choose a category above, then tap photos to select them.</p>';
+        } else {
+          html += '<p class="scan-intro" style="margin-bottom:10px">Tap photos for <strong>' + escapeHtml(activeOption.label) + "</strong>, then hit Pack.</p>";
+        }
+        html += '<div class="scan-thumbs">';
+        scanQueue.forEach(function (entry) {
+          const selected = !!scanSelectedIds[entry.id];
+          const selectable = !!activeOption;
+          html += '<div class="scan-thumb' + (selectable ? " selectable" : "") + (selected ? " selected" : "") + '" data-scan-id="' + escapeHtml(entry.id) + '">';
+          html += '<img src="' + entry.preview + '" alt="" />';
+          if (selectable) html += '<span class="scan-thumb-check" aria-hidden="true">✓</span>';
+          html += '<button type="button" class="scan-thumb-remove" data-scan-id="' + escapeHtml(entry.id) + '" aria-label="Remove photo">×</button>';
+          html += "</div>";
+        });
+        html += "</div>";
+        if (scanQueue.length) {
+          html += '<button type="button" class="btn-cancel" id="btnScanClear" style="width:100%;height:44px;border-radius:12px;margin-bottom:8px">Clear all photos</button>';
+        }
+      }
 
-    document.getElementById("btnScanCapture").onclick = function () {
-      document.getElementById("scanFileInput").click();
-    };
-    const moreBtn = document.getElementById("btnScanMore");
-    if (moreBtn) moreBtn.onclick = function () { document.getElementById("scanFileInput").click(); };
-    root.querySelectorAll(".scan-thumb-remove").forEach(function (btn) {
-      btn.onclick = function () {
-        const idx = parseInt(btn.dataset.idx, 10);
-        const removed = scanQueue.splice(idx, 1)[0];
-        if (removed && removed.preview) URL.revokeObjectURL(removed.preview);
-        renderScan();
+      root.innerHTML = html;
+
+      document.getElementById("btnScanCapture").onclick = function () {
+        document.getElementById("scanCameraInput").click();
       };
-    });
-    const clearBtn = document.getElementById("btnScanClear");
-    if (clearBtn) clearBtn.onclick = function () {
-      scanQueue.forEach(function (entry) {
-        if (entry.preview) URL.revokeObjectURL(entry.preview);
+      document.getElementById("btnScanImport").onclick = function () {
+        document.getElementById("scanImportInput").click();
+      };
+
+      root.querySelectorAll(".scan-cat-chip").forEach(function (chip) {
+        chip.onclick = function () {
+          const key = chip.dataset.catKey;
+          if (scanActiveCategoryKey === key) {
+            scanActiveCategoryKey = null;
+            clearScanSelection();
+          } else {
+            scanActiveCategoryKey = key;
+            clearScanSelection();
+          }
+          renderScan();
+        };
       });
-      scanQueue = [];
-      renderScan();
-    };
-    const startBtn = document.getElementById("btnScanStart");
-    if (startBtn) startBtn.onclick = startScanWizard;
+
+      root.querySelectorAll(".scan-thumb.selectable").forEach(function (thumb) {
+        thumb.onclick = function (e) {
+          if (e.target.closest(".scan-thumb-remove")) return;
+          toggleScanSelection(thumb.dataset.scanId);
+          thumb.classList.toggle("selected");
+          const check = thumb.querySelector(".scan-thumb-check");
+          if (check) check.style.display = scanSelectedIds[thumb.dataset.scanId] ? "flex" : "none";
+          updateScanPackBar(getScanCategoryOption(scanActiveCategoryKey, photoCounts));
+        };
+      });
+
+      root.querySelectorAll(".scan-thumb-remove").forEach(function (btn) {
+        btn.onclick = function (e) {
+          e.stopPropagation();
+          const id = btn.dataset.scanId;
+          delete scanSelectedIds[id];
+          scanQueue = scanQueue.filter(function (entry) {
+            if (entry.id === id) {
+              if (entry.preview) URL.revokeObjectURL(entry.preview);
+              return false;
+            }
+            return true;
+          });
+          renderScan();
+        };
+      });
+
+      const clearBtn = document.getElementById("btnScanClear");
+      if (clearBtn) {
+        clearBtn.onclick = function () {
+          if (!confirm("Remove all photos from the scan grid?")) return;
+          scanQueue.forEach(function (entry) {
+            if (entry.preview) URL.revokeObjectURL(entry.preview);
+          });
+          scanQueue = [];
+          clearScanSelection();
+          renderScan();
+        };
+      }
+
+      const meta = document.getElementById("scanHeroMeta");
+      if (meta) {
+        meta.textContent = scanQueue.length
+          ? scanQueue.length + " photo" + (scanQueue.length === 1 ? "" : "s") + " · pick a category"
+          : "Import photos · sort into wardrobe";
+      }
+
+      updateScanPackBar(activeOption ? getScanCategoryOption(scanActiveCategoryKey, photoCounts) : null);
+
+      const activeChip = root.querySelector(".scan-cat-chip.on");
+      if (activeChip) {
+        activeChip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      }
+    });
   }
 
   function addScanFiles(files) {
@@ -2344,93 +2913,25 @@
       return;
     }
     let pending = list.length;
+    let added = 0;
     list.forEach(function (file) {
       preparePhotoBlob(file).then(function (blob) {
-        scanQueue.push({ blob: blob, preview: URL.createObjectURL(blob), type: "", desc: "" });
+        scanQueue.push({
+          id: newScanEntryId(),
+          blob: blob,
+          preview: URL.createObjectURL(blob),
+        });
+        added++;
       }).catch(function () {
         toast("Could not process a photo — skipped");
       }).finally(function () {
         pending--;
-        if (pending === 0) renderScan();
+        if (pending === 0) {
+          if (added) toast(added + " photo" + (added === 1 ? "" : "s") + " added");
+          renderScan();
+        }
       });
     });
-  }
-
-  function startScanWizard() {
-    if (!scanQueue.length) return;
-    scanWizardIndex = 0;
-    scanPendingBlobs = scanQueue.slice();
-    openScanWizardStep();
-  }
-
-  function openScanWizardStep() {
-    if (scanWizardIndex >= scanPendingBlobs.length) {
-      finishScanWizard();
-      return;
-    }
-    const entry = scanPendingBlobs[scanWizardIndex];
-    document.getElementById("scanWizardProgress").textContent =
-      "Item " + (scanWizardIndex + 1) + " of " + scanPendingBlobs.length;
-    document.getElementById("scanWizardPhoto").src = entry.preview;
-    document.getElementById("scanWizardType").value = entry.type || "";
-    document.getElementById("scanWizardDesc").value = entry.desc || "";
-    document.getElementById("scanWizardSave").textContent =
-      scanWizardIndex === scanPendingBlobs.length - 1 ? "Save & finish" : "Save & next";
-    openOverlay("scanWizardOverlay");
-    setTimeout(function () { document.getElementById("scanWizardType").focus(); }, 300);
-  }
-
-  function saveScanWizardStep(skip) {
-    const entry = scanPendingBlobs[scanWizardIndex];
-    if (!skip) {
-      const type = document.getElementById("scanWizardType").value.trim();
-      const desc = document.getElementById("scanWizardDesc").value.trim();
-      if (!type && !desc) {
-        toast("Add a category or description");
-        return;
-      }
-      entry.type = type;
-      entry.desc = desc;
-      addScannedItem(entry);
-    }
-    scanWizardIndex++;
-    closeOverlay("scanWizardOverlay");
-    if (scanWizardIndex >= scanPendingBlobs.length) {
-      finishScanWizard();
-    } else {
-      openScanWizardStep();
-    }
-  }
-
-  function addScannedItem(entry) {
-    const label = entry.desc || entry.type || "Scanned item";
-    const id = "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
-    state.items[id] = {
-      packed: false,
-      qty: 1,
-      custom: true,
-      label: label,
-      category: "clothing",
-    };
-    if (entry.type) state.items[id].note = entry.type;
-    return idbPut(photoKey(id, 0), entry.blob).then(function () {
-      saveState();
-    }).catch(function () {
-      saveState();
-    });
-  }
-
-  function finishScanWizard() {
-    scanQueue.forEach(function (entry) {
-      if (entry.preview) URL.revokeObjectURL(entry.preview);
-    });
-    scanQueue = [];
-    scanPendingBlobs = [];
-    scanWizardIndex = 0;
-    closeOverlay("scanWizardOverlay");
-    renderScan();
-    toast("Items added to your list");
-    setView("list");
   }
 
   function openOverlay(id) {
@@ -2550,10 +3051,15 @@
 
   document.getElementById("editSave").onclick = saveEditItem;
 
-  document.getElementById("scanWizardSave").onclick = function () { saveScanWizardStep(false); };
-  document.getElementById("scanWizardSkip").onclick = function () { saveScanWizardStep(true); };
+  document.getElementById("editWardrobeType").addEventListener("change", function () {
+    syncWardrobeOtherField("editWardrobeType", "editWardrobeTypeOther");
+  });
 
-  document.getElementById("scanFileInput").addEventListener("change", function (e) {
+  document.getElementById("scanCameraInput").addEventListener("change", function (e) {
+    addScanFiles(e.target.files);
+    e.target.value = "";
+  });
+  document.getElementById("scanImportInput").addEventListener("change", function (e) {
     addScanFiles(e.target.files);
     e.target.value = "";
   });
@@ -2615,10 +3121,6 @@
     if (e.key === "Escape") {
       if (document.getElementById("photoViewer").classList.contains("open")) {
         closePhotoViewer();
-        return;
-      }
-      if (document.getElementById("scanWizardOverlay").classList.contains("open")) {
-        closeOverlay("scanWizardOverlay");
         return;
       }
       document.querySelectorAll(".overlay.open").forEach(function (ov) { closeOverlay(ov.id); });

@@ -20,7 +20,7 @@
       </a>
       <div class="top-titles">
         <h1>World Cup 2026</h1>
-        <p class="sub">Group stage · 72 matches · times in ET</p>
+        <p class="sub">Tap any match to enter score · times in ET</p>
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
@@ -47,6 +47,40 @@
   </div>
 
   <main id="matches"></main>
+
+  <div class="modal-backdrop" id="score-modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-title">Enter result</h2>
+          <p class="modal-sub" id="modal-meta"></p>
+        </div>
+        <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-teams" id="modal-teams"></div>
+        <div class="modal-scores">
+          <label class="modal-score-label">
+            <span id="modal-home-name"></span>
+            <input class="score-input modal-score-input" id="modal-home" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+          </label>
+          <span class="score-sep">–</span>
+          <label class="modal-score-label">
+            <span id="modal-away-name"></span>
+            <input class="score-input modal-score-input" id="modal-away" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+          </label>
+        </div>
+        <label class="modal-note-label">
+          Notes <span class="optional">(optional)</span>
+          <textarea id="modal-note" rows="3" placeholder="Goal scorers, thoughts, where you watched…"></textarea>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="modal-clear">Remove score</button>
+        <button type="button" class="btn btn-primary" id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
 
   <script src="matches.js"></script>
   <script src="core.js"></script>

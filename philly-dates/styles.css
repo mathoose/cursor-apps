@@ -333,6 +333,12 @@ td.inactive { background: var(--cell-inactive); }
 }
 .modal-header h2 { margin: 0; font-size: 1.15rem; }
 .modal-meta { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+.modal-meta-link {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+#picker-result-meta .modal-meta-link { color: var(--link); }
 .modal-close, .modal-edit {
   background: var(--btn-bg);
   border: none;
@@ -603,6 +609,17 @@ body.modal-open { overflow: hidden; }
   margin: 0 0 8px;
   font-size: 0.8125rem;
   font-weight: 600;
+}
+.picker-filter-label + .picker-filter-label { margin-top: 12px; }
+.picker-neighborhood {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  font-size: 0.9375rem;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
 }
 .picker-filter-label .hint { font-weight: 400; }
 .picker-tag-chips {

@@ -121,12 +121,16 @@
       <div class="modal-header">
         <div>
           <h2 id="picker-title">Help me find a place</h2>
-          <p class="picker-sub" id="picker-sub">Filter by tag, then spin the wheel</p>
+          <p class="picker-sub" id="picker-sub">Filter and spin — open-now filter uses Google hours when loaded</p>
         </div>
         <button type="button" class="modal-close" id="picker-close" aria-label="Close">&times;</button>
       </div>
       <div class="modal-body picker-body">
         <div class="picker-filters" id="picker-filters-wrap">
+          <p class="picker-filter-label">Neighborhood</p>
+          <select id="picker-neighborhood" class="picker-neighborhood">
+            <option value="">All neighborhoods</option>
+          </select>
           <p class="picker-filter-label">Filter by tags <span class="hint">(optional — leave empty for all places)</span></p>
           <div class="picker-tag-chips" id="picker-tag-chips" role="group" aria-label="Filter by tag"></div>
           <label class="picker-fav-filter"><input type="checkbox" id="picker-favorites-only" /> Favorites only</label>
@@ -139,7 +143,7 @@
             </div>
           </div>
           <button type="button" class="btn btn-primary btn-spin" id="picker-spin-btn">Spin!</button>
-          <p class="picker-empty" id="picker-empty" hidden>No places match these filters. Try clearing some tags.</p>
+          <p class="picker-empty" id="picker-empty" hidden>No places match these filters.</p>
         </div>
         <div class="picker-result" id="picker-result" hidden>
           <p class="picker-result-label">You're going to…</p>

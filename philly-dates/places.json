@@ -28,7 +28,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJK_XHFpzHxokRvuQGqI_1pqY",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
     "name": "Mona",
@@ -59,7 +92,40 @@
         "start": "4:00 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJTVYdEy_GxokRqENH3p2Bvz0",
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 2:00 AM"
   },
   {
     "name": "Vintage Wine Bar",
@@ -90,7 +156,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJaRhJXS_GxokRkFd27uuyrLY",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM"
   },
   {
     "name": "Darling Jack's Tavern",
@@ -121,7 +220,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ09z2qQzHxokR-1gpzJ4Sgm0",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM"
   },
   {
     "name": "Moriarty's Irish Pub",
@@ -152,7 +284,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJC0BFAibGxokRr0Lx2noP0_s",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM"
   },
   {
     "name": "Double Knot",
@@ -191,7 +356,40 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJBdUeZi_GxokR2uEUM6HYpJ4",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 4:00 PM – 12:00 AM; Sunday: 4:00 – 10:00 PM"
   },
   {
     "name": "The Bread Room",
@@ -201,7 +399,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/thebreadroomphl/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJDe1yeODHxokRbVxNdGijrV8",
+    "hoursNote": "Monday: 7:00 AM – 4:00 PM; Tuesday: 7:00 AM – 4:00 PM; Wednesday: 7:00 AM – 4:00 PM; Thursday: 7:00 AM – 4:00 PM; Friday: 7:00 AM – 4:00 PM; Saturday: 9:00 AM – 3:00 PM; Sunday: 9:00 AM – 3:00 PM"
   },
   {
     "name": "Botld",
@@ -211,7 +442,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "1:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "1:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJlzkAqpfHxokRt3GCWRx52-c",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 1:00 – 11:00 PM; Sunday: 1:00 – 9:00 PM"
   },
   {
     "name": "Giuseppe & Sons",
@@ -250,7 +506,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJbYZ7rkTHxokRfhIPW-VgDb4",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM"
   },
   {
     "name": "Harp & Crown",
@@ -285,7 +574,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "9:30 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "9:30 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJQa1JHDDGxokRGExiHLDYVOA",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 9:30 AM – 12:00 AM; Sunday: 9:30 AM – 3:00 PM"
   },
   {
     "name": "The black Sheep Pub & Restaurant",
@@ -355,7 +677,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ1fT52CXHxokRKlMft3BN6zM",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM"
   },
   {
     "name": "Midnight & The Wicked",
@@ -365,7 +720,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJo2Hq4i_GxokR8JmHsU-s45M",
+    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 2:00 AM"
   },
   {
     "name": "Saigon Cafe",
@@ -375,7 +763,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      },
+      "Monday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJL94uciDHxokRyzsTW3GOWS8",
+    "hoursNote": "Monday: 8:30 AM – 7:00 PM; Tuesday: Closed; Wednesday: 8:30 AM – 7:00 PM; Thursday: 8:30 AM – 7:00 PM; Friday: 8:30 AM – 7:00 PM; Saturday: 8:30 AM – 4:00 PM; Sunday: 8:30 AM – 4:00 PM"
   },
   {
     "name": "Pine Street Grill",
@@ -385,7 +802,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ42KJS6zHxokR8Diq_QRoC4k",
+    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM"
   },
   {
     "name": "The Franklin Mortgage & Investment",
@@ -395,7 +841,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJlwYTlTDGxokR8h4PWNXFhTY",
+    "hoursNote": "Monday: 5:00 PM – 12:00 AM; Tuesday: 5:00 PM – 12:00 AM; Wednesday: 5:00 PM – 12:00 AM; Thursday: 5:00 PM – 12:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 12:00 AM"
   },
   {
     "name": "Ranstead Room",
@@ -405,7 +884,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Monday": {
+        "open": "7:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "7:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "7:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "7:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "7:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "7:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJueM_GTfGxokRq_IKa4nOJi4",
+    "hoursNote": "Monday: 7:00 PM – 12:00 AM; Tuesday: 7:00 PM – 12:00 AM; Wednesday: 7:00 PM – 12:00 AM; Thursday: 7:00 PM – 2:00 AM; Friday: 7:00 PM – 2:00 AM; Saturday: 7:00 PM – 2:00 AM; Sunday: Closed"
   },
   {
     "name": "Rosy's Taco Bar",
@@ -415,7 +923,40 @@
     "social": "https://www.instagram.com/reel/DXXqakLDeY5/?igsh=MXV1MDVlODRzM2UwbQ==",
     "hh_menu": "https://rosystacobar.com/",
     "instagram": "https://www.instagram.com/reel/DXXqakLDeY5/?igsh=MXV1MDVlODRzM2UwbQ==",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJb3-BC6TJxokRsN76Mg--3s4",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM"
   },
   {
     "name": "Human Robot",
@@ -425,7 +966,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/humanrobotsud/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJeb64ypzHxokR37gfkTbyOOA",
+    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 2:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 9:00 PM"
   },
   {
     "name": "Dance Robot",
@@ -435,7 +1009,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/dancerobot.phl/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:30 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "10:30 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ2R-jLADHxokRZFDwQebYLo0",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 10:30 AM – 2:00 PM, 4:00 PM – 12:00 AM; Sunday: 10:30 AM – 3:00 PM"
   },
   {
     "name": "Ambrosia",
@@ -445,7 +1048,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "2:30 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "2:30 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "2:30 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "2:30 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "2:30 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJq6pFv0fGxokR2lNwZLzH4Es",
+    "hoursNote": "Monday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Tuesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Wednesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Thursday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Friday: 11:30 AM – 2:30 PM, 4:30 – 11:00 PM; Saturday: 11:00 AM – 2:00 PM, 4:30 – 11:00 PM; Sunday: 11:00 AM – 2:00 PM, 4:00 – 9:00 PM"
   },
   {
     "name": "Dear Daphni",
@@ -484,7 +1120,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJWeZiBmTHxokRNvlQNYx2GcY",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM"
   },
   {
     "name": "Enswell",
@@ -494,7 +1163,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJc3Mxf-3HxokRJ4WamINbRd8",
+    "hoursNote": "Monday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Tuesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Wednesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Thursday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Friday: 7:00 AM – 3:00 PM, 4:30 – 10:30 PM; Saturday: 8:00 AM – 3:00 PM, 4:30 – 10:30 PM; Sunday: 8:00 AM – 3:00 PM, 4:30 – 9:00 PM"
   },
   {
     "name": "Wilder",
@@ -504,7 +1206,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/wilderphilly/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJrWKnrM3HxokRykMoFT3yhpk",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Tequilas Restaurant",
@@ -535,7 +1270,36 @@
         "start": "2:00 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJS0l86zrGxokRSmp9b6VRJT8",
+    "hoursNote": "Monday: 5:00 – 9:00 PM; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: Closed"
   },
   {
     "name": "Brauhaus Schmitz",
@@ -566,7 +1330,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJdaSbpyDGxokRte6dD4EqA_g",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 12:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 PM – 12:00 AM"
   },
   {
     "name": "Lorenzo and Sons Pizza",
@@ -576,7 +1373,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJAW_tWpnIxokRfoqs_RzGdog",
+    "hoursNote": "Monday: 11:00 AM – 1:00 AM; Tuesday: 11:00 AM – 1:00 AM; Wednesday: 11:00 AM – 1:00 AM; Thursday: 11:00 AM – 3:00 AM; Friday: 11:00 AM – 3:00 AM; Saturday: 11:00 AM – 3:00 AM; Sunday: 11:00 AM – 1:00 AM"
   },
   {
     "name": "O'Neals",
@@ -586,7 +1416,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ39KMrXzIxokRxLLKJXv9YHA",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 9:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM"
   },
   {
     "name": "Cavannaugh's headhouse",
@@ -596,7 +1459,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ57UlMJrIxokRzGoYl_rVe2k",
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
   },
   {
     "name": "Bridget Foy's",
@@ -627,7 +1523,36 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ851bnZnIxokRFdlArxg6Yu4",
+    "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: Closed; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 10:00 AM – 8:00 PM"
   },
   {
     "name": "Paddy Whacks Irish sports pup",
@@ -637,7 +1562,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJgUAenZnIxokRm0hnJ7GU2wg",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
   },
   {
     "name": "Marsha's South Street",
@@ -647,7 +1605,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ67AKcgDJxokRr1SrySYTiMo",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM"
   },
   {
     "name": "Spasso",
@@ -657,7 +1648,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ6ZizgI_IxokRMfvmuRIZVKY",
+    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: 2:00 – 9:00 PM"
   },
   {
     "name": "Bistro Romano",
@@ -667,7 +1687,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "4:45 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:45 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:45 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:45 PM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "4:45 PM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJUwU6IZrIxokRgX-V0_Y0eRM",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:45 – 9:00 PM; Thursday: 4:45 – 9:00 PM; Friday: 4:45 – 9:00 PM; Saturday: 4:45 – 9:00 PM; Sunday: 4:45 – 9:00 PM"
   },
   {
     "name": "Bok Bar",
@@ -677,7 +1722,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/bok_bar/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJY4BaiQPGxokRSJ2gJsmb6X0",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 11:00 PM; Thursday: 5:00 – 11:00 PM; Friday: 5:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 2:00 – 9:00 PM"
   },
   {
     "name": "Ristorante Pesto",
@@ -687,7 +1757,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ20IkHA_GxokRTNzdwP0rnJc",
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed"
   },
   {
     "name": "Cafe y chocolate",
@@ -697,7 +1792,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJtWb8cXTGxokRqG1W9mZLasY",
+    "hoursNote": "Monday: 9:00 AM – 5:00 PM; Tuesday: 9:00 AM – 5:00 PM; Wednesday: 9:00 AM – 5:00 PM; Thursday: 9:00 AM – 5:00 PM; Friday: 9:00 AM – 8:00 PM; Saturday: 9:00 AM – 8:00 PM; Sunday: 9:00 AM – 5:00 PM"
   },
   {
     "name": "Next of Kin",
@@ -707,7 +1835,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/nextofkin1755/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ41LekZ3JxokRilqTt09Daf0",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 – 10:00 PM"
   },
   {
     "name": "Love and Honey Fried Chicken",
@@ -717,7 +1878,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/loveandhoneyfriedchicken/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJJc2zzGjIxokRdJ_i0nDSpOA",
+    "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 9:00 PM; Saturday: 11:00 AM – 9:00 PM; Sunday: 11:00 AM – 9:00 PM"
   },
   {
     "name": "Percy Diner and Bar",
@@ -727,7 +1921,40 @@
     "social": "https://www.instagram.com/reel/DU_r9cUj4Tx/?igsh=eDBsNmtyZXp2NG9k",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DU_r9cUj4Tx/?igsh=eDBsNmtyZXp2NG9k",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "11:30 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "11:30 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "11:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ0xr_Da_JxokRyInmnaaaX4g",
+    "hoursNote": "Monday: 9:00 AM – 3:00 PM; Tuesday: 9:00 AM – 3:00 PM; Wednesday: 9:00 AM – 3:00 PM; Thursday: 9:00 AM – 11:30 PM; Friday: 9:00 AM – 11:30 PM; Saturday: 9:00 AM – 11:30 PM; Sunday: 9:00 AM – 3:00 PM"
   },
   {
     "name": "Amy's Pastelillos",
@@ -737,7 +1964,28 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/amys_pastelillos/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJpZv9XADJxokRKniBluNUXhk",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 11:00 AM – 3:00 PM; Thursday: 11:00 AM – 3:00 PM; Friday: 11:00 AM – 3:00 PM; Saturday: 11:00 AM – 3:00 PM; Sunday: Closed"
   },
   {
     "name": "Picnic",
@@ -772,7 +2020,40 @@
         "start": "12:00 PM",
         "end": "9:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJZcfPCwDJxokRdkFL1BVH-ts",
+    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 10:00 PM; Saturday: 12:00 – 10:00 PM; Sunday: 12:00 – 9:00 PM"
   },
   {
     "name": "Front Street Cafe",
@@ -782,7 +2063,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/frontstreetcafe/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJXTNZXGnIxokRv7-nfbIT1-I",
+    "hoursNote": "Monday: 8:00 AM – 4:00 PM; Tuesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Wednesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Thursday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Friday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Saturday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Sunday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM"
   },
   {
     "name": "Attico Rooftoop",
@@ -792,7 +2106,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/atticorooftop/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:30 AM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:30 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJY9gOcCXGxokR1H3ySEv8zag",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 11:00 PM"
   },
   {
     "name": "Good dog bar",
@@ -823,7 +2162,40 @@
         "start": "3:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJPzXhsjrGxokRfz0Y3386McU",
+    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM"
   },
   {
     "name": "Square 1682",
@@ -858,7 +2230,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "9:30 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJBzQZYzDGxokRZzPeP310hr8",
+    "hoursNote": "Monday: 7:00 AM – 9:30 PM; Tuesday: 7:00 AM – 9:30 PM; Wednesday: 7:00 AM – 9:30 PM; Thursday: 7:00 AM – 9:30 PM; Friday: 7:00 AM – 11:00 PM; Saturday: 8:00 AM – 11:00 PM; Sunday: 8:00 AM – 2:00 PM"
   },
   {
     "name": "Cellar Dog",
@@ -885,7 +2290,32 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJS36QLr3HxokRIXhbttziTmE",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: Closed"
   },
   {
     "name": "El Camino",
@@ -924,7 +2354,40 @@
         "start": "10:00 AM",
         "end": "12:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJsRdhnm_IxokRcPl8adyBZos",
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM"
   },
   {
     "name": "Murph's Bar (Fishtown)",
@@ -934,7 +2397,40 @@
     "social": "",
     "hh_menu": "https://www.murphsbarfishtown.com/",
     "instagram": "https://www.instagram.com/murphsbar/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:30 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:30 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:30 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJxckCo2nIxokRj34J9koOHgc",
+    "hoursNote": "Monday: 1:00 PM – 2:00 AM; Tuesday: 1:00 PM – 2:00 AM; Wednesday: 1:00 PM – 2:00 AM; Thursday: 1:00 PM – 2:00 AM; Friday: 12:30 PM – 2:00 AM; Saturday: 12:30 PM – 2:00 AM; Sunday: 12:30 PM – 2:00 AM"
   },
   {
     "name": "Loco Pez",
@@ -969,7 +2465,40 @@
         "start": "1:00 PM",
         "end": "3:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJk19TD-7HxokRZWWJCTH7Jgo",
+    "hoursNote": "Monday: 12:00 – 10:00 PM; Tuesday: 12:00 – 10:00 PM; Wednesday: 12:00 – 10:00 PM; Thursday: 12:00 – 10:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Loco Pez (Fishtown)",
@@ -1004,7 +2533,40 @@
         "start": "1:00 PM",
         "end": "3:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ_cOVHj_IxokRre9EPY1KNkY",
+    "hoursNote": "Monday: 11:00 AM – 10:00 PM; Tuesday: 11:00 AM – 11:00 PM; Wednesday: 11:00 AM – 11:00 PM; Thursday: 11:00 AM – 11:00 PM; Friday: 11:00 AM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Glory Beer and Kitchen",
@@ -1035,7 +2597,40 @@
         "start": "4:30 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ__9rZoXIxokRZXxPHOGFeVE",
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
   },
   {
     "name": "Cuba Libre",
@@ -1070,7 +2665,40 @@
         "start": "12:00 PM",
         "end": "4:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ_8Tvm4XIxokRBA-RzDneztg",
+    "hoursNote": "Monday: 4:00 – 9:00 PM; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 9:00 PM"
   },
   {
     "name": "Khyber pass pub",
@@ -1101,7 +2729,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ6dM0coXIxokRzky__HwL7LU",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM"
   },
   {
     "name": "Revolution House",
@@ -1124,7 +2785,36 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJt-KhkIXIxokRrDVlOQKbmJA",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 9:00 PM"
   },
   {
     "name": "Sassafras Bar",
@@ -1151,7 +2841,40 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJVxCRc4XIxokRIQ9K6Vf7w9w",
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
   },
   {
     "name": "JJ Bootleggers",
@@ -1182,7 +2905,28 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "1:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "6:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJQeTMeYXIxokRBSEd7jsg46U",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: Closed; Thursday: 6:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 1:00 PM – 2:00 AM; Sunday: 1:00 PM – 12:00 AM"
   },
   {
     "name": "National Mechanics",
@@ -1213,7 +2957,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJOSWtVYTIxokRwl_XrRL1xz0",
+    "hoursNote": "Monday: 12:00 – 10:00 PM; Tuesday: 12:00 PM – 12:00 AM; Wednesday: 12:00 PM – 12:00 AM; Thursday: 12:00 PM – 12:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM"
   },
   {
     "name": "Spasso's Italian",
@@ -1240,7 +3017,36 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ6ZizgI_IxokRMfvmuRIZVKY",
+    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: 2:00 – 9:00 PM"
   },
   {
     "name": "Umami",
@@ -1271,7 +3077,40 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:30 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJaZ9HQJPJxokRRb9EIqdwmJE",
+    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 4:30 – 10:00 PM; Sunday: 4:30 – 9:00 PM"
   },
   {
     "name": "Independence beer garden",
@@ -1310,7 +3149,32 @@
         "start": "3:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJNxESpoPIxokRs5NCI4-Aosc",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 10:00 PM"
   },
   {
     "name": "Tuna Bar",
@@ -1337,7 +3201,36 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "1:30 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "1:30 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "1:30 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "1:30 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "1:30 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "1:30 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJlRh-K4bIxokRziis3VsBU48",
+    "hoursNote": "Monday: Closed; Tuesday: 1:30 – 10:00 PM; Wednesday: 1:30 – 10:00 PM; Thursday: 1:30 – 10:00 PM; Friday: 1:30 – 11:00 PM; Saturday: 1:30 – 11:00 PM; Sunday: 1:30 – 10:00 PM"
   },
   {
     "name": "Pearl and Mary Oyster Bar",
@@ -1376,7 +3269,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJYb8Jcm7HxokRX_i4HYRDat8",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
     "name": "Village Whiskey",
@@ -1411,7 +3337,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJLfhKaTfGxokRiOZL6x398WY",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
     "name": "QU Japan",
@@ -1446,7 +3405,36 @@
         "start": "1:00 PM",
         "end": "3:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Saturday": {
+        "open": "1:00 PM",
+        "close": "10:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJTemwc0nHxokRo6NcdWhV_Fs",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:30 PM; Saturday: 1:00 – 10:30 PM; Sunday: Closed"
   },
   {
     "name": "The Lesiuer",
@@ -1477,7 +3465,32 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJx540zf_HxokRJFnX_eTNZoM",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: Closed"
   },
   {
     "name": "Calandrino's old city vino",
@@ -1487,7 +3500,28 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJkxn6Sz7JxokRcVWev1tVtDI",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed"
   },
   {
     "name": "Tesiny",
@@ -1497,7 +3531,32 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJf8UroJXHxokR1toEZXXOcgs",
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed"
   },
   {
     "name": "Indo Spice Restaurant",
@@ -1507,7 +3566,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJLV8I2eDHxokRrTmQFZ3cgls",
+    "hoursNote": "Monday: 11:00 AM – 8:00 PM; Tuesday: 11:00 AM – 8:00 PM; Wednesday: 11:00 AM – 8:00 PM; Thursday: 11:00 AM – 8:00 PM; Friday: 11:00 AM – 8:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 8:00 PM"
   },
   {
     "name": "Drury Beer Garden (DBG)",
@@ -1538,7 +3630,36 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJjRxlbi_GxokR28nxL3vZcMY",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 1:00 AM; Thursday: 4:00 PM – 1:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM"
   },
   {
     "name": "Southgate",
@@ -1569,7 +3690,36 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJJSU8_DvGxokRFnFMWo2gJqI",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 2:00 – 11:00 PM; Sunday: 2:00 – 10:00 PM"
   },
   {
     "name": "Amada Restaurant",
@@ -1600,13 +3750,46 @@
         "start": "4:30 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:30 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ2YytEYXIxokRxmFAvm4D_bs",
+    "hoursNote": "Monday: 4:30 – 9:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 2:00 – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
     "name": "Butcher bar",
     "address": "2034 Chestnut St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
-    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* menu: https://butcherbarphilly.com/page/menu-pdf * $28 bottomless mimosa, bloodies, margs\n* live DJ spins Saturdays only from 10:30am\u20132:30pm Deals: $5 drafts, $7 wines, $8 cocktails plus charcuterie specials Mon-Fri 3-6 PM (Rittenhouse meat-forward bar).",
+    "description": "* HH: Mon-Fri 3:00 PM-6:00 PM* menu: https://butcherbarphilly.com/page/menu-pdf * $28 bottomless mimosa, bloodies, margs\n* live DJ spins Saturdays only from 10:30am–2:30pm Deals: $5 drafts, $7 wines, $8 cocktails plus charcuterie specials Mon-Fri 3-6 PM (Rittenhouse meat-forward bar).",
     "social": "",
     "hh_menu": "https://butcherbarphilly.com/",
     "instagram": "https://www.instagram.com/butcherbarphl/",
@@ -1631,7 +3814,40 @@
         "start": "3:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:30 AM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "9:30 PM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "10:30 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ_y2SCjfGxokR90VjOlsQLv0",
+    "hoursNote": "Monday: 3:00 – 9:30 PM; Tuesday: 3:00 – 9:30 PM; Wednesday: 11:30 AM – 9:30 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:30 AM – 11:00 PM; Sunday: 10:30 AM – 9:00 PM"
   },
   {
     "name": "SolarMyth",
@@ -1666,7 +3882,40 @@
         "start": "12:00 PM",
         "end": "2:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJOboclhHHxokRr-cuioAhMS8",
+    "hoursNote": "Monday: 8:00 AM – 2:00 AM; Tuesday: 8:00 AM – 2:00 AM; Wednesday: 8:00 AM – 2:00 AM; Thursday: 8:00 AM – 2:00 AM; Friday: 8:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 8:00 AM – 2:00 AM"
   },
   {
     "name": "La llorona cantina mexicana",
@@ -1697,7 +3946,36 @@
         "start": "2:00 PM",
         "end": "5:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ2xiTqBPHxokRZ8aDvFzoNvI",
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Cantinas los caballitos",
@@ -1724,7 +4002,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJBUclNAXGxokRfGdQRhkXjWw",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM"
   },
   {
     "name": "Barcelona Wine Bar",
@@ -1755,7 +4066,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJZ1xhQgXGxokRKssMj6MaWdA",
+    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 2:00 PM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Pistolas del sur",
@@ -1782,7 +4126,40 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:30 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:30 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ_f_GIg_GxokReUHxNopKMwg",
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 12:00 AM"
   },
   {
     "name": "Fountain Porter",
@@ -1792,7 +4169,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJFauURRvGxokRg6DRHqbcPxk",
+    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
   },
   {
     "name": "Sidecar",
@@ -1823,7 +4233,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJQ4HNIkDGxokRYxgH87uN53w",
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 12:00 AM"
   },
   {
     "name": "Fringe Bar",
@@ -1838,7 +4281,36 @@
         "start": "5:00 PM",
         "end": "9:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ9wo1017JxokRJbagSCY1d_c",
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 9:00 PM"
   },
   {
     "name": "Tamalex Bar and Grille",
@@ -1877,7 +4349,40 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      },
+      "Monday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJvSnqDHLJxokRSx_08nJY4uU",
+    "hoursNote": "Monday: 10:00 AM – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 10:00 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 11:00 PM"
   },
   {
     "name": "Han Dynasty",
@@ -1916,7 +4421,40 @@
         "start": "4:30 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "9:30 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "9:30 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "11:30 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "11:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJES72cYXIxokR911D5us7LDs",
+    "hoursNote": "Monday: 12:00 – 9:30 PM; Tuesday: 12:00 – 9:30 PM; Wednesday: 12:00 – 9:30 PM; Thursday: 12:00 – 9:30 PM; Friday: 12:00 – 11:30 PM; Saturday: 12:00 – 11:30 PM; Sunday: 12:00 – 9:30 PM"
   },
   {
     "name": "Oyster House",
@@ -1943,7 +4481,32 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJz4hVGTDGxokRYnn8nCLNB3k",
+    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 9:00 PM; Wednesday: 11:30 AM – 9:00 PM; Thursday: 11:30 AM – 9:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: Closed"
   },
   {
     "name": "El Rey",
@@ -1974,7 +4537,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ5-m_ETfGxokRlOaR-SV4jUU",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 12:00 – 11:00 PM; Sunday: 12:00 – 10:00 PM"
   },
   {
     "name": "Lion Sports Bar",
@@ -2013,7 +4609,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ13iIJjbHxokR6xtY5aE7n5g",
+    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 2:00 AM; Thursday: 3:00 PM – 2:00 AM; Friday: 3:00 PM – 2:00 AM; Saturday: 7:00 AM – 2:00 AM; Sunday: 7:00 AM – 12:00 AM"
   },
   {
     "name": "La Chinesca",
@@ -2048,10 +4677,43 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJe3UgJfDHxokR2xpaq9MHcrs",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 11:30 AM – 11:00 PM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
-    "name": "Kelliann\u2019s Bar & Grill",
+    "name": "Kelliann’s Bar & Grill",
     "address": "1549 Spring Garden St, Philadelphia, PA 19130",
     "neighborhood": "Fairmount",
     "description": "* HH: Mon-Fri 4:00 PM-6:00 PM* https://kellianns.com/philadelphia-kelliann-s-bar-and-grill-food-menu * irish pub Deals: discounted drafts, $5 well drinks plus bar-bite specials Mon-Fri 4-6 PM (Fairmount neighborhood bar). Happy hour menu: https://www.kelliannsbarphilly.com/",
@@ -2079,7 +4741,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJA3WZQNLHxokR29MODGXE9s0",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
   },
   {
     "name": "Osteria",
@@ -2114,7 +4809,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJZUvdSdHHxokRQ7KBGh-BHr0",
+    "hoursNote": "Monday: 5:00 – 10:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: 4:00 – 9:00 PM"
   },
   {
     "name": "The International",
@@ -2145,7 +4873,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJiZhG55zJxokRhLsO1VQRR60",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 10:00 PM"
   },
   {
     "name": "Via Locusta",
@@ -2184,7 +4945,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJX6c5BajHxokRW4G0y0ZU4q4",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM"
   },
   {
     "name": "Repes on the row",
@@ -2194,7 +4988,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJYz6DlZ_JxokRRQJ3Ah8FWTY",
+    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
   },
   {
     "name": "La jefe cafe",
@@ -2204,7 +5031,40 @@
     "social": "https://www.tiktok.com/t/ZP8byDa6y/",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/lajefaphilly/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJUceOdgDHxokRU5xBTGGuGlI",
+    "hoursNote": "Monday: 8:00 AM – 3:00 PM; Tuesday: 8:00 AM – 3:00 PM; Wednesday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Thursday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Friday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Saturday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Sunday: 8:00 AM – 3:00 PM, 5:00 – 10:00 PM"
   },
   {
     "name": "The love",
@@ -2214,7 +5074,40 @@
     "social": "https://www.tiktok.com/t/ZP8byXN75/",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/thelovephilly/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJicQ2ljDGxokRH_KV3ONo-B4",
+    "hoursNote": "Monday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Tuesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Wednesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Thursday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Friday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM"
   },
   {
     "name": "Sofia corner cafe",
@@ -2224,7 +5117,40 @@
     "social": "https://www.instagram.com/reel/DWynQJ7DfhK/?igsh=MTRxbXowMGFhMG5pcw==",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DWynQJ7DfhK/?igsh=MTRxbXowMGFhMG5pcw==",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJPaix8ZDHxokR6k5M1RZT8Bc",
+    "hoursNote": "Monday: 8:00 AM – 5:00 PM; Tuesday: 8:00 AM – 5:00 PM; Wednesday: 8:00 AM – 5:00 PM; Thursday: 8:00 AM – 5:00 PM; Friday: 8:00 AM – 5:00 PM; Saturday: 8:00 AM – 5:00 PM; Sunday: 8:00 AM – 5:00 PM"
   },
   {
     "name": "The black taxi",
@@ -2234,17 +5160,83 @@
     "social": "https://www.instagram.com/reel/DWHg7O2kbpY/?igsh=MXZwNjhwdnM5MmJ6cQ==",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DWHg7O2kbpY/?igsh=MXZwNjhwdnM5MmJ6cQ==",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJF8eQ1LfHxokRuT313ki9lOo",
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM"
   },
   {
-    "name": "P\u00eder bar",
+    "name": "Píer bar",
     "address": "2025 Fairmount Ave, Philadelphia, PA  19130",
     "neighborhood": "Fairmount",
     "description": "* outdoor seating next to",
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJRYW_gQDHxokReySs3qXwte8",
+    "hoursNote": "Monday: 7:00 AM – 10:00 PM; Tuesday: 7:00 AM – 10:00 PM; Wednesday: 7:00 AM – 10:00 PM; Thursday: 7:00 AM – 10:00 PM; Friday: 7:00 AM – 10:00 PM; Saturday: 7:00 AM – 10:00 PM; Sunday: 7:00 AM – 10:00 PM"
   },
   {
     "name": "Ios Restobar",
@@ -2275,7 +5267,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ-XUcMADHxokRnU_hqdA1Eh4",
+    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 9:00 PM"
   },
   {
     "name": "The Dandelion",
@@ -2306,7 +5331,40 @@
         "start": "4:30 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJCQbEvTDGxokRneVcOpxMXDI",
+    "hoursNote": "Monday: 11:30 AM – 11:00 PM; Tuesday: 11:30 AM – 11:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 10:00 AM – 12:00 AM; Sunday: 10:00 AM – 10:00 PM"
   },
   {
     "name": "Standard tap",
@@ -2316,7 +5374,40 @@
     "social": "",
     "hh_menu": "https://standardtap.com/happy-hour",
     "instagram": "https://www.instagram.com/standardtap/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJy468BGXIxokR5hLj9Fkmra4",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 11:00 PM"
   },
   {
     "name": "Assembly rooftop lounge",
@@ -2347,7 +5438,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJr9JcrzPGxokRQbeKyGsjIYw",
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM"
   },
   {
     "name": "Cilantro",
@@ -2357,7 +5481,40 @@
     "social": "https://www.instagram.com/reel/DWmswtOERJM/?igsh=ZTVqY2d3aDV3NnZv",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DWmswtOERJM/?igsh=ZTVqY2d3aDV3NnZv",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "11:30 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJD1RTRAnJxokRQ7nFZza6Acw",
+    "hoursNote": "Monday: 12:00 – 11:00 PM; Tuesday: 12:00 – 11:00 PM; Wednesday: 12:00 – 11:00 PM; Thursday: 12:00 – 11:00 PM; Friday: 12:00 PM – 12:00 AM; Saturday: 9:00 AM – 12:00 AM; Sunday: 9:00 AM – 11:30 PM"
   },
   {
     "name": "The wayward",
@@ -2367,7 +5524,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/thewaywardphilly/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Monday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Tuesday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Wednesday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Thursday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Friday": {
+        "open": "6:30 AM",
+        "close": "10:00 AM"
+      },
+      "Saturday": {
+        "open": "6:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ9wRce3rHxokRHnCgu3JGDwQ",
+    "hoursNote": "Monday: 6:30 – 10:00 AM, 11:00 AM – 5:00 PM; Tuesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Wednesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Thursday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Friday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Saturday: 6:30 AM – 10:00 PM; Sunday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM"
   },
   {
     "name": "Figo",
@@ -2387,7 +5577,36 @@
     "social": "https://www.superfoliephl.com/",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/superfoliephl/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJV7mDzCrHxokR54jPeQWwq9w",
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: Closed"
   },
   {
     "name": "Cavannaughs Rittenhouse",
@@ -2418,7 +5637,40 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJy8i9uzDGxokRCudJzZJM-WA",
+    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM"
   },
   {
     "name": "Restaurant Aleksandar",
@@ -2449,7 +5701,36 @@
         "start": "4:30 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:30 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJSaJnTGTHxokRT0KFsXzvMVw",
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 11:00 PM; Saturday: 11:00 AM – 2:30 PM, 5:00 – 11:00 PM; Sunday: 11:00 AM – 2:30 PM"
   },
   {
     "name": "DanDan Rittenhouse",
@@ -2488,7 +5769,40 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJLbw-DTDGxokR0hlDxRcMUso",
+    "hoursNote": "Monday: 11:00 AM – 10:00 PM; Tuesday: 11:00 AM – 10:00 PM; Wednesday: 11:00 AM – 10:00 PM; Thursday: 11:00 AM – 10:00 PM; Friday: 11:00 AM – 10:30 PM; Saturday: 11:30 AM – 10:30 PM; Sunday: 11:30 AM – 10:00 PM"
   },
   {
     "name": "Hi-Lo taco",
@@ -2519,7 +5833,36 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJUw9aEB3JxokRrJVblg9lReI",
+    "hoursNote": "Monday: 11:00 AM – 2:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 11:00 PM; Saturday: 11:00 AM – 11:00 PM; Sunday: Closed"
   },
   {
     "name": "Strangelove's",
@@ -2558,13 +5901,46 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "1:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJGbc0GCbGxokR5KZTCdW3Pyc",
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 12:00 AM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 1:00 – 10:00 PM"
   },
   {
     "name": "Walnut street cafe",
     "address": "2929 Walnut St, Philadelphia, PA 19104",
     "neighborhood": "University City",
-    "description": "* HH: Tue-Sat 4:00 PM-8:00 PM* Description: Big menu, good price apps, very modern looking, big windows https://www.walnutstreetcafe.com/menu\n* https://www.tiktok.com/t/ZP8bpaqeJ/ Deals - 'Golden Hour' (Tue-Sat 4-8 PM): $5 drinks and snacks. Ask for the 'Citywide Specials' menu pairing a beer + shot daily (e.g. High Life & Jim Beam, Bitburger & Underberg). All-day caf\u00e9 at FMC Tower with raw bar, natural wines, and a wide whiskey list. Happy hour menu: https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
+    "description": "* HH: Tue-Sat 4:00 PM-8:00 PM* Description: Big menu, good price apps, very modern looking, big windows https://www.walnutstreetcafe.com/menu\n* https://www.tiktok.com/t/ZP8bpaqeJ/ Deals - 'Golden Hour' (Tue-Sat 4-8 PM): $5 drinks and snacks. Ask for the 'Citywide Specials' menu pairing a beer + shot daily (e.g. High Life & Jim Beam, Bitburger & Underberg). All-day café at FMC Tower with raw bar, natural wines, and a wide whiskey list. Happy hour menu: https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
     "social": "https://www.tiktok.com/t/ZP8bpaqeJ/, https://www.instagram.com/p/DKAwgvSO_18/",
     "hh_menu": "https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
     "instagram": "https://www.instagram.com/p/DKAwgvSO_18/",
@@ -2589,7 +5965,40 @@
         "start": "4:00 PM",
         "end": "8:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ6_xHq0jGxokR7ccgMwIHlns",
+    "hoursNote": "Monday: 8:00 AM – 3:00 PM; Tuesday: 8:00 AM – 9:00 PM; Wednesday: 8:00 AM – 9:00 PM; Thursday: 8:00 AM – 9:00 PM; Friday: 8:00 AM – 10:00 PM; Saturday: 9:00 AM – 10:00 PM; Sunday: 9:00 AM – 3:00 PM"
   },
   {
     "name": "Monks bar",
@@ -2599,7 +6008,40 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/monkscafephilly/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "11:45 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "11:45 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJo8Mj5DrGxokRzOysJp3HPrw",
+    "hoursNote": "Monday: 5:00 – 11:45 PM; Tuesday: 11:30 AM – 11:45 PM; Wednesday: 11:30 AM – 11:45 PM; Thursday: 11:30 AM – 11:45 PM; Friday: 11:30 AM – 11:45 PM; Saturday: 11:30 AM – 11:45 PM; Sunday: 11:30 AM – 11:45 PM"
   },
   {
     "name": "The lodge",
@@ -2609,7 +6051,32 @@
     "social": "",
     "hh_menu": "https://www.yelp.com/biz_photos/the-lodge-philadelphia?select=AoBWGZl2s8NMIjf7w1h0BQ",
     "instagram": "https://www.instagram.com/tworobberslodge/",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJiSh-wtjHxokRa3RjcqQ-2b8",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 8:00 PM"
   },
   {
     "name": "Louie Louie",
@@ -2640,7 +6107,40 @@
         "start": "3:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "9:30 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "9:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJXyrKehzHxokRyNnPbgANeEI",
+    "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 9:30 PM; Saturday: 10:00 AM – 9:30 PM; Sunday: 10:00 AM – 8:00 PM"
   },
   {
     "name": "Saloon",
@@ -2650,7 +6150,36 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "9:30 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJsa4JeCDGxokRNQIGOE23MRg",
+    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed"
   },
   {
     "name": "Helm",
@@ -2660,17 +6189,71 @@
     "social": "https://www.instagram.com/reel/DU1sY2aDTUQ/?igsh=MXh1aTIzd2x1OTJ5OA==",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DU1sY2aDTUQ/?igsh=MXh1aTIzd2x1OTJ5OA==",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJh-B-i3HIxokRNbVQ7LyouDY",
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed"
   },
   {
-    "name": "Agr\u00edcola",
+    "name": "Agrícola",
     "address": "1180 S 10th St, Philadelphia, PA 19147",
     "neighborhood": "Italian Market",
     "description": "* pizza making experience\n* https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
     "social": "https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DUy-o8Vjhtm/?igsh=dTFpYmhpbzNrdTFh",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJy5-OjRvGxokRwuWTYQcyAh4",
+    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
   },
   {
     "name": "Terrain cafe",
@@ -2680,7 +6263,40 @@
     "social": "https://www.instagram.com/reel/DShw5_FDcdo/?igsh=d2E4OTQya3J2YTZo",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DShw5_FDcdo/?igsh=d2E4OTQya3J2YTZo",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJDRSmLruUxokRNblXFbc2VmE",
+    "hoursNote": "Monday: 11:00 AM – 8:00 PM; Tuesday: 11:00 AM – 8:00 PM; Wednesday: 11:00 AM – 8:00 PM; Thursday: 11:00 AM – 8:00 PM; Friday: 9:00 AM – 9:00 PM; Saturday: 9:00 AM – 9:00 PM; Sunday: 9:00 AM – 8:00 PM"
   },
   {
     "name": "Secondhand ranch",
@@ -2690,7 +6306,40 @@
     "social": "https://www.instagram.com/reel/DSIY8V1DrXA/?igsh=Mm96Z2pndDJvZ2F5",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DSIY8V1DrXA/?igsh=Mm96Z2pndDJvZ2F5",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJ6776_VnJxokRdL6426YG6k8",
+    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 12:00 AM; Thursday: 3:00 PM – 12:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 12:00 AM"
   },
   {
     "name": "Casablanca",
@@ -2700,7 +6349,36 @@
     "social": "https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
-    "schedule": {}
+    "schedule": {},
+    "hours": {
+      "Monday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "google",
+    "googlePlaceId": "ChIJfUvQQWrHxokRB4nd3ehfSbQ",
+    "hoursNote": "Monday: 2:00 – 10:00 PM; Tuesday: 2:00 – 10:00 PM; Wednesday: 2:00 – 10:00 PM; Thursday: 2:00 – 10:00 PM; Friday: 2:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed"
   },
   {
     "name": "LMNO",
@@ -2834,7 +6512,7 @@
     "name": "Mi vida",
     "address": "1150 Ludlow St, Philadelphia, PA 19107",
     "neighborhood": "Center City",
-    "description": "* HH: Mon-Fri 2:00 PM-6:00 PM* https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Happy-Hour-2.pdf * regular menu: https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Dinner-Menu.pdf\n* beautiful interior: https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ== Deals (Mon-Fri 2-6 PM, bar only): $5 drafts (Modelo, Pacifico, Dos Equis), $5 bottled beers (Victoria, Tecate), $7 wines, $8 cocktails (Ponche de Lola), $2 each alitas adobadas, $6 tacos dorados, $8 queso fundido, $11 tatanachos. Mezcal Mondays: 1/2 off mezcal margaritas all day. Chef Roberto Santiba\u00f1ez's modern Mexican in East Market.",
+    "description": "* HH: Mon-Fri 2:00 PM-6:00 PM* https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Happy-Hour-2.pdf * regular menu: https://www.mividamexico.com/wp-content/uploads/2026/02/Mi-Vida-Dinner-Menu.pdf\n* beautiful interior: https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ== Deals (Mon-Fri 2-6 PM, bar only): $5 drafts (Modelo, Pacifico, Dos Equis), $5 bottled beers (Victoria, Tecate), $7 wines, $8 cocktails (Ponche de Lola), $2 each alitas adobadas, $6 tacos dorados, $8 queso fundido, $11 tatanachos. Mezcal Mondays: 1/2 off mezcal margaritas all day. Chef Roberto Santibañez's modern Mexican in East Market.",
     "social": "https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==",
     "hh_menu": "https://www.mividamexico.com/",
     "instagram": "https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==",
@@ -3134,7 +6812,7 @@
     "name": "El techo",
     "address": "1830 Ludlow St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
-    "description": "* HH: Wed-Fri 5:00 PM-7:00 PM* unconfirmed* Mon-Fri 4-7 PM\n* rooftop * https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1 Deals (Wed-Fri 5-7 PM): $6 Modelo/Negra Modelo drafts, $7 natural wines (red/white/sparkling/rose), $9 mezcal or tequila margaritas, $10 specialty cocktails. Botanas: $9 alitas (chicken wings, guajillo-lime), $9 guacamole, $7 chicharr\u00f3nes, $7 empanadas, $7 elote, $7 tamales. Bonus: Mezcal Monday 1/2 price, Taco Tuesday $6 mix-and-match (carnitas, brisket, pescado, coliflor). Happy hour menu: https://www.eltechophilly.com/menu",
+    "description": "* HH: Wed-Fri 5:00 PM-7:00 PM* unconfirmed* Mon-Fri 4-7 PM\n* rooftop * https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1 Deals (Wed-Fri 5-7 PM): $6 Modelo/Negra Modelo drafts, $7 natural wines (red/white/sparkling/rose), $9 mezcal or tequila margaritas, $10 specialty cocktails. Botanas: $9 alitas (chicken wings, guajillo-lime), $9 guacamole, $7 chicharrónes, $7 empanadas, $7 elote, $7 tamales. Bonus: Mezcal Monday 1/2 price, Taco Tuesday $6 mix-and-match (carnitas, brisket, pescado, coliflor). Happy hour menu: https://www.eltechophilly.com/menu",
     "social": "https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1",
     "hh_menu": "https://www.eltechophilly.com/menu",
     "instagram": "https://www.instagram.com/eltechophilly/",
@@ -3331,7 +7009,7 @@
     "name": "Stogie Joe's Tavern",
     "address": "1803 E Passyunk Ave, Philadelphia, PA  19148",
     "neighborhood": "East Passyunk",
-    "description": "Deals: $2 Lions Head, $5 PBR + Beam/Old Grandad/Wild Turkey shot. Happy hour days/times per their Instagram (not all-day) \u2014 see Website / Menu link. Famous South Philly pizza, wings, chicken cutlet sandwich. Diners Drive-Ins & Dives. Happy hour menu: https://www.instagram.com/p/DXZcDgkk7dy/",
+    "description": "Deals: $2 Lions Head, $5 PBR + Beam/Old Grandad/Wild Turkey shot. Happy hour days/times per their Instagram (not all-day) — see Website / Menu link. Famous South Philly pizza, wings, chicken cutlet sandwich. Diners Drive-Ins & Dives. Happy hour menu: https://www.instagram.com/p/DXZcDgkk7dy/",
     "social": "",
     "hh_menu": "https://www.instagram.com/p/DXZcDgkk7dy/",
     "instagram": "https://www.instagram.com/stogiejoestavern/",
@@ -3699,7 +7377,7 @@
     "name": "The Dutch",
     "address": "1537 S 11th St, Philadelphia, PA  19147",
     "neighborhood": "East Passyunk",
-    "description": "* HH: Sun, Wed, Thu 5:00 PM-7:00 PM* Deals (Wed/Thu/Sun 5-7 PM): $5 local brews, $6 bartender's cocktail, $7 house wine (red/white/sparkling), $5 Chow Chow Pickles & House-Cut Fries, $7 Fond's Chicken Liver Mousse, $7 Cheesesteak Tater Tots, $7 Country-Style Pat\u00e9, $7 Dutch Queso Dip. Modern Pennsylvania Dutch fusion. Also daily brunch 8am-3pm. Happy hour menu: https://www.thedutchphilly.com/menus",
+    "description": "* HH: Sun, Wed, Thu 5:00 PM-7:00 PM* Deals (Wed/Thu/Sun 5-7 PM): $5 local brews, $6 bartender's cocktail, $7 house wine (red/white/sparkling), $5 Chow Chow Pickles & House-Cut Fries, $7 Fond's Chicken Liver Mousse, $7 Cheesesteak Tater Tots, $7 Country-Style Paté, $7 Dutch Queso Dip. Modern Pennsylvania Dutch fusion. Also daily brunch 8am-3pm. Happy hour menu: https://www.thedutchphilly.com/menus",
     "social": "",
     "hh_menu": "https://www.thedutchphilly.com/menus",
     "instagram": "",

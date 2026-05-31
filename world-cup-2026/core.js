@@ -23,14 +23,25 @@
     return scores[String(matchId)] || null;
   }
 
-  function setScore(matchId, home, away) {
+  function setScore(matchId, home, away, note) {
     var scores = readScores();
     var key = String(matchId);
     if (home === "" && away === "") {
       delete scores[key];
     } else {
-      scores[key] = { home: Number(home), away: Number(away) };
+      var entry = { home: Number(home), away: Number(away) };
+      if (note && String(note).trim()) {
+        entry.note = String(note).trim();
+      }
+      scores[key] = entry;
     }
+    writeScores(scores);
+    return scores;
+  }
+
+  function removeScore(matchId) {
+    var scores = readScores();
+    delete scores[String(matchId)];
     writeScores(scores);
     return scores;
   }
@@ -140,6 +151,7 @@
     writeScores: writeScores,
     getScore: getScore,
     setScore: setScore,
+    removeScore: removeScore,
     clearAllScores: clearAllScores,
     onScoresChange: onScoresChange,
     flag: flag,
