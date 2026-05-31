@@ -1064,6 +1064,254 @@
       margin-top: 4px;
     }
 
+    .plan-segment {
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      background: #e8eef4;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .plan-segment-btn {
+      flex: 1;
+      height: 38px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .plan-segment-btn.on {
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .plan-calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .plan-calendar-head h2 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .plan-calendar-nav {
+      display: flex;
+      gap: 6px;
+    }
+
+    .plan-calendar-nav button {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 1.125rem;
+      cursor: pointer;
+      color: var(--ink);
+    }
+
+    .plan-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .plan-cal-dow {
+      text-align: center;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--muted);
+      padding: 4px 0 6px;
+    }
+
+    .plan-cal-pad { visibility: hidden; pointer-events: none; }
+
+    .plan-cal-day {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      color: var(--ink);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .plan-cal-day.trip {
+      box-shadow: inset 0 0 0 1.5px var(--accent);
+    }
+
+    .plan-cal-day.planned::after {
+      content: "";
+      position: absolute;
+      bottom: 5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .plan-cal-day.outside { opacity: 0.35; }
+
+    .plan-cal-day:active { opacity: 0.85; }
+
+    .plan-overpack {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .plan-overpack h3 {
+      font-size: 0.9375rem;
+      margin-bottom: 4px;
+    }
+
+    .plan-overpack-summary {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .plan-overpack-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+
+    .plan-overpack-row:first-of-type { border-top: none; padding-top: 0; }
+
+    .plan-overpack-row strong { font-weight: 600; }
+
+    .plan-overpack-row small {
+      display: block;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    .plan-overpack-badge {
+      flex-shrink: 0;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .plan-overpack-badge.ok { background: #dcfce7; color: #166534; }
+    .plan-overpack-badge.over { background: #fef3c7; color: #92400e; }
+    .plan-overpack-badge.under { background: #fee2e2; color: #991b1b; }
+
+    .plan-day-slot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .plan-day-slot:last-child { border-bottom: none; }
+
+    .plan-day-slot-label {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .plan-day-slot-label strong {
+      display: block;
+      font-size: 0.875rem;
+    }
+
+    .plan-day-slot-label small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .plan-day-slot-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .plan-day-slot-actions button {
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .plan-day-slot-actions button.pick {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+    }
+
+    .plan-outfit-pick {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .plan-outfit-pick:last-child { border-bottom: none; }
+
+    .plan-outfit-pick-mosaic {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      flex-shrink: 0;
+      background: #e2e8f0;
+    }
+
+    .plan-outfit-pick-mosaic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .plan-outfit-pick span {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
     .pack-intro,
     .scan-intro {
       font-size: 0.875rem;
@@ -1604,6 +1852,30 @@
     </div>
   </div>
 
+  <div class="overlay" id="planDayOverlay" role="dialog" aria-modal="true" aria-labelledby="planDayTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="planDayTitle">Monday, June 1</h3>
+      <p class="plan-intro" style="margin-top:-6px">Default outfit for the day, plus extras for dates, beach, etc.</p>
+      <div id="planDaySlots"></div>
+      <button type="button" class="btn-secondary" id="planDayAddSlot" style="width:100%;height:44px;border-radius:12px;margin-top:8px">+ Add outfit</button>
+      <div class="sheet-actions">
+        <button type="button" class="btn-save" data-close="planDayOverlay" style="flex:1">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="planOutfitPickerOverlay" role="dialog" aria-modal="true" aria-labelledby="planOutfitPickerTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="planOutfitPickerTitle">Choose outfit</h3>
+      <div id="planOutfitPickerList"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="planOutfitPickerOverlay">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Settings -->
   <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
     <div class="sheet">
@@ -1630,8 +1902,14 @@
           <button type="button" class="btn-save" id="arubaExportBackup" style="flex:1">Export JSON</button>
           <button type="button" class="btn-save" id="arubaImportBackup" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Import JSON</button>
         </div>
+        <p style="font-size:0.8125rem;color:var(--muted);margin:14px 0 10px">Zip wardrobe &amp; closet photos to save elsewhere (Files, iCloud, etc.). Only in this app — never included in Export all.</p>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="btn-save" id="arubaExportPhotos" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Export photos (ZIP)</button>
+          <button type="button" class="btn-save" id="arubaImportPhotos" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Import photos (ZIP)</button>
+        </div>
       </div>
       <input type="file" id="arubaImportFile" accept="application/json,.json" hidden />
+      <input type="file" id="arubaImportPhotosFile" accept=".zip,application/zip" hidden />
       <div class="sheet-actions">
         <button type="button" class="btn-save" data-close="settingsOverlay" style="flex:1">Done</button>
       </div>
@@ -1647,6 +1925,7 @@
   const STORAGE_KEY = "aruba-pack-v1";
   const RING_CIRC = 97.4;
   const DAYS = 7;
+  const DEFAULT_TRIP_START = "2026-06-01";
 
   const CATEGORIES = [
     { id: "documents", label: "Documents & Money", icon: "📄" },
@@ -1886,6 +2165,35 @@
     return Math.max(0, q);
   }
 
+  function defaultTripPlan() {
+    return { startDate: DEFAULT_TRIP_START, days: {} };
+  }
+
+  function sanitizeTripPlan(raw) {
+    const base = defaultTripPlan();
+    if (!raw || typeof raw !== "object") return base;
+    if (typeof raw.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.startDate)) {
+      base.startDate = raw.startDate;
+    }
+    base.days = {};
+    if (raw.days && typeof raw.days === "object") {
+      Object.keys(raw.days).forEach(function (dateKey) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+        const slots = raw.days[dateKey];
+        if (!Array.isArray(slots)) return;
+        base.days[dateKey] = slots.map(function (slot) {
+          if (!slot || typeof slot !== "object") return null;
+          return {
+            id: typeof slot.id === "string" ? slot.id : newDaySlotId(),
+            label: String(slot.label || "Outfit").slice(0, 40),
+            outfitId: typeof slot.outfitId === "string" ? slot.outfitId : null,
+          };
+        }).filter(Boolean);
+      });
+    }
+    return base;
+  }
+
   function defaultState() {
     const opts = {
       laundry: false,
@@ -1899,13 +2207,14 @@
       items[id] = { packed: false, qty: resolveQty(id, opts), custom: false };
     }
     return {
-      version: 3,
+      version: 4,
       opts,
       collapsed: {},
       wardrobeCollapsed: {},
       items,
       removed: [],
       outfits: [],
+      tripPlan: defaultTripPlan(),
       closet: [],
       customWardrobeCategories: [],
     };
@@ -1941,6 +2250,7 @@
       base.collapsed = parsed.collapsed || {};
       base.wardrobeCollapsed = parsed.wardrobeCollapsed || {};
       base.outfits = Array.isArray(parsed.outfits) ? parsed.outfits : [];
+      base.tripPlan = sanitizeTripPlan(parsed.tripPlan);
       base.closet = Array.isArray(parsed.closet) ? parsed.closet : [];
       base.customWardrobeCategories = Array.isArray(parsed.customWardrobeCategories) ? parsed.customWardrobeCategories : [];
       base.removed = Array.isArray(parsed.removed) ? parsed.removed.filter(function (id) { return CATALOG[id]; }) : [];
@@ -1996,10 +2306,14 @@
   let packSelectedIds = {};
   let closetPreviews = {};
   let planView = "library";
+  let planSection = "calendar";
   let planDraft = null;
   let planActiveSlotId = null;
   let planSlotIndices = {};
   let planDetailId = null;
+  let planCalendarMonth = { year: 2026, month: 5 };
+  let planDayDateKey = null;
+  let planPickingDaySlotId = null;
   const DEFAULT_OUTFIT_SLOTS = [
     { slotId: "top", label: "Top", category: "T-shirt" },
     { slotId: "bottoms", label: "Bottoms", category: "Shorts" },
@@ -2183,6 +2497,481 @@
         tx.oncomplete = function () { db.close(); resolve(); };
         tx.onerror = function () { reject(tx.error); };
       });
+    });
+  }
+
+  function idbGetAllKeys() {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        const tx = db.transaction(IDB_STORE, "readonly");
+        const req = tx.objectStore(IDB_STORE).getAllKeys();
+        req.onsuccess = function () { resolve(req.result || []); };
+        req.onerror = function () { reject(req.error); };
+        tx.oncomplete = function () { db.close(); };
+      });
+    });
+  }
+
+  function blobToUint8Array(blob) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function () { resolve(new Uint8Array(reader.result)); };
+      reader.onerror = function () { reject(reader.error); };
+      reader.readAsArrayBuffer(blob);
+    });
+  }
+
+  function blobExtension(blob) {
+    const t = (blob.type || "").toLowerCase();
+    if (t.indexOf("png") !== -1) return "png";
+    if (t.indexOf("webp") !== -1) return "webp";
+    if (t.indexOf("gif") !== -1) return "gif";
+    return "jpg";
+  }
+
+  function sanitizeZipSegment(value) {
+    return String(value || "item")
+      .replace(/[^a-zA-Z0-9._-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "item";
+  }
+
+  function getPhotoExportTag(info) {
+    if (info.kind === "closet" && info.closetId) {
+      const entry = (state.closet || []).find(function (c) { return c.id === info.closetId; });
+      if (entry && entry.tag) return entry.tag;
+      return null;
+    }
+    if (info.kind === "wardrobe" && info.itemId) {
+      const row = state.items[info.itemId];
+      if (row && row.garmentTag) return row.garmentTag;
+      return getItemGarmentTag(info.itemId) || null;
+    }
+    return null;
+  }
+
+  function getPhotoExportWardrobeCategory(info) {
+    if (info.kind !== "wardrobe" || !info.itemId) return null;
+    const row = state.items[info.itemId];
+    return (row && row.note) ? row.note : null;
+  }
+
+  function describePhotoKey(key) {
+    if (String(key).indexOf("closet:") === 0) {
+      const closetId = String(key).slice(7);
+      const entry = (state.closet || []).find(function (c) { return c.id === closetId; });
+      return {
+        key: key,
+        kind: "closet",
+        closetId: closetId,
+        label: entry && entry.label ? entry.label : "",
+        zipPath: "closet/" + sanitizeZipSegment(closetId),
+      };
+    }
+    const parts = String(key).split(":");
+    if (parts.length === 2) {
+      const itemId = parts[0];
+      const slot = parseInt(parts[1], 10);
+      const label = gridDisplayName(itemId) || itemLabel(itemId) || itemId;
+      return {
+        key: key,
+        kind: "wardrobe",
+        itemId: itemId,
+        slot: slot,
+        label: label,
+        zipPath: "wardrobe/" + sanitizeZipSegment(itemId) + "/" + slot,
+      };
+    }
+    return {
+      key: key,
+      kind: "other",
+      zipPath: "photos/" + sanitizeZipSegment(key),
+    };
+  }
+
+  function crc32(bytes) {
+    let crc = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (let j = 0; j < 8; j++) {
+        const mask = -(crc & 1);
+        crc = (crc >>> 1) ^ (0xedb88320 & mask);
+      }
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function buildStoreZip(entries) {
+    const chunks = [];
+    const central = [];
+    let offset = 0;
+
+    entries.forEach(function (entry) {
+      const nameBytes = new TextEncoder().encode(entry.name);
+      const data = entry.data;
+      const size = data.length;
+      const checksum = crc32(data);
+      const local = new Uint8Array(30 + nameBytes.length);
+      const lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0, true);
+      lv.setUint16(8, 0, true);
+      lv.setUint16(10, 0, true);
+      lv.setUint16(12, 0, true);
+      lv.setUint32(14, checksum, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      lv.setUint16(28, 0, true);
+      local.set(nameBytes, 30);
+      chunks.push(local, data);
+
+      const centralHeader = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(centralHeader.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0, true);
+      cv.setUint32(16, checksum, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint16(30, 0, true);
+      cv.setUint16(32, 0, true);
+      cv.setUint16(34, 0, true);
+      cv.setUint16(36, 0, true);
+      cv.setUint32(38, 0, true);
+      cv.setUint32(42, offset, true);
+      centralHeader.set(nameBytes, 46);
+      central.push(centralHeader);
+
+      offset += local.length + data.length;
+    });
+
+    const centralSize = central.reduce(function (sum, part) { return sum + part.length; }, 0);
+    const end = new Uint8Array(22);
+    const ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, entries.length, true);
+    ev.setUint16(10, entries.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    ev.setUint16(20, 0, true);
+
+    return new Blob(chunks.concat(central, [end]), { type: "application/zip" });
+  }
+
+  function findZipEndOfCentralDirectory(bytes) {
+    for (let i = bytes.length - 22; i >= 0; i--) {
+      if (bytes[i] === 0x50 && bytes[i + 1] === 0x4b && bytes[i + 2] === 0x05 && bytes[i + 3] === 0x06) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function parseStoreZip(buffer) {
+    const bytes = new Uint8Array(buffer);
+    const eocd = findZipEndOfCentralDirectory(bytes);
+    if (eocd < 0) throw new Error("Invalid zip file");
+    const view = new DataView(buffer);
+    const centralOffset = view.getUint32(eocd + 16, true);
+    const totalEntries = view.getUint16(eocd + 10, true);
+    const entries = [];
+    let offset = centralOffset;
+    for (let i = 0; i < totalEntries; i++) {
+      if (view.getUint32(offset, true) !== 0x02014b50) break;
+      const compMethod = view.getUint16(offset + 10, true);
+      const uncompSize = view.getUint32(offset + 24, true);
+      const nameLen = view.getUint16(offset + 28, true);
+      const extraLen = view.getUint16(offset + 30, true);
+      const commentLen = view.getUint16(offset + 32, true);
+      const localOffset = view.getUint32(offset + 42, true);
+      const name = new TextDecoder().decode(bytes.subarray(offset + 46, offset + 46 + nameLen)).replace(/\\/g, "/");
+      offset += 46 + nameLen + extraLen + commentLen;
+      if (compMethod !== 0) continue;
+      const localNameLen = view.getUint16(localOffset + 26, true);
+      const localExtraLen = view.getUint16(localOffset + 28, true);
+      const dataStart = localOffset + 30 + localNameLen + localExtraLen;
+      entries.push({ name: name, data: bytes.subarray(dataStart, dataStart + uncompSize) });
+    }
+    return entries;
+  }
+
+  function mimeFromPath(path) {
+    const lower = String(path || "").toLowerCase();
+    if (lower.endsWith(".png")) return "image/png";
+    if (lower.endsWith(".webp")) return "image/webp";
+    if (lower.endsWith(".gif")) return "image/gif";
+    return "image/jpeg";
+  }
+
+  function normalizeManifestTag(tag) {
+    if (!tag) return null;
+    const valid = GARMENT_TAGS.some(function (t) { return t.id === tag; });
+    return valid ? tag : null;
+  }
+
+  function resolveImportTag(photo) {
+    return normalizeManifestTag(photo.tag)
+      || getTagForWardrobeLabel(photo.wardrobeCategory)
+      || getTagForWardrobeLabel(photo.label)
+      || null;
+  }
+
+  function ensureItemForPhotoImport(photo) {
+    const itemId = photo.itemId;
+    if (!itemId && itemId !== 0) return null;
+    const slot = typeof photo.slot === "number" ? photo.slot : parseInt(photo.slot, 10);
+    if (!state.items[itemId]) {
+      if (CATALOG[itemId]) {
+        state.items[itemId] = {
+          packed: false,
+          qty: Math.max(slot + 1, resolveQty(itemId, state.opts)),
+          custom: false,
+        };
+        if (isRemoved(itemId)) {
+          state.removed = (state.removed || []).filter(function (id) { return id !== itemId; });
+        }
+      } else {
+        state.items[itemId] = {
+          packed: false,
+          qty: slot + 1,
+          custom: true,
+          label: photo.label || "Imported item",
+          category: "clothing",
+          note: photo.wardrobeCategory || photo.label || undefined,
+        };
+      }
+    }
+    const row = state.items[itemId];
+    if (!row) return null;
+    const tag = resolveImportTag(photo);
+    if (tag) row.garmentTag = tag;
+    if (photo.wardrobeCategory) row.note = photo.wardrobeCategory;
+    if (typeof slot === "number" && !isNaN(slot) && row.qty <= slot) {
+      row.qty = Math.min(99, slot + 1);
+    }
+    return row;
+  }
+
+  function ensureClosetEntryForImport(photo) {
+    ensureCloset();
+    const closetId = photo.closetId || newClosetId();
+    let entry = state.closet.find(function (c) { return c.id === closetId; });
+    const tag = resolveImportTag(photo);
+    if (!entry) {
+      entry = {
+        id: closetId,
+        category: null,
+        label: photo.label || "",
+        tag: tag,
+      };
+      state.closet.push(entry);
+    } else {
+      if (photo.label) entry.label = photo.label;
+      if (tag) entry.tag = tag;
+    }
+    return closetId;
+  }
+
+  function importPhotosFromManifest(manifest, zipEntries) {
+    const byPath = {};
+    zipEntries.forEach(function (entry) {
+      byPath[entry.name] = entry;
+    });
+    const photos = Array.isArray(manifest.photos) ? manifest.photos : [];
+    if (!photos.length) {
+      toast("No photos found in backup");
+      return Promise.resolve();
+    }
+    let imported = 0;
+    let skipped = 0;
+    const tasks = photos.map(function (photo) {
+      const zipEntry = byPath[photo.path];
+      if (!zipEntry) {
+        skipped++;
+        return Promise.resolve();
+      }
+      const blob = new Blob([zipEntry.data], { type: mimeFromPath(photo.path) });
+      if (photo.kind === "closet") {
+        const closetId = ensureClosetEntryForImport(photo);
+        const key = closetKey(closetId);
+        if (thumbCache[key]) {
+          URL.revokeObjectURL(thumbCache[key]);
+          delete thumbCache[key];
+        }
+        if (closetPreviews[closetId]) {
+          URL.revokeObjectURL(closetPreviews[closetId]);
+          delete closetPreviews[closetId];
+        }
+        return idbPut(key, blob).then(function () { imported++; });
+      }
+      if (photo.kind === "wardrobe" && photo.itemId != null && photo.slot != null) {
+        ensureItemForPhotoImport(photo);
+        const key = photoKey(photo.itemId, photo.slot);
+        if (thumbCache[key]) {
+          URL.revokeObjectURL(thumbCache[key]);
+          delete thumbCache[key];
+        }
+        return idbPut(key, blob).then(function () { imported++; });
+      }
+      if (photo.key) {
+        const key = String(photo.key);
+        if (thumbCache[key]) {
+          URL.revokeObjectURL(thumbCache[key]);
+          delete thumbCache[key];
+        }
+        return idbPut(key, blob).then(function () { imported++; });
+      }
+      skipped++;
+      return Promise.resolve();
+    });
+    return Promise.all(tasks).then(function () {
+      saveState();
+      if (currentView === "grid") renderGrid();
+      if (currentView === "pack") renderPack();
+      if (currentView === "plan") renderPlan();
+      let msg = imported + " photo" + (imported === 1 ? "" : "s") + " imported";
+      if (skipped) msg += " · " + skipped + " skipped";
+      toast(msg);
+    });
+  }
+
+  function importArubaPhotosZip(file) {
+    const btn = document.getElementById("arubaImportPhotos");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Importing…";
+    }
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = function () { reject(reader.error); };
+      reader.readAsArrayBuffer(file);
+    }).then(function (buffer) {
+      const entries = parseStoreZip(buffer);
+      const manifestEntry = entries.find(function (e) { return e.name === "manifest.json"; });
+      if (!manifestEntry) {
+        toast("Invalid backup — manifest.json missing");
+        return null;
+      }
+      let manifest;
+      try {
+        manifest = JSON.parse(new TextDecoder().decode(manifestEntry.data));
+      } catch (e) {
+        toast("Invalid backup manifest");
+        return null;
+      }
+      if (!manifest || manifest.format !== "aruba-pack-photos") {
+        toast("Not an Aruba Pack photo backup");
+        return null;
+      }
+      const count = Array.isArray(manifest.photos) ? manifest.photos.length : 0;
+      if (!count) {
+        toast("No photos in this backup");
+        return null;
+      }
+      if (!confirm("Import " + count + " photo" + (count === 1 ? "" : "s") + " from backup? Tags and wardrobe categories will be restored. Existing photos at the same slots will be replaced.")) {
+        return null;
+      }
+      return importPhotosFromManifest(manifest, entries);
+    }).catch(function () {
+      toast("Could not import photos");
+    }).finally(function () {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Import photos (ZIP)";
+      }
+    });
+  }
+
+  function downloadBlob(blob, filename) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportArubaPhotosZip() {
+    const btn = document.getElementById("arubaExportPhotos");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Zipping…";
+    }
+    return idbGetAllKeys().then(function (keys) {
+      if (!keys.length) {
+        toast("No photos on this device to export");
+        return null;
+      }
+      const usedNames = {};
+      const manifestPhotos = [];
+      const tasks = keys.map(function (key) {
+        return idbGet(key).then(function (blob) {
+          if (!blob) return null;
+          const info = describePhotoKey(key);
+          const ext = blobExtension(blob);
+          let baseName = info.zipPath + "." + ext;
+          if (usedNames[baseName]) {
+            usedNames[baseName] += 1;
+            baseName = info.zipPath + "-" + usedNames[baseName] + "." + ext;
+          } else {
+            usedNames[baseName] = 1;
+          }
+          manifestPhotos.push({
+            key: info.key,
+            kind: info.kind,
+            path: baseName,
+            itemId: info.itemId,
+            slot: info.slot,
+            closetId: info.closetId,
+            label: info.label || "",
+            tag: getPhotoExportTag(info),
+            wardrobeCategory: getPhotoExportWardrobeCategory(info),
+          });
+          return blobToUint8Array(blob).then(function (bytes) {
+            return { name: baseName, data: bytes };
+          });
+        });
+      });
+      return Promise.all(tasks).then(function (results) {
+        const zipEntries = results.filter(Boolean);
+        if (!zipEntries.length) {
+          toast("No photos on this device to export");
+          return null;
+        }
+        zipEntries.unshift({
+          name: "manifest.json",
+          data: new TextEncoder().encode(JSON.stringify({
+            format: "aruba-pack-photos",
+            version: 2,
+            exportedAt: new Date().toISOString(),
+            photoCount: zipEntries.length,
+            photos: manifestPhotos,
+          }, null, 2)),
+        });
+        return buildStoreZip(zipEntries);
+      });
+    }).then(function (zipBlob) {
+      if (!zipBlob) return;
+      const d = new Date();
+      const stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      downloadBlob(zipBlob, "aruba-pack-photos-" + stamp + ".zip");
+      toast("Photo backup downloaded");
+    }).catch(function () {
+      toast("Could not export photos");
+    }).finally(function () {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Export photos (ZIP)";
+      }
     });
   }
 
@@ -2776,6 +3565,424 @@
   function outfitGarmentCount(outfit) {
     if (!outfit || !outfit.slots) return 0;
     return outfit.slots.filter(function (s) { return s.garment; }).length;
+  }
+
+  function newDaySlotId() {
+    return "dayslot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  function ensureTripPlan() {
+    if (!state.tripPlan || typeof state.tripPlan !== "object") {
+      state.tripPlan = defaultTripPlan();
+    }
+    if (!state.tripPlan.days || typeof state.tripPlan.days !== "object") {
+      state.tripPlan.days = {};
+    }
+    if (!state.tripPlan.startDate) state.tripPlan.startDate = DEFAULT_TRIP_START;
+    return state.tripPlan;
+  }
+
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function parseDateKey(key) {
+    const p = String(key).split("-");
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  }
+
+  function formatDateKey(date) {
+    return date.getFullYear() + "-" + pad2(date.getMonth() + 1) + "-" + pad2(date.getDate());
+  }
+
+  function addDays(date, days) {
+    const d = new Date(date.getTime());
+    d.setDate(d.getDate() + days);
+    return d;
+  }
+
+  function getTripStartDate() {
+    ensureTripPlan();
+    return parseDateKey(state.tripPlan.startDate || DEFAULT_TRIP_START);
+  }
+
+  function getTripDateKeys() {
+    const start = getTripStartDate();
+    const keys = [];
+    for (let i = 0; i < DAYS; i++) keys.push(formatDateKey(addDays(start, i)));
+    return keys;
+  }
+
+  function isTripDateKey(dateKey) {
+    return getTripDateKeys().indexOf(dateKey) !== -1;
+  }
+
+  function formatDayHeading(dateKey) {
+    const d = parseDateKey(dateKey);
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return weekdays[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
+  }
+
+  function formatTripRangeLabel() {
+    const keys = getTripDateKeys();
+    if (!keys.length) return "";
+    const start = parseDateKey(keys[0]);
+    const end = parseDateKey(keys[keys.length - 1]);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    if (start.getMonth() === end.getMonth()) {
+      return months[start.getMonth()] + " " + start.getDate() + "–" + end.getDate() + ", " + start.getFullYear();
+    }
+    return months[start.getMonth()] + " " + start.getDate() + " – " + months[end.getMonth()] + " " + end.getDate() + ", " + start.getFullYear();
+  }
+
+  function getOutfitById(outfitId) {
+    if (!outfitId) return null;
+    return (state.outfits || []).find(function (o) { return o.id === outfitId; }) || null;
+  }
+
+  function ensureDayPlan(dateKey) {
+    ensureTripPlan();
+    if (!state.tripPlan.days[dateKey]) {
+      state.tripPlan.days[dateKey] = [
+        { id: newDaySlotId(), label: "Outfit", outfitId: null },
+      ];
+      saveState();
+    }
+    return state.tripPlan.days[dateKey];
+  }
+
+  function dayHasPlannedOutfits(dateKey) {
+    const slots = (ensureTripPlan().days[dateKey] || []);
+    return slots.some(function (slot) { return !!slot.outfitId && !!getOutfitById(slot.outfitId); });
+  }
+
+  function purgeOutfitFromTripPlan(outfitId) {
+    ensureTripPlan();
+    Object.keys(state.tripPlan.days).forEach(function (dateKey) {
+      state.tripPlan.days[dateKey].forEach(function (slot) {
+        if (slot.outfitId === outfitId) slot.outfitId = null;
+      });
+    });
+  }
+
+  function getGarmentsForOutfit(outfit) {
+    const list = [];
+    if (!outfit || !outfit.slots) return list;
+    outfit.slots.forEach(function (slot) {
+      if (slot.garment) list.push(slot.garment);
+    });
+    return list;
+  }
+
+  function analyzeTripPacking() {
+    const tripDates = getTripDateKeys();
+    const neededByItem = {};
+    const uniqueRefs = {};
+    let plannedDays = 0;
+    let totalSlots = 0;
+    let filledSlots = 0;
+
+    tripDates.forEach(function (dateKey) {
+      const slots = ensureTripPlan().days[dateKey] || [];
+      if (dayHasPlannedOutfits(dateKey)) plannedDays++;
+      const dayCount = {};
+      slots.forEach(function (slot) {
+        totalSlots++;
+        if (!slot.outfitId) return;
+        const outfit = getOutfitById(slot.outfitId);
+        if (!outfit) return;
+        filledSlots++;
+        getGarmentsForOutfit(outfit).forEach(function (garment) {
+          dayCount[garment.itemId] = (dayCount[garment.itemId] || 0) + 1;
+          uniqueRefs[garment.itemId + ":" + garment.slot] = true;
+        });
+      });
+      Object.keys(dayCount).forEach(function (itemId) {
+        neededByItem[itemId] = Math.max(neededByItem[itemId] || 0, dayCount[itemId]);
+      });
+    });
+
+    const rows = [];
+    Object.keys(neededByItem).forEach(function (itemId) {
+      const needed = neededByItem[itemId];
+      const row = state.items[itemId];
+      if (!row) return;
+      const packed = row.qty || 0;
+      const name = gridDisplayName(itemId) || itemLabel(itemId) || itemId;
+      let status = "ok";
+      if (packed < needed) status = "under";
+      else if (packed > needed) status = "over";
+      rows.push({ itemId: itemId, name: name, needed: needed, packed: packed, status: status });
+    });
+    rows.sort(function (a, b) {
+      const rank = { under: 0, over: 1, ok: 2 };
+      if (rank[a.status] !== rank[b.status]) return rank[a.status] - rank[b.status];
+      return a.name.localeCompare(b.name);
+    });
+
+    return {
+      rows: rows,
+      plannedDays: plannedDays,
+      tripDays: tripDates.length,
+      uniquePieces: Object.keys(uniqueRefs).length,
+      totalSlots: totalSlots,
+      filledSlots: filledSlots,
+    };
+  }
+
+  function renderPlanSegmentHtml(activeSection) {
+    let html = '<div class="plan-segment" role="tablist" aria-label="Plan sections">';
+    html += '<button type="button" class="plan-segment-btn' + (activeSection === "calendar" ? " on" : "") + '" data-plan-section="calendar">Calendar</button>';
+    html += '<button type="button" class="plan-segment-btn' + (activeSection === "outfits" ? " on" : "") + '" data-plan-section="outfits">Outfits</button>';
+    html += "</div>";
+    return html;
+  }
+
+  function bindPlanSegment(root) {
+    root.querySelectorAll("[data-plan-section]").forEach(function (btn) {
+      btn.onclick = function () {
+        planSection = btn.dataset.planSection;
+        if (planSection === "outfits") {
+          planView = "library";
+          planDetailId = null;
+        }
+        renderPlan();
+      };
+    });
+  }
+
+  function renderPlanCalendar(root) {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const year = planCalendarMonth.year;
+    const month = planCalendarMonth.month;
+    const tripSet = new Set(getTripDateKeys());
+    const analysis = analyzeTripPacking();
+
+    let html = renderPlanSegmentHtml("calendar");
+    html += '<p class="plan-intro">Plan each day of your trip (' + escapeHtml(formatTripRangeLabel()) + '). Tap a trip day to assign outfits you already built.</p>';
+
+    html += '<div class="plan-calendar-head">';
+    html += "<h2>" + monthNames[month] + " " + year + "</h2>";
+    html += '<div class="plan-calendar-nav">';
+    html += '<button type="button" id="planCalPrev" aria-label="Previous month">‹</button>';
+    html += '<button type="button" id="planCalNext" aria-label="Next month">›</button>';
+    html += "</div></div>";
+
+    html += '<div class="plan-calendar-grid">';
+    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(function (dow) {
+      html += '<div class="plan-cal-dow">' + dow + "</div>";
+    });
+
+    const first = new Date(year, month, 1);
+    const startPad = first.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < startPad; i++) html += '<div class="plan-cal-pad"></div>';
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = year + "-" + pad2(month + 1) + "-" + pad2(day);
+      const inTrip = tripSet.has(dateKey);
+      const planned = dayHasPlannedOutfits(dateKey);
+      html += '<button type="button" class="plan-cal-day' +
+        (inTrip ? " trip" : " outside") +
+        (planned ? " planned" : "") +
+        '" data-date-key="' + dateKey + '">' + day + "</button>";
+    }
+    html += "</div>";
+
+    html += '<div class="plan-overpack">';
+    html += "<h3>Packing check</h3>";
+    html += '<p class="plan-overpack-summary">' +
+      analysis.plannedDays + " of " + analysis.tripDays + " trip days planned";
+    if (analysis.uniquePieces) html += " · " + analysis.uniquePieces + " unique pieces in plan";
+    html += ".</p>";
+
+    if (!analysis.rows.length) {
+      html += '<p class="plan-overpack-summary" style="margin-bottom:0">Assign outfits on the calendar to compare what you packed vs. what you need.</p>';
+    } else {
+      analysis.rows.forEach(function (row) {
+        let badge = "OK";
+        let badgeClass = "ok";
+        let detail = "Need up to " + row.needed + " on busiest day · packed " + row.packed;
+        if (row.status === "over") {
+          badge = "+" + (row.packed - row.needed);
+          badgeClass = "over";
+          detail = "Need up to " + row.needed + " · packed " + row.packed + " · " + (row.packed - row.needed) + " extra";
+        } else if (row.status === "under") {
+          badge = "Need " + (row.needed - row.packed);
+          badgeClass = "under";
+          detail = "Need up to " + row.needed + " · packed " + row.packed + " · pack " + (row.needed - row.packed) + " more";
+        }
+        html += '<div class="plan-overpack-row"><div><strong>' + escapeHtml(row.name) + '</strong><small>' + escapeHtml(detail) + '</small></div>';
+        html += '<span class="plan-overpack-badge ' + badgeClass + '">' + escapeHtml(badge) + "</span></div>";
+      });
+    }
+    html += "</div>";
+
+    if (!state.outfits || !state.outfits.length) {
+      html += '<div class="scan-empty">Build saved outfits first under <strong>Outfits</strong>, then assign them here.</div>';
+    }
+
+    root.innerHTML = html;
+    bindPlanSegment(root);
+
+    document.getElementById("planCalPrev").onclick = function () {
+      planCalendarMonth.month -= 1;
+      if (planCalendarMonth.month < 0) {
+        planCalendarMonth.month = 11;
+        planCalendarMonth.year -= 1;
+      }
+      renderPlan();
+    };
+    document.getElementById("planCalNext").onclick = function () {
+      planCalendarMonth.month += 1;
+      if (planCalendarMonth.month > 11) {
+        planCalendarMonth.month = 0;
+        planCalendarMonth.year += 1;
+      }
+      renderPlan();
+    };
+
+    root.querySelectorAll(".plan-cal-day[data-date-key]").forEach(function (btn) {
+      btn.onclick = function () {
+        const dateKey = btn.dataset.dateKey;
+        if (!isTripDateKey(dateKey)) {
+          toast("Trip days are " + formatTripRangeLabel());
+          return;
+        }
+        openPlanDayOverlay(dateKey);
+      };
+    });
+
+    const meta = document.getElementById("planHeroMeta");
+    if (meta) {
+      meta.textContent = formatTripRangeLabel() + " · " + analysis.plannedDays + "/" + analysis.tripDays + " days planned";
+    }
+  }
+
+  function renderPlanDayOverlay(dateKey) {
+    planDayDateKey = dateKey;
+    const slots = ensureDayPlan(dateKey);
+    document.getElementById("planDayTitle").textContent = formatDayHeading(dateKey);
+    const root = document.getElementById("planDaySlots");
+    let html = "";
+    slots.forEach(function (slot, index) {
+      const outfit = getOutfitById(slot.outfitId);
+      const outfitName = outfit ? (outfit.name || "Outfit") : "Not chosen yet";
+      const pieceCount = outfit ? outfitGarmentCount(outfit) : 0;
+      html += '<div class="plan-day-slot" data-day-slot-id="' + escapeHtml(slot.id) + '">';
+      html += '<div class="plan-day-slot-label"><strong>' + escapeHtml(slot.label || "Outfit") + '</strong>';
+      html += "<small>" + escapeHtml(outfitName);
+      if (pieceCount) html += " · " + pieceCount + " piece" + (pieceCount === 1 ? "" : "s");
+      html += "</small></div>";
+      html += '<div class="plan-day-slot-actions">';
+      html += '<button type="button" class="pick" data-pick-outfit="' + escapeHtml(slot.id) + '">' + (outfit ? "Change" : "Choose") + "</button>";
+      if (index > 0 || slots.length > 1) {
+        html += '<button type="button" data-remove-day-slot="' + escapeHtml(slot.id) + '" aria-label="Remove">×</button>';
+      }
+      html += "</div></div>";
+    });
+    root.innerHTML = html;
+
+    root.querySelectorAll("[data-pick-outfit]").forEach(function (btn) {
+      btn.onclick = function () {
+        planPickingDaySlotId = btn.dataset.pickOutfit;
+        openPlanOutfitPicker();
+      };
+    });
+    root.querySelectorAll("[data-remove-day-slot]").forEach(function (btn) {
+      btn.onclick = function () {
+        const slotId = btn.dataset.removeDaySlot;
+        const list = ensureDayPlan(dateKey).filter(function (s) { return s.id !== slotId; });
+        if (!list.length) {
+          toast("Keep at least one outfit slot");
+          return;
+        }
+        state.tripPlan.days[dateKey] = list;
+        saveState();
+        renderPlanDayOverlay(dateKey);
+        if (planSection === "calendar" && currentView === "plan") renderPlan();
+      };
+    });
+
+    document.getElementById("planDayAddSlot").onclick = function () {
+      const label = prompt("Label for this outfit (e.g. Date night, Beach):", "Outfit");
+      if (label === null) return;
+      ensureDayPlan(dateKey).push({
+        id: newDaySlotId(),
+        label: (label.trim() || "Outfit").slice(0, 40),
+        outfitId: null,
+      });
+      saveState();
+      renderPlanDayOverlay(dateKey);
+    };
+  }
+
+  function openPlanDayOverlay(dateKey) {
+    if (!state.outfits || !state.outfits.length) {
+      toast("Create outfits under Outfits first");
+      planSection = "outfits";
+      planView = "library";
+      renderPlan();
+      return;
+    }
+    renderPlanDayOverlay(dateKey);
+    openOverlay("planDayOverlay");
+  }
+
+  function openPlanOutfitPicker() {
+    const root = document.getElementById("planOutfitPickerList");
+    if (!state.outfits || !state.outfits.length) {
+      root.innerHTML = '<div class="scan-empty">No saved outfits yet.</div>';
+      openOverlay("planOutfitPickerOverlay");
+      return;
+    }
+    let html = "";
+    state.outfits.forEach(function (outfit) {
+      html += '<button type="button" class="plan-outfit-pick" data-pick-outfit-id="' + escapeHtml(outfit.id) + '">';
+      html += '<div class="plan-outfit-pick-mosaic" data-picker-mosaic="' + escapeHtml(outfit.id) + '">';
+      html += '<span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span>';
+      html += "</div><span>" + escapeHtml(outfit.name || "Outfit") + "</span></button>";
+    });
+    html += '<button type="button" class="plan-outfit-pick" data-pick-outfit-id=""><span>Clear selection</span></button>';
+    root.innerHTML = html;
+
+    state.outfits.forEach(function (outfit) {
+      const el = root.querySelector('[data-picker-mosaic="' + outfit.id + '"]');
+      if (!el) return;
+      const withGarments = (outfit.slots || []).filter(function (s) { return s.garment; }).slice(0, 4);
+      if (!withGarments.length) return;
+      el.innerHTML = "";
+      withGarments.forEach(function (slot) {
+        const img = document.createElement("img");
+        img.alt = "";
+        el.appendChild(img);
+        loadGarmentPhotoUrl(slot.garment.itemId, slot.garment.slot).then(function (url) {
+          if (url) img.src = url;
+        });
+      });
+      while (el.children.length < 4) {
+        const empty = document.createElement("span");
+        empty.className = "mosaic-empty";
+        el.appendChild(empty);
+      }
+    });
+
+    root.querySelectorAll("[data-pick-outfit-id]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!planDayDateKey || !planPickingDaySlotId) return;
+        const slots = ensureDayPlan(planDayDateKey);
+        const slot = slots.find(function (s) { return s.id === planPickingDaySlotId; });
+        if (!slot) return;
+        slot.outfitId = btn.dataset.pickOutfitId || null;
+        saveState();
+        closeOverlay("planOutfitPickerOverlay");
+        planPickingDaySlotId = null;
+        renderPlanDayOverlay(planDayDateKey);
+        if (planSection === "calendar" && currentView === "plan") renderPlan();
+        toast(slot.outfitId ? "Outfit assigned" : "Outfit cleared");
+      };
+    });
+    openOverlay("planOutfitPickerOverlay");
   }
 
   function getPlanCategoriesForPicker(photoCounts) {
@@ -3786,7 +4993,8 @@
   }
 
   function renderPlanLibrary(root) {
-    let html = '<p class="plan-intro">Swipe through your wardrobe to build outfits. Each slot links to photos you packed.</p>';
+    let html = renderPlanSegmentHtml("outfits");
+    html += '<p class="plan-intro">Swipe through your wardrobe to build outfits. Each slot links to photos you packed.</p>';
     html += '<button type="button" class="btn-primary" id="btnNewOutfit" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New outfit</button>';
     if (!state.outfits || !state.outfits.length) {
       html += '<div class="scan-empty">No saved outfits yet. Pack wardrobe photos first, then create an outfit.</div>';
@@ -3802,6 +5010,7 @@
       html += "</div>";
     }
     root.innerHTML = html;
+    bindPlanSegment(root);
     document.getElementById("btnNewOutfit").onclick = function () { startPlanBuilder(null); };
     root.querySelectorAll(".plan-outfit-card").forEach(function (card) {
       card.onclick = function () {
@@ -3847,6 +5056,7 @@
     document.getElementById("planEditBtn").onclick = function () { startPlanBuilder(outfit); };
     document.getElementById("planDeleteBtn").onclick = function () {
       if (!confirm("Delete this outfit?")) return;
+      purgeOutfitFromTripPlan(outfit.id);
       state.outfits = (state.outfits || []).filter(function (o) { return o.id !== outfit.id; });
       saveState();
       planView = "library";
@@ -3954,6 +5164,7 @@
       updatePlanSaveBar(planView === "builder");
       if (planView === "builder") renderPlanBuilder(root, photoCounts);
       else if (planView === "detail") renderPlanDetail(root, photoCounts);
+      else if (planSection === "calendar") renderPlanCalendar(root);
       else renderPlanLibrary(root);
     });
   }
@@ -4060,8 +5271,10 @@
       closetPreviews = {};
       clearScanSelection();
       planView = "library";
+      planSection = "calendar";
       planDraft = null;
       planDetailId = null;
+      planDayDateKey = null;
       state = defaultState();
       revokeThumbCache();
       idbClearAll().then(function () {
@@ -4144,6 +5357,12 @@
     btn.onclick = function () {
       const id = btn.getAttribute("data-close");
       if (id === "editOverlay") editingItemId = null;
+      if (id === "planDayOverlay") {
+        planDayDateKey = null;
+        planPickingDaySlotId = null;
+        if (currentView === "plan" && planSection === "calendar") renderPlan();
+      }
+      if (id === "planOutfitPickerOverlay") planPickingDaySlotId = null;
       closeOverlay(id);
     };
   });
@@ -4215,6 +5434,16 @@
   }
 
   document.getElementById("arubaExportBackup").addEventListener("click", exportArubaBackup);
+  document.getElementById("arubaExportPhotos").addEventListener("click", exportArubaPhotosZip);
+  document.getElementById("arubaImportPhotos").addEventListener("click", function () {
+    document.getElementById("arubaImportPhotosFile").click();
+  });
+  document.getElementById("arubaImportPhotosFile").addEventListener("change", function (e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    importArubaPhotosZip(file);
+  });
   document.getElementById("arubaImportBackup").addEventListener("click", function () {
     document.getElementById("arubaImportFile").click();
   });

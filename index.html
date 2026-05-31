@@ -279,7 +279,7 @@
             id: id,
             name: m.name || humanize(id),
             subtitle: m.subtitle || "",
-            href: id === "habit-journal" ? id + "/?v=year10" : id === "adhd-task-tracker" ? id + "/?v=focus2" : id === "world-cup-2026" ? id + "/?v=modal2" : id + "/",
+            href: id === "habit-journal" ? id + "/?v=year10" : id === "adhd-task-tracker" ? id + "/?v=focus2" : id === "world-cup-2026" ? id + "/?v=wc-bracket1" : id + "/",
           };
         });
       })
@@ -345,7 +345,7 @@
         id: a.id,
         name: a.name || humanize(a.id),
         subtitle: a.subtitle || "",
-        href: a.id === "habit-journal" ? a.id + "/?v=year10" : a.id === "adhd-task-tracker" ? a.id + "/?v=focus2" : a.id === "world-cup-2026" ? a.id + "/?v=modal2" : a.id + "/",
+        href: a.id === "habit-journal" ? a.id + "/?v=year10" : a.id === "adhd-task-tracker" ? a.id + "/?v=focus2" : a.id === "world-cup-2026" ? a.id + "/?v=wc-bracket1" : a.id + "/",
       };
     });
     document.getElementById("status").textContent = "Offline list";

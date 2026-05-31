@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>World Cup 2026 — Tables</title>
+  <title>World Cup 2026 — Bracket</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="WC 2026" />
   <meta name="theme-color" content="#0a1628" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: wc-bracket-v1 -->
+  <!-- build: wc-knockout-v1 -->
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=wc-bracket1" />
+  <link rel="stylesheet" href="styles.css?v=wc-knockout1" />
 </head>
 <body>
   <header class="top">
@@ -21,35 +21,30 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
       </a>
       <div class="top-titles">
-        <h1>Group Tables</h1>
-        <p class="sub">32 of 48 advance · top 2 + best 8 third</p>
+        <h1>Knockout Bracket</h1>
+        <p class="sub">FIFA Annex C · updates from group scores</p>
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
       <a class="nav-tab" href="index.html?v=wc-bracket1">Matches</a>
-      <a class="nav-tab on" href="table.html?v=wc-bracket1" aria-current="page">Tables</a>
-      <a class="nav-tab" href="bracket.html?v=wc-bracket1">Bracket</a>
+      <a class="nav-tab" href="table.html?v=wc-bracket1">Tables</a>
+      <a class="nav-tab on" href="bracket.html?v=wc-bracket1" aria-current="page">Bracket</a>
     </nav>
   </header>
 
   <div class="stats-bar">
-    <span id="progress">0 / 72 results entered</span>
-    <span id="updated">Updates as you enter scores</span>
+    <span id="scenario-info">Loading bracket…</span>
+    <button type="button" id="clear-bracket">Reset picks</button>
   </div>
 
-  <main>
-    <div class="groups-grid" id="groups"></div>
-    <div id="third-place"></div>
-    <div class="legend">
-      <span><span class="swatch qualify"></span> Top 2 (auto qualify)</span>
-      <span><span class="swatch wildcard"></span> 3rd (wildcard race)</span>
-      <span><span class="swatch out"></span> Out</span>
-    </div>
-  </main>
+  <main id="bracket-main"></main>
 
   <script src="matches.js?v=wc-bracket1"></script>
+  <script src="bracket-scenarios.js?v=wc-bracket1"></script>
+  <script src="bracket-structure.js?v=wc-bracket1"></script>
   <script src="core.js?v=wc-bracket1"></script>
-  <script src="table-page.js?v=wc-bracket1"></script>
+  <script src="bracket.js?v=wc-bracket1"></script>
+  <script src="bracket-page.js?v=wc-bracket1"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

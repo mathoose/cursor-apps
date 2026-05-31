@@ -141,8 +141,113 @@
     return result;
   }
 
+  function computeThirdPlaceRanking(standings) {
+    var third = Object.keys(standings).map(function (groupKey) {
+      var row = standings[groupKey][2];
+      return {
+        group: groupKey,
+        team: row.team,
+        played: row.played,
+        won: row.won,
+        drawn: row.drawn,
+        lost: row.lost,
+        gf: row.gf,
+        ga: row.ga,
+        gd: row.gd,
+        pts: row.pts
+      };
+    });
+
+    third.sort(function (a, b) {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.gd !== a.gd) return b.gd - a.gd;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      return a.group.localeCompare(b.group);
+    });
+
+    return third;
+  }
+
   function countPlayed() {
     return Object.keys(readScores()).length;
+  }
+
+  var KNOCKOUT_KEY = "world-cup-2026-knockout-v1";
+
+  function readKnockoutResults() {
+    try {
+      var raw = localStorage.getItem(KNOCKOUT_KEY);
+      if (!raw) return {};
+      var data = JSON.parse(raw);
+      var cleaned = {};
+      Object.keys(data).forEach(function (key) {
+        var val = data[key];
+        if (val && typeof val === "object" && Number.isFinite(val.home) && Number.isFinite(val.away)) {
+          cleaned[key] = val;
+        }
+      });
+      return cleaned;
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeKnockoutResults(results) {
+    localStorage.setItem(KNOCKOUT_KEY, JSON.stringify(results));
+    listeners.forEach(function (fn) { fn(readScores()); });
+  }
+
+  function getKnockoutResult(matchId) {
+    return readKnockoutResults()[String(matchId)] || null;
+  }
+
+  function setKnockoutResult(matchId, home, away, note) {
+    var results = readKnockoutResults();
+    var key = String(matchId);
+    if (home === "" && away === "") {
+      delete results[key];
+    } else {
+      var entry = { home: Number(home), away: Number(away) };
+      if (note && String(note).trim()) {
+        entry.note = String(note).trim();
+      }
+      results[key] = entry;
+    }
+    writeKnockoutResults(results);
+    return results;
+  }
+
+  function removeKnockoutResult(matchId) {
+    var results = readKnockoutResults();
+    delete results[String(matchId)];
+    writeKnockoutResults(results);
+    return results;
+  }
+
+  function getKnockoutWinner(matchId, homeTeam, awayTeam) {
+    var result = getKnockoutResult(matchId);
+    if (!isPlayed(result) || !homeTeam || !awayTeam) return null;
+    if (result.home > result.away) return homeTeam;
+    if (result.away > result.home) return awayTeam;
+    return null;
+  }
+
+  function getKnockoutLoser(matchId, homeTeam, awayTeam) {
+    var result = getKnockoutResult(matchId);
+    if (!isPlayed(result) || !homeTeam || !awayTeam) return null;
+    if (result.home > result.away) return awayTeam;
+    if (result.away > result.home) return homeTeam;
+    return null;
+  }
+
+  function clearKnockoutWinners() {
+    localStorage.removeItem(KNOCKOUT_KEY);
+    listeners.forEach(function (fn) { fn(readScores()); });
+  }
+
+  // Legacy alias used by bracket resolution
+  function readKnockoutWinners() {
+    return readKnockoutResults();
   }
 
   window.WC2026Core = {
@@ -159,11 +264,20 @@
     formatTime: formatTime,
     isPlayed: isPlayed,
     computeStandings: computeStandings,
-    countPlayed: countPlayed
+    computeThirdPlaceRanking: computeThirdPlaceRanking,
+    countPlayed: countPlayed,
+    readKnockoutResults: readKnockoutResults,
+    getKnockoutResult: getKnockoutResult,
+    setKnockoutResult: setKnockoutResult,
+    removeKnockoutResult: removeKnockoutResult,
+    getKnockoutWinner: getKnockoutWinner,
+    getKnockoutLoser: getKnockoutLoser,
+    readKnockoutWinners: readKnockoutWinners,
+    clearKnockoutWinners: clearKnockoutWinners
   };
 
   window.addEventListener("storage", function (e) {
-    if (e.key === STORAGE_KEY) {
+    if (e.key === STORAGE_KEY || e.key === KNOCKOUT_KEY) {
       listeners.forEach(function (fn) { fn(readScores()); });
     }
   });

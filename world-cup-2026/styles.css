@@ -340,6 +340,34 @@ main { padding: 0 12px 24px; max-width: 720px; margin: 0 auto; }
 .standings-table tr.qualify { background: var(--qualify); }
 .standings-table tr.qualify td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
 
+.standings-table tr.wildcard { background: rgba(255, 215, 0, 0.08); }
+.standings-table tr.wildcard td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+
+.standings-table tr.out { opacity: 0.55; }
+
+.third-place-panel {
+  margin-top: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.third-place-note {
+  padding: 10px 14px 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.third-place-table { margin-top: 8px; }
+
+.third-place-table td:first-child,
+.third-place-table th:first-child { text-align: center; padding-left: 6px; }
+
+.third-place-table td:nth-child(2),
+.third-place-table th:nth-child(2) { text-align: left; padding-left: 12px; }
+
 .standings-table .team-cell {
   display: flex;
   align-items: center;
@@ -358,7 +386,8 @@ main { padding: 0 12px 24px; max-width: 720px; margin: 0 auto; }
 
 .legend {
   display: flex;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   justify-content: center;
   padding: 16px;
   font-size: 0.75rem;
@@ -375,8 +404,21 @@ main { padding: 0 12px 24px; max-width: 720px; margin: 0 auto; }
   width: 12px;
   height: 12px;
   border-radius: 3px;
+}
+
+.legend .swatch.qualify {
   background: var(--qualify);
   box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.legend .swatch.wildcard {
+  background: rgba(255, 215, 0, 0.15);
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+
+.legend .swatch.out {
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.55;
 }
 
 /* Score modal */
@@ -532,3 +574,131 @@ body.modal-open { overflow: hidden; }
 }
 
 .btn-danger[hidden] { display: none; }
+
+/* Knockout bracket */
+.bracket-note {
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: rgba(255, 215, 0, 0.08);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.bracket-note strong { color: var(--text); }
+
+.bracket-hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 8px 0 16px;
+}
+
+.bracket-round { margin-bottom: 24px; }
+
+.bracket-round-title {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.bracket-round-matches {
+  display: grid;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .bracket-round-matches { grid-template-columns: repeat(2, 1fr); }
+}
+
+.bracket-match {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.bracket-match.final {
+  border-color: var(--gold);
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.bracket-match-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.bracket-advanced {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.bracket-match-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.bracket-vs {
+  align-self: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bracket-team {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.15);
+  color: inherit;
+  text-align: left;
+  cursor: default;
+}
+
+.bracket-team.pickable {
+  cursor: pointer;
+}
+
+.bracket-team.pickable:active { background: var(--bg-card-hover); }
+
+.bracket-team.winner {
+  border-color: var(--accent);
+  background: var(--qualify);
+}
+
+.bracket-team:disabled { opacity: 0.85; }
+
+.bracket-team-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.bracket-team-role {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.bracket-venue {
+  margin-top: 6px;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.nav-tabs .nav-tab { font-size: 0.8125rem; padding: 9px 8px; }
