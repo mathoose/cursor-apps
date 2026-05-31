@@ -2430,6 +2430,7 @@
     { slotId: "shoes", label: "Shoes", category: "Sneakers" },
   ];
   const thumbCache = {};
+  const thumbCachePending = {};
   const IDB_NAME = "aruba-pack-photos-v1";
   const IDB_STORE = "photos";
 
@@ -2473,10 +2474,7 @@
       URL.revokeObjectURL(closetPreviews[id]);
       delete closetPreviews[id];
     }
-    if (thumbCache[closetKey(id)]) {
-      URL.revokeObjectURL(thumbCache[closetKey(id)]);
-      delete thumbCache[closetKey(id)];
-    }
+    invalidateThumbCache(closetKey(id));
     return idbDelete(closetKey(id)).catch(function () {});
   }
 
@@ -2913,10 +2911,7 @@
       if (photo.kind === "closet") {
         const closetId = ensureClosetEntryForImport(photo);
         const key = closetKey(closetId);
-        if (thumbCache[key]) {
-          URL.revokeObjectURL(thumbCache[key]);
-          delete thumbCache[key];
-        }
+        invalidateThumbCache(key);
         if (closetPreviews[closetId]) {
           URL.revokeObjectURL(closetPreviews[closetId]);
           delete closetPreviews[closetId];
@@ -2926,18 +2921,12 @@
       if (photo.kind === "wardrobe" && photo.itemId != null && photo.slot != null) {
         ensureItemForPhotoImport(photo);
         const key = photoKey(photo.itemId, photo.slot);
-        if (thumbCache[key]) {
-          URL.revokeObjectURL(thumbCache[key]);
-          delete thumbCache[key];
-        }
+        invalidateThumbCache(key);
         return idbPut(key, blob).then(function () { imported++; });
       }
       if (photo.key) {
         const key = String(photo.key);
-        if (thumbCache[key]) {
-          URL.revokeObjectURL(thumbCache[key]);
-          delete thumbCache[key];
-        }
+        invalidateThumbCache(key);
         return idbPut(key, blob).then(function () { imported++; });
       }
       skipped++;
@@ -3085,11 +3074,44 @@
     });
   }
 
+  function invalidateThumbCache(key) {
+    if (thumbCache[key]) {
+      URL.revokeObjectURL(thumbCache[key]);
+      delete thumbCache[key];
+    }
+    delete thumbCachePending[key];
+  }
+
   function revokeThumbCache() {
     Object.keys(thumbCache).forEach(function (k) {
-      if (thumbCache[k]) URL.revokeObjectURL(thumbCache[k]);
-      delete thumbCache[k];
+      invalidateThumbCache(k);
     });
+  }
+
+  /** Cached blob URLs — do not revoke on every grid render (prevents photos looking deleted). */
+  function getThumbUrl(key) {
+    if (thumbCache[key]) return Promise.resolve(thumbCache[key]);
+    if (thumbCachePending[key]) return thumbCachePending[key];
+    thumbCachePending[key] = idbGet(key).then(function (blob) {
+      delete thumbCachePending[key];
+      if (!blob) {
+        invalidateThumbCache(key);
+        return null;
+      }
+      const url = URL.createObjectURL(blob);
+      thumbCache[key] = url;
+      return url;
+    });
+    return thumbCachePending[key];
+  }
+
+  function reconcileThumbCacheWithIdb() {
+    return idbGetAllKeys().then(function (keys) {
+      const valid = new Set(keys.map(String));
+      Object.keys(thumbCache).forEach(function (k) {
+        if (!valid.has(k)) invalidateThumbCache(k);
+      });
+    }).catch(function () {});
   }
 
   const MAX_ORIGINAL_BYTES = 8 * 1024 * 1024;
@@ -3268,10 +3290,7 @@
         if (currentView === "list") render();
       }
       const key = photoKey(target.itemId, target.slot);
-      if (thumbCache[key]) {
-        URL.revokeObjectURL(thumbCache[key]);
-        delete thumbCache[key];
-      }
+      invalidateThumbCache(key);
       return idbPut(key, blob);
     }).then(function () {
       toast("Photo saved");
@@ -3585,10 +3604,7 @@
         while (slot < 99 && counts[photoKey(itemId, slot)]) slot++;
         if (slot >= row.qty) row.qty = slot + 1;
         const key = photoKey(itemId, slot);
-        if (thumbCache[key]) {
-          URL.revokeObjectURL(thumbCache[key]);
-          delete thumbCache[key];
-        }
+        invalidateThumbCache(key);
         tasks.push(
           idbGet(closetKey(entry.id)).then(function (blob) {
             if (!blob) return;
@@ -3687,14 +3703,7 @@
   }
 
   function loadGarmentPhotoUrl(itemId, slot) {
-    const key = photoKey(itemId, slot);
-    if (thumbCache[key]) return Promise.resolve(thumbCache[key]);
-    return idbGet(key).then(function (blob) {
-      if (!blob) return null;
-      const url = URL.createObjectURL(blob);
-      thumbCache[key] = url;
-      return url;
-    });
+    return getThumbUrl(photoKey(itemId, slot));
   }
 
   function newOutfitId() {
@@ -4172,10 +4181,7 @@
     const tasks = [];
     for (let s = maxQty; s < 99; s++) {
       const key = photoKey(itemId, s);
-      if (thumbCache[key]) {
-        URL.revokeObjectURL(thumbCache[key]);
-        delete thumbCache[key];
-      }
+      invalidateThumbCache(key);
       tasks.push(idbDelete(key).catch(function () {}));
     }
     return Promise.all(tasks);
@@ -4368,15 +4374,8 @@
 
       root.querySelectorAll("img[data-photo-key]").forEach(function (img) {
         const key = img.getAttribute("data-photo-key");
-        if (thumbCache[key]) {
-          img.src = thumbCache[key];
-          return;
-        }
-        idbGet(key).then(function (blob) {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          thumbCache[key] = url;
-          img.src = url;
+        getThumbUrl(key).then(function (url) {
+          if (url) img.src = url;
         });
       });
     });
@@ -4432,7 +4431,6 @@
       if (planBar) planBar.remove();
     }
     if (view === "grid") {
-      revokeThumbCache();
       renderGrid();
     } else if (view === "pack") {
       closePhotoViewer();
@@ -4607,6 +4605,8 @@
       if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
         saveStateImmediate();
       }
+      return reconcileThumbCacheWithIdb();
+    }).then(function () {
       render();
     }).catch(function () {
       render();
@@ -4617,10 +4617,12 @@
     loadPhotoCountsFromIdb().then(function (photoCounts) {
       if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
         saveStateImmediate();
-        render();
-        if (currentView === "grid") renderGrid();
-        if (currentView === "pack") renderPack();
       }
+      return reconcileThumbCacheWithIdb();
+    }).then(function () {
+      render();
+      if (currentView === "grid") renderGrid();
+      if (currentView === "pack") renderPack();
     }).catch(function () {});
   }
 
@@ -5590,10 +5592,7 @@
     if (!viewerPhoto) return;
     const key = viewerPhoto.key;
     idbDelete(key).then(function () {
-      if (thumbCache[key]) {
-        URL.revokeObjectURL(thumbCache[key]);
-        delete thumbCache[key];
-      }
+      invalidateThumbCache(key);
       closePhotoViewer();
       toast("Photo removed");
       if (currentView === "grid") renderGrid();

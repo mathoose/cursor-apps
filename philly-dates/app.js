@@ -6,6 +6,8 @@ var PHOTO_DB = 'philly-dates-menu-photos-v1';
 var PHOTO_STORE = 'menus';
 var MAX_TAGS = 24;
 var menuPhotoObjectUrl = null;
+var menuPhotoUrlCache = {};
+var menuPhotoUrlPending = {};
 var DEFAULT_MAP_URL = "https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14";
 var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var RESTAURANTS = [];
@@ -49,6 +51,85 @@ function revokeMenuPhotoUrl() {
     URL.revokeObjectURL(menuPhotoObjectUrl);
     menuPhotoObjectUrl = null;
   }
+}
+
+function invalidateMenuPhotoCache(name) {
+  if (menuPhotoUrlCache[name]) {
+    URL.revokeObjectURL(menuPhotoUrlCache[name]);
+    delete menuPhotoUrlCache[name];
+  }
+  delete menuPhotoUrlPending[name];
+  if (menuPhotoObjectUrl && currentModalName === name) {
+    revokeMenuPhotoUrl();
+  }
+}
+
+function getMenuPhotoUrl(name) {
+  if (menuPhotoUrlCache[name]) return Promise.resolve(menuPhotoUrlCache[name]);
+  if (menuPhotoUrlPending[name]) return menuPhotoUrlPending[name];
+  menuPhotoUrlPending[name] = getMenuPhotoBlob(name).then(function(blob) {
+    delete menuPhotoUrlPending[name];
+    if (!blob) {
+      setMenuPhotoFlag(name, false);
+      invalidateMenuPhotoCache(name);
+      return null;
+    }
+    var url = URL.createObjectURL(blob);
+    menuPhotoUrlCache[name] = url;
+    return url;
+  });
+  return menuPhotoUrlPending[name];
+}
+
+function reconcileMenuPhotosFromIdb() {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readonly');
+      var req = tx.objectStore(PHOTO_STORE).getAllKeys();
+      req.onsuccess = function() {
+        var keys = req.result || [];
+        var st = loadAppState();
+        if (!st.menuPhotos) st.menuPhotos = {};
+        var fromIdb = {};
+        keys.forEach(function(k) {
+          var s = String(k);
+          if (s.indexOf('menu:') === 0) {
+            var name = s.slice(5);
+            fromIdb[name] = true;
+            st.menuPhotos[name] = true;
+          }
+        });
+        Object.keys(st.menuPhotos).forEach(function(name) {
+          if (!fromIdb[name]) delete st.menuPhotos[name];
+        });
+        saveAppState(st);
+        Object.keys(menuPhotoUrlCache).forEach(function(name) {
+          if (!fromIdb[name]) invalidateMenuPhotoCache(name);
+        });
+        resolve();
+      };
+      req.onerror = function() { reject(req.error); };
+    });
+  }).catch(function() {});
+}
+
+function renameMenuPhoto(oldName, newName) {
+  if (!oldName || !newName || oldName === newName) return Promise.resolve();
+  if (!hasMenuPhoto(oldName)) return Promise.resolve();
+  return getMenuPhotoBlob(oldName).then(function(blob) {
+    if (!blob) {
+      setMenuPhotoFlag(oldName, false);
+      return;
+    }
+    return putMenuPhoto(newName, blob).then(function() {
+      setMenuPhotoFlag(newName, true);
+      return deleteMenuPhotoBlob(oldName).then(function() {
+        setMenuPhotoFlag(oldName, false);
+        invalidateMenuPhotoCache(oldName);
+        invalidateMenuPhotoCache(newName);
+      });
+    });
+  });
 }
 function photoKeyForName(name) {
   return 'menu:' + name;
@@ -126,14 +207,14 @@ function showMenuPhotoInModal(name) {
     block.hidden = true;
     return;
   }
-  getMenuPhotoBlob(name).then(function(blob) {
-    if (!blob) {
+  getMenuPhotoUrl(name).then(function(url) {
+    if (!url || currentModalName !== name) {
       block.innerHTML = '';
       block.hidden = true;
       return;
     }
-    menuPhotoObjectUrl = URL.createObjectURL(blob);
-    block.innerHTML = '<p><strong>Saved menu</strong></p><img src="' + menuPhotoObjectUrl + '" alt="Menu photo">';
+    menuPhotoObjectUrl = url;
+    block.innerHTML = '<p><strong>Saved menu</strong></p><img src="' + url + '" alt="Menu photo">';
     block.hidden = false;
   }).catch(function() {
     block.innerHTML = '';
@@ -602,6 +683,7 @@ function bootstrapData(allPlaces) {
 }
 
 function startApp() {
+  reconcileMenuPhotosFromIdb().finally(function() {
   fetch('places.json?v=4')
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -619,7 +701,15 @@ function startApp() {
     .catch(function() {
       showError('Could not load places.json. Open from GitHub Pages (mathoose.github.io/cursor-apps/philly-dates/).');
     });
+  });
 }
+
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') reconcileMenuPhotosFromIdb();
+});
+window.addEventListener('pageshow', function() {
+  reconcileMenuPhotosFromIdb();
+});
 
 function parseTime(t) {
   if (!t) return NaN;
@@ -890,6 +980,7 @@ function wireMenuPhotoEdit(name) {
     if (!f) return;
     if (!n) { alert('Enter the place name first.'); return; }
     putMenuPhoto(n, f).then(function() {
+      invalidateMenuPhotoCache(n);
       setMenuPhotoFlag(n, true);
       refreshPreview();
       showStatus('Menu photo saved.');
@@ -902,6 +993,7 @@ function wireMenuPhotoEdit(name) {
       var n = currentName();
       if (!n || !confirm('Remove saved menu photo?')) return;
       deleteMenuPhotoBlob(n).then(function() {
+        invalidateMenuPhotoCache(n);
         setMenuPhotoFlag(n, false);
         refreshPreview();
         showStatus('Menu photo removed.');
@@ -1070,6 +1162,7 @@ function saveEdit(originalName) {
   if (!isNew && originalName !== name) {
     renameFavorite(originalName, name);
     renamePlaceMeta(originalName, name);
+    renameMenuPhoto(originalName, name);
   }
   modalTitle.textContent = r.name;
   renderModalMeta(r);
@@ -1180,8 +1273,10 @@ function importJsonBackup(parsed) {
     return;
   }
   if (!confirm('Replace saved favorites and edits with this backup? Menu photos on this device are kept.')) return;
+  var existing = loadAppState();
+  slice.menuPhotos = Object.assign({}, existing.menuPhotos || {}, slice.menuPhotos || {});
   saveAppState(slice);
-  location.reload();
+  reconcileMenuPhotosFromIdb().then(function() { location.reload(); });
 }
 
 document.getElementById('export-json-btn').addEventListener('click', exportJsonBackup);

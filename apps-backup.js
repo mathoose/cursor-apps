@@ -187,6 +187,39 @@
         return n + " meal" + (n === 1 ? "" : "s") + (fav ? ", " + fav + " favorites" : "");
       },
     },
+    "manga-shelf": {
+      storageKey: "manga-shelf-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("manga-shelf-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.volumes)) return null;
+          return { volumes: p.volumes, seriesMeta: p.seriesMeta || {} };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.volumes)) return false;
+        return writeKey("manga-shelf-v1", JSON.stringify({
+          version: 1,
+          volumes: slice.volumes,
+          seriesMeta: slice.seriesMeta || {},
+        }));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.volumes) && obj.format !== FORMAT && obj.format !== "manga-shelf";
+      },
+      summarize: function (slice) {
+        var n = slice.volumes ? slice.volumes.length : 0;
+        var series = {};
+        (slice.volumes || []).forEach(function (v) { series[v.series] = true; });
+        var sc = Object.keys(series).length;
+        return n + " volume" + (n === 1 ? "" : "s") + ", " + sc + " series";
+      },
+    },
     "philly-dates": {
       storageKey: "philly-dates-v2",
       legacyKeys: ["philly-hh-app-v1"],

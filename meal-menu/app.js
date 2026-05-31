@@ -33,7 +33,8 @@ var addingNew = false;
 var editSelectedTags = [];
 var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var modalPhotoUrl = null;
-var listThumbUrls = {};
+var listThumbCache = {};
+var listThumbPending = {};
 
 var pickerSelectedTags = [];
 var pickerPool = [];
@@ -212,6 +213,14 @@ function idbGetAllPhotoKeys() {
   });
 }
 
+function invalidateListThumb(entryId) {
+  if (listThumbCache[entryId]) {
+    URL.revokeObjectURL(listThumbCache[entryId]);
+    delete listThumbCache[entryId];
+  }
+  delete listThumbPending[entryId];
+}
+
 function revokeModalPhotoUrl() {
   if (modalPhotoUrl) {
     URL.revokeObjectURL(modalPhotoUrl);
@@ -219,11 +228,45 @@ function revokeModalPhotoUrl() {
   }
 }
 
-function revokeListThumbUrls() {
-  Object.keys(listThumbUrls).forEach(function(k) {
-    if (listThumbUrls[k]) URL.revokeObjectURL(listThumbUrls[k]);
+function getListThumbUrl(entryId) {
+  if (!hasPhoto(entryId)) return Promise.resolve(null);
+  if (listThumbCache[entryId]) return Promise.resolve(listThumbCache[entryId]);
+  if (listThumbPending[entryId]) return listThumbPending[entryId];
+  listThumbPending[entryId] = getEntryPhotoBlob(entryId).then(function(blob) {
+    delete listThumbPending[entryId];
+    if (!blob) {
+      setPhotoFlag(entryId, false);
+      invalidateListThumb(entryId);
+      return null;
+    }
+    var url = URL.createObjectURL(blob);
+    listThumbCache[entryId] = url;
+    return url;
   });
-  listThumbUrls = {};
+  return listThumbPending[entryId];
+}
+
+function reconcileEntryPhotosFromIdb() {
+  return idbGetAllPhotoKeys().then(function(keys) {
+    var st = getState();
+    if (!st.entryPhotos) st.entryPhotos = {};
+    var fromIdb = {};
+    keys.forEach(function(k) {
+      var s = String(k);
+      if (s.indexOf('entry:') === 0) {
+        var id = s.slice(6);
+        fromIdb[id] = true;
+        st.entryPhotos[id] = true;
+      }
+    });
+    Object.keys(st.entryPhotos).forEach(function(id) {
+      if (!fromIdb[id]) delete st.entryPhotos[id];
+    });
+    saveAppState(st);
+    Object.keys(listThumbCache).forEach(function(id) {
+      if (!fromIdb[id]) invalidateListThumb(id);
+    });
+  }).catch(function() {});
 }
 
 function getTags() {
@@ -346,7 +389,6 @@ function renderListForCategory(catId) {
   var list = entriesForCategory(catId);
   var ul = panel.querySelector('.menu-list');
   if (!ul) return;
-  revokeListThumbUrls();
   if (!list.length) {
     ul.innerHTML = '<li class="empty-state">Nothing on this page yet — tap + Add</li>';
     return;
@@ -374,12 +416,10 @@ function renderListForCategory(catId) {
 
   list.forEach(function(e) {
     if (!hasPhoto(e.id)) return;
-    getEntryPhotoBlob(e.id).then(function(blob) {
-      if (!blob) return;
+    getListThumbUrl(e.id).then(function(url) {
+      if (!url) return;
       var img = ul.querySelector('[data-thumb-id="' + e.id + '"]');
       if (!img) return;
-      var url = URL.createObjectURL(blob);
-      listThumbUrls[e.id] = url;
       img.src = url;
       img.hidden = false;
     });
@@ -543,10 +583,10 @@ function showPhotoInModal(entryId, containerId) {
     block.innerHTML = '';
     return;
   }
-  getEntryPhotoBlob(entryId).then(function(blob) {
-    if (!blob || currentEntryId !== entryId) return;
-    modalPhotoUrl = URL.createObjectURL(blob);
-    block.innerHTML = '<img src="' + modalPhotoUrl + '" alt="Meal photo">';
+  getListThumbUrl(entryId).then(function(url) {
+    if (!url || currentEntryId !== entryId) return;
+    modalPhotoUrl = url;
+    block.innerHTML = '<img src="' + url + '" alt="Meal photo">';
     block.hidden = false;
   });
 }
@@ -639,13 +679,12 @@ function wirePhotoEdit(entryId) {
       if (removeBtn) removeBtn.hidden = true;
       return;
     }
-    getEntryPhotoBlob(id).then(function(blob) {
-      if (!blob) {
+    getListThumbUrl(id).then(function(url) {
+      if (!url) {
         prev.innerHTML = '<p class="modal-empty">No photo yet.</p>';
         if (removeBtn) removeBtn.hidden = true;
         return;
       }
-      var url = URL.createObjectURL(blob);
       prev.innerHTML = '<img src="' + url + '" alt="Preview">';
       if (removeBtn) removeBtn.hidden = false;
     });
@@ -662,6 +701,7 @@ function wirePhotoEdit(entryId) {
       return;
     }
     putEntryPhoto(id, f).then(function() {
+      invalidateListThumb(id);
       setPhotoFlag(id, true);
       refreshPreview();
       renderAllLists();
@@ -675,6 +715,7 @@ function wirePhotoEdit(entryId) {
       var id = currentId() || entryId;
       if (!id) return;
       deleteEntryPhotoBlob(id).then(function() {
+        invalidateListThumb(id);
         setPhotoFlag(id, false);
         refreshPreview();
         renderAllLists();
@@ -735,6 +776,7 @@ function renderEditMode(entry) {
   if (!isNew) {
     document.getElementById('edit-delete').onclick = function() {
       if (!confirm('Delete “' + entry.name + '”?')) return;
+      invalidateListThumb(entry.id);
       deleteEntryPhotoBlob(entry.id).finally(function() {
         var st = getState();
         st.entries = st.entries.filter(function(e) { return e.id !== entry.id; });
@@ -787,6 +829,8 @@ function saveEdit(original) {
       getEntryPhotoBlob(tempPhotoId).then(function(blob) {
         if (!blob) return;
         return putEntryPhoto(entry.id, blob).then(function() {
+          invalidateListThumb(entry.id);
+          invalidateListThumb(tempPhotoId);
           setPhotoFlag(entry.id, true);
           return deleteEntryPhotoBlob(tempPhotoId);
         }).then(function() {
@@ -1009,9 +1053,9 @@ function showPickResult(id) {
     photoEl.innerHTML = '';
     photoEl.hidden = true;
     if (hasPhoto(entry.id)) {
-      getEntryPhotoBlob(entry.id).then(function(blob) {
-        if (!blob) return;
-        photoEl.innerHTML = '<img src="' + URL.createObjectURL(blob) + '" alt="">';
+      getListThumbUrl(entry.id).then(function(url) {
+        if (!url) return;
+        photoEl.innerHTML = '<img src="' + url + '" alt="">';
         photoEl.hidden = false;
       });
     }
@@ -1355,6 +1399,7 @@ function importPhotosZip(file) {
           var entryId = mergeEntryFromPhotoMeta(photo);
           var blob = new Blob([ze.data], { type: mimeFromPath(photo.path) });
           return putEntryPhoto(entryId, blob).then(function() {
+            invalidateListThumb(entryId);
             setPhotoFlag(entryId, true);
             imported++;
           });
@@ -1520,6 +1565,7 @@ function bindEvents() {
 
 function boot() {
   initState();
+  reconcileEntryPhotosFromIdb().finally(function() {
   ensureCategoryPanels();
   renderCategoryTabs();
   renderTagFilters();
@@ -1541,7 +1587,15 @@ function boot() {
 
   activeRootTab = '';
   switchRootTab('spin');
+  });
 }
+
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') reconcileEntryPhotosFromIdb().then(renderAllLists);
+});
+window.addEventListener('pageshow', function() {
+  reconcileEntryPhotosFromIdb().then(renderAllLists);
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);

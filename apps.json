@@ -11,7 +11,8 @@
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
-      "meal-menu": { "storageKey": "meal-menu-v1" }
+      "meal-menu": { "storageKey": "meal-menu-v1" },
+      "manga-shelf": { "storageKey": "manga-shelf-v1" }
     }
   },
   "apps": [
@@ -56,6 +57,12 @@
       "name": "Our Menu",
       "subtitle": "What to eat tonight",
       "storageKey": "meal-menu-v1"
+    },
+    {
+      "id": "manga-shelf",
+      "name": "Manga Shelf",
+      "subtitle": "Find by vol & name",
+      "storageKey": "manga-shelf-v1"
     }
   ]
 }
