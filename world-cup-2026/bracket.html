@@ -8,11 +8,11 @@
   <meta name="apple-mobile-web-app-title" content="WC 2026" />
   <meta name="theme-color" content="#0a1628" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: wc-knockout-v1 -->
+  <!-- build: wc-tree-v1 -->
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=wc-knockout1" />
+  <link rel="stylesheet" href="styles.css?v=wc-tree1" />
 </head>
 <body>
   <header class="top">
@@ -26,15 +26,20 @@
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
-      <a class="nav-tab" href="index.html?v=wc-knockout1">Matches</a>
-      <a class="nav-tab" href="table.html?v=wc-knockout1">Tables</a>
-      <a class="nav-tab on" href="bracket.html?v=wc-knockout1" aria-current="page">Bracket</a>
+      <a class="nav-tab" href="index.html?v=wc-tree1">Matches</a>
+      <a class="nav-tab" href="table.html?v=wc-tree1">Tables</a>
+      <a class="nav-tab on" href="bracket.html?v=wc-tree1" aria-current="page">Bracket</a>
     </nav>
   </header>
 
   <div class="stats-bar">
     <span id="scenario-info">Loading bracket…</span>
     <button type="button" id="clear-bracket">Reset picks</button>
+  </div>
+
+  <div class="bracket-view-toggle" role="tablist" aria-label="Bracket view">
+    <button type="button" class="view-btn on" id="view-tree" data-view="tree">Tree</button>
+    <button type="button" class="view-btn" id="view-list" data-view="list">Match list</button>
   </div>
 
   <main id="bracket-main"></main>
@@ -72,12 +77,13 @@
     </div>
   </div>
 
-  <script src="matches.js?v=wc-knockout1"></script>
-  <script src="bracket-scenarios.js?v=wc-knockout1"></script>
-  <script src="bracket-structure.js?v=wc-knockout1"></script>
-  <script src="core.js?v=wc-knockout1"></script>
-  <script src="bracket.js?v=wc-knockout1"></script>
-  <script src="bracket-page.js?v=wc-knockout1"></script>
+  <script src="matches.js?v=wc-tree1"></script>
+  <script src="bracket-scenarios.js?v=wc-tree1"></script>
+  <script src="bracket-structure.js?v=wc-tree1"></script>
+  <script src="bracket-tree-layout.js?v=wc-tree1"></script>
+  <script src="core.js?v=wc-tree1"></script>
+  <script src="bracket.js?v=wc-tree1"></script>
+  <script src="bracket-page.js?v=wc-tree1"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

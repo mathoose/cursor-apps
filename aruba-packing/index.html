@@ -1024,6 +1024,116 @@
       color: var(--muted);
     }
 
+    .plan-builder-meta {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 14px 4px;
+      margin-bottom: 14px;
+    }
+
+    .plan-builder-meta .field { margin-bottom: 12px; }
+
+    .plan-builder-meta textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .plan-garment-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .plan-garment-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .plan-garment-section-head h3 {
+      font-size: 0.875rem;
+      font-weight: 700;
+    }
+
+    .plan-garment-section-head span {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .plan-garment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-height: min(52vh, 420px);
+      overflow-y: auto;
+    }
+
+    .plan-garment-cell {
+      border: 2.5px solid transparent;
+      border-radius: 12px;
+      overflow: hidden;
+      padding: 0;
+      background: #f1f5f9;
+      cursor: pointer;
+      aspect-ratio: 1;
+      position: relative;
+      text-align: left;
+    }
+
+    .plan-garment-cell.on {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .plan-garment-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .plan-garment-cell .plan-garment-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .plan-garment-cell.on .plan-garment-check { display: flex; }
+
+    .plan-garment-empty {
+      padding: 24px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.45;
+    }
+
+    .plan-garment-empty button {
+      margin-top: 12px;
+      border: none;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
     .plan-save-bar {
       position: fixed;
       left: 16px;
@@ -3533,12 +3643,47 @@
         garments.push({
           itemId: g.id,
           slot: i,
-          label: gridGroupSubtitle(g.id) || itemLabel(g.id) || g.name,
+          label: gridGroupSubtitle(g.id) || gridDisplayName(g.id) || itemLabel(g.id) || g.name,
           photoKey: key,
         });
       }
     });
     return garments;
+  }
+
+  function getGarmentsByTag(tag, photoCounts) {
+    const garments = [];
+    gridGroups().forEach(function (g) {
+      if (getItemGarmentTag(g.id) !== tag) return;
+      const maxSlot = Math.max(g.qty, 1);
+      for (let i = 0; i <= maxSlot && i < 99; i++) {
+        const key = photoKey(g.id, i);
+        if (!photoCounts[key]) continue;
+        garments.push({
+          itemId: g.id,
+          slot: i,
+          label: gridGroupSubtitle(g.id) || gridDisplayName(g.id) || itemLabel(g.id) || g.name,
+          photoKey: key,
+        });
+      }
+    });
+    return garments;
+  }
+
+  function getGarmentsForPlanSlot(slot, photoCounts) {
+    const tagBySlot = { top: "top", bottoms: "bottom", shoes: "feet" };
+    const tag = tagBySlot[slot.slotId];
+    if (tag) return getGarmentsByTag(tag, photoCounts);
+    return getGarmentsInCategory(slot.category, photoCounts);
+  }
+
+  function getPlanSlotGridLabel(slot) {
+    const tagBySlot = { top: "top", bottoms: "bottom", shoes: "feet" };
+    const tag = tagBySlot[slot.slotId];
+    if (tag === "top") return "All tops";
+    if (tag === "bottom") return "All bottoms";
+    if (tag === "feet") return "All footwear";
+    return slot.category;
   }
 
   function loadGarmentPhotoUrl(itemId, slot) {
@@ -3941,7 +4086,9 @@
       html += '<button type="button" class="plan-outfit-pick" data-pick-outfit-id="' + escapeHtml(outfit.id) + '">';
       html += '<div class="plan-outfit-pick-mosaic" data-picker-mosaic="' + escapeHtml(outfit.id) + '">';
       html += '<span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span>';
-      html += "</div><span>" + escapeHtml(outfit.name || "Outfit") + "</span></button>";
+      html += "</div><span>" + escapeHtml(outfit.name || "Outfit");
+      if (outfit.description) html += "<br><small style=\"font-weight:400;color:var(--muted)\">" + escapeHtml(outfit.description) + "</small>";
+      html += "</span></button>";
     });
     html += '<button type="button" class="plan-outfit-pick" data-pick-outfit-id=""><span>Clear selection</span></button>';
     root.innerHTML = html;
@@ -4894,12 +5041,14 @@
 
   function savePlanOutfit() {
     if (!planDraft) return;
+    syncPlanDraftMetaFromForm();
     const defaultName = "Outfit " + ((state.outfits || []).length + 1);
-    const name = prompt("Outfit name (optional):", planDraft.name || defaultName);
-    if (name === null) return;
+    const name = (planDraft.name || "").trim() || defaultName;
+    const description = (planDraft.description || "").trim();
     const outfit = {
       id: planDraft.id || newOutfitId(),
-      name: (name || "").trim() || defaultName,
+      name: name,
+      description: description || undefined,
       slots: planDraft.slots.map(function (s) {
         return {
           slotId: s.slotId,
@@ -4922,15 +5071,24 @@
     renderPlan();
   }
 
+  function syncPlanDraftMetaFromForm() {
+    if (!planDraft) return;
+    const nameEl = document.getElementById("planOutfitName");
+    const descEl = document.getElementById("planOutfitDesc");
+    if (nameEl) planDraft.name = nameEl.value;
+    if (descEl) planDraft.description = descEl.value;
+  }
+
   function startPlanBuilder(editOutfit) {
     planView = "builder";
     if (editOutfit) {
       planDraft = JSON.parse(JSON.stringify(editOutfit));
+      if (!planDraft.description) planDraft.description = "";
+      if (!planDraft.name) planDraft.name = "";
     } else {
-      planDraft = { id: newOutfitId(), name: "", slots: cloneDefaultOutfitSlots() };
+      planDraft = { id: newOutfitId(), name: "", description: "", slots: cloneDefaultOutfitSlots() };
     }
     planActiveSlotId = planDraft.slots[0] ? planDraft.slots[0].slotId : null;
-    planSlotIndices = {};
     renderPlan();
   }
 
@@ -4942,17 +5100,10 @@
     return null;
   }
 
-  function syncPlanSlotGarment(slot, garments) {
-    if (!garments.length) {
-      slot.garment = null;
-      return;
-    }
-    let idx = planSlotIndices[slot.slotId];
-    if (typeof idx !== "number") idx = 0;
-    idx = Math.max(0, Math.min(idx, garments.length - 1));
-    planSlotIndices[slot.slotId] = idx;
-    const g = garments[idx];
-    slot.garment = { itemId: g.itemId, slot: g.slot };
+  function isGarmentSelected(slot, garment) {
+    return !!(slot.garment
+      && slot.garment.itemId === garment.itemId
+      && slot.garment.slot === garment.slot);
   }
 
   function openPlanCategoryPicker() {
@@ -4994,7 +5145,7 @@
 
   function renderPlanLibrary(root) {
     let html = renderPlanSegmentHtml("outfits");
-    html += '<p class="plan-intro">Swipe through your wardrobe to build outfits. Each slot links to photos you packed.</p>';
+    html += '<p class="plan-intro">Tap photos in the grid to build outfits. Name each look and add a short description.</p>';
     html += '<button type="button" class="btn-primary" id="btnNewOutfit" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New outfit</button>';
     if (!state.outfits || !state.outfits.length) {
       html += '<div class="scan-empty">No saved outfits yet. Pack wardrobe photos first, then create an outfit.</div>';
@@ -5005,7 +5156,9 @@
         html += '<div class="plan-outfit-mosaic" data-mosaic="' + escapeHtml(outfit.id) + '">';
         for (let i = 0; i < 4; i++) html += '<div class="mosaic-empty"></div>';
         html += '</div><div class="plan-outfit-card-body"><strong>' + escapeHtml(outfit.name || "Outfit") + '</strong><small>' +
-          outfitGarmentCount(outfit) + " piece" + (outfitGarmentCount(outfit) === 1 ? "" : "s") + "</small></div></button>";
+          outfitGarmentCount(outfit) + " piece" + (outfitGarmentCount(outfit) === 1 ? "" : "s");
+        if (outfit.description) html += " · " + escapeHtml(outfit.description);
+        html += "</small></div></button>";
       });
       html += "</div>";
     }
@@ -5033,6 +5186,9 @@
     }
     let html = '<button type="button" class="btn-secondary" id="planBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All outfits</button>';
     html += '<h2 style="font-size:1.125rem;margin-bottom:4px">' + escapeHtml(outfit.name || "Outfit") + '</h2>';
+    if (outfit.description) {
+      html += '<p class="plan-intro" style="margin-top:0;margin-bottom:10px">' + escapeHtml(outfit.description) + "</p>";
+    }
     html += '<p class="plan-intro" style="margin-bottom:14px">' + outfitGarmentCount(outfit) + " pieces in this outfit</p>";
     html += '<div class="plan-detail-slots">';
     (outfit.slots || []).forEach(function (slot) {
@@ -5082,79 +5238,94 @@
     if (!planActiveSlotId && planDraft.slots.length) planActiveSlotId = planDraft.slots[0].slotId;
     const activeSlot = getActivePlanSlot();
 
-    let html = '<div class="plan-slot-pills">';
+    let html = '<div class="plan-builder-meta">';
+    html += '<div class="field"><label for="planOutfitName">Outfit name</label>';
+    html += '<input type="text" id="planOutfitName" maxlength="80" placeholder="e.g. Beach day, Date night" value="' + escapeHtml(planDraft.name || "") + '" autocomplete="off" /></div>';
+    html += '<div class="field"><label for="planOutfitDesc">Description</label>';
+    html += '<textarea id="planOutfitDesc" maxlength="240" placeholder="Optional — where you\'ll wear it, vibe, notes…">' + escapeHtml(planDraft.description || "") + "</textarea></div>";
+    html += "</div>";
+
+    html += '<div class="plan-slot-pills">';
     planDraft.slots.forEach(function (slot) {
       const on = slot.slotId === planActiveSlotId;
-      html += '<button type="button" class="plan-slot-pill' + (on ? " on" : "") + '" data-slot-id="' + escapeHtml(slot.slotId) + '">' + escapeHtml(slot.label) + "</button>";
+      const picked = slot.garment ? " ✓" : "";
+      html += '<button type="button" class="plan-slot-pill' + (on ? " on" : "") + '" data-slot-id="' + escapeHtml(slot.slotId) + '">' + escapeHtml(slot.label) + picked + "</button>";
     });
     html += '<button type="button" class="plan-slot-pill add" id="planAddSlot">+</button></div>';
 
-    html += '<div class="plan-swipe-area" id="planSwipeArea">';
     if (activeSlot) {
-      const garments = getGarmentsInCategory(activeSlot.category, photoCounts);
-      syncPlanSlotGarment(activeSlot, garments);
-      const idx = planSlotIndices[activeSlot.slotId] || 0;
-      html += '<div class="plan-swipe-label">' + escapeHtml(activeSlot.label) + " · " + escapeHtml(activeSlot.category) + "</div>";
-      html += '<div class="plan-swipe-card" id="planSwipeCard">';
-      if (garments.length) {
-        html += '<img id="planSwipeImg" alt="" />';
+      const garments = getGarmentsForPlanSlot(activeSlot, photoCounts);
+      html += '<div class="plan-garment-section">';
+      html += '<div class="plan-garment-section-head"><h3>' + escapeHtml(activeSlot.label) + '</h3>';
+      html += "<span>" + escapeHtml(getPlanSlotGridLabel(activeSlot)) + "</span></div>";
+      if (!garments.length) {
+        html += '<div class="plan-garment-empty">No photos for this slot yet.<button type="button" id="planGoPack">Go to Pack</button></div>';
       } else {
-        html += '<div class="plan-swipe-empty">No <strong>' + escapeHtml(activeSlot.category) + '</strong> photos in wardrobe yet.<button type="button" id="planGoPack">Go to Pack</button></div>';
+        html += '<div class="plan-garment-grid">';
+        garments.forEach(function (g) {
+          const on = isGarmentSelected(activeSlot, g);
+          html += '<button type="button" class="plan-garment-cell' + (on ? " on" : "") + '" data-item-id="' + escapeHtml(g.itemId) + '" data-slot="' + g.slot + '" aria-label="' + escapeHtml(g.label) + '">';
+          html += '<img data-garment-key="' + escapeHtml(g.photoKey) + '" alt="" />';
+          html += '<span class="plan-garment-check" aria-hidden="true">✓</span>';
+          html += "</button>";
+        });
+        html += "</div>";
       }
-      html += '</div>';
-      if (garments.length) {
-        html += '<div class="plan-swipe-nav"><button type="button" id="planSwipePrev" aria-label="Previous">‹</button>';
-        html += '<span id="planSwipeCounter">' + (idx + 1) + " / " + garments.length + "</span>";
-        html += '<button type="button" id="planSwipeNext" aria-label="Next">›</button></div>';
-      }
+      html += "</div>";
     }
-    html += "</div>";
 
     root.innerHTML = html;
 
+    const nameEl = document.getElementById("planOutfitName");
+    const descEl = document.getElementById("planOutfitDesc");
+    if (nameEl) nameEl.oninput = function () { planDraft.name = nameEl.value; };
+    if (descEl) descEl.oninput = function () { planDraft.description = descEl.value; };
+
     root.querySelectorAll(".plan-slot-pill[data-slot-id]").forEach(function (pill) {
       pill.onclick = function () {
+        syncPlanDraftMetaFromForm();
         planActiveSlotId = pill.dataset.slotId;
         renderPlan();
       };
     });
-    document.getElementById("planAddSlot").onclick = openPlanCategoryPicker;
+    document.getElementById("planAddSlot").onclick = function () {
+      syncPlanDraftMetaFromForm();
+      openPlanCategoryPicker();
+    };
 
     const goPack = document.getElementById("planGoPack");
     if (goPack) goPack.onclick = function () { setView("pack"); };
 
-    if (activeSlot && getGarmentsInCategory(activeSlot.category, photoCounts).length) {
-      const garments = getGarmentsInCategory(activeSlot.category, photoCounts);
-      const idx = planSlotIndices[activeSlot.slotId] || 0;
-      const g = garments[idx];
-      if (g) {
-        loadGarmentPhotoUrl(g.itemId, g.slot).then(function (url) {
-          const img = document.getElementById("planSwipeImg");
-          if (img && url) img.src = url;
-        });
+    root.querySelectorAll(".plan-garment-cell").forEach(function (cell) {
+      cell.onclick = function () {
+        if (!activeSlot) return;
+        const itemId = cell.dataset.itemId;
+        const slotNum = parseInt(cell.dataset.slot, 10);
+        if (isGarmentSelected(activeSlot, { itemId: itemId, slot: slotNum })) {
+          activeSlot.garment = null;
+        } else {
+          activeSlot.garment = { itemId: itemId, slot: slotNum };
+        }
+        renderPlan();
+      };
+    });
+
+    root.querySelectorAll("img[data-garment-key]").forEach(function (img) {
+      const key = img.getAttribute("data-garment-key");
+      if (thumbCache[key]) {
+        img.src = thumbCache[key];
+        return;
       }
-      document.getElementById("planSwipePrev").onclick = function () {
-        planSlotIndices[activeSlot.slotId] = Math.max(0, (planSlotIndices[activeSlot.slotId] || 0) - 1);
-        renderPlan();
-      };
-      document.getElementById("planSwipeNext").onclick = function () {
-        planSlotIndices[activeSlot.slotId] = Math.min(garments.length - 1, (planSlotIndices[activeSlot.slotId] || 0) + 1);
-        renderPlan();
-      };
-      const card = document.getElementById("planSwipeCard");
-      let touchX = 0;
-      card.addEventListener("touchstart", function (e) {
-        touchX = e.touches[0].clientX;
-      }, { passive: true });
-      card.addEventListener("touchend", function (e) {
-        const dx = e.changedTouches[0].clientX - touchX;
-        if (dx > 50) document.getElementById("planSwipePrev").click();
-        else if (dx < -50) document.getElementById("planSwipeNext").click();
-      }, { passive: true });
-    }
+      idbGet(key).then(function (blob) {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        thumbCache[key] = url;
+        img.src = url;
+      });
+    });
 
     const meta = document.getElementById("planHeroMeta");
-    if (meta) meta.textContent = "Building outfit · swipe to pick pieces";
+    if (meta) meta.textContent = "Building outfit · tap photos in the grid";
   }
 
   function renderPlan() {

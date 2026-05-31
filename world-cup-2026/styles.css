@@ -725,3 +725,184 @@ body.modal-open { overflow: hidden; }
 }
 
 .nav-tabs .nav-tab { font-size: 0.8125rem; padding: 9px 8px; }
+
+/* Bracket view toggle */
+.bracket-view-toggle {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 12px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.bracket-view-toggle .view-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bracket-view-toggle .view-btn.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Visual bracket tree */
+.bracket-tree-wrap {
+  padding: 0 0 24px;
+}
+
+.bracket-tree-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 12px 8px;
+}
+
+.bracket-tree-header {
+  display: grid;
+  grid-template-columns: repeat(5, 108px);
+  gap: 10px;
+  min-width: 580px;
+  margin-bottom: 8px;
+}
+
+.bracket-tree-col-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.bracket-tree-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 108px);
+  grid-template-rows: repeat(16, 28px);
+  gap: 0 10px;
+  min-width: 580px;
+  position: relative;
+}
+
+.bracket-tree-slot {
+  display: flex;
+  align-items: center;
+  padding: 2px 0;
+  position: relative;
+}
+
+.bracket-tree-slot::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  width: 10px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bracket-tree-slot[data-col="5"]::after {
+  display: none;
+}
+
+.tree-node {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: inherit;
+  text-align: left;
+  cursor: default;
+  min-height: 0;
+}
+
+.tree-node.editable { cursor: pointer; }
+.tree-node.editable:active { background: var(--bg-card-hover); }
+.tree-node.played { border-color: var(--qualify-border); }
+.tree-node.locked { opacity: 0.65; }
+.tree-node.final { border-color: var(--gold); background: rgba(255, 215, 0, 0.08); }
+.tree-node.bronze { border-color: rgba(205, 127, 50, 0.45); }
+
+.tree-team {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.625rem;
+  line-height: 1.1;
+  padding: 1px 0;
+}
+
+.tree-team.winner {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.tree-team.out {
+  opacity: 0.45;
+}
+
+.tree-flag {
+  font-size: 0.875rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.tree-team-score {
+  font-weight: 700;
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  min-width: 1ch;
+  text-align: right;
+}
+
+.tree-team.winner .tree-team-score {
+  color: var(--gold);
+}
+
+.bracket-tree-extras {
+  margin: 20px 12px 0;
+  max-width: 200px;
+}
+
+.bracket-tree-extra-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.bracket-hint.tree-hint {
+  margin: 12px 12px 0;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .bracket-tree-header,
+  .bracket-tree-grid {
+    grid-template-columns: repeat(5, 120px);
+    min-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .tree-name { font-size: 0.6875rem; }
+}
