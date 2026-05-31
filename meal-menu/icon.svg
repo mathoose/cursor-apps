@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <rect width="180" height="180" rx="36" fill="#f4efe6"/>
+  <rect x="28" y="32" width="124" height="116" rx="8" fill="#fff" stroke="#8b3a3a" stroke-width="4"/>
+  <line x1="44" y1="58" x2="136" y2="58" stroke="#c4b8a8" stroke-width="2"/>
+  <line x1="44" y1="78" x2="120" y2="78" stroke="#c4b8a8" stroke-width="2"/>
+  <line x1="44" y1="98" x2="128" y2="98" stroke="#c4b8a8" stroke-width="2"/>
+  <line x1="44" y1="118" x2="100" y2="118" stroke="#c4b8a8" stroke-width="2"/>
+  <text x="90" y="152" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#8b3a3a">Menu</text>
+</svg>
