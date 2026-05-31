@@ -49,11 +49,13 @@
     }
 
     body.view-grid,
-    body.view-scan {
+    body.view-pack,
+    body.view-plan {
       padding-bottom: calc(72px + var(--safe-bottom));
     }
 
-    body.view-scan.has-scan-pack {
+    body.view-pack.has-scan-pack,
+    body.view-plan.has-plan-save {
       padding-bottom: calc(140px + var(--safe-bottom));
     }
 
@@ -598,9 +600,11 @@
     .tips strong { display: block; margin-bottom: 4px; color: #78350f; }
 
     body.view-grid .list-only,
-    body.view-scan .list-only { display: none !important; }
+    body.view-pack .list-only,
+    body.view-plan .list-only { display: none !important; }
     body:not(.view-grid) .grid-only { display: none !important; }
-    body:not(.view-scan) .scan-only { display: none !important; }
+    body:not(.view-pack) .pack-only { display: none !important; }
+    body:not(.view-plan) .plan-only { display: none !important; }
 
     .grid-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
 
@@ -620,18 +624,52 @@
     }
 
     .grid-group-head {
-      padding: 14px 16px 10px;
+      padding: 14px 16px;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 10px;
-    }
-
-    .grid-group-head.is-editable {
       cursor: pointer;
+      user-select: none;
+      min-height: var(--tap);
     }
 
-    .grid-group-head.is-editable:active { background: #f8fafc; }
+    .grid-group-head:active { background: #f8fafc; }
+
+    .grid-group-head-main { flex: 1; min-width: 0; }
+
+    .grid-group-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .grid-edit-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 8px;
+      background: #f1f5f9;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .grid-group-head .chevron {
+      width: 20px;
+      height: 20px;
+      color: var(--muted);
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .grid-group.collapsed .chevron { transform: rotate(-90deg); }
+    .grid-group.collapsed .grid-group-body { display: none; }
+
+    .grid-group-body { padding-bottom: 2px; }
 
     .grid-group-head h3 {
       font-size: 1rem;
@@ -785,25 +823,248 @@
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      padding: 8px 4px;
+      padding: 6px 2px;
       border: none;
       background: transparent;
       color: var(--muted);
-      font-size: 0.6875rem;
+      font-size: 0.625rem;
       font-weight: 600;
       cursor: pointer;
       border-radius: 12px;
       min-height: var(--tap);
     }
 
-    .tab.on { color: var(--accent-dark); background: var(--accent-soft); }
+    .tab svg { width: 20px; height: 20px; }
 
-    .tab svg { width: 22px; height: 22px; }
+    .tab.on { color: var(--accent-dark); background: var(--accent-soft); }
 
     .fab-bar { bottom: calc(60px + var(--safe-bottom)); }
 
+    .pack-page,
     .scan-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
 
+    .plan-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
+
+    .plan-intro {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .plan-outfit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .plan-outfit-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      text-align: left;
+      width: 100%;
+    }
+
+    .plan-outfit-card:active { opacity: 0.85; }
+
+    .plan-outfit-mosaic {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      aspect-ratio: 1;
+      background: #f1f5f9;
+    }
+
+    .plan-outfit-mosaic img,
+    .plan-outfit-mosaic .mosaic-empty {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #e2e8f0;
+    }
+
+    .plan-outfit-mosaic .mosaic-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      color: var(--muted);
+    }
+
+    .plan-outfit-card-body { padding: 10px 12px 12px; }
+
+    .plan-outfit-card-body strong {
+      display: block;
+      font-size: 0.875rem;
+      margin-bottom: 2px;
+    }
+
+    .plan-outfit-card-body small {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .plan-slot-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .plan-slot-pills::-webkit-scrollbar { display: none; }
+
+    .plan-slot-pill {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .plan-slot-pill.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .plan-slot-pill.add {
+      border-style: dashed;
+      color: var(--accent-dark);
+    }
+
+    .plan-swipe-area {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .plan-swipe-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .plan-swipe-card {
+      position: relative;
+      aspect-ratio: 3/4;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #f8fafc;
+      margin-bottom: 12px;
+    }
+
+    .plan-swipe-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .plan-swipe-empty {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.45;
+    }
+
+    .plan-swipe-empty button {
+      margin-top: 12px;
+      border: none;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .plan-swipe-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .plan-swipe-nav button {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--accent-dark);
+    }
+
+    .plan-swipe-nav span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--muted);
+    }
+
+    .plan-save-bar {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(68px + var(--safe-bottom));
+      max-width: 488px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      z-index: 40;
+    }
+
+    .plan-save-bar button { flex: 1; height: 48px; border-radius: 14px; font-weight: 600; font-size: 0.9375rem; cursor: pointer; }
+
+    .plan-detail-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .plan-detail-slot {
+      text-align: center;
+    }
+
+    .plan-detail-slot img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #f1f5f9;
+    }
+
+    .plan-detail-slot span {
+      display: block;
+      font-size: 0.6875rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .pack-intro,
     .scan-intro {
       font-size: 0.875rem;
       color: var(--muted);
@@ -1150,12 +1411,22 @@
     </div>
   </header>
 
-  <header class="hero scan-only" id="scanHero">
+  <header class="hero pack-only" id="packHero">
     <div class="hero-top hero-top-with-home">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div style="flex:1;min-width:0">
-        <h1>Scan</h1>
-        <p class="hero-meta" id="scanHeroMeta">Import photos · sort into wardrobe</p>
+        <h1>Pack</h1>
+        <p class="hero-meta" id="packHeroMeta">Import photos · sort into wardrobe</p>
+      </div>
+    </div>
+  </header>
+
+  <header class="hero plan-only" id="planHero">
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
+        <h1>Plan</h1>
+        <p class="hero-meta" id="planHeroMeta">Build and save outfits</p>
       </div>
     </div>
   </header>
@@ -1179,7 +1450,9 @@
 
   <div class="grid-page grid-only" id="gridRoot" aria-live="polite"></div>
 
-  <div class="scan-page scan-only" id="scanRoot" aria-live="polite"></div>
+  <div class="pack-page pack-only" id="packRoot" aria-live="polite"></div>
+
+  <div class="plan-page plan-only" id="planRoot" aria-live="polite"></div>
 
   <input type="file" id="fileInput" accept="image/*,.heic,.heif" />
   <input type="file" id="scanCameraInput" accept="image/*,.heic,.heif" capture="environment" multiple />
@@ -1204,9 +1477,13 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
       Wardrobe
     </button>
-    <button type="button" class="tab" id="tabScan" data-view="scan">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Scan
+    <button type="button" class="tab" id="tabPack" data-view="pack">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      Pack
+    </button>
+    <button type="button" class="tab" id="tabPlan" data-view="plan">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Plan
     </button>
   </nav>
 
@@ -1267,6 +1544,19 @@
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="editOverlay">Cancel</button>
         <button type="button" class="btn-save" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan: add slot category -->
+  <div class="overlay" id="planCategoryOverlay" role="dialog" aria-modal="true" aria-labelledby="planCategoryTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="planCategoryTitle">Add slot category</h3>
+      <p style="font-size:0.875rem;color:var(--muted);margin:-8px 0 14px;">Pick a wardrobe category for this outfit slot.</p>
+      <div class="scan-cat-scroll" id="planCategoryList" style="flex-wrap:wrap;max-height:50dvh;overflow-y:auto"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="planCategoryOverlay">Cancel</button>
       </div>
     </div>
   </div>
@@ -1350,6 +1640,23 @@
     "Polo",
     "Other",
   ];
+
+  const WARDROBE_TO_CATALOG = {
+    "T-shirt": "tops",
+    "Tank top": "tops",
+    "Polo": "tops",
+    "Jersey": "tops",
+    "Soccer jersey": "tops",
+    "Shorts": "shorts",
+    "Pants": "shorts",
+    "Sneakers": "sneakers",
+    "Sandals": "sandals",
+    "Hat": "hat",
+    "Sunglasses": "sunglasses",
+    "Dress": "dresscasual",
+    "Swimsuit": "swim",
+    "Jacket": "lightjacket",
+  };
 
   /** @type {Record<string, {label:string, note?:string, qty:number, category:string, activity?:string, base?:boolean}>} */
   const CATALOG = {};
@@ -1492,11 +1799,13 @@
       items[id] = { packed: false, qty: resolveQty(id, opts), custom: false };
     }
     return {
-      version: 1,
+      version: 2,
       opts,
       collapsed: {},
+      wardrobeCollapsed: {},
       items,
       removed: [],
+      outfits: [],
     };
   }
 
@@ -1528,6 +1837,8 @@
       const base = defaultState();
       base.opts = { ...base.opts, ...parsed.opts, activities: { ...base.opts.activities, ...(parsed.opts && parsed.opts.activities) } };
       base.collapsed = parsed.collapsed || {};
+      base.wardrobeCollapsed = parsed.wardrobeCollapsed || {};
+      base.outfits = Array.isArray(parsed.outfits) ? parsed.outfits : [];
       base.removed = Array.isArray(parsed.removed) ? parsed.removed.filter(function (id) { return CATALOG[id]; }) : [];
       const removedSet = new Set(base.removed);
       base.items = {};
@@ -1576,6 +1887,16 @@
   let scanQueue = [];
   let scanActiveCategoryKey = null;
   let scanSelectedIds = {};
+  let planView = "library";
+  let planDraft = null;
+  let planActiveSlotId = null;
+  let planSlotIndices = {};
+  let planDetailId = null;
+  const DEFAULT_OUTFIT_SLOTS = [
+    { slotId: "top", label: "Top", category: "T-shirt" },
+    { slotId: "bottoms", label: "Bottoms", category: "Shorts" },
+    { slotId: "shoes", label: "Shoes", category: "Sneakers" },
+  ];
   const thumbCache = {};
   const IDB_NAME = "aruba-pack-photos-v1";
   const IDB_STORE = "photos";
@@ -1900,6 +2221,7 @@
   }
 
   function findCatalogIdForWardrobeType(type) {
+    if (WARDROBE_TO_CATALOG[type]) return WARDROBE_TO_CATALOG[type];
     const norm = normalizeWardrobeLabel(type);
     const normSing = norm.replace(/s$/, "");
     for (const [id, item] of Object.entries(CATALOG)) {
@@ -2066,7 +2388,7 @@
   function updateScanPackBar(option) {
     const count = scanSelectedCount();
     const show = !!(option && count > 0);
-    document.body.classList.toggle("has-scan-pack", show && currentView === "scan");
+    document.body.classList.toggle("has-scan-pack", show && currentView === "pack");
     let bar = document.getElementById("scanPackBar");
     if (!show) {
       if (bar) bar.remove();
@@ -2146,7 +2468,7 @@
         clearScanSelection();
         toast(selected.length + " packed to " + option.label);
         render();
-        renderScan();
+        renderPack();
       });
     }).catch(function () {
       toast("Could not pack photos");
@@ -2155,6 +2477,82 @@
 
   function newScanEntryId() {
     return "scan-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function isWardrobeGroupExpanded(itemId) {
+    return !!(state.wardrobeCollapsed && state.wardrobeCollapsed[itemId] === false);
+  }
+
+  function itemMatchesWardrobeCategory(itemId, categoryLabel) {
+    const norm = normalizeWardrobeLabel(categoryLabel);
+    const normSing = norm.replace(/s$/, "");
+    const display = normalizeWardrobeLabel(gridDisplayName(itemId));
+    if (display === norm || display.replace(/s$/, "") === normSing) return true;
+    const catalogId = findCatalogIdForWardrobeType(categoryLabel);
+    if (catalogId === itemId) return true;
+    const row = state.items[itemId];
+    if (row && row.note) {
+      const noteNorm = normalizeWardrobeLabel(row.note);
+      if (noteNorm === norm || noteNorm.replace(/s$/, "") === normSing) return true;
+    }
+    return false;
+  }
+
+  function getGarmentsInCategory(categoryLabel, photoCounts) {
+    const garments = [];
+    gridGroups().forEach(function (g) {
+      if (!itemMatchesWardrobeCategory(g.id, categoryLabel)) return;
+      const maxSlot = Math.max(g.qty, 1);
+      for (let i = 0; i <= maxSlot && i < 99; i++) {
+        const key = photoKey(g.id, i);
+        if (!photoCounts[key]) continue;
+        garments.push({
+          itemId: g.id,
+          slot: i,
+          label: gridGroupSubtitle(g.id) || itemLabel(g.id) || g.name,
+          photoKey: key,
+        });
+      }
+    });
+    return garments;
+  }
+
+  function loadGarmentPhotoUrl(itemId, slot) {
+    const key = photoKey(itemId, slot);
+    if (thumbCache[key]) return Promise.resolve(thumbCache[key]);
+    return idbGet(key).then(function (blob) {
+      if (!blob) return null;
+      const url = URL.createObjectURL(blob);
+      thumbCache[key] = url;
+      return url;
+    });
+  }
+
+  function newOutfitId() {
+    return "outfit-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  function cloneDefaultOutfitSlots() {
+    return DEFAULT_OUTFIT_SLOTS.map(function (s) {
+      return { slotId: s.slotId, label: s.label, category: s.category, garment: null };
+    });
+  }
+
+  function outfitGarmentCount(outfit) {
+    if (!outfit || !outfit.slots) return 0;
+    return outfit.slots.filter(function (s) { return s.garment; }).length;
+  }
+
+  function getPlanCategoriesForPicker(photoCounts) {
+    const seen = {};
+    const list = [];
+    buildWardrobeCategoryList(photoCounts).forEach(function (c) {
+      const norm = normalizeWardrobeLabel(c.label);
+      if (seen[norm]) return;
+      seen[norm] = true;
+      list.push(c.label);
+    });
+    return list.sort(function (a, b) { return a.localeCompare(b); });
   }
 
   function isGridItem(id) {
@@ -2291,7 +2689,7 @@
     }
 
     const showTip = !localStorage.getItem("aruba-pack-homescreen-tip");
-    root.innerHTML = '<p class="grid-intro">Tap <strong>+</strong> on each slot to add a photo of the exact piece you’re packing. Counts match your list — fill every slot and a new <strong>+</strong> appears; adding that photo bumps your list count too. Photos stay on this device only.' +
+    root.innerHTML = '<p class="grid-intro">Tap a category to expand and add photos. Counts match your list — fill every slot and a new <strong>+</strong> appears. Photos stay on this device only.' +
       (showTip ? '<span class="grid-intro-tip"><strong>iPhone tip:</strong> In Safari, tap Share → <strong>Add to Home Screen</strong> for the best full-screen experience.</span>' : '') +
       '</p>';
     if (showTip) localStorage.setItem("aruba-pack-homescreen-tip", "1");
@@ -2301,18 +2699,23 @@
         let filled = countFilledPhotos(g.id, g.qty, photoCounts);
         const slotCount = slotCountForGroup(g, photoCounts);
         const subtitle = gridGroupSubtitle(g.id);
-        const headClass = state.items[g.id].custom ? "grid-group-head is-editable" : "grid-group-head";
+        const expanded = isWardrobeGroupExpanded(g.id);
+        const isCustom = state.items[g.id].custom;
 
-        let block = '<section class="grid-group" data-item="' + escapeHtml(g.id) + '">';
-        block += '<div class="' + headClass + '" data-edit-item="' + escapeHtml(g.id) + '" role="' + (state.items[g.id].custom ? "button" : "presentation") + '"><div><h3>' + escapeHtml(g.qty) + " " + escapeHtml(g.name) + '</h3>';
-        if (subtitle) {
-          block += '<div class="count">' + escapeHtml(subtitle) + '</div>';
-        } else {
-          block += '<div class="count">' + (filled >= g.qty && slotCount > g.qty ? "All slots full — tap + to add another" : "Tap a slot to add a photo") + '</div>';
+        let block = '<section class="grid-group' + (expanded ? "" : " collapsed") + '" data-item="' + escapeHtml(g.id) + '">';
+        block += '<div class="grid-group-head" role="button" tabindex="0" aria-expanded="' + expanded + '" data-toggle-item="' + escapeHtml(g.id) + '">';
+        block += '<div class="grid-group-head-main"><h3>' + escapeHtml(g.name) + '</h3>';
+        block += '<div class="count">' + g.qty + " item" + (g.qty === 1 ? "" : "s") + " · " + filled + "/" + g.qty + " photos";
+        if (subtitle) block += " · " + escapeHtml(subtitle);
+        block += '</div></div>';
+        block += '<div class="grid-group-head-actions">';
+        if (isCustom) {
+          block += '<button type="button" class="grid-edit-btn" data-edit-item="' + escapeHtml(g.id) + '" aria-label="Edit ' + escapeHtml(g.name) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
         }
-        block += '</div>';
-        block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + " photos</span></div>";
-        block += '<div class="slot-grid">';
+        block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + '</span>';
+        block += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+        block += '</div></div>';
+        block += '<div class="grid-group-body"><div class="slot-grid">';
 
         for (let i = 0; i < slotCount; i++) {
           const key = photoKey(g.id, i);
@@ -2327,16 +2730,31 @@
           block += "</button>";
         }
 
-        block += "</div></section>";
+        block += "</div></div></section>";
         root.innerHTML += block;
       });
 
       updateGridProgress(photoCounts);
       bindSlotButtons(photoCounts);
 
-      root.querySelectorAll(".grid-group-head.is-editable").forEach(function (head) {
-        head.onclick = function () {
-          openEditItem(head.dataset.editItem);
+      root.querySelectorAll(".grid-group-head[data-toggle-item]").forEach(function (head) {
+        head.onclick = function (e) {
+          if (e.target.closest(".grid-edit-btn")) return;
+          const id = head.dataset.toggleItem;
+          if (!state.wardrobeCollapsed) state.wardrobeCollapsed = {};
+          state.wardrobeCollapsed[id] = isWardrobeGroupExpanded(id) ? true : false;
+          saveState();
+          renderGrid();
+        };
+        head.onkeydown = function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); head.click(); }
+        };
+      });
+
+      root.querySelectorAll(".grid-edit-btn").forEach(function (btn) {
+        btn.onclick = function (e) {
+          e.stopPropagation();
+          openEditItem(btn.dataset.editItem);
         };
       });
 
@@ -2389,21 +2807,33 @@
   function setView(view) {
     currentView = view;
     document.body.classList.toggle("view-grid", view === "grid");
-    document.body.classList.toggle("view-scan", view === "scan");
+    document.body.classList.toggle("view-pack", view === "pack");
+    document.body.classList.toggle("view-plan", view === "plan");
     document.getElementById("tabList").classList.toggle("on", view === "list");
     document.getElementById("tabGrid").classList.toggle("on", view === "grid");
-    document.getElementById("tabScan").classList.toggle("on", view === "scan");
-    if (view === "grid") {
-      revokeThumbCache();
-      renderGrid();
-    } else if (view === "scan") {
-      closePhotoViewer();
-      renderScan();
-    } else {
-      closePhotoViewer();
+    document.getElementById("tabPack").classList.toggle("on", view === "pack");
+    document.getElementById("tabPlan").classList.toggle("on", view === "plan");
+    if (view !== "pack") {
       document.body.classList.remove("has-scan-pack");
       const packBar = document.getElementById("scanPackBar");
       if (packBar) packBar.remove();
+    }
+    if (view !== "plan") {
+      document.body.classList.remove("has-plan-save");
+      const planBar = document.getElementById("planSaveBar");
+      if (planBar) planBar.remove();
+    }
+    if (view === "grid") {
+      revokeThumbCache();
+      renderGrid();
+    } else if (view === "pack") {
+      closePhotoViewer();
+      renderPack();
+    } else if (view === "plan") {
+      closePhotoViewer();
+      renderPlan();
+    } else {
+      closePhotoViewer();
       render();
     }
   }
@@ -2769,8 +3199,8 @@
     toast("Item updated");
   }
 
-  function renderScan() {
-    const root = document.getElementById("scanRoot");
+  function renderPack() {
+    const root = document.getElementById("packRoot");
     const groups = gridGroups();
 
     loadPhotoCounts(groups).then(function (photoCounts) {
@@ -2846,7 +3276,7 @@
             scanActiveCategoryKey = key;
             clearScanSelection();
           }
-          renderScan();
+          renderPack();
         };
       });
 
@@ -2873,7 +3303,7 @@
             }
             return true;
           });
-          renderScan();
+          renderPack();
         };
       });
 
@@ -2886,11 +3316,11 @@
           });
           scanQueue = [];
           clearScanSelection();
-          renderScan();
+          renderPack();
         };
       }
 
-      const meta = document.getElementById("scanHeroMeta");
+      const meta = document.getElementById("packHeroMeta");
       if (meta) {
         meta.textContent = scanQueue.length
           ? scanQueue.length + " photo" + (scanQueue.length === 1 ? "" : "s") + " · pick a category"
@@ -2928,9 +3358,306 @@
         pending--;
         if (pending === 0) {
           if (added) toast(added + " photo" + (added === 1 ? "" : "s") + " added");
-          renderScan();
+          renderPack();
         }
       });
+    });
+  }
+
+  function updatePlanSaveBar(show) {
+    document.body.classList.toggle("has-plan-save", show && currentView === "plan");
+    let bar = document.getElementById("planSaveBar");
+    if (!show) {
+      if (bar) bar.remove();
+      return;
+    }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "planSaveBar";
+      bar.className = "plan-save-bar";
+      bar.innerHTML = '<button type="button" class="btn-cancel" id="planCancelBtn">Cancel</button><button type="button" class="btn-save" id="planSaveBtn">Save outfit</button>';
+      document.body.appendChild(bar);
+    }
+    document.getElementById("planCancelBtn").onclick = function () {
+      planView = "library";
+      planDraft = null;
+      planActiveSlotId = null;
+      planSlotIndices = {};
+      renderPlan();
+    };
+    document.getElementById("planSaveBtn").onclick = savePlanOutfit;
+  }
+
+  function savePlanOutfit() {
+    if (!planDraft) return;
+    const defaultName = "Outfit " + ((state.outfits || []).length + 1);
+    const name = prompt("Outfit name (optional):", planDraft.name || defaultName);
+    if (name === null) return;
+    const outfit = {
+      id: planDraft.id || newOutfitId(),
+      name: (name || "").trim() || defaultName,
+      slots: planDraft.slots.map(function (s) {
+        return {
+          slotId: s.slotId,
+          label: s.label,
+          category: s.category,
+          garment: s.garment ? { itemId: s.garment.itemId, slot: s.garment.slot } : null,
+        };
+      }),
+    };
+    if (!state.outfits) state.outfits = [];
+    const editIdx = state.outfits.findIndex(function (o) { return o.id === outfit.id; });
+    if (editIdx >= 0) state.outfits[editIdx] = outfit;
+    else state.outfits.unshift(outfit);
+    saveState();
+    planView = "library";
+    planDraft = null;
+    planActiveSlotId = null;
+    planSlotIndices = {};
+    toast("Outfit saved");
+    renderPlan();
+  }
+
+  function startPlanBuilder(editOutfit) {
+    planView = "builder";
+    if (editOutfit) {
+      planDraft = JSON.parse(JSON.stringify(editOutfit));
+    } else {
+      planDraft = { id: newOutfitId(), name: "", slots: cloneDefaultOutfitSlots() };
+    }
+    planActiveSlotId = planDraft.slots[0] ? planDraft.slots[0].slotId : null;
+    planSlotIndices = {};
+    renderPlan();
+  }
+
+  function getActivePlanSlot() {
+    if (!planDraft || !planActiveSlotId) return null;
+    for (let i = 0; i < planDraft.slots.length; i++) {
+      if (planDraft.slots[i].slotId === planActiveSlotId) return planDraft.slots[i];
+    }
+    return null;
+  }
+
+  function syncPlanSlotGarment(slot, garments) {
+    if (!garments.length) {
+      slot.garment = null;
+      return;
+    }
+    let idx = planSlotIndices[slot.slotId];
+    if (typeof idx !== "number") idx = 0;
+    idx = Math.max(0, Math.min(idx, garments.length - 1));
+    planSlotIndices[slot.slotId] = idx;
+    const g = garments[idx];
+    slot.garment = { itemId: g.itemId, slot: g.slot };
+  }
+
+  function openPlanCategoryPicker() {
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      const list = document.getElementById("planCategoryList");
+      const cats = getPlanCategoriesForPicker(photoCounts);
+      list.innerHTML = cats.map(function (label) {
+        return '<button type="button" class="scan-cat-chip" data-cat-label="' + escapeHtml(label) + '">' + escapeHtml(label) + "</button>";
+      }).join("");
+      list.querySelectorAll(".scan-cat-chip").forEach(function (chip) {
+        chip.onclick = function () {
+          const label = chip.dataset.catLabel;
+          const slotId = "extra-" + Date.now();
+          if (!planDraft) planDraft = { id: newOutfitId(), name: "", slots: cloneDefaultOutfitSlots() };
+          planDraft.slots.push({ slotId: slotId, label: label, category: label, garment: null });
+          planActiveSlotId = slotId;
+          closeOverlay("planCategoryOverlay");
+          renderPlan();
+        };
+      });
+      openOverlay("planCategoryOverlay");
+    });
+  }
+
+  function loadOutfitMosaic(outfit) {
+    const el = document.querySelector('[data-mosaic="' + outfit.id + '"]');
+    if (!el) return;
+    const withGarments = (outfit.slots || []).filter(function (s) { return s.garment; }).slice(0, 4);
+    withGarments.forEach(function (s, i) {
+      loadGarmentPhotoUrl(s.garment.itemId, s.garment.slot).then(function (url) {
+        if (!url || !el.children[i]) return;
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "";
+        el.replaceChild(img, el.children[i]);
+      });
+    });
+  }
+
+  function renderPlanLibrary(root) {
+    let html = '<p class="plan-intro">Swipe through your wardrobe to build outfits. Each slot links to photos you packed.</p>';
+    html += '<button type="button" class="btn-primary" id="btnNewOutfit" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New outfit</button>';
+    if (!state.outfits || !state.outfits.length) {
+      html += '<div class="scan-empty">No saved outfits yet. Pack wardrobe photos first, then create an outfit.</div>';
+    } else {
+      html += '<div class="plan-outfit-grid">';
+      state.outfits.forEach(function (outfit) {
+        html += '<button type="button" class="plan-outfit-card" data-outfit-id="' + escapeHtml(outfit.id) + '">';
+        html += '<div class="plan-outfit-mosaic" data-mosaic="' + escapeHtml(outfit.id) + '">';
+        for (let i = 0; i < 4; i++) html += '<div class="mosaic-empty"></div>';
+        html += '</div><div class="plan-outfit-card-body"><strong>' + escapeHtml(outfit.name || "Outfit") + '</strong><small>' +
+          outfitGarmentCount(outfit) + " piece" + (outfitGarmentCount(outfit) === 1 ? "" : "s") + "</small></div></button>";
+      });
+      html += "</div>";
+    }
+    root.innerHTML = html;
+    document.getElementById("btnNewOutfit").onclick = function () { startPlanBuilder(null); };
+    root.querySelectorAll(".plan-outfit-card").forEach(function (card) {
+      card.onclick = function () {
+        planDetailId = card.dataset.outfitId;
+        planView = "detail";
+        renderPlan();
+      };
+    });
+    (state.outfits || []).forEach(loadOutfitMosaic);
+    const meta = document.getElementById("planHeroMeta");
+    if (meta) meta.textContent = (state.outfits && state.outfits.length) ? state.outfits.length + " saved outfit" + (state.outfits.length === 1 ? "" : "s") : "Build and save outfits";
+  }
+
+  function renderPlanDetail(root, photoCounts) {
+    const outfit = (state.outfits || []).find(function (o) { return o.id === planDetailId; });
+    if (!outfit) {
+      planView = "library";
+      renderPlan();
+      return;
+    }
+    let html = '<button type="button" class="btn-secondary" id="planBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All outfits</button>';
+    html += '<h2 style="font-size:1.125rem;margin-bottom:4px">' + escapeHtml(outfit.name || "Outfit") + '</h2>';
+    html += '<p class="plan-intro" style="margin-bottom:14px">' + outfitGarmentCount(outfit) + " pieces in this outfit</p>";
+    html += '<div class="plan-detail-slots">';
+    (outfit.slots || []).forEach(function (slot) {
+      html += '<div class="plan-detail-slot">';
+      if (slot.garment) {
+        html += '<img data-item-id="' + escapeHtml(slot.garment.itemId) + '" data-slot="' + slot.garment.slot + '" alt="" />';
+      } else {
+        html += '<img alt="" style="background:#e2e8f0" />';
+      }
+      html += "<span>" + escapeHtml(slot.label || slot.category) + "</span></div>";
+    });
+    html += '</div><div style="display:flex;gap:10px">';
+    html += '<button type="button" class="btn-save" id="planEditBtn" style="flex:1;height:48px;border-radius:12px;border:none">Edit</button>';
+    html += '<button type="button" class="btn-cancel" id="planDeleteBtn" style="flex:1;height:48px;border-radius:12px">Delete</button></div>';
+    root.innerHTML = html;
+    document.getElementById("planBackBtn").onclick = function () {
+      planView = "library";
+      planDetailId = null;
+      renderPlan();
+    };
+    document.getElementById("planEditBtn").onclick = function () { startPlanBuilder(outfit); };
+    document.getElementById("planDeleteBtn").onclick = function () {
+      if (!confirm("Delete this outfit?")) return;
+      state.outfits = (state.outfits || []).filter(function (o) { return o.id !== outfit.id; });
+      saveState();
+      planView = "library";
+      planDetailId = null;
+      toast("Outfit deleted");
+      renderPlan();
+    };
+    root.querySelectorAll(".plan-detail-slot img[data-item-id]").forEach(function (img) {
+      loadGarmentPhotoUrl(img.dataset.itemId, parseInt(img.dataset.slot, 10)).then(function (url) {
+        if (url) img.src = url;
+      });
+    });
+    const meta = document.getElementById("planHeroMeta");
+    if (meta) meta.textContent = outfit.name || "Outfit detail";
+  }
+
+  function renderPlanBuilder(root, photoCounts) {
+    if (!planDraft) {
+      planView = "library";
+      renderPlan();
+      return;
+    }
+    if (!planActiveSlotId && planDraft.slots.length) planActiveSlotId = planDraft.slots[0].slotId;
+    const activeSlot = getActivePlanSlot();
+
+    let html = '<div class="plan-slot-pills">';
+    planDraft.slots.forEach(function (slot) {
+      const on = slot.slotId === planActiveSlotId;
+      html += '<button type="button" class="plan-slot-pill' + (on ? " on" : "") + '" data-slot-id="' + escapeHtml(slot.slotId) + '">' + escapeHtml(slot.label) + "</button>";
+    });
+    html += '<button type="button" class="plan-slot-pill add" id="planAddSlot">+</button></div>';
+
+    html += '<div class="plan-swipe-area" id="planSwipeArea">';
+    if (activeSlot) {
+      const garments = getGarmentsInCategory(activeSlot.category, photoCounts);
+      syncPlanSlotGarment(activeSlot, garments);
+      const idx = planSlotIndices[activeSlot.slotId] || 0;
+      html += '<div class="plan-swipe-label">' + escapeHtml(activeSlot.label) + " · " + escapeHtml(activeSlot.category) + "</div>";
+      html += '<div class="plan-swipe-card" id="planSwipeCard">';
+      if (garments.length) {
+        html += '<img id="planSwipeImg" alt="" />';
+      } else {
+        html += '<div class="plan-swipe-empty">No <strong>' + escapeHtml(activeSlot.category) + '</strong> photos in wardrobe yet.<button type="button" id="planGoPack">Go to Pack</button></div>';
+      }
+      html += '</div>';
+      if (garments.length) {
+        html += '<div class="plan-swipe-nav"><button type="button" id="planSwipePrev" aria-label="Previous">‹</button>';
+        html += '<span id="planSwipeCounter">' + (idx + 1) + " / " + garments.length + "</span>";
+        html += '<button type="button" id="planSwipeNext" aria-label="Next">›</button></div>';
+      }
+    }
+    html += "</div>";
+
+    root.innerHTML = html;
+
+    root.querySelectorAll(".plan-slot-pill[data-slot-id]").forEach(function (pill) {
+      pill.onclick = function () {
+        planActiveSlotId = pill.dataset.slotId;
+        renderPlan();
+      };
+    });
+    document.getElementById("planAddSlot").onclick = openPlanCategoryPicker;
+
+    const goPack = document.getElementById("planGoPack");
+    if (goPack) goPack.onclick = function () { setView("pack"); };
+
+    if (activeSlot && getGarmentsInCategory(activeSlot.category, photoCounts).length) {
+      const garments = getGarmentsInCategory(activeSlot.category, photoCounts);
+      const idx = planSlotIndices[activeSlot.slotId] || 0;
+      const g = garments[idx];
+      if (g) {
+        loadGarmentPhotoUrl(g.itemId, g.slot).then(function (url) {
+          const img = document.getElementById("planSwipeImg");
+          if (img && url) img.src = url;
+        });
+      }
+      document.getElementById("planSwipePrev").onclick = function () {
+        planSlotIndices[activeSlot.slotId] = Math.max(0, (planSlotIndices[activeSlot.slotId] || 0) - 1);
+        renderPlan();
+      };
+      document.getElementById("planSwipeNext").onclick = function () {
+        planSlotIndices[activeSlot.slotId] = Math.min(garments.length - 1, (planSlotIndices[activeSlot.slotId] || 0) + 1);
+        renderPlan();
+      };
+      const card = document.getElementById("planSwipeCard");
+      let touchX = 0;
+      card.addEventListener("touchstart", function (e) {
+        touchX = e.touches[0].clientX;
+      }, { passive: true });
+      card.addEventListener("touchend", function (e) {
+        const dx = e.changedTouches[0].clientX - touchX;
+        if (dx > 50) document.getElementById("planSwipePrev").click();
+        else if (dx < -50) document.getElementById("planSwipeNext").click();
+      }, { passive: true });
+    }
+
+    const meta = document.getElementById("planHeroMeta");
+    if (meta) meta.textContent = "Building outfit · swipe to pick pieces";
+  }
+
+  function renderPlan() {
+    const root = document.getElementById("planRoot");
+    if (!root) return;
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      updatePlanSaveBar(planView === "builder");
+      if (planView === "builder") renderPlanBuilder(root, photoCounts);
+      else if (planView === "detail") renderPlanDetail(root, photoCounts);
+      else renderPlanLibrary(root);
     });
   }
 
@@ -3029,17 +3756,28 @@
   };
 
   document.getElementById("btnReset").onclick = function () {
-    if (confirm("Reset your entire packing list? Checked items, custom additions, and wardrobe photos will be cleared.")) {
+    if (confirm("Reset your entire packing list? Checked items, custom additions, wardrobe photos, and saved outfits will be cleared.")) {
+      scanQueue.forEach(function (entry) {
+        if (entry.preview) URL.revokeObjectURL(entry.preview);
+      });
+      scanQueue = [];
+      clearScanSelection();
+      planView = "library";
+      planDraft = null;
+      planDetailId = null;
       state = defaultState();
       revokeThumbCache();
       idbClearAll().then(function () {
         saveState();
         render();
         if (currentView === "grid") renderGrid();
+        if (currentView === "pack") renderPack();
+        if (currentView === "plan") renderPlan();
         toast("List reset for Aruba · 7 days");
       }).catch(function () {
         saveState();
         render();
+        if (currentView === "plan") renderPlan();
         toast("List reset; some photos may remain");
       });
     }
@@ -3047,7 +3785,8 @@
 
   document.getElementById("tabList").onclick = function () { setView("list"); };
   document.getElementById("tabGrid").onclick = function () { setView("grid"); };
-  document.getElementById("tabScan").onclick = function () { setView("scan"); };
+  document.getElementById("tabPack").onclick = function () { setView("pack"); };
+  document.getElementById("tabPlan").onclick = function () { setView("plan"); };
 
   document.getElementById("editSave").onclick = saveEditItem;
 

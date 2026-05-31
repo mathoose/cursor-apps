@@ -32,6 +32,44 @@ function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
 }
 
+function normalizeUrl(url) {
+  if (!url || !String(url).trim()) return '';
+  var s = String(url).trim();
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  try {
+    var u = new URL(s);
+    var host = u.hostname.replace(/^www\./i, '').toLowerCase();
+    var pathPart = u.pathname.replace(/\/$/, '') || '';
+    return host + pathPart + (u.search || '');
+  } catch (e) {
+    return s.toLowerCase().replace(/\/$/, '');
+  }
+}
+
+function isPdfUrl(url) {
+  return /\.pdf(\?|#|$)/i.test(String(url || ''));
+}
+
+function applyGoogleWebsite(place, websiteUri) {
+  var googleUrl = (websiteUri || '').trim();
+  if (!googleUrl) return false;
+  var current = (place.hh_menu || '').trim();
+  if (!current) {
+    place.hh_menu = googleUrl;
+    place.websiteSource = 'google';
+    return true;
+  }
+  if (normalizeUrl(current) === normalizeUrl(googleUrl)) return false;
+  if (isPdfUrl(current)) {
+    place.menu_pdf = current;
+  } else {
+    place.hh_menuPrevious = current;
+  }
+  place.hh_menu = googleUrl;
+  place.websiteSource = 'google';
+  return true;
+}
+
 function fmtGoogleTime(hour, minute) {
   var h = hour;
   var min = minute || 0;
@@ -91,7 +129,7 @@ async function placeDetails(placeId) {
   var res = await fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(placeId), {
     headers: {
       'X-Goog-Api-Key': API_KEY,
-      'X-Goog-FieldMask': 'id,displayName,regularOpeningHours,currentOpeningHours,businessStatus'
+      'X-Goog-FieldMask': 'id,displayName,regularOpeningHours,currentOpeningHours,businessStatus,websiteUri'
     }
   });
   if (!res.ok) {
@@ -117,11 +155,12 @@ async function fetchHoursForPlace(place) {
   await sleep(DELAY_MS);
   var details = await placeDetails(found.id);
   var roh = details.regularOpeningHours;
-  if (!roh || !roh.periods || !roh.periods.length) {
+      if (!roh || !roh.periods || !roh.periods.length) {
     return {
       ok: false,
       reason: 'no opening hours on Google',
       googlePlaceId: found.id,
+      websiteUri: details.websiteUri || '',
       displayName: found.displayName && found.displayName.text
     };
   }
@@ -133,6 +172,7 @@ async function fetchHoursForPlace(place) {
     ok: true,
     hours: hours,
     googlePlaceId: found.id,
+    websiteUri: details.websiteUri || '',
     weekdayDescriptions: roh.weekdayDescriptions || [],
     displayName: details.displayName && details.displayName.text
   };
@@ -161,6 +201,7 @@ async function main() {
 
   var ok = 0;
   var fail = 0;
+  var websitesUpdated = 0;
   for (var i = 0; i < todo.length; i++) {
     var place = todo[i];
     process.stdout.write('[' + (i + 1) + '/' + todo.length + '] ' + place.name + ' … ');
@@ -173,9 +214,12 @@ async function main() {
         if (result.weekdayDescriptions.length) {
           place.hoursNote = result.weekdayDescriptions.join('; ');
         }
+        if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         ok++;
         console.log('OK');
       } else {
+        if (result.googlePlaceId) place.googlePlaceId = result.googlePlaceId;
+        if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         fail++;
         console.log('skip (' + result.reason + ')');
       }
@@ -191,7 +235,7 @@ async function main() {
   }
 
   fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed.');
+  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated.');
 }
 
 main().catch(function(e) {

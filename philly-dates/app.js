@@ -556,6 +556,8 @@ function mergeOverrides(overrides) {
     }
     if (o.description !== undefined) r.description = o.description;
     if (o.hh_menu !== undefined) r.hh_menu = o.hh_menu;
+    if (o.menu_pdf !== undefined) r.menu_pdf = o.menu_pdf;
+    if (o.hh_menuPrevious !== undefined) r.hh_menuPrevious = o.hh_menuPrevious;
     if (o.instagram !== undefined) r.instagram = o.instagram;
     if (o.social !== undefined) r.social = o.social;
     if (o.address !== undefined) r.address = o.address;
@@ -715,6 +717,36 @@ function appleMapsUrl(r) {
   return 'https://maps.apple.com/?q=' + encodeURIComponent(q);
 }
 
+function isPdfUrl(url) {
+  return /\.pdf(\?|#|$)/i.test(String(url || ''));
+}
+
+function getPlaceLinkPairs(r) {
+  var pairs = [];
+  var seen = {};
+  function push(label, url) {
+    url = String(url || '').trim();
+    if (!url || seen[url]) return;
+    seen[url] = true;
+    pairs.push([label, url]);
+  }
+  if (r.hh_menu) {
+    push(isPdfUrl(r.hh_menu) ? 'Menu' : 'Website', r.hh_menu);
+  }
+  if (r.menu_pdf) push('Menu', r.menu_pdf);
+  if (r.hh_menuPrevious && isPdfUrl(r.hh_menuPrevious)) push('Menu', r.hh_menuPrevious);
+  if (r.social && r.social !== r.instagram) push('Social', r.social);
+  return pairs;
+}
+
+function renderPlaceLinksHtml(r) {
+  var pairs = getPlaceLinkPairs(r);
+  if (!pairs.length) return '';
+  return '<div class="modal-links">' + pairs.map(function(pair) {
+    return '<a href="' + escapeHtml(pair[1]) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(pair[0]) + '</a>';
+  }).join('') + '</div>';
+}
+
 function renderModalFooter(r) {
   var parts = [];
   var mapsUrl = appleMapsUrl(r);
@@ -739,14 +771,7 @@ function renderViewMode(r) {
   addingNewPlace = false;
   document.getElementById('modal-edit').style.display = '';
   let body = renderPlaceMetaPanelHtml(r.name) + formatDescription(r.description);
-  const links = [];
-  if (r.hh_menu) links.push(['Website / Menu', r.hh_menu]);
-  if (r.social && r.social !== r.instagram) links.push(['Social', r.social]);
-  if (links.length) {
-    body += '<div class="modal-links">' + links.map(function(pair) {
-      return '<a href="' + escapeHtml(pair[1]) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(pair[0]) + '</a>';
-    }).join('') + '</div>';
-  }
+  body += renderPlaceLinksHtml(r);
   modalBody.innerHTML = '<div id="modal-menu-photo" class="menu-photo-block" hidden></div>' + body;
   showMenuPhotoInModal(r.name);
   renderModalFooter(r);
@@ -1611,14 +1636,11 @@ function renderPickerResult(name) {
   if (mapsUrl) {
     links.push('<a href="' + escapeHtml(mapsUrl) + '" target="_blank" rel="noopener noreferrer">📍 Maps</a>');
   }
-  if (r.hh_menu) {
-    links.push('<a href="' + escapeHtml(r.hh_menu) + '" target="_blank" rel="noopener noreferrer">Menu / Website</a>');
-  }
+  getPlaceLinkPairs(r).forEach(function(pair) {
+    links.push('<a href="' + escapeHtml(pair[1]) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(pair[0]) + '</a>');
+  });
   if (r.instagram) {
     links.push('<a href="' + escapeHtml(r.instagram) + '" target="_blank" rel="noopener noreferrer">Instagram</a>');
-  }
-  if (r.social && r.social !== r.instagram) {
-    links.push('<a href="' + escapeHtml(r.social) + '" target="_blank" rel="noopener noreferrer">Social</a>');
   }
   linksEl.innerHTML = links.join('');
   pickerResult.hidden = false;
