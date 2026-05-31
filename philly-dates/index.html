@@ -84,6 +84,17 @@
       <span><span class="swatch now"></span> Selected time</span>
       <span><span class="swatch off"></span> Off</span>
     </div>
+
+    <section class="tags-panel" id="tags-panel" aria-label="Tags">
+      <h2 class="tags-panel-title">Tags</h2>
+      <p class="tags-panel-hint">Filter by tag · assign tags in each place’s details</p>
+      <div class="tag-filters" id="tag-filters" role="group" aria-label="Filter by tag"></div>
+      <div class="tag-add-row">
+        <input type="text" id="new-tag-name" placeholder="New tag name" maxlength="32" autocomplete="off" />
+        <button type="button" class="btn btn-primary" id="add-tag-btn">Add tag</button>
+      </div>
+      <div class="tag-manage-list" id="tag-manage-list"></div>
+    </section>
   </main>
 
   <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
@@ -137,7 +148,7 @@
             <button type="button" class="btn btn-secondary" id="import-btn">Import Excel</button>
           </div>
           <input type="file" id="import-file" accept=".xlsx,.xls" hidden />
-          <p class="hint">JSON saves favorites and edits (works with Export all on Apps home). Excel updates names, times, and links. Menu photos stay on this device only.</p>
+          <p class="hint">JSON saves favorites, tags, visited/ratings, and edits (works with Export all on Apps home). Excel updates names, times, and links. Menu photos stay on this device only.</p>
         </div>
         <div class="settings-section">
           <h3>Reset</h3>

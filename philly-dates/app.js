@@ -4,6 +4,7 @@
 var STORAGE_KEY = 'philly-dates-v2';
 var PHOTO_DB = 'philly-dates-menu-photos-v1';
 var PHOTO_STORE = 'menus';
+var MAX_TAGS = 24;
 var menuPhotoObjectUrl = null;
 var DEFAULT_MAP_URL = "https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14";
 var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -149,6 +150,279 @@ function filterBySearch(list) {
   return list.filter(function(r) { return r.name.toLowerCase().indexOf(q) !== -1; });
 }
 
+function slugTagId(label) {
+  var base = String(label || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
+    .slice(0, 28);
+  var id = base || 'tag';
+  var tags = getTags();
+  var n = 0;
+  while (tags.some(function(t) { return t.id === id; })) {
+    n++;
+    id = (base || 'tag') + '_' + n;
+  }
+  return id;
+}
+
+function getTags() {
+  var st = loadAppState();
+  return Array.isArray(st.tags) ? st.tags.slice() : [];
+}
+
+function getTagFilter() {
+  var st = loadAppState();
+  return st.tagFilter || 'all';
+}
+
+function setTagFilter(id) {
+  var st = loadAppState();
+  st.tagFilter = id || 'all';
+  saveAppState(st);
+  renderTagFilters();
+  refreshFilters();
+}
+
+function getPlaceMeta(name) {
+  var st = loadAppState();
+  var m = st.placeMeta && st.placeMeta[name];
+  if (!m) return { visited: false, rating: null, tagIds: [] };
+  return {
+    visited: !!m.visited,
+    rating: typeof m.rating === 'number' && m.rating >= 1 && m.rating <= 10 ? m.rating : null,
+    tagIds: Array.isArray(m.tagIds) ? m.tagIds.slice() : []
+  };
+}
+
+function setPlaceMeta(name, patch) {
+  if (!name) return;
+  var st = loadAppState();
+  if (!st.placeMeta) st.placeMeta = {};
+  var cur = getPlaceMeta(name);
+  var next = {
+    visited: patch.visited !== undefined ? !!patch.visited : cur.visited,
+    rating: patch.rating !== undefined ? patch.rating : cur.rating,
+    tagIds: patch.tagIds !== undefined ? patch.tagIds.slice() : cur.tagIds
+  };
+  if (next.rating != null) {
+    next.rating = Math.min(10, Math.max(1, parseInt(next.rating, 10) || 0)) || null;
+  }
+  if (!next.visited && next.rating == null && !next.tagIds.length) {
+    delete st.placeMeta[name];
+  } else {
+    st.placeMeta[name] = next;
+  }
+  saveAppState(st);
+}
+
+function renamePlaceMeta(oldName, newName) {
+  if (!oldName || !newName || oldName === newName) return;
+  var st = loadAppState();
+  if (!st.placeMeta || !st.placeMeta[oldName]) return;
+  st.placeMeta[newName] = st.placeMeta[oldName];
+  delete st.placeMeta[oldName];
+  saveAppState(st);
+}
+
+function addTag(label) {
+  var text = String(label || '').trim().slice(0, 32);
+  if (!text) {
+    showStatus('Enter a tag name');
+    return false;
+  }
+  var st = loadAppState();
+  if (!st.tags) st.tags = [];
+  if (st.tags.length >= MAX_TAGS) {
+    showStatus('Maximum ' + MAX_TAGS + ' tags');
+    return false;
+  }
+  if (st.tags.some(function(t) { return t.label.toLowerCase() === text.toLowerCase(); })) {
+    showStatus('Tag already exists');
+    return false;
+  }
+  st.tags.push({ id: slugTagId(text), label: text });
+  saveAppState(st);
+  renderTagFilters();
+  return true;
+}
+
+function deleteTag(id) {
+  if (!id) return;
+  var st = loadAppState();
+  if (!st.tags) return;
+  var tag = st.tags.find(function(t) { return t.id === id; });
+  if (!tag) return;
+  if (!confirm('Delete tag "' + tag.label + '"? It will be removed from all places.')) return;
+  st.tags = st.tags.filter(function(t) { return t.id !== id; });
+  if (st.tagFilter === id) st.tagFilter = 'all';
+  if (st.placeMeta) {
+    Object.keys(st.placeMeta).forEach(function(name) {
+      var m = st.placeMeta[name];
+      if (m && Array.isArray(m.tagIds)) {
+        m.tagIds = m.tagIds.filter(function(tid) { return tid !== id; });
+        if (!m.visited && m.rating == null && !m.tagIds.length) delete st.placeMeta[name];
+      }
+    });
+  }
+  saveAppState(st);
+  renderTagFilters();
+  refreshFilters();
+  if (currentModalName && modal.classList.contains('open') && !editMode) {
+    renderViewMode(byName[currentModalName]);
+  }
+}
+
+function tagLabel(id) {
+  var t = getTags().find(function(x) { return x.id === id; });
+  return t ? t.label : id;
+}
+
+function countPlacesWithTag(id) {
+  var st = loadAppState();
+  if (!st.placeMeta) return 0;
+  var n = 0;
+  Object.keys(st.placeMeta).forEach(function(name) {
+    var m = st.placeMeta[name];
+    if (m && Array.isArray(m.tagIds) && m.tagIds.indexOf(id) >= 0) n++;
+  });
+  return n;
+}
+
+function filterByTag(list) {
+  var filter = getTagFilter();
+  if (!filter || filter === 'all') return list;
+  return list.filter(function(r) {
+    var meta = getPlaceMeta(r.name);
+    return meta.tagIds.indexOf(filter) >= 0;
+  });
+}
+
+function renderTagFilters() {
+  var filtersEl = document.getElementById('tag-filters');
+  var manageEl = document.getElementById('tag-manage-list');
+  if (!filtersEl) return;
+  var tags = getTags();
+  var active = getTagFilter();
+  var html = '<button type="button" class="tag-chip' + (active === 'all' ? ' on' : '') + '" data-tag-filter="all">All</button>';
+  tags.forEach(function(tag) {
+    html += '<button type="button" class="tag-chip' + (active === tag.id ? ' on' : '') + '" data-tag-filter="' + escapeHtml(tag.id) + '">' + escapeHtml(tag.label) + '</button>';
+  });
+  filtersEl.innerHTML = html;
+  if (manageEl) {
+    if (!tags.length) {
+      manageEl.innerHTML = '<p class="hint" style="margin:0">No tags yet — add one above.</p>';
+    } else {
+      manageEl.innerHTML = tags.map(function(tag) {
+        var count = countPlacesWithTag(tag.id);
+        return '<div class="tag-manage-row">'
+          + '<span class="tag-manage-label">' + escapeHtml(tag.label) + '</span>'
+          + '<span class="tag-manage-count">' + count + ' place' + (count === 1 ? '' : 's') + '</span>'
+          + '<button type="button" class="tag-del-btn" data-tag-del="' + escapeHtml(tag.id) + '">Delete</button>'
+          + '</div>';
+      }).join('');
+    }
+  }
+}
+
+function bindTagPanel() {
+  var filtersEl = document.getElementById('tag-filters');
+  if (filtersEl) {
+    filtersEl.addEventListener('click', function(e) {
+      var chip = e.target.closest('[data-tag-filter]');
+      if (!chip) return;
+      setTagFilter(chip.getAttribute('data-tag-filter'));
+    });
+  }
+  var manageEl = document.getElementById('tag-manage-list');
+  if (manageEl) {
+    manageEl.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-tag-del]');
+      if (!btn) return;
+      deleteTag(btn.getAttribute('data-tag-del'));
+    });
+  }
+  var addBtn = document.getElementById('add-tag-btn');
+  var addInp = document.getElementById('new-tag-name');
+  if (addBtn && addInp) {
+    addBtn.onclick = function() {
+      if (addTag(addInp.value)) {
+        addInp.value = '';
+        showStatus('Tag added');
+      }
+    };
+    addInp.onkeydown = function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addBtn.click();
+      }
+    };
+  }
+}
+
+function renderPlaceMetaPanelHtml(name) {
+  var meta = getPlaceMeta(name);
+  var tags = getTags();
+  var ratingOpts = '<option value="">—</option>';
+  for (var i = 1; i <= 10; i++) {
+    ratingOpts += '<option value="' + i + '"' + (meta.rating === i ? ' selected' : '') + '>' + i + '</option>';
+  }
+  var tagChips = '';
+  if (!tags.length) {
+    tagChips = '<p class="modal-empty" style="margin:0">Add tags at the bottom of the page.</p>';
+  } else {
+    tagChips = tags.map(function(tag) {
+      var on = meta.tagIds.indexOf(tag.id) >= 0;
+      return '<button type="button" class="place-tag-chip' + (on ? ' on' : '') + '" data-place-tag="' + escapeHtml(tag.id) + '">' + escapeHtml(tag.label) + '</button>';
+    }).join('');
+  }
+  return '<div class="place-meta-panel" id="place-meta-panel">'
+    + '<label class="visited-toggle"><input type="checkbox" id="modal-visited"' + (meta.visited ? ' checked' : '') + ' /> I\'ve been here</label>'
+    + '<div class="rating-row"><label for="modal-rating">Rating</label>'
+    + '<select id="modal-rating" aria-label="Rating 1 to 10">' + ratingOpts + '</select>'
+    + '<span class="hint" style="margin:0">1–10</span></div>'
+    + '<div class="place-tags-block"><label>Tags</label><div class="place-tag-chips">' + tagChips + '</div></div>'
+    + '</div>';
+}
+
+function wirePlaceMetaPanel(name) {
+  var visitedEl = document.getElementById('modal-visited');
+  if (visitedEl) {
+    visitedEl.onchange = function() {
+      setPlaceMeta(name, { visited: visitedEl.checked });
+      modalMeta.textContent = formatModalMeta(byName[name]);
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+    };
+  }
+  var ratingEl = document.getElementById('modal-rating');
+  if (ratingEl) {
+    ratingEl.onchange = function() {
+      var v = ratingEl.value ? parseInt(ratingEl.value, 10) : null;
+      setPlaceMeta(name, { rating: v });
+      modalMeta.textContent = formatModalMeta(byName[name]);
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+    };
+  }
+  modalBody.querySelectorAll('[data-place-tag]').forEach(function(btn) {
+    btn.onclick = function() {
+      var id = btn.getAttribute('data-place-tag');
+      var meta = getPlaceMeta(name);
+      var tagIds = meta.tagIds.slice();
+      var i = tagIds.indexOf(id);
+      if (i >= 0) tagIds.splice(i, 1);
+      else tagIds.push(id);
+      setPlaceMeta(name, { tagIds: tagIds });
+      btn.classList.toggle('on', tagIds.indexOf(id) >= 0);
+      renderTagFilters();
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+    };
+  });
+}
+
 function getFavorites() {
   var st = loadAppState();
   return Array.isArray(st.favorites) ? st.favorites.slice() : [];
@@ -202,6 +476,7 @@ function getListPlaces() {
     list = list.filter(function(r) { return r.neighborhood === nSel.value; });
   }
   list = filterBySearch(list);
+  list = filterByTag(list);
   var sortMode = document.getElementById('list-sort');
   var favoritesFirst = !sortMode || sortMode.value !== 'alpha';
   var favs = getFavorites();
@@ -318,6 +593,7 @@ function bootstrapData(allPlaces) {
   mergeOverrides(appState.restaurants);
   populateEditAnySelect();
   rebuildNeighborhoodSelect();
+  renderTagFilters();
 }
 
 function startApp() {
@@ -364,7 +640,9 @@ function getNowSlot() {
 function restaurantsForDay(day) {
   var list = RESTAURANTS.filter(function(r) { return r.schedule && r.schedule[day]; });
   if (nSel && nSel.value) list = list.filter(function(r) { return r.neighborhood === nSel.value; });
-  return filterBySearch(list);
+  list = filterBySearch(list);
+  list = filterByTag(list);
+  return list;
 }
 function isActive(r, day, slot) {
   const s = r.schedule[day];
@@ -435,7 +713,7 @@ function renderViewMode(r) {
   editMode = false;
   addingNewPlace = false;
   document.getElementById('modal-edit').style.display = '';
-  let body = formatDescription(r.description);
+  let body = renderPlaceMetaPanelHtml(r.name) + formatDescription(r.description);
   const links = [];
   if (r.hh_menu) links.push(['Website / Menu', r.hh_menu]);
   if (r.social && r.social !== r.instagram) links.push(['Social', r.social]);
@@ -448,6 +726,7 @@ function renderViewMode(r) {
   showMenuPhotoInModal(r.name);
   renderModalFooter(r);
   updateModalFavButton();
+  wirePlaceMetaPanel(r.name);
 }
 
 function wireCopyPrevious() {
@@ -615,13 +894,21 @@ function openAddPlace() {
   document.body.classList.add('modal-open');
 }
 
+function formatModalMeta(r) {
+  var parts = [r.neighborhood, r.address].filter(Boolean);
+  var meta = getPlaceMeta(r.name);
+  if (meta.visited) parts.push('Visited');
+  if (meta.rating) parts.push('\u2605 ' + meta.rating + '/10');
+  return parts.join(' \u00b7 ');
+}
+
 function openModal(name) {
   const r = byName[name];
   if (!r) return;
   addingNewPlace = false;
   currentModalName = name;
   modalTitle.textContent = r.name;
-  modalMeta.textContent = [r.neighborhood, r.address].filter(Boolean).join(' · ');
+  modalMeta.textContent = formatModalMeta(r);
   renderViewMode(r);
   modal.classList.add('open');
   document.body.classList.add('modal-open');
@@ -696,9 +983,12 @@ function saveEdit(originalName) {
     schedule: schedule
   };
   saveAppState(state);
-  if (!isNew && originalName !== name) renameFavorite(originalName, name);
+  if (!isNew && originalName !== name) {
+    renameFavorite(originalName, name);
+    renamePlaceMeta(originalName, name);
+  }
   modalTitle.textContent = r.name;
-  modalMeta.textContent = [r.neighborhood, r.address].filter(Boolean).join(' · ');
+  modalMeta.textContent = formatModalMeta(r);
   populateEditAnySelect();
   if (!Object.keys(schedule).length) {
     var idx = RESTAURANTS.indexOf(r);
@@ -982,9 +1272,11 @@ function renderListView() {
   var list = getListPlaces();
   var q = getSearchQuery();
   var hood = nSel && nSel.value ? nSel.value : '';
+  var tagF = getTagFilter();
   var summary = document.getElementById('summary');
   var parts = ['<strong>' + list.length + '</strong> place' + (list.length === 1 ? '' : 's')];
   if (hood) parts.push(' in <strong>' + escapeHtml(hood) + '</strong>');
+  if (tagF && tagF !== 'all') parts.push(' tagged <strong>' + escapeHtml(tagLabel(tagF)) + '</strong>');
   if (q) parts.push(' matching search');
   summary.innerHTML = parts.join('') + '. Tap a name for details. Star your favorites.';
   var container = document.getElementById('place-list');
@@ -995,9 +1287,17 @@ function renderListView() {
   }
   container.innerHTML = list.map(function(r) {
     var fav = isFavorite(r.name);
+    var meta = getPlaceMeta(r.name);
     var hasHH = r.schedule && Object.keys(r.schedule).length;
     var sub = escapeHtml(r.neighborhood || 'No neighborhood');
+    if (meta.visited) sub += ' · <span class="list-badge">visited</span>';
+    if (meta.rating) sub += ' · <span class="list-rating">★ ' + meta.rating + '/10</span>';
     if (!hasHH) sub += ' · <span class="list-tag">no HH times yet</span>';
+    if (meta.tagIds.length) {
+      sub += ' · ' + meta.tagIds.map(function(id) {
+        return '<span class="list-tag">' + escapeHtml(tagLabel(id)) + '</span>';
+      }).join(' ');
+    }
     return '<div class="list-row">'
       + '<button type="button" class="fav-toggle' + (fav ? ' on' : '') + '" data-fav="' + escapeHtml(r.name) + '" aria-label="' + (fav ? 'Unfavorite' : 'Favorite') + '">' + (fav ? '\u2605' : '\u2606') + '</button>'
       + '<button type="button" class="list-link" data-name="' + escapeHtml(r.name) + '">'
@@ -1021,8 +1321,10 @@ function renderGridView() {
   let filtered = RESTAURANTS.filter(r => r.schedule && r.schedule[day]);
   if (nSel.value) filtered = filtered.filter(r => r.neighborhood === nSel.value);
   filtered = filterBySearch(filtered);
+  filtered = filterByTag(filtered);
   filtered.sort((a,b) => a.name.localeCompare(b.name));
   var q = getSearchQuery();
+  var tagF = getTagFilter();
   let minT = Infinity, maxT = -Infinity;
   filtered.forEach(r => {
     const s = r.schedule[day];
@@ -1045,6 +1347,7 @@ function renderGridView() {
   const activeNow = filtered.filter(r => isActive(r, day, selectedTime));
   document.getElementById('summary').innerHTML = `<strong>${activeNow.length}</strong> place(s) with happy hour at <strong>${fmtMinutes(selectedTime)}</strong> on <strong>${day}</strong>` +
     (nSel.value ? ` in <strong>${nSel.value}</strong>` : '') +
+    (tagF && tagF !== 'all' ? ` · tag <strong>${escapeHtml(tagLabel(tagF))}</strong>` : '') +
     (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
   const thead = document.querySelector('#grid thead');
   thead.innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
@@ -1107,5 +1410,6 @@ daySel.addEventListener('change', refreshFilters);
 document.getElementById('time').addEventListener('change', function() {
   if (viewMode === 'grid') render();
 });
+bindTagPanel();
 startApp();
 })();
