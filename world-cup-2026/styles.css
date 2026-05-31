@@ -616,15 +616,34 @@ body.modal-open { overflow: hidden; }
 }
 
 .bracket-match {
+  display: block;
+  width: 100%;
+  text-align: left;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 10px 12px;
+  color: inherit;
+  cursor: default;
 }
+
+.bracket-match.editable {
+  cursor: pointer;
+}
+
+.bracket-match.editable:active { background: var(--bg-card-hover); }
+
+.bracket-match.played { border-color: var(--qualify-border); }
+
+.bracket-match.locked { opacity: 0.7; }
 
 .bracket-match.final {
   border-color: var(--gold);
   background: rgba(255, 215, 0, 0.06);
+}
+
+.bracket-match.bronze {
+  border-color: rgba(205, 127, 50, 0.4);
 }
 
 .bracket-match-head {
@@ -654,6 +673,19 @@ body.modal-open { overflow: hidden; }
   font-size: 0.6875rem;
   font-weight: 700;
   color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bracket-vs.locked { opacity: 0.6; }
+
+.bracket-score {
+  align-self: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 0 4px;
+  white-space: nowrap;
 }
 
 .bracket-team {
@@ -666,21 +698,12 @@ body.modal-open { overflow: hidden; }
   background: rgba(0, 0, 0, 0.15);
   color: inherit;
   text-align: left;
-  cursor: default;
 }
-
-.bracket-team.pickable {
-  cursor: pointer;
-}
-
-.bracket-team.pickable:active { background: var(--bg-card-hover); }
 
 .bracket-team.winner {
   border-color: var(--accent);
   background: var(--qualify);
 }
-
-.bracket-team:disabled { opacity: 0.85; }
 
 .bracket-team-name {
   font-size: 0.8125rem;
