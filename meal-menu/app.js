@@ -493,7 +493,7 @@ function renderEditMode(entry) {
   }).join('') || '<p class="hint">No tags — add in Manage</p>';
 
   document.getElementById('modal-body').innerHTML = '<div class="edit-form">'
-    + (isNew ? '<label for="edit-name">Name</label><input type="text" id="edit-name" placeholder="Meal or place name" value="">' : '')
+    + '<label for="edit-name">Name</label><input type="text" id="edit-name" placeholder="Meal or place name" value="' + escapeHtml(entry.name || '') + '">'
     + '<label for="edit-category">Category</label><select id="edit-category">' + catOpts + '</select>'
     + '<label for="edit-notes">Notes</label><textarea id="edit-notes">' + escapeHtml(entry.notes || '') + '</textarea>'
     + '<label for="edit-menu-url">Menu URL</label><input type="url" id="edit-menu-url" value="' + escapeHtml(entry.menuUrl || '') + '">'
@@ -545,7 +545,7 @@ function renderEditMode(entry) {
 function saveEdit(original) {
   var isNew = addingNew;
   var nameEl = document.getElementById('edit-name');
-  var name = isNew ? (nameEl && nameEl.value.trim()) : original.name;
+  var name = nameEl ? nameEl.value.trim() : original.name;
   if (!name) { alert('Name is required.'); return; }
 
   var st = getState();
@@ -568,6 +568,7 @@ function saveEdit(original) {
   } else {
     entry = st.entries.find(function(e) { return e.id === original.id; });
     if (!entry) return;
+    entry.name = name;
     entry.category = document.getElementById('edit-category').value;
     entry.notes = document.getElementById('edit-notes').value.trim();
     entry.menuUrl = document.getElementById('edit-menu-url').value.trim();
@@ -977,7 +978,6 @@ function bindEvents() {
 function boot() {
   initState();
   ensureCategoryPanels();
-  renderTabbar();
   renderTagFilters();
   renderAllLists();
   renderManage();
@@ -986,21 +986,14 @@ function boot() {
   refreshPicker();
   bindEvents();
 
+  document.querySelectorAll('.panel').forEach(function(p) {
+    p.hidden = true;
+    p.classList.remove('on');
+  });
+  activeTab = '';
   var firstCat = getAllCategories()[0];
-  if (firstCat) {
-    document.querySelectorAll('.panel').forEach(function(p) {
-      p.hidden = true;
-      p.classList.remove('on');
-    });
-    var panel = document.getElementById('panel-' + firstCat.id);
-    if (panel) {
-      panel.hidden = false;
-      panel.classList.add('on');
-      activeTab = firstCat.id;
-    }
-  }
-  updateHeaderForTab();
-  renderTabbar();
+  if (firstCat) switchTab(firstCat.id);
+  else switchTab('cooking');
 }
 
 // Future: import visited restaurants from philly-dates-v2 placeMeta → phillyPlaceName + link
