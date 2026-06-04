@@ -646,6 +646,7 @@ function mergeOverrides(overrides) {
     if (o.hours !== undefined) r.hours = o.hours;
     if (o.hoursSource !== undefined) r.hoursSource = o.hoursSource;
     if (o.googlePlaceId !== undefined) r.googlePlaceId = o.googlePlaceId;
+    if (o.googleMapsUri !== undefined) r.googleMapsUri = o.googleMapsUri;
     if (o.schedule !== undefined) {
       r.schedule = o.schedule;
       var idx = RESTAURANTS.indexOf(r);
@@ -801,10 +802,19 @@ const modalBody = document.getElementById('modal-body');
 const modalFooter = document.getElementById('modal-footer');
 const IG_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"></circle></svg>';
 
-function appleMapsUrl(r) {
+function googleMapsUrl(r) {
+  if (!r) return '';
+  var uri = (r.googleMapsUri || '').trim();
+  if (uri && /^https:\/\/(www\.)?google\.com\/maps/i.test(uri)) return uri;
+  var id = (r.googlePlaceId || '').trim();
+  if (id) {
+    var label = (r.name || '').trim() || 'place';
+    return 'https://www.google.com/maps/search/?api=1&query='
+      + encodeURIComponent(label) + '&query_place_id=' + encodeURIComponent(id);
+  }
   var q = [r.name, r.address, r.neighborhood, 'Philadelphia, PA'].filter(Boolean).join(', ');
   if (!q) return '';
-  return 'https://maps.apple.com/?q=' + encodeURIComponent(q);
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
 }
 
 function isPdfUrl(url) {
@@ -839,9 +849,9 @@ function renderPlaceLinksHtml(r) {
 
 function renderModalFooter(r) {
   var parts = [];
-  var mapsUrl = appleMapsUrl(r);
+  var mapsUrl = googleMapsUrl(r);
   if (mapsUrl) {
-    parts.push('<a class="maps-btn" href="' + escapeHtml(mapsUrl) + '" target="_blank" rel="noopener noreferrer" aria-label="Open in Apple Maps">📍 Maps</a>');
+    parts.push('<a class="maps-btn" href="' + escapeHtml(mapsUrl) + '" target="_blank" rel="noopener noreferrer" aria-label="Open in Google Maps">📍 Maps</a>');
   }
   if (r.instagram) {
     parts.push('<a class="ig-btn" href="' + escapeHtml(r.instagram)
@@ -1041,9 +1051,9 @@ function formatModalMetaHtml(r) {
   var bits = [];
   if (r.neighborhood) bits.push(escapeHtml(r.neighborhood));
   if (r.address) {
-    var mapsUrl = appleMapsUrl(r);
+    var mapsUrl = googleMapsUrl(r);
     if (mapsUrl) {
-      bits.push('<a class="modal-meta-link" href="' + escapeHtml(mapsUrl) + '">' + escapeHtml(r.address) + '</a>');
+      bits.push('<a class="modal-meta-link" href="' + escapeHtml(mapsUrl) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(r.address) + '</a>');
     } else {
       bits.push(escapeHtml(r.address));
     }
@@ -1727,7 +1737,7 @@ function renderPickerResult(name) {
   descEl.innerHTML = formatDescription(r.description);
   var linksEl = document.getElementById('picker-result-links');
   var links = [];
-  var mapsUrl = appleMapsUrl(r);
+  var mapsUrl = googleMapsUrl(r);
   if (mapsUrl) {
     links.push('<a href="' + escapeHtml(mapsUrl) + '" target="_blank" rel="noopener noreferrer">📍 Maps</a>');
   }

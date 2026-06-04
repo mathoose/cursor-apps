@@ -60,8 +60,8 @@
     },
     {
       "id": "manga-shelf",
-      "name": "Media Shelf",
-      "subtitle": "Shows & manga tracker",
+      "name": "Manga Shelf",
+      "subtitle": "Find volumes & collection matrix",
       "storageKey": "manga-shelf-v1"
     }
   ]

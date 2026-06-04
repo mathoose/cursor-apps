@@ -200,7 +200,12 @@
             return { version: 2, items: p.items, seriesMeta: p.seriesMeta || {} };
           }
           if (Array.isArray(p.volumes)) {
-            return { version: 1, volumes: p.volumes, seriesMeta: p.seriesMeta || {} };
+            return {
+              version: 1,
+              volumes: p.volumes,
+              seriesMeta: p.seriesMeta || {},
+              settings: p.settings || {},
+            };
           }
           return null;
         } catch (e) {
@@ -221,6 +226,7 @@
             version: 1,
             volumes: slice.volumes,
             seriesMeta: slice.seriesMeta || {},
+            settings: slice.settings || {},
           }));
         }
         return false;
