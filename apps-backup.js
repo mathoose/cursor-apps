@@ -195,29 +195,48 @@
         if (!raw) return null;
         try {
           var p = JSON.parse(raw);
-          if (!p || !Array.isArray(p.volumes)) return null;
-          return { volumes: p.volumes, seriesMeta: p.seriesMeta || {} };
+          if (!p) return null;
+          if (Array.isArray(p.items)) {
+            return { version: 2, items: p.items, seriesMeta: p.seriesMeta || {} };
+          }
+          if (Array.isArray(p.volumes)) {
+            return { version: 1, volumes: p.volumes, seriesMeta: p.seriesMeta || {} };
+          }
+          return null;
         } catch (e) {
           return null;
         }
       },
       writeSlice: function (slice) {
-        if (!slice || !Array.isArray(slice.volumes)) return false;
-        return writeKey("manga-shelf-v1", JSON.stringify({
-          version: 1,
-          volumes: slice.volumes,
-          seriesMeta: slice.seriesMeta || {},
-        }));
+        if (!slice) return false;
+        if (Array.isArray(slice.items)) {
+          return writeKey("manga-shelf-v1", JSON.stringify({
+            version: 2,
+            items: slice.items,
+            seriesMeta: slice.seriesMeta || {},
+          }));
+        }
+        if (Array.isArray(slice.volumes)) {
+          return writeKey("manga-shelf-v1", JSON.stringify({
+            version: 1,
+            volumes: slice.volumes,
+            seriesMeta: slice.seriesMeta || {},
+          }));
+        }
+        return false;
       },
       isLegacy: function (obj) {
-        return obj && Array.isArray(obj.volumes) && obj.format !== FORMAT && obj.format !== "manga-shelf";
+        return obj && (Array.isArray(obj.volumes) || Array.isArray(obj.items)) &&
+          obj.format !== FORMAT && obj.format !== "manga-shelf";
       },
       summarize: function (slice) {
+        if (Array.isArray(slice.items)) {
+          var shows = slice.items.filter(function (i) { return i.kind === "show"; }).length;
+          var manga = slice.items.filter(function (i) { return i.kind === "manga"; }).length;
+          return slice.items.length + " titles (" + shows + " shows, " + manga + " manga)";
+        }
         var n = slice.volumes ? slice.volumes.length : 0;
-        var series = {};
-        (slice.volumes || []).forEach(function (v) { series[v.series] = true; });
-        var sc = Object.keys(series).length;
-        return n + " volume" + (n === 1 ? "" : "s") + ", " + sc + " series";
+        return n + " manga volume" + (n === 1 ? "" : "s");
       },
     },
     "philly-dates": {

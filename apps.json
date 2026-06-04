@@ -3,7 +3,7 @@
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
-    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1"],
+    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
       "voice-notes": { "storageKey": "voice-notes-v1" },
@@ -60,8 +60,8 @@
     },
     {
       "id": "manga-shelf",
-      "name": "Manga Shelf",
-      "subtitle": "Find by vol & name",
+      "name": "Media Shelf",
+      "subtitle": "Shows & manga tracker",
       "storageKey": "manga-shelf-v1"
     }
   ]

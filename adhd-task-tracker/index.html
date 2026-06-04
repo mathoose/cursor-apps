@@ -1005,6 +1005,52 @@
   }
   .settings-label { font-weight: 500; font-size: 0.95rem; }
   .settings-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .list-manage-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .list-manage-row .settings-label { flex: 1; min-width: 0; }
+  .list-reorder { display: flex; flex-direction: column; gap: 2px; }
+  .list-reorder-btn {
+    width: 28px; height: 24px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .list-reorder-btn:disabled { opacity: 0.35; cursor: default; }
+  .task-photo-block { margin-top: 4px; }
+  .task-photo-preview {
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    min-height: 48px;
+  }
+  .task-photo-preview img {
+    display: block;
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+  }
+  .task-photo-empty {
+    padding: 14px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.82rem;
+  }
+  .task-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .task-photo-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; }
+  .pill.photo { background: var(--surface-2); color: var(--text-muted); }
 
   /* ---------- Focus strip ---------- */
   .focus-strip {
@@ -1179,6 +1225,16 @@
         <label class="field-label">Notes</label>
         <textarea id="taskNotesInput" placeholder="Add notes…"></textarea>
       </div>
+      <div class="field task-photo-block">
+        <label class="field-label">Photo</label>
+        <div class="task-photo-preview" id="taskPhotoPreview"></div>
+        <div class="task-photo-actions">
+          <button type="button" class="btn" id="taskPhotoPickBtn">Add photo</button>
+          <button type="button" class="btn" id="taskPhotoRemoveBtn" style="display:none">Remove</button>
+        </div>
+        <input type="file" id="taskPhotoFile" accept="image/*" capture="environment" hidden>
+        <p class="task-photo-hint">Saved on this device only.</p>
+      </div>
       <div class="field">
         <label class="field-label">Due date</label>
         <input type="date" id="taskDueInput">
@@ -1255,7 +1311,7 @@
       <div class="settings-row">
         <div>
           <div class="settings-label">Manage lists</div>
-          <div class="settings-sub">Add or remove your task lists.</div>
+          <div class="settings-sub">Add, remove, or reorder your task lists.</div>
         </div>
         <button class="btn" id="manageListsBtn">Lists</button>
       </div>
@@ -1432,6 +1488,8 @@
 // ============================================================================
 const STORAGE_KEY = 'adhd-tracker-v1';
 const SCHEMA_VERSION = 1;
+const PHOTO_DB = 'adhd-tracker-photos-v1';
+const PHOTO_STORE = 'photos';
 
 const DEFAULT_LISTS = [
   { id: 'inbox', name: 'Inbox', system: true },
@@ -1457,6 +1515,10 @@ let undoTimer = null;
 let pendingImport = null;
 let editingCounterId = null;
 let editingCounterCategory = null;
+let taskPhotoThumbCache = {};
+let taskPhotoThumbPending = {};
+let taskModalPhotoUrl = null;
+let pendingNewTaskPhotoBlob = null;
 
 const FITNESS_SUGGESTIONS = ['Push-ups', 'Squats', 'Sit-ups', 'Plank (sec)', 'Pull-ups', 'Steps'];
 const BULLET_SUGGESTIONS = ['Coffee', 'Water (cups)', 'Greek yogurt', 'Fruit', 'Veggies', 'Snack'];
@@ -1565,6 +1627,7 @@ function normalizeTask(t) {
     important: typeof t.important === 'boolean' ? t.important : null,
     completed: !!t.completed,
     completedAt: t.completedAt || null,
+    hasPhoto: !!t.hasPhoto,
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
       title: s.title || '',
@@ -1597,6 +1660,132 @@ function saveState() {
       console.error('Save failed:', e);
     }
   }
+}
+
+// ============================================================================
+// TASK PHOTOS (IndexedDB)
+// ============================================================================
+function photoDbKey(taskId) {
+  return 'task:' + taskId;
+}
+
+function openPhotoDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(PHOTO_DB, 1);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+        db.createObjectStore(PHOTO_STORE);
+      }
+    };
+  });
+}
+
+function putTaskPhoto(taskId, blob) {
+  return openPhotoDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).put(blob, photoDbKey(taskId));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  }));
+}
+
+function getTaskPhotoBlob(taskId) {
+  return openPhotoDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readonly');
+    const req = tx.objectStore(PHOTO_STORE).get(photoDbKey(taskId));
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error);
+  }));
+}
+
+function deleteTaskPhotoBlob(taskId) {
+  return openPhotoDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).delete(photoDbKey(taskId));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  }));
+}
+
+function preparePhotoBlob(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const max = 1200;
+      let w = img.width;
+      let h = img.height;
+      if (w > max || h > max) {
+        if (w > h) {
+          h = Math.round(h * max / w);
+          w = max;
+        } else {
+          w = Math.round(w * max / h);
+          h = max;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        blob => (blob ? resolve(blob) : reject(new Error('Could not process image'))),
+        'image/jpeg',
+        0.85
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not process image'));
+    };
+    img.src = url;
+  });
+}
+
+function setTaskPhotoFlag(taskId, on) {
+  const t = state.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  t.hasPhoto = !!on;
+  saveState();
+}
+
+function invalidateTaskThumb(taskId) {
+  if (taskPhotoThumbCache[taskId]) {
+    URL.revokeObjectURL(taskPhotoThumbCache[taskId]);
+    delete taskPhotoThumbCache[taskId];
+  }
+  delete taskPhotoThumbPending[taskId];
+}
+
+function revokeTaskModalPhotoUrl() {
+  if (taskModalPhotoUrl) {
+    URL.revokeObjectURL(taskModalPhotoUrl);
+    taskModalPhotoUrl = null;
+  }
+}
+
+function getTaskThumbUrl(taskId) {
+  if (!taskId) return Promise.resolve(null);
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task || !task.hasPhoto) return Promise.resolve(null);
+  if (taskPhotoThumbCache[taskId]) return Promise.resolve(taskPhotoThumbCache[taskId]);
+  if (taskPhotoThumbPending[taskId]) return taskPhotoThumbPending[taskId];
+  taskPhotoThumbPending[taskId] = getTaskPhotoBlob(taskId).then(blob => {
+    delete taskPhotoThumbPending[taskId];
+    if (!blob) {
+      setTaskPhotoFlag(taskId, false);
+      invalidateTaskThumb(taskId);
+      return null;
+    }
+    const url = URL.createObjectURL(blob);
+    taskPhotoThumbCache[taskId] = url;
+    return url;
+  });
+  return taskPhotoThumbPending[taskId];
 }
 
 // ============================================================================
@@ -1702,6 +1891,10 @@ function deleteTask(id) {
   const idx = state.tasks.findIndex(t => t.id === id);
   if (idx === -1) return;
   const removed = state.tasks.splice(idx, 1)[0];
+  if (removed && removed.hasPhoto) {
+    deleteTaskPhotoBlob(id).catch(() => {});
+    invalidateTaskThumb(id);
+  }
   saveState();
   return removed;
 }
@@ -1785,6 +1978,9 @@ function renderTaskRow(task, opts) {
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
     meta.appendChild(el('span', { class: 'pill subtasks', text: `${done}/${task.subtasks.length}` }));
+  }
+  if (task.hasPhoto) {
+    meta.appendChild(el('span', { class: 'pill photo', text: '📷' }));
   }
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
@@ -2206,11 +2402,13 @@ function renderInbox() {
 // ============================================================================
 function openTaskEditor(taskId) {
   editingTaskId = taskId;
+  pendingNewTaskPhotoBlob = null;
+  revokeTaskModalPhotoUrl();
   const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, subtasks: []
+    completed: false, hasPhoto: false, subtasks: []
   };
 
   document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
@@ -2234,6 +2432,7 @@ function openTaskEditor(taskId) {
 
   renderSubtasks();
   renderQuadrantBadge();
+  renderTaskPhotoEditor();
 
   document.getElementById('taskDeleteBtn').style.display = task ? '' : 'none';
   openModal('taskModal');
@@ -2291,6 +2490,92 @@ function closeTaskEditor() {
   closeModal('taskModal');
   editingTaskId = null;
   editingTaskDraft = null;
+  pendingNewTaskPhotoBlob = null;
+  revokeTaskModalPhotoUrl();
+}
+
+function renderTaskPhotoEditor() {
+  const preview = document.getElementById('taskPhotoPreview');
+  const removeBtn = document.getElementById('taskPhotoRemoveBtn');
+  const pickBtn = document.getElementById('taskPhotoPickBtn');
+  if (!preview) return;
+  revokeTaskModalPhotoUrl();
+  preview.innerHTML = '';
+
+  const showPhoto = (blobUrl) => {
+    preview.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = blobUrl;
+    img.alt = 'Task photo';
+    preview.appendChild(img);
+    removeBtn.style.display = '';
+    pickBtn.textContent = 'Replace photo';
+  };
+
+  if (pendingNewTaskPhotoBlob) {
+    taskModalPhotoUrl = URL.createObjectURL(pendingNewTaskPhotoBlob);
+    showPhoto(taskModalPhotoUrl);
+    return;
+  }
+
+  if (editingTaskDraft && editingTaskDraft.hasPhoto && editingTaskId) {
+    const currentId = editingTaskId;
+    getTaskThumbUrl(currentId).then(url => {
+      if (currentId !== editingTaskId) return;
+      if (!document.getElementById('taskModal').classList.contains('open')) return;
+      if (!url) {
+        preview.innerHTML = '<div class="task-photo-empty">No photo yet</div>';
+        removeBtn.style.display = 'none';
+        pickBtn.textContent = 'Add photo';
+        return;
+      }
+      taskModalPhotoUrl = url;
+      showPhoto(url);
+    });
+    return;
+  }
+
+  preview.innerHTML = '<div class="task-photo-empty">No photo yet</div>';
+  removeBtn.style.display = 'none';
+  pickBtn.textContent = 'Add photo';
+}
+
+function attachTaskPhoto(file) {
+  if (!file || !editingTaskDraft) return;
+  preparePhotoBlob(file).then(blob => {
+    if (editingTaskId) {
+      return putTaskPhoto(editingTaskId, blob).then(() => {
+        setTaskPhotoFlag(editingTaskId, true);
+        editingTaskDraft.hasPhoto = true;
+        invalidateTaskThumb(editingTaskId);
+        renderTaskPhotoEditor();
+        showToast('Photo saved');
+      });
+    }
+    pendingNewTaskPhotoBlob = blob;
+    editingTaskDraft.hasPhoto = true;
+    renderTaskPhotoEditor();
+    showToast('Photo attached — save task to keep');
+  }).catch(() => {
+    showToast('Could not use this photo', { error: true });
+  });
+}
+
+function removeTaskPhoto() {
+  if (!editingTaskDraft) return;
+  if (editingTaskId) {
+    deleteTaskPhotoBlob(editingTaskId).then(() => {
+      setTaskPhotoFlag(editingTaskId, false);
+      editingTaskDraft.hasPhoto = false;
+      invalidateTaskThumb(editingTaskId);
+      renderTaskPhotoEditor();
+      showToast('Photo removed');
+    }).catch(() => showToast('Could not remove photo', { error: true }));
+    return;
+  }
+  pendingNewTaskPhotoBlob = null;
+  editingTaskDraft.hasPhoto = false;
+  renderTaskPhotoEditor();
 }
 
 function saveTaskEditor() {
@@ -2299,14 +2584,30 @@ function saveTaskEditor() {
     return;
   }
   editingTaskDraft.title = editingTaskDraft.title.trim();
+  const photoBlob = pendingNewTaskPhotoBlob;
+  pendingNewTaskPhotoBlob = null;
+  let savedId = editingTaskId;
   if (editingTaskId) {
     const t = state.tasks.find(x => x.id === editingTaskId);
     Object.assign(t, editingTaskDraft, { updatedAt: new Date().toISOString() });
   } else {
-    state.tasks.push(normalizeTask(Object.assign({ id: uid() }, editingTaskDraft)));
+    const task = normalizeTask(Object.assign({ id: uid() }, editingTaskDraft));
+    savedId = task.id;
+    state.tasks.push(task);
   }
   saveState();
   closeTaskEditor();
+  if (photoBlob && savedId) {
+    putTaskPhoto(savedId, photoBlob).then(() => {
+      setTaskPhotoFlag(savedId, true);
+      invalidateTaskThumb(savedId);
+      render();
+    }).catch(() => {
+      showToast('Task saved but photo failed', { error: true });
+      render();
+    });
+    return;
+  }
   render();
 }
 
@@ -2354,14 +2655,36 @@ function openListsManager() {
 function renderListsManager() {
   const container = document.getElementById('listsManagerList');
   container.innerHTML = '';
-  state.lists.forEach(list => {
-    const row = el('div', {
-      class: 'settings-row',
-      style: 'padding: 10px 12px;'
-    });
+  const minIndex = state.lists[0] && state.lists[0].system ? 1 : 0;
+  state.lists.forEach((list, index) => {
+    const row = el('div', { class: 'list-manage-row' });
     row.appendChild(el('div', { class: 'settings-label', text: list.name }));
+
+    const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;' });
+
+    const reorder = el('div', { class: 'list-reorder' });
+    const upBtn = el('button', {
+      type: 'button',
+      class: 'list-reorder-btn',
+      text: '▲',
+      'aria-label': 'Move up',
+      onClick: () => moveList(index, -1)
+    });
+    if (index <= minIndex) upBtn.disabled = true;
+    reorder.appendChild(upBtn);
+    const downBtn = el('button', {
+      type: 'button',
+      class: 'list-reorder-btn',
+      text: '▼',
+      'aria-label': 'Move down',
+      onClick: () => moveList(index, 1)
+    });
+    if (index >= state.lists.length - 1) downBtn.disabled = true;
+    reorder.appendChild(downBtn);
+    actions.appendChild(reorder);
+
     if (!list.system) {
-      row.appendChild(el('button', {
+      actions.appendChild(el('button', {
         class: 'btn btn-danger',
         style: 'padding: 6px 10px; min-height: 32px; font-size: 0.8rem;',
         text: 'Delete',
@@ -2377,10 +2700,24 @@ function renderListsManager() {
         }
       }));
     } else {
-      row.appendChild(el('span', { style: 'color: var(--text-faint); font-size: 0.78rem;', text: 'System' }));
+      actions.appendChild(el('span', { style: 'color: var(--text-faint); font-size: 0.78rem;', text: 'System' }));
     }
+
+    row.appendChild(actions);
     container.appendChild(row);
   });
+}
+
+function moveList(index, direction) {
+  const newIndex = index + direction;
+  const minIndex = state.lists[0] && state.lists[0].system ? 1 : 0;
+  if (newIndex < minIndex || newIndex >= state.lists.length) return;
+  const item = state.lists[index];
+  state.lists.splice(index, 1);
+  state.lists.splice(newIndex, 0, item);
+  saveState();
+  renderListsManager();
+  render();
 }
 
 function addList(name) {
@@ -3366,6 +3703,16 @@ function wireTaskEditor() {
       renderSubtasks();
     }
   });
+
+  document.getElementById('taskPhotoPickBtn').addEventListener('click', () => {
+    document.getElementById('taskPhotoFile').click();
+  });
+  document.getElementById('taskPhotoFile').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (file) attachTaskPhoto(file);
+  });
+  document.getElementById('taskPhotoRemoveBtn').addEventListener('click', removeTaskPhoto);
 }
 
 function wireSettings() {

@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Manga Shelf</title>
+  <title>Media Shelf</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Manga Shelf" />
+  <meta name="apple-mobile-web-app-title" content="Media Shelf" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#1a1625" />
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
@@ -26,6 +26,7 @@
       --accent-dark: #9588f5;
       --pink: #e85d75;
       --gold: #f5a623;
+      --teal: #2dd4bf;
       --success: #4ade80;
       --danger: #f87171;
       --radius: 14px;
@@ -62,14 +63,10 @@
       position: sticky;
       top: 0;
       z-index: 30;
-      background: linear-gradient(180deg, var(--bg) 70%, transparent);
+      background: linear-gradient(180deg, var(--bg) 85%, transparent);
       padding: max(10px, env(safe-area-inset-top)) 14px 10px;
     }
-    .header-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .header-row { display: flex; align-items: center; gap: 8px; }
     .app-header .apps-home-back {
       background: var(--accent-soft);
       color: var(--accent-dark);
@@ -98,48 +95,77 @@
       justify-content: center;
       cursor: pointer;
     }
+    .icon-btn[hidden] { display: none; }
     .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
 
     main { padding: 0 14px 20px; max-width: 640px; margin: 0 auto; }
     .view { display: none; }
     .view.active { display: block; }
 
-    .search-box {
+    .toolbar {
       display: flex;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      align-items: center;
     }
+    .toolbar input { flex: 1; }
+    .toolbar select { width: auto; min-width: 96px; flex-shrink: 0; }
+    .toolbar-count { font-size: 0.82rem; color: var(--text-faint); white-space: nowrap; }
+
+    .search-box { display: flex; gap: 8px; margin-bottom: 10px; }
     .search-box input { flex: 1; font-size: 1.05rem; padding: 12px 14px; }
     .filter-row { display: flex; gap: 8px; margin-bottom: 12px; }
     .filter-row select { flex: 1; padding: 8px 10px; font-size: 0.9rem; }
-
     .parsed-hint {
       font-size: 0.85rem;
       color: var(--text-muted);
       margin: 0 0 12px 4px;
     }
     .parsed-hint strong { color: var(--accent-dark); }
+    .search-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-faint);
+      margin: 16px 0 8px;
+    }
 
-    .vol-card {
+    .track-card {
+      display: block;
+      width: 100%;
+      text-align: left;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 14px;
       margin-bottom: 10px;
+      cursor: pointer;
+      color: inherit;
     }
-    .vol-card-top {
+    .track-card:active { border-color: var(--accent); }
+    .track-card-top {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       gap: 8px;
+      margin-bottom: 6px;
     }
-    .vol-card-title strong { display: block; font-size: 1rem; }
-    .vol-num {
-      font-size: 0.85rem;
-      color: var(--pink);
-      font-weight: 600;
+    .track-card-top strong { font-size: 1rem; }
+    .track-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .track-extra { font-size: 0.75rem; color: var(--text-faint); }
+    .track-when {
+      margin: 0 0 4px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
     }
-    .vol-badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .track-when time { color: var(--teal); font-weight: 600; }
+    .track-preview {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--text-faint);
+      line-height: 1.4;
+    }
+
     .badge {
       font-size: 0.68rem;
       font-weight: 700;
@@ -147,29 +173,100 @@
       letter-spacing: 0.04em;
       padding: 3px 8px;
       border-radius: 999px;
+      flex-shrink: 0;
     }
+    .badge-show { background: rgba(45, 212, 191, 0.15); color: var(--teal); }
+    .badge-manga { background: rgba(232, 93, 117, 0.15); color: var(--pink); }
     .badge-have { background: rgba(74, 222, 128, 0.15); color: var(--success); }
     .badge-wishlist { background: rgba(245, 166, 35, 0.15); color: var(--gold); }
     .badge-reading { background: var(--accent-soft); color: var(--accent-dark); }
     .badge-format { background: var(--surface-2); color: var(--text-muted); }
 
+    .log-list { list-style: none; margin: 0; padding: 0; }
+    .log-entry {
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .log-time {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--teal);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .log-text { margin: 0 0 8px; font-size: 0.92rem; white-space: pre-wrap; }
+    .log-delete { margin: 0; }
+    .log-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .log-form textarea { min-height: 72px; resize: vertical; }
+
+    .detail-section { margin-bottom: 18px; }
+    .detail-section h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+      margin: 0 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .detail-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .detail-last { font-size: 0.88rem; color: var(--text-muted); }
+
+    .vol-pills-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .vol-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .pill-vol { font-weight: 700; color: var(--pink); }
+    .pill-fmt { font-size: 0.68rem; color: var(--text-faint); }
+    .pill-want { font-size: 0.65rem; color: var(--gold); font-weight: 700; text-transform: uppercase; }
+
+    .vol-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 10px;
+    }
+    .vol-card-top { display: flex; justify-content: space-between; gap: 8px; }
+    .vol-num { font-size: 0.85rem; color: var(--pink); font-weight: 600; }
     .vol-filename {
-      margin: 8px 0 0;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-family: ui-monospace, Menlo, monospace;
       font-size: 0.82rem;
       color: var(--accent-dark);
       word-break: break-all;
-    }
-    .vol-notes, .vol-path {
-      margin: 6px 0 0;
-      font-size: 0.85rem;
-      color: var(--text-muted);
+      margin: 8px 0 0;
     }
     .hints-block { margin-top: 12px; }
-    .hints-label { font-size: 0.75rem; color: var(--text-faint); margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .hints-label { font-size: 0.75rem; color: var(--text-faint); margin: 0 0 6px; }
     .hints-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
     .hint-chip {
-      background: var(--surface-2);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 999px;
       padding: 6px 12px;
@@ -177,9 +274,9 @@
       cursor: pointer;
       color: var(--text);
     }
-    .hint-chip:active { background: var(--accent-soft); }
+    .vol-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+    .detail-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
 
-    .vol-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
     .btn {
       border: none;
       border-radius: 10px;
@@ -197,50 +294,13 @@
     .btn-ghost { background: transparent; color: var(--text-muted); padding: 6px 10px; }
     .btn-ghost.danger { color: var(--danger); }
     .btn-sm { font-size: 0.82rem; padding: 7px 12px; }
-    .btn:active { opacity: 0.85; transform: scale(0.98); }
+    .btn-block { width: 100%; margin-bottom: 8px; }
+    .btn:active { opacity: 0.85; }
 
-    .empty-state {
-      text-align: center;
-      padding: 32px 16px;
-      color: var(--text-muted);
-    }
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--text-muted); }
     .empty-state p { margin: 0 0 8px; }
     .hint { font-size: 0.88rem; color: var(--text-faint); }
     .hint em { color: var(--text-muted); font-style: normal; }
-
-    .series-group { margin-bottom: 20px; }
-    .series-name {
-      font-size: 0.95rem;
-      margin: 0 0 8px;
-      color: var(--text);
-    }
-    .series-meta { font-weight: 400; color: var(--text-faint); font-size: 0.82rem; }
-    .series-vols { display: flex; flex-wrap: wrap; gap: 6px; }
-    .vol-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 10px;
-      cursor: pointer;
-      color: var(--text);
-    }
-    .vol-pill:active { border-color: var(--accent); }
-    .pill-vol { font-weight: 700; color: var(--pink); min-width: 1.5em; text-align: center; }
-    .pill-fmt { font-size: 0.68rem; color: var(--text-faint); }
-    .pill-want { font-size: 0.65rem; color: var(--gold); text-transform: uppercase; font-weight: 700; }
-
-    .library-toolbar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      align-items: center;
-    }
-    .library-toolbar input { flex: 1; }
-    .library-toolbar select { width: auto; min-width: 100px; }
-    .library-count { font-size: 0.82rem; color: var(--text-faint); white-space: nowrap; }
 
     .card {
       background: var(--surface);
@@ -249,18 +309,8 @@
       padding: 14px;
       margin-bottom: 12px;
     }
-    .card h2 {
-      margin: 0 0 6px;
-      font-size: 1rem;
-    }
-    .card .hint { margin: 0 0 10px; }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.85rem;
-    }
+    .card h2 { margin: 0 0 6px; font-size: 1rem; }
+    textarea.bulk { min-height: 120px; font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; resize: vertical; }
     .bulk-result { font-size: 0.85rem; color: var(--success); margin-top: 8px; }
 
     .lookup-card {
@@ -272,43 +322,13 @@
       padding: 12px;
       margin-bottom: 10px;
     }
-    .lookup-cover {
-      width: 56px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 6px;
-      flex-shrink: 0;
-      background: var(--surface-2);
-    }
+    .lookup-cover { width: 56px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
     .lookup-cover.placeholder { background: var(--surface-2); }
     .lookup-info { flex: 1; min-width: 0; }
-    .lookup-info strong { display: block; font-size: 0.95rem; }
-    .lookup-alt { display: block; font-size: 0.82rem; color: var(--text-muted); }
-    .lookup-meta { display: block; font-size: 0.78rem; color: var(--text-faint); margin-top: 4px; }
-    .lookup-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .lookup-meta { font-size: 0.78rem; color: var(--text-faint); display: block; margin-top: 4px; }
     .loading { color: var(--text-muted); text-align: center; padding: 20px; }
 
-    .missing-section { margin-bottom: 16px; }
-    .missing-section h3 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-faint);
-      margin: 0 0 8px;
-    }
-    .missing-list { display: flex; flex-wrap: wrap; gap: 6px; }
-    .missing-chip {
-      background: rgba(245, 166, 35, 0.12);
-      border: 1px solid rgba(245, 166, 35, 0.3);
-      color: var(--gold);
-      border-radius: 999px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      cursor: pointer;
-    }
-    .missing-more { font-size: 0.8rem; color: var(--text-faint); margin-top: 6px; }
-
-    .form-overlay, .detail-overlay {
+    .form-overlay, .detail-overlay, .add-menu-overlay {
       position: fixed;
       inset: 0;
       z-index: 50;
@@ -316,14 +336,14 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      padding: 0;
     }
-    .form-sheet, .detail-sheet {
+    .form-overlay[hidden], .detail-overlay[hidden], .add-menu-overlay[hidden] { display: none; }
+    .form-sheet, .detail-sheet, .add-menu-sheet {
       background: var(--surface);
       border-radius: 18px 18px 0 0;
       width: 100%;
       max-width: 640px;
-      max-height: 90dvh;
+      max-height: 92dvh;
       overflow-y: auto;
       padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
     }
@@ -390,6 +410,7 @@
       cursor: pointer;
       z-index: 35;
     }
+    .fab[hidden] { display: none; }
 
     #toast {
       position: fixed;
@@ -398,7 +419,6 @@
       transform: translateX(-50%) translateY(12px);
       background: var(--surface-2);
       border: 1px solid var(--border);
-      color: var(--text);
       padding: 10px 16px;
       border-radius: 999px;
       font-size: 0.85rem;
@@ -406,10 +426,6 @@
       pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
       z-index: 60;
-      max-width: calc(100% - 32px);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -424,64 +440,63 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
       </a>
       <div class="header-title">
-        <h1>Manga Shelf</h1>
-        <p>Find volumes by name &amp; number</p>
+        <h1 id="header-title-text">Track</h1>
+        <p id="header-subtitle">Shows &amp; manga</p>
       </div>
-      <button type="button" class="icon-btn" id="header-add" aria-label="Add volume">
+      <button type="button" class="icon-btn" id="header-add" aria-label="Add">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       </button>
     </div>
   </header>
 
   <main>
-    <section class="view active" data-view="search">
+    <section class="view active" data-view="track">
+      <div class="toolbar">
+        <input type="search" id="track-filter" placeholder="Filter titles…" autocomplete="off" />
+        <select id="track-kind" aria-label="Type">
+          <option value="">All</option>
+          <option value="show">Shows</option>
+          <option value="manga">Manga</option>
+        </select>
+        <span class="toolbar-count" id="track-count">0 titles</span>
+      </div>
+      <div id="track-list"></div>
+    </section>
+
+    <section class="view" data-view="search">
       <div class="search-box">
-        <input type="search" id="search-input" placeholder="One Piece 45, Chainsaw Man vol 3…" autocomplete="off" enterkeyhint="search" />
+        <input type="search" id="search-input" placeholder="Title, volume, or note…" autocomplete="off" enterkeyhint="search" />
       </div>
       <div class="filter-row">
-        <select id="search-status" aria-label="Filter by status">
-          <option value="">All statuses</option>
+        <select id="search-status" aria-label="Manga file status">
+          <option value="">All manga files</option>
           <option value="have">Have</option>
           <option value="wishlist">Want</option>
           <option value="reading">Reading</option>
         </select>
       </div>
       <p class="parsed-hint" id="search-parsed" hidden></p>
-
-      <div class="missing-section" id="missing-section" hidden>
-        <h3>Missing volumes (from saved series info)</h3>
-        <div class="missing-list" id="missing-list"></div>
-        <p class="missing-more" id="missing-more" hidden></p>
-      </div>
-
       <div id="search-results"></div>
     </section>
 
-    <section class="view" data-view="library">
-      <div class="library-toolbar">
-        <input type="search" id="library-filter" placeholder="Filter library…" autocomplete="off" />
-        <select id="library-status" aria-label="Filter by status">
-          <option value="">All</option>
-          <option value="have">Have</option>
-          <option value="wishlist">Want</option>
-          <option value="reading">Reading</option>
-        </select>
-        <span class="library-count" id="library-count">0 volumes</span>
-      </div>
-      <div id="library-list"></div>
-    </section>
-
-    <section class="view" data-view="import">
+    <section class="view" data-view="more">
       <div class="card">
-        <h2>Bulk import filenames</h2>
-        <p class="hint">Paste filenames from your e-reader or computer — one per line. Parses names like <em>One Piece - Vol 45.pdf</em> or <em>Chainsaw_Man_v03.epub</em>.</p>
-        <textarea id="bulk-input" placeholder="One Piece - Vol 01.pdf&#10;One Piece - Vol 02.pdf&#10;Spy x Family v05.cbz"></textarea>
+        <h2>Import manga filenames</h2>
+        <p class="hint">One filename per line — groups into manga series automatically.</p>
+        <textarea class="bulk" id="bulk-input" placeholder="One Piece - Vol 01.pdf&#10;Spy x Family v05.cbz"></textarea>
         <button type="button" class="btn btn-primary" id="bulk-import-btn" style="margin-top:10px">Import</button>
         <p class="bulk-result" id="bulk-result"></p>
       </div>
       <div class="card">
+        <h2>Lookup manga</h2>
+        <div class="search-box">
+          <input type="search" id="lookup-input" placeholder="AniList search…" autocomplete="off" />
+          <button type="button" class="btn btn-primary" id="lookup-btn">Go</button>
+        </div>
+        <div id="lookup-results"></div>
+      </div>
+      <div class="card">
         <h2>Backup</h2>
-        <p class="hint">Export your library to move between devices.</p>
         <div class="backup-actions">
           <button type="button" class="btn btn-secondary" id="export-btn">Export JSON</button>
           <label class="btn btn-secondary import-label">
@@ -491,39 +506,63 @@
         </div>
       </div>
     </section>
-
-    <section class="view" data-view="lookup">
-      <div class="search-box">
-        <input type="search" id="lookup-input" placeholder="Look up series on AniList…" autocomplete="off" />
-        <button type="button" class="btn btn-primary" id="lookup-btn">Go</button>
-      </div>
-      <p class="hint" style="margin:0 0 12px 4px">Confirm titles, see total volumes, and get shop links.</p>
-      <div id="lookup-results"></div>
-    </section>
   </main>
 
-  <button type="button" class="fab" id="fab-add" aria-label="Add volume">+</button>
+  <button type="button" class="fab" id="fab-add" aria-label="Add">+</button>
 
   <nav class="bottom-nav" aria-label="Main">
-    <button type="button" class="nav-btn active" data-nav="search">
+    <button type="button" class="nav-btn active" data-nav="track">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Track
+    </button>
+    <button type="button" class="nav-btn" data-nav="search">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
       Search
     </button>
-    <button type="button" class="nav-btn" data-nav="library">
-      <svg viewBox="0 0 24 24"><path d="M4 19h16M6 3h12v16H6z"/><path d="M9 7h6M9 11h6"/></svg>
-      Library
-    </button>
-    <button type="button" class="nav-btn" data-nav="import">
-      <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M8 11l4 4 4-4"/><path d="M4 19h16"/></svg>
-      Import
-    </button>
-    <button type="button" class="nav-btn" data-nav="lookup">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
-      Lookup
+    <button type="button" class="nav-btn" data-nav="more">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+      More
     </button>
   </nav>
 
   <div id="toast"></div>
+
+  <div class="add-menu-overlay" id="add-menu-overlay" hidden>
+    <div class="add-menu-sheet">
+      <div class="sheet-header">
+        <h2>Add</h2>
+        <button type="button" class="btn btn-ghost" id="add-menu-cancel">Cancel</button>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" id="add-show-btn">TV show</button>
+      <button type="button" class="btn btn-secondary btn-block" id="add-manga-btn">Manga series</button>
+    </div>
+  </div>
+
+  <div class="form-overlay" id="item-form-overlay" hidden>
+    <div class="form-sheet">
+      <div class="sheet-header">
+        <h2 id="item-form-title">Add show or manga</h2>
+        <button type="button" class="btn btn-ghost" id="item-form-cancel">Cancel</button>
+      </div>
+      <form id="item-form">
+        <input type="hidden" id="item-form-id" />
+        <div class="form-grid">
+          <label>Title
+            <input type="text" id="item-form-title-input" required placeholder="Attack on Titan" autocomplete="off" />
+          </label>
+          <label>Type
+            <select id="item-form-kind">
+              <option value="show">TV show</option>
+              <option value="manga">Manga</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <div class="form-overlay" id="form-overlay" hidden>
     <div class="form-sheet">
@@ -532,14 +571,12 @@
         <button type="button" class="btn btn-ghost" id="form-cancel">Cancel</button>
       </div>
       <form id="volume-form">
-        <input type="hidden" id="form-id" />
+        <input type="hidden" id="form-item-id" />
+        <input type="hidden" id="form-vol-id" />
         <div class="form-grid">
-          <label>Series name
-            <input type="text" id="form-series" required placeholder="One Piece" autocomplete="off" />
-          </label>
           <div class="form-row">
             <label>Volume #
-              <input type="number" id="form-volume" required min="1" placeholder="45" inputmode="numeric" />
+              <input type="number" id="form-volume" required min="1" inputmode="numeric" />
             </label>
             <label>Format
               <select id="form-format">
@@ -551,23 +588,21 @@
               </select>
             </label>
           </div>
-          <label>Filename (as stored on device)
-            <input type="text" id="form-filename" placeholder="One Piece - Vol 45.pdf" autocomplete="off" />
+          <label>Filename on device
+            <input type="text" id="form-filename" autocomplete="off" />
           </label>
-          <label>Folder / path note
-            <input type="text" id="form-path" placeholder="/Books/Manga/One Piece/" autocomplete="off" />
+          <label>Folder path
+            <input type="text" id="form-path" autocomplete="off" />
           </label>
-          <div class="form-row">
-            <label>Status
-              <select id="form-status">
-                <option value="have">Have</option>
-                <option value="wishlist">Want</option>
-                <option value="reading">Reading</option>
-              </select>
-            </label>
-          </div>
+          <label>Status
+            <select id="form-status">
+              <option value="have">Have</option>
+              <option value="wishlist">Want</option>
+              <option value="reading">Reading</option>
+            </select>
+          </label>
           <label>Notes
-            <input type="text" id="form-notes" placeholder="Where you got it, edition, etc." autocomplete="off" />
+            <input type="text" id="form-notes" autocomplete="off" />
           </label>
         </div>
         <div class="form-actions">
@@ -580,7 +615,7 @@
   <div class="detail-overlay" id="detail-overlay" hidden>
     <div class="detail-sheet">
       <div class="sheet-header">
-        <h2>Volume details</h2>
+        <h2 id="detail-title">Details</h2>
         <button type="button" class="btn btn-ghost" id="detail-close">Close</button>
       </div>
       <div id="detail-content"></div>
