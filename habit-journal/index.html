@@ -291,6 +291,58 @@
       background: #fdeaea;
       color: var(--accent-dark);
     }
+    .exclude-days-row {
+      margin-top: 10px;
+    }
+    .exclude-days-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+    .exclude-day-chips {
+      display: flex;
+      gap: 6px;
+    }
+    .exclude-day-chip {
+      flex: 1;
+      min-width: 0;
+      height: 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .exclude-day-chip.on {
+      background: #d8d4cc;
+      border-color: #b8b4ac;
+      color: #6b6560;
+    }
+    .exclude-days-hint {
+      margin: 6px 0 0;
+      font-size: 0.6875rem;
+    }
+    .month-grid .cell.cell-blocked {
+      background: #d8d4cc !important;
+      border-color: #c8c4bc !important;
+      cursor: default;
+      opacity: 0.85;
+    }
+    .month-grid .cell.cell-blocked:active { transform: none; }
+    .month-grid .cell.cell-progress {
+      background: #f5d76e;
+      border-color: #e6c65c;
+      color: #6b5a18;
+      font-size: 0.6875rem;
+      font-weight: 700;
+    }
+    .month-grid .cell.cell-no { color: var(--accent-dark); }
     .step-row {
       display: flex;
       align-items: center;
@@ -1212,6 +1264,11 @@
         <span>+ per tap</span>
         <input type="number" id="habitEditStep" min="1" max="5000" />
       </label>
+      <div class="habit-edit-field" id="habitEditExcludeWrap" hidden>
+        <span>Skip days</span>
+        <div class="exclude-day-chips" id="habitEditExcludeDays"></div>
+        <p class="hint exclude-days-hint">Tap a day to exclude — those columns show grey and can’t be marked.</p>
+      </div>
       <div class="habit-edit-actions">
         <button type="button" class="btn btn-primary" id="habitEditSave">Save</button>
       </div>
@@ -1260,6 +1317,7 @@
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+  const YESNO_PROGRESS = 2;
   const DEFAULT_CATEGORIES = [
     { id: "general", label: "General" },
     { id: "health", label: "Health" },
@@ -1378,6 +1436,138 @@
     }
   }
 
+  function normalizeExcludeDays(arr) {
+    if (!Array.isArray(arr)) return [];
+    const out = [];
+    arr.forEach(function (d) {
+      const n = parseInt(d, 10);
+      if (n >= 0 && n <= 6 && out.indexOf(n) < 0) out.push(n);
+    });
+    return out.sort(function (a, b) { return a - b; });
+  }
+
+  function weekdayIndex(y, m, d) {
+    return new Date(y, m, d).getDay();
+  }
+
+  function isDayExcluded(habit, y, m, d) {
+    if (!habit || habit.type !== "yesno") return false;
+    const days = habit.excludeDays;
+    if (!days || !days.length) return false;
+    return days.indexOf(weekdayIndex(y, m, d)) >= 0;
+  }
+
+  function parseCellKeyDate(key) {
+    const parts = String(key || "").split("-");
+    if (parts.length < 4) return null;
+    const dd = parts.pop();
+    const mm = parts.pop();
+    const y = parts.pop();
+    const habitId = parts.join("-");
+    const month = parseInt(mm, 10) - 1;
+    const day = parseInt(dd, 10);
+    const year = parseInt(y, 10);
+    if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
+    return { habitId: habitId, y: year, m: month, d: day };
+  }
+
+  function purgeExcludedCellMarks(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    Object.keys(state.cells).forEach(function (k) {
+      if (k.indexOf(habitId + "-") !== 0) return;
+      const parsed = parseCellKeyDate(k);
+      if (parsed && isDayExcluded(habit, parsed.y, parsed.m, parsed.d)) {
+        delete state.cells[k];
+      }
+    });
+  }
+
+  function renderExcludeDaysHtml(habit) {
+    if (habit.type !== "yesno") return "";
+    const excluded = habit.excludeDays || [];
+    let html = '<div class="exclude-days-row"><span class="exclude-days-label">Skip days</span><div class="exclude-day-chips">';
+    WEEKDAY_LETTERS.forEach(function (letter, day) {
+      const on = excluded.indexOf(day) >= 0;
+      html +=
+        '<button type="button" class="exclude-day-chip' +
+        (on ? " on" : "") +
+        '" data-exclude-day="' +
+        escapeHtml(habit.id) +
+        '" data-weekday="' +
+        day +
+        '" aria-pressed="' +
+        on +
+        '">' +
+        letter +
+        "</button>";
+    });
+    html += '</div><p class="hint exclude-days-hint">Grey columns — not tracked (e.g. weekends for weekday shows).</p></div>';
+    return html;
+  }
+
+  function bindExcludeDays(root) {
+    if (!root) return;
+    root.querySelectorAll("[data-exclude-day]").forEach(function (btn) {
+      btn.onclick = function () {
+        const habit = state.habits.find(function (h) {
+          return h.id === btn.getAttribute("data-exclude-day");
+        });
+        if (!habit || habit.type !== "yesno") return;
+        const day = parseInt(btn.getAttribute("data-weekday"), 10);
+        if (!habit.excludeDays) habit.excludeDays = [];
+        const idx = habit.excludeDays.indexOf(day);
+        if (idx >= 0) habit.excludeDays.splice(idx, 1);
+        else habit.excludeDays.push(day);
+        habit.excludeDays = normalizeExcludeDays(habit.excludeDays);
+        purgeExcludedCellMarks(habit.id);
+        save();
+        render();
+      };
+    });
+  }
+
+  function renderHabitEditExcludeDays(habit) {
+    const wrap = document.getElementById("habitEditExcludeWrap");
+    const chips = document.getElementById("habitEditExcludeDays");
+    if (!wrap || !chips) return;
+    if (habit.type !== "yesno") {
+      wrap.hidden = true;
+      chips.innerHTML = "";
+      return;
+    }
+    wrap.hidden = false;
+    const excluded = habit.excludeDays || [];
+    chips.innerHTML = WEEKDAY_LETTERS.map(function (letter, day) {
+      const on = excluded.indexOf(day) >= 0;
+      return (
+        '<button type="button" class="exclude-day-chip' +
+        (on ? " on" : "") +
+        '" data-edit-exclude-day="' +
+        day +
+        '" aria-pressed="' +
+        on +
+        '">' +
+        letter +
+        "</button>"
+      );
+    }).join("");
+    chips.querySelectorAll("[data-edit-exclude-day]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!habitEditId) return;
+        const h = state.habits.find(function (x) { return x.id === habitEditId; });
+        if (!h || h.type !== "yesno") return;
+        const day = parseInt(btn.getAttribute("data-edit-exclude-day"), 10);
+        if (!h.excludeDays) h.excludeDays = [];
+        const idx = h.excludeDays.indexOf(day);
+        if (idx >= 0) h.excludeDays.splice(idx, 1);
+        else h.excludeDays.push(day);
+        h.excludeDays = normalizeExcludeDays(h.excludeDays);
+        renderHabitEditExcludeDays(h);
+      };
+    });
+  }
+
   function normalizeHabit(h, categories) {
     const base = {
       category: normalizeCategory(h.category, categories),
@@ -1406,6 +1596,7 @@
         category: base.category,
         pinned: base.pinned,
       };
+      if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
       return out;
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
@@ -1415,7 +1606,9 @@
       if (/yes|no|done|skip|miss|✓|✗/.test(blob)) type = "yesno";
     }
     if (/meditat|stretch|read|journal|floss|vitamin/i.test(name)) type = "yesno";
-    return { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
+    const out = { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
+    if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
+    return out;
   }
 
   function pruneUnmarkedMeditation() {
@@ -1612,6 +1805,7 @@
     } else {
       stepWrap.hidden = true;
     }
+    renderHabitEditExcludeDays(habit);
     document.getElementById("habitEditSheet").hidden = false;
     document.body.classList.add("habit-edit-open");
     document.getElementById("habitEditName").focus();
@@ -1639,6 +1833,10 @@
         MAX_STEP,
         Math.max(1, parseInt(document.getElementById("habitEditStep").value, 10) || 1)
       );
+    }
+    if (habit.type === "yesno") {
+      habit.excludeDays = normalizeExcludeDays(habit.excludeDays);
+      purgeExcludedCellMarks(habit.id);
     }
     if (!save()) return;
     const savedName = habit.name;
@@ -2070,7 +2268,7 @@
   function getAllTimeHigh(habitId) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return 0;
-    if (habit.type === "yesno") return 1;
+    if (habit.type === "yesno") return YESNO_PROGRESS;
     let max = 0;
     const prefix = habitId + "-";
     Object.keys(state.cells).forEach(function (k) {
@@ -2084,6 +2282,7 @@
   function valueToBucket(habit, value, high) {
     if (value === null || value === undefined) return 0;
     if (habit.type === "yesno") {
+      if (value === YESNO_PROGRESS) return 3;
       if (value >= 1) return 5;
       if (value === 0) return 2;
       return 0;
@@ -2096,12 +2295,25 @@
 
   function bucketThresholdLabel(habit, bucket, high) {
     if (bucket === 0) return "0";
-    if (habit.type === "yesno") return bucket >= 5 ? "Yes" : "No";
+    if (habit.type === "yesno") {
+      if (bucket >= 5) return "Yes";
+      if (bucket === 3) return "In progress";
+      return "No";
+    }
     if (!high) return String(bucket);
     return String(Math.round((high * bucket) / 5));
   }
 
-  function cellStyle(habit, value) {
+  function cellStyle(habit, value, y, m, d) {
+    if (habit.type === "yesno" && y != null && isDayExcluded(habit, y, m, d)) {
+      return "background:#d8d4cc;border-color:#c8c4bc;color:#a89e94";
+    }
+    if (habit.type === "yesno") {
+      if (value === YESNO_PROGRESS) return "background:#f5d76e;border-color:#e6c65c;color:#6b5a18";
+      if (value >= 1) return "background:" + GRADIENT[5] + ";border-color:transparent;color:#fff";
+      if (value === 0) return "background:" + GRADIENT[2] + ";border-color:transparent;color:var(--accent-dark)";
+      return "background:#fff;border-color:var(--border)";
+    }
     const high = getAllTimeHigh(habit.id);
     const b = valueToBucket(habit, value, high);
     let style = "background:" + GRADIENT[b] + ";border-color:" + (b === 0 ? "var(--border)" : "transparent");
@@ -2184,8 +2396,9 @@
   function cellDisplay(habit, value) {
     if (value === null || value === undefined) return { text: "", cls: "" };
     if (habit.type === "yesno") {
+      if (value === YESNO_PROGRESS) return { text: "◐", cls: "cell-progress" };
       if (value >= 1) return { text: "✓", cls: "cell-yes" };
-      if (value === 0) return { text: "✗", cls: "cell-yes" };
+      if (value === 0) return { text: "✗", cls: "cell-no" };
     }
     if (value > 0) return { text: formatCounterDisplay(value), cls: "cell-count" };
     return { text: "", cls: "" };
@@ -2208,22 +2421,35 @@
     const todayCls = isTodayColumn(y, mo, d) ? " col-today" : "";
     if (btn.classList.contains("cell-year-shade")) {
       btn.className = ("cell cell-year-shade" + todayCls).trim();
-      btn.style.cssText = cellStyle(habit, value);
+      btn.style.cssText = cellStyle(habit, value, y, mo, d);
       btn.textContent = "";
       btn.setAttribute("aria-label", habit.name + " " + (value != null ? value : "empty"));
       return;
     }
     const disp = cellDisplay(habit, value);
     btn.className = ("cell " + disp.cls + todayCls).trim();
-    btn.style.cssText = cellStyle(habit, value);
+    btn.style.cssText = cellStyle(habit, value, y, mo, d);
     btn.textContent = disp.text;
     btn.setAttribute("aria-label", habit.name + " " + (value != null ? value : "empty"));
   }
 
   function renderYearHeatmapCell(habit, y, m, d) {
-    const value = getCellValue(cellKey(habit.id, y, m, d));
     const dataKey = habit.id + "|" + y + "|" + m + "|" + d;
     const todayCls = isTodayColumn(y, m, d) ? " col-today" : "";
+    if (isDayExcluded(habit, y, m, d)) {
+      return (
+        '<button type="button" class="cell cell-year-shade cell-blocked' +
+        todayCls +
+        '" data-key="' +
+        dataKey +
+        '" disabled style="' +
+        cellStyle(habit, null, y, m, d) +
+        '" aria-label="' +
+        escapeHtml(habit.name) +
+        ' blocked"></button>'
+      );
+    }
+    const value = getCellValue(cellKey(habit.id, y, m, d));
     const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
     return (
       '<button type="button" class="cell cell-year-shade' +
@@ -2233,7 +2459,7 @@
       '"' +
       counterAttr +
       ' style="' +
-      cellStyle(habit, value) +
+      cellStyle(habit, value, y, m, d) +
       '" aria-label="' +
       escapeHtml(habit.name) +
       " " +
@@ -2353,10 +2579,12 @@
   function tapCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
+    if (isDayExcluded(habit, y, m, d)) return;
     const key = cellKey(habitId, y, m, d);
     const v = getCellValue(key);
     if (habit.type === "yesno") {
-      if (v === null) state.cells[key] = 1;
+      if (v === null) state.cells[key] = YESNO_PROGRESS;
+      else if (v === YESNO_PROGRESS) state.cells[key] = 1;
       else if (v === 1) state.cells[key] = 0;
       else delete state.cells[key];
     } else {
@@ -2370,11 +2598,13 @@
   function eraseCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
+    if (isDayExcluded(habit, y, m, d)) return;
     const key = cellKey(habitId, y, m, d);
     const v = getCellValue(key);
     if (v === null) return;
     if (habit.type === "yesno") {
-      if (v === 1) state.cells[key] = 0;
+      if (v === 0) state.cells[key] = 1;
+      else if (v === 1) state.cells[key] = YESNO_PROGRESS;
       else delete state.cells[key];
     } else {
       const step = habit.step || 1;
@@ -2451,8 +2681,16 @@
 
   function renderLegendCompact(habit) {
     const high = Math.max(getAllTimeHigh(habit.id), habit.type === "counter" ? (habit.step || 1) : 1);
-    const buckets = habit.type === "yesno" ? [0, 2, 5] : [0, 3, 5];
     let html = '<div class="legend-scale legend-compact">';
+    if (habit.type === "yesno") {
+      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:#d8d4cc"></span><span>Skip</span></div>';
+      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:#f5d76e"></span><span>In progress</span></div>';
+      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:' + GRADIENT[5] + '"></span><span>Yes</span></div>';
+      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:' + GRADIENT[2] + '"></span><span>No</span></div>';
+      html += "</div>";
+      return html;
+    }
+    const buckets = [0, 3, 5];
     buckets.forEach(function (b) {
       html += '<div class="legend-item-compact">';
       html += '<span class="legend-swatch" style="background:' + GRADIENT[b] + '"></span>';
@@ -2473,21 +2711,35 @@
     if (habit.type === "counter") {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Mark: tap +step. Eraser or hold: -step</p>";
     } else {
-      html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap: empty, Yes, No, clear. Eraser steps back.</p>";
+      html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap: empty → In progress → Yes → No → clear. Eraser steps back.</p>";
     }
     return html;
   }
 
   function renderCellButton(habit, y, m, d, extraClass) {
     const key = cellKey(habit.id, y, m, d);
-    const value = getCellValue(key);
-    const disp = cellDisplay(habit, value);
     const dataKey = habit.id + "|" + y + "|" + m + "|" + d;
     const todayCls = isTodayColumn(y, m, d) ? " col-today" : "";
+    if (isDayExcluded(habit, y, m, d)) {
+      return (
+        '<button type="button" class="cell cell-blocked' +
+        todayCls +
+        (extraClass ? " " + extraClass : "") +
+        '" data-key="' +
+        dataKey +
+        '" disabled style="' +
+        cellStyle(habit, null, y, m, d) +
+        '" aria-label="' +
+        escapeHtml(habit.name) +
+        ' blocked"></button>'
+      );
+    }
+    const value = getCellValue(key);
+    const disp = cellDisplay(habit, value);
     const cls = "cell " + disp.cls + todayCls + (extraClass || "");
     const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
     return (
-      '<button type="button" class="' + cls.trim() + '" data-key="' + dataKey + '"' + counterAttr + ' style="' + cellStyle(habit, value) + '" aria-label="' +
+      '<button type="button" class="' + cls.trim() + '" data-key="' + dataKey + '"' + counterAttr + ' style="' + cellStyle(habit, value, y, m, d) + '" aria-label="' +
       escapeHtml(habit.name) + " " + (value != null ? value : "empty") + '">' + escapeHtml(disp.text) + "</button>"
     );
   }
@@ -2498,6 +2750,7 @@
       let held = false;
       btn.onclick = function () {
         if (held) { held = false; return; }
+        if (btn.disabled || btn.classList.contains("cell-blocked")) return;
         const p = btn.dataset.key.split("|");
         if (eraserMode) eraseCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
         else tapCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
@@ -2728,12 +2981,16 @@
           html +=
             '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
         }
+      } else {
+        html += renderExcludeDaysHtml(habit);
       }
       html += '<div class="legend">' + renderLegend(habit) + "</div>";
       html += "</div></div>";
     });
 
     root.innerHTML = html;
+
+    bindExcludeDays(root);
 
     document.getElementById("habitsCatToggle").onclick = function () {
       habitsCatPanelOpen = !habitsCatPanelOpen;
@@ -2856,7 +3113,12 @@
         const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
         if (!h) return;
         h.type = btn.dataset.type;
-        if (h.type === "counter" && !h.step) h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
+        if (h.type === "counter") {
+          if (!h.step) h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
+          delete h.excludeDays;
+        } else if (h.type === "yesno") {
+          if (!h.excludeDays) h.excludeDays = [];
+        }
         save(); render();
       };
     });

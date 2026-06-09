@@ -54,8 +54,10 @@
       if (parsed && Array.isArray(parsed.volumes)) {
         state.volumes = parsed.volumes;
         state.seriesMeta = parsed.seriesMeta || {};
+        migrateSeriesMetaKeys();
         loadSettings(parsed);
       } else if (migrateMediaShelfV2(parsed)) {
+        migrateSeriesMetaKeys();
         loadSettings(parsed);
         save();
       } else {
@@ -66,13 +68,50 @@
     }
   }
 
+  function seriesKey(name) {
+    return normalize(name);
+  }
+
+  function getSeriesMeta(series) {
+    if (!series) return null;
+    if (state.seriesMeta[series]) return state.seriesMeta[series];
+    var key = seriesKey(series);
+    if (state.seriesMeta[key]) return state.seriesMeta[key];
+    return null;
+  }
+
+  function setSeriesMeta(title, data) {
+    var key = seriesKey(title);
+    Object.keys(state.seriesMeta).forEach(function (k) {
+      if (k !== key && seriesKey(k) === key) delete state.seriesMeta[k];
+    });
+    state.seriesMeta[key] = Object.assign({ displayTitle: title }, data || {});
+  }
+
+  function migrateSeriesMetaKeys() {
+    var next = {};
+    Object.keys(state.seriesMeta).forEach(function (k) {
+      var entry = state.seriesMeta[k];
+      var title = (entry && entry.displayTitle) || k;
+      var key = seriesKey(title);
+      next[key] = Object.assign({ displayTitle: title }, entry || {});
+    });
+    state.seriesMeta = next;
+  }
+
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      version: 1,
-      volumes: state.volumes,
-      seriesMeta: state.seriesMeta,
-      settings: state.settings,
-    }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        version: 1,
+        volumes: state.volumes,
+        seriesMeta: state.seriesMeta,
+        settings: state.settings,
+      }));
+      return true;
+    } catch (e) {
+      toast("Could not save — storage may be full. Export a backup and free space.");
+      return false;
+    }
   }
 
   function normalize(s) {
@@ -231,6 +270,11 @@
     state.volumes.forEach(function (v) {
       if (v.series) names[v.series] = true;
     });
+    Object.keys(state.seriesMeta).forEach(function (k) {
+      var meta = state.seriesMeta[k];
+      var label = (meta && meta.displayTitle) || k;
+      if (label) names[label] = true;
+    });
     return Object.keys(names).sort(function (a, b) { return a.localeCompare(b); });
   }
 
@@ -270,7 +314,7 @@
     });
     var keys = Object.keys(owned).map(Number).filter(function (n) { return !isNaN(n); });
     var maxOwned = keys.length ? Math.max.apply(null, keys) : 0;
-    var meta = state.seriesMeta[normalize(series)] || state.seriesMeta[series];
+    var meta = getSeriesMeta(series);
     var metaTotal = meta && meta.totalVolumes ? meta.totalVolumes : 0;
     var maxVol = Math.max(
       state.settings.matrixMaxVol || 50,
@@ -443,17 +487,33 @@
     var grouped = groupBySeries(volumes);
     var keys = Object.keys(grouped).sort(function (a, b) { return a.localeCompare(b); });
     var container = $("library-list");
+    var trackedOnly = [];
 
-    $("library-count").textContent = volumes.length + " volume" + (volumes.length === 1 ? "" : "s");
+    if (!statusFilter) {
+      Object.keys(state.seriesMeta).forEach(function (k) {
+        var meta = state.seriesMeta[k];
+        var label = (meta && meta.displayTitle) || k;
+        if (!label) return;
+        if (keys.some(function (k) { return seriesKey(k) === seriesKey(label); })) return;
+        if (q && normalize(label).indexOf(q) < 0) return;
+        trackedOnly.push({ label: label, meta: meta });
+      });
+    }
+    trackedOnly.sort(function (a, b) { return a.label.localeCompare(b.label); });
 
-    if (!keys.length) {
-      container.innerHTML = '<div class="empty-state"><p>Your library is empty.</p><p class="hint">Add volumes or bulk-import filenames from your e-reader.</p></div>';
+    var trackedCount = Object.keys(state.seriesMeta).length;
+    $("library-count").textContent =
+      volumes.length + " volume" + (volumes.length === 1 ? "" : "s") +
+      (trackedCount ? " · " + trackedCount + " series tracked" : "");
+
+    if (!keys.length && !trackedOnly.length) {
+      container.innerHTML = '<div class="empty-state"><p>Your library is empty.</p><p class="hint">Use Lookup to find a series, tap <strong>Add to library</strong>, or add volumes from Search.</p></div>';
       return;
     }
 
-    container.innerHTML = keys.map(function (series) {
+    var html = keys.map(function (series) {
       var vols = grouped[series];
-      var meta = state.seriesMeta[series];
+      var meta = getSeriesMeta(series);
       var metaLine = meta && meta.totalVolumes ? ' <span class="series-meta">' + vols.length + "/" + meta.totalVolumes + " vols</span>" : "";
       return (
         '<section class="series-group">' +
@@ -472,10 +532,30 @@
       );
     }).join("");
 
+    html += trackedOnly.map(function (row) {
+      var metaLine = row.meta && row.meta.totalVolumes
+        ? ' <span class="series-meta">0/' + row.meta.totalVolumes + " vols</span>"
+        : ' <span class="series-meta">tracked</span>';
+      return (
+        '<section class="series-group series-tracked">' +
+          '<h3 class="series-name">' + escapeHtml(row.label) + metaLine + "</h3>" +
+          '<p class="hint series-tracked-hint">No volumes yet — add one to fill your shelf.</p>' +
+          '<button type="button" class="btn btn-primary btn-sm" data-library-add="' + escapeAttr(row.label) + '">Add volume</button>' +
+        "</section>"
+      );
+    }).join("");
+
+    container.innerHTML = html;
+
     container.querySelectorAll(".vol-pill").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var vol = state.volumes.find(function (v) { return v.id === btn.dataset.id; });
         if (vol) showVolumeDetail(vol);
+      });
+    });
+    container.querySelectorAll("[data-library-add]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        openAddForm({ series: btn.dataset.libraryAdd, status: "have" });
       });
     });
   }
@@ -535,7 +615,16 @@
     $("form-path").value = "";
     $("form-notes").value = "";
     $("form-overlay").hidden = false;
-    $("form-series").focus();
+    var seriesInput = $("form-series");
+    if (seriesInput) {
+      setTimeout(function () {
+        try {
+          seriesInput.focus({ preventScroll: true });
+        } catch (e) {
+          seriesInput.focus();
+        }
+      }, 50);
+    }
   }
 
   function openEditForm(vol) {
@@ -590,7 +679,7 @@
       }
     }
 
-    save();
+    if (!save()) return;
     closeForm();
     toast("Saved");
     refreshMatrixSeriesOptions();
@@ -687,30 +776,36 @@
               ? '<span class="lookup-alt">' + escapeHtml(m.title.romaji) + "</span>" : "") +
             '<span class="lookup-meta">' + escapeHtml(volInfo) + " · " + escapeHtml(m.status || "") + "</span>" +
             '<div class="lookup-actions">' +
-              '<button type="button" class="btn btn-primary btn-sm" data-action="save-meta" data-title="' + escapeAttr(title) + '" data-volumes="' + (m.volumes || "") + '">Save series info</button>' +
-              '<button type="button" class="btn btn-ghost btn-sm" data-action="add-vol" data-title="' + escapeAttr(title) + '">Add volume</button>' +
+              '<button type="button" class="btn btn-primary btn-sm" data-action="add-library" data-title="' + escapeAttr(title) + '" data-volumes="' + (m.volumes || "") + '">Add to library</button>' +
+              '<button type="button" class="btn btn-ghost btn-sm" data-action="track-meta" data-title="' + escapeAttr(title) + '" data-volumes="' + (m.volumes || "") + '">Track only</button>' +
               '<a class="btn btn-ghost btn-sm" href="https://www.amazon.com/s?k=' + encodeURIComponent(title + " manga volume") + '" target="_blank" rel="noopener">Shop</a>' +
             "</div></div></article>"
       );
     }).join("");
+  }
 
-    container.querySelectorAll("[data-action]").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        var title = btn.dataset.title;
-        if (btn.dataset.action === "save-meta") {
-          state.seriesMeta[title] = {
-            totalVolumes: btn.dataset.volumes ? parseInt(btn.dataset.volumes, 10) : null,
-            anilistId: btn.closest(".lookup-card").dataset.id,
-          };
-          save();
-          toast("Saved info for " + title);
-        }
-        if (btn.dataset.action === "add-vol") {
-          openAddForm({ series: title });
-          setView("search");
-        }
+  function handleLookupAction(btn) {
+    var title = btn.dataset.title;
+    if (!title) return;
+    var card = btn.closest(".lookup-card");
+    var volumes = btn.dataset.volumes ? parseInt(btn.dataset.volumes, 10) : null;
+    if (btn.dataset.action === "track-meta" || btn.dataset.action === "add-library") {
+      setSeriesMeta(title, {
+        totalVolumes: volumes && !isNaN(volumes) ? volumes : null,
+        anilistId: card ? card.dataset.id : null,
       });
-    });
+      if (!save()) return;
+      renderLibrary();
+      renderMissing();
+      if (btn.dataset.action === "track-meta") {
+        toast("Tracked " + title + (volumes ? " · " + volumes + " vols" : ""));
+        return;
+      }
+    }
+    if (btn.dataset.action === "add-library") {
+      toast("Added " + title + " — pick a volume");
+      openAddForm({ series: title, status: "have" });
+    }
   }
 
   function runLookup() {
@@ -790,7 +885,7 @@
     var groups = groupBySeries(state.volumes.filter(function (v) { return v.status === "have"; }));
     var missing = [];
     Object.keys(groups).forEach(function (series) {
-      var meta = state.seriesMeta[series];
+      var meta = getSeriesMeta(series);
       if (!meta || !meta.totalVolumes) return;
       var have = {};
       groups[series].forEach(function (v) { have[v.volume] = true; });
@@ -878,6 +973,12 @@
     $("lookup-btn").addEventListener("click", runLookup);
     $("lookup-input").addEventListener("keydown", function (e) {
       if (e.key === "Enter") runLookup();
+    });
+    $("lookup-results").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-action]");
+      if (!btn || !$("lookup-results").contains(btn)) return;
+      e.preventDefault();
+      handleLookupAction(btn);
     });
 
     $("export-btn").addEventListener("click", exportData);

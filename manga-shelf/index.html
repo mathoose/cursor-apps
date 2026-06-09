@@ -215,6 +215,8 @@
       color: var(--text);
     }
     .series-meta { font-weight: 400; color: var(--text-faint); font-size: 0.82rem; }
+    .series-tracked { padding-bottom: 4px; }
+    .series-tracked-hint { margin: 0 0 10px; font-size: 0.82rem; }
     .series-vols { display: flex; flex-wrap: wrap; gap: 6px; }
     .vol-pill {
       display: inline-flex;
@@ -559,7 +561,7 @@
         <input type="search" id="lookup-input" placeholder="Look up series on AniList…" autocomplete="off" />
         <button type="button" class="btn btn-primary" id="lookup-btn">Go</button>
       </div>
-      <p class="hint" style="margin:0 0 12px 4px">Confirm titles, see total volumes, and get shop links.</p>
+      <p class="hint" style="margin:0 0 12px 4px">Tap <strong>Add to library</strong> to track a series and add your first volume. <strong>Track only</strong> saves the title and volume count without opening the form.</p>
       <div id="lookup-results"></div>
     </section>
   </main>
