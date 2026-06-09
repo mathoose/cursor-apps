@@ -1,0 +1,34 @@
+{
+  "builtAt": "2026-06-09T02:46:11.263Z",
+  "sources": [
+    {
+      "name": "Bolts / What's on the Ballot",
+      "url": "https://boltsmag.org/whats-on-the-ballot/"
+    },
+    {
+      "name": "The Downballot",
+      "url": "https://www.the-downballot.com/p/data"
+    },
+    {
+      "name": "unitedstates/congress-legislators",
+      "url": "https://github.com/unitedstates/congress-legislators"
+    },
+    {
+      "name": "JeffreyBLewis/congressional-district-boundaries",
+      "url": "https://github.com/JeffreyBLewis/congressional-district-boundaries"
+    },
+    {
+      "name": "U.S. Census / us-atlas",
+      "url": "https://github.com/topojson/us-atlas"
+    }
+  ],
+  "houseCount": 436,
+  "senateCount": 100,
+  "presYears": [
+    2008,
+    2012,
+    2016,
+    2020,
+    2024
+  ]
+}

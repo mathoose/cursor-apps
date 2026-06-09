@@ -183,6 +183,58 @@
         return fav + " favorite" + (fav === 1 ? "" : "s");
       },
     },
+    "dont-forget": {
+      storageKey: "dont-forget-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("dont-forget-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.items)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.items)) return false;
+        return writeKey("dont-forget-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.items) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.items ? slice.items.length : 0;
+        return n + " item" + (n === 1 ? "" : "s") + " (no photos)";
+      },
+    },
+    "rep-tracker": {
+      storageKey: "rep-tracker-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("rep-tracker-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object") return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice !== "object") return false;
+        return writeKey("rep-tracker-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && obj.notes && typeof obj.notes === "object" && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.notes ? Object.keys(slice.notes).length : 0;
+        return n + " note" + (n === 1 ? "" : "s");
+      },
+    },
   };
 
   /** Packing list only — wardrobe photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
@@ -262,7 +314,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1"],
       apps: apps,
       _meta: { included: included },
     };

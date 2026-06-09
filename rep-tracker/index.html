@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Rep Tracker</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Rep Tracker" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1a365d" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>Rep Tracker</h1>
+        <p class="sub" id="section-sub">U.S. House &amp; Senate</p>
+      </div>
+      <button type="button" class="btn btn-icon" id="export-btn" title="Export notes">Export</button>
+    </div>
+
+    <div class="chamber-row" role="tablist" aria-label="Chamber">
+      <button type="button" class="chip chamber-chip active" data-chamber="house" role="tab" aria-selected="true">House</button>
+      <button type="button" class="chip chamber-chip" data-chamber="senate" role="tab" aria-selected="false">Senate</button>
+    </div>
+
+    <div class="search-row">
+      <input type="search" id="search" placeholder="Search name, state, or district (e.g. PA-07)…" autocomplete="off" enterkeyhint="search" />
+      <button type="button" class="btn btn-secondary btn-locate" id="locate-btn" title="Find my district">Locate</button>
+    </div>
+
+    <div class="filter-row">
+      <label class="filter-label">State
+        <select id="filter-state"><option value="">All states</option></select>
+      </label>
+      <div class="party-filters" id="party-filters" role="group" aria-label="Party">
+        <button type="button" class="chip party-chip active" data-party="">All</button>
+        <button type="button" class="chip party-chip" data-party="D">D</button>
+        <button type="button" class="chip party-chip" data-party="R">R</button>
+        <button type="button" class="chip party-chip" data-party="I">I</button>
+      </div>
+    </div>
+
+    <div class="filter-row filter-row-advanced">
+      <label class="filter-label">Pres. year
+        <select id="filter-pres-year">
+          <option value="2024">2024</option>
+          <option value="2020">2020</option>
+          <option value="2016">2016</option>
+          <option value="2012">2012</option>
+          <option value="2008">2008</option>
+        </select>
+      </label>
+      <label class="filter-label">Pres. margin
+        <span class="range-val" id="pres-range-val">−30 to +30</span>
+        <input type="range" id="pres-min" min="-30" max="30" value="-30" />
+        <input type="range" id="pres-max" min="-30" max="30" value="30" />
+      </label>
+      <label class="filter-label">Over/under
+        <span class="range-val" id="ou-range-val">−30 to +30</span>
+        <input type="range" id="ou-min" min="-30" max="30" value="-30" />
+        <input type="range" id="ou-max" min="-30" max="30" value="30" />
+      </label>
+      <label class="filter-toggle">
+        <input type="checkbox" id="filter-bolts" /> Bolts watch
+      </label>
+    </div>
+
+    <div class="view-row" role="tablist" aria-label="View">
+      <button type="button" class="chip view-chip active" data-view="split" role="tab">Map + List</button>
+      <button type="button" class="chip view-chip" data-view="map" role="tab">Map</button>
+      <button type="button" class="chip view-chip" data-view="list" role="tab">List</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div id="status" class="status" hidden></div>
+    <div class="workspace" id="workspace">
+      <section class="map-panel" id="map-panel" aria-label="Map">
+        <div id="map"></div>
+        <div class="map-legend" id="map-legend"></div>
+      </section>
+      <section class="list-panel" id="list-panel" aria-label="Members">
+        <p class="list-meta" id="list-meta"></p>
+        <ul class="member-list" id="member-list"></ul>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Data: <a href="https://boltsmag.org/whats-on-the-ballot/" target="_blank" rel="noopener">Bolts</a> ·
+      <a href="https://www.the-downballot.com/p/data" target="_blank" rel="noopener">The Downballot</a> ·
+      <a href="https://github.com/unitedstates/congress-legislators" target="_blank" rel="noopener">congress-legislators</a> ·
+      Census boundaries</p>
+    <p class="footer-meta" id="footer-meta"></p>
+  </footer>
+
+  <dialog class="modal" id="detail-modal">
+    <div class="modal-inner">
+      <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
+      <div id="modal-content"></div>
+    </div>
+  </dialog>
+
+  <input type="file" id="import-file" accept="application/json,.json" hidden />
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="../apps-backup.js"></script>
+  <script src="app.js?v=1" defer></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

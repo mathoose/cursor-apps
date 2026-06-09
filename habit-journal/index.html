@@ -873,8 +873,9 @@
       -webkit-appearance: none;
     }
     #panelYear .year-gallery-heatmap .cell.cell-pad {
-      background: #fff;
-      opacity: 1;
+      background: #d8d4cc !important;
+      border-color: #c8c4bc !important;
+      opacity: 0.85;
     }
     .year-fs-cells .cell,
     .year-fs-cells .cell.cell-year-shade,
@@ -899,9 +900,11 @@
       -webkit-appearance: none;
     }
     .year-fs-cells .cell.cell-pad {
-      background: #fff;
-      opacity: 1;
+      background: #d8d4cc !important;
+      border-color: #c8c4bc !important;
+      opacity: 0.85;
       pointer-events: none;
+      cursor: default;
     }
     .year-fs-cells .cell.col-today {
       box-shadow: inset 0 0 0 2px var(--accent);
@@ -2497,7 +2500,7 @@
       for (let m = 0; m < 12; m++) {
         const dim = daysInMonth(state.year, m);
         if (d > dim) {
-          html += '<span class="cell cell-pad" aria-hidden="true"></span>';
+          html += '<span class="cell cell-pad cell-invalid" aria-hidden="true"></span>';
         } else {
           html += renderYearHeatmapCell(habit, state.year, m, d);
         }

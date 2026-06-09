@@ -1,0 +1,194 @@
+{
+  "WA": {
+    "demPct": 59.09,
+    "repPct": 40.64,
+    "margin": 18.5,
+    "winnerParty": "D"
+  },
+  "MN": {
+    "demPct": 56.2,
+    "repPct": 40.5,
+    "margin": 15.7,
+    "winnerParty": "D"
+  },
+  "VT": {
+    "demPct": 32.07,
+    "repPct": 63.16,
+    "margin": -31.1,
+    "winnerParty": "R"
+  },
+  "RI": {
+    "demPct": 59.9,
+    "repPct": 39.85,
+    "margin": 20,
+    "winnerParty": "D"
+  },
+  "WY": {
+    "demPct": 24.12,
+    "repPct": 75.11,
+    "margin": -51,
+    "winnerParty": "R"
+  },
+  "MS": {
+    "demPct": 37.19,
+    "repPct": 62.81,
+    "margin": -25.6,
+    "winnerParty": "R"
+  },
+  "ME": {
+    "demPct": 34.64,
+    "repPct": 52.06,
+    "margin": -17.4,
+    "winnerParty": "R"
+  },
+  "TX": {
+    "demPct": 44.56,
+    "repPct": 53.05,
+    "margin": -8.5,
+    "winnerParty": "R"
+  },
+  "VA": {
+    "demPct": 54.37,
+    "repPct": 45.44,
+    "margin": 8.9,
+    "winnerParty": "D"
+  },
+  "NY": {
+    "demPct": 58.91,
+    "repPct": 40.59,
+    "margin": 18.3,
+    "winnerParty": "D"
+  },
+  "DE": {
+    "demPct": 56.59,
+    "repPct": 39.5,
+    "margin": 17.1,
+    "winnerParty": "D"
+  },
+  "WI": {
+    "demPct": 49.33,
+    "repPct": 48.48,
+    "margin": 0.9,
+    "winnerParty": "D"
+  },
+  "TN": {
+    "demPct": 34.16,
+    "repPct": 63.8,
+    "margin": -29.6,
+    "winnerParty": "R"
+  },
+  "CT": {
+    "demPct": 58.58,
+    "repPct": 39.7,
+    "margin": 18.9,
+    "winnerParty": "D"
+  },
+  "WV": {
+    "demPct": 27.76,
+    "repPct": 68.75,
+    "margin": -41,
+    "winnerParty": "R"
+  },
+  "NM": {
+    "demPct": 55.06,
+    "repPct": 44.94,
+    "margin": 10.1,
+    "winnerParty": "D"
+  },
+  "HI": {
+    "demPct": 64.61,
+    "repPct": 31.9,
+    "margin": 32.7,
+    "winnerParty": "D"
+  },
+  "ND": {
+    "demPct": 33.38,
+    "repPct": 66.31,
+    "margin": -32.9,
+    "winnerParty": "R"
+  },
+  "UT": {
+    "demPct": 31.74,
+    "repPct": 62.5,
+    "margin": -30.8,
+    "winnerParty": "R"
+  },
+  "MA": {
+    "demPct": 59.81,
+    "repPct": 40,
+    "margin": 19.8,
+    "winnerParty": "D"
+  },
+  "MI": {
+    "demPct": 48.64,
+    "repPct": 48.3,
+    "margin": 0.3,
+    "winnerParty": "D"
+  },
+  "MD": {
+    "demPct": 54.64,
+    "repPct": 42.84,
+    "margin": 11.8,
+    "winnerParty": "D"
+  },
+  "IN": {
+    "demPct": 38.77,
+    "repPct": 58.64,
+    "margin": -19.9,
+    "winnerParty": "R"
+  },
+  "MT": {
+    "demPct": 45.5,
+    "repPct": 52.64,
+    "margin": -7.1,
+    "winnerParty": "R"
+  },
+  "NE": {
+    "demPct": 46.52,
+    "repPct": 53.19,
+    "margin": -6.7,
+    "winnerParty": "R"
+  },
+  "NJ": {
+    "demPct": 53.61,
+    "repPct": 43.99,
+    "margin": 9.6,
+    "winnerParty": "D"
+  },
+  "AZ": {
+    "demPct": 50.06,
+    "repPct": 47.65,
+    "margin": 2.4,
+    "winnerParty": "D"
+  },
+  "NV": {
+    "demPct": 47.87,
+    "repPct": 46.22,
+    "margin": 1.6,
+    "winnerParty": "D"
+  },
+  "FL": {
+    "demPct": 42.79,
+    "repPct": 55.57,
+    "margin": -12.8,
+    "winnerParty": "R"
+  },
+  "MO": {
+    "demPct": 41.84,
+    "repPct": 55.57,
+    "margin": -13.7,
+    "winnerParty": "R"
+  },
+  "PA": {
+    "demPct": 48.6,
+    "repPct": 48.82,
+    "margin": -0.2,
+    "winnerParty": "R"
+  },
+  "OH": {
+    "demPct": 46.47,
+    "repPct": 50.09,
+    "margin": -3.6,
+    "winnerParty": "R"
+  }
+}

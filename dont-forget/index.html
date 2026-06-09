@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Don't Forget</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Don't Forget" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#d97706" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-store">
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-title-block">
+        <h1 class="view-title" id="headerTitle">Don't Forget</h1>
+        <p class="view-subtitle" id="headerSubtitle">Snap where you left it</p>
+      </div>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+    <div class="find-search-wrap" id="findSearchWrap">
+      <input type="search" class="find-search" id="findSearch" placeholder="What are you looking for?" autocomplete="off" enterkeyhint="search" />
+    </div>
+  </header>
+
+  <main>
+    <!-- Store tab -->
+    <section class="view active" id="viewStore" data-view="store">
+      <div class="store-hero">
+        <button type="button" class="snap-btn" id="snapBtn">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span class="snap-btn-label">Snap where I left it</span>
+          <span class="snap-btn-hint">Photo → what → where → done</span>
+        </button>
+      </div>
+      <p class="section-label">Recent</p>
+      <div class="item-list" id="storeRecentList"></div>
+      <div class="empty-state" id="storeEmpty" hidden>
+        <p>Nothing saved yet.<br />Tap the button above to log your first item.</p>
+      </div>
+    </section>
+
+    <!-- Find tab -->
+    <section class="view" id="viewFind" data-view="find">
+      <p class="section-label" id="findListLabel">Recent</p>
+      <div class="item-list" id="findList"></div>
+      <div class="empty-state" id="findEmpty" hidden>
+        <p id="findEmptyText">No items yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="store" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span class="nav-btn-label">Store</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="find" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <span class="nav-btn-label">Find</span>
+    </button>
+  </nav>
+
+  <!-- Hidden camera input -->
+  <input type="file" id="cameraInput" accept="image/*,.heic,.heif" capture="environment" hidden />
+
+  <!-- Save sheet -->
+  <div class="overlay" id="saveOverlay" role="dialog" aria-modal="true" aria-labelledby="saveSheetTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="saveSheetTitle">What did you leave?</h2>
+      <img class="sheet-photo" id="savePhotoPreview" alt="Preview" hidden />
+      <div class="field">
+        <label class="field-label" for="saveWhat">What?</label>
+        <input type="text" id="saveWhat" placeholder="e.g. AirPods, keys, wallet" autocomplete="off" enterkeyhint="next" list="nameSuggestions" />
+        <datalist id="nameSuggestions"></datalist>
+      </div>
+      <div class="field">
+        <label class="field-label" for="saveWhere">Where?</label>
+        <input type="text" id="saveWhere" placeholder="e.g. Bedroom desk, kitchen counter" autocomplete="off" enterkeyhint="done" list="locationSuggestions" />
+        <datalist id="locationSuggestions"></datalist>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="saveCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="saveBtn" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail overlay -->
+  <div class="overlay detail-overlay" id="detailOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="detail-panel">
+      <div class="detail-header">
+        <button type="button" class="icon-btn" id="detailCloseBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <span style="width:44px"></span>
+      </div>
+      <div class="detail-photo-wrap" id="detailPhotoWrap">
+        <span class="detail-photo-loading">Loading photo…</span>
+      </div>
+      <div class="detail-body">
+        <div class="detail-badges" id="detailBadges"></div>
+        <div class="detail-actions">
+          <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
+          <button type="button" class="btn btn-secondary" id="detailCloseBtn2">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings sheet -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>Data</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Photos</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportPhotosBtn">Export photos (ZIP)</button>
+          <label class="btn btn-secondary import-label">
+            Import photos (ZIP)
+            <input type="file" id="importPhotosFile" accept=".zip,application/zip" />
+          </label>
+        </div>
+        <p class="settings-note">Photos stay on this device only — not included in Export all on the Apps home screen.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
