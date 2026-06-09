@@ -56,41 +56,6 @@
         return (slice.habits ? slice.habits.length : 0) + " habits, " + marks + " marks";
       },
     },
-    "voice-notes": {
-      storageKey: "voice-notes-v1",
-      legacyKeys: [],
-      readSlice: function () {
-        var raw = readKey("voice-notes-v1");
-        if (!raw) return null;
-        try {
-          var p = JSON.parse(raw);
-          var notes = Array.isArray(p) ? p : (p && Array.isArray(p.notes) ? p.notes : null);
-          if (!notes) return null;
-          return { notes: notes };
-        } catch (e) {
-          return null;
-        }
-      },
-      writeSlice: function (slice) {
-        var notes = Array.isArray(slice) ? slice : (slice && slice.notes);
-        if (!Array.isArray(notes)) return false;
-        var ok = writeKey("voice-notes-v1", JSON.stringify(notes));
-        if (ok) {
-          try {
-            sessionStorage.setItem("voice-notes-v1-backup", JSON.stringify(notes));
-          } catch (e) { /* ok */ }
-        }
-        return ok;
-      },
-      isLegacy: function (obj) {
-        if (Array.isArray(obj)) return true;
-        return obj && Array.isArray(obj.notes) && obj.format !== FORMAT;
-      },
-      summarize: function (slice) {
-        var n = Array.isArray(slice) ? slice.length : (slice.notes ? slice.notes.length : 0);
-        return n + " note" + (n === 1 ? "" : "s");
-      },
-    },
     "adhd-task-tracker": {
       storageKey: "adhd-tracker-v1",
       legacyKeys: [],
@@ -185,64 +150,6 @@
         var n = slice.entries ? slice.entries.length : 0;
         var fav = slice.entries ? slice.entries.filter(function (e) { return e.favorite; }).length : 0;
         return n + " meal" + (n === 1 ? "" : "s") + (fav ? ", " + fav + " favorites" : "");
-      },
-    },
-    "manga-shelf": {
-      storageKey: "manga-shelf-v1",
-      legacyKeys: [],
-      readSlice: function () {
-        var raw = readKey("manga-shelf-v1");
-        if (!raw) return null;
-        try {
-          var p = JSON.parse(raw);
-          if (!p) return null;
-          if (Array.isArray(p.items)) {
-            return { version: 2, items: p.items, seriesMeta: p.seriesMeta || {} };
-          }
-          if (Array.isArray(p.volumes)) {
-            return {
-              version: 1,
-              volumes: p.volumes,
-              seriesMeta: p.seriesMeta || {},
-              settings: p.settings || {},
-            };
-          }
-          return null;
-        } catch (e) {
-          return null;
-        }
-      },
-      writeSlice: function (slice) {
-        if (!slice) return false;
-        if (Array.isArray(slice.items)) {
-          return writeKey("manga-shelf-v1", JSON.stringify({
-            version: 2,
-            items: slice.items,
-            seriesMeta: slice.seriesMeta || {},
-          }));
-        }
-        if (Array.isArray(slice.volumes)) {
-          return writeKey("manga-shelf-v1", JSON.stringify({
-            version: 1,
-            volumes: slice.volumes,
-            seriesMeta: slice.seriesMeta || {},
-            settings: slice.settings || {},
-          }));
-        }
-        return false;
-      },
-      isLegacy: function (obj) {
-        return obj && (Array.isArray(obj.volumes) || Array.isArray(obj.items)) &&
-          obj.format !== FORMAT && obj.format !== "manga-shelf";
-      },
-      summarize: function (slice) {
-        if (Array.isArray(slice.items)) {
-          var shows = slice.items.filter(function (i) { return i.kind === "show"; }).length;
-          var manga = slice.items.filter(function (i) { return i.kind === "manga"; }).length;
-          return slice.items.length + " titles (" + shows + " shows, " + manga + " manga)";
-        }
-        var n = slice.volumes ? slice.volumes.length : 0;
-        return n + " manga volume" + (n === 1 ? "" : "s");
       },
     },
     "philly-dates": {

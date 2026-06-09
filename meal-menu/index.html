@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="top">
@@ -77,6 +77,44 @@
         <div class="category-panels" id="category-panels"></div>
       </section>
 
+      <section class="panel" id="panel-ate" data-panel="ate" hidden>
+        <div class="card ate-log-card">
+          <h2 class="serif">What'd you eat?</h2>
+          <div class="ate-segments" id="ate-segments" role="group" aria-label="Log type">
+            <button type="button" class="ate-seg on" data-ate-mode="menu">From menu</button>
+            <button type="button" class="ate-seg" data-ate-mode="take-out">Take out</button>
+            <button type="button" class="ate-seg" data-ate-mode="eat-out">Eat out</button>
+          </div>
+          <label class="pick-label" for="ate-date">Date</label>
+          <input type="date" id="ate-date" />
+          <div id="ate-form-menu">
+            <label class="pick-label" for="ate-menu-category">Category</label>
+            <select id="ate-menu-category"></select>
+            <p class="pick-label">Tags <span class="hint">(optional)</span></p>
+            <div class="picker-tag-chips" id="ate-tag-chips" role="group"></div>
+            <label class="pick-fav"><input type="checkbox" id="ate-favorites-only" /> Favorites only</label>
+            <label class="pick-label" for="ate-meal-select">Meal</label>
+            <select id="ate-meal-select"></select>
+            <label class="pick-label" for="ate-menu-notes">Notes <span class="hint">(optional)</span></label>
+            <textarea id="ate-menu-notes" rows="2" placeholder="Anything extra to remember"></textarea>
+          </div>
+          <div id="ate-form-restaurant" hidden>
+            <label class="pick-label" for="ate-restaurant">Restaurant</label>
+            <input type="text" id="ate-restaurant" list="ate-restaurant-list" placeholder="Pick or type a name" autocomplete="off" />
+            <datalist id="ate-restaurant-list"></datalist>
+            <label class="pick-label" for="ate-order">What did you order?</label>
+            <input type="text" id="ate-order" placeholder="e.g. Pad thai, margherita pizza" autocomplete="off" />
+            <label class="pick-label" for="ate-rest-notes">Notes <span class="hint">(optional)</span></label>
+            <textarea id="ate-rest-notes" rows="2" placeholder="Anything extra to remember"></textarea>
+          </div>
+          <button type="button" class="btn btn-primary btn-log" id="ate-log-btn">Log it</button>
+        </div>
+        <div class="card">
+          <h2 class="serif">History</h2>
+          <div class="meal-log-list" id="meal-log-list"></div>
+        </div>
+      </section>
+
       <section class="panel" id="panel-manage" data-panel="manage" hidden>
         <div class="card">
           <h2 class="serif">Tags</h2>
@@ -116,7 +154,6 @@
             </label>
           </div>
           <p class="hint manage-note">Meal photos stay on this device only — not in Export all on the Apps home screen.</p>
-          <p class="hint manage-note">Philly Dates stays separate. Restaurant linking may come later.</p>
         </div>
       </section>
     </div>
@@ -125,6 +162,7 @@
   <nav class="tabbar" id="tabbar" aria-label="App sections">
     <button type="button" class="tab" data-tab="spin"><span class="tab-icon">🎲</span><span class="tab-label">Spin</span></button>
     <button type="button" class="tab" data-tab="menu"><span class="tab-icon">📖</span><span class="tab-label">Menu</span></button>
+    <button type="button" class="tab" data-tab="ate"><span class="tab-icon">🍴</span><span class="tab-label">Ate</span></button>
     <button type="button" class="tab" data-tab="manage"><span class="tab-icon">⚙️</span><span class="tab-label">Manage</span></button>
   </nav>
 
@@ -147,7 +185,7 @@
   </div>
 
   <script src="../apps-backup.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

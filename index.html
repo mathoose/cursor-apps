@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Apps" />
+  <meta name="apple-mobile-web-app-title" content="Mathoose's apps" />
   <meta name="theme-color" content="#1a1a2e" />
-  <title>Apps</title>
+  <title>Mathoose's apps</title>
   <style>
     :root {
       --safe-top: env(safe-area-inset-top, 0px);
@@ -184,7 +184,7 @@
 </head>
 <body>
   <p class="status" id="status" aria-live="polite">Loading apps…</p>
-  <h1 class="page-title" id="pageTitle">Apps</h1>
+  <h1 class="page-title" id="pageTitle">Mathoose's apps</h1>
   <div class="grid" id="grid"></div>
 
   <div class="dock-wrap">
@@ -211,11 +211,10 @@
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
   const FALLBACK_MANIFEST = {
-    title: "Apps",
+    title: "Mathoose's apps",
     apps: [
       { id: "habit-journal", name: "Habit Journal", subtitle: "Bullet-style dots" },
-      { id: "aruba-packing", name: "Aruba Pack", subtitle: "7-day packing" },
-      { id: "voice-notes", name: "Voice Notes", subtitle: "Speak & transcribe" }
+      { id: "aruba-packing", name: "Aruba Pack", subtitle: "7-day packing" }
     ]
   };
 
@@ -285,7 +284,7 @@
       })
       .then(function (apps) {
         apps.sort(function (a, b) { return a.name.localeCompare(b.name); });
-        return { title: manifest.title || "Apps", apps: apps };
+        return { title: manifest.title || "Mathoose's apps", apps: apps };
       });
   }
 
@@ -349,7 +348,7 @@
       };
     });
     document.getElementById("status").textContent = "Offline list";
-    render({ title: manifest.title || "Apps", apps: apps });
+    render({ title: manifest.title || "Mathoose's apps", apps: apps });
   }
 
   var toastTimer = null;

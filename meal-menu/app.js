@@ -37,6 +37,9 @@ var listThumbCache = {};
 var listThumbPending = {};
 
 var pickerSelectedTags = [];
+var ateLogMode = 'menu';
+var ateSelectedTags = [];
+var ateMenuCategory = 'all';
 var pickerPool = [];
 var pickerRotation = 0;
 var pickerSpinning = false;
@@ -67,15 +70,20 @@ function loadAppState() {
 
 function defaultState() {
   return {
-    version: 1,
+    version: 2,
     categories: BUILTIN_CATEGORIES.map(function(c) {
       return { id: c.id, label: c.label, builtin: true };
     }),
     tags: [],
     tagFilter: 'all',
     entryPhotos: {},
-    entries: []
+    entries: [],
+    mealLog: []
   };
+}
+
+function isRestaurantCategory(catId) {
+  return catId === 'take-out' || catId === 'eat-out';
 }
 
 function normalizeState(st) {
@@ -83,13 +91,26 @@ function normalizeState(st) {
   if (!Array.isArray(st.categories)) st.categories = defaultState().categories;
   if (!Array.isArray(st.tags)) st.tags = [];
   if (!Array.isArray(st.entries)) st.entries = [];
+  if (!Array.isArray(st.mealLog)) st.mealLog = [];
   if (!st.entryPhotos || typeof st.entryPhotos !== 'object') st.entryPhotos = {};
   if (!st.tagFilter) st.tagFilter = 'all';
-  st.version = 1;
   st.entries.forEach(function(e) {
     if (e.orderUrl) delete e.orderUrl;
-    if (!('phillyPlaceName' in e)) e.phillyPlaceName = null;
+    if (e.menuUrl && !e.restaurantName) e.restaurantName = '';
+    if (e.phillyPlaceName && !e.restaurantName) e.restaurantName = e.phillyPlaceName;
+    if (!('restaurantName' in e)) e.restaurantName = '';
+    delete e.menuUrl;
+    delete e.phillyPlaceName;
   });
+  st.mealLog.forEach(function(log) {
+    if (!log.id) log.id = newId('log');
+    if (!log.date) log.date = '';
+    if (!log.source) log.source = 'menu';
+    if (!log.description) log.description = '';
+    if (!log.restaurantName) log.restaurantName = '';
+    if (!log.createdAt) log.createdAt = Date.now();
+  });
+  st.version = 2;
   BUILTIN_CATEGORIES.forEach(function(b) {
     if (!st.categories.some(function(c) { return c.id === b.id; })) {
       st.categories.unshift({ id: b.id, label: b.label, builtin: true });
@@ -112,12 +133,11 @@ function initState() {
         name: s.name,
         category: s.category,
         notes: s.notes || '',
-        menuUrl: '',
+        restaurantName: '',
         tagIds: [],
         favorite: !!s.favorite,
         lastHad: '',
-        createdAt: Date.now(),
-        phillyPlaceName: null
+        createdAt: Date.now()
       });
     });
     saveAppState(st);
@@ -127,6 +147,26 @@ function initState() {
 
 function getState() {
   return normalizeState(loadAppState() || defaultState());
+}
+
+function todayIso() {
+  var d = new Date();
+  var m = String(d.getMonth() + 1).padStart(2, '0');
+  var day = String(d.getDate()).padStart(2, '0');
+  return d.getFullYear() + '-' + m + '-' + day;
+}
+
+function getPastRestaurantNames() {
+  var names = {};
+  getState().entries.forEach(function(e) {
+    if (isRestaurantCategory(e.category) && e.restaurantName) names[e.restaurantName.trim()] = true;
+  });
+  (getState().mealLog || []).forEach(function(log) {
+    if ((log.source === 'take-out' || log.source === 'eat-out') && log.restaurantName) {
+      names[log.restaurantName.trim()] = true;
+    }
+  });
+  return Object.keys(names).sort(function(a, b) { return a.localeCompare(b); });
 }
 
 function getAllCategories() {
@@ -403,9 +443,10 @@ function renderListForCategory(catId) {
       ? '<img class="menu-item-thumb" data-thumb-id="' + escapeHtml(e.id) + '" alt="" hidden>'
       : '';
     var photoMark = hasPhoto(e.id) ? '' : '';
+    var sub = (isRestaurantCategory(e.category) && e.restaurantName) ? ' · ' + escapeHtml(e.restaurantName) : '';
     return '<li class="menu-item' + (hasPhoto(e.id) ? ' has-thumb' : '') + '" data-entry-id="' + escapeHtml(e.id) + '" role="button" tabindex="0">'
       + thumb
-      + '<span class="menu-item-name">' + escapeHtml(e.name) + '</span>'
+      + '<span class="menu-item-name">' + escapeHtml(e.name) + sub + '</span>'
       + '<span class="menu-item-leader" aria-hidden="true"></span>'
       + '<span class="menu-item-meta">'
       + tagsHtml
@@ -489,6 +530,7 @@ function updateHeaderForTab() {
   if (sub) {
     if (activeRootTab === 'spin') sub.textContent = 'Spin to decide';
     else if (activeRootTab === 'manage') sub.textContent = 'Tags, categories & backup';
+    else if (activeRootTab === 'ate') sub.textContent = 'Log what you ate';
     else sub.textContent = categoryLabel(activeCategory) + ' · tap a line for details';
   }
 }
@@ -538,6 +580,7 @@ function switchRootTab(tabId) {
     populatePickCategorySelect();
     refreshPicker();
   }
+  if (tabId === 'ate') renderAtePanel();
   updateHeaderForTab();
   updateRootTabs();
 }
@@ -596,8 +639,12 @@ function renderViewMode(entry) {
   addingNew = false;
   document.getElementById('modal-edit').style.display = '';
   document.getElementById('modal-title').textContent = entry.name;
-  document.getElementById('modal-meta').innerHTML = '<span class="badge">' + escapeHtml(categoryLabel(entry.category)) + '</span>'
-    + (entry.lastHad ? ' · Last had ' + escapeHtml(entry.lastHad) : '');
+  var meta = '<span class="badge">' + escapeHtml(categoryLabel(entry.category)) + '</span>';
+  if (isRestaurantCategory(entry.category) && entry.restaurantName) {
+    meta += ' · ' + escapeHtml(entry.restaurantName);
+  }
+  if (entry.lastHad) meta += ' · Last had ' + escapeHtml(entry.lastHad);
+  document.getElementById('modal-meta').innerHTML = meta;
 
   var tags = getTags();
   var tagHtml = tags.length
@@ -617,14 +664,8 @@ function renderViewMode(entry) {
   document.getElementById('modal-body').innerHTML = body;
   showPhotoInModal(entry.id, 'modal-entry-photo');
 
-  var footer = document.getElementById('modal-footer');
-  if (entry.menuUrl) {
-    footer.innerHTML = '<a href="' + escapeHtml(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>';
-    footer.style.display = 'block';
-  } else {
-    footer.innerHTML = '';
-    footer.style.display = 'none';
-  }
+  document.getElementById('modal-footer').innerHTML = '';
+  document.getElementById('modal-footer').style.display = 'none';
 
   updateModalFav();
 
@@ -633,8 +674,12 @@ function renderViewMode(entry) {
     var st = getState();
     var i = st.entries.findIndex(function(x) { return x.id === entry.id; });
     if (i >= 0) { st.entries[i] = entry; saveAppState(st); }
-    document.getElementById('modal-meta').innerHTML = '<span class="badge">' + escapeHtml(categoryLabel(entry.category)) + '</span>'
-      + (entry.lastHad ? ' · Last had ' + escapeHtml(entry.lastHad) : '');
+    var metaHtml = '<span class="badge">' + escapeHtml(categoryLabel(entry.category)) + '</span>';
+    if (isRestaurantCategory(entry.category) && entry.restaurantName) {
+      metaHtml += ' · ' + escapeHtml(entry.restaurantName);
+    }
+    if (entry.lastHad) metaHtml += ' · Last had ' + escapeHtml(entry.lastHad);
+    document.getElementById('modal-meta').innerHTML = metaHtml;
   };
 
   var detailTags = document.getElementById('detail-tags');
@@ -743,11 +788,20 @@ function renderEditMode(entry) {
     return '<button type="button" class="detail-tag-chip edit-tag-pick' + (on ? ' on' : '') + '" data-edit-tag="' + escapeHtml(t.id) + '">' + escapeHtml(t.label) + '</button>';
   }).join('') || '<p class="hint">No tags — add in Manage</p>';
 
+  var restaurantNames = getPastRestaurantNames().map(function(n) {
+    return '<option value="' + escapeHtml(n) + '">';
+  }).join('');
+  var showRestaurant = isRestaurantCategory(entry.category);
+
   document.getElementById('modal-body').innerHTML = '<div class="edit-form">'
     + '<label for="edit-name">Name</label><input type="text" id="edit-name" placeholder="Meal or place name" value="' + escapeHtml(entry.name || '') + '">'
     + '<label for="edit-category">Category</label><select id="edit-category">' + catOpts + '</select>'
+    + '<div id="edit-restaurant-wrap"' + (showRestaurant ? '' : ' hidden') + '>'
+    + '<label for="edit-restaurant">Restaurant</label>'
+    + '<input type="text" id="edit-restaurant" list="edit-restaurant-list" placeholder="Pick or type a name" value="' + escapeHtml(entry.restaurantName || '') + '">'
+    + '<datalist id="edit-restaurant-list">' + restaurantNames + '</datalist>'
+    + '</div>'
     + '<label for="edit-notes">Notes</label><textarea id="edit-notes">' + escapeHtml(entry.notes || '') + '</textarea>'
-    + '<label for="edit-menu-url">Menu URL</label><input type="url" id="edit-menu-url" value="' + escapeHtml(entry.menuUrl || '') + '">'
     + '<div class="entry-photo-edit"><label>Photo</label>'
     + '<div class="entry-photo-preview" id="entry-photo-preview"></div>'
     + '<div class="entry-photo-actions">'
@@ -800,6 +854,11 @@ function renderEditMode(entry) {
     chip.classList.toggle('on', editSelectedTags.indexOf(tid) >= 0);
   };
 
+  document.getElementById('edit-category').onchange = function() {
+    var wrap = document.getElementById('edit-restaurant-wrap');
+    if (wrap) wrap.hidden = !isRestaurantCategory(this.value);
+  };
+
   wirePhotoEdit(eid);
 }
 
@@ -812,17 +871,17 @@ function saveEdit(original) {
   var entry;
   if (isNew) {
     var tempPhotoId = original.id;
+    var cat = document.getElementById('edit-category').value;
     entry = {
       id: newId('entry'),
       name: name,
-      category: document.getElementById('edit-category').value,
+      category: cat,
       notes: document.getElementById('edit-notes').value.trim(),
-      menuUrl: document.getElementById('edit-menu-url').value.trim(),
+      restaurantName: isRestaurantCategory(cat) ? (document.getElementById('edit-restaurant').value || '').trim() : '',
       tagIds: editSelectedTags.slice(),
       favorite: document.getElementById('edit-favorite').checked,
       lastHad: '',
-      createdAt: Date.now(),
-      phillyPlaceName: null
+      createdAt: Date.now()
     };
     st.entries.push(entry);
     if (tempPhotoId && hasPhoto(tempPhotoId)) {
@@ -843,10 +902,11 @@ function saveEdit(original) {
   } else {
     entry = st.entries.find(function(e) { return e.id === original.id; });
     if (!entry) return;
+    var cat = document.getElementById('edit-category').value;
     entry.name = name;
-    entry.category = document.getElementById('edit-category').value;
+    entry.category = cat;
     entry.notes = document.getElementById('edit-notes').value.trim();
-    entry.menuUrl = document.getElementById('edit-menu-url').value.trim();
+    entry.restaurantName = isRestaurantCategory(cat) ? (document.getElementById('edit-restaurant').value || '').trim() : '';
     entry.tagIds = editSelectedTags.slice();
     entry.favorite = document.getElementById('edit-favorite').checked;
     saveAppState(st);
@@ -880,11 +940,10 @@ function openAddEntry() {
     name: '',
     category: cat,
     notes: '',
-    menuUrl: '',
+    restaurantName: '',
     tagIds: [],
     favorite: false,
-    lastHad: '',
-    phillyPlaceName: null
+    lastHad: ''
   });
   openModal();
 }
@@ -1044,10 +1103,12 @@ function showPickResult(id) {
   if (!entry) return;
   pickerWinnerId = id;
   document.getElementById('pick-result-name').textContent = entry.name;
-  document.getElementById('pick-result-notes').textContent = entry.notes || categoryLabel(entry.category);
-  var links = [];
-  if (entry.menuUrl) links.push('<a href="' + escapeHtml(entry.menuUrl) + '" target="_blank" rel="noopener">Menu</a>');
-  document.getElementById('pick-result-links').innerHTML = links.join('');
+  var notes = entry.notes || categoryLabel(entry.category);
+  if (isRestaurantCategory(entry.category) && entry.restaurantName) {
+    notes = entry.restaurantName + (notes ? ' — ' + notes : '');
+  }
+  document.getElementById('pick-result-notes').textContent = notes;
+  document.getElementById('pick-result-links').innerHTML = '';
   var photoEl = document.getElementById('pick-result-photo');
   if (photoEl) {
     photoEl.innerHTML = '';
@@ -1095,6 +1156,197 @@ function spinPicker() {
   }, 4300);
 }
 
+/* ——— Ate tab / meal log ——— */
+function sourceLabel(source) {
+  if (source === 'take-out') return 'Take out';
+  if (source === 'eat-out') return 'Eat out';
+  return 'Menu';
+}
+
+function filterEntriesForLog() {
+  var list = getState().entries.slice();
+  if (ateMenuCategory && ateMenuCategory !== 'all') {
+    list = list.filter(function(e) { return e.category === ateMenuCategory; });
+  }
+  if (ateSelectedTags.length) {
+    list = list.filter(function(e) {
+      if (!e.tagIds || !e.tagIds.length) return false;
+      return ateSelectedTags.every(function(tid) { return e.tagIds.indexOf(tid) >= 0; });
+    });
+  }
+  var favOnly = document.getElementById('ate-favorites-only');
+  if (favOnly && favOnly.checked) list = list.filter(function(e) { return e.favorite; });
+  list.sort(function(a, b) { return a.name.localeCompare(b.name); });
+  return list;
+}
+
+function populateAteCategorySelect() {
+  var sel = document.getElementById('ate-menu-category');
+  if (!sel) return;
+  var html = '<option value="all">All categories</option>';
+  getAllCategories().forEach(function(c) {
+    html += '<option value="' + escapeHtml(c.id) + '"' + (ateMenuCategory === c.id ? ' selected' : '') + '>'
+      + escapeHtml(c.label) + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
+function renderAteTags() {
+  var el = document.getElementById('ate-tag-chips');
+  if (!el) return;
+  var tags = getTags();
+  if (!tags.length) {
+    el.innerHTML = '<p class="hint" style="margin:0">No tags yet.</p>';
+    return;
+  }
+  el.innerHTML = tags.map(function(t) {
+    var on = ateSelectedTags.indexOf(t.id) >= 0;
+    return '<button type="button" class="picker-tag-chip' + (on ? ' on' : '') + '" data-ate-tag="' + escapeHtml(t.id) + '">'
+      + escapeHtml(t.label) + '</button>';
+  }).join('');
+}
+
+function populateAteMealSelect() {
+  var sel = document.getElementById('ate-meal-select');
+  if (!sel) return;
+  var list = filterEntriesForLog();
+  if (!list.length) {
+    sel.innerHTML = '<option value="">No meals match filters</option>';
+    return;
+  }
+  sel.innerHTML = list.map(function(e) {
+    var label = e.name;
+    if (isRestaurantCategory(e.category) && e.restaurantName) label += ' (' + e.restaurantName + ')';
+    return '<option value="' + escapeHtml(e.id) + '">' + escapeHtml(label) + '</option>';
+  }).join('');
+}
+
+function populateAteRestaurantList() {
+  var dl = document.getElementById('ate-restaurant-list');
+  if (!dl) return;
+  dl.innerHTML = getPastRestaurantNames().map(function(n) {
+    return '<option value="' + escapeHtml(n) + '">';
+  }).join('');
+}
+
+function setAteLogMode(mode) {
+  ateLogMode = mode;
+  document.querySelectorAll('#ate-segments .ate-seg').forEach(function(btn) {
+    btn.classList.toggle('on', btn.getAttribute('data-ate-mode') === mode);
+  });
+  var menuForm = document.getElementById('ate-form-menu');
+  var restForm = document.getElementById('ate-form-restaurant');
+  if (menuForm) menuForm.hidden = mode !== 'menu';
+  if (restForm) restForm.hidden = mode === 'menu';
+}
+
+function mealLogDisplayText(log) {
+  if (log.source === 'menu') {
+    var entry = getEntryById(log.entryId);
+    var name = entry ? entry.name : 'Unknown meal';
+    if (log.description) return name + ' — ' + log.description;
+    return name;
+  }
+  var rest = log.restaurantName || 'Unknown place';
+  return rest + ' — ' + (log.description || '');
+}
+
+function renderMealLogList() {
+  var el = document.getElementById('meal-log-list');
+  if (!el) return;
+  var logs = (getState().mealLog || []).slice().sort(function(a, b) {
+    var da = a.date || '';
+    var db = b.date || '';
+    if (da !== db) return db.localeCompare(da);
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+  if (!logs.length) {
+    el.innerHTML = '<p class="hint empty-state" style="margin:0">Nothing logged yet.</p>';
+    return;
+  }
+  el.innerHTML = logs.map(function(log) {
+    return '<div class="meal-log-row">'
+      + '<div class="meal-log-main">'
+      + '<span class="meal-log-date">' + escapeHtml(log.date || '') + '</span>'
+      + '<span class="meal-log-badge">' + escapeHtml(sourceLabel(log.source)) + '</span>'
+      + '<p class="meal-log-text">' + escapeHtml(mealLogDisplayText(log)) + '</p>'
+      + '</div>'
+      + '<button type="button" class="meal-log-del" data-log-del="' + escapeHtml(log.id) + '" aria-label="Delete log entry">&times;</button>'
+      + '</div>';
+  }).join('');
+}
+
+function renderAtePanel() {
+  var dateInp = document.getElementById('ate-date');
+  if (dateInp && !dateInp.value) dateInp.value = todayIso();
+  setAteLogMode(ateLogMode);
+  populateAteCategorySelect();
+  renderAteTags();
+  populateAteMealSelect();
+  populateAteRestaurantList();
+  renderMealLogList();
+}
+
+function appendMealLog(record) {
+  var st = getState();
+  var log = {
+    id: newId('log'),
+    date: record.date || todayIso(),
+    source: record.source,
+    entryId: record.entryId || '',
+    restaurantName: record.restaurantName || '',
+    description: record.description || '',
+    createdAt: Date.now()
+  };
+  st.mealLog.push(log);
+  if (record.source === 'menu' && record.entryId) {
+    var entry = st.entries.find(function(e) { return e.id === record.entryId; });
+    if (entry) entry.lastHad = log.date;
+  }
+  saveAppState(st);
+  renderMealLogList();
+  renderAllLists();
+  return log;
+}
+
+function submitAteLog() {
+  var date = (document.getElementById('ate-date').value || '').trim() || todayIso();
+  if (ateLogMode === 'menu') {
+    var entryId = document.getElementById('ate-meal-select').value;
+    if (!entryId) { alert('Pick a meal to log.'); return; }
+    var notes = (document.getElementById('ate-menu-notes').value || '').trim();
+    appendMealLog({ date: date, source: 'menu', entryId: entryId, description: notes });
+    document.getElementById('ate-menu-notes').value = '';
+    showStatus('Logged');
+    return;
+  }
+  var restaurant = (document.getElementById('ate-restaurant').value || '').trim();
+  var order = (document.getElementById('ate-order').value || '').trim();
+  if (!restaurant) { alert('Pick or enter a restaurant.'); return; }
+  if (!order) { alert('What did you order?'); return; }
+  var restNotes = (document.getElementById('ate-rest-notes').value || '').trim();
+  var desc = restNotes ? order + ' — ' + restNotes : order;
+  appendMealLog({
+    date: date,
+    source: ateLogMode,
+    restaurantName: restaurant,
+    description: desc
+  });
+  document.getElementById('ate-order').value = '';
+  document.getElementById('ate-rest-notes').value = '';
+  populateAteRestaurantList();
+  showStatus('Logged');
+}
+
+function deleteMealLog(id) {
+  if (!confirm('Delete this log entry?')) return;
+  var st = getState();
+  st.mealLog = (st.mealLog || []).filter(function(l) { return l.id !== id; });
+  saveAppState(st);
+  renderMealLogList();
+  showStatus('Log entry removed');
+}
+
 /* ——— ZIP photo export (Aruba-style) ——— */
 function sanitizeZipSegment(s) {
   return String(s || 'item').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 80);
@@ -1125,12 +1377,11 @@ function entryExportMeta(entry) {
     category: entry.category,
     categoryLabel: categoryLabel(entry.category),
     notes: entry.notes || '',
-    menuUrl: entry.menuUrl || '',
+    restaurantName: entry.restaurantName || '',
     tagIds: tagIds,
     tagLabels: tagIds.map(function(id) { return tagLabel(id); }).filter(Boolean),
     favorite: !!entry.favorite,
-    lastHad: entry.lastHad || '',
-    phillyPlaceName: entry.phillyPlaceName || null
+    lastHad: entry.lastHad || ''
   };
 }
 
@@ -1328,19 +1579,19 @@ function mergeEntryFromPhotoMeta(photo) {
       name: photo.name || 'Imported meal',
       category: photo.category || 'cooking',
       notes: photo.notes || '',
-      menuUrl: photo.menuUrl || '',
+      restaurantName: photo.restaurantName || photo.phillyPlaceName || '',
       tagIds: [],
       favorite: !!photo.favorite,
       lastHad: photo.lastHad || '',
-      createdAt: Date.now(),
-      phillyPlaceName: photo.phillyPlaceName || null
+      createdAt: Date.now()
     };
     st.entries.push(entry);
   } else {
     if (photo.name) entry.name = photo.name;
     if (photo.category) entry.category = photo.category;
     if (photo.notes != null) entry.notes = photo.notes;
-    if (photo.menuUrl != null) entry.menuUrl = photo.menuUrl;
+    if (photo.restaurantName != null) entry.restaurantName = photo.restaurantName;
+    else if (photo.phillyPlaceName != null) entry.restaurantName = photo.phillyPlaceName;
     if (photo.favorite != null) entry.favorite = !!photo.favorite;
     if (photo.lastHad != null) entry.lastHad = photo.lastHad;
   }
@@ -1452,6 +1703,7 @@ function importData(file) {
       renderManage();
       populatePickCategorySelect();
       renderPickTags();
+      renderAtePanel();
       showStatus('Import complete');
     } catch (e) {
       showStatus('Could not read file');
@@ -1560,6 +1812,32 @@ function bindEvents() {
   });
   document.getElementById('pick-view-details').addEventListener('click', function() {
     if (pickerWinnerId) openEntry(pickerWinnerId);
+  });
+
+  document.getElementById('ate-segments').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-ate-mode]');
+    if (!btn) return;
+    setAteLogMode(btn.getAttribute('data-ate-mode'));
+  });
+  document.getElementById('ate-log-btn').addEventListener('click', submitAteLog);
+  document.getElementById('ate-menu-category').addEventListener('change', function() {
+    ateMenuCategory = this.value;
+    populateAteMealSelect();
+  });
+  document.getElementById('ate-favorites-only').addEventListener('change', populateAteMealSelect);
+  document.getElementById('ate-tag-chips').addEventListener('click', function(e) {
+    var chip = e.target.closest('[data-ate-tag]');
+    if (!chip) return;
+    var id = chip.getAttribute('data-ate-tag');
+    var i = ateSelectedTags.indexOf(id);
+    if (i >= 0) ateSelectedTags.splice(i, 1);
+    else ateSelectedTags.push(id);
+    chip.classList.toggle('on', ateSelectedTags.indexOf(id) >= 0);
+    populateAteMealSelect();
+  });
+  document.getElementById('meal-log-list').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-log-del]');
+    if (btn) deleteMealLog(btn.getAttribute('data-log-del'));
   });
 }
 

@@ -608,3 +608,87 @@ body.modal-open { overflow: hidden; }
 #search-row[hidden],
 #tag-filters-wrap[hidden],
 #add-btn[hidden] { display: none !important; }
+
+/* Ate tab */
+.ate-log-card .pick-label { margin-top: 12px; }
+.ate-log-card select,
+.ate-log-card input[type="date"],
+.ate-log-card input[type="text"],
+.ate-log-card textarea {
+  width: 100%;
+  margin-bottom: 4px;
+}
+.ate-segments {
+  display: flex;
+  gap: 6px;
+  margin: 12px 0 4px;
+}
+.ate-seg {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+.ate-seg.on {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+  color: #fff;
+}
+.btn-log {
+  width: 100%;
+  margin-top: 16px;
+}
+.meal-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.meal-log-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px dotted var(--border);
+}
+.meal-log-row:last-child { border-bottom: none; }
+.meal-log-main { flex: 1; min-width: 0; }
+.meal-log-date {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-dark);
+  margin-right: 8px;
+}
+.meal-log-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.meal-log-text {
+  margin: 4px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+}
+.meal-log-del {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.meal-log-del:hover { color: var(--accent); }

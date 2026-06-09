@@ -1,18 +1,16 @@
 {
-  "title": "Emily's Apps",
+  "title": "Mathoose's apps",
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
     "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
-      "voice-notes": { "storageKey": "voice-notes-v1" },
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
-      "meal-menu": { "storageKey": "meal-menu-v1" },
-      "manga-shelf": { "storageKey": "manga-shelf-v1" }
+      "meal-menu": { "storageKey": "meal-menu-v1" }
     }
   },
   "apps": [
@@ -27,12 +25,6 @@
       "name": "Aruba Pack",
       "subtitle": "7-day packing",
       "storageKey": "aruba-pack-v1"
-    },
-    {
-      "id": "voice-notes",
-      "name": "Voice Notes",
-      "subtitle": "Speak & transcribe",
-      "storageKey": "voice-notes-v1"
     },
     {
       "id": "adhd-task-tracker",
@@ -57,12 +49,6 @@
       "name": "Our Menu",
       "subtitle": "What to eat tonight",
       "storageKey": "meal-menu-v1"
-    },
-    {
-      "id": "manga-shelf",
-      "name": "Manga Shelf",
-      "subtitle": "Find volumes & collection matrix",
-      "storageKey": "manga-shelf-v1"
     }
   ]
 }
