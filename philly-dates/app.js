@@ -380,6 +380,53 @@ function filterByTag(list) {
   });
 }
 
+function getNeverTriedFilter() {
+  var st = loadAppState();
+  return !!st.filterNeverTried;
+}
+
+function setNeverTriedFilter(on) {
+  var st = loadAppState();
+  st.filterNeverTried = !!on;
+  saveAppState(st);
+}
+
+function getHappyHourNowFilter() {
+  var st = loadAppState();
+  return !!st.filterHappyHourNow;
+}
+
+function setHappyHourNowFilter(on) {
+  var st = loadAppState();
+  st.filterHappyHourNow = !!on;
+  saveAppState(st);
+}
+
+function isNeverTried(name) {
+  return !getPlaceMeta(name).visited;
+}
+
+function isHappyHourNow(r) {
+  var day = getTodayDayName();
+  return !!(r.schedule && r.schedule[day] && isActive(r, day, getNowSlot()));
+}
+
+function filterByNeverTried(list) {
+  if (!getNeverTriedFilter()) return list;
+  return list.filter(function(r) { return isNeverTried(r.name); });
+}
+
+function filterByHappyHourNow(list) {
+  if (!getHappyHourNowFilter()) return list;
+  return list.filter(isHappyHourNow);
+}
+
+function applyQuickFilters(list) {
+  list = filterByNeverTried(list);
+  list = filterByHappyHourNow(list);
+  return list;
+}
+
 function renderTagFilters() {
   var filtersEl = document.getElementById('tag-filters');
   var manageEl = document.getElementById('tag-manage-list');
@@ -558,6 +605,7 @@ function getListPlaces() {
   }
   list = filterBySearch(list);
   list = filterByTag(list);
+  list = applyQuickFilters(list);
   var sortMode = document.getElementById('list-sort');
   var favoritesFirst = !sortMode || sortMode.value !== 'alpha';
   var favs = getFavorites();
@@ -693,7 +741,8 @@ function startApp() {
     .then(function(allPlaces) {
       bootstrapData(allPlaces);
       daySel.value = getTodayDayName();
-      buildTimeOptions(daySel.value, pickDefaultTime(daySel.value));
+      if (getHappyHourNowFilter()) syncHappyHourNowControls();
+      else buildTimeOptions(daySel.value, pickDefaultTime(daySel.value));
       render();
       var searchEl = document.getElementById('search');
       if (searchEl) searchEl.addEventListener('input', refreshFilters);
@@ -738,6 +787,7 @@ function restaurantsForDay(day) {
   if (nSel && nSel.value) list = list.filter(function(r) { return r.neighborhood === nSel.value; });
   list = filterBySearch(list);
   list = filterByTag(list);
+  list = applyQuickFilters(list);
   return list;
 }
 function isActive(r, day, slot) {
@@ -1466,6 +1516,8 @@ function renderListView() {
   var parts = ['<strong>' + list.length + '</strong> place' + (list.length === 1 ? '' : 's')];
   if (hood) parts.push(' in <strong>' + escapeHtml(hood) + '</strong>');
   if (tagF && tagF !== 'all') parts.push(' tagged <strong>' + escapeHtml(tagLabel(tagF)) + '</strong>');
+  if (getHappyHourNowFilter()) parts.push(' with <strong>happy hour right now</strong>');
+  if (getNeverTriedFilter()) parts.push(' <strong>never tried</strong>');
   if (q) parts.push(' matching search');
   summary.innerHTML = parts.join('') + '. Tap a name for details. Star your favorites.';
   var container = document.getElementById('place-list');
@@ -1511,6 +1563,7 @@ function renderGridView() {
   if (nSel.value) filtered = filtered.filter(r => r.neighborhood === nSel.value);
   filtered = filterBySearch(filtered);
   filtered = filterByTag(filtered);
+  filtered = applyQuickFilters(filtered);
   filtered.sort((a,b) => a.name.localeCompare(b.name));
   var q = getSearchQuery();
   var tagF = getTagFilter();
@@ -1534,10 +1587,17 @@ function renderGridView() {
   const slots = [];
   for (let t = minT; t < maxT; t += 30) slots.push(t);
   const activeNow = filtered.filter(r => isActive(r, day, selectedTime));
-  document.getElementById('summary').innerHTML = `<strong>${activeNow.length}</strong> place(s) with happy hour at <strong>${fmtMinutes(selectedTime)}</strong> on <strong>${day}</strong>` +
-    (nSel.value ? ` in <strong>${nSel.value}</strong>` : '') +
-    (tagF && tagF !== 'all' ? ` · tag <strong>${escapeHtml(tagLabel(tagF))}</strong>` : '') +
-    (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
+  var summaryParts = [];
+  if (getHappyHourNowFilter()) {
+    summaryParts.push('<strong>' + activeNow.length + '</strong> place' + (activeNow.length === 1 ? '' : 's') + ' with <strong>happy hour right now</strong>');
+  } else {
+    summaryParts.push('<strong>' + activeNow.length + '</strong> place(s) with happy hour at <strong>' + fmtMinutes(selectedTime) + '</strong> on <strong>' + day + '</strong>');
+  }
+  if (nSel.value) summaryParts.push('in <strong>' + escapeHtml(nSel.value) + '</strong>');
+  if (tagF && tagF !== 'all') summaryParts.push('tag <strong>' + escapeHtml(tagLabel(tagF)) + '</strong>');
+  if (getNeverTriedFilter()) summaryParts.push('<strong>never tried</strong>');
+  document.getElementById('summary').innerHTML = summaryParts.join(' · ')
+    + (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
   const thead = document.querySelector('#grid thead');
   thead.innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
     slots.map(t => `<th class="time-header">${fmtMinutes(t)}</th>`).join('') + '</tr>';
@@ -1555,12 +1615,47 @@ document.querySelector('#grid tbody').addEventListener('click', e => {
   const btn = e.target.closest('.rest-link');
   if (btn) openModal(btn.dataset.name);
 });
+function syncHappyHourNowControls() {
+  var hhNowEl = document.getElementById('filter-hh-now');
+  if (!hhNowEl) return;
+  if (getHappyHourNowFilter()) {
+    daySel.value = getTodayDayName();
+    buildTimeOptions(daySel.value, getNowSlot());
+  }
+}
+
+function bindQuickFilters() {
+  var hhNowEl = document.getElementById('filter-hh-now');
+  var neverTriedEl = document.getElementById('filter-never-tried');
+  if (hhNowEl) {
+    hhNowEl.checked = getHappyHourNowFilter();
+    hhNowEl.addEventListener('change', function() {
+      setHappyHourNowFilter(hhNowEl.checked);
+      if (pickerHhNow) pickerHhNow.checked = hhNowEl.checked;
+      if (hhNowEl.checked) syncHappyHourNowControls();
+      refreshFilters();
+    });
+  }
+  if (neverTriedEl) {
+    neverTriedEl.checked = getNeverTriedFilter();
+    neverTriedEl.addEventListener('change', function() {
+      setNeverTriedFilter(neverTriedEl.checked);
+      if (pickerNeverTried) pickerNeverTried.checked = neverTriedEl.checked;
+      refreshFilters();
+    });
+  }
+}
+
 function refreshFilters() {
   if (viewMode === 'list') {
     render();
     return;
   }
-  buildTimeOptions(daySel.value, pickDefaultTime(daySel.value));
+  if (getHappyHourNowFilter()) {
+    syncHappyHourNowControls();
+  } else {
+    buildTimeOptions(daySel.value, pickDefaultTime(daySel.value));
+  }
   render();
 }
 
@@ -1595,11 +1690,24 @@ var listSortEl = document.getElementById('list-sort');
 if (listSortEl) listSortEl.addEventListener('change', function() { if (viewMode === 'list') render(); });
 
 nSel.addEventListener('change', refreshFilters);
-daySel.addEventListener('change', refreshFilters);
+daySel.addEventListener('change', function() {
+  if (getHappyHourNowFilter()) {
+    setHappyHourNowFilter(false);
+    var hhNowEl = document.getElementById('filter-hh-now');
+    if (hhNowEl) hhNowEl.checked = false;
+  }
+  refreshFilters();
+});
 document.getElementById('time').addEventListener('change', function() {
+  if (getHappyHourNowFilter()) {
+    setHappyHourNowFilter(false);
+    var hhNowEl = document.getElementById('filter-hh-now');
+    if (hhNowEl) hhNowEl.checked = false;
+  }
   if (viewMode === 'grid') render();
 });
 bindTagPanel();
+bindQuickFilters();
 
 var pickerModal = document.getElementById('picker-modal');
 var pickerWheel = document.getElementById('picker-wheel');
@@ -1607,6 +1715,8 @@ var pickerWheelCenter = document.getElementById('picker-wheel-center');
 var pickerTagChips = document.getElementById('picker-tag-chips');
 var pickerNeighborhood = document.getElementById('picker-neighborhood');
 var pickerFavoritesOnly = document.getElementById('picker-favorites-only');
+var pickerHhNow = document.getElementById('picker-hh-now');
+var pickerNeverTried = document.getElementById('picker-never-tried');
 var pickerSpinBtn = document.getElementById('picker-spin-btn');
 var pickerSpinAgainBtn = document.getElementById('picker-spin-again');
 var pickerResult = document.getElementById('picker-result');
@@ -1636,6 +1746,12 @@ function getPickerPool() {
     var favs = getFavorites();
     list = list.filter(function(r) { return favs.indexOf(r.name) >= 0; });
   }
+  if (pickerHhNow && pickerHhNow.checked) {
+    list = list.filter(isHappyHourNow);
+  }
+  if (pickerNeverTried && pickerNeverTried.checked) {
+    list = list.filter(function(r) { return isNeverTried(r.name); });
+  }
   if (pickerSelectedTags.length) {
     list = list.filter(function(r) {
       var meta = getPlaceMeta(r.name);
@@ -1663,14 +1779,15 @@ function pickerSubtitle(n) {
   var googleN = countGoogleHoursPlaces();
   var day = getTodayDayName();
   var time = fmtMinutes(getNowSlot());
+  var hints = [];
   if (!n) {
-    if (googleN) return 'No places open now (' + day + ' ' + time + ') match these filters';
-    return 'No places match these filters';
+    if (pickerHhNow && pickerHhNow.checked) hints.push('no HH right now (' + day + ' ' + time + ')');
+    else if (googleN) hints.push('none open now (' + day + ' ' + time + ')');
+    return hints.length ? 'No places match — ' + hints[0] : 'No places match these filters';
   }
-  if (googleN) {
-    return n + ' in the wheel · ' + googleN + ' have Google hours (open-now filter active)';
-  }
-  return n + ' place' + (n === 1 ? '' : 's') + ' in the wheel';
+  if (pickerHhNow && pickerHhNow.checked) hints.push('HH right now');
+  else if (googleN) hints.push('open-now filter active');
+  return n + ' in the wheel' + (hints.length ? ' · ' + hints.join(' · ') : '');
 }
 
 function renderPickerTagChips() {
@@ -1790,6 +1907,8 @@ function openPickerModal() {
   pickerRotation = 0;
   pickerSpinning = false;
   if (pickerFavoritesOnly) pickerFavoritesOnly.checked = false;
+  if (pickerHhNow) pickerHhNow.checked = getHappyHourNowFilter();
+  if (pickerNeverTried) pickerNeverTried.checked = getNeverTriedFilter();
   if (pickerNeighborhood) pickerNeighborhood.value = '';
   populatePickerNeighborhoodSelect();
   resetPickerResult();
@@ -1838,6 +1957,30 @@ if (pickerFavoritesOnly) {
     if (pickerSpinning) return;
     resetPickerResult();
     refreshPickerWheel();
+  });
+}
+if (pickerHhNow) {
+  pickerHhNow.addEventListener('change', function() {
+    if (pickerSpinning) return;
+    setHappyHourNowFilter(pickerHhNow.checked);
+    var hhNowEl = document.getElementById('filter-hh-now');
+    if (hhNowEl) hhNowEl.checked = pickerHhNow.checked;
+    if (pickerHhNow.checked) syncHappyHourNowControls();
+    resetPickerResult();
+    refreshPickerWheel();
+    if (viewMode === 'grid') refreshFilters();
+    else if (viewMode === 'list') render();
+  });
+}
+if (pickerNeverTried) {
+  pickerNeverTried.addEventListener('change', function() {
+    if (pickerSpinning) return;
+    setNeverTriedFilter(pickerNeverTried.checked);
+    var neverTriedEl = document.getElementById('filter-never-tried');
+    if (neverTriedEl) neverTriedEl.checked = pickerNeverTried.checked;
+    resetPickerResult();
+    refreshPickerWheel();
+    refreshFilters();
   });
 }
 if (pickerNeighborhood) {

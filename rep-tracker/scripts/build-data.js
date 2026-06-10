@@ -1,20 +1,30 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Build static data for rep-tracker.
+ * Build static data for rep-tracker (election history database).
  *
  * Usage: node scripts/build-data.js
  *        node scripts/build-data.js --skip-geo
- *        node scripts/build-data.js --skip-wiki
+ *        node scripts/build-data.js --skip-history
  */
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const DATA_DIR = path.join(ROOT, 'data');
+const ELECTIONS_DIR = path.join(DATA_DIR, 'elections');
+const HISTORY_DIR = path.join(DATA_DIR, 'district-history');
 const INPUT_DIR = path.join(__dirname, 'input');
 
+const ELECTION_DB_VERSION = '1.0.0';
 const PRES_YEARS = [2008, 2012, 2016, 2020, 2024];
+const HOUSE_CYCLE = 2024;
+const SENATE_CYCLE = 2024;
+const SENATE_CLASS_2024 = 1;
+
+const MIT_HOUSE_TAB_URL = 'https://raw.githubusercontent.com/jaytimm/PresElectionResults/master/data-raw/1976-2024-house.tab';
+const MEDSL_SENATE_2024_URL = 'https://raw.githubusercontent.com/MEDSL/2024-elections-official/main/2024-senate-state.csv';
+
 const STATE_FIPS = {
   AL: '01', AK: '02', AZ: '04', AR: '05', CA: '06', CO: '08', CT: '09', DE: '10', DC: '11',
   FL: '12', GA: '13', HI: '15', ID: '16', IL: '17', IN: '18', IA: '19', KS: '20', KY: '21',
@@ -35,22 +45,21 @@ const STATE_NAMES = {
   SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
   VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming'
 };
-const ORDINALS = ['', '1st', '2nd', '3rd', '4th', '5th', '6th', '7th', '8th', '9th', '10th',
-  '11th', '12th', '13th', '14th', '15th', '16th', '17th', '18th', '19th', '20th',
-  '21st', '22nd', '23rd', '24th', '25th', '26th', '27th', '28th', '29th', '30th',
-  '31st', '32nd', '33rd', '34th', '35th', '36th', '37th', '38th', '39th', '40th',
-  '41st', '42nd', '43rd', '44th', '45th', '46th', '47th', '48th', '49th', '50th', '51st', '52nd', '53rd'];
+
+const PRES_YEAR_CONGRESS = {
+  2008: 110,
+  2012: 113,
+  2016: 115,
+  2020: 117,
+  2024: 119
+};
 
 const args = process.argv.slice(2);
 const skipGeo = args.includes('--skip-geo');
-const skipWiki = args.includes('--skip-wiki');
-
-function sleep(ms) {
-  return new Promise(function (resolve) { setTimeout(resolve, ms); });
-}
+const skipHistory = args.includes('--skip-history');
 
 const FETCH_HEADERS = {
-  'User-Agent': 'rep-tracker-build/1.0 (https://github.com/mathoose/cursor-apps; educational)'
+  'User-Agent': 'rep-tracker-build/2.0 (https://github.com/mathoose/cursor-apps; educational)'
 };
 
 async function fetchText(url) {
@@ -109,7 +118,7 @@ function partyCode(raw) {
 function districtId(state, district) {
   if (state === 'AK' && (district === 0 || district === '0' || district === 'AL')) return 'AK-AL';
   const n = parseInt(district, 10);
-  if (!n && n !== 0) return state + '-??';
+  if (isNaN(n)) return state + '-??';
   return state + '-' + String(n).padStart(2, '0');
 }
 
@@ -142,6 +151,14 @@ function overUnder(partyMargin, presMargin, party) {
   if (partyMargin == null || presMargin == null || !party) return null;
   const signedPres = party === 'D' ? presMargin : party === 'R' ? -presMargin : presMargin;
   return round1(partyMargin - signedPres);
+}
+
+function writeJson(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data));
+}
+
+function writeJsonPretty(filePath, data) {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
 async function fetchDownballotPresMargins() {
@@ -225,6 +242,18 @@ async function fetchDownballotPresMargins() {
   return byDistrict;
 }
 
+function buildPresByCdRecords(presByDistrict) {
+  const records = [];
+  Object.keys(presByDistrict).sort().forEach(function (id) {
+    const pres = presByDistrict[id].presMargin || {};
+    PRES_YEARS.forEach(function (year) {
+      if (pres[year] == null) return;
+      records.push({ id: id, year: year, margin: pres[year] });
+    });
+  });
+  return records;
+}
+
 function aggregateStatePresFromCountyCsv(text, year) {
   const rows = parseCsv(text);
   const header = rows[0].map(function (h) { return String(h).toLowerCase(); });
@@ -294,128 +323,287 @@ async function fetchStatePresMargins() {
   return out;
 }
 
-function parseWikiElectionPercents(wikitext) {
-  const pct1 = wikitext.match(/\| percentage1\s*=\s*'*([\d.]+)%?/i);
-  const pct2 = wikitext.match(/\| percentage2\s*=\s*'*([\d.]+)%?/i);
-  const party1 = wikitext.match(/\| party1\s*=\s*(?:\[\[)?([^\]|}\n]+)/i);
-  const party2 = wikitext.match(/\| party2\s*=\s*(?:\[\[)?([^\]|}\n]+)/i);
-  if (!pct1 || !pct2) return null;
-  const dem1 = /democratic/i.test(party1 ? party1[1] : '');
-  const dem2 = /democratic/i.test(party2 ? party2[1] : '');
-  const p1 = parseFloat(pct1[1]);
-  const p2 = parseFloat(pct2[1]);
-  let demPct, repPct, winnerParty;
-  if (dem1 && !dem2) { demPct = p1; repPct = p2; winnerParty = p1 >= p2 ? 'D' : 'R'; }
-  else if (dem2 && !dem1) { demPct = p2; repPct = p1; winnerParty = p2 >= p1 ? 'D' : 'R'; }
-  else if (dem1 && dem2) return null;
-  else { demPct = dem1 ? p1 : p2; repPct = dem1 ? p2 : p1; winnerParty = demPct >= repPct ? 'D' : 'R'; }
-  return { demPct, repPct, margin: round1(demPct - repPct), winnerParty };
+function buildPresByStateRecords(statePres) {
+  const records = [];
+  Object.keys(statePres).sort().forEach(function (st) {
+    PRES_YEARS.forEach(function (year) {
+      if (statePres[st][year] == null) return;
+      records.push({ state: st, year: year, margin: statePres[st][year] });
+    });
+  });
+  return records;
 }
 
-function houseWikiTitle(state, district) {
-  if (state === 'AK') return '2024 United States House of Representatives election in Alaska';
-  const name = STATE_NAMES[state];
-  const ord = ORDINALS[district] || (district + 'th');
-  return "2024 United States House of Representatives election in " + name + "'s " + ord + " congressional district";
-}
-
-function senateWikiTitle(state) {
-  return '2024 United States Senate election in ' + STATE_NAMES[state];
-}
-
-async function fetchWikiElection(title, attempt) {
-  const url = 'https://en.wikipedia.org/w/api.php?action=parse&page=' + encodeURIComponent(title) + '&prop=wikitext&format=json';
-  try {
-    const json = await fetchJson(url);
-    if (json.error && json.error.code === 'ratelimited' && attempt < 4) {
-      await sleep(3000 * (attempt + 1));
-      return fetchWikiElection(title, attempt + 1);
-    }
-    if (!json.parse || !json.parse.wikitext) return null;
-    return parseWikiElectionPercents(json.parse.wikitext['*']);
-  } catch (e) {
-    if (attempt < 3) {
-      await sleep(2000 * (attempt + 1));
-      return fetchWikiElection(title, attempt + 1);
-    }
-    return null;
+async function loadMitHouseTabText() {
+  const localPath = path.join(INPUT_DIR, '1976-2024-house.tab');
+  if (fs.existsSync(localPath)) {
+    console.log('Reading local MIT house tab:', localPath);
+    return fs.readFileSync(localPath, 'utf8');
   }
+  console.log('Downloading MIT house tab from', MIT_HOUSE_TAB_URL);
+  const text = await fetchText(MIT_HOUSE_TAB_URL);
+  fs.writeFileSync(localPath, text);
+  return text;
 }
 
-function loadInputElectionCsv(filename, keyCol) {
-  const p = path.join(INPUT_DIR, filename);
-  if (!fs.existsSync(p)) return {};
-  const rows = parseCsv(fs.readFileSync(p, 'utf8'));
+function parseMitHouseTab2024(text) {
+  const rows = parseCsv(text);
+  const header = rows[0];
+  const idx = {};
+  header.forEach(function (h, i) { idx[h] = i; });
+  const buckets = {};
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[idx.year] !== String(HOUSE_CYCLE)) continue;
+    if (row[idx.office] !== 'US HOUSE') continue;
+    if (row[idx.stage] !== 'GEN') continue;
+    if (row[idx.special] === 'TRUE') continue;
+    const state = row[idx.state_po];
+    const district = row[idx.district];
+    const id = districtId(state, district);
+    if (!buckets[id]) buckets[id] = { dem: 0, rep: 0, total: 0, winner: '', winnerParty: '', candidates: {} };
+    const party = String(row[idx.party] || '').toUpperCase();
+    const votes = parseInt(row[idx.candidatevotes], 10) || 0;
+    const total = parseInt(row[idx.totalvotes], 10) || 0;
+    const candidate = String(row[idx.candidate] || '').trim();
+    if (total) buckets[id].total = total;
+    if (/DEMOCRAT/.test(party)) buckets[id].dem += votes;
+    if (/REPUBLICAN/.test(party)) buckets[id].rep += votes;
+    if (candidate && !/WRITEIN/i.test(candidate)) {
+      buckets[id].candidates[candidate] = { party: partyCode(party), votes: votes };
+    }
+  }
+
+  const results = [];
+  Object.keys(buckets).sort().forEach(function (id) {
+    const b = buckets[id];
+    if (!b.total) return;
+    const demPct = round1((b.dem / b.total) * 100);
+    const repPct = round1((b.rep / b.total) * 100);
+    const margin = round1(demPct - repPct);
+    let topName = '';
+    let topVotes = -1;
+    let topParty = '';
+    Object.keys(b.candidates).forEach(function (name) {
+      const c = b.candidates[name];
+      if (c.votes > topVotes) {
+        topVotes = c.votes;
+        topName = name;
+        topParty = c.party;
+      }
+    });
+    results.push({
+      id: id,
+      cycle: HOUSE_CYCLE,
+      winner: topName,
+      party: topParty,
+      dem: demPct,
+      rep: repPct,
+      margin: margin
+    });
+  });
+  return results;
+}
+
+function loadHouseResultsCsv() {
+  const csvPath = path.join(INPUT_DIR, 'house-results-2024.csv');
+  if (!fs.existsSync(csvPath)) return null;
+  const rows = parseCsv(fs.readFileSync(csvPath, 'utf8'));
   const header = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
-  const keyIdx = header.indexOf(keyCol);
+  const idIdx = header.indexOf('district');
   const demIdx = header.indexOf('dempct');
   const repIdx = header.indexOf('reppct');
   const marginIdx = header.indexOf('partymargin');
-  const out = {};
+  const partyIdx = header.indexOf('party');
+  const winnerIdx = header.indexOf('winner');
+  const results = [];
   for (let i = 1; i < rows.length; i++) {
-    const key = rows[i][keyIdx];
-    if (!key) continue;
-    let partyMargin = marginIdx >= 0 ? parseFloat(rows[i][marginIdx]) : NaN;
+    const id = String(rows[i][idIdx] || '').trim();
+    if (!id) continue;
     const dem = demIdx >= 0 ? parseFloat(rows[i][demIdx]) : NaN;
     const rep = repIdx >= 0 ? parseFloat(rows[i][repIdx]) : NaN;
-    if (isNaN(partyMargin) && !isNaN(dem) && !isNaN(rep)) partyMargin = round1(dem - rep);
-    if (!isNaN(partyMargin)) out[String(key).trim()] = { demPct: dem, repPct: rep, partyMargin: partyMargin, margin: partyMargin };
+    let margin = marginIdx >= 0 ? parseFloat(rows[i][marginIdx]) : NaN;
+    if (isNaN(margin) && !isNaN(dem) && !isNaN(rep)) margin = round1(dem - rep);
+    if (isNaN(margin)) continue;
+    results.push({
+      id: id,
+      cycle: HOUSE_CYCLE,
+      winner: winnerIdx >= 0 ? String(rows[i][winnerIdx] || '').trim() : '',
+      party: partyIdx >= 0 ? partyCode(rows[i][partyIdx]) : '',
+      dem: isNaN(dem) ? null : round1(dem),
+      rep: isNaN(rep) ? null : round1(rep),
+      margin: round1(margin)
+    });
   }
+  return results.length ? results : null;
+}
+
+async function buildHouseResults() {
+  const csv = loadHouseResultsCsv();
+  if (csv) {
+    console.log('Using house-results-2024.csv (' + csv.length + ' districts)');
+    return csv;
+  }
+  const text = await loadMitHouseTabText();
+  const results = parseMitHouseTab2024(text);
+  if (results.length < 400) {
+    throw new Error(
+      'House 2024 results incomplete (' + results.length + ' districts). ' +
+      'Place scripts/input/1976-2024-house.tab or house-results-2024.csv and rebuild.'
+    );
+  }
+  console.log('Parsed MIT house tab for 2024:', results.length, 'districts');
+  return results;
+}
+
+function parseMedslSenate2024(text) {
+  const rows = parseCsv(text);
+  const header = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
+  const iYear = header.indexOf('year');
+  const iState = header.indexOf('state_po');
+  const iParty = header.indexOf('party_simplified');
+  const iVotes = header.indexOf('votes');
+  const iTotal = header.indexOf('totalvotes');
+  const iCand = header.indexOf('candidate');
+  const iStage = header.indexOf('stage');
+  const iSpecial = header.indexOf('special');
+  const buckets = {};
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[iYear] !== String(SENATE_CYCLE)) continue;
+    if (row[iStage] !== 'GEN') continue;
+    if (row[iSpecial] === 'TRUE') continue;
+    const state = row[iState];
+    if (!buckets[state]) {
+      buckets[state] = { dem: 0, rep: 0, total: parseInt(row[iTotal], 10) || 0, candidates: {} };
+    }
+    const party = String(row[iParty] || '').toUpperCase();
+    const votes = parseInt(row[iVotes], 10) || 0;
+    const candidate = String(row[iCand] || '').trim();
+    if (party === 'DEMOCRAT') buckets[state].dem += votes;
+    if (party === 'REPUBLICAN') buckets[state].rep += votes;
+    if (candidate) buckets[state].candidates[candidate] = { party: partyCode(party), votes: votes };
+  }
+
+  const results = [];
+  Object.keys(buckets).sort().forEach(function (state) {
+    const b = buckets[state];
+    if (!b.total) return;
+    const demPct = round1((b.dem / b.total) * 100);
+    const repPct = round1((b.rep / b.total) * 100);
+    const margin = round1(demPct - repPct);
+    let topName = '';
+    let topVotes = -1;
+    let topParty = '';
+    Object.keys(b.candidates).forEach(function (name) {
+      const c = b.candidates[name];
+      if (c.votes > topVotes) {
+        topVotes = c.votes;
+        topName = name;
+        topParty = c.party;
+      }
+    });
+    results.push({
+      state: state,
+      cycle: SENATE_CYCLE,
+      class: SENATE_CLASS_2024,
+      winner: topName,
+      party: topParty,
+      dem: demPct,
+      rep: repPct,
+      margin: margin
+    });
+  });
+  return results;
+}
+
+function loadSenateResultsCsv() {
+  const csvPath = path.join(INPUT_DIR, 'senate-results-2024.csv');
+  if (!fs.existsSync(csvPath)) return null;
+  const rows = parseCsv(fs.readFileSync(csvPath, 'utf8'));
+  const header = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
+  const stIdx = header.indexOf('state');
+  const demIdx = header.indexOf('dempct');
+  const repIdx = header.indexOf('reppct');
+  const marginIdx = header.indexOf('partymargin');
+  const classIdx = header.indexOf('class');
+  const partyIdx = header.indexOf('party');
+  const winnerIdx = header.indexOf('winner');
+  const results = [];
+  for (let i = 1; i < rows.length; i++) {
+    const state = String(rows[i][stIdx] || '').trim();
+    if (!state) continue;
+    const dem = demIdx >= 0 ? parseFloat(rows[i][demIdx]) : NaN;
+    const rep = repIdx >= 0 ? parseFloat(rows[i][repIdx]) : NaN;
+    let margin = marginIdx >= 0 ? parseFloat(rows[i][marginIdx]) : NaN;
+    if (isNaN(margin) && !isNaN(dem) && !isNaN(rep)) margin = round1(dem - rep);
+    if (isNaN(margin)) continue;
+    results.push({
+      state: state,
+      cycle: SENATE_CYCLE,
+      class: classIdx >= 0 ? parseInt(rows[i][classIdx], 10) || SENATE_CLASS_2024 : SENATE_CLASS_2024,
+      winner: winnerIdx >= 0 ? String(rows[i][winnerIdx] || '').trim() : '',
+      party: partyIdx >= 0 ? partyCode(rows[i][partyIdx]) : '',
+      dem: isNaN(dem) ? null : round1(dem),
+      rep: isNaN(rep) ? null : round1(rep),
+      margin: round1(margin)
+    });
+  }
+  return results.length ? results : null;
+}
+
+async function buildSenateResults() {
+  const csv = loadSenateResultsCsv();
+  if (csv) {
+    console.log('Using senate-results-2024.csv (' + csv.length + ' states)');
+    return csv;
+  }
+  console.log('Fetching MEDSL 2024 senate state results...');
+  const text = await fetchText(MEDSL_SENATE_2024_URL);
+  const results = parseMedslSenate2024(text);
+  if (results.length < 30) {
+    throw new Error(
+      'Senate 2024 results incomplete (' + results.length + ' states). ' +
+      'Place scripts/input/senate-results-2024.csv and rebuild.'
+    );
+  }
+  console.log('Parsed MEDSL senate 2024:', results.length, 'states');
+  return results;
+}
+
+function indexHouseResults(houseResults) {
+  const byId = {};
+  houseResults.forEach(function (r) { byId[r.id] = r; });
+  return byId;
+}
+
+function indexSenateResults(senateResults) {
+  const byKey = {};
+  senateResults.forEach(function (r) {
+    const key = r.state + ':' + (r.class != null ? r.class : SENATE_CLASS_2024);
+    byKey[key] = r;
+  });
+  return byKey;
+}
+
+function presHistoryFromDistrict(id, presByDistrict) {
+  const pres = (presByDistrict[id] && presByDistrict[id].presMargin) || {};
+  const out = {};
+  PRES_YEARS.forEach(function (y) {
+    out[y] = pres[y] != null ? pres[y] : null;
+  });
   return out;
 }
 
-async function fetchHouseElectionMargins(houseMembers) {
-  const margins = loadInputElectionCsv('house-election-2024.csv', 'district');
-  const cachePath = path.join(INPUT_DIR, 'house-election-cache.json');
-  if (fs.existsSync(cachePath)) {
-    Object.assign(margins, JSON.parse(fs.readFileSync(cachePath, 'utf8')));
-  }
-  if (skipWiki || Object.keys(margins).length >= 300) return margins;
-  console.log('Fetching House election margins from Wikipedia (this may take a few minutes)...');
-  const seen = {};
-  for (const m of houseMembers) {
-    const id = m.id;
-    if (seen[id]) continue;
-    seen[id] = true;
-    const title = houseWikiTitle(m.state, m.district);
-    const result = await fetchWikiElection(title, 0);
-    if (result) {
-      margins[id] = {
-        demPct: result.demPct,
-        repPct: result.repPct,
-        margin: result.margin,
-        partyMargin: signedPartyMargin(result.demPct, result.repPct, m.party)
-      };
-    }
-    await sleep(450);
-  }
-  fs.writeFileSync(path.join(INPUT_DIR, 'house-election-cache.json'), JSON.stringify(margins, null, 2));
-  return margins;
-}
-
-async function fetchSenateElectionMargins(states) {
-  const margins = loadInputElectionCsv('senate-election-2024.csv', 'state');
-  const cachePath = path.join(INPUT_DIR, 'senate-election-cache.json');
-  if (fs.existsSync(cachePath)) {
-    Object.assign(margins, JSON.parse(fs.readFileSync(cachePath, 'utf8')));
-  }
-  if (skipWiki || Object.keys(margins).length >= 40) return margins;
-  console.log('Fetching Senate election margins from Wikipedia...');
-  for (const st of states) {
-    const title = senateWikiTitle(st);
-    const result = await fetchWikiElection(title, 0);
-    if (result) {
-      margins[st] = {
-        demPct: result.demPct,
-        repPct: result.repPct,
-        margin: result.margin,
-        winnerParty: result.winnerParty
-      };
-    }
-    await sleep(450);
-  }
-  fs.writeFileSync(path.join(INPUT_DIR, 'senate-election-cache.json'), JSON.stringify(margins, null, 2));
-  return margins;
+function presHistoryFromState(st, statePres) {
+  const pres = statePres[st] || {};
+  const out = {};
+  PRES_YEARS.forEach(function (y) {
+    out[y] = pres[y] != null ? pres[y] : null;
+  });
+  return out;
 }
 
 async function fetchLegislators() {
@@ -537,14 +725,227 @@ async function fetchStatesTopojson() {
   return fetchJson('https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json');
 }
 
-function buildHouseRecords(houseLeg, presByDistrict, houseMargins, bolts) {
-  return houseLeg.map(function (m) {
-    const pres = (presByDistrict[m.id] && presByDistrict[m.id].presMargin) || {};
-    PRES_YEARS.forEach(function (y) {
-      if (pres[y] == null) pres[y] = null;
+function parseCongressFileName(name) {
+  const m = String(name).match(/^(.+)_(\d+)_to_(\d+)\.geojson$/);
+  if (!m) return null;
+  return {
+    stateName: m[1].replace(/%20/g, ' '),
+    from: parseInt(m[2], 10),
+    to: parseInt(m[3], 10)
+  };
+}
+
+function ringCentroid(ring) {
+  var n = ring.length;
+  if (n > 1 && ring[0][0] === ring[n - 1][0] && ring[0][1] === ring[n - 1][1]) n--;
+  if (!n) return [0, 0];
+  var sx = 0;
+  var sy = 0;
+  for (var i = 0; i < n; i++) {
+    sx += ring[i][0];
+    sy += ring[i][1];
+  }
+  return [sx / n, sy / n];
+}
+
+function geometryCentroid(geom) {
+  if (!geom) return [0, 0];
+  if (geom.type === 'Polygon') return ringCentroid(geom.coordinates[0]);
+  if (geom.type === 'MultiPolygon') return ringCentroid(geom.coordinates[0][0]);
+  return [0, 0];
+}
+
+function visitCoords(coords, visitor) {
+  if (typeof coords[0] === 'number') visitor(coords);
+  else coords.forEach(function (c) { visitCoords(c, visitor); });
+}
+
+function bboxArea(geom) {
+  if (!geom) return 0;
+  var minX = Infinity;
+  var maxX = -Infinity;
+  var minY = Infinity;
+  var maxY = -Infinity;
+  visitCoords(geom.coordinates, function (pt) {
+    minX = Math.min(minX, pt[0]);
+    maxX = Math.max(maxX, pt[0]);
+    minY = Math.min(minY, pt[1]);
+    maxY = Math.max(maxY, pt[1]);
+  });
+  return (maxX - minX) * (maxY - minY);
+}
+
+function centroidDistanceKm(a, b) {
+  var R = 6371;
+  var dLat = (b[1] - a[1]) * Math.PI / 180;
+  var dLng = (b[0] - a[0]) * Math.PI / 180;
+  var lat1 = a[1] * Math.PI / 180;
+  var lat2 = b[1] * Math.PI / 180;
+  var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+function geometriesDiffer(g1, g2) {
+  if (!g1 || !g2) return !!g1 !== !!g2;
+  var c1 = geometryCentroid(g1);
+  var c2 = geometryCentroid(g2);
+  if (centroidDistanceKm(c1, c2) > 2) return true;
+  var a1 = bboxArea(g1);
+  var a2 = bboxArea(g2);
+  if (!a1 || !a2) return true;
+  var ratio = a1 < a2 ? a1 / a2 : a2 / a1;
+  return ratio < 0.85;
+}
+
+function districtNumberKey(state, district) {
+  if (state === 'AK') return '0';
+  return String(district);
+}
+
+function findDistrictFeature(geojson, state, district) {
+  if (!geojson || !geojson.features) return null;
+  var key = districtNumberKey(state, district);
+  for (var i = 0; i < geojson.features.length; i++) {
+    var feat = geojson.features[i];
+    var d = feat.properties && feat.properties.district;
+    if (String(d) === key || (state === 'AK' && (d === 0 || d === '0' || d === 'AL'))) {
+      return feat;
+    }
+  }
+  return null;
+}
+
+function simplifyGeometry(geom) {
+  return {
+    type: geom.type,
+    coordinates: roundCoords(geom.coordinates, 1000)
+  };
+}
+
+async function buildDistrictHistory(houseLeg, presByDistrict) {
+  var historyIndexPath = path.join(HISTORY_DIR, 'index.json');
+  if ((skipHistory || skipGeo) && fs.existsSync(historyIndexPath)) {
+    console.log('Skipping district history (existing index.json)');
+    return JSON.parse(fs.readFileSync(historyIndexPath, 'utf8'));
+  }
+
+  console.log('Building district history overlays...');
+  fs.mkdirSync(HISTORY_DIR, { recursive: true });
+
+  var listUrl = 'https://api.github.com/repos/JeffreyBLewis/congressional-district-boundaries/contents/GeoJson';
+  var list = await fetchJson(listUrl);
+  var filesByStateCongress = {};
+  list.forEach(function (file) {
+    var parsed = parseCongressFileName(file.name);
+    if (!parsed) return;
+    var abbr = Object.keys(STATE_NAMES).find(function (k) { return STATE_NAMES[k] === parsed.stateName; });
+    if (!abbr) return;
+    if (!filesByStateCongress[abbr]) filesByStateCongress[abbr] = [];
+    filesByStateCongress[abbr].push({
+      from: parsed.from,
+      to: parsed.to,
+      download_url: file.download_url,
+      name: file.name
     });
-    const hm = houseMargins[m.id];
-    const partyMargin = hm ? (hm.partyMargin != null ? hm.partyMargin : signedPartyMargin(hm.demPct, hm.repPct, m.party)) : null;
+  });
+
+  var geoCache = {};
+  async function loadStateCongressGeo(stateAbbr, congress) {
+    var cacheKey = stateAbbr + ':' + congress;
+    if (geoCache[cacheKey]) return geoCache[cacheKey];
+    var candidates = (filesByStateCongress[stateAbbr] || []).filter(function (f) {
+      return f.from <= congress && congress <= f.to;
+    });
+    if (!candidates.length) {
+      geoCache[cacheKey] = null;
+      return null;
+    }
+    candidates.sort(function (a, b) {
+      return (a.to - a.from) - (b.to - b.from);
+    });
+    var file = candidates[0];
+    var gj = await fetchJson(file.download_url);
+    geoCache[cacheKey] = gj;
+    return gj;
+  }
+
+  var indexDistricts = {};
+  var stateShards = {};
+  var changedCount = 0;
+
+  for (var hi = 0; hi < houseLeg.length; hi++) {
+    var member = houseLeg[hi];
+    var id = member.id;
+    var state = member.state;
+    var district = member.district;
+    var pres = (presByDistrict[id] && presByDistrict[id].presMargin) || {};
+
+    var geometries = {};
+    for (var yi = 0; yi < PRES_YEARS.length; yi++) {
+      var year = PRES_YEARS[yi];
+      var congress = PRES_YEAR_CONGRESS[year];
+      var gj = await loadStateCongressGeo(state, congress);
+      var feat = gj ? findDistrictFeature(gj, state, district) : null;
+      geometries[year] = feat ? feat.geometry : null;
+    }
+
+    var geom2024 = geometries[2024];
+    var changed = false;
+    for (yi = 0; yi < PRES_YEARS.length; yi++) {
+      year = PRES_YEARS[yi];
+      if (year === 2024) continue;
+      if (geometriesDiffer(geometries[year], geom2024)) {
+        changed = true;
+        break;
+      }
+    }
+
+    indexDistricts[id] = { changed: changed, state: state };
+
+    if (!changed) continue;
+    changedCount++;
+
+    if (!stateShards[state]) stateShards[state] = {};
+    var vintages = {};
+    for (yi = 0; yi < PRES_YEARS.length; yi++) {
+      year = PRES_YEARS[yi];
+      var geom = geometries[year];
+      if (!geom) {
+        vintages[String(year)] = { congress: PRES_YEAR_CONGRESS[year], missing: true };
+        continue;
+      }
+      vintages[String(year)] = {
+        congress: PRES_YEAR_CONGRESS[year],
+        presMargin: pres[year] != null ? pres[year] : null,
+        geometry: simplifyGeometry(geom)
+      };
+    }
+    stateShards[state][id] = { vintages: vintages };
+  }
+
+  var historyIndex = {
+    version: 1,
+    presYears: PRES_YEARS,
+    presYearCongress: PRES_YEAR_CONGRESS,
+    changedCount: changedCount,
+    districts: indexDistricts
+  };
+
+  writeJsonPretty(historyIndexPath, historyIndex);
+  Object.keys(stateShards).sort().forEach(function (st) {
+    writeJson(path.join(HISTORY_DIR, st + '.json'), stateShards[st]);
+  });
+
+  console.log('District history:', changedCount, 'changed districts across', Object.keys(stateShards).length, 'state shards');
+  return historyIndex;
+}
+
+function buildHouseRecords(houseLeg, presByDistrict, houseById, bolts) {
+  return houseLeg.map(function (m) {
+    const pres = presHistoryFromDistrict(m.id, presByDistrict);
+    const hr = houseById[m.id];
+    const partyMargin = hr ? signedPartyMargin(hr.dem, hr.rep, m.party) : null;
     const over = overUnder(partyMargin, pres[2024], m.party);
     const record = {
       id: m.id,
@@ -557,14 +958,18 @@ function buildHouseRecords(houseLeg, presByDistrict, houseMargins, bolts) {
       url: m.url,
       presMargin: pres,
       partyMargin: partyMargin,
-      overUnder: over
+      overUnder: over,
+      electionHistory: {
+        pres: pres,
+        results: hr ? [hr] : []
+      }
     };
     if (bolts.house[m.id]) record.bolts = bolts.house[m.id];
     return record;
   }).sort(function (a, b) { return a.id.localeCompare(b.id); });
 }
 
-function buildSenateRecords(senateLeg, statePres, senateMargins, bolts) {
+function buildSenateRecords(senateLeg, statePres, senateByKey, bolts) {
   const byState = {};
   senateLeg.forEach(function (s) {
     if (!byState[s.state]) byState[s.state] = [];
@@ -573,13 +978,11 @@ function buildSenateRecords(senateLeg, statePres, senateMargins, bolts) {
   const records = [];
   Object.keys(byState).sort().forEach(function (st) {
     const senators = byState[st];
-    const pres = statePres[st] || {};
-    PRES_YEARS.forEach(function (y) {
-      if (pres[y] == null) pres[y] = null;
-    });
-    const sm = senateMargins[st];
+    const pres = presHistoryFromState(st, statePres);
     senators.forEach(function (sen) {
-      const partyMargin = sm ? signedPartyMargin(sm.demPct, sm.repPct, sen.party) : null;
+      const resultKey = st + ':' + (sen.class != null ? sen.class : SENATE_CLASS_2024);
+      const sr = senateByKey[resultKey];
+      const partyMargin = sr ? signedPartyMargin(sr.dem, sr.rep, sen.party) : null;
       const over = overUnder(partyMargin, pres[2024], sen.party);
       const record = {
         id: 'senate:' + st + ':' + (sen.bioguide || sen.name),
@@ -589,9 +992,13 @@ function buildSenateRecords(senateLeg, statePres, senateMargins, bolts) {
         bioguide: sen.bioguide,
         url: sen.url,
         class: sen.class,
-        presMargin: Object.assign({}, pres),
+        presMargin: pres,
         partyMargin: partyMargin,
-        overUnder: over
+        overUnder: over,
+        electionHistory: {
+          pres: pres,
+          results: sr ? [sr] : []
+        }
       };
       if (bolts.senate[st]) record.bolts = bolts.senate[st];
       records.push(record);
@@ -600,44 +1007,89 @@ function buildSenateRecords(senateLeg, statePres, senateMargins, bolts) {
   return records;
 }
 
+function countPresByCdYears(records) {
+  const counts = {};
+  records.forEach(function (r) {
+    counts[r.year] = (counts[r.year] || 0) + 1;
+  });
+  return counts;
+}
+
 async function main() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(ELECTIONS_DIR, { recursive: true });
   const bolts = loadBoltsWatch();
 
   const legislators = await fetchLegislators();
   const presByDistrict = await fetchDownballotPresMargins();
   const statePres = await fetchStatePresMargins();
-  const houseMargins = await fetchHouseElectionMargins(legislators.house);
-  const senateStates = Array.from(new Set(legislators.senate.map(function (s) { return s.state; })));
-  const senateMargins = await fetchSenateElectionMargins(senateStates);
+  const houseResults = await buildHouseResults();
+  const senateResults = await buildSenateResults();
 
-  const houseJson = buildHouseRecords(legislators.house, presByDistrict, houseMargins, bolts);
-  const senateJson = buildSenateRecords(legislators.senate, statePres, senateMargins, bolts);
+  const presByCd = buildPresByCdRecords(presByDistrict);
+  const presByState = buildPresByStateRecords(statePres);
+  const houseById = indexHouseResults(houseResults);
+  const senateByKey = indexSenateResults(senateResults);
+
+  const builtAt = new Date().toISOString();
+
+  const houseJson = buildHouseRecords(legislators.house, presByDistrict, houseById, bolts);
+  const senateJson = buildSenateRecords(legislators.senate, statePres, senateByKey, bolts);
+  const districtHistory = await buildDistrictHistory(legislators.house, presByDistrict);
+
+  const electionMeta = {
+    electionDbVersion: ELECTION_DB_VERSION,
+    builtAt: builtAt,
+    cyclesIncluded: { house: [HOUSE_CYCLE], senate: [SENATE_CYCLE], pres: PRES_YEARS },
+    counts: {
+      'pres-by-cd': presByCd.length,
+      'pres-by-state': presByState.length,
+      'house-results': houseResults.length,
+      'senate-results': senateResults.length
+    },
+    presByCdYearCounts: countPresByCdYears(presByCd),
+    districtHistoryChangedCount: districtHistory.changedCount
+  };
+
+  writeJson(path.join(ELECTIONS_DIR, 'pres-by-cd.json'), presByCd);
+  writeJson(path.join(ELECTIONS_DIR, 'pres-by-state.json'), presByState);
+  writeJson(path.join(ELECTIONS_DIR, 'house-results.json'), houseResults);
+  writeJson(path.join(ELECTIONS_DIR, 'senate-results.json'), senateResults);
+  writeJsonPretty(path.join(ELECTIONS_DIR, 'meta.json'), electionMeta);
 
   const districtsGeo = await fetchDistrictGeojson();
   const statesTopo = await fetchStatesTopojson();
 
+  const houseWithOu = houseJson.filter(function (r) { return r.overUnder != null; }).length;
   const meta = {
-    builtAt: new Date().toISOString(),
+    builtAt: builtAt,
+    electionDbVersion: ELECTION_DB_VERSION,
     sources: [
       { name: 'Bolts / What\'s on the Ballot', url: 'https://boltsmag.org/whats-on-the-ballot/' },
       { name: 'The Downballot', url: 'https://www.the-downballot.com/p/data' },
+      { name: 'MIT Election Lab (house tab via jaytimm/PresElectionResults)', url: 'https://electionlab.mit.edu/data' },
+      { name: 'MEDSL 2024 Senate state returns', url: 'https://github.com/MEDSL/2024-elections-official' },
       { name: 'unitedstates/congress-legislators', url: 'https://github.com/unitedstates/congress-legislators' },
       { name: 'JeffreyBLewis/congressional-district-boundaries', url: 'https://github.com/JeffreyBLewis/congressional-district-boundaries' },
       { name: 'U.S. Census / us-atlas', url: 'https://github.com/topojson/us-atlas' }
     ],
     houseCount: houseJson.length,
     senateCount: senateJson.length,
-    presYears: PRES_YEARS
+    presYears: PRES_YEARS,
+    houseOverUnderCount: houseWithOu,
+    districtHistoryChangedCount: districtHistory.changedCount,
+    pollsPhase: 2
   };
 
-  fs.writeFileSync(path.join(DATA_DIR, 'house.json'), JSON.stringify(houseJson));
-  fs.writeFileSync(path.join(DATA_DIR, 'senate.json'), JSON.stringify(senateJson));
-  fs.writeFileSync(path.join(DATA_DIR, 'districts.geojson'), JSON.stringify(districtsGeo));
-  fs.writeFileSync(path.join(DATA_DIR, 'states.topo.json'), JSON.stringify(statesTopo));
-  fs.writeFileSync(path.join(DATA_DIR, 'meta.json'), JSON.stringify(meta, null, 2));
+  writeJson(path.join(DATA_DIR, 'house.json'), houseJson);
+  writeJson(path.join(DATA_DIR, 'senate.json'), senateJson);
+  writeJson(path.join(DATA_DIR, 'districts.geojson'), districtsGeo);
+  writeJson(path.join(DATA_DIR, 'states.topo.json'), statesTopo);
+  writeJsonPretty(path.join(DATA_DIR, 'meta.json'), meta);
+  writeJsonPretty(path.join(DATA_DIR, 'polls.json'), { updated: null, races: [] });
 
-  console.log('Wrote', houseJson.length, 'house records,', senateJson.length, 'senate records.');
+  console.log('Election DB: pres-by-cd', presByCd.length, 'house-results', houseResults.length, 'senate-results', senateResults.length);
+  console.log('Wrote', houseJson.length, 'house records (' + houseWithOu + ' with overUnder),', senateJson.length, 'senate records.');
   console.log('District features:', districtsGeo.features.length);
 }
 

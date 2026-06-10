@@ -292,7 +292,37 @@ body {
   color: var(--muted);
 }
 .detail-title { margin: 0 0 4px; font-size: 1.2rem; }
+.detail-heading { margin: 14px 0 6px; font-size: 0.9rem; font-weight: 600; color: var(--text); }
 .detail-sub { margin: 0 0 12px; color: var(--muted); font-size: 0.85rem; }
+.history-stable { font-style: italic; }
+.history-year-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 10px;
+}
+.history-year-chip {
+  border: 2px solid var(--history-color, #64748b);
+  color: var(--history-color, #64748b);
+  background: transparent;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+}
+.history-year-chip.active {
+  background: color-mix(in srgb, var(--history-color, #64748b) 18%, transparent);
+  font-weight: 600;
+}
+.history-year-chip:not(.active) {
+  opacity: 0.45;
+}
+.district-history-map {
+  width: 100%;
+  height: 220px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  margin: 0 0 12px;
+  overflow: hidden;
+}
 .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

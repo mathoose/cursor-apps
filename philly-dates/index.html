@@ -44,6 +44,11 @@
     <div id="import-status" class="status" hidden></div>
     <div id="load-error" class="error" hidden role="alert"></div>
 
+    <div class="quick-filters" id="quick-filters">
+      <label class="quick-filter"><input type="checkbox" id="filter-hh-now" /> Happy hour right now</label>
+      <label class="quick-filter"><input type="checkbox" id="filter-never-tried" /> Only places I've never tried</label>
+    </div>
+
     <div class="filters" id="filters-bar">
       <label>Neighborhood
         <select id="neighborhood"><option value="">All neighborhoods</option></select>
@@ -133,6 +138,8 @@
           </select>
           <p class="picker-filter-label">Filter by tags <span class="hint">(optional — leave empty for all places)</span></p>
           <div class="picker-tag-chips" id="picker-tag-chips" role="group" aria-label="Filter by tag"></div>
+          <label class="picker-fav-filter"><input type="checkbox" id="picker-hh-now" /> Happy hour right now</label>
+          <label class="picker-fav-filter"><input type="checkbox" id="picker-never-tried" /> Only places I've never tried</label>
           <label class="picker-fav-filter"><input type="checkbox" id="picker-favorites-only" /> Favorites only</label>
         </div>
         <div class="picker-stage" id="picker-stage">

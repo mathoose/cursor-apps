@@ -11,7 +11,8 @@
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
       "meal-menu": { "storageKey": "meal-menu-v1" },
-      "dont-forget": { "storageKey": "dont-forget-v1" }
+      "dont-forget": { "storageKey": "dont-forget-v1" },
+      "rep-tracker": { "storageKey": "rep-tracker-v1" }
     }
   },
   "apps": [
@@ -23,8 +24,8 @@
     },
     {
       "id": "aruba-packing",
-      "name": "Aruba Pack",
-      "subtitle": "7-day packing",
+      "name": "Closet Picker",
+      "subtitle": "Outfits & wardrobe",
       "storageKey": "aruba-pack-v1"
     },
     {
@@ -56,6 +57,12 @@
       "name": "Don't Forget",
       "subtitle": "Where did I leave it?",
       "storageKey": "dont-forget-v1"
+    },
+    {
+      "id": "rep-tracker",
+      "name": "Rep Tracker",
+      "subtitle": "House & Senate map",
+      "storageKey": "rep-tracker-v1"
     }
   ]
 }

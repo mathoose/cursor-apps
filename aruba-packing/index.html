@@ -6,13 +6,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Aruba Pack" />
+  <meta name="apple-mobile-web-app-title" content="Closet Picker" />
   <meta name="format-detection" content="telephone=no" />
-  <meta name="theme-color" content="#0d9488" />
-  <link rel="icon" href="app-icon.png" type="image/png" />
+  <meta name="theme-color" content="#7c3aed" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <title>Aruba · 7 Days</title>
+  <title>Closet Picker</title>
   <style>
     :root {
       --bg: #f0f4f8;
@@ -20,9 +20,9 @@
       --text: #0f172a;
       --muted: #64748b;
       --border: #e2e8f0;
-      --accent: #0d9488;
-      --accent-soft: #ccfbf1;
-      --accent-dark: #0f766e;
+      --accent: #7c3aed;
+      --accent-soft: #ede9fe;
+      --accent-dark: #5b21b6;
       --danger: #ef4444;
       --shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.06);
       --radius: 14px;
@@ -48,15 +48,20 @@
       padding-bottom: calc(132px + var(--safe-bottom));
     }
 
-    body.view-grid,
-    body.view-pack,
-    body.view-plan {
+    body.view-closet,
+    body.view-pick,
+    body.view-storage,
+    body.view-travel {
       padding-bottom: calc(72px + var(--safe-bottom));
     }
 
-    body.view-pack.has-scan-pack,
-    body.view-plan.has-plan-save {
+    body.view-closet.has-closet-store,
+    body.view-pick.has-pick-random {
       padding-bottom: calc(140px + var(--safe-bottom));
+    }
+
+    body.view-pick.view-pick-preview {
+      padding-bottom: calc(12px + var(--safe-bottom));
     }
 
     button, .tab, .photo-slot, .chip, .section-head, .icon-btn {
@@ -64,11 +69,11 @@
     }
 
     .hero {
-      background: linear-gradient(145deg, #0d9488 0%, #0891b2 55%, #0284c7 100%);
+      background: linear-gradient(145deg, #7c3aed 0%, #8b5cf6 55%, #a78bfa 100%);
       color: #fff;
       padding: calc(16px + var(--safe-top)) 20px 28px;
       border-radius: 0 0 28px 28px;
-      box-shadow: 0 8px 24px rgba(13, 148, 136, 0.25);
+      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
     }
 
     .hero-top {
@@ -599,12 +604,12 @@
 
     .tips strong { display: block; margin-bottom: 4px; color: #78350f; }
 
-    body.view-grid .list-only,
-    body.view-pack .list-only,
-    body.view-plan .list-only { display: none !important; }
-    body:not(.view-grid) .grid-only { display: none !important; }
-    body:not(.view-pack) .pack-only { display: none !important; }
-    body:not(.view-plan) .plan-only { display: none !important; }
+    body:not(.view-closet) .closet-only { display: none !important; }
+    body:not(.view-pick) .pick-only { display: none !important; }
+    body:not(.view-storage) .storage-only { display: none !important; }
+    body:not(.view-travel) .travel-only { display: none !important; }
+    body.view-pick-preview .pick-pool-only { display: none !important; }
+    body:not(.view-pick-preview) .pick-preview-only { display: none !important; }
 
     .grid-page { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
 
@@ -1736,42 +1741,323 @@
       .overlay { align-items: center; }
       .sheet { border-radius: 20px; max-height: 80vh; }
     }
+
+    .page-root { padding: 12px 16px 0; max-width: 520px; margin: 0 auto; }
+
+    .section-pool-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 16px 0 10px;
+    }
+
+    .section-pool-head h3 {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .section-pool-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .section-pool-actions button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--accent-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      min-height: 32px;
+    }
+
+    .pool-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .pool-cell {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      padding: 0;
+      background: #e2e8f0;
+      cursor: pointer;
+    }
+
+    .pool-cell.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .pool-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .pool-cell-check {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pool-cell.on .pool-cell-check { display: flex; }
+
+    .pick-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: calc(100dvh - 180px);
+    }
+
+    @media (min-width: 521px) {
+      .pick-preview { flex-direction: row; align-items: stretch; min-height: 520px; }
+    }
+
+    .pick-preview-main {
+      flex: 1;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 280px;
+    }
+
+    .pick-preview-stack {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .pick-preview-stack img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #e2e8f0;
+    }
+
+    .pick-preview-stack .slot-empty {
+      aspect-ratio: 3/4;
+      border-radius: 12px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
+
+    .pick-preview-rail {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    @media (min-width: 521px) {
+      .pick-preview-rail { width: 120px; flex-shrink: 0; }
+    }
+
+    .pick-cat-pill {
+      width: 100%;
+      padding: 10px 8px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .pick-cat-pill.on {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+
+    .pick-arrow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .pick-arrow-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pick-rail-thumb {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .pick-preview-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .pick-preview-actions button {
+      flex: 1;
+      height: 48px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .pick-random-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(72px + var(--safe-bottom));
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      z-index: 40;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .closet-store-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(72px + var(--safe-bottom));
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.96);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      z-index: 40;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .closet-store-bar span { flex: 1; font-size: 0.875rem; font-weight: 500; }
+
+    .storage-bin-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 16px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      text-align: left;
+      cursor: pointer;
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .storage-bin-card strong { display: block; font-size: 0.9375rem; }
+    .storage-bin-card small { color: var(--muted); font-size: 0.8125rem; }
+
+    .packing-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .packing-gallery img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #e2e8f0;
+    }
+
+    .saved-outfits-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+
+    .saved-outfit-chip {
+      flex-shrink: 0;
+      width: 72px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .saved-outfit-chip img {
+      width: 72px;
+      height: 72px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #e2e8f0;
+    }
+
+    .saved-outfit-chip span {
+      display: block;
+      font-size: 0.6875rem;
+      margin-top: 4px;
+      text-align: center;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 72px;
+    }
   </style>
 </head>
-<body>
-  <header class="hero list-only">
+<body class="view-closet">
+  <header class="hero closet-only" id="closetHero">
     <div class="hero-top hero-top-with-home">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div style="flex:1;min-width:0">
-        <h1>Aruba</h1>
-        <p class="hero-meta">7 days · Tropical · Beach</p>
+        <h1>Closet</h1>
+        <p class="hero-meta" id="closetHeroMeta">Your wardrobe photos</p>
       </div>
-      <button type="button" class="icon-btn" id="btnSettings" aria-label="Settings and activities">
+      <button type="button" class="icon-btn" id="btnSettings" aria-label="Settings">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </button>
-    </div>
-    <div class="progress-wrap">
-      <div class="ring" aria-hidden="true">
-        <svg viewBox="0 0 36 36">
-          <circle class="ring-bg" cx="18" cy="18" r="15.5"/>
-          <circle class="ring-fg" id="ringFg" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/>
-        </svg>
-        <span class="ring-label" id="ringPct">0%</span>
-      </div>
-      <div class="progress-text">
-        <h2 id="progressTitle">Ready to pack</h2>
-        <p id="progressSub">0 of 0 items packed</p>
-      </div>
-    </div>
-  </header>
-
-  <header class="hero grid-only" id="gridHero">
-    <div class="hero-top hero-top-with-home">
-      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
-      <div style="flex:1;min-width:0">
-        <h1>Wardrobe</h1>
-        <p class="hero-meta" id="gridHeroMeta">Photo grid · synced with your list</p>
-      </div>
     </div>
     <div class="progress-wrap">
       <div class="ring" aria-hidden="true">
@@ -1782,54 +2068,50 @@
         <span class="ring-label" id="gridRingPct">0%</span>
       </div>
       <div class="progress-text">
-        <h2 id="gridProgressTitle">Snap your outfits</h2>
+        <h2 id="gridProgressTitle">Add your clothes</h2>
         <p id="gridProgressSub">0 photos added</p>
       </div>
     </div>
   </header>
 
-  <header class="hero pack-only" id="packHero">
+  <header class="hero pick-only" id="pickHero">
     <div class="hero-top hero-top-with-home">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div style="flex:1;min-width:0">
-        <h1>Pack</h1>
-        <p class="hero-meta" id="packHeroMeta">Import photos · sort into wardrobe</p>
+        <h1>Pick</h1>
+        <p class="hero-meta" id="pickHeroMeta">Choose items for the randomizer</p>
       </div>
     </div>
   </header>
 
-  <header class="hero plan-only" id="planHero">
+  <header class="hero storage-only" id="storageHero">
     <div class="hero-top hero-top-with-home">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <div style="flex:1;min-width:0">
-        <h1>Plan</h1>
-        <p class="hero-meta" id="planHeroMeta">Build and save outfits</p>
+        <h1>Storage</h1>
+        <p class="hero-meta" id="storageHeroMeta">Seasonal bins &amp; off-closet items</p>
       </div>
     </div>
   </header>
 
-  <div class="toolbar list-only" role="toolbar" aria-label="Quick filters">
-    <label class="chip" id="chipHide">
-      <input type="checkbox" id="hidePacked" />
-      Hide packed
-    </label>
-    <label class="chip" id="chipLaundry">
-      <input type="checkbox" id="optLaundry" />
-      Laundry
-    </label>
-    <label class="chip" id="chipRepeat">
-      <input type="checkbox" id="optRepeat" />
-      Repeat basics
-    </label>
-  </div>
+  <header class="hero travel-only" id="travelHero">
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
+        <h1>Travel</h1>
+        <p class="hero-meta" id="travelHeroMeta">Plan outfits &amp; packing</p>
+      </div>
+    </div>
+  </header>
 
-  <main id="listRoot" class="list-only" aria-live="polite"></main>
+  <div class="page-root closet-only" id="closetRoot" aria-live="polite"></div>
 
-  <div class="grid-page grid-only" id="gridRoot" aria-live="polite"></div>
+  <div class="page-root pick-only pick-pool-only" id="pickRoot" aria-live="polite"></div>
+  <div class="page-root pick-only pick-preview-only" id="pickPreviewRoot" aria-live="polite"></div>
 
-  <div class="pack-page pack-only" id="packRoot" aria-live="polite"></div>
+  <div class="page-root storage-only" id="storageRoot" aria-live="polite"></div>
 
-  <div class="plan-page plan-only" id="planRoot" aria-live="polite"></div>
+  <div class="page-root travel-only" id="travelRoot" aria-live="polite"></div>
 
   <input type="file" id="fileInput" accept="image/*,.heic,.heif" />
   <input type="file" id="scanCameraInput" accept="image/*,.heic,.heif" capture="environment" multiple />
@@ -1846,48 +2128,36 @@
   </div>
 
   <nav class="tab-bar" aria-label="Main navigation">
-    <button type="button" class="tab on" id="tabList" data-view="list">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
-      List
+    <button type="button" class="tab on" id="tabCloset" data-view="closet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9h18v10a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M3 9l2-4h14l2 4M9 13h6"/></svg>
+      Closet
     </button>
-    <button type="button" class="tab" id="tabGrid" data-view="grid">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-      Wardrobe
+    <button type="button" class="tab" id="tabPick" data-view="pick">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 9l6 6M4 4l5 5"/></svg>
+      Pick
     </button>
-    <button type="button" class="tab" id="tabPack" data-view="pack">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-      Pack
+    <button type="button" class="tab" id="tabStorage" data-view="storage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 8v13H3V8M1 8h22M10 12h4"/></svg>
+      Storage
     </button>
-    <button type="button" class="tab" id="tabPlan" data-view="plan">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-      Plan
+    <button type="button" class="tab" id="tabTravel" data-view="travel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Travel
     </button>
   </nav>
-
-  <div class="fab-bar list-only">
-    <button type="button" class="btn-secondary" id="btnReset" title="Reset list">Reset</button>
-    <button type="button" class="btn-primary" id="btnAdd">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-      Add item
-    </button>
-  </div>
 
   <!-- Add item -->
   <div class="overlay" id="addOverlay" role="dialog" aria-modal="true" aria-labelledby="addTitle">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <h3 id="addTitle">Add to your list</h3>
+      <h3 id="addTitle">New clothing category</h3>
       <div class="field">
-        <label for="addName">Item name</label>
-        <input type="text" id="addName" placeholder="e.g. GoPro charger" autocomplete="off" maxlength="120" />
+        <label for="addName">Category name</label>
+        <input type="text" id="addName" placeholder="e.g. Button-up, Polo" autocomplete="off" maxlength="60" />
       </div>
       <div class="field">
-        <label for="addCategory">Category</label>
-        <select id="addCategory"></select>
-      </div>
-      <div class="field">
-        <label for="addQty">Quantity</label>
-        <input type="number" id="addQty" min="1" max="99" value="1" />
+        <label for="addTag">Tag</label>
+        <select id="addTag"></select>
       </div>
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="addOverlay">Cancel</button>
@@ -1925,6 +2195,43 @@
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="editOverlay">Cancel</button>
         <button type="button" class="btn-save" id="editSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Storage bin label -->
+  <div class="overlay" id="storageBinOverlay" role="dialog" aria-modal="true" aria-labelledby="storageBinTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="storageBinTitle">Store items</h3>
+      <p style="font-size:0.875rem;color:var(--muted);margin:-8px 0 14px">Describe where these clothes are (bin, shelf, label).</p>
+      <div class="field">
+        <label for="storageBinLabel">Location description</label>
+        <input type="text" id="storageBinLabel" placeholder="e.g. yellow bin basement labeled 2" autocomplete="off" maxlength="120" />
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="storageBinOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="storageBinSave">Store</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save outfit from picker -->
+  <div class="overlay" id="saveOutfitOverlay" role="dialog" aria-modal="true" aria-labelledby="saveOutfitTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="saveOutfitTitle">Save outfit</h3>
+      <div class="field">
+        <label for="saveOutfitName">Name</label>
+        <input type="text" id="saveOutfitName" placeholder="e.g. Casual Friday" autocomplete="off" maxlength="80" />
+      </div>
+      <div class="field">
+        <label for="saveOutfitDesc">Description</label>
+        <textarea id="saveOutfitDesc" maxlength="240" placeholder="Optional notes"></textarea>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="saveOutfitOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="saveOutfitConfirm">Save</button>
       </div>
     </div>
   </div>
@@ -1990,24 +2297,19 @@
   <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <h3 id="settingsTitle">Trip setup</h3>
-      <p style="font-size:0.875rem;color:var(--muted);margin:-8px 0 14px;">Toggle activities to add or remove related items.</p>
-      <div class="activity-grid" id="activityGrid"></div>
-      <div class="toggle-row">
-        <span>Hide packed items</span>
-        <button type="button" class="switch" id="swHide" aria-pressed="false"></button>
+      <h3 id="settingsTitle">Settings</h3>
+      <div class="field">
+        <label for="tripStartDate">Trip start date</label>
+        <input type="date" id="tripStartDate" />
       </div>
-      <div class="toggle-row">
-        <span>Laundry at hotel</span>
-        <button type="button" class="switch" id="swLaundry" aria-pressed="false"></button>
-      </div>
-      <div class="toggle-row">
-        <span>Repeat basics (fewer tops)</span>
-        <button type="button" class="switch" id="swRepeat" aria-pressed="false"></button>
+      <div class="field">
+        <label for="tripDays">Trip length (days)</label>
+        <input type="number" id="tripDays" min="1" max="60" value="7" />
       </div>
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <button type="button" class="btn-cancel" id="btnReset" style="width:100%;height:44px;border-radius:12px;margin-bottom:12px">Reset all data</button>
         <h3 style="font-size:0.9375rem;margin-bottom:8px">Backup</h3>
-        <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of your list (checked items, quantities, custom items). Wardrobe grid photos are not included — they stay on this device only.</p>
+        <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of wardrobe data. Photos stay on this device only.</p>
         <div style="display:flex;gap:8px">
           <button type="button" class="btn-save" id="arubaExportBackup" style="flex:1">Export JSON</button>
           <button type="button" class="btn-save" id="arubaImportBackup" style="flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--border)">Import JSON</button>
@@ -2247,23 +2549,23 @@
   reg("umbrella", { label: "Compact travel umbrella", note: "Brief tropical showers", category: "misc", qty: 1, base: false });
   reg("book", { label: "Book / magazine", category: "misc", qty: 1, base: false });
 
-  /** Build default active item ids for current options */
+  /** Build default clothing category ids for new installs */
   function buildDefaultItems(opts) {
-    const ids = [];
-    for (const [id, item] of Object.entries(CATALOG)) {
-      if (item.activity === "laundryOnly") {
-        if (opts.laundry) ids.push(id);
-        continue;
+    if (opts && opts.activities) {
+      const ids = [];
+      for (const [id, item] of Object.entries(CATALOG)) {
+        if (!item.grid) continue;
+        if (item.activity === "laundryOnly") continue;
+        if (item.activity) {
+          if (opts.activities[item.activity]) ids.push(id);
+          continue;
+        }
+        if (item.base === false) continue;
+        ids.push(id);
       }
-      if (item.activity) {
-        if (opts.activities[item.activity]) ids.push(id);
-        continue;
-      }
-      if (item.base === false) continue;
-      if (item.qty === 0) continue;
-      ids.push(id);
+      return ids;
     }
-    return ids;
+    return ["tops", "shorts", "sneakers", "hat"];
   }
 
   function resolveQty(id, opts) {
@@ -2276,7 +2578,7 @@
   }
 
   function defaultTripPlan() {
-    return { startDate: DEFAULT_TRIP_START, days: {} };
+    return { startDate: DEFAULT_TRIP_START, tripDays: DAYS, days: {} };
   }
 
   function sanitizeTripPlan(raw) {
@@ -2284,6 +2586,9 @@
     if (!raw || typeof raw !== "object") return base;
     if (typeof raw.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.startDate)) {
       base.startDate = raw.startDate;
+    }
+    if (typeof raw.tripDays === "number" && raw.tripDays >= 1 && raw.tripDays <= 60) {
+      base.tripDays = raw.tripDays;
     }
     base.days = {};
     if (raw.days && typeof raw.days === "object") {
@@ -2305,20 +2610,14 @@
   }
 
   function defaultState() {
-    const opts = {
-      laundry: false,
-      repeat: false,
-      hidePacked: false,
-      activities: { snorkel: true, dining: true, offroad: false, golf: false, casino: false, diving: false },
-    };
     const items = {};
-    const ids = buildDefaultItems(opts);
+    const ids = buildDefaultItems();
     for (const id of ids) {
-      items[id] = { packed: false, qty: resolveQty(id, opts), custom: false };
+      items[id] = { packed: false, qty: 1, custom: false };
     }
     return {
-      version: 4,
-      opts,
+      version: 5,
+      opts: {},
       collapsed: {},
       wardrobeCollapsed: {},
       items,
@@ -2327,7 +2626,37 @@
       tripPlan: defaultTripPlan(),
       closet: [],
       customWardrobeCategories: [],
+      randomizerPool: {},
+      storageBins: [],
     };
+  }
+
+  function isClothingItem(id, row) {
+    if (!row || row.qty < 1) return false;
+    const cat = CATALOG[id];
+    if (cat && cat.grid) return true;
+    if (row.custom && row.category === "clothing") return true;
+    if (row.custom && row.garmentTag) return true;
+    if (row.note && getTagForWardrobeLabel(row.note)) return true;
+    return false;
+  }
+
+  function migrateToV5(base, parsed) {
+    base.version = 5;
+    base.randomizerPool = parsed.randomizerPool && typeof parsed.randomizerPool === "object" ? parsed.randomizerPool : {};
+    base.storageBins = Array.isArray(parsed.storageBins) ? parsed.storageBins.map(function (bin) {
+      if (!bin || typeof bin !== "object") return null;
+      return {
+        id: typeof bin.id === "string" ? bin.id : newBinId(),
+        label: String(bin.label || "Storage").slice(0, 120),
+        garments: Array.isArray(bin.garments) ? bin.garments.filter(function (g) {
+          return g && typeof g.itemId === "string" && typeof g.slot === "number";
+        }).map(function (g) {
+          return { itemId: g.itemId, slot: g.slot };
+        }) : [],
+      };
+    }).filter(Boolean) : [];
+    return base;
   }
 
   function isRemoved(id) {
@@ -2345,7 +2674,7 @@
     openDeleteId = null;
     saveState();
     render();
-    if (currentView === "grid") renderGrid();
+    if (currentView === "closet") renderCloset();
     toast("Removed from list");
   }
 
@@ -2356,47 +2685,38 @@
       const parsed = JSON.parse(raw);
       if (!parsed || typeof parsed !== "object" || !parsed.items) return defaultState();
       const base = defaultState();
-      base.opts = { ...base.opts, ...parsed.opts, activities: { ...base.opts.activities, ...(parsed.opts && parsed.opts.activities) } };
       base.collapsed = parsed.collapsed || {};
       base.wardrobeCollapsed = parsed.wardrobeCollapsed || {};
       base.outfits = Array.isArray(parsed.outfits) ? parsed.outfits : [];
       base.tripPlan = sanitizeTripPlan(parsed.tripPlan);
       base.closet = Array.isArray(parsed.closet) ? parsed.closet : [];
       base.customWardrobeCategories = Array.isArray(parsed.customWardrobeCategories) ? parsed.customWardrobeCategories : [];
-      base.removed = Array.isArray(parsed.removed) ? parsed.removed.filter(function (id) { return CATALOG[id]; }) : [];
-      const removedSet = new Set(base.removed);
+      base.removed = Array.isArray(parsed.removed) ? parsed.removed : [];
+      migrateToV5(base, parsed);
       base.items = {};
-      const validIds = new Set(buildDefaultItems(base.opts));
-      for (const id of validIds) {
-        if (removedSet.has(id)) continue;
-        const saved = parsed.items[id];
-        if (saved && typeof saved.qty === "number" && saved.qty < 1 && !saved.custom) {
-          removedSet.add(id);
-          continue;
-        }
-        base.items[id] = {
-          packed: !!(saved && saved.packed),
-          qty: saved && typeof saved.qty === "number" ? Math.min(99, Math.max(1, saved.qty)) : resolveQty(id, base.opts),
-          custom: !!(saved && saved.custom),
-          label: saved && saved.label ? saved.label : undefined,
-          category: saved && saved.category ? saved.category : undefined,
-          note: saved && saved.note ? saved.note : undefined,
-          garmentTag: saved && saved.garmentTag ? saved.garmentTag : undefined,
-        };
-      }
-      base.removed = Array.from(removedSet);
-      for (const [id, saved] of Object.entries(parsed.items || {})) {
-        if (base.items[id] || !saved || !saved.custom) continue;
-        base.items[id] = {
+      Object.entries(parsed.items || {}).forEach(function (entry) {
+        const id = entry[0];
+        const saved = entry[1];
+        if (!saved || typeof saved !== "object") return;
+        const row = {
           packed: !!saved.packed,
-          qty: Math.min(99, Math.max(1, saved.qty || 1)),
-          custom: true,
+          qty: Math.min(99, Math.max(1, typeof saved.qty === "number" ? saved.qty : 1)),
+          custom: !!saved.custom,
           label: saved.label,
-          category: saved.category || "misc",
-          note: saved.note || undefined,
-          garmentTag: saved.garmentTag || undefined,
+          category: saved.category || (CATALOG[id] && CATALOG[id].category) || "clothing",
+          note: saved.note,
+          garmentTag: saved.garmentTag,
         };
-      }
+        const isGrid = CATALOG[id] && CATALOG[id].grid;
+        if (!isGrid && !isClothingItem(id, row)) return;
+        if (base.removed.indexOf(id) !== -1 && !saved.custom && !isGrid) return;
+        base.items[id] = row;
+      });
+      buildDefaultItems().forEach(function (id) {
+        if (!base.items[id] && base.removed.indexOf(id) === -1) {
+          base.items[id] = { packed: false, qty: 1, custom: false };
+        }
+      });
       return base;
     } catch (e) {
       return defaultState();
@@ -2406,7 +2726,12 @@
   let state = loadState();
   let saveTimer = null;
   let openDeleteId = null;
-  let currentView = "list";
+  let currentView = "closet";
+  let pickSubView = "pool";
+  let pickerDraft = null;
+  let pickActiveSlotId = "top";
+  let closetSelectedIds = {};
+  let storageDetailBinId = null;
   let pendingPhoto = null;
   let viewerPhoto = null;
   let editingItemId = null;
@@ -2424,10 +2749,11 @@
   let planCalendarMonth = { year: 2026, month: 5 };
   let planDayDateKey = null;
   let planPickingDaySlotId = null;
-  const DEFAULT_OUTFIT_SLOTS = [
-    { slotId: "top", label: "Top", category: "T-shirt" },
-    { slotId: "bottoms", label: "Bottoms", category: "Shorts" },
-    { slotId: "shoes", label: "Shoes", category: "Sneakers" },
+  const PICKER_SLOTS = [
+    { slotId: "top", label: "Top", tag: "top" },
+    { slotId: "bottoms", label: "Bottoms", tag: "bottom" },
+    { slotId: "shoes", label: "Shoes", tag: "feet" },
+    { slotId: "accessories", label: "Accessories", tag: "accessories" },
   ];
   const thumbCache = {};
   const thumbCachePending = {};
@@ -2436,6 +2762,86 @@
 
   function photoKey(itemId, slot) {
     return itemId + ":" + slot;
+  }
+
+  function garmentKey(itemId, slot) {
+    return itemId + ":" + slot;
+  }
+
+  function parseGarmentKey(key) {
+    const idx = String(key).lastIndexOf(":");
+    return { itemId: key.slice(0, idx), slot: parseInt(key.slice(idx + 1), 10) };
+  }
+
+  function getStoredGarmentKeySet() {
+    const set = {};
+    (state.storageBins || []).forEach(function (bin) {
+      (bin.garments || []).forEach(function (g) {
+        set[garmentKey(g.itemId, g.slot)] = true;
+      });
+    });
+    return set;
+  }
+
+  function isGarmentStored(itemId, slot) {
+    return !!getStoredGarmentKeySet()[garmentKey(itemId, slot)];
+  }
+
+  function isInRandomizerPool(itemId, slot) {
+    if (isGarmentStored(itemId, slot)) return false;
+    const key = garmentKey(itemId, slot);
+    if (state.randomizerPool && state.randomizerPool[key] === false) return false;
+    return true;
+  }
+
+  function setRandomizerPool(itemId, slot, on) {
+    if (!state.randomizerPool) state.randomizerPool = {};
+    state.randomizerPool[garmentKey(itemId, slot)] = !!on;
+    saveState();
+  }
+
+  function getAllActiveGarments(photoCounts) {
+    const stored = getStoredGarmentKeySet();
+    const garments = [];
+    gridGroups().forEach(function (g) {
+      const maxSlot = Math.max(g.qty, 1);
+      for (let i = 0; i <= maxSlot && i < 99; i++) {
+        const pk = photoKey(g.id, i);
+        if (!photoCounts[pk]) continue;
+        if (stored[garmentKey(g.id, i)]) continue;
+        garments.push({
+          itemId: g.id,
+          slot: i,
+          label: gridGroupSubtitle(g.id) || gridDisplayName(g.id) || itemLabel(g.id),
+          photoKey: pk,
+          tag: getItemGarmentTag(g.id),
+        });
+      }
+    });
+    return garments;
+  }
+
+  function getPoolGarmentsByTag(tag, photoCounts) {
+    return getAllActiveGarments(photoCounts).filter(function (g) {
+      return g.tag === tag && isInRandomizerPool(g.itemId, g.slot);
+    });
+  }
+
+  function syncRandomizerPoolDefaults(photoCounts) {
+    if (!state.randomizerPool) state.randomizerPool = {};
+    let changed = false;
+    getAllActiveGarments(photoCounts).forEach(function (g) {
+      const key = garmentKey(g.itemId, g.slot);
+      if (state.randomizerPool[key] === undefined) {
+        state.randomizerPool[key] = true;
+        changed = true;
+      }
+    });
+    return changed;
+  }
+
+  function newBinId() {
+    return "bin-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
   }
 
   function closetKey(id) {
@@ -2545,8 +2951,8 @@
     saveState();
     closeOverlay("newCategoryOverlay");
     toast("Added “" + name + "”");
-    if (currentView === "pack") renderPack();
-    if (currentView === "grid") renderGrid();
+    if (currentView === "closet") renderPack();
+    if (currentView === "closet") renderCloset();
   }
 
   function openPhotoDb() {
@@ -2934,9 +3340,9 @@
     });
     return Promise.all(tasks).then(function () {
       saveStateImmediate();
-      if (currentView === "grid") renderGrid();
-      if (currentView === "pack") renderPack();
-      if (currentView === "plan") renderPlan();
+      if (currentView === "closet") renderCloset();
+      if (currentView === "closet") renderPack();
+      if (currentView === "travel") renderTravel();
       let msg = imported + " photo" + (imported === 1 ? "" : "s") + " imported";
       if (skipped) msg += " · " + skipped + " skipped";
       toast(msg);
@@ -3294,7 +3700,7 @@
       return idbPut(key, blob);
     }).then(function () {
       toast("Photo saved");
-      if (currentView === "grid") renderGrid();
+      if (currentView === "closet") renderCloset();
     }).catch(function (err) {
       const msg = err && err.message === "Could not process image"
         ? "Could not process this photo — try another"
@@ -3551,7 +3957,7 @@
   function updateScanPackBar(option) {
     const count = scanSelectedCount();
     const show = !!(option && count > 0);
-    document.body.classList.toggle("has-scan-pack", show && currentView === "pack");
+    document.body.classList.toggle("has-scan-pack", show && currentView === "closet");
     let bar = document.getElementById("scanPackBar");
     if (!show) {
       if (bar) bar.remove();
@@ -3687,9 +4093,11 @@
   }
 
   function getGarmentsForPlanSlot(slot, photoCounts) {
-    const tagBySlot = { top: "top", bottoms: "bottom", shoes: "feet" };
+    const tagBySlot = { top: "top", bottoms: "bottom", shoes: "feet", accessories: "accessories" };
     const tag = tagBySlot[slot.slotId];
-    if (tag) return getGarmentsByTag(tag, photoCounts);
+    if (tag) return getGarmentsByTag(tag, photoCounts).filter(function (g) {
+      return isInRandomizerPool(g.itemId, g.slot);
+    });
     return getGarmentsInCategory(slot.category, photoCounts);
   }
 
@@ -3711,8 +4119,14 @@
   }
 
   function cloneDefaultOutfitSlots() {
-    return DEFAULT_OUTFIT_SLOTS.map(function (s) {
-      return { slotId: s.slotId, label: s.label, category: s.category, garment: null };
+    return PICKER_SLOTS.map(function (s) {
+      return { slotId: s.slotId, label: s.label, category: s.label, garment: null };
+    });
+  }
+
+  function clonePickerSlots() {
+    return PICKER_SLOTS.map(function (s) {
+      return { slotId: s.slotId, label: s.label, tag: s.tag, garment: null };
     });
   }
 
@@ -3761,9 +4175,11 @@
   }
 
   function getTripDateKeys() {
+    ensureTripPlan();
     const start = getTripStartDate();
+    const len = state.tripPlan.tripDays || DAYS;
     const keys = [];
-    for (let i = 0; i < DAYS; i++) keys.push(formatDateKey(addDays(start, i)));
+    for (let i = 0; i < len; i++) keys.push(formatDateKey(addDays(start, i)));
     return keys;
   }
 
@@ -3901,7 +4317,7 @@
           planView = "library";
           planDetailId = null;
         }
-        renderPlan();
+        renderTravel();
       };
     });
   }
@@ -3985,7 +4401,7 @@
         planCalendarMonth.month = 11;
         planCalendarMonth.year -= 1;
       }
-      renderPlan();
+      renderTravel();
     };
     document.getElementById("planCalNext").onclick = function () {
       planCalendarMonth.month += 1;
@@ -3993,7 +4409,7 @@
         planCalendarMonth.month = 0;
         planCalendarMonth.year += 1;
       }
-      renderPlan();
+      renderTravel();
     };
 
     root.querySelectorAll(".plan-cal-day[data-date-key]").forEach(function (btn) {
@@ -4054,7 +4470,7 @@
         state.tripPlan.days[dateKey] = list;
         saveState();
         renderPlanDayOverlay(dateKey);
-        if (planSection === "calendar" && currentView === "plan") renderPlan();
+        if (planSection === "calendar" && currentView === "travel") renderTravel();
       };
     });
 
@@ -4073,10 +4489,8 @@
 
   function openPlanDayOverlay(dateKey) {
     if (!state.outfits || !state.outfits.length) {
-      toast("Create outfits under Outfits first");
-      planSection = "outfits";
-      planView = "library";
-      renderPlan();
+      toast("Save outfits from Pick first");
+      setView("pick");
       return;
     }
     renderPlanDayOverlay(dateKey);
@@ -4134,7 +4548,7 @@
         closeOverlay("planOutfitPickerOverlay");
         planPickingDaySlotId = null;
         renderPlanDayOverlay(planDayDateKey);
-        if (planSection === "calendar" && currentView === "plan") renderPlan();
+        if (planSection === "calendar" && currentView === "travel") renderTravel();
         toast(slot.outfitId ? "Outfit assigned" : "Outfit cleared");
       };
     });
@@ -4273,112 +4687,685 @@
     });
   }
 
-  function renderGrid() {
-    const root = document.getElementById("gridRoot");
+  function renderCloset() {
+    const root = document.getElementById("closetRoot");
+    if (!root) return;
     const groups = gridGroups();
+    const closetEntries = getUncategorizedCloset();
 
-    if (!groups.length) {
-      root.innerHTML = '<div class="grid-empty">No wardrobe items on your list yet. Add clothing from the List tab, or turn on activities in Settings.</div>';
-      updateGridProgress({});
-      return;
-    }
+    loadPhotoCounts(groups).then(function (photoCounts) {
+      let html = '<div class="scan-actions-row">';
+      html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera</button>';
+      html += '<button type="button" class="btn-secondary" id="btnScanImport"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import</button>';
+      html += '<button type="button" class="btn-secondary" id="btnAddCategory" style="flex:0.8">+ Category</button>';
+      html += '</div>';
 
-    const showTip = !localStorage.getItem("aruba-pack-homescreen-tip");
-    root.innerHTML = '<p class="grid-intro">Filter by tag, tap a category to expand and add photos. Counts match your list — fill every slot and a new <strong>+</strong> appears. Photos stay on this device only.' +
-      (showTip ? '<span class="grid-intro-tip"><strong>iPhone tip:</strong> In Safari, tap Share → <strong>Add to Home Screen</strong> for the best full-screen experience.</span>' : '') +
-      '</p>';
-    root.innerHTML += '<div class="scan-tag-scroll grid-tag-filter" role="toolbar" aria-label="Filter wardrobe by tag">';
-    root.innerHTML += '<button type="button" class="scan-cat-chip' + (!gridActiveTag ? " on" : "") + '" data-grid-tag="">All</button>';
-    GARMENT_TAGS.forEach(function (t) {
-      root.innerHTML += '<button type="button" class="scan-cat-chip' + (gridActiveTag === t.id ? " on" : "") + '" data-grid-tag="' + t.id + '">' + escapeHtml(t.label) + "</button>";
+      if (closetEntries.length) {
+        html += '<p class="scan-intro">' + closetEntries.length + ' uncategorized · pick a category below, tap photos, then <strong>Pack</strong>.</p>';
+        html += '<div class="scan-cat-scroll" role="toolbar" aria-label="Clothing categories">';
+        html += '<button type="button" class="scan-cat-chip add-cat" data-cat-key="newcat">+ New category</button>';
+        buildWardrobeCategoryList(photoCounts).forEach(function (cat) {
+          const on = packActiveCategoryKey === cat.key;
+          html += '<button type="button" class="scan-cat-chip' + (on ? " on" : "") + '" data-cat-key="' + escapeHtml(cat.key) + '">' + escapeHtml(cat.label) + '</button>';
+        });
+        html += '</div>';
+        html += '<div class="scan-thumbs" style="margin-bottom:16px">';
+        closetEntries.forEach(function (entry) {
+          const selected = !!packSelectedIds[entry.id];
+          const selectable = !!packActiveCategoryKey && packActiveCategoryKey !== "newcat";
+          const preview = closetPreviews[entry.id] || "";
+          html += '<div class="scan-thumb' + (selectable ? " selectable" : "") + (selected ? " selected" : "") + '" data-scan-id="' + escapeHtml(entry.id) + '">';
+          html += '<img data-closet-id="' + escapeHtml(entry.id) + '" src="' + preview + '" alt="" />';
+          if (selectable) html += '<span class="scan-thumb-check" aria-hidden="true">✓</span>';
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+
+      html += '<p class="grid-intro">Tap a category to expand. Long-press or use select mode to store items for the season.</p>';
+      html += '<div class="scan-tag-scroll grid-tag-filter" role="toolbar" aria-label="Filter wardrobe by tag">';
+      html += '<button type="button" class="scan-cat-chip' + (!gridActiveTag ? " on" : "") + '" data-grid-tag="">All</button>';
+      GARMENT_TAGS.forEach(function (t) {
+        html += '<button type="button" class="scan-cat-chip' + (gridActiveTag === t.id ? " on" : "") + '" data-grid-tag="' + t.id + '">' + escapeHtml(t.label) + '</button>';
+      });
+      html += '</div>';
+
+      root.innerHTML = html;
+
+      document.getElementById("btnScanCapture").onclick = function () { document.getElementById("scanCameraInput").click(); };
+      document.getElementById("btnScanImport").onclick = function () { document.getElementById("scanImportInput").click(); };
+      document.getElementById("btnAddCategory").onclick = function () { openNewCategoryOverlay(); };
+
+      root.querySelectorAll("[data-grid-tag]").forEach(function (chip) {
+        chip.onclick = function () {
+          gridActiveTag = chip.dataset.gridTag || null;
+          renderCloset();
+        };
+      });
+
+      root.querySelectorAll(".scan-cat-chip[data-cat-key]").forEach(function (chip) {
+        chip.onclick = function () {
+          const key = chip.dataset.catKey;
+          if (key === "newcat") { openNewCategoryOverlay(); return; }
+          packActiveCategoryKey = packActiveCategoryKey === key ? null : key;
+          clearScanSelection();
+          renderCloset();
+        };
+      });
+
+      root.querySelectorAll(".scan-thumb.selectable").forEach(function (thumb) {
+        thumb.onclick = function () {
+          toggleScanSelection(thumb.dataset.scanId);
+          renderCloset();
+        };
+      });
+
+      root.querySelectorAll("img[data-closet-id]").forEach(function (img) {
+        const id = img.getAttribute("data-closet-id");
+        if (closetPreviews[id]) { img.src = closetPreviews[id]; return; }
+        idbGet(closetKey(id)).then(function (blob) {
+          if (!blob) return;
+          const url = URL.createObjectURL(blob);
+          closetPreviews[id] = url;
+          img.src = url;
+        });
+      });
+
+      updateScanPackBar(packActiveCategoryKey ? getScanCategoryOption(packActiveCategoryKey, photoCounts) : null);
+      if (packActiveCategoryKey && packActiveCategoryKey !== "newcat") {
+        document.body.classList.add("has-scan-pack");
+      }
+
+      renderClosetGrid(root, groups, photoCounts);
     });
-    root.innerHTML += "</div>";
-    if (showTip) localStorage.setItem("aruba-pack-homescreen-tip", "1");
+  }
 
-    root.querySelectorAll("[data-grid-tag]").forEach(function (chip) {
-      chip.onclick = function () {
-        gridActiveTag = chip.dataset.gridTag || null;
-        renderGrid();
-      };
-    });
-
+  function renderClosetGrid(root, groups, photoCounts) {
     const visibleGroups = gridActiveTag
       ? groups.filter(function (g) { return getItemGarmentTag(g.id) === gridActiveTag; })
       : groups;
 
     if (!visibleGroups.length) {
-      root.innerHTML += '<div class="grid-empty">No wardrobe items for this tag. Try <strong>All</strong> or add clothing from the List tab.</div>';
-      updateGridProgress({});
+      root.innerHTML += '<div class="grid-empty">No categories yet. Tap <strong>+ Category</strong> to add one.</div>';
+      updateGridProgress(photoCounts);
+      updateClosetStoreBar();
       return;
     }
 
-    loadPhotoCounts(visibleGroups).then(function (photoCounts) {
-      visibleGroups.forEach(function (g) {
-        let filled = countFilledPhotos(g.id, g.qty, photoCounts);
-        const slotCount = slotCountForGroup(g, photoCounts);
-        const subtitle = gridGroupSubtitle(g.id);
-        const expanded = isWardrobeGroupExpanded(g.id);
-        let block = '<section class="grid-group' + (expanded ? "" : " collapsed") + '" data-item="' + escapeHtml(g.id) + '">';
-        block += '<div class="grid-group-head" role="button" tabindex="0" aria-expanded="' + expanded + '" data-toggle-item="' + escapeHtml(g.id) + '">';
-        block += '<div class="grid-group-head-main"><h3>' + escapeHtml(g.name) + '</h3>';
-        block += '<div class="count">' + g.qty + " item" + (g.qty === 1 ? "" : "s") + " · " + filled + "/" + g.qty + " photos";
-        if (subtitle) block += " · " + escapeHtml(subtitle);
-        block += '</div></div>';
-        block += '<div class="grid-group-head-actions">';
-        block += '<button type="button" class="grid-edit-btn" data-edit-item="' + escapeHtml(g.id) + '" aria-label="Edit ' + escapeHtml(g.name) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
-        block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + '</span>';
-        block += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
-        block += '</div></div>';
-        block += '<div class="grid-group-body"><div class="slot-grid">';
+    visibleGroups.forEach(function (g) {
+      let filled = countFilledPhotos(g.id, g.qty, photoCounts);
+      const slotCount = slotCountForGroup(g, photoCounts);
+      const subtitle = gridGroupSubtitle(g.id);
+      const expanded = isWardrobeGroupExpanded(g.id);
+      let block = '<section class="grid-group' + (expanded ? "" : " collapsed") + '" data-item="' + escapeHtml(g.id) + '">';
+      block += '<div class="grid-group-head" role="button" tabindex="0" aria-expanded="' + expanded + '" data-toggle-item="' + escapeHtml(g.id) + '">';
+      block += '<div class="grid-group-head-main"><h3>' + escapeHtml(g.name) + '</h3>';
+      block += '<div class="count">' + g.qty + " item" + (g.qty === 1 ? "" : "s") + " · " + filled + "/" + g.qty + " photos";
+      if (subtitle) block += " · " + escapeHtml(subtitle);
+      block += '</div></div>';
+      block += '<div class="grid-group-head-actions">';
+      block += '<button type="button" class="grid-edit-btn" data-edit-item="' + escapeHtml(g.id) + '" aria-label="Edit ' + escapeHtml(g.name) + '"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>';
+      block += '<span class="grid-photo-badge' + (filled >= g.qty ? " done" : "") + '">' + filled + "/" + g.qty + '</span>';
+      block += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+      block += '</div></div>';
+      block += '<div class="grid-group-body"><div class="slot-grid">';
 
-        for (let i = 0; i < slotCount; i++) {
-          const key = photoKey(g.id, i);
-          const has = !!photoCounts[key];
-          block += '<button type="button" class="photo-slot' + (has ? " has-photo" : "") + '" data-item="' + escapeHtml(g.id) + '" data-slot="' + i + '" aria-label="' + (has ? "View photo" : "Add photo") + " for " + escapeHtml(g.name) + " " + (i + 1) + '">';
-          block += '<span class="slot-num">' + (i + 1) + "</span>";
-          if (has) {
-            block += '<img data-photo-key="' + escapeHtml(key) + '" alt="" />';
-          } else {
-            block += '<span class="slot-add"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>';
-          }
-          block += "</button>";
+      for (let i = 0; i < slotCount; i++) {
+        if (isGarmentStored(g.id, i)) continue;
+        const key = photoKey(g.id, i);
+        const has = !!photoCounts[key];
+        const sel = !!closetSelectedIds[garmentKey(g.id, i)];
+        block += '<button type="button" class="photo-slot' + (has ? " has-photo" : "") + (sel ? " on" : "") + '" data-item="' + escapeHtml(g.id) + '" data-slot="' + i + '" aria-label="' + (has ? "View photo" : "Add photo") + " for " + escapeHtml(g.name) + " " + (i + 1) + '">';
+        block += '<span class="slot-num">' + (i + 1) + "</span>";
+        if (has) {
+          block += '<img data-photo-key="' + escapeHtml(key) + '" alt="" />';
+        } else {
+          block += '<span class="slot-add"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>';
         }
+        block += "</button>";
+      }
 
-        block += "</div></div></section>";
-        root.innerHTML += block;
+      block += "</div></div></section>";
+      root.innerHTML += block;
+    });
+
+    updateGridProgress(photoCounts);
+    bindSlotButtons(photoCounts);
+
+    root.querySelectorAll(".grid-group-head[data-toggle-item]").forEach(function (head) {
+      head.onclick = function (e) {
+        if (e.target.closest(".grid-edit-btn")) return;
+        const id = head.dataset.toggleItem;
+        if (!state.wardrobeCollapsed) state.wardrobeCollapsed = {};
+        state.wardrobeCollapsed[id] = isWardrobeGroupExpanded(id) ? true : false;
+        saveState();
+        renderCloset();
+      };
+      head.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); head.click(); }
+      };
+    });
+
+    root.querySelectorAll(".grid-edit-btn").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        openEditItem(btn.dataset.editItem);
+      };
+    });
+
+    root.querySelectorAll("img[data-photo-key]").forEach(function (img) {
+      const key = img.getAttribute("data-photo-key");
+      getThumbUrl(key).then(function (url) {
+        if (url) img.src = url;
+      });
+    });
+
+    root.querySelectorAll(".photo-slot.has-photo").forEach(function (slot) {
+      slot.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        toggleClosetSelection(slot.dataset.item, parseInt(slot.dataset.slot, 10));
+        renderCloset();
+      });
+      let pressTimer = null;
+      slot.addEventListener("touchstart", function () {
+        pressTimer = setTimeout(function () {
+          toggleClosetSelection(slot.dataset.item, parseInt(slot.dataset.slot, 10));
+          renderCloset();
+        }, 500);
+      }, { passive: true });
+      slot.addEventListener("touchend", function () { clearTimeout(pressTimer); });
+    });
+
+    updateClosetStoreBar();
+  }
+
+  function toggleClosetSelection(itemId, slot) {
+    const key = garmentKey(itemId, slot);
+    if (closetSelectedIds[key]) delete closetSelectedIds[key];
+    else closetSelectedIds[key] = true;
+  }
+
+  function closetSelectedCount() {
+    return Object.keys(closetSelectedIds).length;
+  }
+
+  function updateClosetStoreBar() {
+    const count = closetSelectedCount();
+    const show = count > 0 && currentView === "closet";
+    document.body.classList.toggle("has-closet-store", show);
+    let bar = document.getElementById("closetStoreBar");
+    if (!show) {
+      if (bar) bar.remove();
+      return;
+    }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "closetStoreBar";
+      bar.className = "closet-store-bar";
+      bar.innerHTML = '<span id="closetStoreLabel"></span><button type="button" class="btn-save" id="closetStoreBtn">Store</button><button type="button" class="btn-cancel" id="closetStoreClear">Clear</button>';
+      document.body.appendChild(bar);
+      document.getElementById("closetStoreClear").onclick = function () {
+        closetSelectedIds = {};
+        renderCloset();
+      };
+      document.getElementById("closetStoreBtn").onclick = function () {
+        document.getElementById("storageBinLabel").value = "";
+        openOverlay("storageBinOverlay");
+      };
+    }
+    document.getElementById("closetStoreLabel").textContent = count + " selected";
+  }
+
+  function renderPick() {
+    if (pickSubView === "preview") {
+      document.body.classList.add("view-pick-preview");
+      renderPickPreview();
+      return;
+    }
+    document.body.classList.remove("view-pick-preview");
+    const root = document.getElementById("pickRoot");
+    if (!root) return;
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      syncRandomizerPoolDefaults(photoCounts);
+      let html = '<p class="grid-intro">Tap items to include or exclude from the randomizer. Use <strong>Select all</strong> per section.</p>';
+      GARMENT_TAGS.forEach(function (tag) {
+        const garments = getAllActiveGarments(photoCounts).filter(function (g) { return g.tag === tag.id; });
+        if (!garments.length) return;
+        html += '<div class="section-pool-head"><h3>' + escapeHtml(tag.label) + 's</h3>';
+        html += '<div class="section-pool-actions">';
+        html += '<button type="button" data-pool-all="' + tag.id + '">Select all</button>';
+        html += '<button type="button" data-pool-none="' + tag.id + '">Clear</button>';
+        html += '</div></div>';
+        html += '<div class="pool-grid">';
+        garments.forEach(function (g) {
+          const on = isInRandomizerPool(g.itemId, g.slot);
+          html += '<button type="button" class="pool-cell' + (on ? " on" : "") + '" data-pool-item="' + escapeHtml(g.itemId) + '" data-pool-slot="' + g.slot + '">';
+          html += '<img data-garment-key="' + escapeHtml(g.photoKey) + '" alt="" /><span class="pool-cell-check">✓</span></button>';
+        });
+        html += '</div>';
+      });
+      if (!getAllActiveGarments(photoCounts).length) {
+        html += '<div class="grid-empty">Add photos in <strong>Closet</strong> first.</div>';
+      }
+      root.innerHTML = html;
+
+      root.querySelectorAll("[data-pool-all]").forEach(function (btn) {
+        btn.onclick = function () {
+          getAllActiveGarments(photoCounts).filter(function (g) { return g.tag === btn.dataset.poolAll; }).forEach(function (g) {
+            setRandomizerPool(g.itemId, g.slot, true);
+          });
+          renderPick();
+        };
+      });
+      root.querySelectorAll("[data-pool-none]").forEach(function (btn) {
+        btn.onclick = function () {
+          getAllActiveGarments(photoCounts).filter(function (g) { return g.tag === btn.dataset.poolNone; }).forEach(function (g) {
+            setRandomizerPool(g.itemId, g.slot, false);
+          });
+          renderPick();
+        };
+      });
+      root.querySelectorAll(".pool-cell").forEach(function (cell) {
+        cell.onclick = function () {
+          const itemId = cell.dataset.poolItem;
+          const slot = parseInt(cell.dataset.poolSlot, 10);
+          setRandomizerPool(itemId, slot, !isInRandomizerPool(itemId, slot));
+          renderPick();
+        };
+      });
+      root.querySelectorAll("img[data-garment-key]").forEach(function (img) {
+        getThumbUrl(img.getAttribute("data-garment-key")).then(function (url) { if (url) img.src = url; });
       });
 
-      updateGridProgress(photoCounts);
-      bindSlotButtons(photoCounts);
+      updatePickRandomBar(photoCounts);
+      const meta = document.getElementById("pickHeroMeta");
+      if (meta) {
+        const n = getAllActiveGarments(photoCounts).filter(function (g) { return isInRandomizerPool(g.itemId, g.slot); }).length;
+        meta.textContent = n + " item" + (n === 1 ? "" : "s") + " in randomizer pool";
+      }
+    });
+  }
 
-      root.querySelectorAll(".grid-group-head[data-toggle-item]").forEach(function (head) {
-        head.onclick = function (e) {
-          if (e.target.closest(".grid-edit-btn")) return;
-          const id = head.dataset.toggleItem;
-          if (!state.wardrobeCollapsed) state.wardrobeCollapsed = {};
-          state.wardrobeCollapsed[id] = isWardrobeGroupExpanded(id) ? true : false;
-          saveState();
-          renderGrid();
-        };
-        head.onkeydown = function (e) {
-          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); head.click(); }
+  function updatePickRandomBar(photoCounts) {
+    const hasPool = getAllActiveGarments(photoCounts).some(function (g) { return isInRandomizerPool(g.itemId, g.slot); });
+    const show = hasPool && pickSubView === "pool" && currentView === "pick";
+    document.body.classList.toggle("has-pick-random", show);
+    let bar = document.getElementById("pickRandomBar");
+    if (!show) { if (bar) bar.remove(); return; }
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "pickRandomBar";
+      bar.className = "pick-random-bar";
+      bar.innerHTML = '<button type="button" class="btn-primary" id="pickRandomBtn" style="width:100%;height:48px;border-radius:14px;border:none">Random outfit</button>';
+      document.body.appendChild(bar);
+      document.getElementById("pickRandomBtn").onclick = function () { startRandomOutfit(photoCounts); };
+    } else {
+      document.getElementById("pickRandomBtn").onclick = function () { startRandomOutfit(photoCounts); };
+    }
+  }
+
+  function startRandomOutfit(photoCounts) {
+    photoCounts = photoCounts || {};
+    pickerDraft = { slots: clonePickerSlots() };
+    pickerDraft.slots.forEach(function (slot) {
+      const pool = getPoolGarmentsByTag(slot.tag, photoCounts);
+      if (!pool.length) { slot.garment = null; return; }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      slot.garment = { itemId: pick.itemId, slot: pick.slot };
+    });
+    pickActiveSlotId = "top";
+    pickSubView = "preview";
+    renderPick();
+  }
+
+  function renderPickPreview() {
+    const root = document.getElementById("pickPreviewRoot");
+    if (!root || !pickerDraft) { pickSubView = "pool"; renderPick(); return; }
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      const activeSlot = pickerDraft.slots.find(function (s) { return s.slotId === pickActiveSlotId; }) || pickerDraft.slots[0];
+      if (activeSlot) pickActiveSlotId = activeSlot.slotId;
+
+      let html = '<button type="button" class="btn-secondary" id="pickBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← Back to pool</button>';
+      html += '<div class="pick-preview">';
+      html += '<div class="pick-preview-main"><h3 style="font-size:1rem;margin-bottom:8px">Your outfit</h3><div class="pick-preview-stack">';
+      pickerDraft.slots.forEach(function (slot) {
+        if (slot.garment) {
+          html += '<img data-preview-item="' + escapeHtml(slot.garment.itemId) + '" data-preview-slot="' + slot.garment.slot + '" alt="' + escapeHtml(slot.label) + '" />';
+        } else {
+          html += '<div class="slot-empty">No ' + escapeHtml(slot.label.toLowerCase()) + '</div>';
+        }
+      });
+      html += '</div>';
+      html += '<div class="pick-preview-actions">';
+      html += '<button type="button" class="btn-save" id="pickRerollBtn" style="background:var(--accent);color:#fff">Random again</button>';
+      html += '<button type="button" class="btn-save" id="pickSaveOutfitBtn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">Save outfit</button>';
+      html += '</div></div>';
+
+      html += '<div class="pick-preview-rail">';
+      pickerDraft.slots.forEach(function (slot) {
+        html += '<button type="button" class="pick-cat-pill' + (slot.slotId === pickActiveSlotId ? " on" : "") + '" data-pick-slot="' + escapeHtml(slot.slotId) + '">' + escapeHtml(slot.label) + '</button>';
+      });
+      if (activeSlot && activeSlot.garment) {
+        html += '<img class="pick-rail-thumb" data-rail-item="' + escapeHtml(activeSlot.garment.itemId) + '" data-rail-slot="' + activeSlot.garment.slot + '" alt="" />';
+      } else {
+        html += '<div class="pick-rail-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.75rem">None</div>';
+      }
+      html += '<div class="pick-arrow-row">';
+      html += '<button type="button" class="pick-arrow-btn" id="pickPrevBtn" aria-label="Previous">‹</button>';
+      html += '<button type="button" class="pick-arrow-btn" id="pickNextBtn" aria-label="Next">›</button>';
+      html += '</div></div></div>';
+
+      root.innerHTML = html;
+
+      document.getElementById("pickBackBtn").onclick = function () {
+        pickSubView = "pool";
+        document.body.classList.remove("view-pick-preview");
+        renderPick();
+      };
+      document.getElementById("pickRerollBtn").onclick = function () { startRandomOutfit(photoCounts); };
+      document.getElementById("pickSaveOutfitBtn").onclick = function () {
+        document.getElementById("saveOutfitName").value = "";
+        document.getElementById("saveOutfitDesc").value = "";
+        openOverlay("saveOutfitOverlay");
+      };
+      document.getElementById("pickPrevBtn").onclick = function () { cyclePickSlot(activeSlot, -1, photoCounts); };
+      document.getElementById("pickNextBtn").onclick = function () { cyclePickSlot(activeSlot, 1, photoCounts); };
+
+      root.querySelectorAll(".pick-cat-pill").forEach(function (pill) {
+        pill.onclick = function () {
+          pickActiveSlotId = pill.dataset.pickSlot;
+          renderPickPreview();
         };
       });
 
-      root.querySelectorAll(".grid-edit-btn").forEach(function (btn) {
-        btn.onclick = function (e) {
-          e.stopPropagation();
-          openEditItem(btn.dataset.editItem);
+      root.querySelectorAll("img[data-preview-item]").forEach(function (img) {
+        loadGarmentPhotoUrl(img.dataset.previewItem, parseInt(img.dataset.previewSlot, 10)).then(function (url) { if (url) img.src = url; });
+      });
+      const rail = root.querySelector("img[data-rail-item]");
+      if (rail) {
+        loadGarmentPhotoUrl(rail.dataset.railItem, parseInt(rail.dataset.railSlot, 10)).then(function (url) { if (url) rail.src = url; });
+      }
+
+      const meta = document.getElementById("pickHeroMeta");
+      if (meta) meta.textContent = "Swipe " + (activeSlot ? activeSlot.label.toLowerCase() : "items") + " with arrows";
+    });
+  }
+
+  function cyclePickSlot(slot, dir, photoCounts) {
+    if (!slot) return;
+    const pool = getPoolGarmentsByTag(slot.tag, photoCounts);
+    if (!pool.length) { toast("No items in pool for " + slot.label); return; }
+    let idx = 0;
+    if (slot.garment) {
+      idx = pool.findIndex(function (g) { return g.itemId === slot.garment.itemId && g.slot === slot.garment.slot; });
+      if (idx < 0) idx = 0;
+      else idx = (idx + dir + pool.length) % pool.length;
+    } else {
+      idx = dir > 0 ? 0 : pool.length - 1;
+    }
+    slot.garment = { itemId: pool[idx].itemId, slot: pool[idx].slot };
+    renderPickPreview();
+  }
+
+  function savePickerOutfit() {
+    if (!pickerDraft) return;
+    const name = (document.getElementById("saveOutfitName").value || "").trim() || ("Outfit " + ((state.outfits || []).length + 1));
+    const description = (document.getElementById("saveOutfitDesc").value || "").trim();
+    const outfit = {
+      id: newOutfitId(),
+      name: name,
+      description: description || undefined,
+      slots: pickerDraft.slots.map(function (s) {
+        return {
+          slotId: s.slotId,
+          label: s.label,
+          category: s.label,
+          garment: s.garment ? { itemId: s.garment.itemId, slot: s.garment.slot } : null,
+        };
+      }),
+    };
+    if (!state.outfits) state.outfits = [];
+    state.outfits.unshift(outfit);
+    saveState();
+    closeOverlay("saveOutfitOverlay");
+    toast("Outfit saved");
+  }
+
+  function renderStorage() {
+    const root = document.getElementById("storageRoot");
+    if (!root) return;
+    if (storageDetailBinId) {
+      const bin = (state.storageBins || []).find(function (b) { return b.id === storageDetailBinId; });
+      if (!bin) { storageDetailBinId = null; renderStorage(); return; }
+      let html = '<button type="button" class="btn-secondary" id="storageBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All bins</button>';
+      html += '<h2 style="font-size:1.125rem;margin-bottom:4px">' + escapeHtml(bin.label) + '</h2>';
+      html += '<p class="grid-intro" style="margin-top:0">' + (bin.garments || []).length + ' item' + ((bin.garments || []).length === 1 ? "" : "s") + '</p>';
+      html += '<div class="pool-grid">';
+      (bin.garments || []).forEach(function (g, idx) {
+        html += '<button type="button" class="pool-cell" data-return-idx="' + idx + '"><img data-garment-key="' + escapeHtml(photoKey(g.itemId, g.slot)) + '" alt="" /></button>';
+      });
+      html += '</div>';
+      html += '<button type="button" class="btn-save" id="storageReturnAll" style="width:100%;height:48px;border-radius:12px;border:none;margin-top:12px">Return all to closet</button>';
+      root.innerHTML = html;
+      document.getElementById("storageBackBtn").onclick = function () { storageDetailBinId = null; renderStorage(); };
+      document.getElementById("storageReturnAll").onclick = function () {
+        returnBinToCloset(bin.id);
+      };
+      root.querySelectorAll("[data-return-idx]").forEach(function (btn) {
+        btn.onclick = function () {
+          returnGarmentFromBin(bin.id, parseInt(btn.dataset.returnIdx, 10));
         };
       });
+      root.querySelectorAll("img[data-garment-key]").forEach(function (img) {
+        getThumbUrl(img.getAttribute("data-garment-key")).then(function (url) { if (url) img.src = url; });
+      });
+      return;
+    }
 
-      root.querySelectorAll("img[data-photo-key]").forEach(function (img) {
-        const key = img.getAttribute("data-photo-key");
-        getThumbUrl(key).then(function (url) {
-          if (url) img.src = url;
+    let html = '<p class="grid-intro">Seasonal storage — items here are hidden from Closet and the randomizer.</p>';
+    html += '<button type="button" class="btn-primary" id="storageNewBin" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New empty bin</button>';
+    if (!state.storageBins || !state.storageBins.length) {
+      html += '<div class="grid-empty">No storage bins yet. Select items in <strong>Closet</strong> (long-press) and tap <strong>Store</strong>.</div>';
+    } else {
+      state.storageBins.forEach(function (bin) {
+        html += '<button type="button" class="storage-bin-card" data-bin-id="' + escapeHtml(bin.id) + '">';
+        html += '<div><strong>' + escapeHtml(bin.label) + '</strong><small>' + (bin.garments || []).length + ' item' + ((bin.garments || []).length === 1 ? "" : "s") + '</small></div>';
+        html += '</button>';
+      });
+    }
+    root.innerHTML = html;
+    document.getElementById("storageNewBin").onclick = function () {
+      closetSelectedIds = {};
+      document.getElementById("storageBinLabel").value = "";
+      openOverlay("storageBinOverlay");
+    };
+    root.querySelectorAll("[data-bin-id]").forEach(function (card) {
+      card.onclick = function () {
+        storageDetailBinId = card.dataset.binId;
+        renderStorage();
+      };
+    });
+    const meta = document.getElementById("storageHeroMeta");
+    if (meta) meta.textContent = (state.storageBins && state.storageBins.length) ? state.storageBins.length + " bin" + (state.storageBins.length === 1 ? "" : "s") : "Seasonal bins & off-closet items";
+  }
+
+  function storeSelectedGarments(label) {
+    const garments = Object.keys(closetSelectedIds).map(parseGarmentKey);
+    if (!garments.length) { toast("Select items first"); return; }
+    if (!state.storageBins) state.storageBins = [];
+    state.storageBins.unshift({
+      id: newBinId(),
+      label: label || "Storage",
+      garments: garments.map(function (g) { return { itemId: g.itemId, slot: g.slot }; }),
+    });
+    garments.forEach(function (g) {
+      const key = garmentKey(g.itemId, g.slot);
+      if (state.randomizerPool) delete state.randomizerPool[key];
+    });
+    closetSelectedIds = {};
+    saveState();
+    closeOverlay("storageBinOverlay");
+    toast("Stored " + garments.length + " item" + (garments.length === 1 ? "" : "s"));
+    if (currentView === "closet") renderCloset();
+    if (currentView === "storage") renderStorage();
+  }
+
+  function returnGarmentFromBin(binId, idx) {
+    const bin = (state.storageBins || []).find(function (b) { return b.id === binId; });
+    if (!bin || !bin.garments || !bin.garments[idx]) return;
+    bin.garments.splice(idx, 1);
+    if (!bin.garments.length) {
+      state.storageBins = state.storageBins.filter(function (b) { return b.id !== binId; });
+      storageDetailBinId = null;
+    }
+    saveState();
+    toast("Returned to closet");
+    renderStorage();
+    if (currentView === "closet") renderCloset();
+  }
+
+  function returnBinToCloset(binId) {
+    state.storageBins = (state.storageBins || []).filter(function (b) { return b.id !== binId; });
+    storageDetailBinId = null;
+    saveState();
+    toast("All items returned to closet");
+    renderStorage();
+    if (currentView === "closet") renderCloset();
+  }
+
+  function renderTravel() {
+    const root = document.getElementById("travelRoot");
+    if (!root) return;
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      renderTravelCalendar(root, photoCounts);
+    });
+  }
+
+  function renderTravelCalendar(root, photoCounts) {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const year = planCalendarMonth.year;
+    const month = planCalendarMonth.month;
+    const tripSet = new Set(getTripDateKeys());
+    const uniqueGarments = getTripPackingGarments(photoCounts);
+
+    let html = '<p class="plan-intro">Trip: ' + escapeHtml(formatTripRangeLabel()) + '. Tap a day to assign outfits. Change dates in Settings.</p>';
+
+    if (state.outfits && state.outfits.length) {
+      html += '<p class="plan-intro" style="margin-bottom:6px"><strong>Saved outfits</strong></p><div class="saved-outfits-row">';
+      state.outfits.forEach(function (outfit) {
+        html += '<button type="button" class="saved-outfit-chip" data-outfit-preview="' + escapeHtml(outfit.id) + '">';
+        const first = (outfit.slots || []).find(function (s) { return s.garment; });
+        if (first) {
+          html += '<img data-outfit-thumb="' + escapeHtml(outfit.id) + '" data-item-id="' + escapeHtml(first.garment.itemId) + '" data-slot="' + first.garment.slot + '" alt="" />';
+        } else {
+          html += '<div style="width:72px;height:72px;border-radius:10px;background:#e2e8f0"></div>';
+        }
+        html += '<span>' + escapeHtml(outfit.name || "Outfit") + '</span></button>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div class="plan-calendar-head">';
+    html += "<h2>" + monthNames[month] + " " + year + "</h2>";
+    html += '<div class="plan-calendar-nav">';
+    html += '<button type="button" id="planCalPrev" aria-label="Previous month">‹</button>';
+    html += '<button type="button" id="planCalNext" aria-label="Next month">›</button>';
+    html += "</div></div>";
+
+    html += '<div class="plan-calendar-grid">';
+    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(function (dow) {
+      html += '<div class="plan-cal-dow">' + dow + "</div>";
+    });
+
+    const first = new Date(year, month, 1);
+    const startPad = first.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < startPad; i++) html += '<div class="plan-cal-pad"></div>';
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateKey = year + "-" + pad2(month + 1) + "-" + pad2(day);
+      const inTrip = tripSet.has(dateKey);
+      const planned = dayHasPlannedOutfits(dateKey);
+      html += '<button type="button" class="plan-cal-day' +
+        (inTrip ? " trip" : " outside") +
+        (planned ? " planned" : "") +
+        '" data-date-key="' + dateKey + '">' + day + "</button>";
+    }
+    html += "</div>";
+
+    html += '<h3 style="font-size:1rem;margin:18px 0 8px">Packing gallery</h3>';
+    html += '<p class="plan-intro" style="margin-top:0">' + uniqueGarments.length + ' unique piece' + (uniqueGarments.length === 1 ? "" : "s") + ' across assigned outfits</p>';
+    if (!uniqueGarments.length) {
+      html += '<div class="scan-empty">Assign outfits to trip days to see what to pack.</div>';
+    } else {
+      html += '<div class="packing-gallery">';
+      uniqueGarments.forEach(function (g) {
+        html += '<img data-garment-key="' + escapeHtml(g.photoKey) + '" alt="" />';
+      });
+      html += '</div>';
+    }
+
+    if (!state.outfits || !state.outfits.length) {
+      html += '<div class="scan-empty">Save outfits from <strong>Pick</strong> first, then assign them here.</div>';
+    }
+
+    root.innerHTML = html;
+
+    document.getElementById("planCalPrev").onclick = function () {
+      planCalendarMonth.month -= 1;
+      if (planCalendarMonth.month < 0) { planCalendarMonth.month = 11; planCalendarMonth.year -= 1; }
+      renderTravel();
+    };
+    document.getElementById("planCalNext").onclick = function () {
+      planCalendarMonth.month += 1;
+      if (planCalendarMonth.month > 11) { planCalendarMonth.month = 0; planCalendarMonth.year += 1; }
+      renderTravel();
+    };
+
+    root.querySelectorAll(".plan-cal-day[data-date-key]").forEach(function (btn) {
+      btn.onclick = function () {
+        const dateKey = btn.dataset.dateKey;
+        if (!isTripDateKey(dateKey)) {
+          toast("Trip days are " + formatTripRangeLabel());
+          return;
+        }
+        planDayDateKey = dateKey;
+        openPlanDayOverlay(dateKey);
+      };
+    });
+
+    root.querySelectorAll("img[data-garment-key]").forEach(function (img) {
+      getThumbUrl(img.getAttribute("data-garment-key")).then(function (url) { if (url) img.src = url; });
+    });
+    root.querySelectorAll("img[data-outfit-thumb]").forEach(function (img) {
+      loadGarmentPhotoUrl(img.dataset.itemId, parseInt(img.dataset.slot, 10)).then(function (url) { if (url) img.src = url; });
+    });
+
+    const meta = document.getElementById("travelHeroMeta");
+    if (meta) meta.textContent = formatTripRangeLabel() + " · " + (state.outfits ? state.outfits.length : 0) + " saved outfits";
+  }
+
+  function getTripPackingGarments(photoCounts) {
+    const seen = {};
+    const list = [];
+    getTripDateKeys().forEach(function (dateKey) {
+      const slots = ensureTripPlan().days[dateKey] || [];
+      slots.forEach(function (slot) {
+        if (!slot.outfitId) return;
+        const outfit = getOutfitById(slot.outfitId);
+        if (!outfit) return;
+        getGarmentsForOutfit(outfit).forEach(function (g) {
+          const key = garmentKey(g.itemId, g.slot);
+          if (seen[key] || isGarmentStored(g.itemId, g.slot)) return;
+          seen[key] = true;
+          list.push({
+            itemId: g.itemId,
+            slot: g.slot,
+            photoKey: photoKey(g.itemId, g.slot),
+          });
         });
       });
     });
+    return list;
   }
 
   function openPhotoViewer(itemId, slot, caption) {
@@ -4407,41 +5394,34 @@
     viewer.hidden = true;
     document.getElementById("viewerImg").removeAttribute("src");
     viewerPhoto = null;
-    if (currentView === "grid") document.body.style.overflow = "";
+    if (currentView === "closet") document.body.style.overflow = "";
     else if (!document.querySelector(".overlay.open")) document.body.style.overflow = "";
   }
 
   function setView(view) {
     currentView = view;
-    document.body.classList.toggle("view-grid", view === "grid");
-    document.body.classList.toggle("view-pack", view === "pack");
-    document.body.classList.toggle("view-plan", view === "plan");
-    document.getElementById("tabList").classList.toggle("on", view === "list");
-    document.getElementById("tabGrid").classList.toggle("on", view === "grid");
-    document.getElementById("tabPack").classList.toggle("on", view === "pack");
-    document.getElementById("tabPlan").classList.toggle("on", view === "plan");
-    if (view !== "pack") {
-      document.body.classList.remove("has-scan-pack");
-      const packBar = document.getElementById("scanPackBar");
-      if (packBar) packBar.remove();
+    if (view !== "pick") {
+      pickSubView = "pool";
+      document.body.classList.remove("view-pick-preview");
     }
-    if (view !== "plan") {
-      document.body.classList.remove("has-plan-save");
-      const planBar = document.getElementById("planSaveBar");
-      if (planBar) planBar.remove();
-    }
-    if (view === "grid") {
-      renderGrid();
-    } else if (view === "pack") {
-      closePhotoViewer();
-      renderPack();
-    } else if (view === "plan") {
-      closePhotoViewer();
-      renderPlan();
-    } else {
-      closePhotoViewer();
-      render();
-    }
+    document.body.classList.toggle("view-closet", view === "closet");
+    document.body.classList.toggle("view-pick", view === "pick");
+    document.body.classList.toggle("view-storage", view === "storage");
+    document.body.classList.toggle("view-travel", view === "travel");
+    document.getElementById("tabCloset").classList.toggle("on", view === "closet");
+    document.getElementById("tabPick").classList.toggle("on", view === "pick");
+    document.getElementById("tabStorage").classList.toggle("on", view === "storage");
+    document.getElementById("tabTravel").classList.toggle("on", view === "travel");
+    document.body.classList.remove("has-closet-store", "has-pick-random", "has-scan-pack", "has-plan-save");
+    const packBar = document.getElementById("scanPackBar");
+    if (packBar) packBar.remove();
+    const planBar = document.getElementById("planSaveBar");
+    if (planBar) planBar.remove();
+    closePhotoViewer();
+    if (view === "closet") renderCloset();
+    else if (view === "pick") renderPick();
+    else if (view === "storage") renderStorage();
+    else if (view === "travel") renderTravel();
   }
 
   function flushSaveState() {
@@ -4590,7 +5570,7 @@
   function afterListOptionsChanged(rebuildQuantities) {
     const done = function () {
       render();
-      if (currentView === "grid") renderGrid();
+      if (currentView === "closet") renderCloset();
     };
     if (rebuildQuantities) {
       rebuildActivityItems().then(done);
@@ -4605,11 +5585,14 @@
       if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
         saveStateImmediate();
       }
+      if (syncRandomizerPoolDefaults(photoCounts)) {
+        saveStateImmediate();
+      }
       return reconcileThumbCacheWithIdb();
     }).then(function () {
-      render();
+      setView("closet");
     }).catch(function () {
-      render();
+      setView("closet");
     });
   }
 
@@ -4618,11 +5601,13 @@
       if (reconcileAllWardrobeQtyFromPhotos(photoCounts)) {
         saveStateImmediate();
       }
+      syncRandomizerPoolDefaults(photoCounts);
       return reconcileThumbCacheWithIdb();
     }).then(function () {
-      render();
-      if (currentView === "grid") renderGrid();
-      if (currentView === "pack") renderPack();
+      if (currentView === "closet") renderCloset();
+      else if (currentView === "pick") renderPick();
+      else if (currentView === "storage") renderStorage();
+      else if (currentView === "travel") renderTravel();
     }).catch(function () {});
   }
 
@@ -4648,70 +5633,7 @@
   }
 
   function render() {
-    syncOptionsFromChips();
-    const root = document.getElementById("listRoot");
-    const byCat = {};
-    for (const cat of CATEGORIES) byCat[cat.id] = [];
-
-    visibleItems().forEach(function (id) {
-      const c = itemCategory(id);
-      if (!byCat[c]) byCat[c] = [];
-      byCat[c].push(id);
-    });
-
-    let html = "";
-    if (!state.opts.hidePacked && stats().packed > 0) {
-      html += '<div class="tips"><strong>Tip</strong>Turn on “Hide packed” while you fill your bag so only what’s left stays on screen.</div>';
-    }
-
-    CATEGORIES.forEach(function (cat) {
-      const ids = byCat[cat.id] || [];
-      if (!ids.length) return;
-
-      const packedInCat = ids.filter(function (id) { return state.items[id].packed; }).length;
-      const collapsed = !!state.collapsed[cat.id];
-
-      html += '<section class="section' + (collapsed ? " collapsed" : "") + '" data-cat="' + cat.id + '">';
-      html += '<div class="section-head" role="button" tabindex="0" aria-expanded="' + !collapsed + '">';
-      html += '<span class="section-icon">' + cat.icon + '</span>';
-      html += '<span class="section-title">' + escapeHtml(cat.label) + '</span>';
-      html += '<span class="section-count">' + packedInCat + "/" + ids.length + '</span>';
-      html += '<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
-      html += '</div><div class="section-body">';
-
-      ids.sort(function (a, b) {
-        const pa = state.items[a].packed ? 1 : 0;
-        const pb = state.items[b].packed ? 1 : 0;
-        if (pa !== pb) return pa - pb;
-        return itemLabel(a).localeCompare(itemLabel(b));
-      });
-
-      ids.forEach(function (id) {
-        const row = state.items[id];
-        const note = itemNote(id);
-        html += '<div class="item' + (row.packed ? " packed" : "") + (openDeleteId === id ? " reveal-delete" : "") + '" data-id="' + escapeHtml(id) + '">';
-        html += '<button type="button" class="check" aria-label="' + (row.packed ? "Unpack" : "Pack") + ' ' + escapeHtml(itemLabel(id)) + '"><span class="check-box"></span></button>';
-        html += '<div class="item-body" role="button" tabindex="0" aria-label="Edit ' + escapeHtml(itemLabel(id)) + '"><div class="item-label">' + escapeHtml(itemLabel(id)) + '</div>';
-        if (note) html += '<div class="item-note">' + escapeHtml(note) + '</div>';
-        html += '</div>';
-        html += '<div class="qty"><button type="button" class="qty-minus" aria-label="' + (row.qty <= 1 ? "Remove from list" : "Decrease quantity") + '">−</button>';
-        html += '<span aria-label="Quantity">' + row.qty + '</span>';
-        html += '<button type="button" class="qty-plus" aria-label="Increase quantity">+</button></div>';
-        html += '<button type="button" class="item-delete">Delete</button></div>';
-      });
-
-      html += '</div></section>';
-    });
-
-    if (!html || !visibleItems().length) {
-      html = '<div class="section"><div class="empty-cat">' +
-        (state.opts.hidePacked ? "Everything visible is packed. Turn off “Hide packed” to review." : "Your list is empty. Add items or reset to defaults.") +
-        '</div></div>';
-    }
-
-    root.innerHTML = html;
-    updateProgress();
-    bindListEvents();
+    /* list view removed — Closet Picker uses tab views only */
   }
 
   function escapeHtml(s) {
@@ -4764,7 +5686,7 @@
           prunePhotosForItem(id, state.items[id].qty);
           saveStateImmediate();
           render();
-          if (currentView === "grid") renderGrid();
+          if (currentView === "closet") renderCloset();
         });
       };
     });
@@ -4777,7 +5699,7 @@
           state.items[id].qty++;
           saveState();
           render();
-          if (currentView === "grid") renderGrid();
+          if (currentView === "closet") renderCloset();
         }
       };
     });
@@ -4899,8 +5821,8 @@
     closeOverlay("editOverlay");
     editingItemId = null;
     render();
-    if (currentView === "grid") renderGrid();
-    if (currentView === "pack") renderPack();
+    if (currentView === "closet") renderCloset();
+    if (currentView === "closet") renderPack();
     toast("Item updated");
   }
 
@@ -5104,7 +6026,7 @@
   }
 
   function updatePlanSaveBar(show) {
-    document.body.classList.toggle("has-plan-save", show && currentView === "plan");
+    document.body.classList.toggle("has-plan-save", show && currentView === "travel");
     let bar = document.getElementById("planSaveBar");
     if (!show) {
       if (bar) bar.remove();
@@ -5122,7 +6044,7 @@
       planDraft = null;
       planActiveSlotId = null;
       planSlotIndices = {};
-      renderPlan();
+      renderTravel();
     };
     document.getElementById("planSaveBtn").onclick = savePlanOutfit;
   }
@@ -5156,7 +6078,7 @@
     planActiveSlotId = null;
     planSlotIndices = {};
     toast("Outfit saved");
-    renderPlan();
+    renderTravel();
   }
 
   function syncPlanDraftMetaFromForm() {
@@ -5177,7 +6099,7 @@
       planDraft = { id: newOutfitId(), name: "", description: "", slots: cloneDefaultOutfitSlots() };
     }
     planActiveSlotId = planDraft.slots[0] ? planDraft.slots[0].slotId : null;
-    renderPlan();
+    renderTravel();
   }
 
   function getActivePlanSlot() {
@@ -5209,7 +6131,7 @@
           planDraft.slots.push({ slotId: slotId, label: label, category: label, garment: null });
           planActiveSlotId = slotId;
           closeOverlay("planCategoryOverlay");
-          renderPlan();
+          renderTravel();
         };
       });
       openOverlay("planCategoryOverlay");
@@ -5257,7 +6179,7 @@
       card.onclick = function () {
         planDetailId = card.dataset.outfitId;
         planView = "detail";
-        renderPlan();
+        renderTravel();
       };
     });
     (state.outfits || []).forEach(loadOutfitMosaic);
@@ -5269,7 +6191,7 @@
     const outfit = (state.outfits || []).find(function (o) { return o.id === planDetailId; });
     if (!outfit) {
       planView = "library";
-      renderPlan();
+      renderTravel();
       return;
     }
     let html = '<button type="button" class="btn-secondary" id="planBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All outfits</button>';
@@ -5295,7 +6217,7 @@
     document.getElementById("planBackBtn").onclick = function () {
       planView = "library";
       planDetailId = null;
-      renderPlan();
+      renderTravel();
     };
     document.getElementById("planEditBtn").onclick = function () { startPlanBuilder(outfit); };
     document.getElementById("planDeleteBtn").onclick = function () {
@@ -5306,7 +6228,7 @@
       planView = "library";
       planDetailId = null;
       toast("Outfit deleted");
-      renderPlan();
+      renderTravel();
     };
     root.querySelectorAll(".plan-detail-slot img[data-item-id]").forEach(function (img) {
       loadGarmentPhotoUrl(img.dataset.itemId, parseInt(img.dataset.slot, 10)).then(function (url) {
@@ -5320,7 +6242,7 @@
   function renderPlanBuilder(root, photoCounts) {
     if (!planDraft) {
       planView = "library";
-      renderPlan();
+      renderTravel();
       return;
     }
     if (!planActiveSlotId && planDraft.slots.length) planActiveSlotId = planDraft.slots[0].slotId;
@@ -5373,7 +6295,7 @@
       pill.onclick = function () {
         syncPlanDraftMetaFromForm();
         planActiveSlotId = pill.dataset.slotId;
-        renderPlan();
+        renderTravel();
       };
     });
     document.getElementById("planAddSlot").onclick = function () {
@@ -5394,7 +6316,7 @@
         } else {
           activeSlot.garment = { itemId: itemId, slot: slotNum };
         }
-        renderPlan();
+        renderTravel();
       };
     });
 
@@ -5416,7 +6338,7 @@
     if (meta) meta.textContent = "Building outfit · tap photos in the grid";
   }
 
-  function renderPlan() {
+  function renderTravel() {
     const root = document.getElementById("planRoot");
     if (!root) return;
     loadPhotoCounts(gridGroups()).then(function (photoCounts) {
@@ -5438,118 +6360,113 @@
     document.body.style.overflow = "";
   }
 
-  function renderActivities() {
-    const grid = document.getElementById("activityGrid");
-    grid.innerHTML = ACTIVITIES.map(function (a) {
-      const on = state.opts.activities[a.id];
-      return '<button type="button" class="activity-card' + (on ? " on" : "") + '" data-activity="' + a.id + '">' +
-        '<strong>' + escapeHtml(a.label) + '</strong><small>' + escapeHtml(a.desc) + '</small></button>';
+  function syncSettingsForm() {
+    ensureTripPlan();
+    const startEl = document.getElementById("tripStartDate");
+    const daysEl = document.getElementById("tripDays");
+    if (startEl) startEl.value = state.tripPlan.startDate || DEFAULT_TRIP_START;
+    if (daysEl) daysEl.value = state.tripPlan.tripDays || DAYS;
+  }
+
+  function saveSettingsForm() {
+    ensureTripPlan();
+    const startEl = document.getElementById("tripStartDate");
+    const daysEl = document.getElementById("tripDays");
+    if (startEl && startEl.value) state.tripPlan.startDate = startEl.value;
+    if (daysEl) state.tripPlan.tripDays = Math.min(60, Math.max(1, parseInt(daysEl.value, 10) || DAYS));
+    saveState();
+  }
+
+  function populateAddTagSelect() {
+    const sel = document.getElementById("addTag");
+    if (!sel) return;
+    sel.innerHTML = GARMENT_TAGS.map(function (t) {
+      return '<option value="' + t.id + '">' + escapeHtml(t.label) + "</option>";
     }).join("");
-
-    grid.querySelectorAll(".activity-card").forEach(function (card) {
-      card.onclick = function () {
-        const id = card.dataset.activity;
-        state.opts.activities[id] = !state.opts.activities[id];
-        card.classList.toggle("on", state.opts.activities[id]);
-        rebuildActivityItems().then(function () {
-          render();
-          if (currentView === "grid") renderGrid();
-        });
-      };
-    });
   }
-
-  function populateAddCategory() {
-    populateCategorySelect("addCategory", "misc");
-  }
-
-  // Chip / switch sync
-  ["hidePacked", "optLaundry", "optRepeat"].forEach(function (id) {
-    document.getElementById(id).addEventListener("change", function () {
-      state.opts.hidePacked = document.getElementById("hidePacked").checked;
-      state.opts.laundry = document.getElementById("optLaundry").checked;
-      state.opts.repeat = document.getElementById("optRepeat").checked;
-      afterListOptionsChanged(id !== "hidePacked");
-    });
-  });
-
-  function bindSwitch(swId, optKey) {
-    document.getElementById(swId).addEventListener("click", function () {
-      state.opts[optKey] = !state.opts[optKey];
-      document.getElementById(optKey === "hidePacked" ? "hidePacked" : optKey === "laundry" ? "optLaundry" : "optRepeat").checked = state.opts[optKey];
-      afterListOptionsChanged(optKey !== "hidePacked");
-    });
-  }
-
-  bindSwitch("swHide", "hidePacked");
-  bindSwitch("swLaundry", "laundry");
-  bindSwitch("swRepeat", "repeat");
 
   document.getElementById("btnSettings").onclick = function () {
-    renderActivities();
-    syncOptionsFromChips();
+    syncSettingsForm();
     openOverlay("settingsOverlay");
-  };
-
-  document.getElementById("btnAdd").onclick = function () {
-    document.getElementById("addName").value = "";
-    document.getElementById("addQty").value = "1";
-    populateAddCategory();
-    openOverlay("addOverlay");
-    setTimeout(function () { document.getElementById("addName").focus(); }, 300);
   };
 
   document.getElementById("addSave").onclick = function () {
     const name = document.getElementById("addName").value.trim();
     if (!name) {
-      toast("Enter an item name");
+      toast("Enter a category name");
       return;
     }
-    const qty = Math.min(99, Math.max(1, parseInt(document.getElementById("addQty").value, 10) || 1));
-    const category = document.getElementById("addCategory").value;
+    const tag = document.getElementById("addTag").value;
     const id = "custom-" + Date.now();
-    state.items[id] = { packed: false, qty: qty, custom: true, label: name, category: category };
+    state.items[id] = {
+      packed: false,
+      qty: 1,
+      custom: true,
+      label: name,
+      category: "clothing",
+      note: name,
+      garmentTag: tag,
+    };
+    if (!state.customWardrobeCategories) state.customWardrobeCategories = [];
+    state.customWardrobeCategories.push({ name: name, tag: tag });
     saveState();
     closeOverlay("addOverlay");
-    render();
-    if (currentView === "grid") renderGrid();
+    if (currentView === "closet") renderCloset();
     toast("Added “" + name + "”");
   };
 
   document.getElementById("btnReset").onclick = function () {
-    if (confirm("Reset your entire packing list? Checked items, custom additions, wardrobe photos, and saved outfits will be cleared.")) {
+    if (confirm("Reset all wardrobe data, photos, outfits, and storage bins?")) {
       Object.keys(closetPreviews).forEach(function (id) {
         URL.revokeObjectURL(closetPreviews[id]);
       });
       closetPreviews = {};
       clearScanSelection();
-      planView = "library";
-      planSection = "calendar";
-      planDraft = null;
-      planDetailId = null;
+      closetSelectedIds = {};
+      pickerDraft = null;
+      pickSubView = "pool";
+      storageDetailBinId = null;
       planDayDateKey = null;
       state = defaultState();
       revokeThumbCache();
       idbClearAll().then(function () {
         saveState();
-        render();
-        if (currentView === "grid") renderGrid();
-        if (currentView === "pack") renderPack();
-        if (currentView === "plan") renderPlan();
-        toast("List reset for Aruba · 7 days");
+        setView("closet");
+        toast("Closet Picker reset");
       }).catch(function () {
         saveState();
-        render();
-        if (currentView === "plan") renderPlan();
-        toast("List reset; some photos may remain");
+        setView("closet");
+        toast("Reset; some photos may remain");
       });
     }
   };
 
-  document.getElementById("tabList").onclick = function () { setView("list"); };
-  document.getElementById("tabGrid").onclick = function () { setView("grid"); };
-  document.getElementById("tabPack").onclick = function () { setView("pack"); };
-  document.getElementById("tabPlan").onclick = function () { setView("plan"); };
+  document.getElementById("tabCloset").onclick = function () { setView("closet"); };
+  document.getElementById("tabPick").onclick = function () { setView("pick"); };
+  document.getElementById("tabStorage").onclick = function () { setView("storage"); };
+  document.getElementById("tabTravel").onclick = function () { setView("travel"); };
+
+  document.getElementById("storageBinSave").onclick = function () {
+    const label = document.getElementById("storageBinLabel").value.trim();
+    if (!label) {
+      toast("Enter a location description");
+      return;
+    }
+    if (closetSelectedCount() > 0) {
+      storeSelectedGarments(label);
+    } else {
+      if (!state.storageBins) state.storageBins = [];
+      state.storageBins.unshift({ id: newBinId(), label: label, garments: [] });
+      saveState();
+      closeOverlay("storageBinOverlay");
+      toast("Empty bin created");
+      if (currentView === "storage") renderStorage();
+    }
+  };
+
+  document.getElementById("saveOutfitConfirm").onclick = savePickerOutfit;
+
+  document.querySelector('[data-close="settingsOverlay"]').addEventListener("click", saveSettingsForm);
 
   document.getElementById("editSave").onclick = saveEditItem;
   document.getElementById("newCategorySave").onclick = saveNewCategory;
@@ -5595,7 +6512,7 @@
       invalidateThumbCache(key);
       closePhotoViewer();
       toast("Photo removed");
-      if (currentView === "grid") renderGrid();
+      if (currentView === "closet") renderCloset();
     });
   };
 
@@ -5610,7 +6527,7 @@
       if (id === "planDayOverlay") {
         planDayDateKey = null;
         planPickingDaySlotId = null;
-        if (currentView === "plan" && planSection === "calendar") renderPlan();
+        if (currentView === "travel" && planSection === "calendar") renderTravel();
       }
       if (id === "planOutfitPickerOverlay") planPickingDaySlotId = null;
       closeOverlay(id);

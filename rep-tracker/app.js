@@ -38,6 +38,18 @@
   var geoLayer = null;
   var districtIndex = {};
   var stateSenateIndex = {};
+  var districtHistoryIndex = null;
+  var districtHistoryShardCache = {};
+  var historyMap = null;
+  var historyLayers = {};
+  var historyVisibleYears = {};
+  var HISTORY_YEAR_COLORS = {
+    2008: '#d97706',
+    2012: '#059669',
+    2016: '#0284c7',
+    2020: '#7c3aed',
+    2024: '#dc2626'
+  };
 
   function $(id) { return document.getElementById(id); }
 
@@ -376,6 +388,144 @@
     });
   }
 
+  function destroyHistoryMap() {
+    if (historyMap) {
+      historyMap.remove();
+      historyMap = null;
+    }
+    historyLayers = {};
+    historyVisibleYears = {};
+  }
+
+  function fetchDistrictHistoryShard(state) {
+    if (districtHistoryShardCache[state]) {
+      return Promise.resolve(districtHistoryShardCache[state]);
+    }
+    return fetch('data/district-history/' + state + '.json')
+      .then(function (r) {
+        if (!r.ok) throw new Error('shard ' + state);
+        return r.json();
+      })
+      .then(function (data) {
+        districtHistoryShardCache[state] = data;
+        return data;
+      });
+  }
+
+  function historyYearChipHtml(year) {
+    var color = HISTORY_YEAR_COLORS[year] || '#64748b';
+    return '<button type="button" class="chip history-year-chip active" data-history-year="' + year + '" ' +
+      'style="--history-color:' + color + '">' + year + '</button>';
+  }
+
+  function buildDistrictHistorySection(rec) {
+    if (chamber !== 'house' || !districtHistoryIndex || !districtHistoryIndex.districts) return '';
+    var info = districtHistoryIndex.districts[rec.id];
+    if (!info) return '';
+    if (!info.changed) {
+      return '<p class="detail-sub history-stable">District boundaries unchanged across 2008–2024 lines.</p>';
+    }
+    var chips = PRES_YEARS.map(historyYearChipHtml).join('');
+    return '<h3 class="detail-heading">District over time</h3>' +
+      '<p class="detail-sub">Overlaid boundaries by presidential line vintage. Toggle years to compare.</p>' +
+      '<div class="history-year-row" role="group" aria-label="History years">' + chips + '</div>' +
+      '<div id="district-history-map" class="district-history-map" aria-label="District boundaries over time"></div>';
+  }
+
+  function fitHistoryMapBounds() {
+    if (!historyMap) return;
+    var bounds = null;
+    PRES_YEARS.forEach(function (year) {
+      if (!historyVisibleYears[year]) return;
+      var layer = historyLayers[year];
+      if (layer && layer.getBounds().isValid()) {
+        bounds = bounds ? bounds.extend(layer.getBounds()) : layer.getBounds();
+      }
+    });
+    if (bounds && bounds.isValid()) {
+      historyMap.fitBounds(bounds, { padding: [12, 12] });
+    }
+  }
+
+  function renderDistrictHistoryLayers(rec, shard) {
+    if (!shard || !shard[rec.id] || !shard[rec.id].vintages) return;
+    var vintages = shard[rec.id].vintages;
+    destroyHistoryMap();
+    var el = $('district-history-map');
+    if (!el) return;
+
+    historyMap = L.map(el, { zoomControl: true, attributionControl: false, scrollWheelZoom: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(historyMap);
+
+    PRES_YEARS.forEach(function (year) {
+      historyVisibleYears[year] = true;
+      var vintage = vintages[String(year)];
+      if (!vintage || vintage.missing || !vintage.geometry) return;
+      var color = HISTORY_YEAR_COLORS[year] || '#64748b';
+      var margin = vintage.presMargin != null ? vintage.presMargin : (rec.presMargin && rec.presMargin[year]);
+      var layer = L.geoJSON({ type: 'Feature', geometry: vintage.geometry, properties: {} }, {
+        style: {
+          color: color,
+          weight: 2.5,
+          fillColor: color,
+          fillOpacity: 0.15
+        }
+      });
+      layer.bindTooltip(year + ' · Pres ' + formatMargin(margin), { sticky: true });
+      if (historyVisibleYears[year]) layer.addTo(historyMap);
+      historyLayers[year] = layer;
+    });
+
+    setTimeout(function () {
+      fitHistoryMapBounds();
+      historyMap.invalidateSize();
+    }, 80);
+  }
+
+  function bindHistoryYearChips(rec) {
+    document.querySelectorAll('.history-year-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var year = parseInt(btn.getAttribute('data-history-year'), 10);
+        historyVisibleYears[year] = !historyVisibleYears[year];
+        btn.classList.toggle('active', historyVisibleYears[year]);
+        var layer = historyLayers[year];
+        if (!layer || !historyMap) return;
+        if (historyVisibleYears[year]) layer.addTo(historyMap);
+        else historyMap.removeLayer(layer);
+        fitHistoryMapBounds();
+      });
+    });
+  }
+
+  function initDistrictHistoryMap(rec) {
+    if (chamber !== 'house' || !districtHistoryIndex || !districtHistoryIndex.districts) return;
+    var info = districtHistoryIndex.districts[rec.id];
+    if (!info || !info.changed) return;
+    fetchDistrictHistoryShard(rec.state).then(function (shard) {
+      if (!$('district-history-map')) return;
+      renderDistrictHistoryLayers(rec, shard);
+      bindHistoryYearChips(rec);
+    }).catch(function (err) {
+      console.warn('District history shard failed', err);
+    });
+  }
+
+  function formatResultLine(result) {
+    if (!result) return '';
+    var parts = [];
+    if (result.winner) parts.push(escapeHtml(result.winner));
+    if (result.party) parts.push('(' + escapeHtml(result.party) + ')');
+    var margin = result.margin != null ? formatMargin(result.margin) : '—';
+    var pct = (result.dem != null && result.rep != null)
+      ? ' · D ' + result.dem + '% / R ' + result.rep + '%'
+      : '';
+    return '<p class="detail-sub"><strong>' + (result.cycle || 2024) + ' result:</strong> ' +
+      parts.join(' ') + ' · margin ' + margin + pct + '</p>';
+  }
+
   function openDetail(rec) {
     if (!rec) return;
     var modal = $('detail-modal');
@@ -385,6 +535,8 @@
       var v = rec.presMargin && rec.presMargin[y];
       return '<tr><td>' + y + '</td><td>' + formatMargin(v) + '</td></tr>';
     }).join('');
+    var hist = rec.electionHistory || {};
+    var result2024 = (hist.results && hist.results[0]) || null;
     var title = chamber === 'house' ? rec.id + ' · ' + (STATE_NAMES[rec.state] || rec.state) : rec.state + ' · ' + (STATE_NAMES[rec.state] || rec.state);
     $('modal-content').innerHTML =
       '<h2 class="detail-title">' + escapeHtml(rec.name) + '</h2>' +
@@ -396,7 +548,10 @@
         '<div class="metric-box"><div class="label">Party margin (2024)</div><div class="value">' + formatMargin(rec.partyMargin) + '</div></div>' +
         '<div class="metric-box"><div class="label">Over / under</div><div class="value">' + formatMargin(rec.overUnder) + '</div></div>' +
       '</div>' +
-      '<table class="pres-table"><thead><tr><th>Year</th><th>Pres. margin (D−R)</th></tr></thead><tbody>' + presRows + '</tbody></table>' +
+      formatResultLine(result2024) +
+      buildDistrictHistorySection(rec) +
+      '<h3 class="detail-heading">Presidential margins (D−R)</h3>' +
+      '<table class="pres-table"><thead><tr><th>Year</th><th>Margin</th></tr></thead><tbody>' + presRows + '</tbody></table>' +
       (rec.bolts && rec.bolts.note ? '<p class="detail-sub">' + escapeHtml(rec.bolts.note) + '</p>' : '') +
       '<label class="notes-label" for="detail-notes">Your notes</label>' +
       '<textarea class="notes-input" id="detail-notes" placeholder="Add notes…">' + escapeHtml(appState.notes[nk] || '') + '</textarea>' +
@@ -411,9 +566,11 @@
     });
     if (typeof modal.showModal === 'function') modal.showModal();
     else modal.setAttribute('open', 'open');
+    initDistrictHistoryMap(rec);
   }
 
   function closeDetail() {
+    destroyHistoryMap();
     var modal = $('detail-modal');
     if (typeof modal.close === 'function') modal.close();
     else modal.removeAttribute('open');
@@ -624,16 +781,24 @@
       fetch('data/senate.json').then(function (r) { return r.json(); }),
       fetch('data/districts.geojson').then(function (r) { return r.json(); }),
       fetch('data/states.topo.json').then(function (r) { return r.json(); }),
-      fetch('data/meta.json').then(function (r) { return r.json(); })
+      fetch('data/meta.json').then(function (r) { return r.json(); }),
+      fetch('data/district-history/index.json').then(function (r) {
+        return r.ok ? r.json() : null;
+      }).catch(function () { return null; })
     ]).then(function (parts) {
       houseData = parts[0];
       senateData = parts[1];
       districtsGeo = parts[2];
       statesTopo = parts[3];
       meta = parts[4];
+      districtHistoryIndex = parts[5];
       buildIndexes();
-      if (meta && meta.builtAt) {
-        $('footer-meta').textContent = 'Data built ' + new Date(meta.builtAt).toLocaleString();
+      if (meta && $('footer-meta')) {
+        var parts = [];
+        if (meta.electionDbVersion) parts.push('Election DB v' + meta.electionDbVersion);
+        if (meta.builtAt) parts.push('built ' + new Date(meta.builtAt).toLocaleString());
+        parts.push('Polls: Phase 2');
+        $('footer-meta').textContent = parts.join(' · ');
       }
     });
   }

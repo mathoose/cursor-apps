@@ -61,11 +61,7 @@
     { "id": "NY-22", "label": "2024 key House", "note": "GOP-held, Biden 2020" },
     { "id": "OR-05", "label": "2024 key House", "note": "GOP-held, Biden 2020" },
     { "id": "PA-01", "label": "2024 key House", "note": "Competitive GOP-held" },
-    { "id": "VA-02", "label": "2024 key House", "note": "GOP-held, Biden 2020" },
-    { "id": "MI-07", "label": "2024 key House", "note": "Swing district — MI-07" },
-    { "id": "PA-07", "label": "2024 key House", "note": "Swing district — PA-07" },
-    { "id": "PA-08", "label": "2024 key House", "note": "Swing district — PA-08" },
-    { "id": "NC-105", "label": "2024 key House", "note": "NC supermajority race (HD105 analog at federal level)" }
+    { "id": "VA-02", "label": "2024 key House", "note": "GOP-held, Biden 2020" }
   ],
   "senate": [
     { "state": "AZ", "label": "2024 key Senate", "note": "Dem-held battleground" },

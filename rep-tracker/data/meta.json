@@ -1,5 +1,6 @@
 {
-  "builtAt": "2026-06-09T02:46:11.263Z",
+  "builtAt": "2026-06-10T01:22:24.576Z",
+  "electionDbVersion": "1.0.0",
   "sources": [
     {
       "name": "Bolts / What's on the Ballot",
@@ -8,6 +9,14 @@
     {
       "name": "The Downballot",
       "url": "https://www.the-downballot.com/p/data"
+    },
+    {
+      "name": "MIT Election Lab (house tab via jaytimm/PresElectionResults)",
+      "url": "https://electionlab.mit.edu/data"
+    },
+    {
+      "name": "MEDSL 2024 Senate state returns",
+      "url": "https://github.com/MEDSL/2024-elections-official"
     },
     {
       "name": "unitedstates/congress-legislators",
@@ -30,5 +39,8 @@
     2016,
     2020,
     2024
-  ]
+  ],
+  "houseOverUnderCount": 425,
+  "districtHistoryChangedCount": 423,
+  "pollsPhase": 2
 }

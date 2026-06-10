@@ -86,6 +86,25 @@ body {
 }
 .filter-list-only[hidden],
 .filter-grid-only[hidden] { display: none !important; }
+.quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 10px;
+}
+.quick-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.quick-filter input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cell-active);
+}
 .list-wrap {
   max-height: calc(100dvh - 300px);
   overflow-y: auto;

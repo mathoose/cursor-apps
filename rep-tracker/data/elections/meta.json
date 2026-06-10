@@ -1,0 +1,33 @@
+{
+  "electionDbVersion": "1.0.0",
+  "builtAt": "2026-06-10T01:22:24.576Z",
+  "cyclesIncluded": {
+    "house": [
+      2024
+    ],
+    "senate": [
+      2024
+    ],
+    "pres": [
+      2008,
+      2012,
+      2016,
+      2020,
+      2024
+    ]
+  },
+  "counts": {
+    "pres-by-cd": 2130,
+    "pres-by-state": 253,
+    "house-results": 436,
+    "senate-results": 33
+  },
+  "presByCdYearCounts": {
+    "2008": 382,
+    "2012": 435,
+    "2016": 435,
+    "2020": 443,
+    "2024": 435
+  },
+  "districtHistoryChangedCount": 423
+}

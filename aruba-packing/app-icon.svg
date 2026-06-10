@@ -1,31 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <defs>
-    <linearGradient id="sky" x1="0.5" y1="0" x2="0.5" y2="1">
-      <stop offset="0%" stop-color="#fde047"/>
-      <stop offset="35%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#0d9488"/>
+    <linearGradient id="bg" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#e9d5ff"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
     </linearGradient>
   </defs>
-  <rect width="180" height="180" rx="40" fill="url(#sky)"/>
-  <!-- sun, upper right -->
-  <circle cx="138" cy="42" r="32" fill="#fde047"/>
-  <g stroke="#facc15" stroke-width="5" stroke-linecap="round">
-    <line x1="138" y1="2" x2="138" y2="16"/>
-    <line x1="138" y1="68" x2="138" y2="82"/>
-    <line x1="98" y1="42" x2="112" y2="42"/>
-    <line x1="164" y1="42" x2="178" y2="42"/>
-    <line x1="110" y1="14" x2="120" y2="24"/>
-    <line x1="156" y1="60" x2="166" y2="70"/>
-    <line x1="166" y1="14" x2="156" y2="24"/>
-    <line x1="110" y1="60" x2="120" y2="70"/>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <!-- closet rod -->
+  <rect x="28" y="38" width="124" height="8" rx="4" fill="#6d28d9"/>
+  <!-- hangers -->
+  <g stroke="#4c1d95" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M52 46 L52 58 Q52 72 66 72 L78 72"/>
+    <circle cx="52" cy="42" r="6" fill="#4c1d95" stroke="none"/>
+    <path d="M90 46 L90 58 Q90 72 104 72 L116 72"/>
+    <circle cx="90" cy="42" r="6" fill="#4c1d95" stroke="none"/>
+    <path d="M128 46 L128 58 Q128 72 114 72 L102 72"/>
+    <circle cx="128" cy="42" r="6" fill="#4c1d95" stroke="none"/>
   </g>
-  <!-- suitcase centered, large -->
-  <g transform="translate(90,108)">
-    <rect x="-52" y="-38" width="104" height="76" rx="12" fill="#fff" stroke="#0f766e" stroke-width="4"/>
-    <rect x="-52" y="-16" width="104" height="16" fill="#ccfbf1"/>
-    <rect x="-22" y="-58" width="44" height="26" rx="10" fill="none" stroke="#0f766e" stroke-width="4"/>
-    <circle cx="-34" cy="8" r="6" fill="#0d9488"/>
-    <circle cx="34" cy="8" r="6" fill="#0d9488"/>
-    <path d="M-36 24h72" stroke="#f97316" stroke-width="5" stroke-linecap="round"/>
-  </g>
+  <!-- clothes on hangers -->
+  <path d="M58 72 Q58 88 66 118 L78 118 Q86 88 86 72 Z" fill="#faf5ff" stroke="#7c3aed" stroke-width="3"/>
+  <path d="M96 72 Q96 92 104 128 L116 128 Q124 92 124 72 Z" fill="#f3e8ff" stroke="#7c3aed" stroke-width="3"/>
+  <path d="M114 72 Q114 86 108 108 L102 108 Q96 86 96 72 Z" fill="#ddd6fe" stroke="#7c3aed" stroke-width="3"/>
 </svg>
