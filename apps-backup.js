@@ -118,11 +118,10 @@
         return obj && typeof obj.items === "object" && obj.format !== FORMAT;
       },
       summarize: function (slice) {
-        var packed = 0;
-        Object.keys(slice.items || {}).forEach(function (id) {
-          if (slice.items[id] && slice.items[id].packed) packed++;
-        });
-        return packed + " packed / " + Object.keys(slice.items || {}).length + " items (no wardrobe photos)";
+        var outfits = Array.isArray(slice.outfits) ? slice.outfits.length : 0;
+        var bins = Array.isArray(slice.storageBins) ? slice.storageBins.length : 0;
+        var items = Object.keys(slice.items || {}).length;
+        return items + " categor" + (items === 1 ? "y" : "ies") + ", " + outfits + " outfit" + (outfits === 1 ? "" : "s") + ", " + bins + " storage bin" + (bins === 1 ? "" : "s") + " (no photos)";
       },
     },
     "meal-menu": {
@@ -237,18 +236,22 @@
     },
   };
 
-  /** Packing list only — wardrobe photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
+  /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
     var out = {
-      version: slice.version || 1,
+      version: slice.version || 5,
       opts: slice.opts || {},
       collapsed: slice.collapsed || {},
+      wardrobeCollapsed: slice.wardrobeCollapsed || {},
       items: {},
       removed: Array.isArray(slice.removed) ? slice.removed.slice() : [],
+      outfits: Array.isArray(slice.outfits) ? slice.outfits : [],
+      tripPlan: slice.tripPlan || {},
+      closet: Array.isArray(slice.closet) ? slice.closet : [],
+      customWardrobeCategories: Array.isArray(slice.customWardrobeCategories) ? slice.customWardrobeCategories : [],
+      randomizerPool: slice.randomizerPool && typeof slice.randomizerPool === "object" ? slice.randomizerPool : {},
+      storageBins: Array.isArray(slice.storageBins) ? slice.storageBins : [],
     };
-    if (slice.opts && slice.opts.activities) {
-      out.opts.activities = Object.assign({}, slice.opts.activities);
-    }
     Object.keys(slice.items || {}).forEach(function (id) {
       var row = slice.items[id];
       if (!row || typeof row !== "object") return;
@@ -259,6 +262,8 @@
       };
       if (row.label) out.items[id].label = String(row.label).slice(0, 120);
       if (row.category) out.items[id].category = String(row.category).slice(0, 40);
+      if (row.note) out.items[id].note = String(row.note).slice(0, 200);
+      if (row.garmentTag) out.items[id].garmentTag = String(row.garmentTag).slice(0, 40);
     });
     return out;
   }

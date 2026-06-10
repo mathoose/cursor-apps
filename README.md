@@ -14,7 +14,7 @@ iPhone-style grid with custom icons. New app folders are picked up automatically
 | Focus (ADHD tracker) | https://mathoose.github.io/cursor-apps/adhd-task-tracker/ |
 | Philly Dates | https://mathoose.github.io/cursor-apps/philly-dates/ |
 | Our Menu | https://mathoose.github.io/cursor-apps/meal-menu/ |
-| Aruba packing | https://mathoose.github.io/cursor-apps/aruba-packing/ |
+| Closet Picker | https://mathoose.github.io/cursor-apps/aruba-packing/ |
 
 ## Backup all apps
 
@@ -22,7 +22,7 @@ On the **home screen**, use **Export all data** to download one `cursor-apps-bac
 
 Each app can also import that same file and apply **only its section** (Habit Journal → Data tab, Focus → Settings, etc.).
 
-Data lives in Safari on your phone. App updates do not erase it; clearing website data for `mathoose.github.io` does. JSON backups do not include Philly menu photos, Aruba wardrobe grid photos, or Meal Menu entry photos (those stay on the device only). Use **Export photos (ZIP)** inside Our Menu to back up meal pictures.
+Data lives in Safari on your phone. App updates do not erase it; clearing website data for `mathoose.github.io` does. JSON backups do not include Philly menu photos, Closet Picker wardrobe photos, or Meal Menu entry photos (those stay on the device only). Use **Export photos (ZIP)** inside Our Menu to back up meal pictures.
 
 Push to `main` → GitHub Pages updates.
 

@@ -1793,6 +1793,7 @@
     }
 
     .pool-cell.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .photo-slot.has-photo.on { outline: 3px solid var(--accent); outline-offset: 2px; }
     .pool-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .pool-cell-check {
@@ -2273,7 +2274,7 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <h3 id="planDayTitle">Monday, June 1</h3>
-      <p class="plan-intro" style="margin-top:-6px">Default outfit for the day, plus extras for dates, beach, etc.</p>
+      <p class="plan-intro" style="margin-top:-6px">Assign saved outfits for this day.</p>
       <div id="planDaySlots"></div>
       <button type="button" class="btn-secondary" id="planDayAddSlot" style="width:100%;height:44px;border-radius:12px;margin-top:8px">+ Add outfit</button>
       <div class="sheet-actions">
@@ -3693,7 +3694,7 @@
       if (row && target.slot >= row.qty) {
         row.qty = target.slot + 1;
         saveState();
-        if (currentView === "list") render();
+        if (currentView === "closet") renderCloset();
       }
       const key = photoKey(target.itemId, target.slot);
       invalidateThumbCache(key);
@@ -5473,17 +5474,7 @@
     });
   }
 
-  function syncOptionsFromChips() {
-    state.opts.hidePacked = document.getElementById("hidePacked").checked;
-    state.opts.laundry = document.getElementById("optLaundry").checked;
-    state.opts.repeat = document.getElementById("optRepeat").checked;
-    document.getElementById("chipHide").classList.toggle("on", state.opts.hidePacked);
-    document.getElementById("chipLaundry").classList.toggle("on", state.opts.laundry);
-    document.getElementById("chipRepeat").classList.toggle("on", state.opts.repeat);
-    document.getElementById("swHide").classList.toggle("on", state.opts.hidePacked);
-    document.getElementById("swLaundry").classList.toggle("on", state.opts.laundry);
-    document.getElementById("swRepeat").classList.toggle("on", state.opts.repeat);
-  }
+  function syncOptionsFromChips() { /* legacy no-op */ }
 
   function getMaxPhotoSlotForItem(itemId, photoCounts) {
     let max = -1;
@@ -5824,180 +5815,6 @@
     if (currentView === "closet") renderCloset();
     if (currentView === "closet") renderCloset();
     toast("Item updated");
-  }
-
-  function renderCloset() {
-    const root = document.getElementById("packRoot");
-    const groups = gridGroups();
-    const closetEntries = getUncategorizedCloset();
-
-    loadPhotoCounts(groups).then(function (photoCounts) {
-      let categories = buildWardrobeCategoryList(photoCounts);
-      if (packActiveTag) {
-        categories = categories.filter(function (c) { return getCategoryTag(c) === packActiveTag; });
-      }
-      if (packActiveCategoryKey && packActiveCategoryKey !== "newcat" && !categories.some(function (c) { return c.key === packActiveCategoryKey; })) {
-        packActiveCategoryKey = null;
-        clearScanSelection();
-      }
-      const activeOption = packActiveCategoryKey && packActiveCategoryKey !== "newcat"
-        ? categories.find(function (c) { return c.key === packActiveCategoryKey; })
-        : null;
-
-      let html = '<p class="scan-intro">Photos save to your <strong>closet</strong> as uncategorized. Filter by tag, pick a category, select photos, then <strong>Pack</strong>.</p>';
-      html += '<div class="scan-actions-row">';
-      html += '<button type="button" class="btn-primary" id="btnScanCapture"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera</button>';
-      html += '<button type="button" class="btn-secondary" id="btnScanImport"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Import</button>';
-      html += '</div>';
-
-      html += '<div class="scan-tag-scroll" role="toolbar" aria-label="Garment tags">';
-      html += '<button type="button" class="scan-cat-chip' + (!packActiveTag ? " on" : "") + '" data-pack-tag="">All</button>';
-      GARMENT_TAGS.forEach(function (t) {
-        html += '<button type="button" class="scan-cat-chip' + (packActiveTag === t.id ? " on" : "") + '" data-pack-tag="' + t.id + '">' + escapeHtml(t.label) + "</button>";
-      });
-      html += "</div>";
-
-      html += '<div class="scan-cat-scroll" role="toolbar" aria-label="Clothing categories">';
-      html += '<button type="button" class="scan-cat-chip add-cat" data-cat-key="newcat">+ New category</button>';
-      categories.forEach(function (cat) {
-        const on = packActiveCategoryKey === cat.key;
-        html += '<button type="button" class="scan-cat-chip' + (on ? " on" : "") + (cat.full ? " full" : "") + '" data-cat-key="' + escapeHtml(cat.key) + '">';
-        html += escapeHtml(cat.label);
-        if (cat.qty > 0) {
-          html += '<span class="chip-meta">' + cat.filled + "/" + cat.qty + "</span>";
-        } else if (cat.full) {
-          html += '<span class="chip-meta">full</span>';
-        }
-        html += "</button>";
-      });
-      html += "</div>";
-
-      if (!closetEntries.length) {
-        html += '<div class="scan-empty">Closet empty. Use <strong>Camera</strong> or <strong>Import</strong> — photos stay saved even if you leave the app.</div>';
-      } else {
-        if (!activeOption) {
-          html += '<p class="scan-intro" style="margin-bottom:10px">' + closetEntries.length + ' uncategorized · choose a category, then tap photos.</p>';
-        } else {
-          html += '<p class="scan-intro" style="margin-bottom:10px">Tap photos for <strong>' + escapeHtml(activeOption.label) + "</strong>, then hit Pack.</p>";
-        }
-        html += '<div class="scan-thumbs">';
-        closetEntries.forEach(function (entry) {
-          const selected = !!packSelectedIds[entry.id];
-          const selectable = !!activeOption;
-          const preview = closetPreviews[entry.id] || "";
-          html += '<div class="scan-thumb' + (selectable ? " selectable" : "") + (selected ? " selected" : "") + '" data-scan-id="' + escapeHtml(entry.id) + '">';
-          html += '<img data-closet-id="' + escapeHtml(entry.id) + '" src="' + preview + '" alt="" />';
-          if (selectable) html += '<span class="scan-thumb-check" aria-hidden="true">✓</span>';
-          html += '<button type="button" class="scan-thumb-remove" data-scan-id="' + escapeHtml(entry.id) + '" aria-label="Remove photo">×</button>';
-          html += "</div>";
-        });
-        html += "</div>";
-        html += '<button type="button" class="btn-cancel" id="btnScanClear" style="width:100%;height:44px;border-radius:12px;margin-bottom:8px">Clear closet</button>';
-      }
-
-      root.innerHTML = html;
-
-      document.getElementById("btnScanCapture").onclick = function () {
-        document.getElementById("scanCameraInput").click();
-      };
-      document.getElementById("btnScanImport").onclick = function () {
-        document.getElementById("scanImportInput").click();
-      };
-
-      root.querySelectorAll("[data-pack-tag]").forEach(function (chip) {
-        chip.onclick = function () {
-          packActiveTag = chip.dataset.packTag || null;
-          packActiveCategoryKey = null;
-          clearScanSelection();
-          renderCloset();
-        };
-      });
-
-      root.querySelectorAll(".scan-cat-chip[data-cat-key]").forEach(function (chip) {
-        chip.onclick = function () {
-          const key = chip.dataset.catKey;
-          if (key === "newcat") {
-            openNewCategoryOverlay();
-            return;
-          }
-          if (packActiveCategoryKey === key) {
-            packActiveCategoryKey = null;
-            clearScanSelection();
-          } else {
-            packActiveCategoryKey = key;
-            clearScanSelection();
-          }
-          renderCloset();
-        };
-      });
-
-      root.querySelectorAll(".scan-thumb.selectable").forEach(function (thumb) {
-        thumb.onclick = function (e) {
-          if (e.target.closest(".scan-thumb-remove")) return;
-          toggleScanSelection(thumb.dataset.scanId);
-          thumb.classList.toggle("selected");
-          const check = thumb.querySelector(".scan-thumb-check");
-          if (check) check.style.display = packSelectedIds[thumb.dataset.scanId] ? "flex" : "none";
-          updateScanPackBar(getScanCategoryOption(packActiveCategoryKey, photoCounts));
-        };
-      });
-
-      root.querySelectorAll(".scan-thumb-remove").forEach(function (btn) {
-        btn.onclick = function (e) {
-          e.stopPropagation();
-          const id = btn.dataset.scanId;
-          delete packSelectedIds[id];
-          removeClosetEntry(id).then(function () {
-            saveState();
-            renderCloset();
-          });
-        };
-      });
-
-      const clearBtn = document.getElementById("btnScanClear");
-      if (clearBtn) {
-        clearBtn.onclick = function () {
-          if (!confirm("Remove all uncategorized photos from your closet?")) return;
-          const tasks = closetEntries.map(function (entry) { return removeClosetEntry(entry.id); });
-          Promise.all(tasks).then(function () {
-            ensureCloset();
-            state.closet = state.closet.filter(function (c) { return c.category && c.category !== "Uncategorized"; });
-            saveState();
-            clearScanSelection();
-            renderCloset();
-          });
-        };
-      }
-
-      root.querySelectorAll("img[data-closet-id]").forEach(function (img) {
-        const id = img.getAttribute("data-closet-id");
-        if (closetPreviews[id]) {
-          img.src = closetPreviews[id];
-          return;
-        }
-        idbGet(closetKey(id)).then(function (blob) {
-          if (!blob) return;
-          const url = URL.createObjectURL(blob);
-          closetPreviews[id] = url;
-          thumbCache[closetKey(id)] = url;
-          img.src = url;
-        });
-      });
-
-      const meta = document.getElementById("packHeroMeta");
-      if (meta) {
-        meta.textContent = closetEntries.length
-          ? closetEntries.length + " in closet · pick a category"
-          : "Import photos · saved to closet";
-      }
-
-      updateScanPackBar(activeOption ? getScanCategoryOption(packActiveCategoryKey, photoCounts) : null);
-
-      const activeChip = root.querySelector(".scan-cat-chip.on[data-cat-key]");
-      if (activeChip) {
-        activeChip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-      }
-    });
   }
 
   function addScanFiles(files) {
