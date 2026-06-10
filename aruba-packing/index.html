@@ -2951,7 +2951,7 @@
     saveState();
     closeOverlay("newCategoryOverlay");
     toast("Added “" + name + "”");
-    if (currentView === "closet") renderPack();
+    if (currentView === "closet") renderCloset();
     if (currentView === "closet") renderCloset();
   }
 
@@ -3341,7 +3341,7 @@
     return Promise.all(tasks).then(function () {
       saveStateImmediate();
       if (currentView === "closet") renderCloset();
-      if (currentView === "closet") renderPack();
+      if (currentView === "closet") renderCloset();
       if (currentView === "travel") renderTravel();
       let msg = imported + " photo" + (imported === 1 ? "" : "s") + " imported";
       if (skipped) msg += " · " + skipped + " skipped";
@@ -3375,7 +3375,7 @@
         return null;
       }
       if (!manifest || manifest.format !== "aruba-pack-photos") {
-        toast("Not an Aruba Pack photo backup");
+        toast("Not a Closet Picker photo backup");
         return null;
       }
       const count = Array.isArray(manifest.photos) ? manifest.photos.length : 0;
@@ -4028,7 +4028,7 @@
         clearScanSelection();
         toast(selected.length + " packed to " + option.label);
         render();
-        renderPack();
+        renderCloset();
       });
     }).catch(function () {
       toast("Could not pack photos");
@@ -5822,11 +5822,11 @@
     editingItemId = null;
     render();
     if (currentView === "closet") renderCloset();
-    if (currentView === "closet") renderPack();
+    if (currentView === "closet") renderCloset();
     toast("Item updated");
   }
 
-  function renderPack() {
+  function renderCloset() {
     const root = document.getElementById("packRoot");
     const groups = gridGroups();
     const closetEntries = getUncategorizedCloset();
@@ -5909,7 +5909,7 @@
           packActiveTag = chip.dataset.packTag || null;
           packActiveCategoryKey = null;
           clearScanSelection();
-          renderPack();
+          renderCloset();
         };
       });
 
@@ -5927,7 +5927,7 @@
             packActiveCategoryKey = key;
             clearScanSelection();
           }
-          renderPack();
+          renderCloset();
         };
       });
 
@@ -5949,7 +5949,7 @@
           delete packSelectedIds[id];
           removeClosetEntry(id).then(function () {
             saveState();
-            renderPack();
+            renderCloset();
           });
         };
       });
@@ -5964,7 +5964,7 @@
             state.closet = state.closet.filter(function (c) { return c.category && c.category !== "Uncategorized"; });
             saveState();
             clearScanSelection();
-            renderPack();
+            renderCloset();
           });
         };
       }
@@ -6019,7 +6019,7 @@
         pending--;
         if (pending === 0) {
           if (added) toast(added + " photo" + (added === 1 ? "" : "s") + " saved to closet");
-          renderPack();
+          renderCloset();
         }
       });
     });
@@ -6466,8 +6466,6 @@
 
   document.getElementById("saveOutfitConfirm").onclick = savePickerOutfit;
 
-  document.querySelector('[data-close="settingsOverlay"]').addEventListener("click", saveSettingsForm);
-
   document.getElementById("editSave").onclick = saveEditItem;
   document.getElementById("newCategorySave").onclick = saveNewCategory;
 
@@ -6523,6 +6521,7 @@
   document.querySelectorAll("[data-close]").forEach(function (btn) {
     btn.onclick = function () {
       const id = btn.getAttribute("data-close");
+      if (id === "settingsOverlay") saveSettingsForm();
       if (id === "editOverlay") editingItemId = null;
       if (id === "planDayOverlay") {
         planDayDateKey = null;
@@ -6551,13 +6550,8 @@
     }
   });
 
-  // Init chips from state
-  document.getElementById("hidePacked").checked = state.opts.hidePacked;
-  document.getElementById("optLaundry").checked = state.opts.laundry;
-  document.getElementById("optRepeat").checked = state.opts.repeat;
-
-  populateAddCategory();
-  renderActivities();
+  // Init
+  populateAddTagSelect();
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") {
       flushSaveState();
@@ -6579,10 +6573,10 @@
     var d = new Date();
     var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     a.href = URL.createObjectURL(blob);
-    a.download = "aruba-pack-backup-" + stamp + ".json";
+    a.download = "closet-picker-backup-" + stamp + ".json";
     a.click();
     URL.revokeObjectURL(a.href);
-    toast("List backup downloaded (photos not included)");
+    toast("Backup downloaded (photos not included)");
   }
 
   function applyArubaImport(parsed) {
@@ -6590,7 +6584,7 @@
     if (typeof AppsBackup !== "undefined" && AppsBackup.isUnifiedBackup(parsed)) {
       slice = AppsBackup.getAppSlice(parsed, "aruba-packing");
       if (!slice) {
-        toast("No Aruba Pack data in this file");
+        toast("No Closet Picker data in this file");
         return;
       }
     }
@@ -6598,7 +6592,7 @@
       toast("Invalid backup file");
       return;
     }
-    if (!confirm("Replace your packing list with this backup?")) return;
+    if (!confirm("Replace your wardrobe data with this backup?")) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slice));
       location.reload();
