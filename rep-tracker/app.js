@@ -3,6 +3,8 @@
 
   var STORAGE_KEY = 'rep-tracker-v1';
   var PRES_YEARS = [2008, 2012, 2016, 2020, 2024];
+  var PRES_MARGIN_LIMIT = 90;
+  var OU_MARGIN_LIMIT = 100;
   var STATE_NAMES = {
     AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado',
     CT: 'Connecticut', DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia',
@@ -36,6 +38,8 @@
   var selectedId = '';
   var map = null;
   var geoLayer = null;
+  var swingArrowLayer = null;
+  var SWING_ARROW_ANGLE = 65;
   var districtIndex = {};
   var stateSenateIndex = {};
   var districtHistoryIndex = null;
@@ -79,12 +83,18 @@
         state: '',
         party: '',
         presYear: 2024,
-        presMin: -30,
-        presMax: 30,
-        ouMin: -30,
-        ouMax: 30,
+        presMin: -PRES_MARGIN_LIMIT,
+        presMax: PRES_MARGIN_LIMIT,
+        ouMin: -OU_MARGIN_LIMIT,
+        ouMax: OU_MARGIN_LIMIT,
         boltsOnly: false,
-        search: ''
+        search: '',
+        quickFilter: '',
+        trumpMin: 0,
+        demMin: 0,
+        mapMode: 'colors',
+        swingFrom: 2008,
+        swingTo: 2024
       }
     };
   }
@@ -93,6 +103,24 @@
     if (!st || typeof st !== 'object') st = defaultState();
     if (!st.notes || typeof st.notes !== 'object') st.notes = {};
     if (!st.filters || typeof st.filters !== 'object') st.filters = defaultState().filters;
+    if (st.filters.presMin === -30 && st.filters.presMax === 30) {
+      st.filters.presMin = -PRES_MARGIN_LIMIT;
+      st.filters.presMax = PRES_MARGIN_LIMIT;
+    }
+    if (st.filters.ouMin === -30 && st.filters.ouMax === 30) {
+      st.filters.ouMin = -OU_MARGIN_LIMIT;
+      st.filters.ouMax = OU_MARGIN_LIMIT;
+    }
+    st.filters.presMin = Math.max(-PRES_MARGIN_LIMIT, Math.min(PRES_MARGIN_LIMIT, st.filters.presMin));
+    st.filters.presMax = Math.max(-PRES_MARGIN_LIMIT, Math.min(PRES_MARGIN_LIMIT, st.filters.presMax));
+    st.filters.ouMin = Math.max(-OU_MARGIN_LIMIT, Math.min(OU_MARGIN_LIMIT, st.filters.ouMin));
+    st.filters.ouMax = Math.max(-OU_MARGIN_LIMIT, Math.min(OU_MARGIN_LIMIT, st.filters.ouMax));
+    if (st.filters.quickFilter == null) st.filters.quickFilter = '';
+    if (st.filters.trumpMin == null) st.filters.trumpMin = 0;
+    if (st.filters.demMin == null) st.filters.demMin = 0;
+    if (st.filters.mapMode == null) st.filters.mapMode = 'colors';
+    if (st.filters.swingFrom == null) st.filters.swingFrom = 2008;
+    if (st.filters.swingTo == null) st.filters.swingTo = 2024;
     st.version = 1;
     return st;
   }
@@ -121,6 +149,143 @@
     if (n == null || isNaN(n)) return '—';
     var sign = n > 0 ? '+' : '';
     return sign + n.toFixed(1);
+  }
+
+  function presSwing(record, fromYear, toYear) {
+    var fromVal = record.presMargin && record.presMargin[fromYear];
+    var toVal = record.presMargin && record.presMargin[toYear];
+    if (fromVal == null || toVal == null) return null;
+    return Math.round((toVal - fromVal) * 10) / 10;
+  }
+
+  function formatSwing(swing) {
+    if (swing == null || isNaN(swing)) return '—';
+    if (swing > 0) return 'D +' + swing.toFixed(1) + ' swing';
+    if (swing < 0) return 'R +' + Math.abs(swing).toFixed(1) + ' swing';
+    return 'No change';
+  }
+
+  function featureCentroidLatLng(feat) {
+    if (!feat || !feat.geometry) return null;
+    var geom = feat.geometry;
+    var ring;
+    if (geom.type === 'Polygon') ring = geom.coordinates[0];
+    else if (geom.type === 'MultiPolygon') ring = geom.coordinates[0][0];
+    else return null;
+    if (!ring || !ring.length) return null;
+    var n = ring.length - 1;
+    if (n < 1) n = ring.length;
+    var sx = 0;
+    var sy = 0;
+    for (var i = 0; i < n; i++) {
+      sx += ring[i][0];
+      sy += ring[i][1];
+    }
+    return [sy / n, sx / n];
+  }
+
+  function swingArrowIcon(swing, maxAbs, uid) {
+    var abs = Math.abs(swing);
+    var len = maxAbs > 0 ? Math.max(12, Math.min(52, (abs / maxAbs) * 52)) : 12;
+    var color = swing >= 0 ? '#2563eb' : '#dc2626';
+    var angle = swing >= 0 ? SWING_ARROW_ANGLE : SWING_ARROW_ANGLE + 180;
+    var size = len + 20;
+    var cx = size / 2;
+    var cy = size / 2;
+    var x2 = cx;
+    var y2 = cy - len / 2;
+    var markerId = 'swing-arr-' + uid;
+    var html = '<svg class="swing-arrow-svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '" ' +
+      'style="transform:rotate(' + angle + 'deg)">' +
+      '<defs><marker id="' + markerId + '" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">' +
+      '<polygon points="0 0, 7 3.5, 0 7" fill="' + color + '"/></marker></defs>' +
+      '<line x1="' + cx + '" y1="' + cy + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + color + '" ' +
+      'stroke-width="3.5" stroke-linecap="round" marker-end="url(#' + markerId + ')"/></svg>';
+    return L.divIcon({
+      className: 'swing-arrow-marker',
+      html: html,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+  }
+
+  function clearSwingArrows() {
+    if (swingArrowLayer && map) {
+      map.removeLayer(swingArrowLayer);
+      swingArrowLayer = null;
+    }
+  }
+
+  function formatPresMarginPlain(pres) {
+    if (pres == null || isNaN(pres)) return '—';
+    if (pres < 0) return 'Trump +' + Math.abs(pres).toFixed(1);
+    if (pres > 0) return 'Dems +' + pres.toFixed(1);
+    return 'Even';
+  }
+
+  function presYearLabel(year) {
+    var labels = {
+      2024: 'Harris vs Trump',
+      2020: 'Biden vs Trump',
+      2016: 'Clinton vs Trump',
+      2012: 'Obama vs Romney',
+      2008: 'Obama vs McCain'
+    };
+    return year + ' (' + (labels[year] || '') + ')';
+  }
+
+  function gopNominee(year) {
+    if (year >= 2016) return 'Trump';
+    if (year === 2012) return 'Romney';
+    return 'McCain';
+  }
+
+  function demNominee(year) {
+    if (year === 2024) return 'Harris';
+    if (year >= 2020) return 'Biden';
+    if (year === 2016) return 'Clinton';
+    return 'Obama';
+  }
+
+  function updateQuickFilterLabels() {
+    var year = appState.filters.presYear;
+    var gop = gopNominee(year);
+    var dem = demNominee(year);
+    var demRed = $('quick-dem-red');
+    var repBlue = $('quick-rep-blue');
+    var trumpLabel = $('trump-margin-label');
+    if (demRed) demRed.textContent = 'Dem won ' + gop + ' district';
+    if (repBlue) repBlue.textContent = 'Rep won ' + dem + ' district';
+    if (trumpLabel) trumpLabel.textContent = 'How much did ' + gop + ' win by?';
+    document.querySelectorAll('.trump-chip[data-trump-label]').forEach(function (btn) {
+      var amt = btn.getAttribute('data-trump-label');
+      if (parseInt(btn.getAttribute('data-trump'), 10) > 0) {
+        btn.textContent = gop + ' ' + amt;
+      }
+    });
+  }
+
+  function filterSummaryText() {
+    var f = appState.filters;
+    var parts = [];
+    if (f.quickFilter === 'dem-trump') {
+      var gop = gopNominee(f.presYear);
+      var trumpPart = f.trumpMin > 0 ? gop + ' +' + f.trumpMin + '+ districts' : gop + '-won districts';
+      parts.push('Democrat-held seats in ' + trumpPart);
+    } else if (f.quickFilter === 'rep-biden') {
+      var demPart = f.demMin > 0 ? 'Dems +' + f.demMin + '+ districts' : 'Dem-won districts';
+      parts.push('Republican-held seats in ' + demPart);
+    } else if (f.party === 'D') {
+      parts.push('Democrat-held seats');
+    } else if (f.party === 'R') {
+      parts.push('Republican-held seats');
+    } else {
+      parts.push('All seats');
+    }
+    parts.push('· ' + presYearLabel(f.presYear));
+    if (f.state) parts.push('· ' + f.state);
+    if (f.boltsOnly) parts.push('· Bolts watch');
+    return parts.join(' ');
   }
 
   function marginColor(val, min, max) {
@@ -153,9 +318,21 @@
   function matchesFilters(record) {
     var f = appState.filters;
     if (f.state && record.state !== f.state) return false;
-    if (f.party && record.party !== f.party) return false;
     if (f.boltsOnly && !(record.bolts && record.bolts.watch)) return false;
     var pres = record.presMargin && record.presMargin[f.presYear];
+
+    if (f.quickFilter === 'dem-trump') {
+      if (record.party !== 'D') return false;
+      if (pres == null || pres >= 0) return false;
+      if (f.trumpMin > 0 && pres > -f.trumpMin) return false;
+    } else if (f.quickFilter === 'rep-biden') {
+      if (record.party !== 'R') return false;
+      if (pres == null || pres <= 0) return false;
+      if (f.demMin > 0 && pres < f.demMin) return false;
+    } else if (f.party && record.party !== f.party) {
+      return false;
+    }
+
     if (pres != null) {
       if (pres < f.presMin || pres > f.presMax) return false;
     }
@@ -190,6 +367,14 @@
     return pres;
   }
 
+  function mapColorScale() {
+    var f = appState.filters;
+    if ((f.mapMetric || 'pres') === 'ou') {
+      return { min: -OU_MARGIN_LIMIT, max: OU_MARGIN_LIMIT };
+    }
+    return { min: -PRES_MARGIN_LIMIT, max: PRES_MARGIN_LIMIT };
+  }
+
   function bindFilterUi() {
     var f = appState.filters;
     $('filter-state').value = f.state || '';
@@ -204,6 +389,29 @@
     document.querySelectorAll('.party-chip').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-party') === (f.party || ''));
     });
+    document.querySelectorAll('.quick-chip').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-quick') === (f.quickFilter || ''));
+    });
+    document.querySelectorAll('.trump-chip').forEach(function (btn) {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-trump'), 10) === (f.trumpMin || 0));
+    });
+    document.querySelectorAll('.dem-chip').forEach(function (btn) {
+      btn.classList.toggle('active', parseInt(btn.getAttribute('data-dem'), 10) === (f.demMin || 0));
+    });
+    var trumpRow = $('trump-margin-row');
+    var demRow = $('dem-margin-row');
+    if (trumpRow) trumpRow.hidden = f.quickFilter !== 'dem-trump';
+    if (demRow) demRow.hidden = f.quickFilter !== 'rep-biden';
+    var summary = $('filter-summary');
+    if (summary) summary.textContent = filterSummaryText();
+    updateQuickFilterLabels();
+    document.querySelectorAll('.map-mode-chip').forEach(function (btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-map-mode') === (f.mapMode || 'colors'));
+    });
+    var swingControls = $('swing-controls');
+    if (swingControls) swingControls.hidden = f.mapMode !== 'swing';
+    if ($('swing-from')) $('swing-from').value = String(f.swingFrom);
+    if ($('swing-to')) $('swing-to').value = String(f.swingTo);
   }
 
   function updateRangeLabels() {
@@ -238,8 +446,11 @@
         '<div class="row1"><span class="name">' + escapeHtml(rec.name) + '</span>' +
         '<span class="party-badge ' + escapeHtml(rec.party || 'U') + '">' + escapeHtml(rec.party || '?') + '</span></div>' +
         '<div class="meta">' + escapeHtml(label) +
-        ' · Pres ' + appState.filters.presYear + ': ' + formatMargin(metrics.pres) +
-        (metrics.ou != null ? ' · O/U: ' + formatMargin(metrics.ou) : '') +
+        (appState.filters.mapMode === 'swing'
+          ? ' · Swing ' + appState.filters.swingFrom + '→' + appState.filters.swingTo + ': ' +
+            formatSwing(presSwing(rec, appState.filters.swingFrom, appState.filters.swingTo))
+          : ' · Pres: ' + formatPresMarginPlain(metrics.pres) +
+            (metrics.ou != null ? ' · vs pres: ' + formatMargin(metrics.ou) : '')) +
         '</div>' +
         (rec.bolts && rec.bolts.watch ? '<span class="bolts-tag">Bolts watch</span>' : '');
       btn.addEventListener('click', function () {
@@ -256,10 +467,32 @@
 
   function updateLegend() {
     var el = $('map-legend');
+    var f = appState.filters;
+    if (f.mapMode === 'swing') {
+      var unit = chamber === 'house' ? 'district' : 'state';
+      el.innerHTML = '<strong>Presidential swing</strong><br>' +
+        f.swingFrom + ' → ' + f.swingTo + ' by ' + unit +
+        '<div class="swing-legend-arrows">' +
+          '<span class="swing-legend-item dem"><span class="swing-legend-icon dem"></span> Toward Dems</span>' +
+          '<span class="swing-legend-item rep"><span class="swing-legend-icon rep"></span> Toward Reps</span>' +
+        '</div>' +
+        '<span class="legend-hint">Longer arrow = bigger shift</span>';
+      return;
+    }
     var label = chamber === 'house' ? 'District color' : 'State color';
-    var metric = 'Pres. margin ' + appState.filters.presYear + ' (D+ blue, R+ red)';
+    var scale = mapColorScale();
+    var metric;
+    if (f.quickFilter === 'dem-trump') {
+      metric = 'Dem-held in Trump districts (' + presYearLabel(f.presYear) + ')';
+    } else if (f.quickFilter === 'rep-biden') {
+      metric = 'Rep-held in Dem districts (' + presYearLabel(f.presYear) + ')';
+    } else if (f.mapMetric === 'ou') {
+      metric = 'Over/under vs presidential result';
+    } else {
+      metric = 'Presidential margin · ' + presYearLabel(f.presYear);
+    }
     el.innerHTML = '<strong>' + label + '</strong><br>' + metric +
-      '<div class="legend-bar"></div><span>−30</span> … <span>+30 D</span>';
+      '<div class="legend-bar"></div><span>Trump +' + Math.abs(scale.min) + '</span> … <span>Dems +' + scale.max + '</span>';
   }
 
   function ensureMap() {
@@ -273,6 +506,7 @@
 
   function renderHouseMap() {
     ensureMap();
+    clearSwingArrows();
     if (geoLayer) {
       map.removeLayer(geoLayer);
       geoLayer = null;
@@ -284,8 +518,9 @@
         var id = feat.properties && feat.properties.id;
         var rec = districtIndex[id];
         var val = rec ? mapMetricValue(rec) : null;
+        var scale = mapColorScale();
         return {
-          fillColor: marginColor(val, -30, 30),
+          fillColor: marginColor(val, scale.min, scale.max),
           fillOpacity: 0.72,
           color: selectedId === id ? '#0f172a' : '#64748b',
           weight: selectedId === id ? 2.5 : 0.6
@@ -306,7 +541,7 @@
         });
         if (rec) {
           var pres = rec.presMargin && rec.presMargin[f.presYear];
-          layer.bindTooltip(rec.id + ' · ' + rec.name + '<br>Pres: ' + formatMargin(pres), { sticky: true });
+          layer.bindTooltip(rec.id + ' · ' + rec.name + '<br>Pres: ' + formatPresMarginPlain(pres), { sticky: true });
         }
       }
     }).addTo(map);
@@ -316,8 +551,145 @@
     updateLegend();
   }
 
+  function addSwingArrows(features, getRecord, getLabel) {
+    var f = appState.filters;
+    var fromY = f.swingFrom;
+    var toY = f.swingTo;
+    if (fromY === toY) return;
+    var swings = [];
+    features.forEach(function (item) {
+      var rec = getRecord(item);
+      if (!rec || !matchesFilters(rec)) return;
+      var swing = presSwing(rec, fromY, toY);
+      if (swing == null) return;
+      swings.push({ rec: rec, swing: swing, latlng: item.latlng, label: getLabel(item, rec) });
+    });
+    if (!swings.length) return;
+    var maxAbs = 0;
+    swings.forEach(function (s) { maxAbs = Math.max(maxAbs, Math.abs(s.swing)); });
+    if (maxAbs < 1) maxAbs = 1;
+    swingArrowLayer = L.layerGroup();
+    swings.forEach(function (s, idx) {
+      var fromVal = s.rec.presMargin[fromY];
+      var toVal = s.rec.presMargin[toY];
+      var tip = s.label + '<br>' + fromY + ': ' + formatPresMarginPlain(fromVal) +
+        '<br>' + toY + ': ' + formatPresMarginPlain(toVal) +
+        '<br>Swing: ' + formatSwing(s.swing);
+      var marker = L.marker(s.latlng, { icon: swingArrowIcon(s.swing, maxAbs, idx), interactive: true });
+      marker.bindTooltip(tip, { sticky: true });
+      marker.on('click', function () {
+        selectedId = s.rec.id;
+        renderList();
+        openDetail(s.rec);
+        highlightMapSelection(s.rec);
+      });
+      swingArrowLayer.addLayer(marker);
+    });
+    swingArrowLayer.addTo(map);
+  }
+
+  function renderSwingHouseMap() {
+    ensureMap();
+    clearSwingArrows();
+    if (geoLayer) {
+      map.removeLayer(geoLayer);
+      geoLayer = null;
+    }
+    if (!districtsGeo) return;
+    var f = appState.filters;
+    geoLayer = L.geoJSON(districtsGeo, {
+      style: function (feat) {
+        var id = feat.properties && feat.properties.id;
+        var rec = districtIndex[id];
+        var toPres = rec && rec.presMargin && rec.presMargin[f.swingTo];
+        var selected = selectedId === id;
+        return {
+          fillColor: toPres != null ? marginColor(toPres, -PRES_MARGIN_LIMIT, PRES_MARGIN_LIMIT) : '#e2e8f0',
+          fillOpacity: 0.35,
+          color: selected ? '#0f172a' : '#94a3b8',
+          weight: selected ? 2 : 0.5
+        };
+      },
+      onEachFeature: function (feat, layer) {
+        var id = feat.properties && feat.properties.id;
+        var rec = districtIndex[id];
+        if (!rec || !matchesFilters(rec)) {
+          layer.setStyle({ fillOpacity: 0.06, fillColor: '#e2e8f0' });
+        }
+      }
+    }).addTo(map);
+
+    var arrowItems = [];
+    (districtsGeo.features || []).forEach(function (feat) {
+      var id = feat.properties && feat.properties.id;
+      var rec = districtIndex[id];
+      var latlng = featureCentroidLatLng(feat);
+      if (!latlng) return;
+      arrowItems.push({
+        latlng: latlng,
+        feat: feat,
+        id: id,
+        rec: rec
+      });
+    });
+    addSwingArrows(arrowItems, function (item) { return item.rec; }, function (item, rec) {
+      return (rec ? rec.id + ' · ' + rec.name : item.id);
+    });
+
+    setTimeout(function () {
+      if (geoLayer && geoLayer.getBounds().isValid()) map.fitBounds(geoLayer.getBounds(), { padding: [12, 12] });
+    }, 50);
+    updateLegend();
+  }
+
+  function renderSwingSenateMap() {
+    ensureMap();
+    clearSwingArrows();
+    if (geoLayer) {
+      map.removeLayer(geoLayer);
+      geoLayer = null;
+    }
+    if (!statesTopo || typeof topojson === 'undefined') return;
+    var states = topojson.feature(statesTopo, statesTopo.objects.states);
+    var f = appState.filters;
+    geoLayer = L.geoJSON(states, {
+      style: function (feat) {
+        var st = FIPS_STATE[feat.id];
+        var recs = stateSenateIndex[st] || [];
+        var rec = recs[0];
+        var toPres = rec && rec.presMargin && rec.presMargin[f.swingTo];
+        var selected = recs.some(function (r) { return r.id === selectedId; });
+        return {
+          fillColor: toPres != null ? marginColor(toPres, -PRES_MARGIN_LIMIT, PRES_MARGIN_LIMIT) : '#e2e8f0',
+          fillOpacity: 0.35,
+          color: selected ? '#0f172a' : '#94a3b8',
+          weight: selected ? 2 : 0.8
+        };
+      }
+    }).addTo(map);
+
+    var arrowItems = [];
+    states.features.forEach(function (feat) {
+      var st = FIPS_STATE[feat.id];
+      var recs = stateSenateIndex[st] || [];
+      var rec = recs[0];
+      var latlng = featureCentroidLatLng(feat);
+      if (!latlng || !st) return;
+      arrowItems.push({ latlng: latlng, st: st, rec: rec, recs: recs });
+    });
+    addSwingArrows(arrowItems, function (item) { return item.rec; }, function (item, rec) {
+      return item.st + (rec ? ' · ' + rec.name : '');
+    });
+
+    setTimeout(function () {
+      if (geoLayer && geoLayer.getBounds().isValid()) map.fitBounds(geoLayer.getBounds(), { padding: [12, 12] });
+    }, 50);
+    updateLegend();
+  }
+
   function renderSenateMap() {
     ensureMap();
+    clearSwingArrows();
     if (geoLayer) {
       map.removeLayer(geoLayer);
       geoLayer = null;
@@ -333,8 +705,9 @@
         var rec = recs[0];
         var val = rec ? mapMetricValue(rec) : null;
         var selected = recs.some(function (r) { return r.id === selectedId; });
+        var scale = mapColorScale();
         return {
-          fillColor: marginColor(val, -30, 30),
+          fillColor: marginColor(val, scale.min, scale.max),
           fillOpacity: 0.72,
           color: selected ? '#0f172a' : '#64748b',
           weight: selected ? 2.5 : 0.8
@@ -356,7 +729,7 @@
         if (recs.length) {
           var pres = recs[0].presMargin && recs[0].presMargin[f.presYear];
           var names = recs.map(function (r) { return r.name; }).join(', ');
-          layer.bindTooltip(st + ' · ' + names + '<br>Pres: ' + formatMargin(pres), { sticky: true });
+          layer.bindTooltip(st + ' · ' + names + '<br>Pres: ' + formatPresMarginPlain(pres), { sticky: true });
         }
       }
     }).addTo(map);
@@ -367,8 +740,14 @@
   }
 
   function renderMap() {
-    if (chamber === 'house') renderHouseMap();
-    else renderSenateMap();
+    var mode = appState.filters.mapMode || 'colors';
+    if (chamber === 'house') {
+      if (mode === 'swing') renderSwingHouseMap();
+      else renderHouseMap();
+    } else {
+      if (mode === 'swing') renderSwingSenateMap();
+      else renderSenateMap();
+    }
   }
 
   function highlightMapSelection(rec) {
@@ -728,6 +1107,69 @@
     document.querySelectorAll('.party-chip').forEach(function (btn) {
       btn.addEventListener('click', function () {
         appState.filters.party = btn.getAttribute('data-party');
+        appState.filters.quickFilter = '';
+        appState.filters.trumpMin = 0;
+        appState.filters.demMin = 0;
+        bindFilterUi();
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('.quick-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var q = btn.getAttribute('data-quick') || '';
+        appState.filters.quickFilter = q;
+        appState.filters.trumpMin = 0;
+        appState.filters.demMin = 0;
+        if (q === 'dem-trump') appState.filters.party = 'D';
+        else if (q === 'rep-biden') appState.filters.party = 'R';
+        else appState.filters.party = '';
+        bindFilterUi();
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('.trump-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        appState.filters.trumpMin = parseInt(btn.getAttribute('data-trump'), 10) || 0;
+        bindFilterUi();
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('.dem-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        appState.filters.demMin = parseInt(btn.getAttribute('data-dem'), 10) || 0;
+        bindFilterUi();
+        applyFilters();
+      });
+    });
+    document.querySelectorAll('.map-mode-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        appState.filters.mapMode = btn.getAttribute('data-map-mode') || 'colors';
+        bindFilterUi();
+        applyFilters();
+        if (map) setTimeout(function () { map.invalidateSize(); }, 120);
+      });
+    });
+    $('swing-from').addEventListener('change', function () {
+      appState.filters.swingFrom = parseInt($('swing-from').value, 10);
+      if (appState.filters.swingFrom === appState.filters.swingTo) {
+        showStatus('Pick two different years to compare.', true);
+      }
+      bindFilterUi();
+      applyFilters();
+    });
+    $('swing-to').addEventListener('change', function () {
+      appState.filters.swingTo = parseInt($('swing-to').value, 10);
+      if (appState.filters.swingFrom === appState.filters.swingTo) {
+        showStatus('Pick two different years to compare.', true);
+      }
+      bindFilterUi();
+      applyFilters();
+    });
+    document.querySelectorAll('.swing-preset-chip').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        appState.filters.swingFrom = parseInt(btn.getAttribute('data-from'), 10);
+        appState.filters.swingTo = parseInt(btn.getAttribute('data-to'), 10);
+        appState.filters.mapMode = 'swing';
         bindFilterUi();
         applyFilters();
       });
@@ -743,6 +1185,7 @@
     });
     $('filter-pres-year').addEventListener('change', function () {
       appState.filters.presYear = parseInt($('filter-pres-year').value, 10);
+      bindFilterUi();
       applyFilters();
     });
     ['pres-min', 'pres-max', 'ou-min', 'ou-max'].forEach(function (id) {

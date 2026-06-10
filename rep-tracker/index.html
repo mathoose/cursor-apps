@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="top">
@@ -38,41 +38,110 @@
       <button type="button" class="btn btn-secondary btn-locate" id="locate-btn" title="Find my district">Locate</button>
     </div>
 
-    <div class="filter-row">
-      <label class="filter-label">State
-        <select id="filter-state"><option value="">All states</option></select>
-      </label>
-      <div class="party-filters" id="party-filters" role="group" aria-label="Party">
-        <button type="button" class="chip party-chip active" data-party="">All</button>
-        <button type="button" class="chip party-chip" data-party="D">D</button>
-        <button type="button" class="chip party-chip" data-party="R">R</button>
-        <button type="button" class="chip party-chip" data-party="I">I</button>
-      </div>
-    </div>
-
-    <div class="filter-row filter-row-advanced">
-      <label class="filter-label">Pres. year
+    <div class="filter-row filter-row-quick">
+      <label class="filter-label filter-label-inline">Election year
         <select id="filter-pres-year">
-          <option value="2024">2024</option>
-          <option value="2020">2020</option>
-          <option value="2016">2016</option>
-          <option value="2012">2012</option>
-          <option value="2008">2008</option>
+          <option value="2024">2024 — Harris vs Trump</option>
+          <option value="2020">2020 — Biden vs Trump</option>
+          <option value="2016">2016 — Clinton vs Trump</option>
+          <option value="2012">2012 — Obama vs Romney</option>
+          <option value="2008">2008 — Obama vs McCain</option>
         </select>
       </label>
-      <label class="filter-label">Pres. margin
-        <span class="range-val" id="pres-range-val">−30 to +30</span>
-        <input type="range" id="pres-min" min="-30" max="30" value="-30" />
-        <input type="range" id="pres-max" min="-30" max="30" value="30" />
-      </label>
-      <label class="filter-label">Over/under
-        <span class="range-val" id="ou-range-val">−30 to +30</span>
-        <input type="range" id="ou-min" min="-30" max="30" value="-30" />
-        <input type="range" id="ou-max" min="-30" max="30" value="30" />
+    </div>
+
+    <div class="quick-filters" id="quick-filters">
+      <p class="quick-label">Show me</p>
+      <div class="quick-chip-row" role="group" aria-label="Quick filters">
+        <button type="button" class="chip quick-chip active" data-quick="">All seats</button>
+        <button type="button" class="chip quick-chip" data-quick="dem-trump" id="quick-dem-red">Dem won red district</button>
+        <button type="button" class="chip quick-chip" data-quick="rep-biden" id="quick-rep-blue">Rep won blue district</button>
+      </div>
+      <div class="quick-chip-row trump-margin-row" id="trump-margin-row" hidden>
+        <span class="quick-sublabel" id="trump-margin-label">How much did the Republican win by?</span>
+        <button type="button" class="chip trump-chip active" data-trump="0">Any amount</button>
+        <button type="button" class="chip trump-chip" data-trump="5" data-trump-label="+5 or more">+5 or more</button>
+        <button type="button" class="chip trump-chip" data-trump="10" data-trump-label="+10 or more">+10 or more</button>
+        <button type="button" class="chip trump-chip" data-trump="15" data-trump-label="+15 or more">+15 or more</button>
+      </div>
+      <div class="quick-chip-row dem-margin-row" id="dem-margin-row" hidden>
+        <span class="quick-sublabel">How much did the Democrat win the district by?</span>
+        <button type="button" class="chip dem-chip active" data-dem="0">Any amount</button>
+        <button type="button" class="chip dem-chip" data-dem="5">Dems +5 or more</button>
+        <button type="button" class="chip dem-chip" data-dem="10">Dems +10 or more</button>
+        <button type="button" class="chip dem-chip" data-dem="15">Dems +15 or more</button>
+      </div>
+      <p class="filter-summary" id="filter-summary"></p>
+    </div>
+
+    <div class="filter-row">
+      <label class="filter-label filter-label-inline">State
+        <select id="filter-state"><option value="">All states</option></select>
       </label>
       <label class="filter-toggle">
         <input type="checkbox" id="filter-bolts" /> Bolts watch
       </label>
+    </div>
+
+    <details class="advanced-filters" id="advanced-filters">
+      <summary>More filters (party, margins, over/under)</summary>
+      <div class="filter-row filter-row-advanced">
+        <div class="party-filters" id="party-filters" role="group" aria-label="Party">
+          <button type="button" class="chip party-chip active" data-party="">All parties</button>
+          <button type="button" class="chip party-chip" data-party="D">Democrat</button>
+          <button type="button" class="chip party-chip" data-party="R">Republican</button>
+          <button type="button" class="chip party-chip" data-party="I">Independent</button>
+        </div>
+        <label class="filter-label">Pres. margin (technical)
+          <span class="range-val" id="pres-range-val">−90 to +90</span>
+          <input type="range" id="pres-min" min="-90" max="90" step="1" value="-90" />
+          <input type="range" id="pres-max" min="-90" max="90" step="1" value="90" />
+        </label>
+        <label class="filter-label">Over/under
+          <span class="range-hint">How much the incumbent beat/lost vs pres.</span>
+          <span class="range-val" id="ou-range-val">−100 to +100</span>
+          <input type="range" id="ou-min" min="-100" max="100" step="1" value="-100" />
+          <input type="range" id="ou-max" min="-100" max="100" step="1" value="100" />
+        </label>
+      </div>
+    </details>
+
+    <div class="map-style-row" id="map-style-row">
+      <span class="quick-label">Map style</span>
+      <div class="quick-chip-row">
+        <button type="button" class="chip map-mode-chip active" data-map-mode="colors">District colors</button>
+        <button type="button" class="chip map-mode-chip" data-map-mode="swing">Swing arrows</button>
+      </div>
+      <div class="swing-controls" id="swing-controls" hidden>
+        <div class="swing-compare-row">
+          <label class="filter-label filter-label-inline">From
+            <select id="swing-from">
+              <option value="2008">2008</option>
+              <option value="2012">2012</option>
+              <option value="2016">2016</option>
+              <option value="2020">2020</option>
+              <option value="2024">2024</option>
+            </select>
+          </label>
+          <label class="filter-label filter-label-inline">To
+            <select id="swing-to">
+              <option value="2008">2008</option>
+              <option value="2012">2012</option>
+              <option value="2016">2016</option>
+              <option value="2020">2020</option>
+              <option value="2024" selected>2024</option>
+            </select>
+          </label>
+        </div>
+        <div class="quick-chip-row swing-preset-row">
+          <span class="quick-sublabel">Quick compare</span>
+          <button type="button" class="chip swing-preset-chip" data-from="2008" data-to="2024">2008 → 2024</button>
+          <button type="button" class="chip swing-preset-chip" data-from="2008" data-to="2012">2008 → 2012</button>
+          <button type="button" class="chip swing-preset-chip" data-from="2012" data-to="2020">2012 → 2020</button>
+          <button type="button" class="chip swing-preset-chip" data-from="2016" data-to="2024">2016 → 2024</button>
+          <button type="button" class="chip swing-preset-chip" data-from="2020" data-to="2024">2020 → 2024</button>
+        </div>
+      </div>
     </div>
 
     <div class="view-row" role="tablist" aria-label="View">
@@ -116,7 +185,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
   <script src="../apps-backup.js"></script>
-  <script src="app.js?v=2" defer></script>
+  <script src="app.js?v=5" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
