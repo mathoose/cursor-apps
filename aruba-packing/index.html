@@ -50,6 +50,7 @@
 
     body.view-closet,
     body.view-pick,
+    body.view-outfits,
     body.view-storage,
     body.view-travel {
       padding-bottom: calc(72px + var(--safe-bottom));
@@ -606,6 +607,7 @@
 
     body:not(.view-closet) .closet-only { display: none !important; }
     body:not(.view-pick) .pick-only { display: none !important; }
+    body:not(.view-outfits) .outfits-only { display: none !important; }
     body:not(.view-storage) .storage-only { display: none !important; }
     body:not(.view-travel) .travel-only { display: none !important; }
     body.view-pick-preview .pick-pool-only { display: none !important; }
@@ -2046,6 +2048,89 @@
       text-overflow: ellipsis;
       max-width: 72px;
     }
+
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin: 0 6px 6px 0;
+      border: none;
+      cursor: pointer;
+    }
+
+    button.tag-chip.on {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .tag-filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 4px;
+    }
+
+    .trip-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .trip-card strong { display: block; font-size: 1rem; margin-bottom: 4px; }
+    .trip-card small { color: var(--muted); font-size: 0.8125rem; }
+    .trip-card-main { cursor: pointer; flex: 1; min-width: 0; }
+
+    .trip-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .trip-card-actions button {
+      flex: 1;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .packing-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .packing-list-item img {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .packing-list-item span { font-size: 0.875rem; font-weight: 500; }
   </style>
 </head>
 <body class="view-closet">
@@ -2085,6 +2170,16 @@
     </div>
   </header>
 
+  <header class="hero outfits-only" id="outfitsHero">
+    <div class="hero-top hero-top-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+      <div style="flex:1;min-width:0">
+        <h1>Outfits</h1>
+        <p class="hero-meta" id="outfitsHeroMeta">Saved looks &amp; tags</p>
+      </div>
+    </div>
+  </header>
+
   <header class="hero storage-only" id="storageHero">
     <div class="hero-top hero-top-with-home">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
@@ -2110,6 +2205,8 @@
   <div class="page-root pick-only pick-pool-only" id="pickRoot" aria-live="polite"></div>
   <div class="page-root pick-only pick-preview-only" id="pickPreviewRoot" aria-live="polite"></div>
 
+  <div class="page-root outfits-only" id="outfitsRoot" aria-live="polite"></div>
+
   <div class="page-root storage-only" id="storageRoot" aria-live="polite"></div>
 
   <div class="page-root travel-only" id="travelRoot" aria-live="polite"></div>
@@ -2122,6 +2219,7 @@
     <img id="viewerImg" alt="" />
     <p class="photo-viewer-caption" id="viewerCaption"></p>
     <div class="photo-viewer-actions">
+      <button type="button" class="pv-close" id="viewerOutfits">Outfits</button>
       <button type="button" class="pv-close" id="viewerClose">Close</button>
       <button type="button" class="pv-replace" id="viewerReplace">Replace</button>
       <button type="button" class="pv-delete" id="viewerDelete">Remove</button>
@@ -2136,6 +2234,10 @@
     <button type="button" class="tab" id="tabPick" data-view="pick">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 9l6 6M4 4l5 5"/></svg>
       Pick
+    </button>
+    <button type="button" class="tab" id="tabOutfits" data-view="outfits">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Outfits
     </button>
     <button type="button" class="tab" id="tabStorage" data-view="storage">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 8v13H3V8M1 8h22M10 12h4"/></svg>
@@ -2230,9 +2332,42 @@
         <label for="saveOutfitDesc">Description</label>
         <textarea id="saveOutfitDesc" maxlength="240" placeholder="Optional notes"></textarea>
       </div>
+      <div class="field">
+        <label for="saveOutfitTags">Tags</label>
+        <input type="text" id="saveOutfitTags" placeholder="e.g. casual, work, date night" autocomplete="off" maxlength="120" />
+        <p style="font-size:0.75rem;color:var(--muted);margin-top:6px">Comma-separated</p>
+      </div>
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="saveOutfitOverlay">Cancel</button>
         <button type="button" class="btn-save" id="saveOutfitConfirm">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save / name trip -->
+  <div class="overlay" id="saveTripOverlay" role="dialog" aria-modal="true" aria-labelledby="saveTripTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="saveTripTitle">Name your trip</h3>
+      <div class="field">
+        <label for="saveTripName">Trip name</label>
+        <input type="text" id="saveTripName" placeholder="e.g. Aruba June" autocomplete="off" maxlength="80" />
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" data-close="saveTripOverlay">Cancel</button>
+        <button type="button" class="btn-save" id="saveTripConfirm">Save trip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outfits containing a garment -->
+  <div class="overlay" id="garmentOutfitsOverlay" role="dialog" aria-modal="true" aria-labelledby="garmentOutfitsTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="garmentOutfitsTitle">Outfits with this item</h3>
+      <div id="garmentOutfitsList"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-save" data-close="garmentOutfitsOverlay" style="flex:1">Done</button>
       </div>
     </div>
   </div>
@@ -2299,15 +2434,7 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <h3 id="settingsTitle">Settings</h3>
-      <div class="field">
-        <label for="tripStartDate">Trip start date</label>
-        <input type="date" id="tripStartDate" />
-      </div>
-      <div class="field">
-        <label for="tripDays">Trip length (days)</label>
-        <input type="number" id="tripDays" min="1" max="60" value="7" />
-      </div>
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="margin-top:0;padding-top:0">
         <button type="button" class="btn-cancel" id="btnReset" style="width:100%;height:44px;border-radius:12px;margin-bottom:12px">Reset all data</button>
         <h3 style="font-size:0.9375rem;margin-bottom:8px">Backup</h3>
         <p style="font-size:0.8125rem;color:var(--muted);margin-bottom:10px">JSON backup of wardrobe data. Photos stay on this device only.</p>
@@ -2617,19 +2744,95 @@
       items[id] = { packed: false, qty: 1, custom: false };
     }
     return {
-      version: 5,
+      version: 6,
       opts: {},
       collapsed: {},
       wardrobeCollapsed: {},
       items,
       removed: [],
       outfits: [],
-      tripPlan: defaultTripPlan(),
+      trips: [],
       closet: [],
       customWardrobeCategories: [],
       randomizerPool: {},
       storageBins: [],
     };
+  }
+
+  function sanitizeOutfit(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const tags = Array.isArray(raw.tags)
+      ? raw.tags.map(function (t) { return String(t).trim().slice(0, 40); }).filter(Boolean)
+      : typeof raw.tags === "string"
+        ? raw.tags.split(",").map(function (t) { return t.trim().slice(0, 40); }).filter(Boolean)
+        : [];
+    return {
+      id: typeof raw.id === "string" ? raw.id : newOutfitId(),
+      name: String(raw.name || "Outfit").slice(0, 80),
+      description: raw.description ? String(raw.description).slice(0, 240) : undefined,
+      tags: tags,
+      slots: Array.isArray(raw.slots) ? raw.slots.map(function (s) {
+        if (!s || typeof s !== "object") return null;
+        return {
+          slotId: String(s.slotId || "slot"),
+          label: String(s.label || "Piece").slice(0, 40),
+          category: String(s.category || s.label || "Piece").slice(0, 60),
+          garment: s.garment && typeof s.garment === "object"
+            ? { itemId: s.garment.itemId, slot: s.garment.slot }
+            : null,
+        };
+      }).filter(Boolean) : [],
+    };
+  }
+
+  function sanitizeTrip(raw) {
+    if (!raw || typeof raw !== "object") return null;
+    const base = defaultTripPlan();
+    if (typeof raw.startDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(raw.startDate)) {
+      base.startDate = raw.startDate;
+    }
+    if (typeof raw.tripDays === "number" && raw.tripDays >= 1 && raw.tripDays <= 60) {
+      base.tripDays = raw.tripDays;
+    }
+    base.days = {};
+    if (raw.days && typeof raw.days === "object") {
+      Object.keys(raw.days).forEach(function (dateKey) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+        const slots = raw.days[dateKey];
+        if (!Array.isArray(slots)) return;
+        base.days[dateKey] = slots.map(function (slot) {
+          if (!slot || typeof slot !== "object") return null;
+          return {
+            id: typeof slot.id === "string" ? slot.id : newDaySlotId(),
+            label: String(slot.label || "Outfit").slice(0, 40),
+            outfitId: typeof slot.outfitId === "string" ? slot.outfitId : null,
+          };
+        }).filter(Boolean);
+      });
+    }
+    return {
+      id: typeof raw.id === "string" ? raw.id : newTripId(),
+      name: String(raw.name || "Trip").slice(0, 80),
+      startDate: base.startDate,
+      tripDays: base.tripDays,
+      days: base.days,
+    };
+  }
+
+  function migrateToV6(base, parsed) {
+    base.version = 6;
+    if (Array.isArray(parsed.trips) && parsed.trips.length) {
+      base.trips = parsed.trips.map(sanitizeTrip).filter(Boolean);
+    } else if (parsed.tripPlan && typeof parsed.tripPlan === "object") {
+      const legacy = sanitizeTrip(Object.assign({ name: "My trip" }, parsed.tripPlan));
+      base.trips = legacy ? [legacy] : [];
+    } else {
+      base.trips = [];
+    }
+    base.outfits = Array.isArray(parsed.outfits)
+      ? parsed.outfits.map(sanitizeOutfit).filter(Boolean)
+      : [];
+    return base;
   }
 
   function isClothingItem(id, row) {
@@ -2688,12 +2891,11 @@
       const base = defaultState();
       base.collapsed = parsed.collapsed || {};
       base.wardrobeCollapsed = parsed.wardrobeCollapsed || {};
-      base.outfits = Array.isArray(parsed.outfits) ? parsed.outfits : [];
-      base.tripPlan = sanitizeTripPlan(parsed.tripPlan);
       base.closet = Array.isArray(parsed.closet) ? parsed.closet : [];
       base.customWardrobeCategories = Array.isArray(parsed.customWardrobeCategories) ? parsed.customWardrobeCategories : [];
       base.removed = Array.isArray(parsed.removed) ? parsed.removed : [];
       migrateToV5(base, parsed);
+      migrateToV6(base, parsed);
       base.items = {};
       Object.entries(parsed.items || {}).forEach(function (entry) {
         const id = entry[0];
@@ -2741,12 +2943,14 @@
   let gridActiveTag = null;
   let packSelectedIds = {};
   let closetPreviews = {};
-  let planView = "library";
-  let planSection = "calendar";
+  let outfitsView = "library";
+  let outfitDetailId = null;
+  let outfitsTagFilter = null;
+  let travelView = "list";
+  let activeTripId = null;
   let planDraft = null;
   let planActiveSlotId = null;
   let planSlotIndices = {};
-  let planDetailId = null;
   let planCalendarMonth = { year: 2026, month: 5 };
   let planDayDateKey = null;
   let planPickingDaySlotId = null;
@@ -2843,6 +3047,96 @@
 
   function newBinId() {
     return "bin-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  function newTripId() {
+    return "trip-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
+  }
+
+  function ensureTrips() {
+    if (!state.trips) state.trips = [];
+    return state.trips;
+  }
+
+  function getTripById(tripId) {
+    return ensureTrips().find(function (t) { return t.id === tripId; }) || null;
+  }
+
+  function getActiveTrip() {
+    if (!activeTripId) return null;
+    return getTripById(activeTripId);
+  }
+
+  function parseTagsInput(str) {
+    return String(str || "").split(",").map(function (t) { return t.trim().slice(0, 40); }).filter(Boolean);
+  }
+
+  function getAllOutfitTags() {
+    const seen = {};
+    const list = [];
+    (state.outfits || []).forEach(function (outfit) {
+      (outfit.tags || []).forEach(function (tag) {
+        const key = tag.toLowerCase();
+        if (seen[key]) return;
+        seen[key] = true;
+        list.push(tag);
+      });
+    });
+    return list.sort(function (a, b) { return a.localeCompare(b); });
+  }
+
+  function getOutfitsForGarment(itemId, slot) {
+    return (state.outfits || []).filter(function (outfit) {
+      return (outfit.slots || []).some(function (s) {
+        return s.garment && s.garment.itemId === itemId && s.garment.slot === slot;
+      });
+    });
+  }
+
+  function openGarmentOutfitsOverlay(itemId, slot) {
+    const outfits = getOutfitsForGarment(itemId, slot);
+    const root = document.getElementById("garmentOutfitsList");
+    const label = gridDisplayName(itemId) || itemLabel(itemId) || "Item";
+    document.getElementById("garmentOutfitsTitle").textContent = "Outfits with " + label;
+    if (!outfits.length) {
+      root.innerHTML = '<div class="scan-empty">This item is not in any saved outfit yet.</div>';
+    } else {
+      let html = "";
+      outfits.forEach(function (outfit) {
+        html += '<button type="button" class="plan-outfit-pick" data-garment-outfit-id="' + escapeHtml(outfit.id) + '">';
+        html += '<div class="plan-outfit-pick-mosaic" data-gomosaic="' + escapeHtml(outfit.id) + '">';
+        html += '<span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span><span class="mosaic-empty">…</span>';
+        html += "</div><span>" + escapeHtml(outfit.name || "Outfit");
+        if (outfit.tags && outfit.tags.length) {
+          html += "<br><small style=\"font-weight:400;color:var(--muted)\">" + escapeHtml(outfit.tags.join(", ")) + "</small>";
+        }
+        html += "</span></button>";
+      });
+      root.innerHTML = html;
+      outfits.forEach(function (outfit) {
+        const el = root.querySelector('[data-gomosaic="' + outfit.id + '"]');
+        if (!el) return;
+        const withGarments = (outfit.slots || []).filter(function (s) { return s.garment; }).slice(0, 4);
+        withGarments.forEach(function (slot, i) {
+          loadGarmentPhotoUrl(slot.garment.itemId, slot.garment.slot).then(function (url) {
+            if (!url || !el.children[i]) return;
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = "";
+            el.replaceChild(img, el.children[i]);
+          });
+        });
+      });
+      root.querySelectorAll("[data-garment-outfit-id]").forEach(function (btn) {
+        btn.onclick = function () {
+          closeOverlay("garmentOutfitsOverlay");
+          outfitDetailId = btn.dataset.garmentOutfitId;
+          outfitsView = "detail";
+          setView("outfits");
+        };
+      });
+    }
+    openOverlay("garmentOutfitsOverlay");
   }
 
   function closetKey(id) {
@@ -4140,15 +4434,13 @@
     return "dayslot-" + Date.now() + "-" + Math.random().toString(36).slice(2, 7);
   }
 
-  function ensureTripPlan() {
-    if (!state.tripPlan || typeof state.tripPlan !== "object") {
-      state.tripPlan = defaultTripPlan();
-    }
-    if (!state.tripPlan.days || typeof state.tripPlan.days !== "object") {
-      state.tripPlan.days = {};
-    }
-    if (!state.tripPlan.startDate) state.tripPlan.startDate = DEFAULT_TRIP_START;
-    return state.tripPlan;
+  function ensureTripPlan(trip) {
+    trip = trip || getActiveTrip();
+    if (!trip) return { startDate: DEFAULT_TRIP_START, tripDays: DAYS, days: {} };
+    if (!trip.days || typeof trip.days !== "object") trip.days = {};
+    if (!trip.startDate) trip.startDate = DEFAULT_TRIP_START;
+    if (!trip.tripDays) trip.tripDays = DAYS;
+    return trip;
   }
 
   function pad2(n) {
@@ -4170,22 +4462,22 @@
     return d;
   }
 
-  function getTripStartDate() {
-    ensureTripPlan();
-    return parseDateKey(state.tripPlan.startDate || DEFAULT_TRIP_START);
+  function getTripStartDate(trip) {
+    trip = ensureTripPlan(trip);
+    return parseDateKey(trip.startDate || DEFAULT_TRIP_START);
   }
 
-  function getTripDateKeys() {
-    ensureTripPlan();
-    const start = getTripStartDate();
-    const len = state.tripPlan.tripDays || DAYS;
+  function getTripDateKeys(trip) {
+    trip = ensureTripPlan(trip);
+    const start = getTripStartDate(trip);
+    const len = trip.tripDays || DAYS;
     const keys = [];
     for (let i = 0; i < len; i++) keys.push(formatDateKey(addDays(start, i)));
     return keys;
   }
 
-  function isTripDateKey(dateKey) {
-    return getTripDateKeys().indexOf(dateKey) !== -1;
+  function isTripDateKey(dateKey, trip) {
+    return getTripDateKeys(trip).indexOf(dateKey) !== -1;
   }
 
   function formatDayHeading(dateKey) {
@@ -4195,8 +4487,9 @@
     return weekdays[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
   }
 
-  function formatTripRangeLabel() {
-    const keys = getTripDateKeys();
+  function formatTripRangeLabel(trip) {
+    trip = trip || getActiveTrip();
+    const keys = getTripDateKeys(trip);
     if (!keys.length) return "";
     const start = parseDateKey(keys[0]);
     const end = parseDateKey(keys[keys.length - 1]);
@@ -4212,29 +4505,44 @@
     return (state.outfits || []).find(function (o) { return o.id === outfitId; }) || null;
   }
 
-  function ensureDayPlan(dateKey) {
-    ensureTripPlan();
-    if (!state.tripPlan.days[dateKey]) {
-      state.tripPlan.days[dateKey] = [
+  function ensureDayPlan(dateKey, trip) {
+    trip = ensureTripPlan(trip);
+    if (!trip.id) return [];
+    if (!trip.days[dateKey]) {
+      trip.days[dateKey] = [
         { id: newDaySlotId(), label: "Outfit", outfitId: null },
       ];
       saveState();
     }
-    return state.tripPlan.days[dateKey];
+    return trip.days[dateKey];
   }
 
-  function dayHasPlannedOutfits(dateKey) {
-    const slots = (ensureTripPlan().days[dateKey] || []);
+  function dayHasPlannedOutfits(dateKey, trip) {
+    const slots = (ensureTripPlan(trip).days[dateKey] || []);
     return slots.some(function (slot) { return !!slot.outfitId && !!getOutfitById(slot.outfitId); });
   }
 
-  function purgeOutfitFromTripPlan(outfitId) {
-    ensureTripPlan();
-    Object.keys(state.tripPlan.days).forEach(function (dateKey) {
-      state.tripPlan.days[dateKey].forEach(function (slot) {
-        if (slot.outfitId === outfitId) slot.outfitId = null;
+  function purgeOutfitFromTrips(outfitId) {
+    ensureTrips().forEach(function (trip) {
+      Object.keys(trip.days || {}).forEach(function (dateKey) {
+        (trip.days[dateKey] || []).forEach(function (slot) {
+          if (slot.outfitId === outfitId) slot.outfitId = null;
+        });
       });
     });
+  }
+
+  function purgeOutfitFromTripPlan(outfitId) {
+    purgeOutfitFromTrips(outfitId);
+  }
+
+  function countTripPlannedDays(trip) {
+    trip = ensureTripPlan(trip);
+    let n = 0;
+    getTripDateKeys(trip).forEach(function (dateKey) {
+      if (dayHasPlannedOutfits(dateKey, trip)) n++;
+    });
+    return n;
   }
 
   function getGarmentsForOutfit(outfit) {
@@ -4246,8 +4554,9 @@
     return list;
   }
 
-  function analyzeTripPacking() {
-    const tripDates = getTripDateKeys();
+  function analyzeTripPacking(trip) {
+    trip = ensureTripPlan(trip);
+    const tripDates = getTripDateKeys(trip);
     const neededByItem = {};
     const uniqueRefs = {};
     let plannedDays = 0;
@@ -4255,8 +4564,8 @@
     let filledSlots = 0;
 
     tripDates.forEach(function (dateKey) {
-      const slots = ensureTripPlan().days[dateKey] || [];
-      if (dayHasPlannedOutfits(dateKey)) plannedDays++;
+      const slots = trip.days[dateKey] || [];
+      if (dayHasPlannedOutfits(dateKey, trip)) plannedDays++;
       const dayCount = {};
       slots.forEach(function (slot) {
         totalSlots++;
@@ -4302,134 +4611,6 @@
     };
   }
 
-  function renderPlanSegmentHtml(activeSection) {
-    let html = '<div class="plan-segment" role="tablist" aria-label="Plan sections">';
-    html += '<button type="button" class="plan-segment-btn' + (activeSection === "calendar" ? " on" : "") + '" data-plan-section="calendar">Calendar</button>';
-    html += '<button type="button" class="plan-segment-btn' + (activeSection === "outfits" ? " on" : "") + '" data-plan-section="outfits">Outfits</button>';
-    html += "</div>";
-    return html;
-  }
-
-  function bindPlanSegment(root) {
-    root.querySelectorAll("[data-plan-section]").forEach(function (btn) {
-      btn.onclick = function () {
-        planSection = btn.dataset.planSection;
-        if (planSection === "outfits") {
-          planView = "library";
-          planDetailId = null;
-        }
-        renderTravel();
-      };
-    });
-  }
-
-  function renderPlanCalendar(root) {
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const year = planCalendarMonth.year;
-    const month = planCalendarMonth.month;
-    const tripSet = new Set(getTripDateKeys());
-    const analysis = analyzeTripPacking();
-
-    let html = renderPlanSegmentHtml("calendar");
-    html += '<p class="plan-intro">Plan each day of your trip (' + escapeHtml(formatTripRangeLabel()) + '). Tap a trip day to assign outfits you already built.</p>';
-
-    html += '<div class="plan-calendar-head">';
-    html += "<h2>" + monthNames[month] + " " + year + "</h2>";
-    html += '<div class="plan-calendar-nav">';
-    html += '<button type="button" id="planCalPrev" aria-label="Previous month">‹</button>';
-    html += '<button type="button" id="planCalNext" aria-label="Next month">›</button>';
-    html += "</div></div>";
-
-    html += '<div class="plan-calendar-grid">';
-    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(function (dow) {
-      html += '<div class="plan-cal-dow">' + dow + "</div>";
-    });
-
-    const first = new Date(year, month, 1);
-    const startPad = first.getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    for (let i = 0; i < startPad; i++) html += '<div class="plan-cal-pad"></div>';
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateKey = year + "-" + pad2(month + 1) + "-" + pad2(day);
-      const inTrip = tripSet.has(dateKey);
-      const planned = dayHasPlannedOutfits(dateKey);
-      html += '<button type="button" class="plan-cal-day' +
-        (inTrip ? " trip" : " outside") +
-        (planned ? " planned" : "") +
-        '" data-date-key="' + dateKey + '">' + day + "</button>";
-    }
-    html += "</div>";
-
-    html += '<div class="plan-overpack">';
-    html += "<h3>Packing check</h3>";
-    html += '<p class="plan-overpack-summary">' +
-      analysis.plannedDays + " of " + analysis.tripDays + " trip days planned";
-    if (analysis.uniquePieces) html += " · " + analysis.uniquePieces + " unique pieces in plan";
-    html += ".</p>";
-
-    if (!analysis.rows.length) {
-      html += '<p class="plan-overpack-summary" style="margin-bottom:0">Assign outfits on the calendar to compare what you packed vs. what you need.</p>';
-    } else {
-      analysis.rows.forEach(function (row) {
-        let badge = "OK";
-        let badgeClass = "ok";
-        let detail = "Need up to " + row.needed + " on busiest day · packed " + row.packed;
-        if (row.status === "over") {
-          badge = "+" + (row.packed - row.needed);
-          badgeClass = "over";
-          detail = "Need up to " + row.needed + " · packed " + row.packed + " · " + (row.packed - row.needed) + " extra";
-        } else if (row.status === "under") {
-          badge = "Need " + (row.needed - row.packed);
-          badgeClass = "under";
-          detail = "Need up to " + row.needed + " · packed " + row.packed + " · pack " + (row.needed - row.packed) + " more";
-        }
-        html += '<div class="plan-overpack-row"><div><strong>' + escapeHtml(row.name) + '</strong><small>' + escapeHtml(detail) + '</small></div>';
-        html += '<span class="plan-overpack-badge ' + badgeClass + '">' + escapeHtml(badge) + "</span></div>";
-      });
-    }
-    html += "</div>";
-
-    if (!state.outfits || !state.outfits.length) {
-      html += '<div class="scan-empty">Build saved outfits first under <strong>Outfits</strong>, then assign them here.</div>';
-    }
-
-    root.innerHTML = html;
-    bindPlanSegment(root);
-
-    document.getElementById("planCalPrev").onclick = function () {
-      planCalendarMonth.month -= 1;
-      if (planCalendarMonth.month < 0) {
-        planCalendarMonth.month = 11;
-        planCalendarMonth.year -= 1;
-      }
-      renderTravel();
-    };
-    document.getElementById("planCalNext").onclick = function () {
-      planCalendarMonth.month += 1;
-      if (planCalendarMonth.month > 11) {
-        planCalendarMonth.month = 0;
-        planCalendarMonth.year += 1;
-      }
-      renderTravel();
-    };
-
-    root.querySelectorAll(".plan-cal-day[data-date-key]").forEach(function (btn) {
-      btn.onclick = function () {
-        const dateKey = btn.dataset.dateKey;
-        if (!isTripDateKey(dateKey)) {
-          toast("Trip days are " + formatTripRangeLabel());
-          return;
-        }
-        openPlanDayOverlay(dateKey);
-      };
-    });
-
-    const meta = document.getElementById("planHeroMeta");
-    if (meta) {
-      meta.textContent = formatTripRangeLabel() + " · " + analysis.plannedDays + "/" + analysis.tripDays + " days planned";
-    }
-  }
-
   function renderPlanDayOverlay(dateKey) {
     planDayDateKey = dateKey;
     const slots = ensureDayPlan(dateKey);
@@ -4468,10 +4649,12 @@
           toast("Keep at least one outfit slot");
           return;
         }
-        state.tripPlan.days[dateKey] = list;
+        const trip = getActiveTrip();
+        if (!trip) return;
+        trip.days[dateKey] = list;
         saveState();
         renderPlanDayOverlay(dateKey);
-        if (planSection === "calendar" && currentView === "travel") renderTravel();
+        if (currentView === "travel" && travelView === "calendar") renderTravel();
       };
     });
 
@@ -4489,9 +4672,13 @@
   }
 
   function openPlanDayOverlay(dateKey) {
+    if (!getActiveTrip()) {
+      toast("Open a trip first");
+      return;
+    }
     if (!state.outfits || !state.outfits.length) {
-      toast("Save outfits from Pick first");
-      setView("pick");
+      toast("Create outfits in the Outfits tab first");
+      setView("outfits");
       return;
     }
     renderPlanDayOverlay(dateKey);
@@ -4549,7 +4736,7 @@
         closeOverlay("planOutfitPickerOverlay");
         planPickingDaySlotId = null;
         renderPlanDayOverlay(planDayDateKey);
-        if (planSection === "calendar" && currentView === "travel") renderTravel();
+        if (currentView === "travel" && travelView === "calendar") renderTravel();
         toast(slot.outfitId ? "Outfit assigned" : "Outfit cleared");
       };
     });
@@ -5112,10 +5299,12 @@
     if (!pickerDraft) return;
     const name = (document.getElementById("saveOutfitName").value || "").trim() || ("Outfit " + ((state.outfits || []).length + 1));
     const description = (document.getElementById("saveOutfitDesc").value || "").trim();
+    const tags = parseTagsInput(document.getElementById("saveOutfitTags").value);
     const outfit = {
       id: newOutfitId(),
       name: name,
       description: description || undefined,
+      tags: tags.length ? tags : undefined,
       slots: pickerDraft.slots.map(function (s) {
         return {
           slotId: s.slotId,
@@ -5234,37 +5423,137 @@
     if (currentView === "closet") renderCloset();
   }
 
+  function startNewTrip() {
+    const trip = sanitizeTrip(Object.assign({ id: newTripId(), name: "" }, defaultTripPlan()));
+    ensureTrips().unshift(trip);
+    activeTripId = trip.id;
+    travelView = "calendar";
+    const start = parseDateKey(trip.startDate);
+    planCalendarMonth = { year: start.getFullYear(), month: start.getMonth() };
+    saveState();
+    renderTravel();
+  }
+
+  function openSaveTripOverlay() {
+    const trip = getActiveTrip();
+    if (!trip) return;
+    document.getElementById("saveTripName").value = trip.name || "";
+    openOverlay("saveTripOverlay");
+  }
+
+  function saveTripFromOverlay() {
+    const trip = getActiveTrip();
+    if (!trip) return;
+    const name = (document.getElementById("saveTripName").value || "").trim();
+    if (!name) {
+      toast("Enter a trip name");
+      return;
+    }
+    trip.name = name;
+    saveState();
+    closeOverlay("saveTripOverlay");
+    travelView = "list";
+    activeTripId = null;
+    toast("Trip saved");
+    renderTravel();
+  }
+
   function renderTravel() {
     const root = document.getElementById("travelRoot");
     if (!root) return;
+    if (travelView === "list") {
+      renderTravelList(root);
+      return;
+    }
     loadPhotoCounts(gridGroups()).then(function (photoCounts) {
-      renderTravelCalendar(root, photoCounts);
+      if (travelView === "calendar") renderTravelCalendar(root, photoCounts);
+      else if (travelView === "packing") renderTravelPacking(root, photoCounts);
     });
   }
 
+  function renderTravelList(root) {
+    ensureTrips();
+    let html = '<p class="plan-intro">Saved trips — tap one to see what you need to pack.</p>';
+    html += '<button type="button" class="btn-primary" id="btnNewTrip" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New trip</button>';
+    if (!state.trips.length) {
+      html += '<div class="scan-empty">No trips yet. Create a trip, assign outfits on the calendar, then save it with a name.</div>';
+    } else {
+      state.trips.forEach(function (trip) {
+        const planned = countTripPlannedDays(trip);
+      html += '<div class="trip-card" data-trip-id="' + escapeHtml(trip.id) + '">';
+        html += '<div class="trip-card-main" data-trip-open="' + escapeHtml(trip.id) + '"><strong>' + escapeHtml(trip.name || "Untitled trip") + '</strong>';
+        html += '<small>' + escapeHtml(formatTripRangeLabel(trip)) + " · " + planned + " day" + (planned === 1 ? "" : "s") + " planned</small></div>";
+        html += '<div class="trip-card-actions">';
+        html += '<button type="button" data-trip-open="' + escapeHtml(trip.id) + '">Pack</button>';
+        html += '<button type="button" data-trip-edit="' + escapeHtml(trip.id) + '">Edit</button>';
+        html += '<button type="button" data-trip-delete="' + escapeHtml(trip.id) + '" aria-label="Delete trip">×</button>';
+        html += "</div></div>";
+      });
+    }
+    root.innerHTML = html;
+
+    document.getElementById("btnNewTrip").onclick = startNewTrip;
+    root.querySelectorAll("[data-trip-open]").forEach(function (btn) {
+      btn.onclick = function () {
+        activeTripId = btn.dataset.tripOpen;
+        travelView = "packing";
+        renderTravel();
+      };
+    });
+    root.querySelectorAll("[data-trip-edit]").forEach(function (btn) {
+      btn.onclick = function () {
+        activeTripId = btn.dataset.tripEdit;
+        travelView = "calendar";
+        const trip = getActiveTrip();
+        if (trip) {
+          const start = parseDateKey(trip.startDate);
+          planCalendarMonth = { year: start.getFullYear(), month: start.getMonth() };
+        }
+        renderTravel();
+      };
+    });
+    root.querySelectorAll("[data-trip-delete]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!confirm("Delete this trip?")) return;
+        const id = btn.dataset.tripDelete;
+        state.trips = state.trips.filter(function (t) { return t.id !== id; });
+        if (activeTripId === id) activeTripId = null;
+        saveState();
+        toast("Trip deleted");
+        renderTravel();
+      };
+    });
+
+    const meta = document.getElementById("travelHeroMeta");
+    if (meta) {
+      meta.textContent = state.trips.length
+        ? state.trips.length + " saved trip" + (state.trips.length === 1 ? "" : "s")
+        : "Plan outfits & packing";
+    }
+  }
+
   function renderTravelCalendar(root, photoCounts) {
+    const trip = getActiveTrip();
+    if (!trip) {
+      travelView = "list";
+      renderTravel();
+      return;
+    }
+    ensureTripPlan(trip);
     const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const year = planCalendarMonth.year;
     const month = planCalendarMonth.month;
-    const tripSet = new Set(getTripDateKeys());
-    const uniqueGarments = getTripPackingGarments(photoCounts);
+    const tripSet = new Set(getTripDateKeys(trip));
+    const planned = countTripPlannedDays(trip);
 
-    let html = '<p class="plan-intro">Trip: ' + escapeHtml(formatTripRangeLabel()) + '. Tap a day to assign outfits. Change dates in Settings.</p>';
-
-    if (state.outfits && state.outfits.length) {
-      html += '<p class="plan-intro" style="margin-bottom:6px"><strong>Saved outfits</strong></p><div class="saved-outfits-row">';
-      state.outfits.forEach(function (outfit) {
-        html += '<button type="button" class="saved-outfit-chip" data-outfit-preview="' + escapeHtml(outfit.id) + '">';
-        const first = (outfit.slots || []).find(function (s) { return s.garment; });
-        if (first) {
-          html += '<img data-outfit-thumb="' + escapeHtml(outfit.id) + '" data-item-id="' + escapeHtml(first.garment.itemId) + '" data-slot="' + first.garment.slot + '" alt="" />';
-        } else {
-          html += '<div style="width:72px;height:72px;border-radius:10px;background:#e2e8f0"></div>';
-        }
-        html += '<span>' + escapeHtml(outfit.name || "Outfit") + '</span></button>';
-      });
-      html += '</div>';
-    }
+    let html = '<button type="button" class="btn-secondary" id="travelCalBack" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All trips</button>';
+    html += '<div class="plan-builder-meta" style="margin-bottom:12px">';
+    html += '<div class="field"><label for="travelTripStart">Start date</label>';
+    html += '<input type="date" id="travelTripStart" value="' + escapeHtml(trip.startDate) + '" /></div>';
+    html += '<div class="field"><label for="travelTripDays">Trip length (days)</label>';
+    html += '<input type="number" id="travelTripDays" min="1" max="60" value="' + trip.tripDays + '" /></div>';
+    html += "</div>";
+    html += '<p class="plan-intro">Tap a day to assign outfits. ' + escapeHtml(formatTripRangeLabel(trip)) + " · " + planned + " day" + (planned === 1 ? "" : "s") + " planned.</p>";
 
     html += '<div class="plan-calendar-head">';
     html += "<h2>" + monthNames[month] + " " + year + "</h2>";
@@ -5285,31 +5574,40 @@
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = year + "-" + pad2(month + 1) + "-" + pad2(day);
       const inTrip = tripSet.has(dateKey);
-      const planned = dayHasPlannedOutfits(dateKey);
+      const dayPlanned = dayHasPlannedOutfits(dateKey, trip);
       html += '<button type="button" class="plan-cal-day' +
         (inTrip ? " trip" : " outside") +
-        (planned ? " planned" : "") +
+        (dayPlanned ? " planned" : "") +
         '" data-date-key="' + dateKey + '">' + day + "</button>";
     }
     html += "</div>";
 
-    html += '<h3 style="font-size:1rem;margin:18px 0 8px">Packing gallery</h3>';
-    html += '<p class="plan-intro" style="margin-top:0">' + uniqueGarments.length + ' unique piece' + (uniqueGarments.length === 1 ? "" : "s") + ' across assigned outfits</p>';
-    if (!uniqueGarments.length) {
-      html += '<div class="scan-empty">Assign outfits to trip days to see what to pack.</div>';
-    } else {
-      html += '<div class="packing-gallery">';
-      uniqueGarments.forEach(function (g) {
-        html += '<img data-garment-key="' + escapeHtml(g.photoKey) + '" alt="" />';
-      });
-      html += '</div>';
+    if (!state.outfits || !state.outfits.length) {
+      html += '<div class="scan-empty">Save outfits from <strong>Pick</strong> or <strong>Outfits</strong> first, then assign them here.</div>';
     }
 
-    if (!state.outfits || !state.outfits.length) {
-      html += '<div class="scan-empty">Save outfits from <strong>Pick</strong> first, then assign them here.</div>';
-    }
+    html += '<button type="button" class="btn-save" id="travelSaveTripBtn" style="width:100%;height:48px;border-radius:14px;border:none;margin-top:16px">Save trip</button>';
 
     root.innerHTML = html;
+
+    document.getElementById("travelCalBack").onclick = function () {
+      travelView = "list";
+      activeTripId = null;
+      renderTravel();
+    };
+
+    document.getElementById("travelTripStart").onchange = function (e) {
+      if (e.target.value) {
+        trip.startDate = e.target.value;
+        saveState();
+        renderTravel();
+      }
+    };
+    document.getElementById("travelTripDays").onchange = function (e) {
+      trip.tripDays = Math.min(60, Math.max(1, parseInt(e.target.value, 10) || DAYS));
+      saveState();
+      renderTravel();
+    };
 
     document.getElementById("planCalPrev").onclick = function () {
       planCalendarMonth.month -= 1;
@@ -5325,31 +5623,77 @@
     root.querySelectorAll(".plan-cal-day[data-date-key]").forEach(function (btn) {
       btn.onclick = function () {
         const dateKey = btn.dataset.dateKey;
-        if (!isTripDateKey(dateKey)) {
-          toast("Trip days are " + formatTripRangeLabel());
+        if (!isTripDateKey(dateKey, trip)) {
+          toast("Trip days are " + formatTripRangeLabel(trip));
           return;
         }
-        planDayDateKey = dateKey;
         openPlanDayOverlay(dateKey);
       };
     });
 
+    document.getElementById("travelSaveTripBtn").onclick = openSaveTripOverlay;
+
+    const meta = document.getElementById("travelHeroMeta");
+    if (meta) meta.textContent = (trip.name || "New trip") + " · " + formatTripRangeLabel(trip);
+  }
+
+  function renderTravelPacking(root, photoCounts) {
+    const trip = getActiveTrip();
+    if (!trip) {
+      travelView = "list";
+      renderTravel();
+      return;
+    }
+    const garments = getTripPackingGarments(trip, photoCounts);
+    const analysis = analyzeTripPacking(trip);
+
+    let html = '<button type="button" class="btn-secondary" id="travelPackBack" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All trips</button>';
+    html += '<h2 style="font-size:1.125rem;margin-bottom:4px">' + escapeHtml(trip.name || "Untitled trip") + "</h2>";
+    html += '<p class="plan-intro" style="margin-top:0">' + escapeHtml(formatTripRangeLabel(trip)) + " · " + analysis.plannedDays + " day" + (analysis.plannedDays === 1 ? "" : "s") + " planned</p>";
+    html += '<h3 style="font-size:1rem;margin:18px 0 10px">What you need to pack</h3>';
+
+    if (!garments.length) {
+      html += '<div class="scan-empty">No outfits assigned yet. Tap <strong>Edit</strong> on this trip to plan days on the calendar.</div>';
+    } else {
+      html += '<div class="packing-list">';
+      garments.forEach(function (g) {
+        html += '<div class="packing-list-item">';
+        html += '<img data-garment-key="' + escapeHtml(g.photoKey) + '" alt="" />';
+        html += "<span>" + escapeHtml(g.name) + "</span></div>";
+      });
+      html += "</div>";
+    }
+
+    html += '<button type="button" class="btn-secondary" id="travelPackEdit" style="width:100%;height:44px;border-radius:12px;margin-top:16px">Edit calendar</button>';
+
+    root.innerHTML = html;
+
+    document.getElementById("travelPackBack").onclick = function () {
+      travelView = "list";
+      activeTripId = null;
+      renderTravel();
+    };
+    document.getElementById("travelPackEdit").onclick = function () {
+      travelView = "calendar";
+      const start = parseDateKey(trip.startDate);
+      planCalendarMonth = { year: start.getFullYear(), month: start.getMonth() };
+      renderTravel();
+    };
+
     root.querySelectorAll("img[data-garment-key]").forEach(function (img) {
       getThumbUrl(img.getAttribute("data-garment-key")).then(function (url) { if (url) img.src = url; });
     });
-    root.querySelectorAll("img[data-outfit-thumb]").forEach(function (img) {
-      loadGarmentPhotoUrl(img.dataset.itemId, parseInt(img.dataset.slot, 10)).then(function (url) { if (url) img.src = url; });
-    });
 
     const meta = document.getElementById("travelHeroMeta");
-    if (meta) meta.textContent = formatTripRangeLabel() + " · " + (state.outfits ? state.outfits.length : 0) + " saved outfits";
+    if (meta) meta.textContent = garments.length + " piece" + (garments.length === 1 ? "" : "s") + " to pack";
   }
 
-  function getTripPackingGarments(photoCounts) {
+  function getTripPackingGarments(trip, photoCounts) {
+    trip = ensureTripPlan(trip);
     const seen = {};
     const list = [];
-    getTripDateKeys().forEach(function (dateKey) {
-      const slots = ensureTripPlan().days[dateKey] || [];
+    getTripDateKeys(trip).forEach(function (dateKey) {
+      const slots = trip.days[dateKey] || [];
       slots.forEach(function (slot) {
         if (!slot.outfitId) return;
         const outfit = getOutfitById(slot.outfitId);
@@ -5362,10 +5706,12 @@
             itemId: g.itemId,
             slot: g.slot,
             photoKey: photoKey(g.itemId, g.slot),
+            name: gridDisplayName(g.itemId) || itemLabel(g.itemId) || g.itemId,
           });
         });
       });
     });
+    list.sort(function (a, b) { return a.name.localeCompare(b.name); });
     return list;
   }
 
@@ -5407,10 +5753,12 @@
     }
     document.body.classList.toggle("view-closet", view === "closet");
     document.body.classList.toggle("view-pick", view === "pick");
+    document.body.classList.toggle("view-outfits", view === "outfits");
     document.body.classList.toggle("view-storage", view === "storage");
     document.body.classList.toggle("view-travel", view === "travel");
     document.getElementById("tabCloset").classList.toggle("on", view === "closet");
     document.getElementById("tabPick").classList.toggle("on", view === "pick");
+    document.getElementById("tabOutfits").classList.toggle("on", view === "outfits");
     document.getElementById("tabStorage").classList.toggle("on", view === "storage");
     document.getElementById("tabTravel").classList.toggle("on", view === "travel");
     document.body.classList.remove("has-closet-store", "has-pick-random", "has-scan-pack", "has-plan-save");
@@ -5421,8 +5769,12 @@
     closePhotoViewer();
     if (view === "closet") renderCloset();
     else if (view === "pick") renderPick();
+    else if (view === "outfits") renderOutfits();
     else if (view === "storage") renderStorage();
-    else if (view === "travel") renderTravel();
+    else if (view === "travel") {
+      if (travelView !== "list" && !getActiveTrip()) travelView = "list";
+      renderTravel();
+    }
   }
 
   function flushSaveState() {
@@ -5598,6 +5950,7 @@
       if (currentView === "closet") renderCloset();
       else if (currentView === "pick") renderPick();
       else if (currentView === "storage") renderStorage();
+      else if (currentView === "outfits") renderOutfits();
       else if (currentView === "travel") renderTravel();
     }).catch(function () {});
   }
@@ -5842,8 +6195,8 @@
     });
   }
 
-  function updatePlanSaveBar(show) {
-    document.body.classList.toggle("has-plan-save", show && currentView === "travel");
+  function updateOutfitsSaveBar(show) {
+    document.body.classList.toggle("has-plan-save", show && currentView === "outfits");
     let bar = document.getElementById("planSaveBar");
     if (!show) {
       if (bar) bar.remove();
@@ -5857,13 +6210,24 @@
       document.body.appendChild(bar);
     }
     document.getElementById("planCancelBtn").onclick = function () {
-      planView = "library";
+      outfitsView = "library";
       planDraft = null;
       planActiveSlotId = null;
       planSlotIndices = {};
-      renderTravel();
+      renderOutfits();
     };
     document.getElementById("planSaveBtn").onclick = savePlanOutfit;
+  }
+
+  function renderOutfits() {
+    const root = document.getElementById("outfitsRoot");
+    if (!root) return;
+    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
+      updateOutfitsSaveBar(outfitsView === "builder");
+      if (outfitsView === "builder") renderPlanBuilder(root, photoCounts);
+      else if (outfitsView === "detail") renderPlanDetail(root, photoCounts);
+      else renderOutfitsLibrary(root);
+    });
   }
 
   function savePlanOutfit() {
@@ -5872,10 +6236,12 @@
     const defaultName = "Outfit " + ((state.outfits || []).length + 1);
     const name = (planDraft.name || "").trim() || defaultName;
     const description = (planDraft.description || "").trim();
+    const tags = Array.isArray(planDraft.tags) ? planDraft.tags.filter(Boolean) : [];
     const outfit = {
       id: planDraft.id || newOutfitId(),
       name: name,
       description: description || undefined,
+      tags: tags.length ? tags : undefined,
       slots: planDraft.slots.map(function (s) {
         return {
           slotId: s.slotId,
@@ -5890,33 +6256,36 @@
     if (editIdx >= 0) state.outfits[editIdx] = outfit;
     else state.outfits.unshift(outfit);
     saveState();
-    planView = "library";
+    outfitsView = "library";
     planDraft = null;
     planActiveSlotId = null;
     planSlotIndices = {};
     toast("Outfit saved");
-    renderTravel();
+    renderOutfits();
   }
 
   function syncPlanDraftMetaFromForm() {
     if (!planDraft) return;
     const nameEl = document.getElementById("planOutfitName");
     const descEl = document.getElementById("planOutfitDesc");
+    const tagsEl = document.getElementById("planOutfitTags");
     if (nameEl) planDraft.name = nameEl.value;
     if (descEl) planDraft.description = descEl.value;
+    if (tagsEl) planDraft.tags = parseTagsInput(tagsEl.value);
   }
 
   function startPlanBuilder(editOutfit) {
-    planView = "builder";
+    outfitsView = "builder";
     if (editOutfit) {
       planDraft = JSON.parse(JSON.stringify(editOutfit));
       if (!planDraft.description) planDraft.description = "";
       if (!planDraft.name) planDraft.name = "";
+      if (!planDraft.tags) planDraft.tags = editOutfit.tags ? editOutfit.tags.slice() : [];
     } else {
-      planDraft = { id: newOutfitId(), name: "", description: "", slots: cloneDefaultOutfitSlots() };
+      planDraft = { id: newOutfitId(), name: "", description: "", tags: [], slots: cloneDefaultOutfitSlots() };
     }
     planActiveSlotId = planDraft.slots[0] ? planDraft.slots[0].slotId : null;
-    renderTravel();
+    renderOutfits();
   }
 
   function getActivePlanSlot() {
@@ -5948,7 +6317,7 @@
           planDraft.slots.push({ slotId: slotId, label: label, category: label, garment: null });
           planActiveSlotId = slotId;
           closeOverlay("planCategoryOverlay");
-          renderTravel();
+          renderOutfits();
         };
       });
       openOverlay("planCategoryOverlay");
@@ -5970,45 +6339,73 @@
     });
   }
 
-  function renderPlanLibrary(root) {
-    let html = renderPlanSegmentHtml("outfits");
-    html += '<p class="plan-intro">Tap photos in the grid to build outfits. Name each look and add a short description.</p>';
+  function renderOutfitsLibrary(root) {
+    const allTags = getAllOutfitTags();
+    let html = '<p class="plan-intro">Build saved outfits and tag them. Tap a garment in Closet and choose <strong>Outfits</strong> to see which looks use it.</p>';
     html += '<button type="button" class="btn-primary" id="btnNewOutfit" style="width:100%;height:48px;margin-bottom:16px;border-radius:14px;border:none">+ New outfit</button>';
-    if (!state.outfits || !state.outfits.length) {
-      html += '<div class="scan-empty">No saved outfits yet. Pack wardrobe photos first, then create an outfit.</div>';
+
+    if (allTags.length) {
+      html += '<div class="tag-filter-row" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
+      html += '<button type="button" class="tag-chip' + (!outfitsTagFilter ? " on" : "") + '" data-tag-filter="">All</button>';
+      allTags.forEach(function (tag) {
+        const on = outfitsTagFilter && outfitsTagFilter.toLowerCase() === tag.toLowerCase();
+        html += '<button type="button" class="tag-chip' + (on ? " on" : "") + '" data-tag-filter="' + escapeHtml(tag) + '">' + escapeHtml(tag) + "</button>";
+      });
+      html += "</div>";
+    }
+
+    const outfits = (state.outfits || []).filter(function (outfit) {
+      if (!outfitsTagFilter) return true;
+      return (outfit.tags || []).some(function (t) { return t.toLowerCase() === outfitsTagFilter.toLowerCase(); });
+    });
+
+    if (!outfits.length) {
+      html += outfitsTagFilter
+        ? '<div class="scan-empty">No outfits with tag “' + escapeHtml(outfitsTagFilter) + '”.</div>'
+        : '<div class="scan-empty">No saved outfits yet. Add wardrobe photos in <strong>Closet</strong>, then create an outfit.</div>';
     } else {
       html += '<div class="plan-outfit-grid">';
-      state.outfits.forEach(function (outfit) {
+      outfits.forEach(function (outfit) {
         html += '<button type="button" class="plan-outfit-card" data-outfit-id="' + escapeHtml(outfit.id) + '">';
         html += '<div class="plan-outfit-mosaic" data-mosaic="' + escapeHtml(outfit.id) + '">';
         for (let i = 0; i < 4; i++) html += '<div class="mosaic-empty"></div>';
         html += '</div><div class="plan-outfit-card-body"><strong>' + escapeHtml(outfit.name || "Outfit") + '</strong><small>' +
           outfitGarmentCount(outfit) + " piece" + (outfitGarmentCount(outfit) === 1 ? "" : "s");
         if (outfit.description) html += " · " + escapeHtml(outfit.description);
+        if (outfit.tags && outfit.tags.length) html += "<br>" + outfit.tags.map(function (t) { return escapeHtml(t); }).join(", ");
         html += "</small></div></button>";
       });
       html += "</div>";
     }
     root.innerHTML = html;
-    bindPlanSegment(root);
+
+    root.querySelectorAll("[data-tag-filter]").forEach(function (chip) {
+      chip.onclick = function () {
+        outfitsTagFilter = chip.dataset.tagFilter || null;
+        renderOutfits();
+      };
+    });
     document.getElementById("btnNewOutfit").onclick = function () { startPlanBuilder(null); };
     root.querySelectorAll(".plan-outfit-card").forEach(function (card) {
       card.onclick = function () {
-        planDetailId = card.dataset.outfitId;
-        planView = "detail";
-        renderTravel();
+        outfitDetailId = card.dataset.outfitId;
+        outfitsView = "detail";
+        renderOutfits();
       };
     });
-    (state.outfits || []).forEach(loadOutfitMosaic);
-    const meta = document.getElementById("planHeroMeta");
-    if (meta) meta.textContent = (state.outfits && state.outfits.length) ? state.outfits.length + " saved outfit" + (state.outfits.length === 1 ? "" : "s") : "Build and save outfits";
+    outfits.forEach(loadOutfitMosaic);
+    const meta = document.getElementById("outfitsHeroMeta");
+    if (meta) {
+      const total = (state.outfits && state.outfits.length) || 0;
+      meta.textContent = total ? total + " saved outfit" + (total === 1 ? "" : "s") : "Build and save outfits";
+    }
   }
 
   function renderPlanDetail(root, photoCounts) {
-    const outfit = (state.outfits || []).find(function (o) { return o.id === planDetailId; });
+    const outfit = (state.outfits || []).find(function (o) { return o.id === outfitDetailId; });
     if (!outfit) {
-      planView = "library";
-      renderTravel();
+      outfitsView = "library";
+      renderOutfits();
       return;
     }
     let html = '<button type="button" class="btn-secondary" id="planBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← All outfits</button>';
@@ -6016,6 +6413,15 @@
     if (outfit.description) {
       html += '<p class="plan-intro" style="margin-top:0;margin-bottom:10px">' + escapeHtml(outfit.description) + "</p>";
     }
+    if (outfit.tags && outfit.tags.length) {
+      html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+      outfit.tags.forEach(function (tag) {
+        html += '<span class="tag-chip on" style="cursor:default">' + escapeHtml(tag) + "</span>";
+      });
+      html += "</div>";
+    }
+    html += '<div class="field"><label for="planOutfitTagsEdit">Tags</label>';
+    html += '<input type="text" id="planOutfitTagsEdit" value="' + escapeHtml((outfit.tags || []).join(", ")) + '" placeholder="e.g. casual, work" maxlength="120" /></div>';
     html += '<p class="plan-intro" style="margin-bottom:14px">' + outfitGarmentCount(outfit) + " pieces in this outfit</p>";
     html += '<div class="plan-detail-slots">';
     (outfit.slots || []).forEach(function (slot) {
@@ -6027,14 +6433,21 @@
       }
       html += "<span>" + escapeHtml(slot.label || slot.category) + "</span></div>";
     });
-    html += '</div><div style="display:flex;gap:10px">';
-    html += '<button type="button" class="btn-save" id="planEditBtn" style="flex:1;height:48px;border-radius:12px;border:none">Edit</button>';
-    html += '<button type="button" class="btn-cancel" id="planDeleteBtn" style="flex:1;height:48px;border-radius:12px">Delete</button></div>';
+    html += '</div><div style="display:flex;gap:10px;flex-wrap:wrap">';
+    html += '<button type="button" class="btn-save" id="planTagsSaveBtn" style="flex:1;height:48px;border-radius:12px;border:none;min-width:120px">Save tags</button>';
+    html += '<button type="button" class="btn-save" id="planEditBtn" style="flex:1;height:48px;border-radius:12px;border:none;min-width:120px">Edit outfit</button>';
+    html += '<button type="button" class="btn-cancel" id="planDeleteBtn" style="flex:1;height:48px;border-radius:12px;min-width:120px">Delete</button></div>';
     root.innerHTML = html;
     document.getElementById("planBackBtn").onclick = function () {
-      planView = "library";
-      planDetailId = null;
-      renderTravel();
+      outfitsView = "library";
+      outfitDetailId = null;
+      renderOutfits();
+    };
+    document.getElementById("planTagsSaveBtn").onclick = function () {
+      outfit.tags = parseTagsInput(document.getElementById("planOutfitTagsEdit").value);
+      saveState();
+      toast("Tags saved");
+      renderOutfits();
     };
     document.getElementById("planEditBtn").onclick = function () { startPlanBuilder(outfit); };
     document.getElementById("planDeleteBtn").onclick = function () {
@@ -6042,34 +6455,41 @@
       purgeOutfitFromTripPlan(outfit.id);
       state.outfits = (state.outfits || []).filter(function (o) { return o.id !== outfit.id; });
       saveState();
-      planView = "library";
-      planDetailId = null;
+      outfitsView = "library";
+      outfitDetailId = null;
       toast("Outfit deleted");
-      renderTravel();
+      renderOutfits();
     };
     root.querySelectorAll(".plan-detail-slot img[data-item-id]").forEach(function (img) {
       loadGarmentPhotoUrl(img.dataset.itemId, parseInt(img.dataset.slot, 10)).then(function (url) {
         if (url) img.src = url;
       });
+      img.style.cursor = "pointer";
+      img.onclick = function () {
+        openGarmentOutfitsOverlay(img.dataset.itemId, parseInt(img.dataset.slot, 10));
+      };
     });
-    const meta = document.getElementById("planHeroMeta");
+    const meta = document.getElementById("outfitsHeroMeta");
     if (meta) meta.textContent = outfit.name || "Outfit detail";
   }
 
   function renderPlanBuilder(root, photoCounts) {
     if (!planDraft) {
-      planView = "library";
-      renderTravel();
+      outfitsView = "library";
+      renderOutfits();
       return;
     }
     if (!planActiveSlotId && planDraft.slots.length) planActiveSlotId = planDraft.slots[0].slotId;
     const activeSlot = getActivePlanSlot();
+    const tagsStr = (planDraft.tags || []).join(", ");
 
     let html = '<div class="plan-builder-meta">';
     html += '<div class="field"><label for="planOutfitName">Outfit name</label>';
     html += '<input type="text" id="planOutfitName" maxlength="80" placeholder="e.g. Beach day, Date night" value="' + escapeHtml(planDraft.name || "") + '" autocomplete="off" /></div>';
     html += '<div class="field"><label for="planOutfitDesc">Description</label>';
     html += '<textarea id="planOutfitDesc" maxlength="240" placeholder="Optional — where you\'ll wear it, vibe, notes…">' + escapeHtml(planDraft.description || "") + "</textarea></div>";
+    html += '<div class="field"><label for="planOutfitTags">Tags</label>';
+    html += '<input type="text" id="planOutfitTags" value="' + escapeHtml(tagsStr) + '" placeholder="e.g. casual, work, date night" maxlength="120" autocomplete="off" /></div>';
     html += "</div>";
 
     html += '<div class="plan-slot-pills">';
@@ -6086,7 +6506,7 @@
       html += '<div class="plan-garment-section-head"><h3>' + escapeHtml(activeSlot.label) + '</h3>';
       html += "<span>" + escapeHtml(getPlanSlotGridLabel(activeSlot)) + "</span></div>";
       if (!garments.length) {
-        html += '<div class="plan-garment-empty">No photos for this slot yet.<button type="button" id="planGoPack">Go to Pack</button></div>';
+        html += '<div class="plan-garment-empty">No photos for this slot yet.<button type="button" id="planGoCloset">Go to Closet</button></div>';
       } else {
         html += '<div class="plan-garment-grid">';
         garments.forEach(function (g) {
@@ -6105,14 +6525,16 @@
 
     const nameEl = document.getElementById("planOutfitName");
     const descEl = document.getElementById("planOutfitDesc");
+    const tagsEl = document.getElementById("planOutfitTags");
     if (nameEl) nameEl.oninput = function () { planDraft.name = nameEl.value; };
     if (descEl) descEl.oninput = function () { planDraft.description = descEl.value; };
+    if (tagsEl) tagsEl.oninput = function () { planDraft.tags = parseTagsInput(tagsEl.value); };
 
     root.querySelectorAll(".plan-slot-pill[data-slot-id]").forEach(function (pill) {
       pill.onclick = function () {
         syncPlanDraftMetaFromForm();
         planActiveSlotId = pill.dataset.slotId;
-        renderTravel();
+        renderOutfits();
       };
     });
     document.getElementById("planAddSlot").onclick = function () {
@@ -6120,8 +6542,8 @@
       openPlanCategoryPicker();
     };
 
-    const goPack = document.getElementById("planGoPack");
-    if (goPack) goPack.onclick = function () { setView("pack"); };
+    const goCloset = document.getElementById("planGoCloset");
+    if (goCloset) goCloset.onclick = function () { setView("closet"); };
 
     root.querySelectorAll(".plan-garment-cell").forEach(function (cell) {
       cell.onclick = function () {
@@ -6133,7 +6555,7 @@
         } else {
           activeSlot.garment = { itemId: itemId, slot: slotNum };
         }
-        renderTravel();
+        renderOutfits();
       };
     });
 
@@ -6151,20 +6573,8 @@
       });
     });
 
-    const meta = document.getElementById("planHeroMeta");
+    const meta = document.getElementById("outfitsHeroMeta");
     if (meta) meta.textContent = "Building outfit · tap photos in the grid";
-  }
-
-  function renderTravel() {
-    const root = document.getElementById("planRoot");
-    if (!root) return;
-    loadPhotoCounts(gridGroups()).then(function (photoCounts) {
-      updatePlanSaveBar(planView === "builder");
-      if (planView === "builder") renderPlanBuilder(root, photoCounts);
-      else if (planView === "detail") renderPlanDetail(root, photoCounts);
-      else if (planSection === "calendar") renderPlanCalendar(root);
-      else renderPlanLibrary(root);
-    });
   }
 
   function openOverlay(id) {
@@ -6178,20 +6588,11 @@
   }
 
   function syncSettingsForm() {
-    ensureTripPlan();
-    const startEl = document.getElementById("tripStartDate");
-    const daysEl = document.getElementById("tripDays");
-    if (startEl) startEl.value = state.tripPlan.startDate || DEFAULT_TRIP_START;
-    if (daysEl) daysEl.value = state.tripPlan.tripDays || DAYS;
+    /* trip dates are edited on the Travel calendar */
   }
 
   function saveSettingsForm() {
-    ensureTripPlan();
-    const startEl = document.getElementById("tripStartDate");
-    const daysEl = document.getElementById("tripDays");
-    if (startEl && startEl.value) state.tripPlan.startDate = startEl.value;
-    if (daysEl) state.tripPlan.tripDays = Math.min(60, Math.max(1, parseInt(daysEl.value, 10) || DAYS));
-    saveState();
+    /* no-op */
   }
 
   function populateAddTagSelect() {
@@ -6260,6 +6661,7 @@
 
   document.getElementById("tabCloset").onclick = function () { setView("closet"); };
   document.getElementById("tabPick").onclick = function () { setView("pick"); };
+  document.getElementById("tabOutfits").onclick = function () { setView("outfits"); };
   document.getElementById("tabStorage").onclick = function () { setView("storage"); };
   document.getElementById("tabTravel").onclick = function () { setView("travel"); };
 
@@ -6282,6 +6684,12 @@
   };
 
   document.getElementById("saveOutfitConfirm").onclick = savePickerOutfit;
+  document.getElementById("saveTripConfirm").onclick = saveTripFromOverlay;
+
+  document.getElementById("viewerOutfits").onclick = function () {
+    if (!viewerPhoto) return;
+    openGarmentOutfitsOverlay(viewerPhoto.itemId, viewerPhoto.slot);
+  };
 
   document.getElementById("editSave").onclick = saveEditItem;
   document.getElementById("newCategorySave").onclick = saveNewCategory;
@@ -6343,7 +6751,7 @@
       if (id === "planDayOverlay") {
         planDayDateKey = null;
         planPickingDaySlotId = null;
-        if (currentView === "travel" && planSection === "calendar") renderTravel();
+        if (currentView === "travel" && travelView === "calendar") renderTravel();
       }
       if (id === "planOutfitPickerOverlay") planPickingDaySlotId = null;
       closeOverlay(id);

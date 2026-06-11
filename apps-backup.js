@@ -119,9 +119,10 @@
       },
       summarize: function (slice) {
         var outfits = Array.isArray(slice.outfits) ? slice.outfits.length : 0;
+        var trips = Array.isArray(slice.trips) ? slice.trips.length : 0;
         var bins = Array.isArray(slice.storageBins) ? slice.storageBins.length : 0;
         var items = Object.keys(slice.items || {}).length;
-        return items + " categor" + (items === 1 ? "y" : "ies") + ", " + outfits + " outfit" + (outfits === 1 ? "" : "s") + ", " + bins + " storage bin" + (bins === 1 ? "" : "s") + " (no photos)";
+        return items + " categor" + (items === 1 ? "y" : "ies") + ", " + outfits + " outfit" + (outfits === 1 ? "" : "s") + ", " + trips + " trip" + (trips === 1 ? "" : "s") + ", " + bins + " storage bin" + (bins === 1 ? "" : "s") + " (no photos)";
       },
     },
     "meal-menu": {
@@ -239,14 +240,14 @@
   /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
     var out = {
-      version: slice.version || 5,
+      version: slice.version || 6,
       opts: slice.opts || {},
       collapsed: slice.collapsed || {},
       wardrobeCollapsed: slice.wardrobeCollapsed || {},
       items: {},
       removed: Array.isArray(slice.removed) ? slice.removed.slice() : [],
       outfits: Array.isArray(slice.outfits) ? slice.outfits : [],
-      tripPlan: slice.tripPlan || {},
+      trips: Array.isArray(slice.trips) ? slice.trips : [],
       closet: Array.isArray(slice.closet) ? slice.closet : [],
       customWardrobeCategories: Array.isArray(slice.customWardrobeCategories) ? slice.customWardrobeCategories : [],
       randomizerPool: slice.randomizerPool && typeof slice.randomizerPool === "object" ? slice.randomizerPool : {},

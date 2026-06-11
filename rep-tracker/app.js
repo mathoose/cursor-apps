@@ -94,9 +94,18 @@
         demMin: 0,
         mapMode: 'colors',
         swingFrom: 2008,
-        swingTo: 2024
+        swingTo: 2024,
+        filtersCollapsed: null
       }
     };
+  }
+
+  function isMobileLayout() {
+    return window.matchMedia('(max-width: 860px)').matches;
+  }
+
+  function defaultFiltersCollapsed() {
+    return isMobileLayout();
   }
 
   function normalizeState(st) {
@@ -121,8 +130,33 @@
     if (st.filters.mapMode == null) st.filters.mapMode = 'colors';
     if (st.filters.swingFrom == null) st.filters.swingFrom = 2008;
     if (st.filters.swingTo == null) st.filters.swingTo = 2024;
+    if (st.filters.filtersCollapsed == null) st.filters.filtersCollapsed = defaultFiltersCollapsed();
     st.version = 1;
     return st;
+  }
+
+  function applyFiltersDrawerUi() {
+    var collapsed = appState.filters.filtersCollapsed;
+    var top = document.querySelector('.top');
+    var drawer = $('filters-drawer');
+    var toggle = $('filters-toggle');
+    if (top) top.classList.toggle('filters-collapsed', collapsed);
+    if (drawer) drawer.hidden = collapsed;
+    if (toggle) {
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      toggle.classList.toggle('active', !collapsed);
+    }
+  }
+
+  function setFiltersCollapsed(collapsed, persist) {
+    appState.filters.filtersCollapsed = collapsed;
+    applyFiltersDrawerUi();
+    if (persist !== false) saveAppState();
+    if (map) setTimeout(function () { map.invalidateSize(); }, 80);
+  }
+
+  function toggleFiltersDrawer() {
+    setFiltersCollapsed(!appState.filters.filtersCollapsed);
   }
 
   function saveAppState() {
@@ -403,8 +437,12 @@
     if (trumpRow) trumpRow.hidden = f.quickFilter !== 'dem-trump';
     if (demRow) demRow.hidden = f.quickFilter !== 'rep-biden';
     var summary = $('filter-summary');
-    if (summary) summary.textContent = filterSummaryText();
+    var summaryText = filterSummaryText();
+    if (summary) summary.textContent = summaryText;
+    var toggleSummary = $('filters-toggle-summary');
+    if (toggleSummary) toggleSummary.textContent = summaryText;
     updateQuickFilterLabels();
+    applyFiltersDrawerUi();
     document.querySelectorAll('.map-mode-chip').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-map-mode') === (f.mapMode || 'colors'));
     });
@@ -976,6 +1014,9 @@
     document.querySelectorAll('.view-chip').forEach(function (btn) {
       btn.classList.toggle('active', btn.getAttribute('data-view') === mode);
     });
+    if (mode === 'list' && isMobileLayout() && !appState.filters.filtersCollapsed) {
+      setFiltersCollapsed(true);
+    }
     if (map) setTimeout(function () { map.invalidateSize(); }, 120);
   }
 
@@ -1203,6 +1244,7 @@
       appState.filters.boltsOnly = $('filter-bolts').checked;
       applyFilters();
     });
+    $('filters-toggle').addEventListener('click', toggleFiltersDrawer);
     $('locate-btn').addEventListener('click', locateMe);
     $('modal-close').addEventListener('click', closeDetail);
     $('detail-modal').addEventListener('click', function (e) {
