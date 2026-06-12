@@ -114,6 +114,13 @@
       margin-left: auto;
       margin-right: auto;
     }
+    .version {
+      text-align: center;
+      font-size: 0.6875rem;
+      opacity: 0.4;
+      margin-top: 16px;
+      font-variant-numeric: tabular-nums;
+    }
     .skeleton .icon-wrap {
       background: rgba(255,255,255,0.15);
       animation: pulse 1.2s ease-in-out infinite;
@@ -197,6 +204,7 @@
   </div>
 
   <p class="hint">Tap an icon to open. In Safari: Share → Add to Home Screen to pin this launcher.</p>
+  <p class="version" id="homeVersion" aria-label="Launcher version"></p>
 
   <input type="file" id="importAllInput" accept="application/json,.json" />
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -207,7 +215,8 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const ICON_VERSION = "5";
+  const HOME_VERSION = "1";
+  const ICON_VERSION = "6";
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
   const FALLBACK_MANIFEST = {
@@ -412,6 +421,8 @@
         });
     });
   }
+
+  document.getElementById("homeVersion").textContent = "Launcher v" + HOME_VERSION;
 
   renderSkeleton(4);
   initBackupDock();
