@@ -930,8 +930,19 @@
           toast('Invalid backup file');
           return;
         }
-        saveState(normalizeState(slice));
-        toast('Imported');
+        var existing = getState();
+        var itemIds = {};
+        existing.items.forEach(function (it) { itemIds[it.id] = true; });
+        var added = 0;
+        slice.items.forEach(function (it) {
+          if (!itemIds[it.id]) {
+            existing.items.push(it);
+            itemIds[it.id] = true;
+            added++;
+          }
+        });
+        saveState(normalizeState(existing));
+        toast(added ? ('Added ' + added + ' item' + (added === 1 ? '' : 's')) : 'No new items to add');
         render();
       } catch (e) {
         toast('Could not read file');

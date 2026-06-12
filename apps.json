@@ -12,7 +12,8 @@
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
       "meal-menu": { "storageKey": "meal-menu-v1" },
       "dont-forget": { "storageKey": "dont-forget-v1" },
-      "rep-tracker": { "storageKey": "rep-tracker-v1" }
+      "rep-tracker": { "storageKey": "rep-tracker-v1" },
+      "process-guide": { "storageKey": "process-guide-v1" }
     }
   },
   "apps": [
@@ -63,6 +64,12 @@
       "name": "Rep Tracker",
       "subtitle": "House & Senate map",
       "storageKey": "rep-tracker-v1"
+    },
+    {
+      "id": "process-guide",
+      "name": "Process Guide",
+      "subtitle": "Step-by-step routines",
+      "storageKey": "process-guide-v1"
     }
   ]
 }

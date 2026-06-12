@@ -703,9 +703,11 @@ function renderViewMode(entry) {
 
 function wirePhotoEdit(entryId) {
   var fileInp = document.getElementById('entry-photo-file');
-  var pickBtn = document.getElementById('entry-photo-pick');
+  var cameraInp = document.getElementById('entry-photo-camera-file');
+  var libraryBtn = document.getElementById('entry-photo-library');
+  var cameraBtn = document.getElementById('entry-photo-camera');
   var removeBtn = document.getElementById('entry-photo-remove');
-  if (!fileInp || !pickBtn) return;
+  if (!fileInp || !libraryBtn) return;
 
   function currentId() {
     return entryId || currentEntryId;
@@ -735,13 +737,13 @@ function wirePhotoEdit(entryId) {
     });
   }
 
-  pickBtn.onclick = function() { fileInp.click(); };
-  fileInp.onchange = function() {
-    var f = fileInp.files && fileInp.files[0];
-    fileInp.value = '';
+  function handlePhotoFile(f) {
     var id = currentId() || entryId;
     if (!f || !id) return;
-    if (!f.type || f.type.indexOf('image/') !== 0) {
+    var type = (f.type || '').toLowerCase();
+    var name = (f.name || '').toLowerCase();
+    var ok = type.indexOf('image/') === 0 || /\.(jpe?g|png|gif|webp|heic|heif)$/i.test(name);
+    if (!ok) {
       alert('Please choose an image.');
       return;
     }
@@ -754,6 +756,21 @@ function wirePhotoEdit(entryId) {
     }).catch(function() {
       showStatus('Could not save photo');
     });
+  }
+
+  libraryBtn.onclick = function() { fileInp.click(); };
+  if (cameraBtn && cameraInp) {
+    cameraBtn.onclick = function() { cameraInp.click(); };
+    cameraInp.onchange = function() {
+      var f = cameraInp.files && cameraInp.files[0];
+      cameraInp.value = '';
+      handlePhotoFile(f);
+    };
+  }
+  fileInp.onchange = function() {
+    var f = fileInp.files && fileInp.files[0];
+    fileInp.value = '';
+    handlePhotoFile(f);
   };
   if (removeBtn) {
     removeBtn.onclick = function() {
@@ -805,10 +822,12 @@ function renderEditMode(entry) {
     + '<div class="entry-photo-edit"><label>Photo</label>'
     + '<div class="entry-photo-preview" id="entry-photo-preview"></div>'
     + '<div class="entry-photo-actions">'
-    + '<button type="button" class="btn btn-secondary" id="entry-photo-pick">Add photo</button>'
+    + '<button type="button" class="btn btn-secondary" id="entry-photo-library">Choose from Photos</button>'
+    + '<button type="button" class="btn btn-secondary" id="entry-photo-camera">Take Photo</button>'
     + '<button type="button" class="btn btn-secondary" id="entry-photo-remove" hidden>Remove photo</button>'
     + '</div>'
-    + '<input type="file" id="entry-photo-file" accept="image/*" capture="environment" hidden>'
+    + '<input type="file" id="entry-photo-file" accept="image/*,.heic,.heif" hidden>'
+    + '<input type="file" id="entry-photo-camera-file" accept="image/*" capture="environment" hidden>'
     + '<p class="entry-photo-hint">Saved on this device only — included in Export photos (ZIP).</p></div>'
     + '<label>Tags</label><div class="edit-tag-chips" id="edit-tag-chips">' + tagChips + '</div>'
     + '<label class="pick-fav"><input type="checkbox" id="edit-favorite"' + (entry.favorite ? ' checked' : '') + '> Favorite</label>'
@@ -1693,9 +1712,22 @@ function importData(file) {
         if (!slice) { showStatus('No Meal Menu data in this file'); return; }
       }
       if (!slice || !Array.isArray(slice.entries)) { showStatus('Invalid backup file'); return; }
-      var existing = getState();
-      slice.entryPhotos = existing.entryPhotos || {};
-      saveAppState(normalizeState(slice));
+      var existing = normalizeState(getState());
+      var entryIds = {};
+      existing.entries.forEach(function (e) { entryIds[e.id] = true; });
+      var added = 0;
+      slice.entries.forEach(function (e) {
+        if (e && e.id && !entryIds[e.id]) {
+          existing.entries.push(e);
+          entryIds[e.id] = true;
+          added++;
+        }
+      });
+      (slice.tags || []).forEach(function (t) {
+        if (t && t.id && !existing.tags.some(function (x) { return x.id === t.id; })) existing.tags.push(t);
+      });
+      existing.entryPhotos = Object.assign({}, existing.entryPhotos || {}, slice.entryPhotos || {});
+      saveAppState(existing);
       ensureCategoryPanels();
       renderCategoryTabs();
       renderTagFilters();
@@ -1704,7 +1736,7 @@ function importData(file) {
       populatePickCategorySelect();
       renderPickTags();
       renderAtePanel();
-      showStatus('Import complete');
+      showStatus('Added ' + added + ' meal' + (added === 1 ? '' : 's'));
     } catch (e) {
       showStatus('Could not read file');
     }

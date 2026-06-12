@@ -1126,11 +1126,20 @@
             return;
           }
         }
-        appState = normalizeState(slice);
+        appState = normalizeState(appState);
+        if (typeof AppsBackup !== 'undefined' && AppsBackup.APP_REGISTRY['rep-tracker'] && AppsBackup.APP_REGISTRY['rep-tracker'].mergeSlice) {
+          appState = normalizeState(AppsBackup.APP_REGISTRY['rep-tracker'].mergeSlice(appState, slice));
+        } else {
+          var notes = Object.assign({}, appState.notes || {});
+          Object.keys(slice.notes || {}).forEach(function (k) {
+            if (!notes[k]) notes[k] = slice.notes[k];
+          });
+          appState = normalizeState(Object.assign({}, appState, { notes: notes }));
+        }
         saveAppState();
         bindFilterUi();
         applyFilters();
-        showStatus('Imported notes.');
+        showStatus('Added notes from backup.');
       } catch (e) {
         showStatus('Could not read that file.', true);
       }

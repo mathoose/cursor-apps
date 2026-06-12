@@ -1218,6 +1218,42 @@
       opacity: 0.01;
       overflow: hidden;
     }
+    .import-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 190;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .import-sheet[hidden] { display: none !important; }
+    body.import-open { overflow: hidden; }
+    .import-panel {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      background: var(--paper);
+      border-radius: 16px 16px 0 0;
+      padding: 14px 14px calc(14px + var(--safe-bottom));
+      border: 1px solid var(--border);
+      box-shadow: 0 -8px 32px rgba(44, 36, 25, 0.12);
+    }
+    .import-panel h2 {
+      font-family: Georgia, serif;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+    .import-panel p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+    .import-actions { display: flex; flex-direction: column; gap: 8px; }
+    .import-actions .btn-danger {
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
   </style>
 </head>
 <body class="habit-journal">
@@ -1304,6 +1340,20 @@
   </div>
 
   <input type="file" id="importInput" accept="application/json,.json" />
+
+  <div class="import-sheet" id="importSheet" hidden role="dialog" aria-modal="true" aria-labelledby="importSheetTitle">
+    <div class="habit-edit-backdrop" id="importBackdrop"></div>
+    <div class="import-panel">
+      <h2 id="importSheetTitle">Import backup</h2>
+      <p id="importSheetSummary">How should this file be applied?</p>
+      <div class="import-actions">
+        <button type="button" class="btn btn-primary btn-block" id="importAddBtn">Add to my data</button>
+        <button type="button" class="btn btn-secondary btn-block btn-danger" id="importReplaceBtn">Replace my history</button>
+        <button type="button" class="btn btn-secondary btn-block" id="importCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 
   <script>
@@ -1345,6 +1395,7 @@
   let yearFullscreenHabitId = null;
   let habitEditId = null;
   let habitsCatPanelOpen = false;
+  let pendingImport = null;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -3167,7 +3218,7 @@
       "Reloading the app or pushing updates does <em>not</em> erase habits — only Reset or clearing Safari website data does." +
       '<p class="meta">' + state.habits.length + " habits · " + marks + " marked days · last saved " +
       escapeHtml(formatSavedWhen(meta.lastSavedAt)) + " · auto-backup on every change</p></div>" +
-      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). You can also use Export all on the Apps home screen. Import accepts this file or a full backup.</p>' +
+      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). You can also use Export all on the Apps home screen. Import accepts this file or a full backup — you choose whether to add or replace.</p>' +
       '<div class="card">' +
       '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export backup (JSON)</button>' +
       '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import backup (JSON)</button>' +
@@ -3212,6 +3263,77 @@
       .replace(/"/g, "&quot;");
   }
 
+  function applyImportedState(p, replace) {
+    var merged;
+    if (replace) {
+      merged = {
+        version: 2,
+        year: typeof p.year === "number" ? p.year : new Date().getFullYear(),
+        month: typeof p.month === "number" ? p.month : new Date().getMonth(),
+        habits: p.habits,
+        cells: p.cells || {},
+        categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
+        categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
+        migratedStepsDefault: !!p.migratedStepsDefault,
+      };
+    } else if (typeof AppsBackup !== "undefined" && AppsBackup.APP_REGISTRY["habit-journal"] && AppsBackup.APP_REGISTRY["habit-journal"].mergeSlice) {
+      merged = AppsBackup.APP_REGISTRY["habit-journal"].mergeSlice(state, p);
+      merged.migratedStepsDefault = state.migratedStepsDefault || !!p.migratedStepsDefault;
+    } else {
+      var habitIds = {};
+      state.habits.forEach(function (h) { habitIds[h.id] = true; });
+      merged = {
+        version: 2,
+        year: state.year,
+        month: state.month,
+        habits: state.habits.slice(),
+        cells: Object.assign({}, state.cells),
+        categories: state.categories.slice(),
+        categoryFilter: state.categoryFilter,
+        migratedStepsDefault: state.migratedStepsDefault,
+      };
+      (p.habits || []).forEach(function (h) {
+        if (!habitIds[h.id]) merged.habits.push(h);
+      });
+      Object.keys(p.cells || {}).forEach(function (k) {
+        if (!merged.cells[k]) merged.cells[k] = p.cells[k];
+      });
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+    state = loadState();
+    save();
+    render();
+    toast(replace ? "History replaced" : "Data added");
+  }
+
+  function closeImportSheet() {
+    document.getElementById("importSheet").hidden = true;
+    document.body.classList.remove("import-open");
+    pendingImport = null;
+  }
+
+  function openImportSheet(summary) {
+    document.getElementById("importSheetSummary").textContent = summary;
+    document.getElementById("importSheet").hidden = false;
+    document.body.classList.add("import-open");
+  }
+
+  document.getElementById("importAddBtn").addEventListener("click", function () {
+    if (!pendingImport) return;
+    applyImportedState(pendingImport, false);
+    closeImportSheet();
+  });
+
+  document.getElementById("importReplaceBtn").addEventListener("click", function () {
+    if (!pendingImport) return;
+    if (!confirm("Replace all habits and marks with this file? This cannot be undone.")) return;
+    applyImportedState(pendingImport, true);
+    closeImportSheet();
+  });
+
+  document.getElementById("importCancelBtn").addEventListener("click", closeImportSheet);
+  document.getElementById("importBackdrop").addEventListener("click", closeImportSheet);
+
   document.getElementById("importInput").addEventListener("change", function (e) {
     const file = e.target.files && e.target.files[0];
     e.target.value = "";
@@ -3228,22 +3350,14 @@
           }
         }
         if (!p || !Array.isArray(p.habits)) throw new Error("Invalid");
-        if (!confirm("Replace all current data with this file?")) return;
-        const merged = {
-          version: 2,
-          year: typeof p.year === "number" ? p.year : new Date().getFullYear(),
-          month: typeof p.month === "number" ? p.month : new Date().getMonth(),
-          habits: p.habits,
-          cells: p.cells || {},
-          categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
-          categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
-          migratedStepsDefault: !!p.migratedStepsDefault,
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-        state = loadState();
-        save();
-        render();
-        toast("Import complete");
+        pendingImport = p;
+        var habitCount = p.habits.length;
+        var markCount = Object.keys(p.cells || {}).length;
+        openImportSheet(
+          "This file has " + habitCount + " habit" + (habitCount === 1 ? "" : "s") +
+          " and " + markCount + " marked day" + (markCount === 1 ? "" : "s") +
+          ". Add to your existing data, or replace your full history?"
+        );
       } catch (err) {
         toast("Invalid JSON file");
       }

@@ -440,6 +440,7 @@ body.modal-open { overflow: hidden; }
   object-fit: cover;
 }
 .entry-photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.entry-photo-actions .btn { flex: 1 1 auto; min-width: 0; }
 .entry-photo-hint { font-size: 0.75rem; color: var(--muted); margin: 8px 0 0; }
 
 .pick-result-photo {

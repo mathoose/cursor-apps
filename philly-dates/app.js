@@ -1332,8 +1332,19 @@ function importJsonBackup(parsed) {
     showStatus('Invalid JSON backup');
     return;
   }
-  if (!confirm('Replace saved favorites and edits with this backup? Menu photos on this device are kept.')) return;
   var existing = loadAppState();
+  if (typeof AppsBackup !== 'undefined' && AppsBackup.APP_REGISTRY['philly-dates'] && AppsBackup.APP_REGISTRY['philly-dates'].mergeSlice) {
+    slice = AppsBackup.APP_REGISTRY['philly-dates'].mergeSlice(existing, slice);
+  } else {
+    var favSet = {};
+    (existing.favorites || []).forEach(function (f) { favSet[f] = true; });
+    slice.favorites = (existing.favorites || []).slice();
+    (parsed.favorites || []).forEach(function (f) {
+      if (!favSet[f]) slice.favorites.push(f);
+    });
+    slice.overrides = Object.assign({}, existing.overrides || {}, slice.overrides || {});
+    slice.edits = Object.assign({}, existing.edits || {}, slice.edits || {});
+  }
   slice.menuPhotos = Object.assign({}, existing.menuPhotos || {}, slice.menuPhotos || {});
   saveAppState(slice);
   reconcileMenuPhotosFromIdb().then(function() { location.reload(); });

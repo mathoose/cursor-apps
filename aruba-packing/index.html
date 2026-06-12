@@ -1818,12 +1818,7 @@
     .pick-preview {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      min-height: calc(100dvh - 180px);
-    }
-
-    @media (min-width: 521px) {
-      .pick-preview { flex-direction: row; align-items: stretch; min-height: 520px; }
+      gap: 10px;
     }
 
     .pick-preview-main {
@@ -1831,116 +1826,203 @@
       background: var(--surface);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-height: 280px;
-    }
-
-    .pick-preview-stack {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 8px;
-      align-content: start;
+      min-height: 0;
     }
 
-    .pick-preview-stack img {
+    .pick-preview-body {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
+      align-items: stretch;
+    }
+
+    .pick-preview-column {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .pick-preview-accessories {
+      width: 72px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pick-accessory-box {
+      flex: 1;
+      min-height: 52px;
+      max-height: min(15dvh, 90px);
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3px;
+      cursor: pointer;
+      background: #fafafa;
+      overflow: hidden;
+    }
+
+    .pick-accessory-box.has-item {
+      border-style: solid;
+      border-color: var(--accent-soft);
+      background: var(--surface);
+    }
+
+    .pick-accessory-box img {
+      flex: 1;
+      min-height: 0;
+      max-width: 100%;
+      max-height: calc(100% - 12px);
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .pick-accessory-box .acc-plus {
+      font-size: 1.125rem;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .pick-accessory-label {
+      font-size: 0.5625rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+      line-height: 1.1;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .pick-accessory-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      max-height: 50dvh;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .pick-accessory-grid button {
+      aspect-ratio: 1;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      background: var(--surface);
+    }
+
+    .pick-accessory-grid button.on {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .pick-accessory-grid img {
       width: 100%;
-      aspect-ratio: 3/4;
+      height: 100%;
       object-fit: cover;
-      border-radius: 12px;
+    }
+
+    .pick-preview-row {
+      display: grid;
+      grid-template-columns: 4.5rem 26px 1fr 26px;
+      align-items: center;
+      gap: 6px;
+      min-height: 0;
+    }
+
+    .pick-preview-row-label {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .pick-preview-row-photo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      height: min(21dvh, 128px);
+    }
+
+    .pick-preview-row-photo img {
+      max-height: 100%;
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
       background: #e2e8f0;
     }
 
-    .pick-preview-stack .slot-empty {
-      aspect-ratio: 3/4;
-      border-radius: 12px;
+    .pick-preview-row-photo .slot-empty {
+      width: 100%;
+      max-width: 72px;
+      height: 100%;
+      max-height: 96px;
+      border-radius: 8px;
       background: #f1f5f9;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--muted);
-      font-size: 0.8125rem;
-    }
-
-    .pick-preview-rail {
-      width: 100%;
-      background: var(--surface);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    @media (min-width: 521px) {
-      .pick-preview-rail { width: 120px; flex-shrink: 0; }
-    }
-
-    .pick-cat-pill {
-      width: 100%;
-      padding: 10px 8px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: var(--surface);
-      font-size: 0.8125rem;
-      font-weight: 600;
-      cursor: pointer;
+      font-size: 0.6875rem;
       text-align: center;
-    }
-
-    .pick-cat-pill.on {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      color: var(--accent-dark);
-    }
-
-    .pick-arrow-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: auto;
+      padding: 4px;
     }
 
     .pick-arrow-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
       border: none;
       background: var(--accent-soft);
       color: var(--accent-dark);
-      font-size: 1.25rem;
+      font-size: 0.875rem;
       font-weight: 700;
+      line-height: 1;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0;
+      flex-shrink: 0;
     }
 
-    .pick-rail-thumb {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #e2e8f0;
+    .pick-arrow-btn:active {
+      transform: scale(0.94);
     }
 
     .pick-preview-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 8px;
+      margin-top: 4px;
+      flex-shrink: 0;
     }
 
     .pick-preview-actions button {
       flex: 1;
-      height: 48px;
+      height: 44px;
       border-radius: 12px;
       font-weight: 600;
-      font-size: 0.9375rem;
+      font-size: 0.875rem;
       cursor: pointer;
       border: none;
     }
@@ -2425,6 +2507,18 @@
       <div id="planOutfitPickerList"></div>
       <div class="sheet-actions">
         <button type="button" class="btn-cancel" data-close="planOutfitPickerOverlay">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="pickAccessoryOverlay" role="dialog" aria-modal="true" aria-labelledby="pickAccessoryTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3 id="pickAccessoryTitle">Choose accessory</h3>
+      <div id="pickAccessoryGrid" class="pick-accessory-grid"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn-cancel" id="pickAccessoryClear">Remove</button>
+        <button type="button" class="btn-cancel" data-close="pickAccessoryOverlay">Cancel</button>
       </div>
     </div>
   </div>
@@ -2933,6 +3027,7 @@
   let pickSubView = "pool";
   let pickerDraft = null;
   let pickActiveSlotId = "top";
+  let pickAccessorySlotId = null;
   let closetSelectedIds = {};
   let storageDetailBinId = null;
   let pendingPhoto = null;
@@ -2959,6 +3054,13 @@
     { slotId: "bottoms", label: "Bottoms", tag: "bottom" },
     { slotId: "shoes", label: "Shoes", tag: "feet" },
     { slotId: "accessories", label: "Accessories", tag: "accessories" },
+  ];
+  const PICK_PREVIEW_SLOT_IDS = ["top", "bottoms", "shoes"];
+  const PICK_ACCESSORY_SLOTS = [
+    { slotId: "acc-hat", label: "Hat", tag: "accessories", keywords: ["hat", "cap", "beanie", "bandana"] },
+    { slotId: "acc-glasses", label: "Glasses", tag: "accessories", keywords: ["glass", "sunglass", "goggle"] },
+    { slotId: "acc-jewelry", label: "Jewelry", tag: "accessories", keywords: ["jewel", "necklace", "ring", "watch", "bracelet", "earring"] },
+    { slotId: "acc-other", label: "Other", tag: "accessories", keywords: [] },
   ];
   const thumbCache = {};
   const thumbCachePending = {};
@@ -4420,9 +4522,38 @@
   }
 
   function clonePickerSlots() {
-    return PICKER_SLOTS.map(function (s) {
+    const main = PICK_PREVIEW_SLOT_IDS.map(function (id) {
+      const s = PICKER_SLOTS.find(function (x) { return x.slotId === id; });
       return { slotId: s.slotId, label: s.label, tag: s.tag, garment: null };
     });
+    const acc = PICK_ACCESSORY_SLOTS.map(function (s) {
+      return {
+        slotId: s.slotId,
+        label: s.label,
+        tag: s.tag,
+        keywords: s.keywords ? s.keywords.slice() : [],
+        garment: null,
+      };
+    });
+    return main.concat(acc);
+  }
+
+  function getPickAccessoryDef(slotId) {
+    return PICK_ACCESSORY_SLOTS.find(function (s) { return s.slotId === slotId; }) || null;
+  }
+
+  function garmentLabelForPool(g) {
+    return (gridDisplayName(g.itemId) || itemLabel(g.itemId) || g.label || "").toLowerCase();
+  }
+
+  function getAccessoryPoolForSlot(slot, photoCounts) {
+    const all = getPoolGarmentsByTag(slot.tag || "accessories", photoCounts);
+    if (!slot.keywords || !slot.keywords.length) return all;
+    const filtered = all.filter(function (g) {
+      const name = garmentLabelForPool(g);
+      return slot.keywords.some(function (kw) { return name.indexOf(kw) !== -1; });
+    });
+    return filtered.length ? filtered : all;
   }
 
   function outfitGarmentCount(outfit) {
@@ -5196,6 +5327,7 @@
     photoCounts = photoCounts || {};
     pickerDraft = { slots: clonePickerSlots() };
     pickerDraft.slots.forEach(function (slot) {
+      if (PICK_PREVIEW_SLOT_IDS.indexOf(slot.slotId) === -1) return;
       const pool = getPoolGarmentsByTag(slot.tag, photoCounts);
       if (!pool.length) { slot.garment = null; return; }
       const pick = pool[Math.floor(Math.random() * pool.length)];
@@ -5206,42 +5338,95 @@
     renderPick();
   }
 
+  function openPickAccessoryPicker(slotId, photoCounts) {
+    if (!pickerDraft) return;
+    const slot = pickerDraft.slots.find(function (s) { return s.slotId === slotId; });
+    const def = getPickAccessoryDef(slotId);
+    if (!slot || !def) return;
+    pickAccessorySlotId = slotId;
+    document.getElementById("pickAccessoryTitle").textContent = "Choose " + def.label.toLowerCase();
+    const pool = getAccessoryPoolForSlot(def, photoCounts);
+    const grid = document.getElementById("pickAccessoryGrid");
+    if (!pool.length) {
+      grid.innerHTML = '<div class="scan-empty">No accessories in your pool yet. Add items in Closet and include them in the Pick pool.</div>';
+    } else {
+      let html = "";
+      pool.forEach(function (g) {
+        const on = slot.garment && slot.garment.itemId === g.itemId && slot.garment.slot === g.slot;
+        html += '<button type="button" class="pick-acc-pick' + (on ? " on" : "") + '" data-item-id="' + escapeHtml(g.itemId) + '" data-slot="' + g.slot + '">';
+        html += '<img data-acc-pick-key="' + escapeHtml(g.photoKey) + '" alt="" /></button>';
+      });
+      grid.innerHTML = html;
+      grid.querySelectorAll("img[data-acc-pick-key]").forEach(function (img) {
+        getThumbUrl(img.getAttribute("data-acc-pick-key")).then(function (url) { if (url) img.src = url; });
+      });
+      grid.querySelectorAll(".pick-acc-pick").forEach(function (btn) {
+        btn.onclick = function () {
+          slot.garment = { itemId: btn.dataset.itemId, slot: parseInt(btn.dataset.slot, 10) };
+          closeOverlay("pickAccessoryOverlay");
+          pickAccessorySlotId = null;
+          renderPickPreview();
+        };
+      });
+    }
+    document.getElementById("pickAccessoryClear").onclick = function () {
+      slot.garment = null;
+      closeOverlay("pickAccessoryOverlay");
+      pickAccessorySlotId = null;
+      renderPickPreview();
+    };
+    openOverlay("pickAccessoryOverlay");
+  }
+
   function renderPickPreview() {
     const root = document.getElementById("pickPreviewRoot");
     if (!root || !pickerDraft) { pickSubView = "pool"; renderPick(); return; }
     loadPhotoCounts(gridGroups()).then(function (photoCounts) {
-      const activeSlot = pickerDraft.slots.find(function (s) { return s.slotId === pickActiveSlotId; }) || pickerDraft.slots[0];
-      if (activeSlot) pickActiveSlotId = activeSlot.slotId;
+      const previewSlots = pickerDraft.slots.filter(function (slot) {
+        return PICK_PREVIEW_SLOT_IDS.indexOf(slot.slotId) !== -1;
+      });
+      const accessorySlots = pickerDraft.slots.filter(function (slot) {
+        return !!getPickAccessoryDef(slot.slotId);
+      });
 
-      let html = '<button type="button" class="btn-secondary" id="pickBackBtn" style="width:100%;height:44px;margin-bottom:12px;border-radius:12px">← Back to pool</button>';
-      html += '<div class="pick-preview">';
-      html += '<div class="pick-preview-main"><h3 style="font-size:1rem;margin-bottom:8px">Your outfit</h3><div class="pick-preview-stack">';
-      pickerDraft.slots.forEach(function (slot) {
+      let html = '<button type="button" class="btn-secondary" id="pickBackBtn" style="width:100%;height:40px;margin-bottom:8px;border-radius:12px;font-size:0.875rem">← Back to pool</button>';
+      html += '<div class="pick-preview"><div class="pick-preview-main">';
+      html += '<div class="pick-preview-body">';
+      html += '<div class="pick-preview-column">';
+
+      previewSlots.forEach(function (slot) {
+        html += '<div class="pick-preview-row" data-slot-id="' + escapeHtml(slot.slotId) + '">';
+        html += '<span class="pick-preview-row-label">' + escapeHtml(slot.label) + "</span>";
+        html += '<button type="button" class="pick-arrow-btn" data-cycle-dir="-1" data-slot-id="' + escapeHtml(slot.slotId) + '" aria-label="Previous ' + escapeHtml(slot.label) + '">‹</button>';
+        html += '<div class="pick-preview-row-photo">';
         if (slot.garment) {
           html += '<img data-preview-item="' + escapeHtml(slot.garment.itemId) + '" data-preview-slot="' + slot.garment.slot + '" alt="' + escapeHtml(slot.label) + '" />';
         } else {
-          html += '<div class="slot-empty">No ' + escapeHtml(slot.label.toLowerCase()) + '</div>';
+          html += '<div class="slot-empty">None</div>';
         }
+        html += "</div>";
+        html += '<button type="button" class="pick-arrow-btn" data-cycle-dir="1" data-slot-id="' + escapeHtml(slot.slotId) + '" aria-label="Next ' + escapeHtml(slot.label) + '">›</button>';
+        html += "</div>";
       });
-      html += '</div>';
+
+      html += "</div>";
+      html += '<div class="pick-preview-accessories">';
+      accessorySlots.forEach(function (slot) {
+        html += '<button type="button" class="pick-accessory-box' + (slot.garment ? " has-item" : "") + '" data-acc-slot="' + escapeHtml(slot.slotId) + '" aria-label="Add ' + escapeHtml(slot.label) + '">';
+        if (slot.garment) {
+          html += '<img data-acc-item="' + escapeHtml(slot.garment.itemId) + '" data-acc-slot-num="' + slot.garment.slot + '" alt="" />';
+        } else {
+          html += '<span class="acc-plus">+</span>';
+        }
+        html += '<span class="pick-accessory-label">' + escapeHtml(slot.label) + "</span>";
+        html += "</button>";
+      });
+      html += "</div></div>";
+
       html += '<div class="pick-preview-actions">';
       html += '<button type="button" class="btn-save" id="pickRerollBtn" style="background:var(--accent);color:#fff">Random again</button>';
       html += '<button type="button" class="btn-save" id="pickSaveOutfitBtn" style="background:var(--surface);color:var(--text);border:1px solid var(--border)">Save outfit</button>';
-      html += '</div></div>';
-
-      html += '<div class="pick-preview-rail">';
-      pickerDraft.slots.forEach(function (slot) {
-        html += '<button type="button" class="pick-cat-pill' + (slot.slotId === pickActiveSlotId ? " on" : "") + '" data-pick-slot="' + escapeHtml(slot.slotId) + '">' + escapeHtml(slot.label) + '</button>';
-      });
-      if (activeSlot && activeSlot.garment) {
-        html += '<img class="pick-rail-thumb" data-rail-item="' + escapeHtml(activeSlot.garment.itemId) + '" data-rail-slot="' + activeSlot.garment.slot + '" alt="" />';
-      } else {
-        html += '<div class="pick-rail-thumb" style="display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.75rem">None</div>';
-      }
-      html += '<div class="pick-arrow-row">';
-      html += '<button type="button" class="pick-arrow-btn" id="pickPrevBtn" aria-label="Previous">‹</button>';
-      html += '<button type="button" class="pick-arrow-btn" id="pickNextBtn" aria-label="Next">›</button>';
-      html += '</div></div></div>';
+      html += "</div></div></div>";
 
       root.innerHTML = html;
 
@@ -5254,28 +5439,34 @@
       document.getElementById("pickSaveOutfitBtn").onclick = function () {
         document.getElementById("saveOutfitName").value = "";
         document.getElementById("saveOutfitDesc").value = "";
+        document.getElementById("saveOutfitTags").value = "";
         openOverlay("saveOutfitOverlay");
       };
-      document.getElementById("pickPrevBtn").onclick = function () { cyclePickSlot(activeSlot, -1, photoCounts); };
-      document.getElementById("pickNextBtn").onclick = function () { cyclePickSlot(activeSlot, 1, photoCounts); };
 
-      root.querySelectorAll(".pick-cat-pill").forEach(function (pill) {
-        pill.onclick = function () {
-          pickActiveSlotId = pill.dataset.pickSlot;
-          renderPickPreview();
+      root.querySelectorAll("[data-cycle-dir]").forEach(function (btn) {
+        btn.onclick = function () {
+          const slotId = btn.dataset.slotId;
+          const dir = parseInt(btn.dataset.cycleDir, 10);
+          const slot = pickerDraft.slots.find(function (s) { return s.slotId === slotId; });
+          if (slot) cyclePickSlot(slot, dir, photoCounts);
+        };
+      });
+
+      root.querySelectorAll("[data-acc-slot]").forEach(function (btn) {
+        btn.onclick = function () {
+          openPickAccessoryPicker(btn.dataset.accSlot, photoCounts);
         };
       });
 
       root.querySelectorAll("img[data-preview-item]").forEach(function (img) {
         loadGarmentPhotoUrl(img.dataset.previewItem, parseInt(img.dataset.previewSlot, 10)).then(function (url) { if (url) img.src = url; });
       });
-      const rail = root.querySelector("img[data-rail-item]");
-      if (rail) {
-        loadGarmentPhotoUrl(rail.dataset.railItem, parseInt(rail.dataset.railSlot, 10)).then(function (url) { if (url) rail.src = url; });
-      }
+      root.querySelectorAll("img[data-acc-item]").forEach(function (img) {
+        loadGarmentPhotoUrl(img.dataset.accItem, parseInt(img.dataset.accSlotNum, 10)).then(function (url) { if (url) img.src = url; });
+      });
 
       const meta = document.getElementById("pickHeroMeta");
-      if (meta) meta.textContent = "Swipe " + (activeSlot ? activeSlot.label.toLowerCase() : "items") + " with arrows";
+      if (meta) meta.textContent = "Arrows swap outfit · tap boxes for accessories";
     });
   }
 
@@ -6754,6 +6945,7 @@
         if (currentView === "travel" && travelView === "calendar") renderTravel();
       }
       if (id === "planOutfitPickerOverlay") planPickingDaySlotId = null;
+      if (id === "pickAccessoryOverlay") pickAccessorySlotId = null;
       closeOverlay(id);
     };
   });
@@ -6817,8 +7009,12 @@
       toast("Invalid backup file");
       return;
     }
-    if (!confirm("Replace your wardrobe data with this backup?")) return;
     try {
+      var existingRaw = localStorage.getItem(STORAGE_KEY);
+      var existing = existingRaw ? JSON.parse(existingRaw) : null;
+      if (typeof AppsBackup !== "undefined" && AppsBackup.APP_REGISTRY["aruba-packing"] && AppsBackup.APP_REGISTRY["aruba-packing"].mergeSlice) {
+        slice = AppsBackup.APP_REGISTRY["aruba-packing"].mergeSlice(existing, slice);
+      }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(slice));
       location.reload();
     } catch (e) {

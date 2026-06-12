@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Process Guide</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Process Guide" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3d9ee8" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="process-guide">
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-title-block">
+      <h1>Process Guide</h1>
+      <p>Step-by-step instructions</p>
+    </div>
+    <span class="saved-flash" id="savedFlash">Saved</span>
+  </header>
+
+  <main>
+    <section class="view active" id="viewProcesses" data-view="processes">
+      <section class="card">
+        <div class="cal-header" style="margin-bottom:0.75rem">
+          <h2 style="margin:0">Processes</h2>
+          <button type="button" class="primary" id="btnNewProcess">New process</button>
+        </div>
+        <p class="hint">Save routines like walking the dog or feeding her. Add steps, paste photos, and use <strong>Guide</strong> mode to walk through them.</p>
+        <div class="grid-2" style="margin-bottom:0.75rem">
+          <div>
+            <label for="processSearch">Search</label>
+            <input id="processSearch" type="search" placeholder="Title, tags, step text…" autocomplete="off" />
+          </div>
+          <div>
+            <label for="processStatusFilter">Show</label>
+            <select id="processStatusFilter">
+              <option value="active" selected>Published &amp; drafts</option>
+              <option value="published">Published only</option>
+              <option value="draft">Drafts only</option>
+              <option value="all">All</option>
+              <option value="archived">Archived only</option>
+            </select>
+          </div>
+        </div>
+        <div class="project-layout">
+          <div>
+            <div id="processList"></div>
+            <p class="empty" id="processListEmpty" hidden>No processes yet.</p>
+          </div>
+          <div id="processDetailPane">
+            <p class="empty" id="processSelectHint">Select a process or create a new one.</p>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="viewData" data-view="data">
+      <section class="card">
+        <h2>Backup &amp; share</h2>
+        <p class="hint">Export a JSON backup for peace of mind, or share a single process with someone. Imports always <strong>add</strong> processes — they never replace your existing ones.</p>
+        <button type="button" class="primary btn-block" id="btnExportAll">Export all processes (JSON)</button>
+        <label class="ghost-btn btn-block" style="display:block;text-align:center;margin:0">
+          Import processes (JSON)
+          <input type="file" id="importFile" accept="application/json,.json" hidden />
+        </label>
+      </section>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="processes" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Processes
+    </button>
+    <button type="button" class="nav-btn" data-view="data" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
+      Data
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="app.js?v=1"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

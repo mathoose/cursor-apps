@@ -55,6 +55,39 @@
         var marks = slice.cells ? Object.keys(slice.cells).length : 0;
         return (slice.habits ? slice.habits.length : 0) + " habits, " + marks + " marks";
       },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 2,
+          year: typeof existing.year === "number" ? existing.year : new Date().getFullYear(),
+          month: typeof existing.month === "number" ? existing.month : new Date().getMonth(),
+          habits: (existing.habits || []).slice(),
+          cells: Object.assign({}, existing.cells || {}),
+          categories: (existing.categories || []).slice(),
+          categoryFilter: existing.categoryFilter || "all",
+        };
+        var habitIds = {};
+        out.habits.forEach(function (h) { habitIds[h.id] = true; });
+        (incoming.habits || []).forEach(function (h) {
+          if (!habitIds[h.id]) {
+            out.habits.push(h);
+            habitIds[h.id] = true;
+          }
+        });
+        Object.keys(incoming.cells || {}).forEach(function (k) {
+          if (!out.cells[k]) out.cells[k] = incoming.cells[k];
+        });
+        var catIds = {};
+        out.categories.forEach(function (c) { catIds[c.id] = true; });
+        (incoming.categories || []).forEach(function (c) {
+          if (!catIds[c.id]) {
+            out.categories.push(c);
+            catIds[c.id] = true;
+          }
+        });
+        return out;
+      },
     },
     "adhd-task-tracker": {
       storageKey: "adhd-tracker-v1",
@@ -95,6 +128,35 @@
       summarize: function (slice) {
         return slice.tasks.length + " task" + (slice.tasks.length === 1 ? "" : "s");
       },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var taskIds = {};
+        (existing.tasks || []).forEach(function (t) { taskIds[t.id] = true; });
+        var tasks = (existing.tasks || []).slice();
+        (incoming.tasks || []).forEach(function (t) {
+          if (!taskIds[t.id]) {
+            tasks.push(t);
+            taskIds[t.id] = true;
+          }
+        });
+        var listIds = {};
+        (existing.lists || []).forEach(function (l) { listIds[l.id] = true; });
+        var lists = (existing.lists || []).slice();
+        (incoming.lists || []).forEach(function (l) {
+          if (!listIds[l.id]) {
+            lists.push(l);
+            listIds[l.id] = true;
+          }
+        });
+        return {
+          version: existing.version || 1,
+          tasks: tasks,
+          lists: lists,
+          activeListId: existing.activeListId || "inbox",
+          matrixFilter: existing.matrixFilter || "all",
+        };
+      },
     },
     "aruba-packing": {
       storageKey: "aruba-pack-v1",
@@ -124,6 +186,45 @@
         var items = Object.keys(slice.items || {}).length;
         return items + " categor" + (items === 1 ? "y" : "ies") + ", " + outfits + " outfit" + (outfits === 1 ? "" : "s") + ", " + trips + " trip" + (trips === 1 ? "" : "s") + ", " + bins + " storage bin" + (bins === 1 ? "" : "s") + " (no photos)";
       },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = sanitizeArubaSlice(existing);
+        var inc = sanitizeArubaSlice(incoming);
+        Object.keys(inc.items || {}).forEach(function (id) {
+          if (!out.items[id]) out.items[id] = inc.items[id];
+        });
+        (inc.removed || []).forEach(function (id) {
+          if (out.removed.indexOf(id) < 0) out.removed.push(id);
+        });
+        var outfitIds = {};
+        (out.outfits || []).forEach(function (o) { if (o && o.id) outfitIds[o.id] = true; });
+        (inc.outfits || []).forEach(function (o) {
+          if (o && o.id && !outfitIds[o.id]) out.outfits.push(o);
+        });
+        var tripIds = {};
+        (out.trips || []).forEach(function (t) { if (t && t.id) tripIds[t.id] = true; });
+        (inc.trips || []).forEach(function (t) {
+          if (t && t.id && !tripIds[t.id]) out.trips.push(t);
+        });
+        (inc.closet || []).forEach(function (id) {
+          if (out.closet.indexOf(id) < 0) out.closet.push(id);
+        });
+        (inc.customWardrobeCategories || []).forEach(function (c) {
+          if (!out.customWardrobeCategories.some(function (x) { return x === c || (x && c && x.id === c.id); })) {
+            out.customWardrobeCategories.push(c);
+          }
+        });
+        Object.keys(inc.randomizerPool || {}).forEach(function (k) {
+          if (!out.randomizerPool[k]) out.randomizerPool[k] = inc.randomizerPool[k];
+        });
+        var binIds = {};
+        (out.storageBins || []).forEach(function (b) { if (b && b.id) binIds[b.id] = true; });
+        (inc.storageBins || []).forEach(function (b) {
+          if (b && b.id && !binIds[b.id]) out.storageBins.push(b);
+        });
+        return out;
+      },
     },
     "meal-menu": {
       storageKey: "meal-menu-v1",
@@ -150,6 +251,41 @@
         var n = slice.entries ? slice.entries.length : 0;
         var fav = slice.entries ? slice.entries.filter(function (e) { return e.favorite; }).length : 0;
         return n + " meal" + (n === 1 ? "" : "s") + (fav ? ", " + fav + " favorites" : "");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = Object.assign({}, existing);
+        out.entries = (existing.entries || []).slice();
+        out.tags = (existing.tags || []).slice();
+        out.categories = (existing.categories || []).slice();
+        out.mealLog = (existing.mealLog || []).slice();
+        out.entryPhotos = Object.assign({}, existing.entryPhotos || {});
+        var entryIds = {};
+        out.entries.forEach(function (e) { if (e && e.id) entryIds[e.id] = true; });
+        (incoming.entries || []).forEach(function (e) {
+          if (e && e.id && !entryIds[e.id]) {
+            out.entries.push(e);
+            entryIds[e.id] = true;
+          }
+        });
+        var tagIds = {};
+        out.tags.forEach(function (t) { if (t && t.id) tagIds[t.id] = true; });
+        (incoming.tags || []).forEach(function (t) {
+          if (t && t.id && !tagIds[t.id]) out.tags.push(t);
+        });
+        var catIds = {};
+        out.categories.forEach(function (c) { if (c && c.id) catIds[c.id] = true; });
+        (incoming.categories || []).forEach(function (c) {
+          if (c && c.id && !catIds[c.id]) out.categories.push(c);
+        });
+        var logIds = {};
+        out.mealLog.forEach(function (l) { if (l && l.id) logIds[l.id] = true; });
+        (incoming.mealLog || []).forEach(function (l) {
+          if (l && l.id && !logIds[l.id]) out.mealLog.push(l);
+        });
+        Object.assign(out.entryPhotos, incoming.entryPhotos || {});
+        return out;
       },
     },
     "philly-dates": {
@@ -182,6 +318,30 @@
         var fav = Array.isArray(slice.favorites) ? slice.favorites.length : 0;
         return fav + " favorite" + (fav === 1 ? "" : "s");
       },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = Object.assign({}, existing);
+        var favSet = {};
+        (existing.favorites || []).forEach(function (f) { favSet[f] = true; });
+        out.favorites = (existing.favorites || []).slice();
+        (incoming.favorites || []).forEach(function (f) {
+          if (!favSet[f]) {
+            out.favorites.push(f);
+            favSet[f] = true;
+          }
+        });
+        out.overrides = Object.assign({}, existing.overrides || {});
+        Object.keys(incoming.overrides || {}).forEach(function (k) {
+          if (!out.overrides[k]) out.overrides[k] = incoming.overrides[k];
+        });
+        out.edits = Object.assign({}, existing.edits || {});
+        Object.keys(incoming.edits || {}).forEach(function (k) {
+          if (!out.edits[k]) out.edits[k] = incoming.edits[k];
+        });
+        out.menuPhotos = Object.assign({}, existing.menuPhotos || {}, incoming.menuPhotos || {});
+        return out;
+      },
     },
     "dont-forget": {
       storageKey: "dont-forget-v1",
@@ -208,6 +368,20 @@
         var n = slice.items ? slice.items.length : 0;
         return n + " item" + (n === 1 ? "" : "s") + " (no photos)";
       },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var itemIds = {};
+        (existing.items || []).forEach(function (it) { itemIds[it.id] = true; });
+        var items = (existing.items || []).slice();
+        (incoming.items || []).forEach(function (it) {
+          if (!itemIds[it.id]) {
+            items.push(it);
+            itemIds[it.id] = true;
+          }
+        });
+        return { version: 1, items: items };
+      },
     },
     "rep-tracker": {
       storageKey: "rep-tracker-v1",
@@ -233,6 +407,64 @@
       summarize: function (slice) {
         var n = slice.notes ? Object.keys(slice.notes).length : 0;
         return n + " note" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var notes = Object.assign({}, existing.notes || {});
+        Object.keys(incoming.notes || {}).forEach(function (k) {
+          if (!notes[k]) notes[k] = incoming.notes[k];
+        });
+        return Object.assign({}, existing, { notes: notes });
+      },
+    },
+    "process-guide": {
+      storageKey: "process-guide-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("process-guide-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.processes)) return null;
+          return { version: p.version || 1, processes: p.processes };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.processes)) return false;
+        return writeKey(
+          "process-guide-v1",
+          JSON.stringify({ version: slice.version || 1, processes: slice.processes })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.processes) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.processes ? slice.processes.length : 0;
+        return n + " process" + (n === 1 ? "" : "es");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = { version: 1, processes: (existing.processes || []).slice() };
+        var ids = {};
+        out.processes.forEach(function (p) { ids[p.id] = true; });
+        (incoming.processes || []).forEach(function (p) {
+          if (!p) return;
+          if (ids[p.id]) {
+            var copy = JSON.parse(JSON.stringify(p));
+            copy.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+            out.processes.push(copy);
+            ids[copy.id] = true;
+          } else {
+            out.processes.push(p);
+            ids[p.id] = true;
+          }
+        });
+        return out;
       },
     },
   };
@@ -343,6 +575,7 @@
 
   function importAll(bundle, options) {
     options = options || {};
+    var mode = options.mode || "merge";
     if (!isUnifiedBackup(bundle)) {
       return { ok: false, error: "Not a cursor-apps backup file" };
     }
@@ -351,7 +584,12 @@
     Object.keys(APP_REGISTRY).forEach(function (id) {
       var slice = bundle.apps[id];
       if (slice == null) return;
-      if (APP_REGISTRY[id].writeSlice(slice)) imported.push(id);
+      var reg = APP_REGISTRY[id];
+      var toWrite = slice;
+      if (mode === "merge" && reg.mergeSlice) {
+        toWrite = reg.mergeSlice(reg.readSlice(), slice);
+      }
+      if (reg.writeSlice(toWrite)) imported.push(id);
       else failed.push(id);
     });
     return {
@@ -359,6 +597,7 @@
       imported: imported,
       failed: failed,
       summary: summarizeBundle(bundle),
+      mode: mode,
     };
   }
 

@@ -207,7 +207,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const ICON_VERSION = "4";
+  const ICON_VERSION = "5";
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
   const FALLBACK_MANIFEST = {
@@ -396,8 +396,8 @@
             return;
           }
           var preview = AppsBackup.summarizeBundle(parsed);
-          if (!confirm("Replace saved data for apps in this file?\n\n" + preview)) return;
-          var result = AppsBackup.importAll(parsed);
+          if (!confirm("Add data from this backup to your existing apps?\n\n" + preview + "\n\nExisting items are kept; new items are added.")) return;
+          var result = AppsBackup.importAll(parsed, { mode: "merge" });
           if (result.imported.length) {
             showToast("Imported: " + result.imported.join(", "));
           } else {
