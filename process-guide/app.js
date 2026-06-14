@@ -80,6 +80,8 @@
       id: b.id || uid(),
       label: String(b.label != null ? b.label : "Branch").trim() || "Branch",
       whenToUse: String(b.whenToUse != null ? b.whenToUse : "").trim(),
+      imageData: String(b.imageData != null ? b.imageData : "").trim(),
+      imageName: String(b.imageName != null ? b.imageName : "").trim(),
       steps: Array.isArray(b.steps) ? b.steps.map(normalizeProcessNode) : [],
     };
   }
@@ -165,6 +167,7 @@
             branchIndex: branchIndex,
             branchLabel: branch.label,
             whenToUse: branch.whenToUse,
+            imageName: branch.imageName,
           }));
         });
       }
@@ -262,7 +265,7 @@
     walkProcessNodes(proc.steps || [], function (node, ctx) {
       if (node.type === "fork") {
         parts.push(node.title, node.prompt, node.mergeNote);
-        if (ctx.branchLabel) parts.push(ctx.branchLabel, ctx.whenToUse);
+        if (ctx.branchLabel) parts.push(ctx.branchLabel, ctx.whenToUse, ctx.imageName);
       } else {
         parts.push(node.title, node.body, node.caution, node.imageName);
       }
@@ -380,43 +383,66 @@
     });
   }
 
-  function renderStepRowsHtml(process, nodes, pathPrefix, numCtx) {
+  function renderBranchStepsHtml(process, branch, branchPath, numCtx) {
+    var steps = branch.steps || [];
+    if (!steps.length) {
+      return '<p class="pe-branch-empty">No steps on this path yet.</p>';
+    }
+    return '<div class="pe-branch-steps">' + renderStepsListHtml(process, steps, branchPath, numCtx) + "</div>";
+  }
+
+  function renderForkOptionHtml(process, node, path, branch, bi, forkNum) {
+    var letter = String.fromCharCode(65 + bi);
+    var imgHtml = branch.imageData
+      ? '<img class="pe-fork-option-img" src="' + branch.imageData + '" alt="' + escapeAttr(branch.imageName || letter) + '" data-pe-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" />'
+      : '<div class="pe-fork-option-img-placeholder project-paste-zone" data-pe-branch-paste="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" tabindex="0">' +
+        '<span class="pe-fork-option-add">+ Photo</span></div>' +
+        '<input type="file" accept="image/*" capture="environment" hidden data-pe-branch-file="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" />';
+    return '<div class="pe-fork-option" data-pe-branch="' + bi + '">' +
+      '<div class="pe-fork-option-letter">' + letter + "</div>" +
+      imgHtml +
+      '<input type="text" class="pe-fork-option-label" data-pe-branch-label="' + bi + '" value="' + escapeAttr(branch.label) + '" placeholder="Option ' + letter + '" />' +
+      '<textarea class="pe-fork-option-desc" data-pe-branch-when="' + bi + '" rows="2" placeholder="Description">' + escapeHtml(branch.whenToUse) + "</textarea>" +
+      (branch.imageData ? '<button type="button" class="ghost danger pe-fork-option-clear" data-pe-clear-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '">Remove photo</button>' : "") +
+      '<div class="pe-branch-actions">' +
+      '<button type="button" class="ghost" data-pe-add-step="' + escapeAttr(path + ".b" + bi) + '">+ Step</button>' +
+      "</div>" +
+      renderBranchStepsHtml(process, branch, path + ".b" + bi, { forkNum: forkNum, letter: letter, subNum: 0 }) +
+      "</div>";
+  }
+
+  function renderForkCardHtml(process, node, path, numCtx) {
+    var spineNum = numCtx.spineNum || 0;
+    if (!numCtx.letter) spineNum++;
+    var forkLabel = numCtx.letter ? numCtx.forkNum + numCtx.letter + " ◆" : spineNum + " ◆";
+    numCtx.spineNum = spineNum;
+    var branches = (node.branches || []).slice(0, 2);
+    var optionsHtml = branches.map(function (br, bi) {
+      return renderForkOptionHtml(process, node, path, br, bi, spineNum);
+    }).join("");
+    return '<div class="pe-fork-card" data-pe-path="' + escapeAttr(path) + '">' +
+      '<div class="pe-step-card-head">' +
+      '<span class="pe-num pe-fork-num">' + escapeHtml(forkLabel) + "</span>" +
+      '<span class="pe-card-type">Fork</span>' +
+      '<div class="pe-row-actions">' +
+      '<button type="button" class="ghost" data-pe-up="' + escapeAttr(path) + '">Up</button>' +
+      '<button type="button" class="ghost" data-pe-down="' + escapeAttr(path) + '">Down</button>' +
+      '<button type="button" class="ghost danger" data-pe-del="' + escapeAttr(path) + '">Delete</button>' +
+      "</div></div>" +
+      '<div class="pe-fork-editor" data-pe-fork-editor="' + escapeAttr(path) + '">' +
+      '<input type="text" class="pe-fork-prompt" data-pe-fork-field="prompt" value="' + escapeAttr(node.prompt || node.title) + '" placeholder="What choice is this?" />' +
+      '<div class="pe-fork-options">' + optionsHtml + "</div>" +
+      "</div></div>";
+  }
+
+  function renderStepsListHtml(process, nodes, pathPrefix, numCtx) {
     var html = "";
     var spineNum = numCtx.spineNum || 0;
     (nodes || []).forEach(function (node, idx) {
       var path = pathPrefix === "main" ? String(idx) : pathPrefix + "." + idx;
       var isExpanded = expandedPePath === path;
       if (node.type === "fork") {
-        if (!numCtx.letter) spineNum++;
-        var forkLabel = numCtx.letter ? numCtx.forkNum + numCtx.letter + " ◆" : spineNum + " ◆";
-        numCtx.spineNum = spineNum;
-        html += '<tr class="pe-fork-row pe-step-row' + (isExpanded ? " expanded" : "") + '" data-pe-path="' + escapeAttr(path) + '">' +
-          '<td class="pe-num">' + escapeHtml(forkLabel) + '</td>' +
-          '<td><span class="badge" style="background:#3d3520;color:var(--warn)">Fork</span></td>' +
-          "<td>" + escapeHtml(node.title || "Decision point") + "</td>" +
-          '<td class="pe-preview">' + escapeHtml(node.prompt || "") + "</td>" +
-          '<td><div class="pe-row-actions">' +
-          '<button type="button" class="ghost" data-pe-expand="' + escapeAttr(path) + '">Edit</button>' +
-          '<button type="button" class="ghost" data-pe-up="' + escapeAttr(path) + '">Up</button>' +
-          '<button type="button" class="ghost" data-pe-down="' + escapeAttr(path) + '">Down</button>' +
-          '<button type="button" class="ghost danger" data-pe-del="' + escapeAttr(path) + '">Delete</button>' +
-          "</div></td></tr>";
-        if (isExpanded) {
-          html += "<tr><td colspan=\"5\">" + renderForkEditorHtml(process, node, path) + "</td></tr>";
-        }
-        (node.branches || []).forEach(function (branch, bi) {
-          var letter = String.fromCharCode(65 + bi);
-          var branchPath = path + ".b" + bi;
-          html += "<tr><td colspan=\"5\"><div class=\"pe-branch-block\">" +
-            '<div class="pe-branch-head">Branch ' + letter + ": " + escapeHtml(branch.label) + "</div>" +
-            (branch.whenToUse ? '<div class="pe-branch-when">' + escapeHtml(branch.whenToUse) + "</div>" : "") +
-            '<div class="btn-row" style="margin-bottom:0.45rem">' +
-            '<button type="button" class="ghost" data-pe-add-step="' + escapeAttr(branchPath) + '">+ Step</button>' +
-            '<button type="button" class="ghost" data-pe-add-fork="' + escapeAttr(branchPath) + '">+ Fork</button>' +
-            "</div><table class=\"pe-steps-table\"><tbody>" +
-            renderStepRowsHtml(process, branch.steps, branchPath, { forkNum: spineNum, letter: letter, subNum: 0 }) +
-            "</tbody></table></div></td></tr>";
-        });
+        html += renderForkCardHtml(process, node, path, numCtx);
       } else {
         var label;
         if (numCtx.letter) {
@@ -427,19 +453,19 @@
           label = String(spineNum);
           numCtx.spineNum = spineNum;
         }
-        html += '<tr class="pe-step-row' + (isExpanded ? " expanded" : "") + '" data-pe-path="' + escapeAttr(path) + '">' +
-          '<td class="pe-num">' + escapeHtml(label) + "</td><td>Step</td>" +
-          "<td>" + escapeHtml(node.title || "(untitled step)") + "</td>" +
-          '<td class="pe-preview">' + escapeHtml(stepPreview(node)) + "</td>" +
-          '<td><div class="pe-row-actions">' +
-          '<button type="button" class="ghost" data-pe-expand="' + escapeAttr(path) + '">Edit</button>' +
+        html += '<div class="pe-step-card' + (isExpanded ? " expanded" : "") + '" data-pe-path="' + escapeAttr(path) + '">' +
+          '<div class="pe-step-card-head">' +
+          '<span class="pe-num">' + escapeHtml(label) + "</span>" +
+          '<span class="pe-step-card-title">' + escapeHtml(node.title || "(untitled step)") + "</span>" +
+          (node.imageData ? '<span class="pe-has-photo" title="Has photo">📷</span>' : "") +
+          '<div class="pe-row-actions">' +
+          '<button type="button" class="ghost" data-pe-expand="' + escapeAttr(path) + '">' + (isExpanded ? "Close" : "Edit") + "</button>" +
           '<button type="button" class="ghost" data-pe-up="' + escapeAttr(path) + '">Up</button>' +
           '<button type="button" class="ghost" data-pe-down="' + escapeAttr(path) + '">Down</button>' +
           '<button type="button" class="ghost danger" data-pe-del="' + escapeAttr(path) + '">Delete</button>' +
-          "</div></td></tr>";
-        if (isExpanded) {
-          html += "<tr><td colspan=\"5\">" + renderStepEditorHtml(process, node, path) + "</td></tr>";
-        }
+          "</div></div>" +
+          (isExpanded ? renderStepEditorHtml(process, node, path) : "") +
+          "</div>";
       }
     });
     return html;
@@ -454,7 +480,8 @@
       "<label>Caution (optional)</label>" +
       '<input type="text" data-pe-field="caution" value="' + escapeAttr(node.caution) + '" placeholder="Safety or quality warning" />' +
       '<div class="project-paste-zone" data-pe-paste="' + escapeAttr(path) + '" tabindex="0" style="margin-top:0.65rem">' +
-      "Tap here, then paste a screenshot</div>" +
+      "Tap to add a photo (paste or pick)</div>" +
+      '<input type="file" accept="image/*" capture="environment" hidden data-pe-file="' + escapeAttr(path) + '" />' +
       (node.imageData ? '<img src="' + node.imageData + '" alt="' + escapeAttr(node.imageName || "Step") + '" data-pe-img="' + escapeAttr(path) + '" />' : "") +
       '<div class="btn-row" style="margin-top:0.5rem">' +
       '<button type="button" class="primary" data-pe-save-step="' + escapeAttr(path) + '">Save step</button>' +
@@ -462,28 +489,45 @@
       "</div></div>";
   }
 
-  function renderForkEditorHtml(process, node, path) {
-    var branchesHtml = (node.branches || []).map(function (br, bi) {
-      return '<div style="margin-bottom:0.65rem;padding:0.5rem;border:1px solid var(--border);border-radius:8px;background:#0d1218">' +
-        "<label>Branch " + String.fromCharCode(65 + bi) + " label</label>" +
-        '<input type="text" data-pe-branch-label="' + bi + '" value="' + escapeAttr(br.label) + '" />' +
-        "<label>When to use</label>" +
-        '<input type="text" data-pe-branch-when="' + bi + '" value="' + escapeAttr(br.whenToUse) + '" placeholder="Describe when this path applies" />' +
-        "</div>";
-    }).join("");
-    return '<div class="pe-step-editor" data-pe-fork-editor="' + escapeAttr(path) + '">' +
-      "<label>Fork title</label>" +
-      '<input type="text" data-pe-fork-field="title" value="' + escapeAttr(node.title) + '" />' +
-      "<label>Decision question (prompt)</label>" +
-      '<input type="text" data-pe-fork-field="prompt" value="' + escapeAttr(node.prompt) + '" placeholder="e.g. Which path?" />' +
-      "<label>Merge note (optional)</label>" +
-      '<input type="text" data-pe-fork-field="mergeNote" value="' + escapeAttr(node.mergeNote) + '" placeholder="Both paths rejoin at the next step below" />' +
-      '<h4 style="margin:0.75rem 0 0.5rem;font-size:0.9rem">Branches</h4>' +
-      branchesHtml +
-      '<div class="btn-row">' +
-      '<button type="button" class="primary" data-pe-save-fork="' + escapeAttr(path) + '">Save fork</button>' +
-      '<button type="button" class="ghost" data-pe-add-branch="' + escapeAttr(path) + '">+ Add branch</button>' +
-      "</div></div>";
+  function saveForkFields(process, path, editor) {
+    var ctx = getNodeContext(process, path);
+    if (!ctx || ctx.node.type !== "fork") return;
+    var promptEl = editor.querySelector('[data-pe-fork-field="prompt"]');
+    if (promptEl) {
+      ctx.node.prompt = promptEl.value.trim() || "Choose a path";
+      ctx.node.title = ctx.node.prompt;
+    }
+    ctx.node.branches.slice(0, 2).forEach(function (br, bi) {
+      var labelEl = editor.querySelector('[data-pe-branch-label="' + bi + '"]');
+      var whenEl = editor.querySelector('[data-pe-branch-when="' + bi + '"]');
+      if (labelEl) br.label = labelEl.value.trim() || "Option " + String.fromCharCode(65 + bi);
+      if (whenEl) br.whenToUse = whenEl.value.trim();
+    });
+    ctx.node.updatedAt = nowISO();
+    process.updatedAt = nowISO();
+    persist();
+    renderProcessList();
+  }
+
+  function applyImageToNode(node, dataUrl, name) {
+    node.imageData = dataUrl;
+    node.imageName = name || "photo.jpg";
+    node.updatedAt = nowISO();
+  }
+
+  function applyImageToBranch(branch, dataUrl, name) {
+    branch.imageData = dataUrl;
+    branch.imageName = name || "photo.jpg";
+  }
+
+  function handleImageFile(process, file, onApply) {
+    compressImageFile(file).then(function (dataUrl) {
+      onApply(dataUrl, file.name || "photo.jpg");
+      process.updatedAt = nowISO();
+      persist();
+      renderProcessDetail(process);
+      renderProcessList();
+    }).catch(function () { toast("Could not add image"); });
   }
 
   function bindProcessDetailEvents(process) {
@@ -545,11 +589,17 @@
       btn.onclick = function () {
         addProcessNode(process, btn.dataset.peAddFork, newProcessFork());
         persist();
-        var arr = resolveStepsContainer(process, btn.dataset.peAddFork);
-        expandedPePath = btn.dataset.peAddFork === "main" ? String(arr.length - 1) : btn.dataset.peAddFork + "." + (arr.length - 1);
         renderProcessDetail(process);
         renderProcessList();
       };
+    });
+
+    pane.querySelectorAll("[data-pe-fork-editor]").forEach(function (editor) {
+      var path = editor.dataset.peForkEditor;
+      editor.querySelectorAll("[data-pe-fork-field], [data-pe-branch-label], [data-pe-branch-when]").forEach(function (field) {
+        field.onchange = function () { saveForkFields(process, path, editor); };
+        field.onblur = function () { saveForkFields(process, path, editor); };
+      });
     });
 
     pane.querySelectorAll("[data-pe-save-step]").forEach(function (btn) {
@@ -568,39 +618,6 @@
       };
     });
 
-    pane.querySelectorAll("[data-pe-save-fork]").forEach(function (btn) {
-      btn.onclick = function () {
-        var ctx = getNodeContext(process, btn.dataset.peSaveFork);
-        if (!ctx || ctx.node.type !== "fork") return;
-        var editor = pane.querySelector('[data-pe-fork-editor="' + btn.dataset.peSaveFork + '"]');
-        ctx.node.title = editor.querySelector('[data-pe-fork-field="title"]').value.trim();
-        ctx.node.prompt = editor.querySelector('[data-pe-fork-field="prompt"]').value.trim();
-        ctx.node.mergeNote = editor.querySelector('[data-pe-fork-field="mergeNote"]').value.trim();
-        ctx.node.branches.forEach(function (br, bi) {
-          br.label = editor.querySelector('[data-pe-branch-label="' + bi + '"]').value.trim() || "Branch " + String.fromCharCode(65 + bi);
-          br.whenToUse = editor.querySelector('[data-pe-branch-when="' + bi + '"]').value.trim();
-        });
-        ctx.node.updatedAt = nowISO();
-        process.updatedAt = nowISO();
-        persist();
-        renderProcessDetail(process);
-        renderProcessList();
-      };
-    });
-
-    pane.querySelectorAll("[data-pe-add-branch]").forEach(function (btn) {
-      btn.onclick = function () {
-        var ctx = getNodeContext(process, btn.dataset.peAddBranch);
-        if (!ctx || ctx.node.type !== "fork") return;
-        var letter = String.fromCharCode(65 + ctx.node.branches.length);
-        ctx.node.branches.push(normalizeProcessBranch({ id: uid(), label: "Branch " + letter, whenToUse: "", steps: [] }));
-        ctx.node.updatedAt = nowISO();
-        process.updatedAt = nowISO();
-        persist();
-        renderProcessDetail(process);
-      };
-    });
-
     pane.querySelectorAll("[data-pe-clear-img]").forEach(function (btn) {
       btn.onclick = function () {
         var ctx = getNodeContext(process, btn.dataset.peClearImg);
@@ -614,9 +631,29 @@
       };
     });
 
+    pane.querySelectorAll("[data-pe-clear-branch-img]").forEach(function (btn) {
+      btn.onclick = function () {
+        var ctx = getNodeContext(process, btn.dataset.peClearBranchImg);
+        if (!ctx || ctx.node.type !== "fork") return;
+        var bi = parseInt(btn.dataset.peBranchIdx, 10);
+        var branch = ctx.node.branches[bi];
+        if (!branch) return;
+        branch.imageData = "";
+        branch.imageName = "";
+        ctx.node.updatedAt = nowISO();
+        process.updatedAt = nowISO();
+        persist();
+        renderProcessDetail(process);
+      };
+    });
+
     pane.querySelectorAll("[data-pe-paste]").forEach(function (zone) {
       var path = zone.dataset.pePaste;
-      zone.onclick = function () { zone.focus(); };
+      zone.onclick = function () {
+        zone.focus();
+        var fileInput = pane.querySelector('[data-pe-file="' + path + '"]');
+        if (fileInput) fileInput.click();
+      };
       zone.onpaste = function (e) {
         var items = e.clipboardData && e.clipboardData.items;
         if (!items) return;
@@ -627,21 +664,78 @@
             if (!file) return;
             var ctx = getNodeContext(process, path);
             if (!ctx || ctx.node.type !== "step") return;
-            compressImageFile(file).then(function (dataUrl) {
-              ctx.node.imageData = dataUrl;
-              ctx.node.imageName = file.name || "screenshot.jpg";
-              ctx.node.updatedAt = nowISO();
-              process.updatedAt = nowISO();
-              persist();
-              renderProcessDetail(process);
-            }).catch(function () { toast("Could not add image"); });
+            handleImageFile(process, file, function (dataUrl, name) {
+              applyImageToNode(ctx.node, dataUrl, name);
+            });
             return;
           }
         }
       };
     });
 
-    pane.querySelectorAll("[data-pe-img]").forEach(function (img) {
+    pane.querySelectorAll("[data-pe-file]").forEach(function (input) {
+      input.onchange = function () {
+        var file = input.files && input.files[0];
+        input.value = "";
+        if (!file) return;
+        var path = input.dataset.peFile;
+        var ctx = getNodeContext(process, path);
+        if (!ctx || ctx.node.type !== "step") return;
+        handleImageFile(process, file, function (dataUrl, name) {
+          applyImageToNode(ctx.node, dataUrl, name);
+        });
+      };
+    });
+
+    pane.querySelectorAll("[data-pe-branch-paste]").forEach(function (zone) {
+      var path = zone.dataset.peBranchPaste;
+      var bi = parseInt(zone.dataset.peBranchIdx, 10);
+      zone.onclick = function () {
+        zone.focus();
+        var fileInput = pane.querySelector('[data-pe-branch-file="' + path + '"][data-pe-branch-idx="' + bi + '"]');
+        if (fileInput) fileInput.click();
+      };
+      zone.onpaste = function (e) {
+        var items = e.clipboardData && e.clipboardData.items;
+        if (!items) return;
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image/") === 0) {
+            e.preventDefault();
+            var file = items[i].getAsFile();
+            if (!file) return;
+            var ctx = getNodeContext(process, path);
+            if (!ctx || ctx.node.type !== "fork") return;
+            var branch = ctx.node.branches[bi];
+            if (!branch) return;
+            handleImageFile(process, file, function (dataUrl, name) {
+              applyImageToBranch(branch, dataUrl, name);
+              ctx.node.updatedAt = nowISO();
+            });
+            return;
+          }
+        }
+      };
+    });
+
+    pane.querySelectorAll("[data-pe-branch-file]").forEach(function (input) {
+      input.onchange = function () {
+        var file = input.files && input.files[0];
+        input.value = "";
+        if (!file) return;
+        var path = input.dataset.peBranchFile;
+        var bi = parseInt(input.dataset.peBranchIdx, 10);
+        var ctx = getNodeContext(process, path);
+        if (!ctx || ctx.node.type !== "fork") return;
+        var branch = ctx.node.branches[bi];
+        if (!branch) return;
+        handleImageFile(process, file, function (dataUrl, name) {
+          applyImageToBranch(branch, dataUrl, name);
+          ctx.node.updatedAt = nowISO();
+        });
+      };
+    });
+
+    pane.querySelectorAll("[data-pe-img], [data-pe-branch-img]").forEach(function (img) {
       img.onclick = function () {
         var w = window.open("");
         if (w) w.document.write('<img src="' + img.src + '" style="max-width:100%" />');
@@ -658,8 +752,9 @@
     var bodyHtml = "";
 
     if (atFork && !chosenBranch) {
-      var picks = (forkNode.branches || []).map(function (br) {
-        return '<button type="button" class="ghost" data-pe-guide-branch="' + escapeAttr(br.id) + '">' +
+      var picks = (forkNode.branches || []).slice(0, 2).map(function (br) {
+        return '<button type="button" class="pe-fork-pick-btn" data-pe-guide-branch="' + escapeAttr(br.id) + '">' +
+          (br.imageData ? '<img class="pe-fork-pick-img" src="' + br.imageData + '" alt="' + escapeAttr(br.imageName || br.label) + '" />' : "") +
           "<strong>" + escapeHtml(br.label) + "</strong>" +
           (br.whenToUse ? '<div class="when">' + escapeHtml(br.whenToUse) + "</div>" : "") +
           "</button>";
@@ -776,7 +871,7 @@
       return;
     }
 
-    var stepsHtml = renderStepRowsHtml(process, process.steps, "main", {});
+    var stepsHtml = renderStepsListHtml(process, process.steps, "main", {});
     pane.innerHTML =
       '<div class="card" style="background:#0d1218;margin:0">' +
       '<div class="pe-mode-toggle">' +
@@ -797,16 +892,16 @@
       "</div>" +
       '<div class="btn-row" style="margin-top:0;margin-bottom:0.75rem">' +
       '<button type="button" class="primary" id="btnSaveProcessMeta">Save process info</button>' +
-      '<button type="button" class="ghost" id="btnExportProcess">Export this process</button>' +
+      '<button type="button" class="ghost" id="btnExportProcess">Export</button>' +
       '<button type="button" class="ghost danger" id="btnDeleteProcess">Delete</button>' +
       "</div>" +
       '<p class="hint" style="margin-bottom:0.5rem">v' + process.version + " · " + countProcessSteps(process) + " steps · Updated " + formatTime(process.updatedAt) + "</p>" +
-      '<table class="pe-steps-table"><thead><tr><th>#</th><th>Type</th><th>Title</th><th>Preview</th><th>Actions</th></tr></thead><tbody>' +
-      (stepsHtml || '<tr><td colspan="5" class="empty">No steps yet.</td></tr>') +
-      "</tbody></table>" +
+      '<div class="pe-steps-list">' +
+      (stepsHtml || '<p class="empty">No steps yet — add a step or fork below.</p>') +
+      "</div>" +
       '<div class="btn-row">' +
       '<button type="button" class="primary" data-pe-add-step="main">+ Add step</button>' +
-      '<button type="button" class="ghost" data-pe-add-fork="main">+ Insert fork</button>' +
+      '<button type="button" class="ghost" data-pe-add-fork="main">+ Add fork</button>' +
       "</div></div>";
 
     pane.querySelector('[data-pe-mode="guide"]').onclick = function () {
@@ -955,11 +1050,9 @@
 
   function wireEvents() {
     document.getElementById("btnNewProcess").onclick = function () {
-      var title = prompt("Process title:", "");
-      if (title === null) return;
       var proc = normalizeProcess({
         id: uid(),
-        title: title.trim() || "Untitled process",
+        title: "Untitled process",
         summary: "",
         status: "draft",
         version: 1,
@@ -976,7 +1069,10 @@
       renderProcessList();
       setTimeout(function () {
         var el = document.getElementById("procEditTitle");
-        if (el) el.focus();
+        if (el) {
+          el.focus();
+          el.select();
+        }
       }, 50);
     };
 

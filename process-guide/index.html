@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body class="process-guide">
   <header class="app-header">
@@ -20,8 +20,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     <div class="header-title-block">
-      <h1>Process Guide</h1>
-      <p>Step-by-step instructions</p>
+      <img class="header-logo" src="app-icon.svg" alt="" width="32" height="32" />
+      <div class="header-title-text">
+        <h1>Process Guide</h1>
+        <p>Step-by-step instructions</p>
+      </div>
     </div>
     <span class="saved-flash" id="savedFlash">Saved</span>
   </header>
@@ -33,7 +36,7 @@
           <h2 style="margin:0">Processes</h2>
           <button type="button" class="primary" id="btnNewProcess">New process</button>
         </div>
-        <p class="hint">Save routines like walking the dog or feeding her. Add steps, paste photos, and use <strong>Guide</strong> mode to walk through them.</p>
+        <p class="hint">Save routines like walking the dog. Add steps with photos, or add a <strong>fork</strong> to split into two paths with pictures and descriptions.</p>
         <div class="grid-2" style="margin-bottom:0.75rem">
           <div>
             <label for="processSearch">Search</label>
@@ -89,7 +92,7 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="../apps-backup.js"></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
