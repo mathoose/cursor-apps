@@ -172,6 +172,100 @@
     return Object.keys(readScores()).length;
   }
 
+  function sortMatches(list) {
+    return list.slice().sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      if (a.time !== b.time) return a.time < b.time ? -1 : 1;
+      return a.id - b.id;
+    });
+  }
+
+  function getTeamGroup(team) {
+    var groups = window.WC2026.GROUPS;
+    var keys = Object.keys(groups);
+    for (var i = 0; i < keys.length; i++) {
+      if (groups[keys[i]].indexOf(team) !== -1) return keys[i];
+    }
+    return null;
+  }
+
+  function getTeamMatches(team) {
+    return sortMatches(
+      window.WC2026.MATCHES.filter(function (m) {
+        return m.home === team || m.away === team;
+      })
+    );
+  }
+
+  function getTeamStanding(team) {
+    var group = getTeamGroup(team);
+    if (!group) return null;
+
+    var standings = computeStandings();
+    var rows = standings[group];
+    var position = -1;
+    var row = null;
+
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].team === team) {
+        position = i;
+        row = rows[i];
+        break;
+      }
+    }
+
+    if (!row) return null;
+
+    var status = "out";
+    var statusLabel = "Eliminated";
+    var statusDetail = "4th in Group " + group;
+
+    if (row.played === 0) {
+      return {
+        group: group,
+        position: position,
+        row: row,
+        status: "pending",
+        statusLabel: "Group stage not started",
+        statusDetail: (position === 0 ? "1st" : position === 1 ? "2nd" : position === 2 ? "3rd" : "4th") +
+          " on draw order · Group " + group
+      };
+    }
+
+    if (position < 2) {
+      status = "qualify";
+      statusLabel = "Qualified";
+      statusDetail = (position === 0 ? "1st" : "2nd") + " in Group " + group + " · advances to Round of 32";
+    } else if (position === 2) {
+      var thirdRank = computeThirdPlaceRanking(standings);
+      var rankAmongThird = -1;
+      for (var j = 0; j < thirdRank.length; j++) {
+        if (thirdRank[j].team === team) {
+          rankAmongThird = j;
+          break;
+        }
+      }
+      if (rankAmongThird >= 0 && rankAmongThird < 8) {
+        status = "qualify";
+        statusLabel = "Qualified via wildcard";
+        statusDetail = "3rd in Group " + group + " · #" + (rankAmongThird + 1) + " among best 3rd-place teams";
+      } else {
+        status = "wildcard";
+        statusLabel = "Wildcard race";
+        statusDetail = "3rd in Group " + group + (rankAmongThird >= 0 ? " · #" + (rankAmongThird + 1) + " of 12 (need top 8)" : "");
+      }
+    }
+
+    return {
+      group: group,
+      position: position,
+      row: row,
+      status: status,
+      statusLabel: statusLabel,
+      statusDetail: statusDetail
+    };
+  }
+
   var KNOCKOUT_KEY = "world-cup-2026-knockout-v1";
 
   function readKnockoutResults() {
@@ -266,6 +360,10 @@
     computeStandings: computeStandings,
     computeThirdPlaceRanking: computeThirdPlaceRanking,
     countPlayed: countPlayed,
+    sortMatches: sortMatches,
+    getTeamGroup: getTeamGroup,
+    getTeamMatches: getTeamMatches,
+    getTeamStanding: getTeamStanding,
     readKnockoutResults: readKnockoutResults,
     getKnockoutResult: getKnockoutResult,
     setKnockoutResult: setKnockoutResult,

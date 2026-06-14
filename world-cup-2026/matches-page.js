@@ -26,6 +26,12 @@
 
   var activeMatchId = null;
 
+  function openTeamModal(team) {
+    if (window.WC2026TeamModal) {
+      window.WC2026TeamModal.open(team);
+    }
+  }
+
   Object.keys(window.WC2026.GROUPS).sort().forEach(function (g) {
     var opt = document.createElement("option");
     opt.value = g;
@@ -62,9 +68,9 @@
           '<span class="group-badge">' + escapeHtml(m.group) + "</span>" +
         "</div>" +
         '<div class="match-row-teams">' +
-          '<span class="match-row-team">' + escapeHtml(core.flag(m.home)) + " " + escapeHtml(m.home) + "</span>" +
+          '<span class="match-row-team team-link" data-team="' + escapeHtml(m.home) + '">' + escapeHtml(core.flag(m.home)) + " " + escapeHtml(m.home) + "</span>" +
           '<span class="match-row-score' + (played ? "" : " pending") + '">' + escapeHtml(scoreLabel(score)) + "</span>" +
-          '<span class="match-row-team">' + escapeHtml(core.flag(m.away)) + " " + escapeHtml(m.away) + "</span>" +
+          '<span class="match-row-team team-link" data-team="' + escapeHtml(m.away) + '">' + escapeHtml(core.flag(m.away)) + " " + escapeHtml(m.away) + "</span>" +
         "</div>" +
         '<div class="match-row-bottom">' +
           '<span class="match-row-venue">' + escapeHtml(m.venue) + "</span>" +
@@ -79,7 +85,7 @@
     var group = groupEl.value;
     var matchday = matchdayEl.value;
 
-    return matches.filter(function (m) {
+    return core.sortMatches(matches.filter(function (m) {
       if (group && m.group !== group) return false;
       if (matchday && String(m.matchday) !== matchday) return false;
       if (q) {
@@ -87,7 +93,7 @@
         if (hay.indexOf(q) === -1) return false;
       }
       return true;
-    });
+    }));
   }
 
   function render() {
@@ -177,6 +183,12 @@
   }
 
   container.addEventListener("click", function (e) {
+    var teamLink = e.target.closest(".team-link");
+    if (teamLink) {
+      e.stopPropagation();
+      openTeamModal(teamLink.getAttribute("data-team"));
+      return;
+    }
     var row = e.target.closest(".match-row");
     if (!row) return;
     openModal(Number(row.getAttribute("data-id")));

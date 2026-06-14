@@ -12,7 +12,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=wc-tree1" />
+  <link rel="stylesheet" href="styles.css?v=wc-tree2" />
 </head>
 <body>
   <header class="top">
@@ -26,9 +26,9 @@
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
-      <a class="nav-tab on" href="index.html?v=wc-tree1" aria-current="page">Matches</a>
-      <a class="nav-tab" href="table.html?v=wc-tree1">Tables</a>
-      <a class="nav-tab" href="bracket.html?v=wc-tree1">Bracket</a>
+      <a class="nav-tab on" href="index.html?v=wc-tree2" aria-current="page">Matches</a>
+      <a class="nav-tab" href="table.html?v=wc-tree2">Tables</a>
+      <a class="nav-tab" href="bracket.html?v=wc-tree2">Bracket</a>
     </nav>
     <div class="filters">
       <input type="search" id="search" placeholder="Search team or venue…" autocomplete="off" />
@@ -85,9 +85,28 @@
     </div>
   </div>
 
-  <script src="matches.js?v=wc-tree1"></script>
-  <script src="core.js?v=wc-tree1"></script>
-  <script src="matches-page.js?v=wc-tree1"></script>
+  <div class="modal-backdrop team-modal-backdrop" id="team-modal" hidden>
+    <div class="modal team-modal" role="dialog" aria-modal="true" aria-labelledby="team-modal-title">
+      <div class="modal-header">
+        <div>
+          <h2 id="team-modal-title" class="team-modal-title"></h2>
+          <p class="modal-sub" id="team-modal-meta"></p>
+        </div>
+        <button type="button" class="modal-close" id="team-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body team-modal-body">
+        <h3 class="team-section-label">Fixtures</h3>
+        <ul class="team-match-list" id="team-modal-matches"></ul>
+        <h3 class="team-section-label">Group standing</h3>
+        <div id="team-modal-status"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="matches.js?v=wc-tree2"></script>
+  <script src="core.js?v=wc-tree2"></script>
+  <script src="team-modal.js?v=wc-tree2"></script>
+  <script src="matches-page.js?v=wc-tree2"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

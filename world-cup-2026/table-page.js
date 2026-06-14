@@ -25,14 +25,20 @@
     return "out";
   }
 
+  function renderTeamCell(team) {
+    return (
+      '<button type="button" class="team-cell team-btn" data-team="' + escapeHtml(team) + '">' +
+        "<span>" + escapeHtml(core.flag(team)) + "</span>" +
+        "<span>" + escapeHtml(team) + "</span>" +
+      "</button>"
+    );
+  }
+
   function renderGroup(groupKey, rows) {
     var body = rows.map(function (row, i) {
       return (
         "<tr class=\"" + rowClass(i) + "\">" +
-          "<td><span class=\"team-cell\">" +
-            "<span>" + escapeHtml(core.flag(row.team)) + "</span>" +
-            "<span>" + escapeHtml(row.team) + "</span>" +
-          "</span></td>" +
+          "<td>" + renderTeamCell(row.team) + "</td>" +
           "<td>" + row.played + "</td>" +
           "<td>" + row.won + "</td>" +
           "<td>" + row.drawn + "</td>" +
@@ -66,10 +72,7 @@
       return (
         "<tr class=\"" + cls + "\">" +
           "<td>" + (i + 1) + "</td>" +
-          "<td><span class=\"team-cell\">" +
-            "<span>" + escapeHtml(core.flag(row.team)) + "</span>" +
-            "<span>" + escapeHtml(row.team) + "</span>" +
-          "</span></td>" +
+          "<td>" + renderTeamCell(row.team) + "</td>" +
           "<td>" + escapeHtml(row.group) + "</td>" +
           "<td>" + row.played + "</td>" +
           "<td>" + row.pts + "</td>" +
@@ -107,6 +110,14 @@
     updateProgress();
     updatedEl.textContent = "Updated " + new Date().toLocaleTimeString();
   }
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest(".team-btn");
+    if (!btn) return;
+    if (window.WC2026TeamModal) {
+      window.WC2026TeamModal.open(btn.getAttribute("data-team"));
+    }
+  });
 
   core.onScoresChange(render);
   render();
