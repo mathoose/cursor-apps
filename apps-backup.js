@@ -539,6 +539,55 @@
         return out;
       },
     },
+    "shopping-list": {
+      storageKey: "shopping-list-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("shopping-list-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.items)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.items)) return false;
+        return writeKey("shopping-list-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.items) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.items ? slice.items.length : 0;
+        return n + " grocery item" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          items: (existing.items || []).slice(),
+        };
+        var ids = {};
+        var keys = {};
+        out.items.forEach(function (it) {
+          ids[it.id] = true;
+          keys[(it.text || "").toLowerCase().trim()] = true;
+        });
+        (incoming.items || []).forEach(function (it) {
+          if (!it || !it.text) return;
+          var key = String(it.text).toLowerCase().trim();
+          if (ids[it.id] || keys[key]) return;
+          out.items.push(it);
+          ids[it.id] = true;
+          keys[key] = true;
+        });
+        return out;
+      },
+    },
   };
 
   /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */

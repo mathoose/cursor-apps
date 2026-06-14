@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Our Groceries</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Groceries" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3d5a45" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-list">
+  <div class="hero" aria-hidden="true">
+    <img class="hero-img" src="hero.jpg" alt="" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back hero-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="hero-text">
+        <h1>Our Groceries</h1>
+        <p>Shared with love — add, pick, send</p>
+      </div>
+      <button type="button" class="icon-btn hero-settings" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <main class="main-panel">
+    <!-- List tab -->
+    <section class="view active" id="viewList" data-view="list">
+      <form class="add-row" id="addForm">
+        <input type="text" id="addInput" placeholder="Add something…" autocomplete="off" enterkeyhint="done" maxlength="120" />
+        <button type="submit" class="add-btn" id="addBtn" aria-label="Add item">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </form>
+      <div class="list-meta">
+        <span id="listCount">0 items</span>
+        <button type="button" class="text-btn" id="clearCheckedBtn" hidden>Clear checked</button>
+      </div>
+      <ul class="item-list" id="mainList"></ul>
+      <div class="empty-state" id="listEmpty" hidden>
+        <p>Your list is empty.<br />Add items above or import from a message.</p>
+      </div>
+    </section>
+
+    <!-- Pick tab -->
+    <section class="view" id="viewPick" data-view="pick">
+      <div class="pick-intro">
+        <p>Select items for today's run, then send the list in Messages. Your partner can paste it back here to add anything new.</p>
+      </div>
+      <div class="pick-toolbar">
+        <button type="button" class="text-btn" id="selectAllBtn">Select all</button>
+        <span class="pick-count" id="pickCount">0 selected</span>
+        <button type="button" class="text-btn" id="clearPickBtn" hidden>Clear</button>
+      </div>
+      <ul class="item-list pick-list" id="pickList"></ul>
+      <div class="empty-state" id="pickEmpty" hidden>
+        <p>Add items on the List tab first.</p>
+      </div>
+      <div class="pick-actions">
+        <button type="button" class="btn btn-primary btn-share" id="shareBtn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          Send to Messages
+        </button>
+        <button type="button" class="btn btn-secondary" id="copyBtn" disabled>Copy list</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="list" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span class="nav-btn-label">List</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="pick" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      <span class="nav-btn-label">Send</span>
+    </button>
+  </nav>
+
+  <!-- Settings sheet -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+
+      <div class="settings-section">
+        <h3>Paste from Messages</h3>
+        <p class="settings-note">Paste a list your partner sent. New items are added — nothing is removed.</p>
+        <textarea id="pasteInput" class="paste-area" rows="5" placeholder="Paste a grocery list here…"></textarea>
+        <button type="button" class="btn btn-primary" id="pasteImportBtn" style="width:100%">Import pasted list</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">JSON import is additive — existing items stay, new ones are added.</p>
+      </div>
+
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
