@@ -467,6 +467,78 @@
         return out;
       },
     },
+    "media-shelf": {
+      storageKey: "media-shelf-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("media-shelf-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.shows) || !Array.isArray(p.books)) return null;
+          return {
+            version: p.version || 1,
+            shows: p.shows,
+            books: p.books,
+            reminders: Array.isArray(p.reminders) ? p.reminders : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.shows) || !Array.isArray(slice.books)) return false;
+        return writeKey(
+          "media-shelf-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            shows: slice.shows,
+            books: slice.books,
+            reminders: Array.isArray(slice.reminders) ? slice.reminders : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.shows) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var shows = slice.shows ? slice.shows.length : 0;
+        var books = slice.books ? slice.books.length : 0;
+        return shows + " show" + (shows === 1 ? "" : "s") + ", " + books + " book" + (books === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          shows: (existing.shows || []).slice(),
+          books: (existing.books || []).slice(),
+          reminders: (existing.reminders || []).slice(),
+        };
+        var showIds = {};
+        var bookIds = {};
+        var remIds = {};
+        out.shows.forEach(function (s) { showIds[s.id] = true; });
+        out.books.forEach(function (b) { bookIds[b.id] = true; });
+        out.reminders.forEach(function (r) { remIds[r.id] = true; });
+        (incoming.shows || []).forEach(function (s) {
+          if (!s || showIds[s.id]) return;
+          out.shows.push(s);
+          showIds[s.id] = true;
+        });
+        (incoming.books || []).forEach(function (b) {
+          if (!b || bookIds[b.id]) return;
+          out.books.push(b);
+          bookIds[b.id] = true;
+        });
+        (incoming.reminders || []).forEach(function (r) {
+          if (!r || remIds[r.id]) return;
+          out.reminders.push(r);
+          remIds[r.id] = true;
+        });
+        return out;
+      },
+    },
   };
 
   /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */

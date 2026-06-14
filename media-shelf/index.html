@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Media Shelf</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Media Shelf" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0c0c10" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-home">
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-title-block">
+        <h1 class="view-title" id="headerTitle">Media Shelf</h1>
+        <p class="view-subtitle" id="headerSubtitle">Reading &amp; watching</p>
+      </div>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Home -->
+    <section class="view active" id="viewHome" data-view="home">
+      <div class="hero-stats">
+        <div class="stat-card watch">
+          <div class="stat-value" id="homeWatchCount">0</div>
+          <div class="stat-label">Watching</div>
+        </div>
+        <div class="stat-card read">
+          <div class="stat-value" id="homeReadCount">0</div>
+          <div class="stat-label">Reading</div>
+        </div>
+      </div>
+      <p class="section-label">Coming up</p>
+      <div class="media-list" id="homeUpcoming"></div>
+      <div class="empty-state" id="homeUpcomingEmpty" hidden>
+        <p>No upcoming episodes or reminders.<br />Add an airing show or set a reminder.</p>
+      </div>
+      <p class="section-label">Continue watching</p>
+      <div class="media-list" id="homeContinueWatch"></div>
+      <div class="empty-state" id="homeWatchEmpty" hidden>
+        <p>Nothing on your watch list yet.</p>
+      </div>
+      <p class="section-label">Continue reading</p>
+      <div class="media-list" id="homeContinueRead"></div>
+      <div class="empty-state" id="homeReadEmpty" hidden>
+        <p>Nothing on your reading list yet.</p>
+      </div>
+    </section>
+
+    <!-- Watch -->
+    <section class="view" id="viewWatch" data-view="watch">
+      <div class="filter-row" id="watchFilters" role="tablist" aria-label="Filter shows">
+        <button type="button" class="chip active" data-filter="all">All</button>
+        <button type="button" class="chip" data-filter="watching">Watching</button>
+        <button type="button" class="chip" data-filter="binge">Binge</button>
+        <button type="button" class="chip" data-filter="airing">Airing</button>
+        <button type="button" class="chip" data-filter="completed">Done</button>
+      </div>
+      <div class="media-list" id="watchList"></div>
+      <div class="empty-state" id="watchEmpty" hidden>
+        <p id="watchEmptyText">No shows yet.<br />Tap + to add one.</p>
+      </div>
+    </section>
+
+    <!-- Read -->
+    <section class="view" id="viewRead" data-view="read">
+      <div class="filter-row" id="readFilters" role="tablist" aria-label="Filter reading">
+        <button type="button" class="chip active" data-filter="all">All</button>
+        <button type="button" class="chip" data-filter="reading">Reading</button>
+        <button type="button" class="chip" data-filter="book">Books</button>
+        <button type="button" class="chip" data-filter="manga">Manga</button>
+        <button type="button" class="chip" data-filter="completed">Done</button>
+      </div>
+      <div class="media-list" id="readList"></div>
+      <div class="empty-state" id="readEmpty" hidden>
+        <p id="readEmptyText">Nothing on your shelf yet.<br />Tap + to add a book or manga.</p>
+      </div>
+    </section>
+
+    <!-- Reminders -->
+    <section class="view" id="viewReminders" data-view="reminders">
+      <p class="section-label">This week</p>
+      <div class="media-list" id="remindersWeek"></div>
+      <div class="empty-state" id="remindersWeekEmpty" hidden>
+        <p>Nothing scheduled this week.</p>
+      </div>
+      <p class="section-label">Later</p>
+      <div class="media-list" id="remindersLater"></div>
+      <div class="empty-state" id="remindersLaterEmpty" hidden>
+        <p>No later reminders.</p>
+      </div>
+      <p class="section-label">Airing schedules</p>
+      <div class="media-list" id="remindersSchedules"></div>
+      <div class="empty-state" id="remindersSchedulesEmpty" hidden>
+        <p>No airing shows with a release schedule.</p>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="fab" id="fabBtn" aria-label="Add">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <nav class="bottom-nav" role="tablist" aria-label="Main">
+    <button type="button" class="nav-btn active" data-view="home" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1V9.5z"/></svg>
+      <span class="nav-btn-label">Home</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="watch" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 3-5 3V9.5z" fill="currentColor" stroke="none"/></svg>
+      <span class="nav-btn-label">Watch</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="read" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      <span class="nav-btn-label">Read</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="reminders" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span class="nav-btn-label">Reminders</span>
+      <span class="nav-badge" id="reminderBadge" hidden>0</span>
+    </button>
+  </nav>
+
+  <!-- Add picker -->
+  <div class="overlay" id="addPickerOverlay" role="dialog" aria-modal="true" aria-labelledby="addPickerTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="addPickerTitle">Add to shelf</h2>
+      <p class="sheet-subtitle">What are you tracking?</p>
+      <div class="sheet-actions stacked">
+        <button type="button" class="btn btn-watch" id="addShowBtn">TV show</button>
+        <button type="button" class="btn btn-read" id="addBookBtn">Book / manga</button>
+        <button type="button" class="btn btn-secondary" id="addReminderBtn">Reminder</button>
+        <button type="button" class="btn btn-secondary" id="addPickerCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show form -->
+  <div class="overlay" id="showFormOverlay" role="dialog" aria-modal="true" aria-labelledby="showFormTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="showFormTitle">Add show</h2>
+      <p class="sheet-subtitle" id="showFormSubtitle">Track binge or weekly releases</p>
+
+      <div class="field">
+        <label class="field-label" for="showTitle">Title</label>
+        <input type="text" id="showTitle" placeholder="e.g. Severance" autocomplete="off" enterkeyhint="next" />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Type</span>
+        <div class="segmented" id="showTypeSeg">
+          <button type="button" class="active" data-type="binge">Binge</button>
+          <button type="button" data-type="airing">Airing</button>
+        </div>
+        <p class="field-hint" id="showTypeHint">All episodes are out — track how far you've gotten.</p>
+      </div>
+
+      <div class="field" id="showScheduleField" hidden>
+        <span class="field-label">Release days</span>
+        <div class="day-picker" id="showDayPicker"></div>
+        <p class="field-hint">Tap every day a new episode drops.</p>
+      </div>
+
+      <div class="field" id="showTimeField" hidden>
+        <label class="field-label" for="showReleaseTime">Release time</label>
+        <input type="time" id="showReleaseTime" value="20:00" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="showSeason">Season</label>
+          <input type="number" id="showSeason" min="1" value="1" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="showEpisode">Episode</label>
+          <input type="number" id="showEpisode" min="0" value="0" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field-row" id="showTotalsRow">
+        <div class="field">
+          <label class="field-label" for="showTotalEpisodes">Total episodes</label>
+          <input type="number" id="showTotalEpisodes" min="0" placeholder="Optional" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="showTotalSeasons">Total seasons</label>
+          <input type="number" id="showTotalSeasons" min="0" placeholder="Optional" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="showNotes">Notes</label>
+        <textarea id="showNotes" placeholder="Where to watch, dub vs sub…"></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="showFormCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="showFormSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Show detail -->
+  <div class="overlay" id="showDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="showDetailTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="detail-hero">
+        <h2 id="showDetailTitle"></h2>
+        <span class="badge" id="showDetailBadge"></span>
+      </div>
+
+      <div class="last-log" id="showLastLog" hidden>
+        <div class="last-log-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="last-log-text">
+          <strong id="showLastLogEpisode"></strong>
+          <span id="showLastLogWhen"></span>
+        </div>
+      </div>
+
+      <div id="showDetailSchedule" hidden>
+        <p class="section-label" style="margin-top:0">Release schedule</p>
+        <div class="schedule-pill" id="showDetailScheduleText"></div>
+        <p class="field-hint" id="showDetailNextAir" style="margin-top:10px"></p>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="logSeason">Season</label>
+          <input type="number" id="logSeason" min="1" value="1" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="logEpisode">Episode watched</label>
+          <input type="number" id="logEpisode" min="0" value="1" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="logWatchedAt">Watched on</label>
+        <input type="datetime-local" id="logWatchedAt" />
+      </div>
+
+      <div class="sheet-actions stacked">
+        <button type="button" class="btn btn-watch" id="logEpisodeBtn">Log this episode</button>
+        <button type="button" class="btn btn-secondary" id="showEditBtn">Edit show</button>
+        <button type="button" class="btn btn-secondary" id="showMarkCompleteBtn">Mark completed</button>
+        <button type="button" class="btn btn-danger" id="showDeleteBtn">Delete show</button>
+        <button type="button" class="btn btn-secondary" id="showDetailClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Book form -->
+  <div class="overlay" id="bookFormOverlay" role="dialog" aria-modal="true" aria-labelledby="bookFormTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="bookFormTitle">Add to read</h2>
+      <p class="sheet-subtitle" id="bookFormSubtitle">Books, manga, comics</p>
+
+      <div class="field">
+        <label class="field-label" for="bookTitle">Title</label>
+        <input type="text" id="bookTitle" placeholder="e.g. Dune" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="bookAuthor">Author</label>
+        <input type="text" id="bookAuthor" placeholder="Optional" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Format</span>
+        <div class="segmented" id="bookTypeSeg">
+          <button type="button" class="active" data-type="book">Book</button>
+          <button type="button" data-type="manga">Manga</button>
+          <button type="button" data-type="comic">Comic</button>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="bookChapter">Chapter</label>
+          <input type="number" id="bookChapter" min="0" value="0" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="bookPage">Page</label>
+          <input type="number" id="bookPage" min="0" value="0" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="bookTotalChapters">Total chapters</label>
+          <input type="number" id="bookTotalChapters" min="0" placeholder="Optional" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="bookTotalPages">Total pages</label>
+          <input type="number" id="bookTotalPages" min="0" placeholder="Optional" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="bookNotes">Notes</label>
+        <textarea id="bookNotes" placeholder="Volume, where you left off…"></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="bookFormCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="bookFormSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Book detail -->
+  <div class="overlay" id="bookDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="bookDetailTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="detail-hero">
+        <h2 id="bookDetailTitle"></h2>
+        <span class="badge" id="bookDetailBadge"></span>
+      </div>
+
+      <div class="last-log" id="bookLastLog" hidden>
+        <div class="last-log-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="last-log-text">
+          <strong id="bookLastLogProgress"></strong>
+          <span id="bookLastLogWhen"></span>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="logBookChapter">Chapter</label>
+          <input type="number" id="logBookChapter" min="0" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="logBookPage">Page</label>
+          <input type="number" id="logBookPage" min="0" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="logReadAt">Read on</label>
+        <input type="datetime-local" id="logReadAt" />
+      </div>
+
+      <div class="sheet-actions stacked">
+        <button type="button" class="btn btn-read" id="logReadBtn">Log progress</button>
+        <button type="button" class="btn btn-secondary" id="bookEditBtn">Edit</button>
+        <button type="button" class="btn btn-secondary" id="bookMarkCompleteBtn">Mark completed</button>
+        <button type="button" class="btn btn-danger" id="bookDeleteBtn">Delete</button>
+        <button type="button" class="btn btn-secondary" id="bookDetailClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reminder form -->
+  <div class="overlay" id="reminderFormOverlay" role="dialog" aria-modal="true" aria-labelledby="reminderFormTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="reminderFormTitle">Add reminder</h2>
+
+      <div class="field">
+        <label class="field-label" for="reminderTitle">Title</label>
+        <input type="text" id="reminderTitle" placeholder="e.g. Watch new episode" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="reminderWhen">When</label>
+        <input type="datetime-local" id="reminderWhen" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="reminderLinkShow">Link to show (optional)</label>
+        <select id="reminderLinkShow">
+          <option value="">None</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="reminderNotes">Notes</label>
+        <textarea id="reminderNotes" placeholder="Optional"></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="reminderFormCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="reminderFormSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>Data</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">Included in Export all on the Apps home screen.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

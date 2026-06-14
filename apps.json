@@ -13,7 +13,8 @@
       "meal-menu": { "storageKey": "meal-menu-v1" },
       "dont-forget": { "storageKey": "dont-forget-v1" },
       "rep-tracker": { "storageKey": "rep-tracker-v1" },
-      "process-guide": { "storageKey": "process-guide-v1" }
+      "process-guide": { "storageKey": "process-guide-v1" },
+      "media-shelf": { "storageKey": "media-shelf-v1" }
     }
   },
   "apps": [
@@ -70,6 +71,12 @@
       "name": "Process Guide",
       "subtitle": "Step-by-step routines",
       "storageKey": "process-guide-v1"
+    },
+    {
+      "id": "media-shelf",
+      "name": "Media Shelf",
+      "subtitle": "Reading & watching",
+      "storageKey": "media-shelf-v1"
     }
   ]
 }
