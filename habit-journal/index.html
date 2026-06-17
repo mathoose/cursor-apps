@@ -606,6 +606,35 @@
       background: #fffbeb;
       color: #b45309;
     }
+    .habit-hide-btn {
+      min-height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .habit-hide-btn.on {
+      border-color: var(--muted);
+      background: #f3f4f6;
+      color: var(--muted);
+    }
+    .habit-card.is-hidden {
+      opacity: 0.72;
+    }
+    .habits-hidden-section {
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .habits-hidden-heading {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0 0 10px;
+    }
     .add-habit-row select {
       height: 44px;
       border: 1px solid var(--border);
@@ -1308,6 +1337,11 @@
         <div class="exclude-day-chips" id="habitEditExcludeDays"></div>
         <p class="hint exclude-days-hint">Tap a day to exclude — those columns show grey and can’t be marked.</p>
       </div>
+      <div class="habit-edit-field">
+        <span>Month &amp; Year view</span>
+        <button type="button" class="habit-hide-btn" id="habitEditHide" aria-pressed="false">Hide from grid</button>
+        <p class="hint exclude-days-hint">Hidden habits stay here in Habits — they won’t clutter your daily grid.</p>
+      </div>
       <div class="habit-edit-actions">
         <button type="button" class="btn btn-primary" id="habitEditSave">Save</button>
       </div>
@@ -1417,6 +1451,7 @@
           step: STEPS_BASELINE,
           category: "fitness",
           pinned: false,
+          hidden: false,
         },
       ],
       cells: {},
@@ -1626,6 +1661,7 @@
     const base = {
       category: normalizeCategory(h.category, categories),
       pinned: !!h.pinned,
+      hidden: !!h.hidden,
     };
     const name = String(h.name || "Habit").slice(0, 40);
     if (isStepsHabitName(name)) {
@@ -1637,6 +1673,7 @@
         step: step,
         category: base.category,
         pinned: base.pinned,
+        hidden: base.hidden,
       };
     }
     if (h.type === "yesno" || h.type === "counter") {
@@ -1649,6 +1686,7 @@
         step: type === "counter" ? step : 1,
         category: base.category,
         pinned: base.pinned,
+        hidden: base.hidden,
       };
       if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
       return out;
@@ -1660,9 +1698,32 @@
       if (/yes|no|done|skip|miss|✓|✗/.test(blob)) type = "yesno";
     }
     if (/meditat|stretch|read|journal|floss|vitamin/i.test(name)) type = "yesno";
-    const out = { id: h.id || uid(), name: name, type: type, step: 1, category: base.category, pinned: base.pinned };
+    const out = {
+      id: h.id || uid(),
+      name: name,
+      type: type,
+      step: 1,
+      category: base.category,
+      pinned: base.pinned,
+      hidden: base.hidden,
+    };
     if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
     return out;
+  }
+
+  function setHabitHidden(habitId, hidden) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    habit.hidden = !!hidden;
+    if (habit.hidden && yearFullscreenHabitId === habitId) closeYearFullscreen();
+    save();
+    render();
+    toast(habit.hidden ? "Hidden from Month & Year" : "Showing in Month & Year");
+  }
+
+  function renderHabitHideBtnLabel(hidden, detailed) {
+    if (detailed) return hidden ? "Show in grid" : "Hide from grid";
+    return hidden ? "Show" : "Hide";
   }
 
   function pruneUnmarkedMeditation() {
@@ -1682,15 +1743,16 @@
     save();
   }
 
-  function getFilteredHabits() {
+  function getFilteredHabits(onlyVisible) {
     return state.habits.filter(function (h) {
+      if (onlyVisible && h.hidden) return false;
       if (!state.categoryFilter || state.categoryFilter === "all") return true;
       return h.category === state.categoryFilter;
     });
   }
 
   function moveHabitInOrder(habitId, direction) {
-    const filtered = getFilteredHabits();
+    const filtered = getFilteredHabits(true);
     const idx = filtered.findIndex(function (h) {
       return h.id === habitId;
     });
@@ -1721,6 +1783,7 @@
       step: stepVal,
       category: cat,
       pinned: false,
+      hidden: false,
     });
     return save();
   }
@@ -1860,6 +1923,12 @@
       stepWrap.hidden = true;
     }
     renderHabitEditExcludeDays(habit);
+    const hideBtn = document.getElementById("habitEditHide");
+    if (hideBtn) {
+      hideBtn.classList.toggle("on", !!habit.hidden);
+      hideBtn.setAttribute("aria-pressed", String(!!habit.hidden));
+      hideBtn.textContent = renderHabitHideBtnLabel(habit.hidden, true);
+    }
     document.getElementById("habitEditSheet").hidden = false;
     document.body.classList.add("habit-edit-open");
     document.getElementById("habitEditName").focus();
@@ -1899,14 +1968,17 @@
     toast("Updated " + savedName);
   }
 
-  function renderCategoryFiltersHtml() {
+  function renderCategoryFiltersHtml(onlyVisible) {
     let html = '<div class="category-filters">';
     html +=
       '<button type="button" class="chip' +
       (state.categoryFilter === "all" ? " on" : "") +
       '" data-cat-filter="all">All</button>';
     state.categories.forEach(function (cat) {
-      const count = state.habits.filter(function (h) { return h.category === cat.id; }).length;
+      const count = state.habits.filter(function (h) {
+        if (onlyVisible && h.hidden) return false;
+        return h.category === cat.id;
+      }).length;
       if (count === 0 && state.categoryFilter !== cat.id) return;
       html +=
         '<button type="button" class="chip' +
@@ -2838,12 +2910,22 @@
 
     const dim = daysInMonth(state.year, state.month);
     const eraserNote = eraserMode ? " Eraser on — tap a cell to subtract." : "";
-    const filtered = getFilteredHabits();
-    let html = renderCategoryFiltersHtml();
+    const filtered = getFilteredHabits(true);
+    let html = renderCategoryFiltersHtml(true);
     html += '<p class="hint">Tap a name to edit · Mark or Eraser in the bar below.' + eraserNote + " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
-      html += '<p class="month-empty">No habits in this view. Add one above.</p>';
+      const hiddenCount = state.habits.filter(function (h) {
+        if (!h.hidden) return false;
+        if (!state.categoryFilter || state.categoryFilter === "all") return true;
+        return h.category === state.categoryFilter;
+      }).length;
+      html +=
+        '<p class="month-empty">No habits in this view. Add one above.' +
+        (hiddenCount
+          ? " " + hiddenCount + " hidden — unhide in the Habits tab or when editing a habit."
+          : "") +
+        "</p>";
       root.innerHTML = html;
       bindCategoryFilters(root);
       bindMonthAddHabit(root);
@@ -2894,7 +2976,7 @@
     if (!root) return;
     const prevExpandedScroll = root.querySelector(".year-expanded-scroll");
     if (prevExpandedScroll) yearExpandedScrollLeft = prevExpandedScroll.scrollLeft;
-    const filtered = getFilteredHabits();
+    const filtered = getFilteredHabits(true);
     const filteredIds = {};
     filtered.forEach(function (h) {
       filteredIds[h.id] = true;
@@ -2921,7 +3003,7 @@
       !anyExpanded +
       '">Collapse all</button>';
     html += "</div>";
-    html += renderCategoryFiltersHtml();
+    html += renderCategoryFiltersHtml(true);
     html +=
       '<p class="hint">Tap a name to expand (up to 3 across) · collapsed list below · tap grid for full page · Mark/Eraser below' +
       eraserNote +
@@ -2976,7 +3058,7 @@
     html +=
       '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
-    html += '<p class="hint">Reorder on the Month tab (▲▼). Counter shows + per tap on the Habits tab.</p>';
+    html += '<p class="hint">Reorder on the Month tab (▲▼). Counter shows + per tap on the Habits tab. Hide habits you don’t track daily — they stay here, not in Month/Year.</p>';
 
     html += '<div class="add-habit-row add-habit-row-top">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
@@ -3002,26 +3084,36 @@
     html +=
       '<button type="button" class="btn btn-primary add-habit-plus-btn" id="addHabit" aria-label="Add habit">+</button></div>';
 
-    state.habits.forEach(function (habit) {
-      html += '<div class="card" data-habit="' + habit.id + '">';
-      html += '<div class="habit-row">';
-      html += '<input type="text" value="' + escapeHtml(habit.name) + '" data-name="' + habit.id + '" maxlength="40" />';
-      html += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
-      html += '<div class="habit-meta-row">';
-      html += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
+    function renderHabitManageCard(habit, isHiddenSection) {
+      let card = '<div class="card habit-card' + (habit.hidden ? " is-hidden" : "") + '" data-habit="' + habit.id + '">';
+      card += '<div class="habit-row">';
+      card += '<input type="text" value="' + escapeHtml(habit.name) + '" data-name="' + habit.id + '" maxlength="40" />';
+      card += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+      card += '<div class="habit-meta-row">';
+      card += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
       state.categories.forEach(function (cat) {
-        html += '<option value="' + cat.id + '"' + (habit.category === cat.id ? " selected" : "") + ">" + escapeHtml(cat.label) + "</option>";
+        card += '<option value="' + cat.id + '"' + (habit.category === cat.id ? " selected" : "") + ">" + escapeHtml(cat.label) + "</option>";
       });
-      html += "</select>";
-      html += '<button type="button" class="habit-pin-btn' + (habit.pinned ? " on" : "") + '" data-pin="' + habit.id + '">' + (habit.pinned ? "★ Pinned" : "☆ Pin") + "</button>";
-      html += "</div>";
-      html += '<div class="habit-settings">';
-      html += '<div class="type-row">';
-      html += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
-      html += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
-      html += "</div>";
+      card += "</select>";
+      card += '<button type="button" class="habit-pin-btn' + (habit.pinned ? " on" : "") + '" data-pin="' + habit.id + '">' + (habit.pinned ? "★ Pinned" : "☆ Pin") + "</button>";
+      card +=
+        '<button type="button" class="habit-hide-btn' +
+        (habit.hidden ? " on" : "") +
+        '" data-hide="' +
+        habit.id +
+        '" aria-pressed="' +
+        !!habit.hidden +
+        '">' +
+        (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
+        "</button>";
+      card += "</div>";
+      card += '<div class="habit-settings">';
+      card += '<div class="type-row">';
+      card += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
+      card += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
+      card += "</div>";
       if (habit.type === "counter") {
-        html +=
+        card +=
           '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
           MAX_STEP +
           '" value="' +
@@ -3032,15 +3124,35 @@
           MAX_STEP +
           "</span></div>";
         if (isStepsHabitName(habit.name)) {
-          html +=
+          card +=
             '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
         }
       } else {
-        html += renderExcludeDaysHtml(habit);
+        card += renderExcludeDaysHtml(habit);
       }
-      html += '<div class="legend">' + renderLegend(habit) + "</div>";
-      html += "</div></div>";
+      card += '<div class="legend">' + renderLegend(habit) + "</div>";
+      card += "</div></div>";
+      return card;
+    }
+
+    const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
+    const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
+
+    visibleHabits.forEach(function (habit) {
+      html += renderHabitManageCard(habit, false);
     });
+
+    if (hiddenHabits.length) {
+      html += '<div class="habits-hidden-section">';
+      html +=
+        '<p class="habits-hidden-heading">Hidden from Month &amp; Year (' +
+        hiddenHabits.length +
+        ")</p>";
+      hiddenHabits.forEach(function (habit) {
+        html += renderHabitManageCard(habit, true);
+      });
+      html += "</div>";
+    }
 
     root.innerHTML = html;
 
@@ -3204,6 +3316,13 @@
           h.pinned = !h.pinned;
           save(); render();
         }
+      };
+    });
+
+    root.querySelectorAll("[data-hide]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
+        if (h) setHabitHidden(h.id, !h.hidden);
       };
     });
   }
@@ -3382,6 +3501,19 @@
   document.getElementById("habitEditClose").addEventListener("click", closeHabitEdit);
   document.getElementById("habitEditBackdrop").addEventListener("click", closeHabitEdit);
   document.getElementById("habitEditSave").addEventListener("click", saveHabitEdit);
+  document.getElementById("habitEditHide").addEventListener("click", function () {
+    if (!habitEditId) return;
+    const habit = state.habits.find(function (h) { return h.id === habitEditId; });
+    if (!habit) return;
+    const nextHidden = !habit.hidden;
+    setHabitHidden(habitEditId, nextHidden);
+    const hideBtn = document.getElementById("habitEditHide");
+    if (hideBtn) {
+      hideBtn.classList.toggle("on", nextHidden);
+      hideBtn.setAttribute("aria-pressed", String(nextHidden));
+      hideBtn.textContent = renderHabitHideBtnLabel(nextHidden, true);
+    }
+  });
   document.getElementById("habitEditName").addEventListener("keydown", function (e) {
     if (e.key === "Enter") {
       e.preventDefault();

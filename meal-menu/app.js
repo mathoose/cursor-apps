@@ -242,6 +242,46 @@ function deleteEntryPhotoBlob(entryId) {
   });
 }
 
+function clearAllEntryPhotosFromDb() {
+  return openPhotoDb().then(function(db) {
+    return new Promise(function(resolve, reject) {
+      var tx = db.transaction(PHOTO_STORE, 'readwrite');
+      tx.objectStore(PHOTO_STORE).clear();
+      tx.oncomplete = function() { resolve(); };
+      tx.onerror = function() { reject(tx.error); };
+    });
+  });
+}
+
+var CLEAR_PHOTOS_CONFIRM = 'Clear all meal photos from this device?\n\nExport a ZIP first if you want to keep them. Meals, tags, and categories stay — only images are removed.';
+
+function clearPhotosFromDevice() {
+  if (!confirm(CLEAR_PHOTOS_CONFIRM)) return;
+  var btn = document.getElementById('clear-photos-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Clearing…'; }
+  clearAllEntryPhotosFromDb().then(function() {
+    var st = getState();
+    st.entryPhotos = {};
+    saveAppState(st);
+    Object.keys(listThumbCache).forEach(function(id) { invalidateListThumb(id); });
+    revokeModalPhotoUrl();
+    closeModal();
+    renderManage();
+    renderAllLists();
+    renderCategoryTabs();
+    if (activeRootTab === 'spin') {
+      resetPickResult();
+      refreshPicker();
+    }
+    if (activeRootTab === 'ate') renderAtePanel();
+    showStatus('Photos cleared — meals unchanged');
+  }).catch(function() {
+    showStatus('Could not clear photos');
+  }).finally(function() {
+    if (btn) { btn.disabled = false; btn.textContent = 'Clear photos'; }
+  });
+}
+
 function idbGetAllPhotoKeys() {
   return openPhotoDb().then(function(db) {
     return new Promise(function(resolve, reject) {
@@ -1817,6 +1857,7 @@ function bindEvents() {
     this.value = '';
     importPhotosZip(f);
   });
+  document.getElementById('clear-photos-btn').addEventListener('click', clearPhotosFromDevice);
 
   document.getElementById('pick-category').addEventListener('change', function() {
     if (!pickerSpinning) { resetPickResult(); refreshPicker(); }

@@ -1324,6 +1324,13 @@
       </div>
       <div class="settings-row">
         <div>
+          <div class="settings-label">Clear task photos</div>
+          <div class="settings-sub">Remove images attached to tasks. Tasks and lists stay.</div>
+        </div>
+        <button class="btn btn-danger" id="clearPhotosBtn">Clear</button>
+      </div>
+      <div class="settings-row">
+        <div>
           <div class="settings-label">Reset all data</div>
           <div class="settings-sub">Delete everything (irreversible).</div>
         </div>
@@ -1708,6 +1715,40 @@ function deleteTaskPhotoBlob(taskId) {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   }));
+}
+
+function clearAllTaskPhotosFromDb() {
+  return openPhotoDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  }));
+}
+
+function clearAllTaskPhotos() {
+  if (!confirm('Clear all task photos from this device?\n\nYour tasks, lists, and counters stay — only images are removed.')) return;
+  const btn = document.getElementById('clearPhotosBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Clearing…'; }
+  clearAllTaskPhotosFromDb().then(() => {
+    state.tasks.forEach(t => { t.hasPhoto = false; });
+    Object.keys(taskPhotoThumbCache).forEach(k => {
+      URL.revokeObjectURL(taskPhotoThumbCache[k]);
+    });
+    taskPhotoThumbCache = {};
+    taskPhotoThumbPending = {};
+    if (taskModalPhotoUrl) {
+      URL.revokeObjectURL(taskModalPhotoUrl);
+      taskModalPhotoUrl = null;
+    }
+    saveState();
+    render();
+    showToast('Task photos cleared');
+  }).catch(() => {
+    showToast('Could not clear photos', { error: true });
+  }).finally(() => {
+    if (btn) { btn.disabled = false; btn.textContent = 'Clear photos'; }
+  });
 }
 
 function preparePhotoBlob(file) {
@@ -3768,6 +3809,11 @@ function wireSettings() {
     closeModal('settingsModal');
     render();
     showToast(`Removed ${count} completed`);
+  });
+
+  document.getElementById('clearPhotosBtn').addEventListener('click', () => {
+    clearAllTaskPhotos();
+    closeModal('settingsModal');
   });
 
   document.getElementById('resetBtn').addEventListener('click', () => {

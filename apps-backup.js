@@ -7,6 +7,35 @@
 
   var FORMAT = "cursor-apps-backup";
   var BUNDLE_VERSION = 1;
+  var LAUNCHER_META_KEY = "cursor-apps-launcher-meta-v1";
+
+  var APP_LABELS = {
+    "habit-journal": "Habit Journal",
+    "adhd-task-tracker": "Focus",
+    "aruba-packing": "Closet Picker",
+    "meal-menu": "Our Menu",
+    "philly-dates": "Philly Dates",
+    "dont-forget": "Don't Forget",
+    "rep-tracker": "Rep Tracker",
+    "process-guide": "Process Guide",
+    "media-shelf": "Media Shelf",
+    "shopping-list": "Our Groceries",
+    "world-cup-2026": "World Cup",
+  };
+
+  var PHOTO_DATABASES = [
+    { appId: "aruba-packing", db: "aruba-pack-photos-v1", store: "photos" },
+    { appId: "meal-menu", db: "meal-menu-photos-v1", store: "photos" },
+    { appId: "dont-forget", db: "dont-forget-photos-v1", store: "photos" },
+    { appId: "adhd-task-tracker", db: "adhd-tracker-photos-v1", store: "photos" },
+    { appId: "process-guide", db: "process-guide-photos-v1", store: "photos" },
+    { appId: "philly-dates", db: "philly-dates-menu-photos-v1", store: "menus" },
+  ];
+
+  var EXTRA_JSON_KEYS = {
+    "world-cup-2026": ["world-cup-2026-scores-v1", "world-cup-2026-knockout-v1"],
+    "habit-journal": ["habit-journal-meta-v1", "habit-journal-local-v1"],
+  };
 
   var APP_REGISTRY = {
     "habit-journal": {
@@ -444,7 +473,7 @@
       },
       summarize: function (slice) {
         var n = slice.processes ? slice.processes.length : 0;
-        return n + " process" + (n === 1 ? "" : "es");
+        return n + " process" + (n === 1 ? "" : "es") + " (no photos)";
       },
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;
@@ -630,6 +659,318 @@
     }
   }
 
+  function readLauncherMeta() {
+    try {
+      var raw = localStorage.getItem(LAUNCHER_META_KEY);
+      if (!raw) return {};
+      var p = JSON.parse(raw);
+      return p && typeof p === "object" ? p : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function writeLauncherMeta(meta) {
+    try {
+      localStorage.setItem(LAUNCHER_META_KEY, JSON.stringify(meta || {}));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function recordLastExport() {
+    var meta = readLauncherMeta();
+    meta.lastExportedAt = new Date().toISOString();
+    writeLauncherMeta(meta);
+    return meta.lastExportedAt;
+  }
+
+  function getLastExportedAt() {
+    var ts = readLauncherMeta().lastExportedAt;
+    return typeof ts === "string" ? ts : null;
+  }
+
+  function formatBytes(bytes) {
+    var n = Number(bytes);
+    if (!isFinite(n) || n < 0) return "—";
+    if (n < 1024) return n + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(n < 10 * 1024 ? 1 : 0) + " KB";
+    if (n < 1024 * 1024 * 1024) return (n / (1024 * 1024)).toFixed(n < 10 * 1024 * 1024 ? 1 : 0) + " MB";
+    return (n / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+  }
+
+  function getAppJsonBytes(appId) {
+    var total = 0;
+    var reg = APP_REGISTRY[appId];
+    if (reg) {
+      var keys = [reg.storageKey].concat(reg.legacyKeys || []);
+      keys.forEach(function (key) {
+        var val = readKey(key);
+        if (val) total += (key.length + val.length) * 2;
+      });
+    }
+    (EXTRA_JSON_KEYS[appId] || []).forEach(function (key) {
+      var val = readKey(key);
+      if (val) total += (key.length + val.length) * 2;
+    });
+    return total;
+  }
+
+  function getAccountedStorageKeys() {
+    var keys = {};
+    keys[LAUNCHER_META_KEY] = true;
+    Object.keys(APP_REGISTRY).forEach(function (appId) {
+      var reg = APP_REGISTRY[appId];
+      keys[reg.storageKey] = true;
+      (reg.legacyKeys || []).forEach(function (k) {
+        keys[k] = true;
+      });
+      (EXTRA_JSON_KEYS[appId] || []).forEach(function (k) {
+        keys[k] = true;
+      });
+    });
+    return keys;
+  }
+
+  function getOtherJsonBytes() {
+    var accounted = getAccountedStorageKeys();
+    var total = 0;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (!key || accounted[key]) continue;
+        var val = localStorage.getItem(key) || "";
+        total += (key.length + val.length) * 2;
+      }
+    } catch (e) {}
+    return total;
+  }
+
+  function clearPhotoStore(dbName, storeName) {
+    return new Promise(function (resolve, reject) {
+      var req;
+      try {
+        req = indexedDB.open(dbName);
+      } catch (e) {
+        reject(e);
+        return;
+      }
+      req.onerror = function () {
+        reject(req.error || new Error("Could not open photo database"));
+      };
+      req.onsuccess = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(storeName)) {
+          db.close();
+          resolve(0);
+          return;
+        }
+        var tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).clear();
+        tx.oncomplete = function () {
+          db.close();
+          resolve(1);
+        };
+        tx.onerror = function () {
+          db.close();
+          reject(tx.error);
+        };
+      };
+    });
+  }
+
+  function getLocalStorageBytes() {
+    var total = 0;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (!key) continue;
+        var val = localStorage.getItem(key) || "";
+        total += (key.length + val.length) * 2;
+      }
+    } catch (e) {}
+    return total;
+  }
+
+  function idbSumStoreBytes(dbName, storeName) {
+    return new Promise(function (resolve) {
+      var req;
+      try {
+        req = indexedDB.open(dbName);
+      } catch (e) {
+        resolve(0);
+        return;
+      }
+      req.onerror = function () {
+        resolve(0);
+      };
+      req.onsuccess = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(storeName)) {
+          db.close();
+          resolve(0);
+          return;
+        }
+        var tx = db.transaction(storeName, "readonly");
+        var store = tx.objectStore(storeName);
+        var allReq = store.getAll();
+        allReq.onsuccess = function () {
+          var rows = allReq.result || [];
+          var bytes = 0;
+          rows.forEach(function (row) {
+            if (row instanceof Blob) bytes += row.size;
+            else if (typeof row === "string") bytes += row.length * 2;
+          });
+          db.close();
+          resolve(bytes);
+        };
+        allReq.onerror = function () {
+          db.close();
+          resolve(0);
+        };
+      };
+    });
+  }
+
+  function getIndexedDBPhotoBytes() {
+    return Promise.all(
+      PHOTO_DATABASES.map(function (cfg) {
+        return idbSumStoreBytes(cfg.db, cfg.store);
+      })
+    ).then(function (parts) {
+      var total = 0;
+      parts.forEach(function (n) {
+        total += n;
+      });
+      return total;
+    });
+  }
+
+  function getStorageBreakdown() {
+    var rows = {};
+    Object.keys(APP_REGISTRY).forEach(function (appId) {
+      rows[appId] = {
+        appId: appId,
+        label: appLabel(appId),
+        jsonBytes: getAppJsonBytes(appId),
+        photoBytes: 0,
+      };
+    });
+    if (EXTRA_JSON_KEYS["world-cup-2026"]) {
+      rows["world-cup-2026"] = {
+        appId: "world-cup-2026",
+        label: appLabel("world-cup-2026"),
+        jsonBytes: getAppJsonBytes("world-cup-2026"),
+        photoBytes: 0,
+      };
+    }
+    return Promise.all(
+      PHOTO_DATABASES.map(function (cfg) {
+        return idbSumStoreBytes(cfg.db, cfg.store).then(function (bytes) {
+          return { appId: cfg.appId, photoBytes: bytes };
+        });
+      })
+    ).then(function (photoParts) {
+      photoParts.forEach(function (p) {
+        if (!rows[p.appId]) {
+          rows[p.appId] = {
+            appId: p.appId,
+            label: appLabel(p.appId),
+            jsonBytes: getAppJsonBytes(p.appId),
+            photoBytes: 0,
+          };
+        }
+        rows[p.appId].photoBytes = p.photoBytes;
+      });
+      var apps = Object.keys(rows)
+        .map(function (id) {
+          var r = rows[id];
+          r.totalBytes = r.jsonBytes + r.photoBytes;
+          return r;
+        })
+        .filter(function (r) {
+          return r.totalBytes > 0;
+        })
+        .sort(function (a, b) {
+          return b.totalBytes - a.totalBytes;
+        });
+      return {
+        apps: apps,
+        otherJsonBytes: getOtherJsonBytes(),
+      };
+    });
+  }
+
+  function formatAppStorageParts(row) {
+    var parts = [];
+    if (row.photoBytes > 0) parts.push(formatBytes(row.photoBytes) + " photos");
+    if (row.jsonBytes > 0) parts.push(formatBytes(row.jsonBytes) + " data");
+    return parts.length ? parts.join(" · ") : "—";
+  }
+
+  function getStorageStats() {
+    var localBytes = getLocalStorageBytes();
+    var lastExportedAt = getLastExportedAt();
+    var estimatePromise =
+      typeof navigator !== "undefined" && navigator.storage && navigator.storage.estimate
+        ? navigator.storage.estimate().catch(function () {
+            return null;
+          })
+        : Promise.resolve(null);
+    return Promise.all([estimatePromise, getIndexedDBPhotoBytes(), getStorageBreakdown()]).then(function (parts) {
+      var estimate = parts[0];
+      var photoBytes = parts[1];
+      var breakdown = parts[2];
+      return {
+        localStorageBytes: localBytes,
+        photoBytes: photoBytes,
+        totalBytes: estimate && typeof estimate.usage === "number" ? estimate.usage : localBytes + photoBytes,
+        quotaBytes: estimate && typeof estimate.quota === "number" ? estimate.quota : null,
+        lastExportedAt: lastExportedAt,
+        breakdown: breakdown,
+      };
+    });
+  }
+
+  function formatExportDate(iso) {
+    if (!iso) return "Never";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "Never";
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
+  function appLabel(appId) {
+    return APP_LABELS[appId] || appId.replace(/-/g, " ").replace(/\b\w/g, function (c) {
+      return c.toUpperCase();
+    });
+  }
+
+  function listBundleApps(bundle) {
+    if (!isUnifiedBackup(bundle)) return [];
+    var out = [];
+    Object.keys(APP_REGISTRY).forEach(function (id) {
+      var slice = bundle.apps[id];
+      if (slice == null) return;
+      var reg = APP_REGISTRY[id];
+      out.push({
+        id: id,
+        label: appLabel(id),
+        summary: reg.summarize(slice),
+      });
+    });
+    out.sort(function (a, b) {
+      return a.label.localeCompare(b.label);
+    });
+    return out;
+  }
+
   function writeKey(key, json) {
     try {
       localStorage.setItem(key, json);
@@ -673,7 +1014,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1"],
       apps: apps,
       _meta: { included: included },
     };
@@ -697,14 +1038,20 @@
   function importAll(bundle, options) {
     options = options || {};
     var mode = options.mode || "merge";
+    var only = Array.isArray(options.appIds) ? options.appIds : null;
     if (!isUnifiedBackup(bundle)) {
       return { ok: false, error: "Not a cursor-apps backup file" };
     }
     var imported = [];
     var failed = [];
+    var skipped = [];
     Object.keys(APP_REGISTRY).forEach(function (id) {
       var slice = bundle.apps[id];
       if (slice == null) return;
+      if (only && only.indexOf(id) < 0) {
+        skipped.push(id);
+        return;
+      }
       var reg = APP_REGISTRY[id];
       var toWrite = slice;
       if (mode === "merge" && reg.mergeSlice) {
@@ -717,12 +1064,14 @@
       ok: failed.length === 0,
       imported: imported,
       failed: failed,
+      skipped: skipped,
       summary: summarizeBundle(bundle),
       mode: mode,
     };
   }
 
   function downloadBundle(bundle, filename) {
+    recordLastExport();
     var blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -768,15 +1117,27 @@
     FORMAT: FORMAT,
     BUNDLE_VERSION: BUNDLE_VERSION,
     APP_REGISTRY: APP_REGISTRY,
+    APP_LABELS: APP_LABELS,
     isUnifiedBackup: isUnifiedBackup,
     getAppSlice: getAppSlice,
     isLegacyAppBackup: isLegacyAppBackup,
     exportAll: exportAll,
     importAll: importAll,
     summarizeBundle: summarizeBundle,
+    listBundleApps: listBundleApps,
     downloadBundle: downloadBundle,
     defaultFilename: defaultFilename,
     parseBackupFile: parseBackupFile,
+    getStorageStats: getStorageStats,
+    getStorageBreakdown: getStorageBreakdown,
+    formatAppStorageParts: formatAppStorageParts,
+    getLocalStorageBytes: getLocalStorageBytes,
+    clearPhotoStore: clearPhotoStore,
+    PHOTO_DATABASES: PHOTO_DATABASES,
+    formatBytes: formatBytes,
+    formatExportDate: formatExportDate,
+    getLastExportedAt: getLastExportedAt,
+    recordLastExport: recordLastExport,
   };
 
   global.AppsBackup = AppsBackup;

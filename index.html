@@ -158,6 +158,177 @@
       margin-top: 10px;
       text-align: center;
     }
+    .storage-stats {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.18);
+      font-size: 0.75rem;
+      line-height: 1.35;
+    }
+    .storage-stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .storage-stat-label {
+      opacity: 0.72;
+    }
+    .storage-stat-value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      text-align: right;
+    }
+    .storage-by-app {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .storage-by-app-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.65;
+      margin-bottom: 8px;
+    }
+    .storage-app-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.75rem;
+      line-height: 1.35;
+      padding: 4px 0;
+    }
+    .storage-app-row + .storage-app-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 7px;
+      margin-top: 3px;
+    }
+    .storage-app-name {
+      font-weight: 600;
+      min-width: 0;
+    }
+    .storage-app-size {
+      opacity: 0.82;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .import-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+      padding-bottom: calc(12px + var(--safe-bottom));
+    }
+    .import-sheet[hidden] { display: none !important; }
+    body.import-open { overflow: hidden; }
+    .import-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+    }
+    .import-panel {
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+      max-height: min(82dvh, 640px);
+      overflow: auto;
+      background: #fff;
+      color: #1a1a2e;
+      border-radius: 18px 18px 14px 14px;
+      padding: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+    .import-panel h2 {
+      font-size: 1.125rem;
+      margin-bottom: 6px;
+    }
+    .import-preview {
+      font-size: 0.8125rem;
+      color: #4b5563;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .import-app-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .import-app-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fafafa;
+      cursor: pointer;
+    }
+    .import-app-row input {
+      margin-top: 2px;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .import-app-name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      display: block;
+    }
+    .import-app-summary {
+      font-size: 0.75rem;
+      color: #6b7280;
+      display: block;
+      margin-top: 2px;
+    }
+    .import-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .import-toolbar button {
+      border: none;
+      background: #eef2ff;
+      color: #312e81;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .import-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .import-actions .import-btn {
+      flex: 1;
+      min-height: 44px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .import-btn-primary {
+      background: #1a1a2e;
+      color: #fff;
+    }
+    .import-btn-secondary {
+      background: #eef2f7;
+      color: #1a1a2e;
+      border: 1px solid #d1d5db;
+    }
     .toast {
       position: fixed;
       left: 50%;
@@ -196,17 +367,55 @@
 
   <div class="dock-wrap">
     <p class="dock-label">Backup</p>
+    <div class="storage-stats" id="storageStats" aria-label="Storage usage">
+      <div class="storage-stat">
+        <span class="storage-stat-label">On this device</span>
+        <span class="storage-stat-value" id="storageTotal">…</span>
+      </div>
+      <div class="storage-stat">
+        <span class="storage-stat-label">App data (JSON)</span>
+        <span class="storage-stat-value" id="storageLocal">…</span>
+      </div>
+      <div class="storage-stat">
+        <span class="storage-stat-label">Photos (IndexedDB)</span>
+        <span class="storage-stat-value" id="storagePhotos">…</span>
+      </div>
+      <div class="storage-stat">
+        <span class="storage-stat-label">Last export</span>
+        <span class="storage-stat-value" id="storageLastExport">…</span>
+      </div>
+    </div>
+    <div class="storage-by-app" id="storageByApp" hidden>
+      <p class="storage-by-app-label">By app</p>
+      <div id="storageByAppList"></div>
+    </div>
     <div class="dock-actions">
       <button type="button" class="dock-btn dock-btn-primary" id="exportAllBtn">Export all data</button>
-      <button type="button" class="dock-btn dock-btn-secondary" id="importAllBtn">Import all data</button>
+      <button type="button" class="dock-btn dock-btn-secondary" id="importAllBtn">Import backup…</button>
     </div>
-    <p class="dock-hint">One JSON file for all apps. App updates do not erase this file. Clearing Safari website data does. Philly menu photos, Closet Picker wardrobe photos, and Our Menu meal photos stay on this device only (Our Menu can export photos as ZIP).</p>
+    <p class="dock-hint">JSON backup is small — habits, tasks, menus, etc. Photos stay in browser storage and export separately inside each app (ZIP). Use selective import to restore only what you need.</p>
   </div>
 
   <p class="hint">Tap an icon to open. In Safari: Share → Add to Home Screen to pin this launcher.</p>
   <p class="version" id="homeVersion" aria-label="Launcher version"></p>
 
   <input type="file" id="importAllInput" accept="application/json,.json" />
+  <div class="import-sheet" id="importSheet" hidden role="dialog" aria-modal="true" aria-labelledby="importSheetTitle">
+    <div class="import-backdrop" id="importBackdrop"></div>
+    <div class="import-panel">
+      <h2 id="importSheetTitle">Import backup</h2>
+      <p class="import-preview" id="importPreview"></p>
+      <div class="import-toolbar">
+        <button type="button" id="importSelectAll">Select all</button>
+        <button type="button" id="importSelectNone">Select none</button>
+      </div>
+      <div class="import-app-list" id="importAppList"></div>
+      <div class="import-actions">
+        <button type="button" class="import-btn import-btn-secondary" id="importCancel">Cancel</button>
+        <button type="button" class="import-btn import-btn-primary" id="importConfirm">Import selected</button>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="apps-backup.js"></script>
@@ -215,7 +424,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "1";
+  const HOME_VERSION = "2 · Jun 17, 2026";
   const ICON_VERSION = "6";
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
@@ -361,6 +570,8 @@
   }
 
   var toastTimer = null;
+  var pendingImportBundle = null;
+
   function showToast(msg) {
     var el = document.getElementById("toast");
     if (!el) return;
@@ -370,6 +581,107 @@
     toastTimer = setTimeout(function () {
       el.classList.remove("show");
     }, 3500);
+  }
+
+  function refreshStorageStats() {
+    if (typeof AppsBackup === "undefined") return;
+    var totalEl = document.getElementById("storageTotal");
+    var localEl = document.getElementById("storageLocal");
+    var photosEl = document.getElementById("storagePhotos");
+    var exportEl = document.getElementById("storageLastExport");
+    if (!totalEl || !localEl || !photosEl || !exportEl) return;
+
+    localEl.textContent = AppsBackup.formatBytes(AppsBackup.getLocalStorageBytes());
+    exportEl.textContent = AppsBackup.formatExportDate(AppsBackup.getLastExportedAt());
+
+    AppsBackup.getStorageStats().then(function (stats) {
+      var totalText = AppsBackup.formatBytes(stats.totalBytes);
+      if (stats.quotaBytes) {
+        totalText += " / " + AppsBackup.formatBytes(stats.quotaBytes);
+      }
+      totalEl.textContent = totalText;
+      localEl.textContent = AppsBackup.formatBytes(stats.localStorageBytes);
+      photosEl.textContent = AppsBackup.formatBytes(stats.photoBytes);
+      exportEl.textContent = AppsBackup.formatExportDate(stats.lastExportedAt);
+
+      var byApp = document.getElementById("storageByApp");
+      var byAppList = document.getElementById("storageByAppList");
+      if (!byApp || !byAppList || !stats.breakdown) return;
+
+      var rows = stats.breakdown.apps || [];
+      if (stats.breakdown.otherJsonBytes > 512) {
+        rows = rows.concat([
+          {
+            label: "Other",
+            jsonBytes: stats.breakdown.otherJsonBytes,
+            photoBytes: 0,
+            totalBytes: stats.breakdown.otherJsonBytes,
+          },
+        ]);
+      }
+      if (!rows.length) {
+        byApp.hidden = true;
+        return;
+      }
+      byApp.hidden = false;
+      byAppList.innerHTML = rows
+        .map(function (row) {
+          return (
+            '<div class="storage-app-row">' +
+            '<span class="storage-app-name">' +
+            escapeHtml(row.label) +
+            "</span>" +
+            '<span class="storage-app-size">' +
+            escapeHtml(AppsBackup.formatAppStorageParts(row)) +
+            "</span></div>"
+          );
+        })
+        .join("");
+    });
+  }
+
+  function closeImportSheet() {
+    pendingImportBundle = null;
+    var sheet = document.getElementById("importSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("import-open");
+  }
+
+  function openImportSheet(bundle) {
+    var apps = AppsBackup.listBundleApps(bundle);
+    if (!apps.length) {
+      showToast("No app data in this backup file");
+      return;
+    }
+    pendingImportBundle = bundle;
+    document.getElementById("importPreview").textContent =
+      "Choose which apps to merge in. Existing data is kept; new items are added.";
+    document.getElementById("importAppList").innerHTML = apps
+      .map(function (app) {
+        return (
+          '<label class="import-app-row">' +
+          '<input type="checkbox" name="importApp" value="' +
+          escapeHtml(app.id) +
+          '" checked />' +
+          '<span><span class="import-app-name">' +
+          escapeHtml(app.label) +
+          '</span><span class="import-app-summary">' +
+          escapeHtml(app.summary) +
+          "</span></span></label>"
+        );
+      })
+      .join("");
+    document.getElementById("importSheet").hidden = false;
+    document.body.classList.add("import-open");
+  }
+
+  function getSelectedImportAppIds() {
+    return Array.prototype.map.call(
+      document.querySelectorAll('#importAppList input[name="importApp"]:checked'),
+      function (input) {
+        return input.value;
+      }
+    );
   }
 
   function initBackupDock() {
@@ -386,6 +698,7 @@
           return;
         }
         AppsBackup.downloadBundle(bundle);
+        refreshStorageStats();
         showToast("Exported " + n + " app" + (n === 1 ? "" : "s") + " — " + AppsBackup.summarizeBundle(bundle));
       } catch (e) {
         showToast("Export failed");
@@ -404,21 +717,52 @@
             showToast("Use a cursor-apps backup file from Export all");
             return;
           }
-          var preview = AppsBackup.summarizeBundle(parsed);
-          if (!confirm("Add data from this backup to your existing apps?\n\n" + preview + "\n\nExisting items are kept; new items are added.")) return;
-          var result = AppsBackup.importAll(parsed, { mode: "merge" });
-          if (result.imported.length) {
-            showToast("Imported: " + result.imported.join(", "));
-          } else {
-            showToast("Nothing imported");
-          }
-          if (result.failed.length) {
-            showToast("Failed: " + result.failed.join(", "));
-          }
+          openImportSheet(parsed);
         })
         .catch(function () {
           showToast("Could not read backup file");
         });
+    });
+
+    document.getElementById("importCancel").addEventListener("click", closeImportSheet);
+    document.getElementById("importBackdrop").addEventListener("click", closeImportSheet);
+    document.getElementById("importSelectAll").addEventListener("click", function () {
+      document.querySelectorAll('#importAppList input[name="importApp"]').forEach(function (input) {
+        input.checked = true;
+      });
+    });
+    document.getElementById("importSelectNone").addEventListener("click", function () {
+      document.querySelectorAll('#importAppList input[name="importApp"]').forEach(function (input) {
+        input.checked = false;
+      });
+    });
+    document.getElementById("importConfirm").addEventListener("click", function () {
+      if (!pendingImportBundle) return;
+      var selected = getSelectedImportAppIds();
+      if (!selected.length) {
+        showToast("Select at least one app");
+        return;
+      }
+      var result = AppsBackup.importAll(pendingImportBundle, { mode: "merge", appIds: selected });
+      closeImportSheet();
+      refreshStorageStats();
+      if (result.imported.length) {
+        showToast(
+          "Imported " +
+            result.imported.length +
+            " app" +
+            (result.imported.length === 1 ? "" : "s") +
+            ": " +
+            result.imported.map(function (id) {
+              return AppsBackup.APP_LABELS[id] || id;
+            }).join(", ")
+        );
+      } else {
+        showToast("Nothing imported");
+      }
+      if (result.failed.length) {
+        showToast("Failed: " + result.failed.join(", "));
+      }
     });
   }
 
@@ -426,6 +770,11 @@
 
   renderSkeleton(4);
   initBackupDock();
+  refreshStorageStats();
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") refreshStorageStats();
+  });
 
   loadManifest()
     .then(function (manifest) {

@@ -121,6 +121,34 @@
     });
   }
 
+  function clearAllPhotosFromDb() {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, 'readwrite');
+        tx.objectStore(PHOTO_STORE).clear();
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  var CLEAR_PHOTOS_CONFIRM = 'Clear all item photos from this device?\n\nExport a ZIP first if you want to keep them. Your items and notes stay — only images are removed.';
+
+  function clearPhotosFromDevice() {
+    if (!confirm(CLEAR_PHOTOS_CONFIRM)) return;
+    var btn = document.getElementById('clearPhotosBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Clearing…'; }
+    clearAllPhotosFromDb().then(function () {
+      Object.keys(thumbCache).forEach(function (id) { invalidateThumb(id); });
+      render();
+      toast('Photos cleared — items unchanged');
+    }).catch(function () {
+      toast('Could not clear photos');
+    }).finally(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Clear photos'; }
+    });
+  }
+
   function invalidateThumb(itemId) {
     if (thumbCache[itemId]) {
       URL.revokeObjectURL(thumbCache[itemId]);
@@ -1024,6 +1052,7 @@
       this.value = '';
       importPhotosZip(f);
     });
+    document.getElementById('clearPhotosBtn').addEventListener('click', clearPhotosFromDevice);
 
     var header = document.getElementById('appHeader');
     window.addEventListener('scroll', function () {

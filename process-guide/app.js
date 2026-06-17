@@ -2,6 +2,8 @@
   "use strict";
 
   var STORAGE_KEY = "process-guide-v1";
+  var PHOTO_DB = "process-guide-photos-v1";
+  var PHOTO_STORE = "photos";
   var EXPORT_FORMAT = "process-guide-processes";
   var PROCESS_STATUSES = ["draft", "published", "archived"];
 
@@ -12,6 +14,8 @@
   var processViewMode = "edit";
   var guideStepIndex = 0;
   var guideBranchChoices = {};
+  var photoUrlCache = {};
+  var photoUrlPending = {};
 
   function nowISO() {
     return new Date().toISOString();
@@ -57,18 +61,310 @@
     }
   }
 
+  function stepPhotoSlot(stepId) {
+    return "step:" + stepId;
+  }
+
+  function branchPhotoSlot(forkId, branchId) {
+    return "branch:" + forkId + ":" + branchId;
+  }
+
+  function photoDbKey(processId, slot) {
+    return processId + ":" + slot;
+  }
+
+  function photoDomKey(processId, slot) {
+    return processId + "|" + slot;
+  }
+
+  function openPhotoDb() {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(PHOTO_DB, 1);
+      req.onerror = function () { reject(req.error); };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onupgradeneeded = function (e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+          db.createObjectStore(PHOTO_STORE);
+        }
+      };
+    });
+  }
+
+  function putPhotoBlob(processId, slot, blob) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, "readwrite");
+        tx.objectStore(PHOTO_STORE).put(blob, photoDbKey(processId, slot));
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function getPhotoBlob(processId, slot) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, "readonly");
+        var req = tx.objectStore(PHOTO_STORE).get(photoDbKey(processId, slot));
+        req.onsuccess = function () { resolve(req.result || null); };
+        req.onerror = function () { reject(req.error); };
+      });
+    });
+  }
+
+  function deletePhotoBlob(processId, slot) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, "readwrite");
+        tx.objectStore(PHOTO_STORE).delete(photoDbKey(processId, slot));
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function clearAllPhotoBlobs() {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, "readwrite");
+        tx.objectStore(PHOTO_STORE).clear();
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function clearImageFlagsFromNodes(nodes) {
+    (nodes || []).forEach(function (node) {
+      if (!node) return;
+      if (node.type === "fork") {
+        (node.branches || []).forEach(function (branch) {
+          branch.hasImage = false;
+          delete branch.imageName;
+          clearImageFlagsFromNodes(branch.steps);
+        });
+      } else {
+        node.hasImage = false;
+        delete node.imageName;
+      }
+    });
+  }
+
+  function clearAllProcessPhotos() {
+    if (!confirm("Clear all step photos from this device?\n\nExport or share processes first if you want to keep images. Steps, forks, and text stay — only photos are removed.")) {
+      return;
+    }
+    var btn = document.getElementById("btnClearPhotos");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Clearing…";
+    }
+    clearAllPhotoBlobs()
+      .then(function () {
+        Object.keys(photoUrlCache).forEach(function (k) {
+          URL.revokeObjectURL(photoUrlCache[k]);
+        });
+        photoUrlCache = {};
+        photoUrlPending = {};
+        (state.processes || []).forEach(function (proc) {
+          clearImageFlagsFromNodes(proc.steps);
+        });
+        return persist();
+      })
+      .then(function () {
+        toast("Photos cleared — processes unchanged");
+        renderProcessList();
+      })
+      .catch(function () {
+        toast("Could not clear photos");
+      })
+      .finally(function () {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Clear photos";
+        }
+      });
+  }
+
+  function invalidatePhotoUrl(processId, slot) {
+    var domKey = photoDomKey(processId, slot);
+    if (photoUrlCache[domKey]) {
+      URL.revokeObjectURL(photoUrlCache[domKey]);
+      delete photoUrlCache[domKey];
+    }
+    delete photoUrlPending[domKey];
+  }
+
+  function getPhotoObjectUrl(processId, slot) {
+    var domKey = photoDomKey(processId, slot);
+    if (photoUrlCache[domKey]) return Promise.resolve(photoUrlCache[domKey]);
+    if (photoUrlPending[domKey]) return photoUrlPending[domKey];
+    photoUrlPending[domKey] = getPhotoBlob(processId, slot).then(function (blob) {
+      delete photoUrlPending[domKey];
+      if (!blob) return null;
+      var url = URL.createObjectURL(blob);
+      photoUrlCache[domKey] = url;
+      return url;
+    });
+    return photoUrlPending[domKey];
+  }
+
+  function hydratePhotos(root) {
+    if (!root) return;
+    root.querySelectorAll("[data-pe-photo]").forEach(function (img) {
+      var key = img.getAttribute("data-pe-photo");
+      if (!key) return;
+      var sep = key.indexOf("|");
+      if (sep < 0) return;
+      var processId = key.slice(0, sep);
+      var slot = key.slice(sep + 1);
+      getPhotoObjectUrl(processId, slot).then(function (url) {
+        if (url) img.src = url;
+      });
+    });
+  }
+
+  function dataUrlToBlob(dataUrl) {
+    var parts = String(dataUrl).split(",");
+    if (parts.length < 2) return null;
+    var mimeMatch = parts[0].match(/:(.*?);/);
+    var mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+    var bstr = atob(parts[1]);
+    var n = bstr.length;
+    var u8 = new Uint8Array(n);
+    for (var i = 0; i < n; i++) u8[i] = bstr.charCodeAt(i);
+    return new Blob([u8], { type: mime });
+  }
+
+  function blobToDataUrl(blob) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(reader.result); };
+      reader.onerror = function () { reject(reader.error); };
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function walkProcessTree(nodes, pathPrefix, visitor) {
+    (nodes || []).forEach(function (node, idx) {
+      var path = pathPrefix === "main" ? String(idx) : pathPrefix + "." + idx;
+      visitor(node, path);
+      if (node.type === "fork") {
+        (node.branches || []).forEach(function (branch, bi) {
+          visitor(branch, path, { branchIndex: bi, isBranch: true });
+          walkProcessTree(branch.steps || [], path + ".b" + bi, visitor);
+        });
+      }
+    });
+  }
+
+  function collectLegacyPhotoJobs(parsed) {
+    var jobs = [];
+    (parsed.processes || []).forEach(function (proc) {
+      if (!proc || !proc.id) return;
+      walkProcessTree(proc.steps, "main", function (node, path, ctx) {
+        if (ctx && ctx.isBranch) {
+          if (!node.imageData || String(node.imageData).indexOf("data:") !== 0) return;
+          var blob = dataUrlToBlob(node.imageData);
+          if (!blob) return;
+          var forkCtx = getNodeContext(proc, path);
+          var forkId = forkCtx && forkCtx.node ? forkCtx.node.id : path;
+          var slot = branchPhotoSlot(forkId, node.id);
+          jobs.push(putPhotoBlob(proc.id, slot, blob).then(function () {
+            node.hasImage = true;
+            delete node.imageData;
+          }));
+          return;
+        }
+        if (node.type === "fork") return;
+        if (!node.imageData || String(node.imageData).indexOf("data:") !== 0) return;
+        var stepBlob = dataUrlToBlob(node.imageData);
+        if (!stepBlob) return;
+        jobs.push(putPhotoBlob(proc.id, stepPhotoSlot(node.id), stepBlob).then(function () {
+          node.hasImage = true;
+          delete node.imageData;
+        }));
+      });
+    });
+    return jobs;
+  }
+
+  function migrateLegacyPhotos(parsed) {
+    var jobs = collectLegacyPhotoJobs(parsed);
+    if (!jobs.length) return Promise.resolve(false);
+    return Promise.all(jobs).then(function () { return true; });
+  }
+
+  function deleteAllProcessPhotos(processId) {
+    return openPhotoDb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(PHOTO_STORE, "readwrite");
+        var store = tx.objectStore(PHOTO_STORE);
+        var req = store.getAllKeys();
+        req.onsuccess = function () {
+          var prefix = processId + ":";
+          (req.result || []).forEach(function (key) {
+            if (String(key).indexOf(prefix) === 0) {
+              store.delete(key);
+              var slot = String(key).slice(prefix.length);
+              invalidatePhotoUrl(processId, slot);
+            }
+          });
+        };
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    });
+  }
+
+  function embedPhotosForExport(processes) {
+    var jobs = [];
+    (processes || []).forEach(function (proc) {
+      if (!proc || !proc.id) return;
+      walkProcessTree(proc.steps, "main", function (node, path, ctx) {
+        if (ctx && ctx.isBranch) {
+          if (!node.hasImage) return;
+          var forkCtx = getNodeContext(proc, path);
+          var forkId = forkCtx && forkCtx.node ? forkCtx.node.id : path;
+          jobs.push(getPhotoBlob(proc.id, branchPhotoSlot(forkId, node.id)).then(function (blob) {
+            if (!blob) return;
+            return blobToDataUrl(blob).then(function (dataUrl) {
+              node.imageData = dataUrl;
+            });
+          }));
+          return;
+        }
+        if (node.type === "fork" || !node.hasImage) return;
+        jobs.push(getPhotoBlob(proc.id, stepPhotoSlot(node.id)).then(function (blob) {
+          if (!blob) return;
+          return blobToDataUrl(blob).then(function (dataUrl) {
+            node.imageData = dataUrl;
+          });
+        }));
+      });
+    });
+    return Promise.all(jobs);
+  }
+
+  function importPhotosFromProcesses(processes) {
+    var jobs = collectLegacyPhotoJobs({ processes: processes });
+    return Promise.all(jobs);
+  }
+
   function defaultState() {
     return { version: 1, processes: [] };
   }
 
   function normalizeProcessStep(s) {
+    var legacyImage = String(s.imageData != null ? s.imageData : "").trim();
     return {
       type: "step",
       id: s.id || uid(),
       title: String(s.title != null ? s.title : "").trim(),
       body: String(s.body != null ? s.body : "").trim(),
       caution: String(s.caution != null ? s.caution : "").trim(),
-      imageData: String(s.imageData != null ? s.imageData : "").trim(),
+      hasImage: !!(s.hasImage || legacyImage.indexOf("data:") === 0),
       imageName: String(s.imageName != null ? s.imageName : "").trim(),
       createdAt: s.createdAt || nowISO(),
       updatedAt: s.updatedAt || s.createdAt || nowISO(),
@@ -76,11 +372,12 @@
   }
 
   function normalizeProcessBranch(b) {
+    var legacyImage = String(b.imageData != null ? b.imageData : "").trim();
     return {
       id: b.id || uid(),
       label: String(b.label != null ? b.label : "Branch").trim() || "Branch",
       whenToUse: String(b.whenToUse != null ? b.whenToUse : "").trim(),
-      imageData: String(b.imageData != null ? b.imageData : "").trim(),
+      hasImage: !!(b.hasImage || legacyImage.indexOf("data:") === 0),
       imageName: String(b.imageName != null ? b.imageName : "").trim(),
       steps: Array.isArray(b.steps) ? b.steps.map(normalizeProcessNode) : [],
     };
@@ -141,10 +438,19 @@
   function loadState() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultState();
-      return normalizeState(JSON.parse(raw));
+      if (!raw) return Promise.resolve(defaultState());
+      var parsed = JSON.parse(raw);
+      return migrateLegacyPhotos(parsed).then(function (migrated) {
+        var st = normalizeState(parsed);
+        if (migrated) {
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(st));
+          } catch (e) { /* ignore */ }
+        }
+        return st;
+      });
     } catch (e) {
-      return defaultState();
+      return Promise.resolve(defaultState());
     }
   }
 
@@ -345,6 +651,10 @@
   function deleteProcessNode(process, path) {
     var ctx = getNodeContext(process, path);
     if (!ctx) return;
+    if (ctx.node.type === "step" && ctx.node.hasImage) {
+      deletePhotoBlob(process.id, stepPhotoSlot(ctx.node.id));
+      invalidatePhotoUrl(process.id, stepPhotoSlot(ctx.node.id));
+    }
     ctx.nodes.splice(ctx.index, 1);
     process.updatedAt = nowISO();
     if (expandedPePath === path) expandedPePath = null;
@@ -373,7 +683,10 @@
           canvas.width = w;
           canvas.height = h;
           canvas.getContext("2d").drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL("image/jpeg", 0.82));
+          canvas.toBlob(function (blob) {
+            if (blob) resolve(blob);
+            else reject(new Error("Could not compress image"));
+          }, "image/jpeg", 0.82);
         };
         img.onerror = function () { reject(new Error("Could not load image")); };
         img.src = reader.result;
@@ -381,6 +694,10 @@
       reader.onerror = function () { reject(new Error("Could not read file")); };
       reader.readAsDataURL(file);
     });
+  }
+
+  function photoAttr(processId, slot) {
+    return escapeAttr(photoDomKey(processId, slot));
   }
 
   function renderBranchStepsHtml(process, branch, branchPath, numCtx) {
@@ -393,8 +710,8 @@
 
   function renderForkOptionHtml(process, node, path, branch, bi, forkNum) {
     var letter = String.fromCharCode(65 + bi);
-    var imgHtml = branch.imageData
-      ? '<img class="pe-fork-option-img" src="' + branch.imageData + '" alt="' + escapeAttr(branch.imageName || letter) + '" data-pe-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" />'
+    var imgHtml = branch.hasImage
+      ? '<img class="pe-fork-option-img" alt="' + escapeAttr(branch.imageName || letter) + '" data-pe-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" data-pe-photo="' + photoAttr(process.id, branchPhotoSlot(node.id, branch.id)) + '" />'
       : '<div class="pe-fork-option-img-placeholder project-paste-zone" data-pe-branch-paste="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" tabindex="0">' +
         '<span class="pe-fork-option-add">+ Photo</span></div>' +
         '<input type="file" accept="image/*" capture="environment" hidden data-pe-branch-file="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" />';
@@ -403,7 +720,7 @@
       imgHtml +
       '<input type="text" class="pe-fork-option-label" data-pe-branch-label="' + bi + '" value="' + escapeAttr(branch.label) + '" placeholder="Option ' + letter + '" />' +
       '<textarea class="pe-fork-option-desc" data-pe-branch-when="' + bi + '" rows="2" placeholder="Description">' + escapeHtml(branch.whenToUse) + "</textarea>" +
-      (branch.imageData ? '<button type="button" class="ghost danger pe-fork-option-clear" data-pe-clear-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '">Remove photo</button>' : "") +
+      (branch.hasImage ? '<button type="button" class="ghost danger pe-fork-option-clear" data-pe-clear-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '">Remove photo</button>' : "") +
       '<div class="pe-branch-actions">' +
       '<button type="button" class="ghost" data-pe-add-step="' + escapeAttr(path + ".b" + bi) + '">+ Step</button>' +
       "</div>" +
@@ -457,7 +774,7 @@
           '<div class="pe-step-card-head">' +
           '<span class="pe-num">' + escapeHtml(label) + "</span>" +
           '<span class="pe-step-card-title">' + escapeHtml(node.title || "(untitled step)") + "</span>" +
-          (node.imageData ? '<span class="pe-has-photo" title="Has photo">📷</span>' : "") +
+          (node.hasImage ? '<span class="pe-has-photo" title="Has photo">📷</span>' : "") +
           '<div class="pe-row-actions">' +
           '<button type="button" class="ghost" data-pe-expand="' + escapeAttr(path) + '">' + (isExpanded ? "Close" : "Edit") + "</button>" +
           '<button type="button" class="ghost" data-pe-up="' + escapeAttr(path) + '">Up</button>' +
@@ -482,10 +799,10 @@
       '<div class="project-paste-zone" data-pe-paste="' + escapeAttr(path) + '" tabindex="0" style="margin-top:0.65rem">' +
       "Tap to add a photo (paste or pick)</div>" +
       '<input type="file" accept="image/*" capture="environment" hidden data-pe-file="' + escapeAttr(path) + '" />' +
-      (node.imageData ? '<img src="' + node.imageData + '" alt="' + escapeAttr(node.imageName || "Step") + '" data-pe-img="' + escapeAttr(path) + '" />' : "") +
+      (node.hasImage ? '<img alt="' + escapeAttr(node.imageName || "Step") + '" data-pe-img="' + escapeAttr(path) + '" data-pe-photo="' + photoAttr(process.id, stepPhotoSlot(node.id)) + '" />' : "") +
       '<div class="btn-row" style="margin-top:0.5rem">' +
       '<button type="button" class="primary" data-pe-save-step="' + escapeAttr(path) + '">Save step</button>' +
-      (node.imageData ? '<button type="button" class="ghost danger" data-pe-clear-img="' + escapeAttr(path) + '">Remove image</button>' : "") +
+      (node.hasImage ? '<button type="button" class="ghost danger" data-pe-clear-img="' + escapeAttr(path) + '">Remove image</button>' : "") +
       "</div></div>";
   }
 
@@ -509,20 +826,27 @@
     renderProcessList();
   }
 
-  function applyImageToNode(node, dataUrl, name) {
-    node.imageData = dataUrl;
-    node.imageName = name || "photo.jpg";
-    node.updatedAt = nowISO();
+  function applyImageToNode(process, node, blob, name) {
+    return putPhotoBlob(process.id, stepPhotoSlot(node.id), blob).then(function () {
+      node.hasImage = true;
+      node.imageName = name || "photo.jpg";
+      node.updatedAt = nowISO();
+      invalidatePhotoUrl(process.id, stepPhotoSlot(node.id));
+    });
   }
 
-  function applyImageToBranch(branch, dataUrl, name) {
-    branch.imageData = dataUrl;
-    branch.imageName = name || "photo.jpg";
+  function applyImageToBranch(process, forkNode, branch, blob, name) {
+    return putPhotoBlob(process.id, branchPhotoSlot(forkNode.id, branch.id), blob).then(function () {
+      branch.hasImage = true;
+      branch.imageName = name || "photo.jpg";
+      invalidatePhotoUrl(process.id, branchPhotoSlot(forkNode.id, branch.id));
+    });
   }
 
   function handleImageFile(process, file, onApply) {
-    compressImageFile(file).then(function (dataUrl) {
-      onApply(dataUrl, file.name || "photo.jpg");
+    compressImageFile(file).then(function (blob) {
+      return onApply(blob, file.name || "photo.jpg");
+    }).then(function () {
       process.updatedAt = nowISO();
       persist();
       renderProcessDetail(process);
@@ -622,12 +946,16 @@
       btn.onclick = function () {
         var ctx = getNodeContext(process, btn.dataset.peClearImg);
         if (!ctx || ctx.node.type !== "step") return;
-        ctx.node.imageData = "";
-        ctx.node.imageName = "";
-        ctx.node.updatedAt = nowISO();
-        process.updatedAt = nowISO();
-        persist();
-        renderProcessDetail(process);
+        var slot = stepPhotoSlot(ctx.node.id);
+        deletePhotoBlob(process.id, slot).then(function () {
+          invalidatePhotoUrl(process.id, slot);
+          ctx.node.hasImage = false;
+          ctx.node.imageName = "";
+          ctx.node.updatedAt = nowISO();
+          process.updatedAt = nowISO();
+          persist();
+          renderProcessDetail(process);
+        });
       };
     });
 
@@ -638,12 +966,16 @@
         var bi = parseInt(btn.dataset.peBranchIdx, 10);
         var branch = ctx.node.branches[bi];
         if (!branch) return;
-        branch.imageData = "";
-        branch.imageName = "";
-        ctx.node.updatedAt = nowISO();
-        process.updatedAt = nowISO();
-        persist();
-        renderProcessDetail(process);
+        var slot = branchPhotoSlot(ctx.node.id, branch.id);
+        deletePhotoBlob(process.id, slot).then(function () {
+          invalidatePhotoUrl(process.id, slot);
+          branch.hasImage = false;
+          branch.imageName = "";
+          ctx.node.updatedAt = nowISO();
+          process.updatedAt = nowISO();
+          persist();
+          renderProcessDetail(process);
+        });
       };
     });
 
@@ -664,8 +996,8 @@
             if (!file) return;
             var ctx = getNodeContext(process, path);
             if (!ctx || ctx.node.type !== "step") return;
-            handleImageFile(process, file, function (dataUrl, name) {
-              applyImageToNode(ctx.node, dataUrl, name);
+            handleImageFile(process, file, function (blob, name) {
+              return applyImageToNode(process, ctx.node, blob, name);
             });
             return;
           }
@@ -681,8 +1013,8 @@
         var path = input.dataset.peFile;
         var ctx = getNodeContext(process, path);
         if (!ctx || ctx.node.type !== "step") return;
-        handleImageFile(process, file, function (dataUrl, name) {
-          applyImageToNode(ctx.node, dataUrl, name);
+        handleImageFile(process, file, function (blob, name) {
+          return applyImageToNode(process, ctx.node, blob, name);
         });
       };
     });
@@ -707,9 +1039,10 @@
             if (!ctx || ctx.node.type !== "fork") return;
             var branch = ctx.node.branches[bi];
             if (!branch) return;
-            handleImageFile(process, file, function (dataUrl, name) {
-              applyImageToBranch(branch, dataUrl, name);
-              ctx.node.updatedAt = nowISO();
+            handleImageFile(process, file, function (blob, name) {
+              return applyImageToBranch(process, ctx.node, branch, blob, name).then(function () {
+                ctx.node.updatedAt = nowISO();
+              });
             });
             return;
           }
@@ -728,12 +1061,15 @@
         if (!ctx || ctx.node.type !== "fork") return;
         var branch = ctx.node.branches[bi];
         if (!branch) return;
-        handleImageFile(process, file, function (dataUrl, name) {
-          applyImageToBranch(branch, dataUrl, name);
-          ctx.node.updatedAt = nowISO();
+        handleImageFile(process, file, function (blob, name) {
+          return applyImageToBranch(process, ctx.node, branch, blob, name).then(function () {
+            ctx.node.updatedAt = nowISO();
+          });
         });
       };
     });
+
+    hydratePhotos(pane);
 
     pane.querySelectorAll("[data-pe-img], [data-pe-branch-img]").forEach(function (img) {
       img.onclick = function () {
@@ -754,7 +1090,7 @@
     if (atFork && !chosenBranch) {
       var picks = (forkNode.branches || []).slice(0, 2).map(function (br) {
         return '<button type="button" class="pe-fork-pick-btn" data-pe-guide-branch="' + escapeAttr(br.id) + '">' +
-          (br.imageData ? '<img class="pe-fork-pick-img" src="' + br.imageData + '" alt="' + escapeAttr(br.imageName || br.label) + '" />' : "") +
+          (br.hasImage ? '<img class="pe-fork-pick-img" alt="' + escapeAttr(br.imageName || br.label) + '" data-pe-photo="' + photoAttr(process.id, branchPhotoSlot(forkNode.id, br.id)) + '" />' : "") +
           "<strong>" + escapeHtml(br.label) + "</strong>" +
           (br.whenToUse ? '<div class="when">' + escapeHtml(br.whenToUse) + "</div>" : "") +
           "</button>";
@@ -776,7 +1112,7 @@
           '<div class="pe-guide-progress">Step ' + stepNum + " of " + stepItems.length + "</div>" +
           "<h3>" + escapeHtml(stepNode.title || "(untitled step)") + "</h3>" +
           (stepNode.caution ? '<div class="pe-guide-caution">' + escapeHtml(stepNode.caution) + "</div>" : "") +
-          (stepNode.imageData ? '<img src="' + stepNode.imageData + '" alt="' + escapeAttr(stepNode.imageName || "") + '" />' : "") +
+          (stepNode.hasImage ? '<img alt="' + escapeAttr(stepNode.imageName || "") + '" data-pe-photo="' + photoAttr(process.id, stepPhotoSlot(stepNode.id)) + '" />' : "") +
           '<div class="pe-guide-body">' + escapeHtml(stepNode.body || "") + "</div>" +
           '<div class="btn-row">' +
           '<button type="button" class="ghost" id="btnGuidePrev"' + (guideStepIndex <= 0 ? " disabled" : "") + ">Back</button>" +
@@ -787,6 +1123,8 @@
 
     var mount = pane.querySelector("#peGuideMount");
     if (mount) mount.innerHTML = bodyHtml;
+
+    hydratePhotos(pane);
 
     pane.querySelectorAll("[data-pe-guide-branch]").forEach(function (btn) {
       btn.onclick = function () {
@@ -830,20 +1168,25 @@
   }
 
   function exportSingleProcess(process) {
-    var payload = {
-      format: EXPORT_FORMAT,
-      version: 1,
-      exportedAt: nowISO(),
-      processes: [process],
-    };
-    var slug = (process.title || "process").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "process";
-    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "process-" + slug + ".json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast("Exported \"" + process.title + "\"");
+    var copy = JSON.parse(JSON.stringify(process));
+    embedPhotosForExport([copy]).then(function () {
+      var payload = {
+        format: EXPORT_FORMAT,
+        version: 1,
+        exportedAt: nowISO(),
+        processes: [copy],
+      };
+      var slug = (process.title || "process").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "process";
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "process-" + slug + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Exported \"" + process.title + "\"");
+    }).catch(function () {
+      toast("Export failed");
+    });
   }
 
   function renderProcessDetail(process) {
@@ -929,11 +1272,13 @@
 
     document.getElementById("btnDeleteProcess").onclick = function () {
       if (!confirm('Delete process "' + process.title + '" and all steps?')) return;
-      state.processes = state.processes.filter(function (p) { return p.id !== process.id; });
-      selectedProcessId = null;
-      expandedPePath = null;
-      persist();
-      renderProcessList();
+      deleteAllProcessPhotos(process.id).finally(function () {
+        state.processes = state.processes.filter(function (p) { return p.id !== process.id; });
+        selectedProcessId = null;
+        expandedPePath = null;
+        persist();
+        renderProcessList();
+      });
     };
 
     bindProcessDetailEvents(process);
@@ -1011,13 +1356,18 @@
           toast("No processes found in this file");
           return;
         }
-        var added = mergeProcesses(processes.map(normalizeProcess));
-        persist();
-        if (processes.length === 1 && added === 1) {
-          selectedProcessId = state.processes[state.processes.length - 1].id;
-        }
-        renderProcessList();
-        toast("Added " + added + " process" + (added === 1 ? "" : "es"));
+        var normalized = processes.map(normalizeProcess);
+        importPhotosFromProcesses(processes).then(function () {
+          var added = mergeProcesses(normalized);
+          persist();
+          if (processes.length === 1 && added === 1) {
+            selectedProcessId = state.processes[state.processes.length - 1].id;
+          }
+          renderProcessList();
+          toast("Added " + added + " process" + (added === 1 ? "" : "es"));
+        }).catch(function () {
+          toast("Import failed");
+        });
       } catch (e) {
         toast("Invalid JSON file");
       }
@@ -1026,15 +1376,20 @@
   }
 
   function exportAll() {
-    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-    var a = document.createElement("a");
-    var d = new Date();
-    var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-    a.href = URL.createObjectURL(blob);
-    a.download = "process-guide-backup-" + stamp + ".json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast("Backup exported");
+    var copy = JSON.parse(JSON.stringify(state));
+    embedPhotosForExport(copy.processes).then(function () {
+      var blob = new Blob([JSON.stringify(copy, null, 2)], { type: "application/json" });
+      var a = document.createElement("a");
+      var d = new Date();
+      var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      a.href = URL.createObjectURL(blob);
+      a.download = "process-guide-backup-" + stamp + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Backup exported");
+    }).catch(function () {
+      toast("Export failed");
+    });
   }
 
   function switchView(view) {
@@ -1083,6 +1438,7 @@
     };
 
     document.getElementById("btnExportAll").onclick = exportAll;
+    document.getElementById("btnClearPhotos").onclick = clearAllProcessPhotos;
     document.getElementById("importFile").onchange = function (e) {
       var file = e.target.files && e.target.files[0];
       e.target.value = "";
@@ -1094,7 +1450,9 @@
     });
   }
 
-  state = loadState();
-  wireEvents();
-  renderProcessList();
+  loadState().then(function (st) {
+    state = st;
+    wireEvents();
+    renderProcessList();
+  });
 })();

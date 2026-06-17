@@ -187,6 +187,25 @@ function clearAllMenuPhotos() {
     });
   });
 }
+function clearMenuPhotosOnly() {
+  if (!confirm('Clear all menu photos from this device?\n\nYour favorites, tags, and place edits stay — only menu images are removed.')) return;
+  var btn = document.getElementById('clear-photos-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Clearing…'; }
+  var st = loadAppState();
+  var names = Object.keys(st.menuPhotos || {});
+  clearAllMenuPhotos().then(function() {
+    st.menuPhotos = {};
+    saveAppState(st);
+    names.forEach(function(n) { invalidateMenuPhotoCache(n); });
+    revokeMenuPhotoUrl();
+    showStatus('Menu photos cleared');
+    render();
+  }).catch(function() {
+    showStatus('Could not clear menu photos');
+  }).finally(function() {
+    if (btn) { btn.disabled = false; btn.textContent = 'Clear photos'; }
+  });
+}
 function hasMenuPhoto(name) {
   var st = loadAppState();
   return !!(st.menuPhotos && st.menuPhotos[name]);
@@ -1305,6 +1324,7 @@ document.getElementById('clear-edits-btn').addEventListener('click', function() 
     location.reload();
   });
 });
+document.getElementById('clear-photos-btn').addEventListener('click', clearMenuPhotosOnly);
 
 function exportJsonBackup() {
   var st = loadAppState();
