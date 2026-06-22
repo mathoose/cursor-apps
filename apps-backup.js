@@ -506,10 +506,11 @@
           var p = JSON.parse(raw);
           if (!p || !Array.isArray(p.shows) || !Array.isArray(p.books)) return null;
           return {
-            version: p.version || 1,
+            version: p.version || 2,
             shows: p.shows,
             books: p.books,
             reminders: Array.isArray(p.reminders) ? p.reminders : [],
+            subscriptions: Array.isArray(p.subscriptions) ? p.subscriptions : [],
           };
         } catch (e) {
           return null;
@@ -520,10 +521,11 @@
         return writeKey(
           "media-shelf-v1",
           JSON.stringify({
-            version: slice.version || 1,
+            version: slice.version || 2,
             shows: slice.shows,
             books: slice.books,
             reminders: Array.isArray(slice.reminders) ? slice.reminders : [],
+            subscriptions: Array.isArray(slice.subscriptions) ? slice.subscriptions : [],
           })
         );
       },
@@ -539,17 +541,20 @@
         if (!incoming) return existing;
         if (!existing) return incoming;
         var out = {
-          version: 1,
+          version: 2,
           shows: (existing.shows || []).slice(),
           books: (existing.books || []).slice(),
           reminders: (existing.reminders || []).slice(),
+          subscriptions: (existing.subscriptions || []).slice(),
         };
         var showIds = {};
         var bookIds = {};
         var remIds = {};
+        var subIds = {};
         out.shows.forEach(function (s) { showIds[s.id] = true; });
         out.books.forEach(function (b) { bookIds[b.id] = true; });
         out.reminders.forEach(function (r) { remIds[r.id] = true; });
+        out.subscriptions.forEach(function (s) { subIds[s.id] = true; });
         (incoming.shows || []).forEach(function (s) {
           if (!s || showIds[s.id]) return;
           out.shows.push(s);
@@ -564,6 +569,11 @@
           if (!r || remIds[r.id]) return;
           out.reminders.push(r);
           remIds[r.id] = true;
+        });
+        (incoming.subscriptions || []).forEach(function (s) {
+          if (!s || subIds[s.id]) return;
+          out.subscriptions.push(s);
+          subIds[s.id] = true;
         });
         return out;
       },
@@ -689,6 +699,42 @@
   function getLastExportedAt() {
     var ts = readLauncherMeta().lastExportedAt;
     return typeof ts === "string" ? ts : null;
+  }
+
+  function getHiddenAppIds() {
+    var meta = readLauncherMeta();
+    return Array.isArray(meta.hiddenApps) ? meta.hiddenApps.filter(Boolean) : [];
+  }
+
+  function setHiddenAppIds(ids) {
+    var meta = readLauncherMeta();
+    meta.hiddenApps = (ids || []).filter(Boolean);
+    writeLauncherMeta(meta);
+    return meta.hiddenApps;
+  }
+
+  function hideApp(appId) {
+    if (!appId) return getHiddenAppIds();
+    var ids = getHiddenAppIds();
+    if (ids.indexOf(appId) >= 0) return ids;
+    ids.push(appId);
+    return setHiddenAppIds(ids);
+  }
+
+  function unhideApp(appId) {
+    if (!appId) return getHiddenAppIds();
+    return setHiddenAppIds(getHiddenAppIds().filter(function (id) {
+      return id !== appId;
+    }));
+  }
+
+  function mergeHiddenAppIds(incoming) {
+    if (!Array.isArray(incoming) || !incoming.length) return getHiddenAppIds();
+    var merged = getHiddenAppIds().slice();
+    incoming.forEach(function (id) {
+      if (id && merged.indexOf(id) < 0) merged.push(id);
+    });
+    return setHiddenAppIds(merged);
   }
 
   function formatBytes(bytes) {
@@ -1016,6 +1062,7 @@
       exportedAt: new Date().toISOString(),
       excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1"],
       apps: apps,
+      launcher: { hiddenApps: getHiddenAppIds() },
       _meta: { included: included },
     };
   }
@@ -1060,6 +1107,9 @@
       if (reg.writeSlice(toWrite)) imported.push(id);
       else failed.push(id);
     });
+    if (bundle.launcher && Array.isArray(bundle.launcher.hiddenApps)) {
+      mergeHiddenAppIds(bundle.launcher.hiddenApps);
+    }
     return {
       ok: failed.length === 0,
       imported: imported,
@@ -1138,6 +1188,10 @@
     formatExportDate: formatExportDate,
     getLastExportedAt: getLastExportedAt,
     recordLastExport: recordLastExport,
+    getHiddenAppIds: getHiddenAppIds,
+    setHiddenAppIds: setHiddenAppIds,
+    hideApp: hideApp,
+    unhideApp: unhideApp,
   };
 
   global.AppsBackup = AppsBackup;

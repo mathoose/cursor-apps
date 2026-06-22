@@ -38,13 +38,67 @@
       margin-bottom: 28px;
       text-shadow: 0 2px 12px rgba(0,0,0,0.25);
     }
+    .grid-wrap {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .grid-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+    .edit-toggle {
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .edit-toggle.active {
+      background: rgba(255, 255, 255, 0.92);
+      color: #1a1a2e;
+    }
+    .edit-toggle:active { opacity: 0.85; }
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 20px 12px;
-      max-width: 400px;
-      margin: 0 auto;
     }
+    .app-slot {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .app-hide-btn {
+      position: absolute;
+      top: -6px;
+      right: 2px;
+      z-index: 2;
+      width: 22px;
+      height: 22px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(220, 38, 38, 0.95);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .app-hide-btn:active { transform: scale(0.92); }
+    body.edit-mode .app:active .icon-wrap { transform: none; opacity: 1; }
+    body.edit-mode .app { pointer-events: none; }
+    body.edit-mode .app-hide-btn { pointer-events: auto; }
     .app {
       display: flex;
       flex-direction: column;
@@ -218,6 +272,53 @@
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
     }
+    .hidden-apps-section {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .hidden-apps-section[hidden] { display: none !important; }
+    .hidden-apps-label {
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.65;
+      margin-bottom: 8px;
+    }
+    .hidden-app-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 6px 0;
+    }
+    .hidden-app-row + .hidden-app-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      margin-top: 4px;
+      padding-top: 10px;
+    }
+    .hidden-app-name {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .unhide-btn {
+      flex-shrink: 0;
+      border: none;
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+    .unhide-btn:active { opacity: 0.85; }
     .import-sheet {
       position: fixed;
       inset: 0;
@@ -363,10 +464,19 @@
 <body>
   <p class="status" id="status" aria-live="polite">Loading apps…</p>
   <h1 class="page-title" id="pageTitle">Mathoose's apps</h1>
-  <div class="grid" id="grid"></div>
+  <div class="grid-wrap">
+    <div class="grid-toolbar">
+      <button type="button" class="edit-toggle" id="editToggle" hidden>Edit</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
 
   <div class="dock-wrap">
     <p class="dock-label">Backup</p>
+    <div class="hidden-apps-section" id="hiddenAppsSection" hidden>
+      <p class="hidden-apps-label">Hidden apps</p>
+      <div id="hiddenAppsList"></div>
+    </div>
     <div class="storage-stats" id="storageStats" aria-label="Storage usage">
       <div class="storage-stat">
         <span class="storage-stat-label">On this device</span>
@@ -396,7 +506,7 @@
     <p class="dock-hint">JSON backup is small — habits, tasks, menus, etc. Photos stay in browser storage and export separately inside each app (ZIP). Use selective import to restore only what you need.</p>
   </div>
 
-  <p class="hint">Tap an icon to open. In Safari: Share → Add to Home Screen to pin this launcher.</p>
+  <p class="hint">Tap to open · long-press or Edit to hide apps · Safari: Share → Add to Home Screen to pin this launcher.</p>
   <p class="version" id="homeVersion" aria-label="Launcher version"></p>
 
   <input type="file" id="importAllInput" accept="application/json,.json" />
@@ -424,8 +534,9 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "2 · Jun 17, 2026";
+  const HOME_VERSION = "3 · Jun 22, 2026";
   const ICON_VERSION = "6";
+  const LONG_PRESS_MS = 500;
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "apple-touch-icon.png", "icon.svg", "icon.png"];
   const FALLBACK_MANIFEST = {
@@ -435,6 +546,12 @@
       { id: "aruba-packing", name: "Closet Picker", subtitle: "Outfits & wardrobe" }
     ]
   };
+
+  var launcherData = { title: "Mathoose's apps", apps: [] };
+  var editMode = false;
+  var longPressTimer = null;
+  var longPressTarget = null;
+  var suppressClickUntil = 0;
 
   function humanize(slug) {
     return slug.replace(/-/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
@@ -512,14 +629,79 @@
     return ICON_FILES.map(function (f) { return base + f + q; });
   }
 
-  function renderApp(app) {
+  function getHiddenSet() {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.getHiddenAppIds) return new Set();
+    var ids = AppsBackup.getHiddenAppIds();
+    var known = {};
+    launcherData.apps.forEach(function (a) { known[a.id] = true; });
+    return new Set(ids.filter(function (id) { return known[id]; }));
+  }
+
+  function hideAppById(appId) {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.hideApp) return;
+    AppsBackup.hideApp(appId);
+    var app = launcherData.apps.find(function (a) { return a.id === appId; });
+    showToast("Hidden" + (app ? ": " + app.name : ""));
+    renderLauncher();
+  }
+
+  function unhideAppById(appId) {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.unhideApp) return;
+    AppsBackup.unhideApp(appId);
+    var app = launcherData.apps.find(function (a) { return a.id === appId; });
+    showToast("Restored" + (app ? ": " + app.name : ""));
+    renderLauncher();
+  }
+
+  function setEditMode(on) {
+    editMode = !!on;
+    document.body.classList.toggle("edit-mode", editMode);
+    var btn = document.getElementById("editToggle");
+    if (btn) {
+      btn.textContent = editMode ? "Done" : "Edit";
+      btn.classList.toggle("active", editMode);
+      btn.setAttribute("aria-pressed", editMode ? "true" : "false");
+    }
+    renderLauncher();
+  }
+
+  function renderApp(app, hiddenSet) {
     const firstIcon = app.id + "/app-icon.png?v=" + ICON_VERSION;
-    return (
+    const link =
       '<a class="app" href="' + escapeHtml(app.href) + '" data-app-id="' + escapeHtml(app.id) + '">' +
         '<div class="icon-wrap"><img src="' + escapeHtml(firstIcon) + '" alt="" loading="lazy" /></div>' +
         '<span class="app-name">' + escapeHtml(app.name) + "</span>" +
-      "</a>"
-    );
+      "</a>";
+    if (editMode && !hiddenSet.has(app.id)) {
+      return (
+        '<div class="app-slot">' +
+        '<button type="button" class="app-hide-btn" data-hide-id="' + escapeHtml(app.id) + '" aria-label="Hide ' + escapeHtml(app.name) + '">−</button>' +
+        link +
+        "</div>"
+      );
+    }
+    return link;
+  }
+
+  function renderHiddenApps(hiddenSet) {
+    var section = document.getElementById("hiddenAppsSection");
+    var list = document.getElementById("hiddenAppsList");
+    if (!section || !list) return;
+    var hiddenApps = launcherData.apps.filter(function (a) { return hiddenSet.has(a.id); });
+    if (!hiddenApps.length) {
+      section.hidden = true;
+      list.innerHTML = "";
+      return;
+    }
+    section.hidden = false;
+    list.innerHTML = hiddenApps.map(function (app) {
+      return (
+        '<div class="hidden-app-row">' +
+        '<span class="hidden-app-name">' + escapeHtml(app.name) + "</span>" +
+        '<button type="button" class="unhide-btn" data-unhide-id="' + escapeHtml(app.id) + '">Show</button>' +
+        "</div>"
+      );
+    }).join("");
   }
 
   function bindIconFallbacks() {
@@ -541,6 +723,67 @@
     });
   }
 
+  function bindLongPressHide() {
+    document.querySelectorAll(".app[data-app-id]").forEach(function (link) {
+      if (link.dataset.longPressBound) return;
+      link.dataset.longPressBound = "1";
+
+      function clearPress() {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+        longPressTarget = null;
+      }
+
+      function startPress(e) {
+        if (editMode) return;
+        clearPress();
+        longPressTarget = link;
+        longPressTimer = setTimeout(function () {
+          longPressTimer = null;
+          var id = link.getAttribute("data-app-id");
+          if (id) {
+            suppressClickUntil = Date.now() + 400;
+            hideAppById(id);
+          }
+          longPressTarget = null;
+        }, LONG_PRESS_MS);
+      }
+
+      link.addEventListener("touchstart", startPress, { passive: true });
+      link.addEventListener("mousedown", startPress);
+      link.addEventListener("touchend", clearPress);
+      link.addEventListener("touchmove", clearPress);
+      link.addEventListener("mouseup", clearPress);
+      link.addEventListener("mouseleave", clearPress);
+      link.addEventListener("click", function (e) {
+        if (Date.now() < suppressClickUntil) {
+          e.preventDefault();
+        }
+      });
+    });
+  }
+
+  function bindLauncherActions() {
+    document.getElementById("grid").addEventListener("click", function (e) {
+      var hideBtn = e.target.closest("[data-hide-id]");
+      if (hideBtn) {
+        e.preventDefault();
+        hideAppById(hideBtn.getAttribute("data-hide-id"));
+      }
+    });
+    document.getElementById("hiddenAppsList").addEventListener("click", function (e) {
+      var unhideBtn = e.target.closest("[data-unhide-id]");
+      if (unhideBtn) {
+        unhideAppById(unhideBtn.getAttribute("data-unhide-id"));
+      }
+    });
+    document.getElementById("editToggle").addEventListener("click", function () {
+      setEditMode(!editMode);
+    });
+  }
+
   function renderSkeleton(n) {
     let h = "";
     for (let i = 0; i < (n || 4); i++) {
@@ -549,11 +792,34 @@
     document.getElementById("grid").innerHTML = h;
   }
 
-  function render(data) {
-    document.getElementById("pageTitle").textContent = data.title;
-    document.getElementById("status").textContent = data.apps.length + " app" + (data.apps.length === 1 ? "" : "s");
-    document.getElementById("grid").innerHTML = data.apps.map(renderApp).join("");
+  function renderLauncher() {
+    var hiddenSet = getHiddenSet();
+    var visibleApps = launcherData.apps.filter(function (a) {
+      return editMode ? !hiddenSet.has(a.id) : !hiddenSet.has(a.id);
+    });
+    document.getElementById("pageTitle").textContent = launcherData.title;
+
+    var statusParts = [visibleApps.length + " app" + (visibleApps.length === 1 ? "" : "s")];
+    if (hiddenSet.size) {
+      statusParts.push(hiddenSet.size + " hidden");
+    }
+    if (editMode) statusParts.push("edit mode");
+    document.getElementById("status").textContent = statusParts.join(" · ");
+
+    var editBtn = document.getElementById("editToggle");
+    if (editBtn) editBtn.hidden = !launcherData.apps.length;
+
+    document.getElementById("grid").innerHTML = visibleApps.map(function (app) {
+      return renderApp(app, hiddenSet);
+    }).join("");
     bindIconFallbacks();
+    bindLongPressHide();
+    renderHiddenApps(hiddenSet);
+  }
+
+  function render(data) {
+    launcherData = data;
+    renderLauncher();
   }
 
   function renderOffline(manifest) {
@@ -567,6 +833,16 @@
     });
     document.getElementById("status").textContent = "Offline list";
     render({ title: manifest.title || "Mathoose's apps", apps: apps });
+  }
+
+  function pruneStaleHiddenApps() {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.getHiddenAppIds || !AppsBackup.setHiddenAppIds) return;
+    var known = {};
+    launcherData.apps.forEach(function (a) { known[a.id] = true; });
+    var pruned = AppsBackup.getHiddenAppIds().filter(function (id) { return known[id]; });
+    if (pruned.length !== AppsBackup.getHiddenAppIds().length) {
+      AppsBackup.setHiddenAppIds(pruned);
+    }
   }
 
   var toastTimer = null;
@@ -746,6 +1022,7 @@
       var result = AppsBackup.importAll(pendingImportBundle, { mode: "merge", appIds: selected });
       closeImportSheet();
       refreshStorageStats();
+      renderLauncher();
       if (result.imported.length) {
         showToast(
           "Imported " +
@@ -770,6 +1047,7 @@
 
   renderSkeleton(4);
   initBackupDock();
+  bindLauncherActions();
   refreshStorageStats();
 
   document.addEventListener("visibilitychange", function () {
@@ -785,9 +1063,15 @@
         })};
       });
     })
-    .then(render)
+    .then(function (data) {
+      render(data);
+      pruneStaleHiddenApps();
+      renderLauncher();
+    })
     .catch(function () {
       renderOffline(FALLBACK_MANIFEST);
+      pruneStaleHiddenApps();
+      renderLauncher();
     });
 })();
   </script>

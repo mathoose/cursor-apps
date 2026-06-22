@@ -13,7 +13,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body class="view-home">
   <header class="app-header" id="appHeader">
@@ -34,20 +34,15 @@
   <main>
     <!-- Home -->
     <section class="view active" id="viewHome" data-view="home">
-      <div class="hero-stats">
-        <div class="stat-card watch">
-          <div class="stat-value" id="homeWatchCount">0</div>
-          <div class="stat-label">Watching</div>
-        </div>
-        <div class="stat-card read">
-          <div class="stat-value" id="homeReadCount">0</div>
-          <div class="stat-label">Reading</div>
-        </div>
+      <p class="section-label section-label-overdue">Overdue</p>
+      <div class="media-list" id="homeOverdue"></div>
+      <div class="empty-state empty-state-compact" id="homeOverdueEmpty" hidden>
+        <p>Nothing overdue — you're caught up.</p>
       </div>
-      <p class="section-label">Coming up</p>
+      <p class="section-label">Next 5 days</p>
       <div class="media-list" id="homeUpcoming"></div>
-      <div class="empty-state" id="homeUpcomingEmpty" hidden>
-        <p>No upcoming episodes or reminders.<br />Add an airing show or set a reminder.</p>
+      <div class="empty-state empty-state-compact" id="homeUpcomingEmpty" hidden>
+        <p>No episodes or reminders in the next 5 days.</p>
       </div>
       <p class="section-label">Continue watching</p>
       <div class="media-list" id="homeContinueWatch"></div>
@@ -91,22 +86,36 @@
       </div>
     </section>
 
-    <!-- Reminders -->
-    <section class="view" id="viewReminders" data-view="reminders">
-      <p class="section-label">This week</p>
-      <div class="media-list" id="remindersWeek"></div>
-      <div class="empty-state" id="remindersWeekEmpty" hidden>
-        <p>Nothing scheduled this week.</p>
+    <!-- Calendar -->
+    <section class="view" id="viewCalendar" data-view="calendar">
+      <div class="cal-header">
+        <button type="button" class="cal-nav-btn" id="calPrevBtn" aria-label="Previous month">
+          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 class="cal-month-label" id="calMonthLabel"></h2>
+        <button type="button" class="cal-nav-btn" id="calNextBtn" aria-label="Next month">
+          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
       </div>
-      <p class="section-label">Later</p>
-      <div class="media-list" id="remindersLater"></div>
-      <div class="empty-state" id="remindersLaterEmpty" hidden>
-        <p>No later reminders.</p>
+      <div class="cal-grid" id="calGrid"></div>
+      <p class="section-label" id="calAgendaLabel">Today</p>
+      <div class="media-list" id="calAgenda"></div>
+      <div class="empty-state empty-state-compact" id="calAgendaEmpty" hidden>
+        <p>Nothing scheduled this day.</p>
       </div>
-      <p class="section-label">Airing schedules</p>
-      <div class="media-list" id="remindersSchedules"></div>
-      <div class="empty-state" id="remindersSchedulesEmpty" hidden>
-        <p>No airing shows with a release schedule.</p>
+    </section>
+
+    <!-- Subscriptions -->
+    <section class="view" id="viewSubscriptions" data-view="subscriptions">
+      <p class="section-label">Streaming</p>
+      <div class="media-list" id="subsStreaming"></div>
+      <div class="empty-state empty-state-compact" id="subsStreamingEmpty" hidden>
+        <p>No streaming subscriptions yet.</p>
+      </div>
+      <p class="section-label">TV channels</p>
+      <div class="media-list" id="subsChannels"></div>
+      <div class="empty-state empty-state-compact" id="subsChannelsEmpty" hidden>
+        <p>No TV channels saved yet.</p>
       </div>
     </section>
   </main>
@@ -124,14 +133,18 @@
       <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 3-5 3V9.5z" fill="currentColor" stroke="none"/></svg>
       <span class="nav-btn-label">Watch</span>
     </button>
+    <button type="button" class="nav-btn" data-view="calendar" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="nav-btn-label">Calendar</span>
+      <span class="nav-badge" id="calendarBadge" hidden>0</span>
+    </button>
     <button type="button" class="nav-btn" data-view="read" role="tab" aria-selected="false">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
       <span class="nav-btn-label">Read</span>
     </button>
-    <button type="button" class="nav-btn" data-view="reminders" role="tab" aria-selected="false">
-      <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      <span class="nav-btn-label">Reminders</span>
-      <span class="nav-badge" id="reminderBadge" hidden>0</span>
+    <button type="button" class="nav-btn" data-view="subscriptions" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
+      <span class="nav-btn-label">Subs</span>
     </button>
   </nav>
 
@@ -205,8 +218,15 @@
       </div>
 
       <div class="field">
+        <label class="field-label" for="showSubscription">Where you watch</label>
+        <select id="showSubscription">
+          <option value="">None</option>
+        </select>
+      </div>
+
+      <div class="field">
         <label class="field-label" for="showNotes">Notes</label>
-        <textarea id="showNotes" placeholder="Where to watch, dub vs sub…"></textarea>
+        <textarea id="showNotes" placeholder="Dub vs sub, season info…"></textarea>
       </div>
 
       <div class="sheet-actions">
@@ -407,6 +427,50 @@
     </div>
   </div>
 
+  <!-- Subscription form -->
+  <div class="overlay" id="subscriptionFormOverlay" role="dialog" aria-modal="true" aria-labelledby="subscriptionFormTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="subscriptionFormTitle">Add subscription</h2>
+
+      <div class="field">
+        <label class="field-label" for="subscriptionName">Name</label>
+        <input type="text" id="subscriptionName" placeholder="e.g. Netflix, HBO" autocomplete="off" />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Type</span>
+        <div class="segmented" id="subscriptionKindSeg">
+          <button type="button" class="active" data-kind="streaming">Streaming</button>
+          <button type="button" data-kind="channel">TV channel</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="subscriptionCost">Monthly cost (optional)</label>
+        <input type="number" id="subscriptionCost" min="0" step="0.01" placeholder="0.00" inputmode="decimal" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="subscriptionNotes">Notes</label>
+        <textarea id="subscriptionNotes" placeholder="Plan tier, login, renewal date…"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="toggle-row" for="subscriptionActive">
+          <span>Active subscription</span>
+          <input type="checkbox" id="subscriptionActive" checked />
+        </label>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="subscriptionFormCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="subscriptionFormSave">Save</button>
+      </div>
+      <button type="button" class="btn btn-danger" id="subscriptionDeleteBtn" hidden style="width:100%;margin-top:10px">Delete</button>
+    </div>
+  </div>
+
   <!-- Settings -->
   <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true">
     <div class="sheet">
@@ -431,6 +495,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

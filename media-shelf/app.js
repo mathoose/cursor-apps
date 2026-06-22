@@ -5,10 +5,13 @@
   var DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAY_LABELS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+  var HOME_WINDOW_DAYS = 5;
+
   var state = {
     shows: [],
     books: [],
     reminders: [],
+    subscriptions: [],
   };
 
   var ui = {
@@ -18,11 +21,15 @@
     editingShowId: null,
     editingBookId: null,
     editingReminderId: null,
+    editingSubscriptionId: null,
     detailShowId: null,
     detailBookId: null,
     showType: "binge",
     bookType: "book",
+    subscriptionKind: "streaming",
     selectedDays: [],
+    calendarMonth: null,
+    selectedDate: null,
   };
 
   var toastTimer = null;
@@ -51,7 +58,7 @@
   }
 
   function defaultData() {
-    return { version: 1, shows: [], books: [], reminders: [] };
+    return { version: 2, shows: [], books: [], reminders: [], subscriptions: [] };
   }
 
   function normalizeShow(raw) {
@@ -80,6 +87,24 @@
       lastWatchedAt: raw.lastWatchedAt || null,
       status: ["watching", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "watching",
       schedule: schedule,
+      subscriptionId: raw.subscriptionId || null,
+      notes: raw.notes ? String(raw.notes) : "",
+      createdAt: raw.createdAt || new Date().toISOString(),
+      updatedAt: raw.updatedAt || new Date().toISOString(),
+    };
+  }
+
+  function normalizeSubscription(raw) {
+    if (!raw || !raw.name) return null;
+    var cost = raw.cost;
+    if (cost != null && cost !== "") cost = parseFloat(cost);
+    else cost = null;
+    return {
+      id: raw.id || uid(),
+      name: String(raw.name).trim(),
+      kind: raw.kind === "channel" ? "channel" : "streaming",
+      active: raw.active !== false,
+      cost: cost != null && !isNaN(cost) ? cost : null,
       notes: raw.notes ? String(raw.notes) : "",
       createdAt: raw.createdAt || new Date().toISOString(),
       updatedAt: raw.updatedAt || new Date().toISOString(),
@@ -122,10 +147,11 @@
   function normalizeData(raw) {
     if (!raw || typeof raw !== "object") return defaultData();
     return {
-      version: 1,
+      version: 2,
       shows: (raw.shows || []).map(normalizeShow).filter(Boolean),
       books: (raw.books || []).map(normalizeBook).filter(Boolean),
       reminders: (raw.reminders || []).map(normalizeReminder).filter(Boolean),
+      subscriptions: (raw.subscriptions || []).map(normalizeSubscription).filter(Boolean),
     };
   }
 
@@ -143,6 +169,7 @@
   }
 
   function save() {
+    state.version = 2;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     render();
   }
@@ -153,6 +180,19 @@
 
   function getBook(id) {
     return state.books.find(function (b) { return b.id === id; }) || null;
+  }
+
+  function getSubscription(id) {
+    return state.subscriptions.find(function (s) { return s.id === id; }) || null;
+  }
+
+  function dateStr(d) {
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+
+  function todayStr() {
+    return dateStr(new Date());
   }
 
   function formatTime12(hour, minute) {
@@ -251,6 +291,57 @@
     return best;
   }
 
+  function getPreviousAirDate(show, beforeDate) {
+    if (!show || show.type !== "airing" || !show.schedule.length) return null;
+    var before = beforeDate ? new Date(beforeDate) : new Date();
+    var best = null;
+    for (var offset = 0; offset <= 28; offset++) {
+      var day = addDays(startOfDay(before), -offset);
+      var dow = day.getDay();
+      show.schedule.forEach(function (slot) {
+        if (slot.day !== dow) return;
+        var candidate = new Date(day);
+        candidate.setHours(slot.hour, slot.minute, 0, 0);
+        if (candidate > before) return;
+        if (!best || candidate > best) best = candidate;
+      });
+    }
+    return best;
+  }
+
+  function getLatestDueAirDate(show, asOf) {
+    return getPreviousAirDate(show, asOf || new Date());
+  }
+
+  function isCaughtUp(show, asOf) {
+    if (!show || show.type !== "airing" || !show.schedule.length) return true;
+    var due = getLatestDueAirDate(show, asOf || new Date());
+    if (!due) return true;
+    if (!show.lastWatchedAt) {
+      if (show.createdAt && due < new Date(show.createdAt)) return true;
+      return false;
+    }
+    return new Date(show.lastWatchedAt) >= due;
+  }
+
+  function getAirDatesInRange(show, start, end) {
+    if (!show || show.type !== "airing" || !show.schedule.length) return [];
+    var results = [];
+    var cursor = startOfDay(start);
+    var endDay = startOfDay(end);
+    while (cursor <= endDay) {
+      var dow = cursor.getDay();
+      show.schedule.forEach(function (slot) {
+        if (slot.day !== dow) return;
+        var candidate = new Date(cursor);
+        candidate.setHours(slot.hour, slot.minute, 0, 0);
+        if (candidate >= start && candidate <= end) results.push(new Date(candidate));
+      });
+      cursor = addDays(cursor, 1);
+    }
+    return results.sort(function (a, b) { return a - b; });
+  }
+
   function formatSchedule(show) {
     if (!show.schedule || !show.schedule.length) return "No schedule set";
     var days = show.schedule
@@ -302,29 +393,50 @@
     return null;
   }
 
+  function formatOverdueLabel(dateIso) {
+    var d = parseDate(dateIso);
+    if (!d) return "Overdue";
+    var now = new Date();
+    var diffDays = Math.floor((startOfDay(now) - startOfDay(d)) / 86400000);
+    if (diffDays <= 0) return "Due today";
+    if (diffDays === 1) return "1 day late";
+    return diffDays + " days late";
+  }
+
+  function buildEpisodeReminderItem(show, atDate, overdue) {
+    return {
+      id: "air-" + show.id + "-" + atDate.getTime(),
+      kind: "episode",
+      title: show.title,
+      subtitle: overdue ? "Missed episode · " + formatSchedule(show) : "New episode · " + formatSchedule(show),
+      at: atDate.toISOString(),
+      showId: show.id,
+      auto: true,
+      overdue: !!overdue,
+    };
+  }
+
   function collectReminders() {
     var items = [];
     var now = new Date();
-    var weekEnd = addDays(startOfDay(now), 7);
+    var homeWindowEnd = addDays(startOfDay(now), HOME_WINDOW_DAYS + 1);
 
     state.shows.forEach(function (show) {
       if (show.status !== "watching" || show.type !== "airing" || !show.schedule.length) return;
-      var next = getNextAirDate(show, now);
-      if (!next) return;
-      items.push({
-        id: "air-" + show.id + "-" + next.getTime(),
-        kind: "episode",
-        title: show.title,
-        subtitle: "New episode · " + formatSchedule(show),
-        at: next.toISOString(),
-        showId: show.id,
-        auto: true,
-      });
+      if (!isCaughtUp(show, now)) {
+        var missed = getLatestDueAirDate(show, now);
+        if (missed) items.push(buildEpisodeReminderItem(show, missed, true));
+      } else {
+        var next = getNextAirDate(show, now);
+        if (next) items.push(buildEpisodeReminderItem(show, next, false));
+      }
     });
 
     state.reminders.forEach(function (r) {
       if (!r.enabled || !r.at) return;
       var show = r.showId ? getShow(r.showId) : null;
+      var d = parseDate(r.at);
+      var overdue = d && d < now && !isSameDay(d, now);
       items.push({
         id: r.id,
         kind: "custom",
@@ -333,6 +445,7 @@
         at: r.at,
         showId: r.showId,
         auto: false,
+        overdue: !!overdue,
       });
     });
 
@@ -340,19 +453,80 @@
       return new Date(a.at) - new Date(b.at);
     });
 
-    var week = [];
-    var later = [];
+    var overdue = [];
+    var upcoming = [];
     var todayCount = 0;
+    var byDate = {};
 
     items.forEach(function (item) {
       var d = parseDate(item.at);
       if (!d) return;
-      if (isSameDay(d, now)) todayCount++;
-      if (d < weekEnd) week.push(item);
-      else later.push(item);
+      var key = dateStr(d);
+      if (!byDate[key]) byDate[key] = [];
+      byDate[key].push(item);
+
+      if (item.overdue) overdue.push(item);
+      else if (d < homeWindowEnd) upcoming.push(item);
+
+      if (isSameDay(d, now) || item.overdue) todayCount++;
     });
 
-    return { all: items, week: week, later: later, todayCount: todayCount };
+    return {
+      all: items,
+      overdue: overdue,
+      upcoming: upcoming,
+      todayCount: todayCount,
+      badgeCount: overdue.length + items.filter(function (item) {
+        if (item.overdue) return false;
+        var d = parseDate(item.at);
+        return d && isSameDay(d, now);
+      }).length,
+      byDate: byDate,
+    };
+  }
+
+  function collectCalendarItems(rangeStart, rangeEnd) {
+    var items = [];
+
+    state.shows.forEach(function (show) {
+      if (show.type !== "airing" || show.status === "completed" || !show.schedule.length) return;
+      getAirDatesInRange(show, rangeStart, rangeEnd).forEach(function (d) {
+        items.push(buildEpisodeReminderItem(show, d, false));
+      });
+    });
+
+    state.reminders.forEach(function (r) {
+      if (!r.enabled || !r.at) return;
+      var d = parseDate(r.at);
+      if (!d || d < rangeStart || d > rangeEnd) return;
+      var show = r.showId ? getShow(r.showId) : null;
+      var now = new Date();
+      items.push({
+        id: r.id,
+        kind: "custom",
+        title: r.title,
+        subtitle: r.notes || (show ? "Linked to " + show.title : ""),
+        at: r.at,
+        showId: r.showId,
+        auto: false,
+        overdue: d < now && !isSameDay(d, now),
+      });
+    });
+
+    items.sort(function (a, b) {
+      return new Date(a.at) - new Date(b.at);
+    });
+
+    var byDate = {};
+    items.forEach(function (item) {
+      var d = parseDate(item.at);
+      if (!d) return;
+      var key = dateStr(d);
+      if (!byDate[key]) byDate[key] = [];
+      byDate[key].push(item);
+    });
+
+    return { all: items, byDate: byDate };
   }
 
   function renderShowCard(show) {
@@ -372,12 +546,17 @@
         '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
         '<div class="progress-label">' + show.episode + " / " + show.totalEpisodes + " episodes</div></div>";
     }
+    var sub = show.subscriptionId ? getSubscription(show.subscriptionId) : null;
+    var subPill = sub
+      ? '<div class="schedule-pill sub-pill"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>' +
+        escapeHtml(sub.name) + "</div>"
+      : "";
     return (
       '<button type="button" class="media-card" data-show-id="' + escapeHtml(show.id) + '">' +
       '<div class="media-card-top"><h3>' + escapeHtml(show.title) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
       '<div class="media-meta"><span><strong>' + escapeHtml(episodeLabel(show)) + "</strong></span>" +
       '<span>Last: ' + escapeHtml(last) + "</span></div>" +
-      progress + nextAir +
+      progress + nextAir + subPill +
       "</button>"
     );
   }
@@ -407,29 +586,55 @@
     );
   }
 
-  function renderReminderCard(item) {
+  function renderReminderCard(item, options) {
+    options = options || {};
+    var showQuickLog = options.showQuickLog !== false && item.kind === "episode" && item.showId;
     var d = parseDate(item.at);
     var now = new Date();
     var cls = "reminder-card";
-    if (d && d < now && !isSameDay(d, now)) cls += " past";
+    if (item.overdue) cls += " overdue";
     else if (d && isSameDay(d, now)) cls += " today";
+    else if (d && d < now) cls += " past";
     var iconClass = item.kind === "episode" ? "episode" : "custom";
     var iconSvg = item.kind === "episode"
       ? '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 3-5 3V9.5z" fill="currentColor" stroke="none"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
     var whenLabel = d ? formatDateTime(item.at) : "No date";
-    if (d && isSameDay(d, now)) whenLabel = "Today · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    if (item.overdue) whenLabel = formatOverdueLabel(item.at) + " · " + (d ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) : "");
+    else if (d && isSameDay(d, now)) whenLabel = "Today · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
     else if (d && isSameDay(d, addDays(now, 1))) whenLabel = "Tomorrow · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
     var attrs = item.auto ? ' data-auto-reminder="1"' : ' data-reminder-id="' + escapeHtml(item.id) + '"';
     if (item.showId) attrs += ' data-show-id="' + escapeHtml(item.showId) + '"';
 
+    var quickLogBtn = showQuickLog
+      ? '<button type="button" class="reminder-quick-log" data-quick-log-show="' + escapeHtml(item.showId) + '" aria-label="Mark watched">Watched</button>'
+      : "";
+
     return (
+      '<div class="reminder-row">' +
       '<button type="button" class="' + cls + '"' + attrs + ">" +
       '<div class="reminder-icon ' + iconClass + '">' + iconSvg + "</div>" +
       '<div class="reminder-body"><h4>' + escapeHtml(item.title) + "</h4>" +
       (item.subtitle ? "<p>" + escapeHtml(item.subtitle) + "</p>" : "") +
-      '<div class="reminder-when">' + escapeHtml(whenLabel) + "</div></div></button>"
+      '<div class="reminder-when">' + escapeHtml(whenLabel) + "</div></div></button>" +
+      quickLogBtn +
+      "</div>"
+    );
+  }
+
+  function renderSubscriptionCard(sub) {
+    var badgeClass = sub.active ? "airing" : "completed";
+    var badgeText = sub.active ? "Active" : "Inactive";
+    var kindLabel = sub.kind === "channel" ? "Channel" : "Streaming";
+    var cost = sub.cost != null ? '<span>$' + sub.cost.toFixed(2) + "/mo</span>" : "";
+    var notes = sub.notes ? '<p class="sub-notes">' + escapeHtml(sub.notes) + "</p>" : "";
+    return (
+      '<button type="button" class="media-card sub-card" data-subscription-id="' + escapeHtml(sub.id) + '">' +
+      '<div class="media-card-top"><h3>' + escapeHtml(sub.name) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
+      '<div class="media-meta"><span>' + kindLabel + "</span>" + cost + "</div>" +
+      notes +
+      "</button>"
     );
   }
 
@@ -464,15 +669,17 @@
   }
 
   function render() {
-    var watching = state.shows.filter(function (s) { return s.status === "watching"; });
-    var reading = state.books.filter(function (b) { return b.status === "reading"; });
-    document.getElementById("homeWatchCount").textContent = String(watching.length);
-    document.getElementById("homeReadCount").textContent = String(reading.length);
-
     var reminders = collectReminders();
-    var upcoming = reminders.week.slice(0, 5);
-    document.getElementById("homeUpcoming").innerHTML = upcoming.map(renderReminderCard).join("");
-    document.getElementById("homeUpcomingEmpty").hidden = upcoming.length > 0;
+
+    document.getElementById("homeOverdue").innerHTML = reminders.overdue.map(function (item) {
+      return renderReminderCard(item);
+    }).join("");
+    document.getElementById("homeOverdueEmpty").hidden = reminders.overdue.length > 0;
+
+    document.getElementById("homeUpcoming").innerHTML = reminders.upcoming.map(function (item) {
+      return renderReminderCard(item);
+    }).join("");
+    document.getElementById("homeUpcomingEmpty").hidden = reminders.upcoming.length > 0;
 
     var continueWatch = state.shows
       .filter(function (s) { return s.status === "watching"; })
@@ -496,42 +703,138 @@
     document.getElementById("readList").innerHTML = books.map(renderBookCard).join("");
     document.getElementById("readEmpty").hidden = books.length > 0;
 
-    document.getElementById("remindersWeek").innerHTML = reminders.week.map(renderReminderCard).join("");
-    document.getElementById("remindersWeekEmpty").hidden = reminders.week.length > 0;
-    document.getElementById("remindersLater").innerHTML = reminders.later.map(renderReminderCard).join("");
-    document.getElementById("remindersLaterEmpty").hidden = reminders.later.length > 0;
+    renderCalendar();
 
-    var airingShows = state.shows.filter(function (s) {
-      return s.type === "airing" && s.status !== "completed" && s.schedule.length;
-    });
-    document.getElementById("remindersSchedules").innerHTML = airingShows.map(function (show) {
-      var next = getNextAirDate(show);
-      return (
-        '<button type="button" class="media-card" data-show-id="' + escapeHtml(show.id) + '">' +
-        '<div class="media-card-top"><h3>' + escapeHtml(show.title) + '</h3><span class="badge airing">Airing</span></div>' +
-        '<div class="schedule-pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-        escapeHtml(formatSchedule(show)) + "</div>" +
-        (next ? '<div class="media-meta" style="margin-top:8px"><span>Next drop: <strong>' + escapeHtml(formatDateTime(next.toISOString())) + "</strong></span></div>" : "") +
-        "</button>"
-      );
-    }).join("");
-    document.getElementById("remindersSchedulesEmpty").hidden = airingShows.length > 0;
+    var streaming = state.subscriptions.filter(function (s) { return s.kind === "streaming"; });
+    var channels = state.subscriptions.filter(function (s) { return s.kind === "channel"; });
+    document.getElementById("subsStreaming").innerHTML = streaming.map(renderSubscriptionCard).join("");
+    document.getElementById("subsStreamingEmpty").hidden = streaming.length > 0;
+    document.getElementById("subsChannels").innerHTML = channels.map(renderSubscriptionCard).join("");
+    document.getElementById("subsChannelsEmpty").hidden = channels.length > 0;
 
-    var badge = document.getElementById("reminderBadge");
-    if (reminders.todayCount > 0) {
+    var badge = document.getElementById("calendarBadge");
+    if (reminders.badgeCount > 0) {
       badge.hidden = false;
-      badge.textContent = reminders.todayCount > 9 ? "9+" : String(reminders.todayCount);
+      badge.textContent = reminders.badgeCount > 9 ? "9+" : String(reminders.badgeCount);
     } else {
       badge.hidden = true;
     }
 
     updateFabVisibility();
     populateReminderShowSelect();
+    populateSubscriptionSelect();
+  }
+
+  function renderCalendar() {
+    if (!ui.calendarMonth) {
+      var d = new Date();
+      ui.calendarMonth = { year: d.getFullYear(), month: d.getMonth() };
+    }
+    if (!ui.selectedDate) ui.selectedDate = todayStr();
+
+    var year = ui.calendarMonth.year;
+    var month = ui.calendarMonth.month;
+    var monthDate = new Date(year, month, 1);
+    var monthLabel = document.getElementById("calMonthLabel");
+    if (monthLabel) {
+      monthLabel.textContent = monthDate.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    }
+
+    var rangeStart = new Date(year, month, 1, 0, 0, 0, 0);
+    var rangeEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+    var calData = collectCalendarItems(rangeStart, rangeEnd);
+
+    var grid = document.getElementById("calGrid");
+    if (!grid) return;
+
+    var html = "";
+    ["S", "M", "T", "W", "T", "F", "S"].forEach(function (label) {
+      html += '<div class="cal-dow">' + label + "</div>";
+    });
+
+    var firstDow = monthDate.getDay();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var prevMonthDays = new Date(year, month, 0).getDate();
+    var py = month === 0 ? year - 1 : year;
+    var pm = month === 0 ? 11 : month - 1;
+
+    var i;
+    for (i = firstDow - 1; i >= 0; i--) {
+      var pd = prevMonthDays - i;
+      var pds = dateStr(new Date(py, pm, pd));
+      html += makeCalDayHtml(pds, pd, calData.byDate[pds], true);
+    }
+    for (var day = 1; day <= daysInMonth; day++) {
+      var ds = dateStr(new Date(year, month, day));
+      html += makeCalDayHtml(ds, day, calData.byDate[ds], false);
+    }
+    var totalCells = firstDow + daysInMonth;
+    var trailing = (7 - (totalCells % 7)) % 7;
+    var ny = month === 11 ? year + 1 : year;
+    var nm = month === 11 ? 0 : month + 1;
+    for (i = 1; i <= trailing; i++) {
+      var nds = dateStr(new Date(ny, nm, i));
+      html += makeCalDayHtml(nds, i, calData.byDate[nds], true);
+    }
+    grid.innerHTML = html;
+
+    renderCalAgenda(calData);
+  }
+
+  function makeCalDayHtml(dateKey, dayNum, items, otherMonth) {
+    var isToday = dateKey === todayStr();
+    var isSelected = dateKey === ui.selectedDate;
+    var cls = "cal-day";
+    if (otherMonth) cls += " other-month";
+    if (isToday) cls += " today";
+    if (isSelected) cls += " selected";
+    var dots = "";
+    if (items && items.length) {
+      dots = '<div class="cal-dots">';
+      items.slice(0, 4).forEach(function (item) {
+        var dotCls = item.overdue ? "overdue" : item.kind === "episode" ? "episode" : "custom";
+        dots += '<span class="cal-dot ' + dotCls + '"></span>';
+      });
+      dots += "</div>";
+    }
+    return (
+      '<button type="button" class="' + cls + '" data-cal-date="' + escapeHtml(dateKey) + '">' +
+      '<span class="cal-day-num">' + dayNum + "</span>" + dots +
+      "</button>"
+    );
+  }
+
+  function renderCalAgenda(calData) {
+    var agenda = document.getElementById("calAgenda");
+    var agendaEmpty = document.getElementById("calAgendaEmpty");
+    var agendaLabel = document.getElementById("calAgendaLabel");
+    if (!agenda) return;
+
+    var selected = ui.selectedDate || todayStr();
+    var items = (calData && calData.byDate[selected]) || [];
+    var selectedDate = parseDate(selected + "T12:00:00");
+    if (agendaLabel && selectedDate) {
+      agendaLabel.textContent = isSameDay(selectedDate, new Date())
+        ? "Today"
+        : selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+    }
+
+    agenda.innerHTML = items.map(function (item) {
+      return renderReminderCard(item, { showQuickLog: false });
+    }).join("");
+    agendaEmpty.hidden = items.length > 0;
   }
 
   function updateFabVisibility() {
     var fab = document.getElementById("fabBtn");
-    fab.style.display = ui.view === "home" || ui.view === "watch" || ui.view === "read" || ui.view === "reminders" ? "flex" : "none";
+    fab.style.display =
+      ui.view === "home" ||
+      ui.view === "watch" ||
+      ui.view === "read" ||
+      ui.view === "calendar" ||
+      ui.view === "subscriptions"
+        ? "flex"
+        : "none";
   }
 
   function setView(view) {
@@ -547,15 +850,17 @@
     });
 
     var titles = {
-      home: ["Media Shelf", "Reading & watching"],
+      home: ["Media Shelf", "Upcoming & overdue"],
       watch: ["Watching", "Shows & episodes"],
       read: ["Reading", "Books & manga"],
-      reminders: ["Reminders", "Episodes & alerts"],
+      calendar: ["Calendar", "Episodes & reminders"],
+      subscriptions: ["Subscriptions", "Streaming & channels"],
     };
     var t = titles[view] || titles.home;
     document.getElementById("headerTitle").textContent = t[0];
     document.getElementById("headerSubtitle").textContent = t[1];
     updateFabVisibility();
+    if (view === "calendar") renderCalendar();
   }
 
   function openOverlay(id) {
@@ -608,6 +913,7 @@
     document.getElementById("showTotalEpisodes").value = show && show.totalEpisodes != null ? String(show.totalEpisodes) : "";
     document.getElementById("showTotalSeasons").value = show && show.totalSeasons != null ? String(show.totalSeasons) : "";
     document.getElementById("showNotes").value = show ? show.notes : "";
+    populateSubscriptionSelect(show ? show.subscriptionId : "");
     var timeVal = "20:00";
     if (show && show.schedule && show.schedule[0]) {
       var s = show.schedule[0];
@@ -656,6 +962,7 @@
       totalEpisodes: totalEp === "" ? null : parseInt(totalEp, 10),
       totalSeasons: totalSeas === "" ? null : parseInt(totalSeas, 10),
       schedule: schedule,
+      subscriptionId: document.getElementById("showSubscription").value || null,
       notes: document.getElementById("showNotes").value.trim(),
       status: "watching",
       createdAt: new Date().toISOString(),
@@ -668,6 +975,7 @@
         payload.lastWatchedAt = existing.lastWatchedAt;
         payload.status = existing.status;
         payload.createdAt = existing.createdAt;
+        payload.subscriptionId = document.getElementById("showSubscription").value || existing.subscriptionId || null;
       }
       state.shows = state.shows.map(function (s) {
         return s.id === ui.editingShowId ? normalizeShow(payload) : s;
@@ -742,6 +1050,104 @@
     }
     closeOverlay("showDetailOverlay");
     save();
+  }
+
+  function quickLogEpisode(showId) {
+    var show = getShow(showId);
+    if (!show) return;
+    var nextEp = show.episode + 1;
+    show.episode = nextEp;
+    show.lastWatchedAt = new Date().toISOString();
+    show.status = "watching";
+    show.updatedAt = new Date().toISOString();
+    if (show.totalEpisodes && nextEp >= show.totalEpisodes) {
+      show.status = "completed";
+      showToast("Logged · show completed!");
+    } else {
+      showToast("Logged S" + show.season + " E" + nextEp);
+    }
+    save();
+  }
+
+  function populateSubscriptionSelect(selectedId) {
+    var sel = document.getElementById("showSubscription");
+    if (!sel) return;
+    var val = selectedId != null ? selectedId : sel.value;
+    var active = state.subscriptions.filter(function (s) { return s.active; });
+    sel.innerHTML = '<option value="">None</option>' +
+      active.map(function (s) {
+        var label = s.name + (s.kind === "channel" ? " (TV)" : "");
+        return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(label) + "</option>";
+      }).join("");
+    sel.value = val || "";
+  }
+
+  function resetSubscriptionForm(sub) {
+    ui.editingSubscriptionId = sub ? sub.id : null;
+    ui.subscriptionKind = sub ? sub.kind : "streaming";
+    document.getElementById("subscriptionFormTitle").textContent = sub ? "Edit subscription" : "Add subscription";
+    document.getElementById("subscriptionName").value = sub ? sub.name : "";
+    document.getElementById("subscriptionCost").value = sub && sub.cost != null ? String(sub.cost) : "";
+    document.getElementById("subscriptionNotes").value = sub ? sub.notes : "";
+    document.getElementById("subscriptionActive").checked = sub ? sub.active !== false : true;
+    document.getElementById("subscriptionDeleteBtn").hidden = !sub;
+    document.querySelectorAll("#subscriptionKindSeg button").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.kind === ui.subscriptionKind);
+    });
+  }
+
+  function openSubscriptionForm(sub) {
+    resetSubscriptionForm(sub || null);
+    openOverlay("subscriptionFormOverlay");
+    setTimeout(function () {
+      document.getElementById("subscriptionName").focus();
+    }, 280);
+  }
+
+  function saveSubscriptionForm() {
+    var name = document.getElementById("subscriptionName").value.trim();
+    if (!name) {
+      showToast("Enter a name");
+      return;
+    }
+    var costVal = document.getElementById("subscriptionCost").value;
+    var payload = {
+      id: ui.editingSubscriptionId || uid(),
+      name: name,
+      kind: ui.subscriptionKind,
+      active: document.getElementById("subscriptionActive").checked,
+      cost: costVal === "" ? null : parseFloat(costVal),
+      notes: document.getElementById("subscriptionNotes").value.trim(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (ui.editingSubscriptionId) {
+      var existing = getSubscription(ui.editingSubscriptionId);
+      if (existing) payload.createdAt = existing.createdAt;
+      state.subscriptions = state.subscriptions.map(function (s) {
+        return s.id === ui.editingSubscriptionId ? normalizeSubscription(payload) : s;
+      });
+      showToast("Subscription updated");
+    } else {
+      state.subscriptions.unshift(normalizeSubscription(payload));
+      showToast("Subscription added");
+    }
+    closeOverlay("subscriptionFormOverlay");
+    save();
+  }
+
+  function deleteSubscription() {
+    if (!ui.editingSubscriptionId || !confirm("Delete this subscription?")) return;
+    state.subscriptions = state.subscriptions.filter(function (s) {
+      return s.id !== ui.editingSubscriptionId;
+    });
+    state.shows.forEach(function (show) {
+      if (show.subscriptionId === ui.editingSubscriptionId) show.subscriptionId = null;
+    });
+    closeOverlay("subscriptionFormOverlay");
+    save();
+    showToast("Deleted");
   }
 
   function resetBookForm(book) {
@@ -922,12 +1328,20 @@
   }
 
   function handleFab() {
-    if (ui.view === "reminders") {
+    if (ui.view === "calendar") {
       openReminderForm(null);
+      return;
+    }
+    if (ui.view === "subscriptions") {
+      openSubscriptionForm(null);
       return;
     }
     if (ui.view === "read") {
       openBookForm(null);
+      return;
+    }
+    if (ui.view === "watch") {
+      openShowForm(null);
       return;
     }
     openOverlay("addPickerOverlay");
@@ -1109,6 +1523,39 @@
     });
     document.getElementById("reminderFormSave").addEventListener("click", saveReminderForm);
 
+    document.getElementById("subscriptionFormCancel").addEventListener("click", function () {
+      closeOverlay("subscriptionFormOverlay");
+    });
+    document.getElementById("subscriptionFormSave").addEventListener("click", saveSubscriptionForm);
+    document.getElementById("subscriptionDeleteBtn").addEventListener("click", deleteSubscription);
+    document.getElementById("subscriptionKindSeg").addEventListener("click", function (e) {
+      var btn = e.target.closest("button[data-kind]");
+      if (!btn) return;
+      ui.subscriptionKind = btn.dataset.kind;
+      document.querySelectorAll("#subscriptionKindSeg button").forEach(function (b) {
+        b.classList.toggle("active", b === btn);
+      });
+    });
+
+    document.getElementById("calPrevBtn").addEventListener("click", function () {
+      var year = ui.calendarMonth.year;
+      var month = ui.calendarMonth.month;
+      ui.calendarMonth = month === 0 ? { year: year - 1, month: 11 } : { year: year, month: month - 1 };
+      renderCalendar();
+    });
+    document.getElementById("calNextBtn").addEventListener("click", function () {
+      var year = ui.calendarMonth.year;
+      var month = ui.calendarMonth.month;
+      ui.calendarMonth = month === 11 ? { year: year + 1, month: 0 } : { year: year, month: month + 1 };
+      renderCalendar();
+    });
+    document.getElementById("calGrid").addEventListener("click", function (e) {
+      var dayBtn = e.target.closest("[data-cal-date]");
+      if (!dayBtn) return;
+      ui.selectedDate = dayBtn.dataset.calDate;
+      renderCalendar();
+    });
+
     document.getElementById("settingsBtn").addEventListener("click", function () {
       openOverlay("settingsOverlay");
     });
@@ -1129,9 +1576,27 @@
     });
 
     document.addEventListener("click", function (e) {
+      var quickLog = e.target.closest("[data-quick-log-show]");
+      if (quickLog) {
+        e.preventDefault();
+        e.stopPropagation();
+        quickLogEpisode(quickLog.dataset.quickLogShow);
+        return;
+      }
+      var subBtn = e.target.closest("[data-subscription-id]");
+      if (subBtn && !subBtn.closest(".overlay")) {
+        var sub = getSubscription(subBtn.dataset.subscriptionId);
+        if (sub) openSubscriptionForm(sub);
+        return;
+      }
       var showBtn = e.target.closest("[data-show-id]");
-      if (showBtn && !showBtn.closest(".overlay")) {
+      if (showBtn && !showBtn.closest(".overlay") && !e.target.closest(".reminder-row")) {
         openShowDetail(showBtn.dataset.showId);
+        return;
+      }
+      var showBtnInReminder = e.target.closest(".reminder-card[data-show-id]");
+      if (showBtnInReminder) {
+        openShowDetail(showBtnInReminder.dataset.showId);
         return;
       }
       var bookBtn = e.target.closest("[data-book-id]");
@@ -1143,11 +1608,6 @@
       if (remBtn) {
         var rem = state.reminders.find(function (r) { return r.id === remBtn.dataset.reminderId; });
         if (rem) openReminderForm(rem);
-        return;
-      }
-      var autoRem = e.target.closest("[data-auto-reminder][data-show-id]");
-      if (autoRem) {
-        openShowDetail(autoRem.dataset.showId);
       }
     });
 
