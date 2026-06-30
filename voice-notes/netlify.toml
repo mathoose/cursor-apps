@@ -2,4 +2,4 @@
 # The voice-notes app was removed; deploy the monorepo root instead.
 [build]
   base = ".."
-  publish = ".."
+  publish = "."
