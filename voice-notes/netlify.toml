@@ -1,5 +1,4 @@
 # Legacy package directory for the voice-notes-mattheus Netlify site.
-# The voice-notes app was removed; deploy the monorepo root instead.
+# The voice-notes app was removed; publish the monorepo root (parent folder).
 [build]
-  base = ".."
-  publish = "."
+  publish = ".."

@@ -1,8 +1,5 @@
-# Static site — no build step. Publish repo root (same tree as GitHub Pages).
-# voice-notes/ was removed; do not point Netlify at that folder.
-# Large rep-tracker assets are listed in .netlifyignore (Netlify CDN ~10 MB/file cap).
-[build]
-  publish = "."
+# Shared security headers (build settings live in voice-notes/netlify.toml for
+# the legacy voice-notes-mattheus Netlify site's package directory).
 
 [[headers]]
   for = "/*"
