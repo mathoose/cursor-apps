@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Stage monorepo root into voice-notes/dist for Netlify (legacy package directory).
 set -euo pipefail
-ROOT="$(cd .. && pwd)"
-DEST="$(pwd)/dist"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$HERE/.." && pwd)"
+DEST="$HERE/dist"
 rm -rf "$DEST"
 mkdir -p "$DEST"
 shopt -s dotglob nullglob
