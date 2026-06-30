@@ -1,4 +1,6 @@
 # Legacy package directory for the voice-notes-mattheus Netlify site.
-# The voice-notes app was removed; publish the monorepo root (parent folder).
+# Stage the monorepo root into dist/ because Netlify won't publish outside
+# the package directory.
 [build]
-  publish = ".."
+  command = "bash build-netlify.sh"
+  publish = "dist"
