@@ -21,6 +21,7 @@
     "media-shelf": "Media Shelf",
     "shopping-list": "Our Groceries",
     "world-cup-2026": "World Cup",
+    "times-tables": "Times Tables",
   };
 
   var PHOTO_DATABASES = [
@@ -588,6 +589,51 @@
           out.items.push(it);
           ids[it.id] = true;
           keys[key] = true;
+        });
+        return out;
+      },
+    },
+    "times-tables": {
+      storageKey: "times-tables-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("times-tables-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.scores)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.scores)) return false;
+        return writeKey("times-tables-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.scores) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.scores ? slice.scores.length : 0;
+        return n + " saved run" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          scores: (existing.scores || []).slice(),
+        };
+        var ids = {};
+        out.scores.forEach(function (s) { ids[s.id] = true; });
+        (incoming.scores || []).forEach(function (s) {
+          if (!s || !s.id || ids[s.id]) return;
+          out.scores.push(s);
+          ids[s.id] = true;
+        });
+        out.scores.sort(function (a, b) {
+          return new Date(a.date) - new Date(b.date);
         });
         return out;
       },

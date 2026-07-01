@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Times Tables</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Times Tables" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#8a7d68" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-play">
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Times Tables</h1>
+      <p class="header-sub">Vintage calculator drill</p>
+    </div>
+  </header>
+
+  <main class="main-panel">
+    <!-- Play tab -->
+    <section class="view active" id="viewPlay" data-view="play">
+      <!-- Home: pick mode -->
+      <div class="screen" id="screenHome">
+        <div class="calc-body calc-body--menu">
+          <div class="lcd lcd--menu">
+            <div class="lcd-brand">MATH-O-MATIC</div>
+            <div class="lcd-row lcd-tagline">SELECT MODE</div>
+          </div>
+          <div class="mode-grid">
+            <h2 class="mode-heading">Level mode</h2>
+            <p class="mode-desc">10 questions · timed run</p>
+            <div class="mode-btns">
+              <button type="button" class="calc-key calc-key--level" data-action="start-level" data-level="1">Level 1<br><span>1–12 × 1–12</span></button>
+              <button type="button" class="calc-key calc-key--level" data-action="start-level" data-level="2">Level 2<br><span>13–14 × 13–14</span></button>
+              <button type="button" class="calc-key calc-key--level" data-action="start-level" data-level="3">Level 3<br><span>15–50 × 15–50</span></button>
+            </div>
+            <h2 class="mode-heading">Speed mode</h2>
+            <p class="mode-desc">As many as you can · countdown</p>
+            <div class="speed-setup">
+              <label class="speed-label">Level
+                <select id="speedLevel" class="speed-select">
+                  <option value="1">1 — 1–12</option>
+                  <option value="2">2 — 13–14</option>
+                  <option value="3">3 — 15–50</option>
+                </select>
+              </label>
+              <div class="mode-btns mode-btns--speed">
+                <button type="button" class="calc-key calc-key--speed" data-action="start-speed" data-seconds="60">1 min</button>
+                <button type="button" class="calc-key calc-key--speed" data-action="start-speed" data-seconds="180">3 min</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active game -->
+      <div class="screen" id="screenGame" hidden>
+        <div class="calc-body">
+          <div class="lcd" id="lcd">
+            <div class="lcd-row lcd-meta">
+              <span id="lcdMode">Level 1</span>
+              <span id="lcdProgress">1 / 10</span>
+            </div>
+            <div class="lcd-row lcd-timer" id="lcdTimer">00:00.0</div>
+            <div class="lcd-row lcd-problem" id="lcdProblem">7 × 8 = ?</div>
+            <div class="lcd-row lcd-input" id="lcdInput" aria-live="polite"></div>
+          </div>
+          <div class="keypad" id="keypad">
+            <button type="button" class="key" data-key="7">7</button>
+            <button type="button" class="key" data-key="8">8</button>
+            <button type="button" class="key" data-key="9">9</button>
+            <button type="button" class="key" data-key="4">4</button>
+            <button type="button" class="key" data-key="5">5</button>
+            <button type="button" class="key" data-key="6">6</button>
+            <button type="button" class="key" data-key="1">1</button>
+            <button type="button" class="key" data-key="2">2</button>
+            <button type="button" class="key" data-key="3">3</button>
+            <button type="button" class="key key--wide" data-key="clear">C</button>
+            <button type="button" class="key" data-key="0">0</button>
+            <button type="button" class="key key--enter" data-key="enter">=</button>
+          </div>
+          <div class="action-row">
+            <button type="button" class="action-btn" id="btnBack" disabled>← Back</button>
+            <button type="button" class="action-btn action-btn--quit" id="btnQuit">Quit</button>
+            <button type="button" class="action-btn" id="btnSkip">Skip →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="screen" id="screenResults" hidden>
+        <div class="calc-body calc-body--menu">
+          <div class="lcd lcd--results">
+            <div class="lcd-row lcd-tagline">RUN COMPLETE</div>
+            <div class="lcd-row lcd-result-stat" id="resultTime">00:45.2</div>
+            <div class="lcd-row lcd-result-detail" id="resultDetail">8 / 10 correct</div>
+          </div>
+          <div class="results-actions">
+            <button type="button" class="calc-key calc-key--primary" id="btnSaveScore">Save score</button>
+            <button type="button" class="calc-key" id="btnPlayAgain">Play again</button>
+            <button type="button" class="calc-key calc-key--ghost" id="btnHome">Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats tab -->
+    <section class="view" id="viewStats" data-view="stats">
+      <div class="stats-panel">
+        <h2 class="panel-title">Progress</h2>
+        <div class="filter-chips" id="chartFilters" role="tablist">
+          <button type="button" class="chip active" data-filter="all" role="tab">All</button>
+          <button type="button" class="chip" data-filter="level-1" role="tab">Level 1</button>
+          <button type="button" class="chip" data-filter="level-2" role="tab">Level 2</button>
+          <button type="button" class="chip" data-filter="level-3" role="tab">Level 3</button>
+          <button type="button" class="chip" data-filter="speed" role="tab">Speed</button>
+        </div>
+        <p class="chart-y-label" id="chartYLabel">Time (seconds) — lower is better</p>
+        <div class="chart-wrap">
+          <canvas id="progressChart" width="600" height="280" aria-label="Score progress chart"></canvas>
+          <div class="chart-empty" id="chartEmpty" hidden>No saved scores yet. Finish a run and tap Save score.</div>
+          <div class="chart-tooltip" id="chartTooltip" hidden></div>
+        </div>
+        <h3 class="history-title">Saved runs</h3>
+        <ul class="score-list" id="scoreList"></ul>
+        <div class="empty-state" id="statsEmpty" hidden>
+          <p>No scores saved yet.<br />Complete a level or speed run, then save your result.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings tab -->
+    <section class="view" id="viewSettings" data-view="settings">
+      <div class="settings-panel">
+        <h2 class="panel-title">Settings</h2>
+        <div class="settings-section">
+          <h3>Data</h3>
+          <p class="settings-note">Scores are stored on this device. Export to back up or move to another phone.</p>
+          <div class="settings-btns">
+            <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+            <label class="btn btn-secondary import-label">
+              Import JSON
+              <input type="file" id="importJsonFile" accept=".json,application/json" />
+            </label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Clear scores</h3>
+          <p class="settings-note">Removes all saved runs. This cannot be undone.</p>
+          <button type="button" class="btn btn-danger" id="clearScoresBtn">Clear all scores</button>
+        </div>
+        <div class="settings-section levels-ref">
+          <h3>Level reference</h3>
+          <ul>
+            <li><strong>Level 1:</strong> 1×1 through 12×12</li>
+            <li><strong>Level 2:</strong> 13×13 through 14×14</li>
+            <li><strong>Level 3:</strong> 15×15 through 50×50</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="play" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>
+      <span class="nav-btn-label">Play</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="stats" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+      <span class="nav-btn-label">Stats</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="settings" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      <span class="nav-btn-label">Settings</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
