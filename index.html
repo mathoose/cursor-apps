@@ -212,15 +212,59 @@
       margin-top: 10px;
       text-align: center;
     }
-    .storage-stats {
-      display: grid;
-      gap: 8px;
+    .storage-panel {
       margin-bottom: 12px;
-      padding: 10px 12px;
       border-radius: 14px;
       background: rgba(0, 0, 0, 0.18);
       font-size: 0.75rem;
       line-height: 1.35;
+      overflow: hidden;
+    }
+    .storage-summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 10px 10px 12px;
+    }
+    .storage-summary .storage-stat {
+      flex: 1;
+      min-width: 0;
+    }
+    .storage-info-btn {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .storage-info-btn svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      opacity: 0.88;
+    }
+    .storage-info-btn[aria-expanded="true"] {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .storage-info-btn:active { opacity: 0.7; }
+    .storage-details {
+      display: none;
+      padding: 8px 12px 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .storage-details.open {
+      display: grid;
+      gap: 8px;
     }
     .storage-stat {
       display: flex;
@@ -237,11 +281,11 @@
       text-align: right;
     }
     .storage-by-app {
-      margin-bottom: 12px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(0, 0, 0, 0.12);
+      margin-top: 4px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
+    .storage-by-app[hidden] { display: none !important; }
     .storage-by-app-label {
       font-size: 0.6875rem;
       text-transform: uppercase;
@@ -477,27 +521,45 @@
       <p class="hidden-apps-label">Hidden apps</p>
       <div id="hiddenAppsList"></div>
     </div>
-    <div class="storage-stats" id="storageStats" aria-label="Storage usage">
-      <div class="storage-stat">
-        <span class="storage-stat-label">On this device</span>
-        <span class="storage-stat-value" id="storageTotal">…</span>
+    <div class="storage-panel" id="storagePanel" aria-label="Storage usage">
+      <div class="storage-summary">
+        <div class="storage-stat">
+          <span class="storage-stat-label">On this device</span>
+          <span class="storage-stat-value" id="storageTotal">…</span>
+        </div>
+        <button
+          type="button"
+          class="storage-info-btn"
+          id="storageInfoBtn"
+          aria-expanded="false"
+          aria-controls="storageDetails"
+          aria-label="Show storage details"
+        >
+          <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="9" y="8.5" width="2" height="6" rx="0.5" fill="currentColor"/>
+            <circle cx="10" cy="6" r="1.1" fill="currentColor"/>
+          </svg>
+        </button>
       </div>
-      <div class="storage-stat">
-        <span class="storage-stat-label">App data (JSON)</span>
-        <span class="storage-stat-value" id="storageLocal">…</span>
+      <div class="storage-details" id="storageDetails" hidden>
+        <div class="storage-stat">
+          <span class="storage-stat-label">App data (JSON)</span>
+          <span class="storage-stat-value" id="storageLocal">…</span>
+        </div>
+        <div class="storage-stat">
+          <span class="storage-stat-label">Photos (IndexedDB)</span>
+          <span class="storage-stat-value" id="storagePhotos">…</span>
+        </div>
+        <div class="storage-stat">
+          <span class="storage-stat-label">Last export</span>
+          <span class="storage-stat-value" id="storageLastExport">…</span>
+        </div>
+        <div class="storage-by-app" id="storageByApp" hidden>
+          <p class="storage-by-app-label">By app</p>
+          <div id="storageByAppList"></div>
+        </div>
       </div>
-      <div class="storage-stat">
-        <span class="storage-stat-label">Photos (IndexedDB)</span>
-        <span class="storage-stat-value" id="storagePhotos">…</span>
-      </div>
-      <div class="storage-stat">
-        <span class="storage-stat-label">Last export</span>
-        <span class="storage-stat-value" id="storageLastExport">…</span>
-      </div>
-    </div>
-    <div class="storage-by-app" id="storageByApp" hidden>
-      <p class="storage-by-app-label">By app</p>
-      <div id="storageByAppList"></div>
     </div>
     <div class="dock-actions">
       <button type="button" class="dock-btn dock-btn-primary" id="exportAllBtn">Export all data</button>
@@ -534,7 +596,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "3 · Jun 22, 2026";
+  const HOME_VERSION = "4 · Jun 30, 2026";
   const ICON_VERSION = "6";
   const LONG_PRESS_MS = 500;
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
@@ -960,10 +1022,27 @@
     );
   }
 
+  function setStorageDetailsOpen(open) {
+    var btn = document.getElementById("storageInfoBtn");
+    var details = document.getElementById("storageDetails");
+    if (!btn || !details) return;
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    btn.setAttribute("aria-label", open ? "Hide storage details" : "Show storage details");
+    details.hidden = !open;
+    details.classList.toggle("open", open);
+  }
+
   function initBackupDock() {
     if (typeof AppsBackup === "undefined") {
       showToast("Backup module failed to load");
       return;
+    }
+    var storageInfoBtn = document.getElementById("storageInfoBtn");
+    if (storageInfoBtn) {
+      storageInfoBtn.addEventListener("click", function () {
+        var open = storageInfoBtn.getAttribute("aria-expanded") !== "true";
+        setStorageDetailsOpen(open);
+      });
     }
     document.getElementById("exportAllBtn").addEventListener("click", function () {
       try {
