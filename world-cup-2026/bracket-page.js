@@ -94,6 +94,14 @@
     return '<span class="bracket-vs locked">TBD</span>';
   }
 
+  function matchWhenHtml(m) {
+    var text = "M" + m.id + " · " + escapeHtml(m.date);
+    if (m.time) {
+      text += " · " + escapeHtml(core.formatTime(m.time));
+    }
+    return text;
+  }
+
   function matchHtml(m) {
     var winner = getWinnerTeam(m);
     var editable = !!(m.home.team && m.away.team);
@@ -106,7 +114,7 @@
         '" data-id="' + m.id + '"' +
         (editable ? "" : " disabled") + ">" +
         '<div class="bracket-match-head">' +
-          '<span>M' + m.id + " · " + escapeHtml(m.date) + "</span>" +
+          '<span>' + matchWhenHtml(m) + "</span>" +
           (winner ? '<span class="bracket-advanced">' + escapeHtml(core.flag(winner)) + " " + escapeHtml(winner) + "</span>" : "") +
         "</div>" +
         '<div class="bracket-match-teams">' +
@@ -147,6 +155,9 @@
     var extra = played && (core.hasAet(result) || core.hasPens(result))
       ? '<span class="tree-extra-mark">' + escapeHtml(core.formatKnockoutScore(result).replace(/^\d+[\u2013-]\d+\s*/, "")) + "</span>"
       : "";
+    var when = m.time
+      ? '<span class="tree-time">' + escapeHtml(m.date) + " · " + escapeHtml(core.formatTime(m.time)) + "</span>"
+      : "";
 
     return (
       '<button type="button" class="tree-node' +
@@ -156,6 +167,7 @@
         (played ? " played" : "") +
         '" data-id="' + m.id + '"' +
         (editable ? "" : " disabled") + ">" +
+        when +
         treeTeamLine(m.home, homeScore, winner) +
         treeTeamLine(m.away, awayScore, winner) +
         extra +
@@ -361,7 +373,10 @@
     activeMatch = m;
     var result = core.getKnockoutResult(m.id);
 
-    modalMeta.textContent = "M" + m.id + " · " + m.date + " · " + m.venue;
+    modalMeta.textContent =
+      "M" + m.id + " · " + m.date +
+      (m.time ? " · " + core.formatTime(m.time) : "") +
+      " · " + m.venue;
     modalHomeName.textContent = m.home.team;
     modalAwayName.textContent = m.away.team;
     modalAetHomeName.textContent = m.home.team;

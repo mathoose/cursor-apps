@@ -1106,7 +1106,7 @@ body.modal-open { overflow: hidden; }
   flex-direction: row;
   align-items: stretch;
   gap: 8px;
-  height: 440px;
+  height: 460px;
 }
 
 .bracket-tree-col {
@@ -1214,6 +1214,17 @@ body.modal-open { overflow: hidden; }
   text-align: center;
   line-height: 1.1;
   margin-top: 2px;
+}
+
+.tree-time {
+  display: block;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.1;
+  margin-bottom: 2px;
+  letter-spacing: 0.02em;
 }
 
 .tree-team {
