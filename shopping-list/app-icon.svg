@@ -6,9 +6,15 @@
     </linearGradient>
   </defs>
   <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <path d="M54 62h72l-8 74H62L54 62z" fill="#fff"/>
-  <path d="M66 62c0-14 11-24 24-24s24 10 24 24" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="78" cy="118" r="8" fill="#bbf7d0"/>
-  <circle cx="102" cy="118" r="8" fill="#bbf7d0"/>
-  <path d="M78 78c0 8 6 14 12 14s12-6 12-14" fill="#dcfce7"/>
+  <g transform="translate(90 98)">
+    <path d="M-30 -46c0-18 14-32 32-32s32 14 32 32" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+    <path d="M-40 -22h80l-10 62H-30L-40 -22z" fill="#fff"/>
+    <circle cx="-24" cy="44" r="9" fill="#bbf7d0"/>
+    <circle cx="24" cy="44" r="9" fill="#bbf7d0"/>
+    <path d="M-20 -6 Q-6 10 12 16" fill="none" stroke="#fbbf24" stroke-width="9" stroke-linecap="round"/>
+    <circle cx="10" cy="-2" r="11" fill="#ef4444"/>
+    <path d="M10 -14v7" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="-4" cy="12" r="10" fill="#f97316"/>
+    <circle cx="-4" cy="12" r="10" fill="none" stroke="#fb923c" stroke-width="2" opacity="0.5"/>
+  </g>
 </svg>
