@@ -177,13 +177,13 @@
     .month-grid .habit-label {
       font-size: 0.625rem;
       font-weight: 600;
-      padding: 4px 3px;
+      padding: 2px 3px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
       justify-content: center;
-      line-height: 1.15;
-      min-height: 32px;
+      line-height: 1.1;
+      min-height: 28px;
       position: sticky;
       left: 0;
       z-index: 3;
@@ -195,12 +195,29 @@
     .habit-label-row {
       display: flex;
       gap: 3px;
-      align-items: flex-start;
+      align-items: center;
       width: 100%;
     }
     .habit-label-text {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .habit-label-name-row {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      width: 100%;
+      min-width: 0;
+    }
+    .habit-label-name-row .habit-label-edit {
+      flex: 1;
+      min-width: 0;
+    }
+    .habit-label-name-row .habit-label-hide-btn {
+      align-self: center;
     }
     .habit-label-edit {
       border: none;
@@ -253,7 +270,7 @@
       font-size: 0.5625rem;
       font-weight: 700;
       color: var(--accent);
-      line-height: 1.2;
+      line-height: 1.1;
     }
     .habit-label-meta {
       display: flex;
@@ -262,6 +279,7 @@
       gap: 4px;
       width: 100%;
       min-height: 0;
+      padding-left: 0;
     }
     .habit-label-hide-btn {
       flex-shrink: 0;
@@ -2004,6 +2022,7 @@
   }
 
   function renderMonthHabitLabelHtml(habit, index, total) {
+    const streak = habitStreak(habit);
     let html = '<div class="habit-label">';
     html += '<div class="habit-label-row">';
     html += '<div class="habit-sort-btns">';
@@ -2025,6 +2044,7 @@
       ' down">▼</button>';
     html += "</div>";
     html += '<div class="habit-label-text">';
+    html += '<div class="habit-label-name-row">';
     html +=
       '<button type="button" class="habit-label-edit" data-habit-edit="' +
       escapeHtml(habit.id) +
@@ -2033,26 +2053,32 @@
       '">' +
       habitMonthLabelHtml(habit) +
       "</button>";
+    if (streak <= 0) {
+      html +=
+        '<button type="button" class="habit-label-hide-btn" data-hide="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Hide ' +
+        escapeHtml(habit.name) +
+        '">Hide</button>';
+    }
     html += "</div>";
-    html += "</div>";
-    html += '<div class="habit-label-meta">';
-    const streak = habitStreak(habit);
     if (streak > 0) {
+      html += '<div class="habit-label-meta">';
       html +=
         '<span class="habit-label-streak">' +
         streak +
         " day" +
         (streak === 1 ? "" : "s") +
         "</span>";
-    } else {
-      html += '<span class="habit-label-streak"></span>';
+      html +=
+        '<button type="button" class="habit-label-hide-btn" data-hide="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Hide ' +
+        escapeHtml(habit.name) +
+        '">Hide</button>';
+      html += "</div>";
     }
-    html +=
-      '<button type="button" class="habit-label-hide-btn" data-hide="' +
-      escapeHtml(habit.id) +
-      '" aria-label="Hide ' +
-      escapeHtml(habit.name) +
-      '">Hide</button>';
+    html += "</div>";
     html += "</div>";
     html += "</div>";
     return html;
