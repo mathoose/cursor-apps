@@ -143,31 +143,49 @@
     );
   }
 
+  function columnMatchIds(layout, col) {
+    if (col.key === "final") return [layout.final];
+    return layout[col.side][col.key];
+  }
+
   function renderTreeGrid(bracket) {
     var layout = window.WC2026_TREE;
     var cols = layout.columns;
-    var html = '<div class="bracket-tree-wrap"><div class="bracket-tree-scroll">';
+    var html = '<div class="bracket-tree-wrap">';
 
-    html += '<div class="bracket-tree-header">';
+    html += '<div class="bracket-tree-nav">';
+    html +=
+      '<button type="button" class="bracket-scroll-btn bracket-scroll-left" aria-label="Jump to left side">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>' +
+      "</button>";
+    html +=
+      '<button type="button" class="bracket-scroll-btn bracket-scroll-right" aria-label="Jump to right side">' +
+      '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
+      "</button>";
+    html += "</div>";
+
+    html += '<div class="bracket-tree-scroll" id="bracket-tree-scroll">';
+
+    html += '<div class="bracket-tree-header split">';
     cols.forEach(function (col) {
       html += '<div class="bracket-tree-col-label">' + escapeHtml(col.label) + "</div>";
     });
     html += "</div>";
 
-    html += '<div class="bracket-tree-grid">';
+    html += '<div class="bracket-tree-grid split" style="grid-template-rows:repeat(' + layout.rows + ",32px)'>";
     cols.forEach(function (col, colIdx) {
-      var ids = col.key === "final"
-        ? [layout.final]
-        : layout[col.key];
+      var ids = columnMatchIds(layout, col);
       var span = col.span;
+      var sideAttr = col.side ? ' data-side="' + col.side + '"' : "";
+      var colKey = col.key === "final" ? "final" : col.key;
 
       ids.forEach(function (id, i) {
         var m = bracket.matchMap[String(id)];
         if (!m) return;
         var rowStart = i * span + 1;
         html +=
-          '<div class="bracket-tree-slot" data-col="' + (colIdx + 1) +
-          '" style="grid-column:' + (colIdx + 1) +
+          '<div class="bracket-tree-slot" data-col="' + colKey + '"' + sideAttr +
+          ' style="grid-column:' + (colIdx + 1) +
           ";grid-row:" + rowStart + "/ span " + span + '">' +
           treeNodeHtml(m) +
           "</div>";
@@ -180,9 +198,41 @@
     html += treeNodeHtml(bracket.bronze);
     html += "</div>";
 
-    html += '<p class="bracket-hint tree-hint">Scroll sideways for the full bracket · tap a match to enter score</p>';
+    html += '<p class="bracket-hint tree-hint">Scroll sideways for the full bracket · arrows jump to each side · tap a match to enter score</p>';
     html += "</div>";
     return html;
+  }
+
+  function setupTreeScroll() {
+    var scroll = document.getElementById("bracket-tree-scroll");
+    if (!scroll) return;
+
+    var leftBtn = document.querySelector(".bracket-scroll-left");
+    var rightBtn = document.querySelector(".bracket-scroll-right");
+    if (!leftBtn || !rightBtn) return;
+
+    function needsScroll() {
+      return scroll.scrollWidth > scroll.clientWidth + 2;
+    }
+
+    function updateButtons() {
+      var show = needsScroll();
+      leftBtn.hidden = !show;
+      rightBtn.hidden = !show;
+    }
+
+    function scrollToCenter() {
+      if (!needsScroll()) return;
+      scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+    }
+
+    if (!scroll.dataset.navReady) {
+      scroll.dataset.navReady = "1";
+      window.addEventListener("resize", updateButtons);
+    }
+
+    updateButtons();
+    requestAnimationFrame(scrollToCenter);
   }
 
   function roundHtml(title, matches) {
@@ -314,12 +364,33 @@
     }
 
     main.innerHTML = html;
+
+    if (viewMode === "tree") {
+      setupTreeScroll();
+    }
   }
 
   main.addEventListener("click", function (e) {
     var card = e.target.closest(".bracket-match.editable, .tree-node.editable");
-    if (!card) return;
-    openModal(card.getAttribute("data-id"));
+    if (card) {
+      openModal(card.getAttribute("data-id"));
+      return;
+    }
+
+    var scroll = document.getElementById("bracket-tree-scroll");
+    if (!scroll) return;
+
+    if (e.target.closest(".bracket-scroll-left")) {
+      scroll.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+
+    if (e.target.closest(".bracket-scroll-right")) {
+      scroll.scrollTo({
+        left: scroll.scrollWidth - scroll.clientWidth,
+        behavior: "smooth"
+      });
+    }
   });
 
   viewTreeBtn.addEventListener("click", function () { setView("tree"); });
