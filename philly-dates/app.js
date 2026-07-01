@@ -228,6 +228,7 @@ function handleQuickAddUrlParams() {
   }
 }
 
+function wireQuickAddForm() {
   var nameEl = document.getElementById('quick-add-name');
   var igEl = document.getElementById('quick-add-instagram');
   var onInput = function() { debouncedSaveQuickDraft(); };
@@ -1609,6 +1610,130 @@ document.getElementById('clear-edits-btn').addEventListener('click', function() 
 });
 document.getElementById('clear-photos-btn').addEventListener('click', clearMenuPhotosOnly);
 
+var RESTAURANT_TEXT_MARKER = 'philly-restaurant-v1';
+var IMPORT_DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function parseRestaurantTextBlocks(text) {
+  if (!text || !String(text).trim()) return [];
+  var normalized = String(text).replace(/\r\n/g, '\n');
+  var chunks = normalized.split(/---\s*philly-restaurant-v1\s*---/i);
+  var places = [];
+  chunks.forEach(function(chunk) {
+    chunk = chunk.replace(/---\s*end\s*---/gi, '').trim();
+    if (!chunk) return;
+    var place = {
+      name: '',
+      instagram: '',
+      neighborhood: '',
+      address: '',
+      description: '',
+      notes: '',
+      schedule: {}
+    };
+    var inSchedule = false;
+    chunk.split('\n').forEach(function(line) {
+      var trimmed = line.trim();
+      if (!trimmed) return;
+      if (/^schedule\s*:/i.test(trimmed)) {
+        inSchedule = true;
+        return;
+      }
+      if (inSchedule) {
+        var dayMatch = trimmed.match(/^(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)\s*:\s*(.*)$/i);
+        if (dayMatch) {
+          var day = dayMatch[1].charAt(0).toUpperCase() + dayMatch[1].slice(1).toLowerCase();
+          if (day === 'Sunday' || IMPORT_DAY_NAMES.indexOf(day) >= 0) {
+            var rest = dayMatch[2].trim();
+            if (!rest) return;
+            var timeMatch = rest.match(/^(.+?)\s*[-–—]\s*(.+)$/);
+            if (timeMatch) {
+              place.schedule[day] = { start: timeMatch[1].trim(), end: timeMatch[2].trim() };
+            }
+          }
+        }
+        return;
+      }
+      var kv = trimmed.match(/^([a-z_]+)\s*:\s*(.*)$/i);
+      if (!kv) return;
+      var key = kv[1].toLowerCase();
+      var val = kv[2].trim();
+      if (key === 'name') place.name = val;
+      else if (key === 'instagram') place.instagram = val;
+      else if (key === 'neighborhood') place.neighborhood = val;
+      else if (key === 'address') place.address = val;
+      else if (key === 'description') place.description = val;
+      else if (key === 'notes') {
+        place.notes = val;
+        if (val && !place.description) place.description = val;
+        else if (val && place.description.indexOf(val) === -1) place.description = (place.description + ' * ' + val).trim();
+      }
+    });
+    if (place.name) places.push(place);
+  });
+  return places;
+}
+
+function importRestaurantsFromText(text) {
+  var parsed = parseRestaurantTextBlocks(text);
+  if (!parsed.length) return { added: 0, updated: 0 };
+  var state = loadAppState();
+  if (!state.restaurants) state.restaurants = {};
+  var added = 0;
+  var updated = 0;
+  parsed.forEach(function(p) {
+    var name = p.name.trim();
+    if (!name) return;
+    var existed = !!byName[name];
+    var schedule = p.schedule || {};
+    var description = p.description || '';
+    var r = byName[name];
+    if (!r) {
+      r = {
+        name: name,
+        neighborhood: p.neighborhood || '',
+        address: p.address || '',
+        description: description,
+        hh_menu: '',
+        instagram: p.instagram || '',
+        social: '',
+        schedule: schedule
+      };
+      byName[name] = r;
+      added++;
+    } else {
+      if (p.neighborhood) r.neighborhood = p.neighborhood;
+      if (p.address) r.address = p.address;
+      if (description) r.description = description;
+      if (p.instagram) r.instagram = p.instagram;
+      if (Object.keys(schedule).length) r.schedule = schedule;
+      updated++;
+    }
+    if (r.neighborhood && NEIGHBORHOODS.indexOf(r.neighborhood) === -1) {
+      NEIGHBORHOODS.push(r.neighborhood);
+      NEIGHBORHOODS.sort();
+    }
+    state.restaurants[name] = {
+      description: r.description,
+      hh_menu: r.hh_menu || '',
+      instagram: r.instagram || '',
+      neighborhood: r.neighborhood || '',
+      address: r.address || '',
+      schedule: r.schedule || {}
+    };
+    var idx = RESTAURANTS.indexOf(r);
+    if (r.schedule && Object.keys(r.schedule).length) {
+      if (idx === -1) RESTAURANTS.push(r);
+    } else if (idx >= 0) {
+      RESTAURANTS.splice(idx, 1);
+    }
+  });
+  saveAppState(state);
+  populateEditAnySelect();
+  rebuildNeighborhoodSelect();
+  refreshFilters();
+  return { added: added, updated: updated };
+}
+
 function exportJsonBackup() {
   var st = loadAppState();
   var blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
@@ -1657,6 +1782,32 @@ document.getElementById('export-json-btn').addEventListener('click', exportJsonB
 document.getElementById('import-json-btn').addEventListener('click', function() {
   document.getElementById('import-json-file').click();
 });
+document.getElementById('import-text-btn').addEventListener('click', function() {
+  var ta = document.getElementById('import-text-area');
+  var text = ta ? ta.value : '';
+  var result = importRestaurantsFromText(text);
+  if (!result.added && !result.updated) {
+    showStatus('No restaurants found in pasted text.');
+    return;
+  }
+  var parts = [];
+  if (result.added) parts.push('added ' + result.added);
+  if (result.updated) parts.push('updated ' + result.updated);
+  showStatus('Import done: ' + parts.join(', ') + '.');
+  if (ta) ta.value = '';
+  closeSettings();
+});
+var quickAddNotesLink = document.getElementById('quick-add-notes');
+if (quickAddNotesLink) {
+  quickAddNotesLink.addEventListener('click', function() {
+    var nameEl = document.getElementById('quick-add-name');
+    var igEl = document.getElementById('quick-add-instagram');
+    var url = '../restaurant-notes/?quickAdd=1';
+    if (igEl && igEl.value.trim()) url += '&instagram=' + encodeURIComponent(igEl.value.trim());
+    if (nameEl && nameEl.value.trim()) url += '&name=' + encodeURIComponent(nameEl.value.trim());
+    quickAddNotesLink.href = url;
+  });
+}
 document.getElementById('import-json-file').addEventListener('change', function(e) {
   var file = e.target.files && e.target.files[0];
   e.target.value = '';

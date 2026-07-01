@@ -125,6 +125,7 @@
             <button type="button" class="btn-primary" id="quick-add-finish">Finish place</button>
           </div>
           <button type="button" class="quick-add-full-link" id="quick-add-full">Add with full details instead</button>
+          <a class="quick-add-full-link" id="quick-add-notes" href="../restaurant-notes/?quickAdd=1">Capture in Restaurant Notes →</a>
         </div>
       </div>
     </div>
@@ -214,6 +215,12 @@
         <div class="settings-section">
           <h3>Edit any place</h3>
           <select id="edit-any-select" class="full"><option value="">Choose a place…</option></select>
+        </div>
+        <div class="settings-section">
+          <h3>Import from text</h3>
+          <p class="hint">Paste export from <strong>Restaurant Notes</strong> (or the same format). Adds or updates places on this device.</p>
+          <textarea id="import-text-area" class="import-text-area" placeholder="Paste restaurant export text here…" rows="6"></textarea>
+          <button type="button" class="btn btn-primary" id="import-text-btn">Import pasted text</button>
         </div>
         <div class="settings-section">
           <h3>Backup</h3>

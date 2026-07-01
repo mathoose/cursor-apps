@@ -517,6 +517,21 @@ body.modal-open { overflow: hidden; }
   font-size: 0.85rem;
   text-decoration: underline;
   cursor: pointer;
+  text-align: center;
+}
+a.quick-add-full-link { font-family: inherit; }
+.import-text-area {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  resize: vertical;
+  margin-bottom: 8px;
 }
 .list-row.draft-row .list-title { color: var(--text); font-style: italic; }
 .fav-toggle.draft-spacer { visibility: hidden; pointer-events: none; }
