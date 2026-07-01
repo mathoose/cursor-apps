@@ -666,6 +666,32 @@
     return typeof ts === "string" ? ts : null;
   }
 
+  var EXPORT_REMINDER_DAYS = 5;
+  var EXPORT_REMINDER_MS = EXPORT_REMINDER_DAYS * 24 * 60 * 60 * 1000;
+
+  function hasSavedAppData() {
+    return Object.keys(APP_REGISTRY).some(function (id) {
+      return APP_REGISTRY[id].readSlice() != null;
+    });
+  }
+
+  function getDaysSinceLastExport() {
+    var ts = getLastExportedAt();
+    if (!ts) return null;
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return null;
+    return Math.floor((Date.now() - d.getTime()) / (24 * 60 * 60 * 1000));
+  }
+
+  function isExportReminderDue() {
+    if (!hasSavedAppData()) return false;
+    var ts = getLastExportedAt();
+    if (!ts) return true;
+    var d = new Date(ts);
+    if (isNaN(d.getTime())) return true;
+    return Date.now() - d.getTime() >= EXPORT_REMINDER_MS;
+  }
+
   function getHiddenAppIds() {
     var meta = readLauncherMeta();
     return Array.isArray(meta.hiddenApps) ? meta.hiddenApps.filter(Boolean) : [];
@@ -1296,6 +1322,10 @@
     formatExportDate: formatExportDate,
     getLastExportedAt: getLastExportedAt,
     recordLastExport: recordLastExport,
+    EXPORT_REMINDER_DAYS: EXPORT_REMINDER_DAYS,
+    hasSavedAppData: hasSavedAppData,
+    getDaysSinceLastExport: getDaysSinceLastExport,
+    isExportReminderDue: isExportReminderDue,
     getHiddenAppIds: getHiddenAppIds,
     setHiddenAppIds: setHiddenAppIds,
     hideApp: hideApp,
