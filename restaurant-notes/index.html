@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Restaurant Notes</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Resto Notes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#6d4c41" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="top-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="top-titles">
+        <h1>Restaurant Notes</h1>
+        <p class="sub">Capture spots, then copy into Philly Dates</p>
+      </div>
+    </div>
+    <div class="top-actions-row">
+      <button type="button" class="btn btn-primary" id="add-btn">+ Add</button>
+      <button type="button" class="btn btn-secondary" id="export-all-btn">Copy all for import</button>
+    </div>
+  </header>
+
+  <main>
+    <p class="hint" id="list-hint">Saved on this device as you type. Export when ready, then paste into Philly Dates → Settings → Import from text.</p>
+    <ul class="note-list" id="note-list"></ul>
+    <p class="empty" id="list-empty" hidden>No notes yet. Tap + Add or open from an Instagram link.</p>
+  </main>
+
+  <div class="modal-backdrop" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="edit-title">Restaurant</h2>
+          <p class="edit-sub" id="edit-status" aria-live="polite"></p>
+        </div>
+        <button type="button" class="modal-close" id="edit-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <label for="f-name">Name</label>
+        <input type="text" id="f-name" placeholder="Restaurant name" autocomplete="off" />
+        <label for="f-instagram">Instagram</label>
+        <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+        <label for="f-neighborhood">Neighborhood</label>
+        <input type="text" id="f-neighborhood" placeholder="e.g. Rittenhouse" autocomplete="off" />
+        <label for="f-address">Address</label>
+        <input type="text" id="f-address" placeholder="Optional" autocomplete="off" />
+        <label for="f-description">Description</label>
+        <textarea id="f-description" placeholder="Vibe, what to order…"></textarea>
+        <label for="f-notes">Your notes</label>
+        <textarea id="f-notes" placeholder="Where you saw it, who recommended it…"></textarea>
+        <label>Happy hour times <span class="label-hint">(leave blank if unknown)</span></label>
+        <table class="hh-grid" id="hh-grid">
+          <thead><tr><th>Day</th><th>Start</th><th>End</th><th></th></tr></thead>
+          <tbody id="hh-body"></tbody>
+        </table>
+        <div class="edit-actions">
+          <button type="button" class="btn btn-danger" id="delete-btn">Delete</button>
+          <button type="button" class="btn btn-secondary" id="copy-one-btn">Copy this one</button>
+          <button type="button" class="btn btn-primary" id="done-btn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js" defer></script>
+</body>
+</html>

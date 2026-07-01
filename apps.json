@@ -9,6 +9,7 @@
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
+      "restaurant-notes": { "storageKey": "restaurant-notes-v1" },
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
       "meal-menu": { "storageKey": "meal-menu-v1" },
       "dont-forget": { "storageKey": "dont-forget-v1" },
@@ -42,6 +43,12 @@
       "name": "Philly Dates",
       "subtitle": "Happy hours & menus",
       "storageKey": "philly-dates-v2"
+    },
+    {
+      "id": "restaurant-notes",
+      "name": "Resto Notes",
+      "subtitle": "Capture before import",
+      "storageKey": "restaurant-notes-v1"
     },
     {
       "id": "world-cup-2026",
