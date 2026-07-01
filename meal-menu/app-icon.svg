@@ -6,11 +6,18 @@
     </linearGradient>
   </defs>
   <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <rect x="30" y="34" width="120" height="112" rx="14" fill="#fff"/>
-  <rect x="30" y="34" width="120" height="22" rx="14" fill="#ffedd5"/>
-  <rect x="30" y="48" width="120" height="8" fill="#ffedd5"/>
-  <line x1="46" y1="72" x2="134" y2="72" stroke="#fdba74" stroke-width="4" stroke-linecap="round"/>
-  <line x1="46" y1="92" x2="118" y2="92" stroke="#fed7aa" stroke-width="4" stroke-linecap="round"/>
-  <line x1="46" y1="112" x2="126" y2="112" stroke="#fed7aa" stroke-width="4" stroke-linecap="round"/>
-  <line x1="46" y1="132" x2="100" y2="132" stroke="#fed7aa" stroke-width="4" stroke-linecap="round"/>
+  <path d="M90 36 C72 40 52 44 34 48 L34 140 C52 144 72 148 90 150 Z" fill="#fff"/>
+  <path d="M90 36 C108 40 128 44 146 48 L146 140 C128 144 108 148 90 150 Z" fill="#fff7ed"/>
+  <path d="M34 48 Q90 58 146 48" fill="none" stroke="#ffedd5" stroke-width="3"/>
+  <line x1="90" y1="36" x2="90" y2="150" stroke="#fdba74" stroke-width="3"/>
+  <g stroke-linecap="round">
+    <line x1="48" y1="72" x2="82" y2="70" stroke="#fdba74" stroke-width="4"/>
+    <line x1="48" y1="90" x2="78" y2="88" stroke="#fed7aa" stroke-width="4"/>
+    <line x1="48" y1="108" x2="80" y2="106" stroke="#fed7aa" stroke-width="4"/>
+    <line x1="48" y1="126" x2="70" y2="124" stroke="#fed7aa" stroke-width="4"/>
+    <line x1="98" y1="72" x2="132" y2="70" stroke="#fdba74" stroke-width="4"/>
+    <line x1="98" y1="90" x2="128" y2="88" stroke="#fed7aa" stroke-width="4"/>
+    <line x1="98" y1="108" x2="130" y2="106" stroke="#fed7aa" stroke-width="4"/>
+    <line x1="98" y1="126" x2="118" y2="124" stroke="#fed7aa" stroke-width="4"/>
+  </g>
 </svg>
