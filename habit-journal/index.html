@@ -248,16 +248,24 @@
       margin-top: 2px;
     }
     .habit-label-streak {
-      display: block;
+      flex: 1;
+      min-width: 0;
       font-size: 0.5625rem;
       font-weight: 700;
       color: var(--accent);
-      margin-top: 2px;
+      line-height: 1.2;
+    }
+    .habit-label-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      width: 100%;
+      min-height: 0;
     }
     .habit-label-hide-btn {
-      align-self: flex-end;
-      margin-top: 2px;
-      padding: 1px 4px;
+      flex-shrink: 0;
+      padding: 0 2px;
       border: none;
       border-radius: 3px;
       background: transparent;
@@ -2025,8 +2033,18 @@
       '">' +
       habitMonthLabelHtml(habit) +
       "</button>";
-    html += "</div>";
-    html += "</div>";
+    html += '<div class="habit-label-meta">';
+    const streak = habitStreak(habit);
+    if (streak > 0) {
+      html +=
+        '<span class="habit-label-streak">' +
+        streak +
+        " day" +
+        (streak === 1 ? "" : "s") +
+        "</span>";
+    } else {
+      html += '<span class="habit-label-streak"></span>";
+    }
     html +=
       '<button type="button" class="habit-label-hide-btn" data-hide="' +
       escapeHtml(habit.id) +
@@ -2034,6 +2052,8 @@
       escapeHtml(habit.name) +
       '">Hide</button>';
     html += "</div>";
+    html += "</div>";
+    html += "</div></div>";
     return html;
   }
 
@@ -2712,15 +2732,6 @@
     let html = (habit.pinned ? "★ " : "") + escapeHtml(habit.name);
     if (habit.type === "counter") {
       html += '<span class="habit-label-step">(' + escapeHtml(formatStepBracket(habit.step)) + ")</span>";
-    }
-    const streak = habitStreak(habit);
-    if (streak > 0) {
-      html +=
-        '<span class="habit-label-streak">' +
-        streak +
-        " day" +
-        (streak === 1 ? "" : "s") +
-        "</span>";
     }
     return html;
   }
