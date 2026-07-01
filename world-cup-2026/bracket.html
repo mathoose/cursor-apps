@@ -8,11 +8,11 @@
   <meta name="apple-mobile-web-app-title" content="WC 2026" />
   <meta name="theme-color" content="#0a1628" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: wc-tree-v4 -->
+  <!-- build: wc-tree-v5 -->
   <link rel="icon" href="icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=wc-tree4" />
+  <link rel="stylesheet" href="styles.css?v=wc-tree5" />
 </head>
 <body>
   <header class="top">
@@ -26,9 +26,9 @@
       </div>
     </div>
     <nav class="nav-tabs" aria-label="Views">
-      <a class="nav-tab" href="index.html?v=wc-tree4">Matches</a>
-      <a class="nav-tab" href="table.html?v=wc-tree4">Tables</a>
-      <a class="nav-tab on" href="bracket.html?v=wc-tree4" aria-current="page">Bracket</a>
+      <a class="nav-tab" href="index.html?v=wc-tree5">Matches</a>
+      <a class="nav-tab" href="table.html?v=wc-tree5">Tables</a>
+      <a class="nav-tab on" href="bracket.html?v=wc-tree5" aria-current="page">Bracket</a>
     </nav>
   </header>
 
@@ -54,6 +54,7 @@
         <button type="button" class="modal-close" id="modal-close" aria-label="Close">&times;</button>
       </div>
       <div class="modal-body">
+        <p class="modal-period-label">90 minutes</p>
         <div class="modal-scores">
           <label class="modal-score-label">
             <span id="modal-home-name"></span>
@@ -65,6 +66,47 @@
             <input class="score-input modal-score-input" id="modal-away" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
           </label>
         </div>
+
+        <div class="modal-draw-options" id="modal-draw-options" hidden>
+          <p class="modal-draw-hint">Draw after 90 — how was it decided?</p>
+          <label class="modal-check">
+            <input type="checkbox" id="modal-aet-toggle" />
+            <span>Extra time</span>
+          </label>
+          <div class="modal-extra-block" id="modal-aet-block" hidden>
+            <p class="modal-period-label">After extra time</p>
+            <div class="modal-scores modal-scores-compact">
+              <label class="modal-score-label">
+                <span id="modal-aet-home-name"></span>
+                <input class="score-input modal-score-input modal-score-input-sm" id="modal-aet-home" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+              </label>
+              <span class="score-sep">–</span>
+              <label class="modal-score-label">
+                <span id="modal-aet-away-name"></span>
+                <input class="score-input modal-score-input modal-score-input-sm" id="modal-aet-away" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+              </label>
+            </div>
+          </div>
+          <label class="modal-check">
+            <input type="checkbox" id="modal-pen-toggle" />
+            <span>Penalties</span>
+          </label>
+          <div class="modal-extra-block" id="modal-pen-block" hidden>
+            <p class="modal-period-label">Penalty shootout</p>
+            <div class="modal-scores modal-scores-compact">
+              <label class="modal-score-label">
+                <span id="modal-pen-home-name"></span>
+                <input class="score-input modal-score-input modal-score-input-sm" id="modal-pen-home" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+              </label>
+              <span class="score-sep">–</span>
+              <label class="modal-score-label">
+                <span id="modal-pen-away-name"></span>
+                <input class="score-input modal-score-input modal-score-input-sm" id="modal-pen-away" type="number" min="0" max="20" inputmode="numeric" placeholder="0" />
+              </label>
+            </div>
+          </div>
+        </div>
+
         <label class="modal-note-label">
           Notes <span class="optional">(optional)</span>
           <textarea id="modal-note" rows="3" placeholder="Goal scorers, thoughts…"></textarea>
@@ -77,13 +119,13 @@
     </div>
   </div>
 
-  <script src="matches.js?v=wc-tree4"></script>
-  <script src="bracket-scenarios.js?v=wc-tree4"></script>
-  <script src="bracket-structure.js?v=wc-tree4"></script>
-  <script src="bracket-tree-layout.js?v=wc-tree4"></script>
-  <script src="core.js?v=wc-tree4"></script>
-  <script src="bracket.js?v=wc-tree4"></script>
-  <script src="bracket-page.js?v=wc-tree4"></script>
+  <script src="matches.js?v=wc-tree5"></script>
+  <script src="bracket-scenarios.js?v=wc-tree5"></script>
+  <script src="bracket-structure.js?v=wc-tree5"></script>
+  <script src="bracket-tree-layout.js?v=wc-tree5"></script>
+  <script src="core.js?v=wc-tree5"></script>
+  <script src="bracket.js?v=wc-tree5"></script>
+  <script src="bracket-page.js?v=wc-tree5"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

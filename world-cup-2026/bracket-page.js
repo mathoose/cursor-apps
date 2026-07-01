@@ -14,6 +14,19 @@
   var modalAwayName = document.getElementById("modal-away-name");
   var modalHome = document.getElementById("modal-home");
   var modalAway = document.getElementById("modal-away");
+  var modalDrawOptions = document.getElementById("modal-draw-options");
+  var modalAetToggle = document.getElementById("modal-aet-toggle");
+  var modalPenToggle = document.getElementById("modal-pen-toggle");
+  var modalAetBlock = document.getElementById("modal-aet-block");
+  var modalPenBlock = document.getElementById("modal-pen-block");
+  var modalAetHomeName = document.getElementById("modal-aet-home-name");
+  var modalAetAwayName = document.getElementById("modal-aet-away-name");
+  var modalPenHomeName = document.getElementById("modal-pen-home-name");
+  var modalPenAwayName = document.getElementById("modal-pen-away-name");
+  var modalAetHome = document.getElementById("modal-aet-home");
+  var modalAetAway = document.getElementById("modal-aet-away");
+  var modalPenHome = document.getElementById("modal-pen-home");
+  var modalPenAway = document.getElementById("modal-pen-away");
   var modalNote = document.getElementById("modal-note");
   var modalSave = document.getElementById("modal-save");
   var modalClear = document.getElementById("modal-clear");
@@ -69,8 +82,11 @@
 
   function scoreCenterHtml(m) {
     var result = core.getKnockoutResult(m.id);
+    if (core.isKnockoutResolved(result)) {
+      return '<span class="bracket-score">' + escapeHtml(core.formatKnockoutScore(result)) + "</span>";
+    }
     if (core.isPlayed(result)) {
-      return '<span class="bracket-score">' + result.home + "\u2013" + result.away + "</span>";
+      return '<span class="bracket-vs">needs ET/pens</span>';
     }
     if (m.home.team && m.away.team) {
       return '<span class="bracket-vs">tap</span>';
@@ -86,7 +102,7 @@
         (m.isFinal ? " final" : "") +
         (m.isBronze ? " bronze" : "") +
         (editable ? " editable" : " locked") +
-        (core.isPlayed(core.getKnockoutResult(m.id)) ? " played" : "") +
+        (core.isKnockoutResolved(core.getKnockoutResult(m.id)) ? " played" : "") +
         '" data-id="' + m.id + '"' +
         (editable ? "" : " disabled") + ">" +
         '<div class="bracket-match-head">' +
@@ -125,9 +141,12 @@
     var winner = getWinnerTeam(m);
     var editable = !!(m.home.team && m.away.team);
     var result = core.getKnockoutResult(m.id);
-    var played = core.isPlayed(result);
-    var homeScore = played ? result.home : null;
-    var awayScore = played ? result.away : null;
+    var played = core.isKnockoutResolved(result);
+    var homeScore = core.isPlayed(result) ? result.home : null;
+    var awayScore = core.isPlayed(result) ? result.away : null;
+    var extra = played && (core.hasAet(result) || core.hasPens(result))
+      ? '<span class="tree-extra-mark">' + escapeHtml(core.formatKnockoutScore(result).replace(/^\d+[\u2013-]\d+\s*/, "")) + "</span>"
+      : "";
 
     return (
       '<button type="button" class="tree-node' +
@@ -139,6 +158,7 @@
         (editable ? "" : " disabled") + ">" +
         treeTeamLine(m.home, homeScore, winner) +
         treeTeamLine(m.away, awayScore, winner) +
+        extra +
       "</button>"
     );
   }
@@ -281,7 +301,7 @@
   }
 
   function renderListView(bracket) {
-    var html = '<p class="bracket-hint">Tap a match to enter score. Winners advance automatically; semi losers fill the third-place match.</p>';
+    var html = '<p class="bracket-hint">Tap a match to enter score. Draws need extra time and/or penalties. Winners advance automatically.</p>';
     html += roundHtml("Round of 32", bracket.r32);
     html += roundHtml("Round of 16", bracket.r16);
     html += roundHtml("Quarter-finals", bracket.qf);
@@ -296,6 +316,44 @@
     return cachedBracket.matchMap[String(matchId)] || null;
   }
 
+  function clearModalInvalid() {
+    [modalHome, modalAway, modalAetHome, modalAetAway, modalPenHome, modalPenAway].forEach(function (el) {
+      el.classList.remove("invalid");
+    });
+  }
+
+  function updateDrawOptions() {
+    var homeVal = modalHome.value.trim();
+    var awayVal = modalAway.value.trim();
+    var isDraw = homeVal !== "" && awayVal !== "" && Number(homeVal) === Number(awayVal);
+
+    modalDrawOptions.hidden = !isDraw;
+
+    if (!isDraw) {
+      modalAetToggle.checked = false;
+      modalPenToggle.checked = false;
+      modalAetBlock.hidden = true;
+      modalPenBlock.hidden = true;
+      modalAetHome.value = "";
+      modalAetAway.value = "";
+      modalPenHome.value = "";
+      modalPenAway.value = "";
+      return;
+    }
+
+    modalAetBlock.hidden = !modalAetToggle.checked;
+    modalPenBlock.hidden = !modalPenToggle.checked;
+
+    if (modalAetToggle.checked) {
+      var aetHome = modalAetHome.value.trim();
+      var aetAway = modalAetAway.value.trim();
+      if (aetHome !== "" && aetAway !== "" && Number(aetHome) === Number(aetAway)) {
+        modalPenToggle.checked = true;
+        modalPenBlock.hidden = false;
+      }
+    }
+  }
+
   function openModal(matchId) {
     var m = findMatch(Number(matchId));
     if (!m || !m.home.team || !m.away.team) return;
@@ -306,10 +364,22 @@
     modalMeta.textContent = "M" + m.id + " · " + m.date + " · " + m.venue;
     modalHomeName.textContent = m.home.team;
     modalAwayName.textContent = m.away.team;
+    modalAetHomeName.textContent = m.home.team;
+    modalAetAwayName.textContent = m.away.team;
+    modalPenHomeName.textContent = m.home.team;
+    modalPenAwayName.textContent = m.away.team;
     modalHome.value = result ? result.home : "";
     modalAway.value = result ? result.away : "";
+    modalAetHome.value = result && core.hasAet(result) ? result.aetHome : "";
+    modalAetAway.value = result && core.hasAet(result) ? result.aetAway : "";
+    modalPenHome.value = result && core.hasPens(result) ? result.penHome : "";
+    modalPenAway.value = result && core.hasPens(result) ? result.penAway : "";
+    modalAetToggle.checked = !!(result && core.hasAet(result));
+    modalPenToggle.checked = !!(result && core.hasPens(result));
     modalNote.value = result && result.note ? result.note : "";
     modalClear.hidden = !core.isPlayed(result);
+    clearModalInvalid();
+    updateDrawOptions();
 
     modal.hidden = false;
     document.body.classList.add("modal-open");
@@ -320,13 +390,14 @@
     modal.hidden = true;
     document.body.classList.remove("modal-open");
     activeMatch = null;
-    modalHome.classList.remove("invalid");
-    modalAway.classList.remove("invalid");
+    clearModalInvalid();
     render();
   }
 
   function saveModal() {
     if (!activeMatch) return;
+
+    clearModalInvalid();
 
     var homeVal = modalHome.value.trim();
     var awayVal = modalAway.value.trim();
@@ -337,13 +408,65 @@
       return;
     }
 
-    if (Number(homeVal) === Number(awayVal)) {
-      modalHome.classList.add("invalid");
-      modalAway.classList.add("invalid");
-      return;
+    var opts = { note: modalNote.value };
+    var isDraw = Number(homeVal) === Number(awayVal);
+
+    if (isDraw) {
+      if (!modalAetToggle.checked && !modalPenToggle.checked) {
+        modalAetToggle.focus();
+        modalDrawOptions.classList.add("shake");
+        setTimeout(function () { modalDrawOptions.classList.remove("shake"); }, 400);
+        return;
+      }
+
+      if (modalAetToggle.checked) {
+        var aetHomeVal = modalAetHome.value.trim();
+        var aetAwayVal = modalAetAway.value.trim();
+        if (aetHomeVal === "" || aetAwayVal === "") {
+          modalAetHome.classList.add("invalid");
+          modalAetAway.classList.add("invalid");
+          return;
+        }
+        opts.aetHome = aetHomeVal;
+        opts.aetAway = aetAwayVal;
+
+        if (Number(aetHomeVal) !== Number(aetAwayVal)) {
+          core.setKnockoutResult(activeMatch.id, homeVal, awayVal, opts);
+          closeModal();
+          return;
+        }
+      }
+
+      if (modalPenToggle.checked) {
+        var penHomeVal = modalPenHome.value.trim();
+        var penAwayVal = modalPenAway.value.trim();
+        if (penHomeVal === "" || penAwayVal === "") {
+          modalPenHome.classList.add("invalid");
+          modalPenAway.classList.add("invalid");
+          return;
+        }
+        if (Number(penHomeVal) === Number(penAwayVal)) {
+          modalPenHome.classList.add("invalid");
+          modalPenAway.classList.add("invalid");
+          return;
+        }
+        opts.penHome = penHomeVal;
+        opts.penAway = penAwayVal;
+        core.setKnockoutResult(activeMatch.id, homeVal, awayVal, opts);
+        closeModal();
+        return;
+      }
+
+      if (modalAetToggle.checked) {
+        modalPenToggle.checked = true;
+        modalPenBlock.hidden = false;
+        modalPenHome.classList.add("invalid");
+        modalPenAway.classList.add("invalid");
+        return;
+      }
     }
 
-    core.setKnockoutResult(activeMatch.id, homeVal, awayVal, modalNote.value);
+    core.setKnockoutResult(activeMatch.id, homeVal, awayVal, opts);
     closeModal();
   }
 
@@ -436,9 +559,10 @@
     if (e.target === modal) closeModal();
   });
 
-  [modalHome, modalAway].forEach(function (input) {
+  [modalHome, modalAway, modalAetHome, modalAetAway, modalPenHome, modalPenAway].forEach(function (input) {
     input.addEventListener("input", function () {
       input.classList.remove("invalid");
+      updateDrawOptions();
     });
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
@@ -447,6 +571,9 @@
       }
     });
   });
+
+  modalAetToggle.addEventListener("change", updateDrawOptions);
+  modalPenToggle.addEventListener("change", updateDrawOptions);
 
   document.addEventListener("keydown", function (e) {
     if (modal.hidden) return;

@@ -541,12 +541,78 @@ body.modal-open { overflow: hidden; }
 
 .modal-body { padding: 16px; }
 
+.modal-period-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0 0 6px;
+}
+
 .modal-scores {
   display: flex;
   align-items: flex-end;
   justify-content: center;
   gap: 12px;
-  margin: 16px 0;
+  margin: 0 0 12px;
+}
+
+.modal-scores-compact {
+  margin-bottom: 8px;
+}
+
+.modal-draw-options {
+  margin: 8px 0 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.modal-draw-options.shake {
+  animation: modal-shake 0.35s ease;
+}
+
+@keyframes modal-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.modal-draw-hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.modal-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 8px 0;
+  cursor: pointer;
+}
+
+.modal-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.modal-extra-block {
+  margin: 4px 0 10px;
+  padding-left: 4px;
+}
+
+.modal-score-input-sm {
+  width: 56px;
+  height: 44px;
+  font-size: 1.25rem;
 }
 
 .modal-score-label {
@@ -1139,6 +1205,16 @@ body.modal-open { overflow: hidden; }
 .tree-node.locked { opacity: 0.65; }
 .tree-node.final { border-color: var(--gold); background: rgba(255, 215, 0, 0.08); }
 .tree-node.bronze { border-color: rgba(205, 127, 50, 0.45); }
+
+.tree-extra-mark {
+  display: block;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.1;
+  margin-top: 2px;
+}
 
 .tree-team {
   display: flex;

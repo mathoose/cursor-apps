@@ -276,9 +276,21 @@
       var cleaned = {};
       Object.keys(data).forEach(function (key) {
         var val = data[key];
-        if (val && typeof val === "object" && Number.isFinite(val.home) && Number.isFinite(val.away)) {
-          cleaned[key] = val;
+        if (!val || typeof val !== "object") return;
+        if (!Number.isFinite(val.home) || !Number.isFinite(val.away)) return;
+        var entry = { home: val.home, away: val.away };
+        if (val.note && String(val.note).trim()) {
+          entry.note = String(val.note).trim();
         }
+        if (Number.isFinite(val.aetHome) && Number.isFinite(val.aetAway)) {
+          entry.aetHome = val.aetHome;
+          entry.aetAway = val.aetAway;
+        }
+        if (Number.isFinite(val.penHome) && Number.isFinite(val.penAway)) {
+          entry.penHome = val.penHome;
+          entry.penAway = val.penAway;
+        }
+        cleaned[key] = entry;
       });
       return cleaned;
     } catch (e) {
@@ -295,15 +307,61 @@
     return readKnockoutResults()[String(matchId)] || null;
   }
 
-  function setKnockoutResult(matchId, home, away, note) {
+  function hasAet(result) {
+    return !!(result && Number.isFinite(result.aetHome) && Number.isFinite(result.aetAway));
+  }
+
+  function hasPens(result) {
+    return !!(result && Number.isFinite(result.penHome) && Number.isFinite(result.penAway));
+  }
+
+  function isDrawAt90(result) {
+    return isPlayed(result) && result.home === result.away;
+  }
+
+  function isKnockoutResolved(result) {
+    if (!isPlayed(result)) return false;
+    if (result.home !== result.away) return true;
+    if (hasAet(result) && result.aetHome !== result.aetAway) return true;
+    if (hasPens(result) && result.penHome !== result.penAway) return true;
+    return false;
+  }
+
+  function formatKnockoutScore(result) {
+    if (!isPlayed(result)) return "";
+    var text = result.home + "\u2013" + result.away;
+    if (hasAet(result)) {
+      text += " aet " + result.aetHome + "\u2013" + result.aetAway;
+    }
+    if (hasPens(result)) {
+      text += " (" + result.penHome + "\u2013" + result.penAway + "p)";
+    }
+    return text;
+  }
+
+  function setKnockoutResult(matchId, home, away, opts) {
     var results = readKnockoutResults();
     var key = String(matchId);
+    opts = opts || {};
+
     if (home === "" && away === "") {
       delete results[key];
     } else {
       var entry = { home: Number(home), away: Number(away) };
-      if (note && String(note).trim()) {
-        entry.note = String(note).trim();
+      if (opts.note && String(opts.note).trim()) {
+        entry.note = String(opts.note).trim();
+      }
+      if (opts.aetHome !== "" && opts.aetAway !== "" &&
+          opts.aetHome !== null && opts.aetAway !== null &&
+          opts.aetHome !== undefined && opts.aetAway !== undefined) {
+        entry.aetHome = Number(opts.aetHome);
+        entry.aetAway = Number(opts.aetAway);
+      }
+      if (opts.penHome !== "" && opts.penAway !== "" &&
+          opts.penHome !== null && opts.penAway !== null &&
+          opts.penHome !== undefined && opts.penAway !== undefined) {
+        entry.penHome = Number(opts.penHome);
+        entry.penAway = Number(opts.penAway);
       }
       results[key] = entry;
     }
@@ -320,18 +378,23 @@
 
   function getKnockoutWinner(matchId, homeTeam, awayTeam) {
     var result = getKnockoutResult(matchId);
-    if (!isPlayed(result) || !homeTeam || !awayTeam) return null;
-    if (result.home > result.away) return homeTeam;
-    if (result.away > result.home) return awayTeam;
+    if (!isKnockoutResolved(result) || !homeTeam || !awayTeam) return null;
+    if (result.home !== result.away) {
+      return result.home > result.away ? homeTeam : awayTeam;
+    }
+    if (hasAet(result) && result.aetHome !== result.aetAway) {
+      return result.aetHome > result.aetAway ? homeTeam : awayTeam;
+    }
+    if (hasPens(result)) {
+      return result.penHome > result.penAway ? homeTeam : awayTeam;
+    }
     return null;
   }
 
   function getKnockoutLoser(matchId, homeTeam, awayTeam) {
-    var result = getKnockoutResult(matchId);
-    if (!isPlayed(result) || !homeTeam || !awayTeam) return null;
-    if (result.home > result.away) return awayTeam;
-    if (result.away > result.home) return homeTeam;
-    return null;
+    var winner = getKnockoutWinner(matchId, homeTeam, awayTeam);
+    if (!winner) return null;
+    return winner === homeTeam ? awayTeam : homeTeam;
   }
 
   function clearKnockoutWinners() {
@@ -357,6 +420,11 @@
     formatDate: formatDate,
     formatTime: formatTime,
     isPlayed: isPlayed,
+    isKnockoutResolved: isKnockoutResolved,
+    isDrawAt90: isDrawAt90,
+    hasAet: hasAet,
+    hasPens: hasPens,
+    formatKnockoutScore: formatKnockoutScore,
     computeStandings: computeStandings,
     computeThirdPlaceRanking: computeThirdPlaceRanking,
     countPlayed: countPlayed,
