@@ -34,7 +34,11 @@
   </header>
 
   <main>
-    <p class="hint" id="list-hint"><strong>From Instagram:</strong> Copy link → + Add → Paste link. When done: Copy all → paste in Philly Dates Settings.</p>
+    <p class="hint" id="list-hint"><strong>From Instagram:</strong> Copy link → + Add → Paste link — or <button type="button" class="link-btn" id="open-share-setup">set up 1-tap Share</button>.</p>
+    <button type="button" class="share-setup-banner" id="share-setup-banner">
+      <span class="share-setup-banner-title">📲 Share from Instagram in one tap</span>
+      <span class="share-setup-banner-sub">One-time setup · tap for steps</span>
+    </button>
     <div class="category-filters" id="category-filters" role="group" aria-label="Filter by category"></div>
     <ul class="note-list" id="note-list"></ul>
     <p class="empty" id="list-empty" hidden>No notes yet. Tap + Add or open from an Instagram link.</p>
@@ -102,6 +106,57 @@
     </div>
   </div>
 
+  <div class="modal-backdrop" id="share-setup-modal" role="dialog" aria-modal="true" aria-labelledby="share-setup-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="share-setup-title">Share from Instagram</h2>
+          <p class="edit-sub">Do this once. Then Instagram → Share → Resto Notes.</p>
+        </div>
+        <button type="button" class="modal-close" id="share-setup-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body help-body">
+        <section class="help-block">
+          <h3>Part 1 — Turn on Share Sheet</h3>
+          <ol class="help-steps">
+            <li>Open the <strong>Shortcuts</strong> app → tap <strong>+</strong> (top right).</li>
+            <li>Tap <strong>ⓘ</strong> (info) on the new shortcut.</li>
+            <li>Turn on <strong>Show in Share Sheet</strong>.</li>
+            <li>Tap <strong>Share Sheet Types</strong> → turn on <strong>URLs</strong> only → <strong>Done</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Part 2 — Add 5 actions</h3>
+          <p class="help-note">Tap <strong>Add Action</strong> each time. Search the word in bold.</p>
+          <ol class="help-steps">
+            <li><strong>URLs</strong> → pick <strong>Get URLs from Input</strong></li>
+            <li><strong>encode</strong> → pick <strong>URL Encode</strong> → tap <em>Input</em> inside it → choose <strong>URLs</strong></li>
+            <li><strong>Text</strong> → pick <strong>Text</strong> → tap inside the box → tap the line below to copy it → <strong>Paste</strong>:</li>
+          </ol>
+          <div class="copy-url-box">
+            <code id="share-base-url">https://mathoose.github.io/cursor-apps/restaurant-notes/?quickAdd=1&amp;instagram=</code>
+            <button type="button" class="btn btn-primary btn-sm" id="copy-share-url-btn">Copy this line</button>
+          </div>
+          <ol class="help-steps" start="4">
+            <li><strong>combine</strong> → <strong>Combine Text</strong> → first part: <strong>Text</strong> (step 3) · second part: <strong>URL Encoded Text</strong> (step 2)</li>
+            <li><strong>open</strong> → <strong>Open URLs</strong></li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Part 3 — Name &amp; save</h3>
+          <ol class="help-steps">
+            <li>Tap the shortcut name at the top → rename <strong>Resto Notes</strong> → <strong>Done</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block help-done">
+          <h3>How to use it</h3>
+          <p>Instagram post → <strong>Share</strong> → scroll the bottom row → tap <strong>Resto Notes</strong>. This app opens with the link filled in.</p>
+          <button type="button" class="btn btn-secondary full-width-btn" id="test-share-url-btn">Test it (opens a sample link)</button>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-backdrop" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
     <div class="modal">
       <div class="modal-header">
@@ -127,9 +182,8 @@
           </ol>
         </section>
         <section class="help-block help-optional">
-          <h3>Shortcuts (optional — skip if confusing)</h3>
-          <p>You don’t need Apple Shortcuts. <strong>Copy link + Paste link</strong> above is enough.</p>
-          <p>If you want one less step later, ask and we can walk through it — it’s not required.</p>
+          <h3>Share from Instagram in one tap</h3>
+          <p>Tap the brown <strong>Share from Instagram</strong> banner on the main screen for step-by-step Shortcut setup (one time).</p>
         </section>
       </div>
     </div>

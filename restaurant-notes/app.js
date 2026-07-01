@@ -10,7 +10,7 @@ var DEFAULT_CATEGORIES = [
   { id: 'happy-hour', label: 'Happy hour' },
   { id: 'brunch', label: 'Brunch' }
 ];
-var MAX_CATEGORIES = 24;
+var SHARE_BASE_URL = 'https://mathoose.github.io/cursor-apps/restaurant-notes/?quickAdd=1&instagram=';
 var currentId = '';
 var filterCategoryId = '';
 var autosaveTimer = null;
@@ -424,15 +424,18 @@ function serializeAll(places) {
 function copyText(text) {
   if (!text) {
     toast('Nothing to copy');
-    return false;
+    return Promise.resolve(false);
   }
   if (navigator.clipboard && navigator.clipboard.writeText) {
     return navigator.clipboard.writeText(text).then(function() {
-      toast('Copied — paste in Philly Dates');
       return true;
-    }).catch(fallbackCopy);
+    }).catch(function() {
+      fallbackCopy(text);
+      return true;
+    });
   }
-  return Promise.resolve(fallbackCopy(text));
+  fallbackCopy(text);
+  return Promise.resolve(true);
 }
 
 function fallbackCopy(text) {
@@ -456,13 +459,42 @@ function fallbackCopy(text) {
 
 function handleUrlParams() {
   var params = new URLSearchParams(window.location.search);
-  var ig = params.get('instagram');
-  var name = params.get('name');
+  var ig = params.get('instagram') || params.get('url') || '';
+  var name = params.get('name') || '';
   var quick = params.get('quickAdd');
+  var setup = params.get('setup');
+  if (setup === 'share') {
+    openShareSetupModal();
+    if (window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    return;
+  }
+  if (ig && ig.indexOf('instagram') === -1 && ig.indexOf('instagr.am') === -1) ig = '';
   if (!quick && !ig && !name) return;
-  openEditor(null, { name: name || '', instagram: ig || '' });
+  openEditor(null, { name: name, instagram: ig });
   if (window.history.replaceState) {
     window.history.replaceState({}, '', window.location.pathname);
+  }
+}
+
+function copyShareBaseUrl() {
+  copyText(SHARE_BASE_URL).then(function() {
+    toast('Copied — paste into the Text action');
+  });
+}
+
+function openShareSetupModal() {
+  document.getElementById('share-setup-modal').classList.add('open');
+  document.body.classList.add('modal-open');
+}
+
+function closeShareSetupModal() {
+  document.getElementById('share-setup-modal').classList.remove('open');
+  if (!document.getElementById('edit-modal').classList.contains('open')
+      && !document.getElementById('cats-modal').classList.contains('open')
+      && !document.getElementById('help-modal').classList.contains('open')) {
+    document.body.classList.remove('modal-open');
   }
 }
 
@@ -523,7 +555,9 @@ function wireEvents() {
       ? data.places.filter(function(p) { return p.categoryIds && p.categoryIds.indexOf(filterCategoryId) >= 0; })
       : data.places;
     if (!places.length) { toast('No notes to export'); return; }
-    copyText(serializeAll(places));
+    copyText(serializeAll(places)).then(function() {
+      toast('Copied — paste in Philly Dates');
+    });
   });
   document.getElementById('category-filters').addEventListener('click', function(e) {
     var chip = e.target.closest('.cat-chip');
@@ -560,6 +594,16 @@ function wireEvents() {
   });
   document.getElementById('manage-cats-btn').addEventListener('click', openCatsModal);
   document.getElementById('help-btn').addEventListener('click', openHelpModal);
+  document.getElementById('open-share-setup').addEventListener('click', openShareSetupModal);
+  document.getElementById('share-setup-banner').addEventListener('click', openShareSetupModal);
+  document.getElementById('share-setup-close').addEventListener('click', closeShareSetupModal);
+  document.getElementById('share-setup-modal').addEventListener('click', function(e) {
+    if (e.target.id === 'share-setup-modal') closeShareSetupModal();
+  });
+  document.getElementById('copy-share-url-btn').addEventListener('click', copyShareBaseUrl);
+  document.getElementById('test-share-url-btn').addEventListener('click', function() {
+    window.location.href = SHARE_BASE_URL + encodeURIComponent('https://www.instagram.com/prunellarestaurant/');
+  });
   document.getElementById('help-close').addEventListener('click', closeHelpModal);
   document.getElementById('help-modal').addEventListener('click', function(e) {
     if (e.target.id === 'help-modal') closeHelpModal();
@@ -630,7 +674,8 @@ function wireEvents() {
   });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      if (document.getElementById('help-modal').classList.contains('open')) closeHelpModal();
+      if (document.getElementById('share-setup-modal').classList.contains('open')) closeShareSetupModal();
+      else if (document.getElementById('help-modal').classList.contains('open')) closeHelpModal();
       else if (document.getElementById('cats-modal').classList.contains('open')) closeCatsModal();
       else if (document.getElementById('edit-modal').classList.contains('open')) closeEditor();
     }
