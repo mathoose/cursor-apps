@@ -1,19 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1a1628"/>
-      <stop offset="100%" stop-color="#2d1f4e"/>
-    </linearGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a78bfa"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
     </linearGradient>
   </defs>
   <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <rect x="38" y="44" width="52" height="72" rx="6" fill="#2a2340" stroke="#a78bfa" stroke-width="3"/>
-  <line x1="48" y1="60" x2="78" y2="60" stroke="#c4b5fd" stroke-width="3" stroke-linecap="round"/>
-  <line x1="48" y1="74" x2="72" y2="74" stroke="#8b7cb8" stroke-width="3" stroke-linecap="round"/>
-  <line x1="48" y1="88" x2="76" y2="88" stroke="#8b7cb8" stroke-width="3" stroke-linecap="round"/>
-  <circle cx="118" cy="96" r="36" fill="url(#accent)"/>
-  <path d="M108 78 L108 114 L136 96 Z" fill="#fff"/>
+  <rect x="34" y="38" width="112" height="104" rx="14" fill="#fff"/>
+  <rect x="34" y="38" width="112" height="24" rx="14" fill="#ede9fe"/>
+  <rect x="34" y="50" width="112" height="12" fill="#ede9fe"/>
+  <rect x="48" y="76" width="52" height="8" rx="4" fill="#ddd6fe"/>
+  <rect x="48" y="94" width="44" height="8" rx="4" fill="#ddd6fe"/>
+  <rect x="48" y="112" width="48" height="8" rx="4" fill="#ddd6fe"/>
+  <circle cx="122" cy="100" r="28" fill="#7c3aed"/>
+  <path d="M112 86v28l22-14z" fill="#fff"/>
 </svg>
