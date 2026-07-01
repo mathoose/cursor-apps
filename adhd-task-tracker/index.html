@@ -158,15 +158,34 @@
   }
 
   /* ---------- Quick add ---------- */
-  .quick-add {
-    display: flex; align-items: center; gap: 8px;
+  .quick-add-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 6px 6px 6px 12px;
     box-shadow: var(--shadow);
     margin-bottom: 12px;
+    overflow: hidden;
   }
+  .quick-add {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 6px 6px 12px;
+  }
+  .quick-add-card .quick-add {
+    border-bottom: 1px solid var(--border);
+  }
+  .quick-add-link {
+    padding: 0 12px;
+  }
+  .quick-add-link input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .quick-add-link input::placeholder { color: var(--text-faint); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -1210,11 +1229,16 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="quick-add">
-      <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
-      <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
+        <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1222,11 +1246,16 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
-    <div class="quick-add">
-      <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
-      <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
+        <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -3724,32 +3753,30 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  // Inbox
-  const inboxInput = document.getElementById('inboxQuickInput');
-  const inboxBtn = document.getElementById('inboxQuickBtn');
-  const addInbox = () => {
-    const v = inboxInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: 'inbox' });
-    inboxInput.value = '';
-    render();
-  };
-  inboxBtn.addEventListener('click', addInbox);
-  inboxInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addInbox(); });
+  function wireQuickAdd(titleInputId, linkInputId, btnId, getListId) {
+    const titleInput = document.getElementById(titleInputId);
+    const linkInput = document.getElementById(linkInputId);
+    const btn = document.getElementById(btnId);
+    const submit = () => {
+      const title = titleInput.value.trim();
+      if (!title) return;
+      const link = normalizeTaskLink(linkInput.value.trim());
+      if (link && !isValidTaskLink(link)) {
+        showToast('Link must be a valid http(s) URL', { error: true });
+        return;
+      }
+      addTask({ title, listId: getListId(), link: link || '' });
+      titleInput.value = '';
+      linkInput.value = '';
+      render();
+    };
+    btn.addEventListener('click', submit);
+    titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  }
 
-  // Lists
-  const listInput = document.getElementById('listQuickInput');
-  const listBtn = document.getElementById('listQuickBtn');
-  const addToList = () => {
-    const v = listInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: state.activeListId });
-    listInput.value = '';
-    render();
-  };
-  listBtn.addEventListener('click', addToList);
-  listInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addToList(); });
-
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickBtn', () => 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickBtn', () => state.activeListId);
 }
 
 function wireDateNav() {
