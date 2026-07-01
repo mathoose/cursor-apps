@@ -546,6 +546,41 @@
       font-family: inherit;
       font-variant-numeric: tabular-nums;
     }
+    .export-reminder-math {
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+    }
+    .export-reminder-math-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+    .export-reminder-math .delete-math-row span {
+      min-width: 6.5rem;
+    }
+    .export-reminder-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .export-reminder-actions .import-btn {
+      width: 100%;
+      min-height: 44px;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .export-reminder-actions .import-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
     .toast {
       position: fixed;
       left: 50%;
@@ -688,6 +723,34 @@
       <div class="import-actions">
         <button type="button" class="import-btn import-btn-secondary" id="importCancel">Cancel</button>
         <button type="button" class="import-btn import-btn-primary" id="importConfirm">Import selected</button>
+      </div>
+    </div>
+  </div>
+  <div class="import-sheet" id="exportReminderSheet" hidden role="dialog" aria-modal="true" aria-labelledby="exportReminderTitle">
+    <div class="import-backdrop" id="exportReminderBackdrop"></div>
+    <div class="import-panel">
+      <h2 id="exportReminderTitle">Time to export your data</h2>
+      <p class="import-preview" id="exportReminderPreview"></p>
+      <div class="export-reminder-actions">
+        <button type="button" class="import-btn import-btn-primary" id="exportReminderExportBtn">Export all data</button>
+      </div>
+      <div class="export-reminder-math" id="exportReminderMath">
+        <p class="export-reminder-math-label">Or answer all three to open apps without exporting:</p>
+        <label class="delete-math-row">
+          <span id="exportReminderMathQ1">? × ? =</span>
+          <input type="number" id="exportReminderMathA1" inputmode="numeric" autocomplete="off" aria-label="First multiplication answer" />
+        </label>
+        <label class="delete-math-row">
+          <span id="exportReminderMathQ2">? × ? =</span>
+          <input type="number" id="exportReminderMathA2" inputmode="numeric" autocomplete="off" aria-label="Second multiplication answer" />
+        </label>
+        <label class="delete-math-row">
+          <span id="exportReminderMathQ3">? × ? =</span>
+          <input type="number" id="exportReminderMathA3" inputmode="numeric" autocomplete="off" aria-label="Third multiplication answer" />
+        </label>
+      </div>
+      <div class="export-reminder-actions">
+        <button type="button" class="import-btn import-btn-secondary" id="exportReminderContinueBtn" disabled>Continue without exporting</button>
       </div>
     </div>
   </div>
@@ -932,6 +995,14 @@
 
   function bindLauncherActions() {
     document.getElementById("grid").addEventListener("click", function (e) {
+      if (exportReminderOpen) {
+        var appLink = e.target.closest(".app[data-app-id]");
+        if (appLink) {
+          e.preventDefault();
+          showToast("Export or answer the math first");
+          return;
+        }
+      }
       var hideBtn = e.target.closest("[data-hide-id]");
       if (hideBtn) {
         e.preventDefault();
@@ -1014,6 +1085,11 @@
   var pendingImportBundle = null;
   var pendingDeleteAppId = null;
   var pendingDeleteMath = null;
+  var pendingExportReminderMath = null;
+  var exportReminderOpen = false;
+  var EXPORT_REMINDER_BYPASS_KEY = "cursor-apps-export-reminder-bypass-v1";
+  var EXPORT_REMINDER_MATH_MIN = 2;
+  var EXPORT_REMINDER_MATH_MAX = 15;
 
   function showToast(msg) {
     var el = document.getElementById("toast");
@@ -1097,14 +1173,20 @@
     document.body.classList.remove("import-open");
   }
 
-  function randomTableFactor() {
-    return Math.floor(Math.random() * 12) + 1;
+  function randomTableFactor(min, max) {
+    min = min == null ? 1 : min;
+    max = max == null ? 12 : max;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function makeMathPair(min, max) {
+    var a = randomTableFactor(min, max);
+    var b = randomTableFactor(min, max);
+    return { a: a, b: b, answer: a * b };
   }
 
   function makeDeleteMathPair() {
-    var a = randomTableFactor();
-    var b = randomTableFactor();
-    return { a: a, b: b, answer: a * b };
+    return makeMathPair(1, 12);
   }
 
   function setupDeleteMathQuiz() {
@@ -1154,6 +1236,139 @@
     setupDeleteMathQuiz();
     document.getElementById("deleteSheet").hidden = false;
     document.body.classList.add("import-open");
+  }
+
+  function hasExportReminderBypass() {
+    try {
+      return !!sessionStorage.getItem(EXPORT_REMINDER_BYPASS_KEY);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setExportReminderBypass() {
+    try {
+      sessionStorage.setItem(EXPORT_REMINDER_BYPASS_KEY, String(Date.now()));
+    } catch (e) { /* ok */ }
+  }
+
+  function exportReminderMessage() {
+    var days = AppsBackup.getDaysSinceLastExport();
+    if (days == null) {
+      return "You have not exported a backup yet. Export all data to keep a copy of your apps on this device.";
+    }
+    return (
+      "It has been " +
+      days +
+      " day" +
+      (days === 1 ? "" : "s") +
+      " since your last export. Export all data to keep a safe copy of your apps."
+    );
+  }
+
+  function setupExportReminderMath() {
+    pendingExportReminderMath = [
+      makeMathPair(EXPORT_REMINDER_MATH_MIN, EXPORT_REMINDER_MATH_MAX),
+      makeMathPair(EXPORT_REMINDER_MATH_MIN, EXPORT_REMINDER_MATH_MAX),
+      makeMathPair(EXPORT_REMINDER_MATH_MIN, EXPORT_REMINDER_MATH_MAX),
+    ];
+    document.getElementById("exportReminderMathQ1").textContent =
+      pendingExportReminderMath[0].a + " × " + pendingExportReminderMath[0].b + " =";
+    document.getElementById("exportReminderMathQ2").textContent =
+      pendingExportReminderMath[1].a + " × " + pendingExportReminderMath[1].b + " =";
+    document.getElementById("exportReminderMathQ3").textContent =
+      pendingExportReminderMath[2].a + " × " + pendingExportReminderMath[2].b + " =";
+    document.getElementById("exportReminderMathA1").value = "";
+    document.getElementById("exportReminderMathA2").value = "";
+    document.getElementById("exportReminderMathA3").value = "";
+    updateExportReminderContinueState();
+    setTimeout(function () {
+      var first = document.getElementById("exportReminderMathA1");
+      if (first) first.focus();
+    }, 80);
+  }
+
+  function exportReminderMathAnswersCorrect() {
+    if (!pendingExportReminderMath) return false;
+    var a1 = parseInt(document.getElementById("exportReminderMathA1").value, 10);
+    var a2 = parseInt(document.getElementById("exportReminderMathA2").value, 10);
+    var a3 = parseInt(document.getElementById("exportReminderMathA3").value, 10);
+    if (!isFinite(a1) || !isFinite(a2) || !isFinite(a3)) return false;
+    return (
+      a1 === pendingExportReminderMath[0].answer &&
+      a2 === pendingExportReminderMath[1].answer &&
+      a3 === pendingExportReminderMath[2].answer
+    );
+  }
+
+  function updateExportReminderContinueState() {
+    var btn = document.getElementById("exportReminderContinueBtn");
+    if (!btn) return;
+    btn.disabled = !exportReminderMathAnswersCorrect();
+  }
+
+  function closeExportReminderSheet() {
+    exportReminderOpen = false;
+    pendingExportReminderMath = null;
+    var sheet = document.getElementById("exportReminderSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("import-open");
+  }
+
+  function openExportReminderSheet() {
+    document.getElementById("exportReminderPreview").textContent = exportReminderMessage();
+    setupExportReminderMath();
+    exportReminderOpen = true;
+    document.getElementById("exportReminderSheet").hidden = false;
+    document.body.classList.add("import-open");
+  }
+
+  function maybeShowExportReminder() {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.isExportReminderDue) return;
+    if (!AppsBackup.isExportReminderDue()) return;
+    if (hasExportReminderBypass()) return;
+    openExportReminderSheet();
+  }
+
+  function runExportAll(fromReminder) {
+    try {
+      var bundle = AppsBackup.exportAll();
+      var n = bundle._meta.included.length;
+      if (!n) {
+        showToast("No saved data found on this device");
+        return;
+      }
+      AppsBackup.downloadBundle(bundle);
+      refreshStorageStats();
+      showToast("Exported " + n + " app" + (n === 1 ? "" : "s") + " — " + AppsBackup.summarizeBundle(bundle));
+      if (fromReminder) closeExportReminderSheet();
+    } catch (e) {
+      showToast("Export failed");
+    }
+  }
+
+  function initExportReminder() {
+    var exportBtn = document.getElementById("exportReminderExportBtn");
+    var continueBtn = document.getElementById("exportReminderContinueBtn");
+    if (!exportBtn || !continueBtn) return;
+
+    exportBtn.addEventListener("click", function () {
+      runExportAll(true);
+    });
+    continueBtn.addEventListener("click", function () {
+      if (!exportReminderMathAnswersCorrect()) {
+        showToast("Check your math — try again");
+        setupExportReminderMath();
+        return;
+      }
+      setExportReminderBypass();
+      closeExportReminderSheet();
+    });
+    ["exportReminderMathA1", "exportReminderMathA2", "exportReminderMathA3"].forEach(function (id) {
+      var input = document.getElementById(id);
+      if (!input) return;
+      input.addEventListener("input", updateExportReminderContinueState);
+    });
   }
 
   function closeImportSheet() {
@@ -1234,19 +1449,7 @@
       });
     }
     document.getElementById("exportAllBtn").addEventListener("click", function () {
-      try {
-        var bundle = AppsBackup.exportAll();
-        var n = bundle._meta.included.length;
-        if (!n) {
-          showToast("No saved data found on this device");
-          return;
-        }
-        AppsBackup.downloadBundle(bundle);
-        refreshStorageStats();
-        showToast("Exported " + n + " app" + (n === 1 ? "" : "s") + " — " + AppsBackup.summarizeBundle(bundle));
-      } catch (e) {
-        showToast("Export failed");
-      }
+      runExportAll(false);
     });
     document.getElementById("importAllBtn").addEventListener("click", function () {
       document.getElementById("importAllInput").click();
@@ -1375,6 +1578,7 @@
 
   renderSkeleton(4);
   initBackupDock();
+  initExportReminder();
   bindLauncherActions();
   refreshStorageStats();
 
@@ -1395,11 +1599,13 @@
       render(data);
       pruneStaleHiddenApps();
       renderLauncher();
+      maybeShowExportReminder();
     })
     .catch(function () {
       renderOffline(FALLBACK_MANIFEST);
       pruneStaleHiddenApps();
       renderLauncher();
+      maybeShowExportReminder();
     });
 })();
   </script>
