@@ -166,57 +166,65 @@
 
     html += '<div class="bracket-tree-scroll" id="bracket-tree-scroll">';
     html += '<div class="bracket-tree-canvas">';
-    html += '<span id="bracket-anchor-left" class="bracket-tree-anchor" aria-hidden="true"></span>';
+    html += '<div class="bracket-tree-board">';
 
-    html += '<div class="bracket-tree-header split">';
-    cols.forEach(function (col) {
-      html += '<div class="bracket-tree-col-label">' + escapeHtml(col.label) + "</div>";
-    });
-    html += "</div>";
-
-    html += '<div class="bracket-tree-grid split">';
     cols.forEach(function (col, colIdx) {
       var ids = columnMatchIds(layout, col);
-      var span = col.span;
       var sideAttr = col.side ? ' data-side="' + col.side + '"' : "";
       var colKey = col.key === "final" ? "final" : col.key;
+      var colClass = "bracket-tree-col" + (col.key === "final" ? " is-final" : "");
 
-      ids.forEach(function (id, i) {
+      html +=
+        '<div class="' + colClass + '" data-col="' + colKey + '"' + sideAttr +
+        ' data-idx="' + colIdx + '">';
+      html += '<div class="bracket-tree-col-label">' + escapeHtml(col.label) + "</div>";
+      html += '<div class="bracket-tree-col-body count-' + ids.length + '">';
+
+      ids.forEach(function (id) {
         var m = bracket.matchMap[String(id)];
         if (!m) return;
-        var rowStart = i * span + 1;
-        html +=
-          '<div class="bracket-tree-slot" data-col="' + colKey + '"' + sideAttr +
-          ' style="grid-column:' + (colIdx + 1) +
-          ";grid-row:" + rowStart + "/ span " + span + '">' +
-          treeNodeHtml(m) +
-          "</div>";
+        html += '<div class="bracket-tree-slot">' + treeNodeHtml(m) + "</div>";
       });
-    });
-    html += "</div>";
 
-    html += '<span id="bracket-anchor-right" class="bracket-tree-anchor" aria-hidden="true"></span>';
-    html += "</div></div>";
+      html += "</div></div>";
+    });
+
+    html += "</div></div></div>";
 
     html += '<div class="bracket-tree-extras">';
     html += '<div class="bracket-tree-extra-label">Third place</div>';
     html += treeNodeHtml(bracket.bronze);
     html += "</div>";
 
-    html += '<p class="bracket-hint tree-hint">Scroll sideways for the full bracket · arrows jump to each side · tap a match to enter score</p>';
+    html += '<p class="bracket-hint tree-hint">Swipe sideways for the full bracket · arrows jump to each side · tap a match to enter score</p>';
     html += "</div>";
     return html;
   }
 
   function scrollTreeTo(side) {
-    var anchor = document.getElementById(
-      side === "left" ? "bracket-anchor-left" : "bracket-anchor-right"
-    );
-    if (!anchor) return;
-    anchor.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: side === "left" ? "start" : "end"
+    var scroll = document.getElementById("bracket-tree-scroll");
+    if (!scroll) return;
+
+    var selector = side === "left"
+      ? '.bracket-tree-col[data-side="left"][data-col="r32"]'
+      : '.bracket-tree-col[data-side="right"][data-col="r32"]';
+    var col = scroll.querySelector(selector);
+
+    if (!col) {
+      scroll.scrollTo({
+        left: side === "left" ? 0 : scroll.scrollWidth - scroll.clientWidth,
+        behavior: "smooth"
+      });
+      return;
+    }
+
+    var scrollRect = scroll.getBoundingClientRect();
+    var colRect = col.getBoundingClientRect();
+    var target = scroll.scrollLeft + (colRect.left - scrollRect.left) - 12;
+
+    scroll.scrollTo({
+      left: Math.max(0, Math.min(target, scroll.scrollWidth - scroll.clientWidth)),
+      behavior: "smooth"
     });
   }
 
@@ -239,12 +247,17 @@
     }
 
     function scrollToCenter() {
-      var finalSlot = scroll.querySelector('.bracket-tree-slot[data-col="final"]');
-      if (finalSlot && needsScroll()) {
-        finalSlot.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+      if (!needsScroll()) return;
+      var finalCol = scroll.querySelector(".bracket-tree-col.is-final");
+      if (!finalCol) {
+        scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
         return;
       }
-      scroll.scrollLeft = 0;
+      var scrollRect = scroll.getBoundingClientRect();
+      var colRect = finalCol.getBoundingClientRect();
+      var target = scroll.scrollLeft + (colRect.left - scrollRect.left);
+      target -= (scroll.clientWidth - colRect.width) / 2;
+      scroll.scrollLeft = Math.max(0, Math.min(target, scroll.scrollWidth - scroll.clientWidth));
     }
 
     if (!scroll.dataset.navReady) {
