@@ -470,9 +470,19 @@ function handleUrlParams() {
     }
     return;
   }
+  if (!ig) {
+    var m = window.location.href.match(/[?&]instagram=([^&#]+)/i);
+    if (m) {
+      try { ig = decodeURIComponent(m[1].replace(/\+/g, ' ')); } catch (e) { ig = m[1]; }
+    }
+  } else {
+    try { ig = decodeURIComponent(ig); } catch (e) {}
+  }
+  ig = normalizeInstagram((ig || '').trim());
   if (ig && ig.indexOf('instagram') === -1 && ig.indexOf('instagr.am') === -1) ig = '';
   if (!quick && !ig && !name) return;
   openEditor(null, { name: name, instagram: ig });
+  if (ig) toast('Instagram link loaded');
   if (window.history.replaceState) {
     window.history.replaceState({}, '', window.location.pathname);
   }

@@ -127,18 +127,19 @@
           <p class="help-note">No “Share Sheet Types” menu? That’s normal on newer iPhones — use the <strong>Receive</strong> step at the top instead.</p>
         </section>
         <section class="help-block">
-          <h3>Part 2 — Add 4 actions</h3>
-          <p class="help-note">Tap <strong>Add Action</strong> below the Receive step. Search the word in bold.</p>
+          <h3>Part 2 — Add 5 actions</h3>
+          <p class="help-note">Add these <strong>below</strong> the Receive step. Search the word in bold.</p>
           <ol class="help-steps">
-            <li><strong>encode</strong> → <strong>URL Encode</strong> → tap <em>Input</em> → choose <strong>Shortcut Input</strong></li>
-            <li><strong>Text</strong> → tap inside the box → copy &amp; paste this line:</li>
+            <li><strong>URLs</strong> → <strong>Get URLs from Input</strong> (Input = <strong>Shortcut Input</strong>)</li>
+            <li><strong>encode</strong> → <strong>URL Encode</strong> (Input = <strong>URLs</strong> from step 1)</li>
+            <li><strong>Text</strong> → paste this line (nothing after the = sign):</li>
           </ol>
           <div class="copy-url-box">
             <code id="share-base-url">https://mathoose.github.io/cursor-apps/restaurant-notes/?quickAdd=1&amp;instagram=</code>
             <button type="button" class="btn btn-primary btn-sm" id="copy-share-url-btn">Copy this line</button>
           </div>
-          <ol class="help-steps" start="4">
-            <li><strong>combine</strong> → <strong>Combine Text</strong> → first part: <strong>Text</strong> (step 3) · second part: <strong>URL Encoded Text</strong> (step 2)</li>
+          <ol class="help-steps" start="3">
+            <li><strong>combine</strong> → <strong>Combine Text</strong> → first: <strong>Text</strong> · second: <strong>URL Encoded Text</strong></li>
             <li><strong>open</strong> → <strong>Open URLs</strong></li>
           </ol>
         </section>
