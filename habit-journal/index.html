@@ -317,6 +317,97 @@
       font-weight: 700;
       color: var(--accent-dark);
     }
+    .graph-range-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .graph-range-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .graph-range-btn.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .graph-habit-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 12px;
+    }
+    .graph-habit-chip {
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .graph-habit-chip.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .graph-chart-card {
+      padding: 10px 8px 12px;
+    }
+    .graph-canvas-wrap {
+      width: 100%;
+      overflow: hidden;
+    }
+    #graphCanvas {
+      display: block;
+      width: 100%;
+      border-radius: 8px;
+    }
+    .graph-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8125rem;
+      padding: 28px 12px;
+    }
+    .graph-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .graph-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--ink);
+      min-width: 0;
+    }
+    .graph-legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .graph-legend-meta {
+      color: var(--muted);
+      font-weight: 500;
+    }
     .month-grid .cell.col-today {
       box-shadow: inset 0 0 0 2px var(--accent);
     }
@@ -1368,6 +1459,7 @@
   <main>
     <section class="panel on" id="panelMonth" aria-label="Monthly view"></section>
     <section class="panel" id="panelYear" aria-label="Yearly view"></section>
+    <section class="panel" id="panelGraph" aria-label="Graph view"></section>
     <section class="panel" id="panelHabits" aria-label="Habits"></section>
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
@@ -1431,6 +1523,10 @@
       <button type="button" class="tab" data-tab="year">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Year
+      </button>
+      <button type="button" class="tab" data-tab="graph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 17V9"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
+        Graph
       </button>
       <button type="button" class="tab" data-tab="habits">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -1500,9 +1596,13 @@
   let habitEditId = null;
   let habitsCatPanelOpen = false;
   let pendingImport = null;
+  let graphSelectedIds = {};
+  let graphRange = "90";
+  let graphUserToggled = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
+  const GRAPH_COLORS = ["#7a1f45", "#2563eb", "#3d7a3d", "#b45309", "#6b21a8", "#c94d78", "#0d9488", "#dc2626"];
 
   function defaultState() {
     return {
@@ -2458,7 +2558,7 @@
 
   function showFatalError(msg) {
     var html = '<div class="card"><p class="hint">' + escapeHtml(msg) + "</p></div>";
-    ["panelMonth", "panelYear", "panelHabits", "panelData"].forEach(function (id) {
+    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelData"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.innerHTML = html;
     });
@@ -2772,6 +2872,10 @@
       renderYear();
       return;
     }
+    if (activeTab === "graph") {
+      renderGraph();
+      return;
+    }
     render();
   }
 
@@ -2934,7 +3038,7 @@
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
     }
-    if (activeTab === "year") {
+    if (activeTab === "graph" || activeTab === "year") {
       nav.innerHTML =
         '<button type="button" class="nav-btn" id="yearPrev" aria-label="Previous year">‹</button>' +
         '<span class="nav-label">' + state.year + "</span>" +
@@ -3184,6 +3288,296 @@
       collapseAllYearHabits();
       renderYear();
     };
+  }
+
+  function graphRawValue(habit, cellValue) {
+    if (cellValue === null || cellValue === undefined) return null;
+    if (habit.type === "yesno") {
+      if (cellValue === YESNO_PROGRESS) return 0.5;
+      if (cellValue >= 1) return 1;
+      return 0;
+    }
+    return cellValue;
+  }
+
+  function getGraphDateBounds(range) {
+    let start;
+    let end;
+    if (range === "year") {
+      start = new Date(state.year, 0, 1);
+      end = new Date(state.year, 11, 31);
+      end.setHours(23, 59, 59, 999);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+      if (state.year === today.getFullYear() && end > today) end = today;
+    } else {
+      const days = parseInt(range, 10) || 90;
+      end = new Date();
+      end.setHours(23, 59, 59, 999);
+      start = new Date(end);
+      start.setDate(start.getDate() - (days - 1));
+      start.setHours(0, 0, 0, 0);
+    }
+    return { start: start, end: end };
+  }
+
+  function enumerateGraphDays(start, end) {
+    const days = [];
+    const cur = new Date(start);
+    cur.setHours(0, 0, 0, 0);
+    const endDay = new Date(end);
+    endDay.setHours(0, 0, 0, 0);
+    while (cur <= endDay) {
+      days.push({
+        y: cur.getFullYear(),
+        m: cur.getMonth(),
+        d: cur.getDate(),
+        date: new Date(cur),
+      });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return days;
+  }
+
+  function buildGraphSeries(habit, start, end) {
+    const days = enumerateGraphDays(start, end);
+    const points = days.map(function (day) {
+      const val = getCellValue(cellKey(habit.id, day.y, day.m, day.d));
+      const raw = graphRawValue(habit, val);
+      return { day: day, raw: raw, val: val };
+    });
+    let maxRaw = 0;
+    points.forEach(function (p) {
+      if (p.raw != null && p.raw > maxRaw) maxRaw = p.raw;
+    });
+    if (maxRaw <= 0) {
+      maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
+    }
+    return {
+      habit: habit,
+      points: points.map(function (p) {
+        return {
+          day: p.day,
+          raw: p.raw,
+          val: p.val,
+          norm: p.raw == null ? null : (p.raw / maxRaw) * 100,
+        };
+      }),
+      maxRaw: maxRaw,
+    };
+  }
+
+  function formatGraphHighLabel(habit, maxRaw) {
+    if (habit.type === "yesno") return "100% = Yes";
+    if (maxRaw >= 1000) return "high: " + Math.round(maxRaw).toLocaleString("en-US");
+    return "high: " + Math.round(maxRaw);
+  }
+
+  function formatGraphDayLabel(date) {
+    return MONTHS[date.getMonth()] + " " + date.getDate();
+  }
+
+  function getGraphSelectedHabits(habits) {
+    const selected = habits.filter(function (h) {
+      return graphSelectedIds[h.id];
+    });
+    if (graphUserToggled) return selected;
+    if (selected.length) return selected;
+    return habits.slice(0, Math.min(2, habits.length));
+  }
+
+  function drawGraphChart(canvas, seriesList) {
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(rect.width, 280);
+    const h = 260;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#faf8f4";
+    ctx.fillRect(0, 0, w, h);
+
+    if (!seriesList.length || !seriesList[0].points.length) return;
+
+    const pointCount = seriesList[0].points.length;
+
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
+    }
+
+    const labelEvery = Math.max(1, Math.ceil(pointCount / 5));
+    seriesList[0].points.forEach(function (p, i) {
+      if (i % labelEvery !== 0 && i !== pointCount - 1) return;
+      const x = pad.left + (pointCount === 1 ? plotW / 2 : (plotW * i) / (pointCount - 1));
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(formatGraphDayLabel(p.day.date), x, h - 10);
+    });
+
+    seriesList.forEach(function (series, si) {
+      const color = GRAPH_COLORS[si % GRAPH_COLORS.length];
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let started = false;
+      series.points.forEach(function (p, i) {
+        if (p.norm == null) {
+          started = false;
+          return;
+        }
+        const x = pad.left + (pointCount === 1 ? plotW / 2 : (plotW * i) / (pointCount - 1));
+        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+
+      series.points.forEach(function (p, i) {
+        if (p.norm == null) return;
+        const x = pad.left + (pointCount === 1 ? plotW / 2 : (plotW * i) / (pointCount - 1));
+        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+    });
+  }
+
+  function bindGraphControls(root) {
+    root.querySelectorAll("[data-graph-range]").forEach(function (btn) {
+      btn.onclick = function () {
+        graphRange = btn.getAttribute("data-graph-range");
+        renderGraph();
+      };
+    });
+    root.querySelectorAll("[data-graph-habit]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!graphUserToggled) {
+          graphUserToggled = true;
+          getGraphSelectedHabits(getFilteredHabits(true)).forEach(function (h) {
+            graphSelectedIds[h.id] = true;
+          });
+        }
+        const id = btn.getAttribute("data-graph-habit");
+        if (graphSelectedIds[id]) delete graphSelectedIds[id];
+        else graphSelectedIds[id] = true;
+        renderGraph();
+      };
+    });
+  }
+
+  function renderGraph() {
+    const root = document.getElementById("panelGraph");
+    if (!root) return;
+    const habits = getFilteredHabits(true);
+    const selectedHabits = getGraphSelectedHabits(habits);
+    const bounds = getGraphDateBounds(graphRange);
+    const seriesList = selectedHabits.map(function (habit) {
+      return buildGraphSeries(habit, bounds.start, bounds.end);
+    });
+    const hasData = seriesList.some(function (series) {
+      return series.points.some(function (p) {
+        return p.raw != null;
+      });
+    });
+
+    let html = renderCategoryFiltersHtml(true);
+    html +=
+      '<p class="hint">Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.</p>';
+    html += '<div class="graph-range-row">';
+    ["30", "90", "365", "year"].forEach(function (range) {
+      const label = range === "year" ? state.year : range + "d";
+      html +=
+        '<button type="button" class="graph-range-btn' +
+        (graphRange === range ? " on" : "") +
+        '" data-graph-range="' +
+        range +
+        '">' +
+        label +
+        "</button>";
+    });
+    html += "</div>";
+
+    if (!habits.length) {
+      html += '<p class="month-empty">No habits in this category.</p>';
+      root.innerHTML = html;
+      bindCategoryFilters(root);
+      return;
+    }
+
+    html += '<div class="graph-habit-chips">';
+    const selectedIdSet = {};
+    selectedHabits.forEach(function (h) {
+      selectedIdSet[h.id] = true;
+    });
+    habits.forEach(function (habit) {
+      html +=
+        '<button type="button" class="graph-habit-chip' +
+        (selectedIdSet[habit.id] ? " on" : "") +
+        '" data-graph-habit="' +
+        escapeHtml(habit.id) +
+        '">' +
+        escapeHtml(habit.name) +
+        "</button>";
+    });
+    html += "</div>";
+
+    html += '<div class="card graph-chart-card">';
+    if (!selectedHabits.length) {
+      html += '<p class="graph-empty">Select at least one habit above.</p>';
+    } else if (!hasData) {
+      html += '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
+    } else {
+      html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas></div>';
+      html += '<div class="graph-legend">';
+      seriesList.forEach(function (series, i) {
+        const color = GRAPH_COLORS[i % GRAPH_COLORS.length];
+        html +=
+          '<div class="graph-legend-item"><span class="graph-legend-swatch" style="background:' +
+          color +
+          '"></span><span>' +
+          escapeHtml(series.habit.name) +
+          '</span><span class="graph-legend-meta">' +
+          escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw)) +
+          "</span></div>";
+      });
+      html += "</div>";
+    }
+    html += "</div>";
+
+    root.innerHTML = html;
+    bindCategoryFilters(root);
+    bindGraphControls(root);
+
+    if (hasData && selectedHabits.length) {
+      const canvas = root.querySelector("#graphCanvas");
+      drawGraphChart(canvas, seriesList);
+    }
   }
 
   function renderHabits() {
@@ -3645,7 +4039,7 @@
     reader.readAsText(file);
   });
 
-  const panelIds = { month: "panelMonth", year: "panelYear", habits: "panelHabits", data: "panelData" };
+  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", data: "panelData" };
 
   document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-mode-action]");
@@ -3708,6 +4102,7 @@
         }
       }
       else if (activeTab === "habits") renderHabits();
+      else if (activeTab === "graph") renderGraph();
       else if (activeTab === "data") renderData();
     } catch (err) {
       console.error("Habit Journal render error:", err);
@@ -3726,6 +4121,9 @@
     if (document.visibilityState === "hidden") flushSave();
   });
   window.addEventListener("pagehide", flushSave);
+  window.addEventListener("resize", function () {
+    if (activeTab === "graph") renderGraph();
+  });
 
   try {
     render();
