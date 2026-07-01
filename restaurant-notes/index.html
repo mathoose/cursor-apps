@@ -28,11 +28,18 @@
     <div class="top-actions-row">
       <button type="button" class="btn btn-primary" id="add-btn">+ Add</button>
       <button type="button" class="btn btn-secondary" id="export-all-btn">Copy all for import</button>
+      <button type="button" class="btn btn-icon" id="manage-cats-btn" title="Manage categories" aria-label="Manage categories">🏷️</button>
+      <button type="button" class="btn btn-icon" id="help-btn" title="How to use" aria-label="How to use">?</button>
     </div>
   </header>
 
   <main>
-    <p class="hint" id="list-hint">Saved on this device as you type. Export when ready, then paste into Philly Dates → Settings → Import from text.</p>
+    <p class="hint" id="list-hint"><strong>From Instagram:</strong> Copy link → + Add → Paste link — or <button type="button" class="link-btn" id="open-share-setup">set up 1-tap Share</button>.</p>
+    <button type="button" class="share-setup-banner" id="share-setup-banner">
+      <span class="share-setup-banner-title">📲 Share from Instagram in one tap</span>
+      <span class="share-setup-banner-sub">One-time setup · tap for steps</span>
+    </button>
+    <div class="category-filters" id="category-filters" role="group" aria-label="Filter by category"></div>
     <ul class="note-list" id="note-list"></ul>
     <p class="empty" id="list-empty" hidden>No notes yet. Tap + Add or open from an Instagram link.</p>
   </main>
@@ -49,16 +56,25 @@
       <div class="modal-body">
         <label for="f-name">Name</label>
         <input type="text" id="f-name" placeholder="Restaurant name" autocomplete="off" />
+        <label for="f-description">Description</label>
+        <textarea id="f-description" placeholder="Vibe, what to order, why you want to go…" rows="3"></textarea>
+        <label>Categories</label>
+        <div class="category-chips" id="edit-category-chips" role="group" aria-label="Categories"></div>
+        <div class="add-category-row">
+          <input type="text" id="new-category-input" placeholder="New category" maxlength="32" autocomplete="off" />
+          <button type="button" class="btn btn-secondary btn-sm" id="add-category-btn">Add</button>
+        </div>
         <label for="f-instagram">Instagram</label>
-        <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+        <div class="ig-row">
+          <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+          <button type="button" class="btn btn-secondary btn-sm" id="paste-ig-btn">Paste link</button>
+        </div>
         <label for="f-neighborhood">Neighborhood</label>
         <input type="text" id="f-neighborhood" placeholder="e.g. Rittenhouse" autocomplete="off" />
         <label for="f-address">Address</label>
         <input type="text" id="f-address" placeholder="Optional" autocomplete="off" />
-        <label for="f-description">Description</label>
-        <textarea id="f-description" placeholder="Vibe, what to order…"></textarea>
         <label for="f-notes">Your notes</label>
-        <textarea id="f-notes" placeholder="Where you saw it, who recommended it…"></textarea>
+        <textarea id="f-notes" placeholder="Where you saw it, who recommended it…" rows="2"></textarea>
         <label>Happy hour times <span class="label-hint">(leave blank if unknown)</span></label>
         <table class="hh-grid" id="hh-grid">
           <thead><tr><th>Day</th><th>Start</th><th>End</th><th></th></tr></thead>
@@ -69,6 +85,106 @@
           <button type="button" class="btn btn-secondary" id="copy-one-btn">Copy this one</button>
           <button type="button" class="btn btn-primary" id="done-btn">Done</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="cats-modal" role="dialog" aria-modal="true" aria-labelledby="cats-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div><h2 id="cats-title">Categories</h2></div>
+        <button type="button" class="modal-close" id="cats-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="hint">Tap a category when editing a restaurant to assign it. Delete removes it from all notes.</p>
+        <ul class="manage-cat-list" id="manage-cat-list"></ul>
+        <div class="add-category-row">
+          <input type="text" id="manage-new-cat" placeholder="New category name" maxlength="32" autocomplete="off" />
+          <button type="button" class="btn btn-primary btn-sm" id="manage-add-cat-btn">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="share-setup-modal" role="dialog" aria-modal="true" aria-labelledby="share-setup-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="share-setup-title">Share from Instagram</h2>
+          <p class="edit-sub">Do this once. Then Instagram → Share → Resto Notes.</p>
+        </div>
+        <button type="button" class="modal-close" id="share-setup-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body help-body">
+        <section class="help-block">
+          <h3>Part 1 — Turn on Share Sheet</h3>
+          <ol class="help-steps">
+            <li>Open the <strong>Shortcuts</strong> app → tap <strong>+</strong> (top right).</li>
+            <li>Tap <strong>ⓘ</strong> (info) on the new shortcut.</li>
+            <li>Turn on <strong>Show in Share Sheet</strong>.</li>
+            <li>Tap <strong>Share Sheet Types</strong> → turn on <strong>URLs</strong> only → <strong>Done</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Part 2 — Add 5 actions</h3>
+          <p class="help-note">Tap <strong>Add Action</strong> each time. Search the word in bold.</p>
+          <ol class="help-steps">
+            <li><strong>URLs</strong> → pick <strong>Get URLs from Input</strong></li>
+            <li><strong>encode</strong> → pick <strong>URL Encode</strong> → tap <em>Input</em> inside it → choose <strong>URLs</strong></li>
+            <li><strong>Text</strong> → pick <strong>Text</strong> → tap inside the box → tap the line below to copy it → <strong>Paste</strong>:</li>
+          </ol>
+          <div class="copy-url-box">
+            <code id="share-base-url">https://mathoose.github.io/cursor-apps/restaurant-notes/?quickAdd=1&amp;instagram=</code>
+            <button type="button" class="btn btn-primary btn-sm" id="copy-share-url-btn">Copy this line</button>
+          </div>
+          <ol class="help-steps" start="4">
+            <li><strong>combine</strong> → <strong>Combine Text</strong> → first part: <strong>Text</strong> (step 3) · second part: <strong>URL Encoded Text</strong> (step 2)</li>
+            <li><strong>open</strong> → <strong>Open URLs</strong></li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Part 3 — Name &amp; save</h3>
+          <ol class="help-steps">
+            <li>Tap the shortcut name at the top → rename <strong>Resto Notes</strong> → <strong>Done</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block help-done">
+          <h3>How to use it</h3>
+          <p>Instagram post → <strong>Share</strong> → scroll the bottom row → tap <strong>Resto Notes</strong>. This app opens with the link filled in.</p>
+          <button type="button" class="btn btn-secondary full-width-btn" id="test-share-url-btn">Test it (opens a sample link)</button>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div><h2 id="help-title">How to use</h2></div>
+        <button type="button" class="modal-close" id="help-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body help-body">
+        <section class="help-block">
+          <h3>Save a spot from Instagram</h3>
+          <ol class="help-steps">
+            <li>In Instagram, tap <strong>Share</strong> on the post → <strong>Copy link</strong>.</li>
+            <li>Open <strong>Resto Notes</strong> (this app) → tap <strong>+ Add</strong>.</li>
+            <li>Tap <strong>Paste link</strong> next to Instagram. Add the name and anything else.</li>
+            <li>Tap <strong>Done</strong>. It saves automatically.</li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Move into Philly Dates</h3>
+          <ol class="help-steps">
+            <li>Here: tap <strong>Copy all for import</strong>.</li>
+            <li>Open <strong>Philly Dates</strong> → <strong>Settings</strong> (⚙️).</li>
+            <li>Scroll to <strong>Import from text</strong> → paste → <strong>Import pasted text</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block help-optional">
+          <h3>Share from Instagram in one tap</h3>
+          <p>Tap the brown <strong>Share from Instagram</strong> banner on the main screen for step-by-step Shortcut setup (one time).</p>
+        </section>
       </div>
     </div>
   </div>
