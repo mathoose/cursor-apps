@@ -1257,10 +1257,12 @@
         <label class="field-label">Photo</label>
         <div class="task-photo-preview" id="taskPhotoPreview"></div>
         <div class="task-photo-actions">
-          <button type="button" class="btn" id="taskPhotoPickBtn">Add photo</button>
+          <button type="button" class="btn" id="taskPhotoLibraryBtn">Choose from Photos</button>
+          <button type="button" class="btn" id="taskPhotoCameraBtn">Take Photo</button>
           <button type="button" class="btn" id="taskPhotoRemoveBtn" style="display:none">Remove</button>
         </div>
-        <input type="file" id="taskPhotoFile" accept="image/*" capture="environment" hidden>
+        <input type="file" id="taskPhotoLibraryFile" accept="image/*,.heic,.heif" hidden>
+        <input type="file" id="taskPhotoCameraFile" accept="image/*" capture="environment" hidden>
         <p class="task-photo-hint">Saved on this device only.</p>
       </div>
       <div class="field">
@@ -2582,7 +2584,6 @@ function closeTaskEditor() {
 function renderTaskPhotoEditor() {
   const preview = document.getElementById('taskPhotoPreview');
   const removeBtn = document.getElementById('taskPhotoRemoveBtn');
-  const pickBtn = document.getElementById('taskPhotoPickBtn');
   if (!preview) return;
   revokeTaskModalPhotoUrl();
   preview.innerHTML = '';
@@ -2594,7 +2595,6 @@ function renderTaskPhotoEditor() {
     img.alt = 'Task photo';
     preview.appendChild(img);
     removeBtn.style.display = '';
-    pickBtn.textContent = 'Replace photo';
   };
 
   if (pendingNewTaskPhotoBlob) {
@@ -2611,7 +2611,6 @@ function renderTaskPhotoEditor() {
       if (!url) {
         preview.innerHTML = '<div class="task-photo-empty">No photo yet</div>';
         removeBtn.style.display = 'none';
-        pickBtn.textContent = 'Add photo';
         return;
       }
       taskModalPhotoUrl = url;
@@ -2622,7 +2621,6 @@ function renderTaskPhotoEditor() {
 
   preview.innerHTML = '<div class="task-photo-empty">No photo yet</div>';
   removeBtn.style.display = 'none';
-  pickBtn.textContent = 'Add photo';
 }
 
 function attachTaskPhoto(file) {
@@ -3789,14 +3787,19 @@ function wireTaskEditor() {
     }
   });
 
-  document.getElementById('taskPhotoPickBtn').addEventListener('click', () => {
-    document.getElementById('taskPhotoFile').click();
+  document.getElementById('taskPhotoLibraryBtn').addEventListener('click', () => {
+    document.getElementById('taskPhotoLibraryFile').click();
   });
-  document.getElementById('taskPhotoFile').addEventListener('change', (e) => {
+  document.getElementById('taskPhotoCameraBtn').addEventListener('click', () => {
+    document.getElementById('taskPhotoCameraFile').click();
+  });
+  const onTaskPhotoFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
     e.target.value = '';
     if (file) attachTaskPhoto(file);
-  });
+  };
+  document.getElementById('taskPhotoLibraryFile').addEventListener('change', onTaskPhotoFileChange);
+  document.getElementById('taskPhotoCameraFile').addEventListener('change', onTaskPhotoFileChange);
   document.getElementById('taskPhotoRemoveBtn').addEventListener('click', removeTaskPhoto);
 }
 
