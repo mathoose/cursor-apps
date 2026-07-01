@@ -4,8 +4,7 @@ Wardrobe photo gallery, random outfit picker, seasonal storage bins, and trip ou
 
 ## Live site
 
-- **Production:** https://aruba-pack-emily.netlify.app
-- **GitHub Pages:** https://mathoose.github.io/cursor-apps/aruba-packing/
+**https://mathoose.github.io/cursor-apps/aruba-packing/**
 
 ## Features
 

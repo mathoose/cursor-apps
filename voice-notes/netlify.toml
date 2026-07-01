@@ -1,5 +1,0 @@
-# Legacy package directory for the voice-notes-mattheus Netlify site.
-# Build runs from repo root; stage site files into voice-notes/dist.
-[build]
-  command = "bash voice-notes/build-netlify.sh"
-  publish = "voice-notes/dist"

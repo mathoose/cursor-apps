@@ -1,7 +1,0 @@
-# Dev / build inputs — not served to browsers
-rep-tracker/scripts/
-html-features/
-
-# District history JSON includes files over Netlify's ~10 MB CDN limit.
-# GitHub Pages serves the full rep-tracker data; Netlify previews skip it.
-rep-tracker/data/district-history/
