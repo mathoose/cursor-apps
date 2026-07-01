@@ -31,7 +31,7 @@
     </div>
     <div class="search-row">
       <input type="search" id="search" placeholder="Search by name…" autocomplete="off" enterkeyhint="search" />
-      <button type="button" class="btn btn-add" id="add-btn">+ Add</button>
+      <button type="button" class="btn btn-add" id="add-btn">+ Quick add</button>
     </div>
     <div class="view-toggle" role="tablist" aria-label="View">
       <button type="button" class="view-btn on" id="view-grid" data-view="grid">Schedule</button>
@@ -102,6 +102,33 @@
       <div class="tag-manage-list" id="tag-manage-list"></div>
     </section>
   </main>
+
+  <div class="modal-backdrop" id="quick-add-modal" role="dialog" aria-modal="true" aria-labelledby="quick-add-title">
+    <div class="modal quick-add-modal">
+      <div class="modal-header">
+        <div>
+          <h2 id="quick-add-title">Quick add</h2>
+          <p class="quick-add-sub">Name + Instagram — saved as you type</p>
+        </div>
+        <button type="button" class="modal-close" id="quick-add-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="quick-add-form">
+          <label for="quick-add-name">Name</label>
+          <input type="text" id="quick-add-name" placeholder="Restaurant name" autocomplete="off" />
+          <label for="quick-add-instagram">Instagram link</label>
+          <input type="url" id="quick-add-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+          <p class="quick-add-status" id="quick-add-status" aria-live="polite"></p>
+          <div class="edit-actions quick-add-actions">
+            <button type="button" class="btn-danger" id="quick-add-discard" hidden>Discard</button>
+            <button type="button" class="btn-secondary" id="quick-add-later">Done for now</button>
+            <button type="button" class="btn-primary" id="quick-add-finish">Finish place</button>
+          </div>
+          <button type="button" class="quick-add-full-link" id="quick-add-full">Add with full details instead</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal" id="detail-modal">
