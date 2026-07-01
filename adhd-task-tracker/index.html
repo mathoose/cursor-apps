@@ -238,6 +238,13 @@
   .pill.due-future { background: var(--surface-2); color: var(--text-muted); }
   .pill.list { background: var(--accent-soft); color: var(--accent-dark); }
   .pill.subtasks { background: var(--surface-2); color: var(--text-muted); }
+  .pill.link {
+    background: var(--surface-2);
+    color: var(--accent-dark);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .pill.link:active { opacity: 0.75; }
 
   .empty {
     text-align: center;
@@ -889,6 +896,7 @@
     display: block;
   }
   .field input[type="text"],
+  .field input[type="url"],
   .field input[type="date"],
   .field textarea,
   .field select {
@@ -905,6 +913,15 @@
     border-color: var(--accent);
   }
   .field textarea { resize: vertical; min-height: 72px; }
+  .task-link-open {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
+  .task-link-open[hidden] { display: none; }
 
   .priority-picker { display: flex; gap: 6px; }
   .prio-btn {
@@ -1252,6 +1269,11 @@
       <div class="field">
         <label class="field-label">Notes</label>
         <textarea id="taskNotesInput" placeholder="Add notes…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Link</label>
+        <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <a class="task-link-open" id="taskLinkOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
       </div>
       <div class="field task-photo-block">
         <label class="field-label">Photo</label>
@@ -1653,11 +1675,39 @@ function normalizeCounter(c) {
   };
 }
 
+function normalizeTaskLink(url) {
+  const s = (url || '').trim();
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  return 'https://' + s;
+}
+
+function isValidTaskLink(url) {
+  if (!url) return true;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function linkDisplayLabel(url) {
+  try {
+    const u = new URL(url);
+    if (/instagram\.com/i.test(u.hostname)) return 'Instagram';
+    return u.hostname.replace(/^www\./, '');
+  } catch {
+    return 'Open link';
+  }
+}
+
 function normalizeTask(t) {
   return {
     id: t.id || uid(),
     title: t.title || '',
     notes: t.notes || '',
+    link: normalizeTaskLink(t.link),
     listId: t.listId || 'inbox',
     dueDate: t.dueDate || null,
     priority: typeof t.priority === 'number' ? t.priority : 0,
@@ -2053,6 +2103,19 @@ function renderTaskRow(task, opts) {
   }
   if (task.hasPhoto) {
     meta.appendChild(el('span', { class: 'pill photo', text: '📷' }));
+  }
+  if (task.link) {
+    const linkUrl = normalizeTaskLink(task.link);
+    if (linkUrl && isValidTaskLink(linkUrl)) {
+      meta.appendChild(el('a', {
+        class: 'pill link',
+        text: '🔗 ' + linkDisplayLabel(linkUrl),
+        href: linkUrl,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+        onClick: (e) => e.stopPropagation()
+      }));
+    }
   }
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
@@ -2493,14 +2556,17 @@ function openTaskEditor(taskId) {
   revokeTaskModalPhotoUrl();
   const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
-    id: null, title: '', notes: '', listId: state.activeListId || 'inbox',
+    id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
     completed: false, hasPhoto: false, subtasks: []
   };
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
 
   document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
   document.getElementById('taskTitleInput').value = editingTaskDraft.title;
   document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
+  document.getElementById('taskLinkInput').value = editingTaskDraft.link;
+  updateTaskLinkOpenButton();
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
 
   // List select
@@ -2661,12 +2727,31 @@ function removeTaskPhoto() {
   renderTaskPhotoEditor();
 }
 
+function updateTaskLinkOpenButton() {
+  const btn = document.getElementById('taskLinkOpen');
+  if (!btn) return;
+  const url = normalizeTaskLink(editingTaskDraft && editingTaskDraft.link);
+  if (!url || !isValidTaskLink(url)) {
+    btn.hidden = true;
+    btn.href = '#';
+    return;
+  }
+  btn.hidden = false;
+  btn.href = url;
+  btn.textContent = 'Open ' + linkDisplayLabel(url);
+}
+
 function saveTaskEditor() {
   if (!editingTaskDraft || !editingTaskDraft.title.trim()) {
     closeTaskEditor();
     return;
   }
   editingTaskDraft.title = editingTaskDraft.title.trim();
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.link && !isValidTaskLink(editingTaskDraft.link)) {
+    showToast('Link must be a valid http(s) URL', { error: true });
+    return;
+  }
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -3731,6 +3816,15 @@ function wireTaskEditor() {
   });
   document.getElementById('taskNotesInput').addEventListener('input', (e) => {
     editingTaskDraft.notes = e.target.value;
+  });
+  document.getElementById('taskLinkInput').addEventListener('input', (e) => {
+    editingTaskDraft.link = e.target.value;
+    updateTaskLinkOpenButton();
+  });
+  document.getElementById('taskLinkOpen').addEventListener('click', (e) => {
+    if (!editingTaskDraft || !editingTaskDraft.link || !isValidTaskLink(normalizeTaskLink(editingTaskDraft.link))) {
+      e.preventDefault();
+    }
   });
   document.getElementById('taskDueInput').addEventListener('change', (e) => {
     editingTaskDraft.dueDate = e.target.value || null;
