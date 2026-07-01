@@ -34,21 +34,13 @@
   <main>
     <!-- Home -->
     <section class="view active" id="viewHome" data-view="home">
-      <p class="section-label section-label-overdue">Overdue</p>
-      <div class="media-list" id="homeOverdue"></div>
-      <div class="empty-state empty-state-compact" id="homeOverdueEmpty" hidden>
-        <p>Nothing overdue — you're caught up.</p>
-      </div>
-      <p class="section-label">Next 5 days</p>
-      <div class="media-list" id="homeUpcoming"></div>
-      <div class="empty-state empty-state-compact" id="homeUpcomingEmpty" hidden>
-        <p>No episodes or reminders in the next 5 days.</p>
-      </div>
-      <p class="section-label">Continue watching</p>
-      <div class="media-list" id="homeContinueWatch"></div>
-      <div class="empty-state" id="homeWatchEmpty" hidden>
+      <p class="section-label">Watching</p>
+      <div class="show-row-list" id="homeWatching"></div>
+      <div class="empty-state empty-state-compact" id="homeWatchingEmpty" hidden>
         <p>Nothing on your watch list yet.</p>
       </div>
+      <p class="section-label" id="homeRemindersLabel" hidden>Reminders</p>
+      <div class="reminder-compact-list" id="homeReminders" hidden></div>
       <p class="section-label">Continue reading</p>
       <div class="media-list" id="homeContinueRead"></div>
       <div class="empty-state" id="homeReadEmpty" hidden>
