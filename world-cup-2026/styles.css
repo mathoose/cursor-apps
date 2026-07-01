@@ -1021,16 +1021,36 @@ body.modal-open { overflow: hidden; }
 
 .bracket-tree-scroll {
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  padding: 0 12px 8px;
+  touch-action: pan-x;
+  width: 100%;
+  padding: 0 0 8px;
 }
+
+.bracket-tree-canvas {
+  display: inline-block;
+  min-width: 868px;
+  padding: 0 12px;
+  position: relative;
+  vertical-align: top;
+}
+
+.bracket-tree-anchor {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+#bracket-anchor-left { left: 0; }
+#bracket-anchor-right { right: 0; }
 
 .bracket-tree-header.split {
   display: grid;
   grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
   gap: 8px;
-  min-width: 868px;
   margin-bottom: 8px;
 }
 
@@ -1052,8 +1072,8 @@ body.modal-open { overflow: hidden; }
 .bracket-tree-grid.split {
   display: grid;
   grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
+  grid-template-rows: repeat(8, 52px);
   gap: 0 8px;
-  min-width: 868px;
   position: relative;
 }
 
@@ -1062,7 +1082,8 @@ body.modal-open { overflow: hidden; }
   align-items: center;
   padding: 2px 0;
   position: relative;
-  scroll-snap-align: center;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .bracket-tree-slot[data-side="left"]::after {
@@ -1176,12 +1197,13 @@ body.modal-open { overflow: hidden; }
 }
 
 @media (min-width: 640px) {
+  .bracket-tree-canvas {
+    min-width: 976px;
+  }
+
   .bracket-tree-header.split,
   .bracket-tree-grid.split {
     grid-template-columns: repeat(4, 104px) 112px repeat(4, 104px);
-    min-width: 976px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .bracket-tree-col-label { font-size: 0.625rem; }
