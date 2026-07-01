@@ -795,6 +795,12 @@ function fmtMinutes(m) {
   const h12 = h % 12 || 12;
   return h12 + ':' + String(min).padStart(2,'0') + ' ' + ap;
 }
+function fmtMinutesShort(m) {
+  const h = Math.floor(m / 60), min = m % 60;
+  const ap = h >= 12 ? 'p' : 'a';
+  const h12 = h % 12 || 12;
+  return min ? h12 + ':' + String(min).padStart(2, '0') + ap : h12 + ap;
+}
 function getTodayDayName() { return DAY_NAMES[new Date().getDay()]; }
 function roundToSlot(m) { return Math.floor(m / 30) * 30; }
 function getNowSlot() {
@@ -1631,15 +1637,19 @@ function renderGridView() {
     + (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
   const thead = document.querySelector('#grid thead');
   thead.innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
-    slots.map(t => `<th class="time-header">${fmtMinutes(t)}</th>`).join('') + '</tr>';
+    slots.map(t => {
+      const sel = t === selectedTime ? ' selected-col' : '';
+      return `<th class="time-header${sel}" title="${fmtMinutes(t)}">${fmtMinutesShort(t)}</th>`;
+    }).join('') + '</tr>';
   const tbody = document.querySelector('#grid tbody');
   tbody.innerHTML = filtered.map(r => {
     const cells = slots.map(t => {
       const active = isActive(r, day, t);
+      const sel = t === selectedTime ? ' selected-col' : '';
       const cls = active ? (t === selectedTime ? 'active-now' : 'active') : 'inactive';
-      return `<td class="slot ${cls}"></td>`;
+      return `<td class="slot ${cls}${sel}"></td>`;
     }).join('');
-    return `<tr><td class="rest"><button type="button" class="rest-link" data-name="${escapeHtml(r.name)}">${escapeHtml(r.name)}</button></td><td class="neigh">${escapeHtml(r.neighborhood)}</td>${cells}</tr>`;
+    return `<tr><td class="rest" title="${escapeHtml(r.name)}"><button type="button" class="rest-link" data-name="${escapeHtml(r.name)}">${escapeHtml(r.name)}</button></td><td class="neigh" title="${escapeHtml(r.neighborhood)}">${escapeHtml(r.neighborhood)}</td>${cells}</tr>`;
   }).join('');
 }
 document.querySelector('#grid tbody').addEventListener('click', e => {
