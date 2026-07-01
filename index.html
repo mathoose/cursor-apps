@@ -300,6 +300,7 @@
       font-size: 0.75rem;
       line-height: 1.35;
       padding: 4px 0;
+      align-items: center;
     }
     .storage-app-row + .storage-app-row {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -316,6 +317,29 @@
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
     }
+    .storage-app-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+    }
+    .storage-delete-btn {
+      flex-shrink: 0;
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      background: rgba(255, 120, 120, 0.2);
+      color: #fecaca;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .storage-delete-btn:active { opacity: 0.75; }
     .hidden-apps-section {
       margin-bottom: 12px;
       padding: 10px 12px;
@@ -474,6 +498,10 @@
       color: #1a1a2e;
       border: 1px solid #d1d5db;
     }
+    .import-btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
     .toast {
       position: fixed;
       left: 50%;
@@ -493,6 +521,13 @@
     }
     .toast.show { opacity: 1; }
     #importAllInput {
+      position: fixed;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #cleanBackupInput {
       position: fixed;
       width: 1px;
       height: 1px;
@@ -564,14 +599,27 @@
     <div class="dock-actions">
       <button type="button" class="dock-btn dock-btn-primary" id="exportAllBtn">Export all data</button>
       <button type="button" class="dock-btn dock-btn-secondary" id="importAllBtn">Import backup…</button>
+      <button type="button" class="dock-btn dock-btn-secondary" id="cleanBackupBtn">Clean backup file…</button>
     </div>
-    <p class="dock-hint">JSON backup is small — habits, tasks, menus, etc. Photos stay in browser storage and export separately inside each app (ZIP). Use selective import to restore only what you need.</p>
+    <p class="dock-hint">Export skips removed apps automatically. Clean backup file strips old apps (e.g. Rep Tracker) from a saved JSON. Delete per-app data under ⓘ → By app.</p>
   </div>
 
   <p class="hint">Tap to open · long-press or Edit to hide apps · Safari: Share → Add to Home Screen to pin this launcher.</p>
   <p class="version" id="homeVersion" aria-label="Launcher version"></p>
 
   <input type="file" id="importAllInput" accept="application/json,.json" />
+  <input type="file" id="cleanBackupInput" accept="application/json,.json" />
+  <div class="import-sheet" id="deleteSheet" hidden role="dialog" aria-modal="true" aria-labelledby="deleteSheetTitle">
+    <div class="import-backdrop" id="deleteBackdrop"></div>
+    <div class="import-panel">
+      <h2 id="deleteSheetTitle">Delete app data?</h2>
+      <p class="import-preview" id="deletePreview"></p>
+      <div class="import-actions">
+        <button type="button" class="import-btn import-btn-secondary" id="deleteCancel">Cancel</button>
+        <button type="button" class="import-btn import-btn-danger" id="deleteConfirm">Delete data</button>
+      </div>
+    </div>
+  </div>
   <div class="import-sheet" id="importSheet" hidden role="dialog" aria-modal="true" aria-labelledby="importSheetTitle">
     <div class="import-backdrop" id="importBackdrop"></div>
     <div class="import-panel">
@@ -596,7 +644,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "5 · Jul 1, 2026";
+  const HOME_VERSION = "6 · Jul 1, 2026";
   const ICON_VERSION = "6";
   const LONG_PRESS_MS = 500;
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
@@ -909,6 +957,7 @@
 
   var toastTimer = null;
   var pendingImportBundle = null;
+  var pendingDeleteAppId = null;
 
   function showToast(msg) {
     var el = document.getElementById("toast");
@@ -950,6 +999,7 @@
       if (stats.breakdown.otherJsonBytes > 512) {
         rows = rows.concat([
           {
+            appId: AppsBackup.OTHER_APP_ID,
             label: "Other",
             jsonBytes: stats.breakdown.otherJsonBytes,
             photoBytes: 0,
@@ -964,18 +1014,49 @@
       byApp.hidden = false;
       byAppList.innerHTML = rows
         .map(function (row) {
+          var appId = row.appId || AppsBackup.OTHER_APP_ID;
           return (
             '<div class="storage-app-row">' +
+            '<div class="storage-app-main">' +
             '<span class="storage-app-name">' +
             escapeHtml(row.label) +
             "</span>" +
             '<span class="storage-app-size">' +
             escapeHtml(AppsBackup.formatAppStorageParts(row)) +
-            "</span></div>"
+            "</span></div>" +
+            '<button type="button" class="storage-delete-btn" data-delete-app="' +
+            escapeHtml(appId) +
+            '">Delete</button></div>'
           );
         })
         .join("");
     });
+  }
+
+  function closeDeleteSheet() {
+    pendingDeleteAppId = null;
+    var sheet = document.getElementById("deleteSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("import-open");
+  }
+
+  function deleteTargetLabel(appId) {
+    if (appId === AppsBackup.OTHER_APP_ID) return "Other (old app data)";
+    return AppsBackup.APP_LABELS[appId] || humanize(appId);
+  }
+
+  function openDeleteSheet(appId) {
+    if (!appId) return;
+    pendingDeleteAppId = appId;
+    document.getElementById("deleteSheetTitle").textContent = "Delete " + deleteTargetLabel(appId) + "?";
+    document.getElementById("deletePreview").textContent =
+      appId === AppsBackup.OTHER_APP_ID
+        ? "Removes leftover data from removed apps (e.g. Rep Tracker) on this device. Photos in real apps are not affected. Cannot be undone — export first if you want a backup."
+        : "Removes all " +
+          deleteTargetLabel(appId) +
+          " data on this device, including photos stored in the browser. Cannot be undone — export first if you want a backup.";
+    document.getElementById("deleteSheet").hidden = false;
+    document.body.classList.add("import-open");
   }
 
   function closeImportSheet() {
@@ -985,15 +1066,16 @@
     document.body.classList.remove("import-open");
   }
 
-  function openImportSheet(bundle) {
+  function openImportSheet(bundle, cleanNotice) {
     var apps = AppsBackup.listBundleApps(bundle);
     if (!apps.length) {
       showToast("No app data in this backup file");
       return;
     }
     pendingImportBundle = bundle;
-    document.getElementById("importPreview").textContent =
-      "Choose which apps to merge in. Existing data is kept; new items are added.";
+    var preview = "Choose which apps to merge in. Existing data is kept; new items are added.";
+    if (cleanNotice) preview = cleanNotice + " " + preview;
+    document.getElementById("importPreview").textContent = preview;
     document.getElementById("importAppList").innerHTML = apps
       .map(function (app) {
         return (
@@ -1044,6 +1126,16 @@
         setStorageDetailsOpen(open);
       });
     }
+    var storageByAppList = document.getElementById("storageByAppList");
+    if (storageByAppList) {
+      storageByAppList.addEventListener("click", function (e) {
+        var deleteBtn = e.target.closest("[data-delete-app]");
+        if (deleteBtn) {
+          e.preventDefault();
+          openDeleteSheet(deleteBtn.getAttribute("data-delete-app"));
+        }
+      });
+    }
     document.getElementById("exportAllBtn").addEventListener("click", function () {
       try {
         var bundle = AppsBackup.exportAll();
@@ -1062,6 +1154,31 @@
     document.getElementById("importAllBtn").addEventListener("click", function () {
       document.getElementById("importAllInput").click();
     });
+    document.getElementById("cleanBackupBtn").addEventListener("click", function () {
+      document.getElementById("cleanBackupInput").click();
+    });
+    document.getElementById("cleanBackupInput").addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      AppsBackup.parseBackupFile(file)
+        .then(function (parsed) {
+          if (!AppsBackup.isUnifiedBackup(parsed)) {
+            showToast("Use a cursor-apps backup file");
+            return;
+          }
+          var result = AppsBackup.cleanBackup(parsed);
+          if (!result.removedApps.length && !result.removedHidden.length) {
+            showToast("Backup is already clean");
+            return;
+          }
+          AppsBackup.downloadBundle(result.bundle, AppsBackup.cleanedFilename(), { recordExport: false });
+          showToast("Cleaned — " + AppsBackup.summarizeCleanResult(result));
+        })
+        .catch(function () {
+          showToast("Could not read backup file");
+        });
+    });
     document.getElementById("importAllInput").addEventListener("change", function (e) {
       var file = e.target.files && e.target.files[0];
       e.target.value = "";
@@ -1072,10 +1189,35 @@
             showToast("Use a cursor-apps backup file from Export all");
             return;
           }
-          openImportSheet(parsed);
+          var cleaned = AppsBackup.cleanBackup(parsed);
+          var notice = "";
+          if (cleaned.removedApps.length || cleaned.removedHidden.length) {
+            notice = "Stripped old data: " + AppsBackup.summarizeCleanResult(cleaned) + ".";
+          }
+          openImportSheet(cleaned.bundle, notice);
         })
         .catch(function () {
           showToast("Could not read backup file");
+        });
+    });
+
+    document.getElementById("deleteCancel").addEventListener("click", closeDeleteSheet);
+    document.getElementById("deleteBackdrop").addEventListener("click", closeDeleteSheet);
+    document.getElementById("deleteConfirm").addEventListener("click", function () {
+      if (!pendingDeleteAppId) return;
+      var appId = pendingDeleteAppId;
+      var label = deleteTargetLabel(appId);
+      AppsBackup.deleteAppData(appId)
+        .then(function (result) {
+          closeDeleteSheet();
+          refreshStorageStats();
+          renderLauncher();
+          if (result.ok) showToast("Deleted " + label + " data on this device");
+          else showToast("Could not delete data");
+        })
+        .catch(function () {
+          closeDeleteSheet();
+          showToast("Could not delete data");
         });
     });
 

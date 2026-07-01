@@ -8,6 +8,7 @@
   var FORMAT = "cursor-apps-backup";
   var BUNDLE_VERSION = 1;
   var LAUNCHER_META_KEY = "cursor-apps-launcher-meta-v1";
+  var OTHER_APP_ID = "__other__";
 
   var APP_LABELS = {
     "habit-journal": "Habit Journal",
@@ -701,6 +702,135 @@
     return setHiddenAppIds(merged);
   }
 
+  function isKnownAppId(appId) {
+    return !!APP_REGISTRY[appId];
+  }
+
+  function deleteKey(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getAppStorageKeys(appId) {
+    var keys = [];
+    var reg = APP_REGISTRY[appId];
+    if (reg) {
+      keys.push(reg.storageKey);
+      (reg.legacyKeys || []).forEach(function (k) {
+        keys.push(k);
+      });
+    }
+    (EXTRA_JSON_KEYS[appId] || []).forEach(function (k) {
+      keys.push(k);
+    });
+    return keys;
+  }
+
+  function deleteAppJson(appId) {
+    getAppStorageKeys(appId).forEach(deleteKey);
+  }
+
+  function getOtherStorageKeys() {
+    var accounted = getAccountedStorageKeys();
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (key && !accounted[key]) keys.push(key);
+      }
+    } catch (e) {}
+    return keys;
+  }
+
+  function deleteOtherJson() {
+    getOtherStorageKeys().forEach(deleteKey);
+  }
+
+  function deleteAppPhotos(appId) {
+    var match = null;
+    PHOTO_DATABASES.forEach(function (cfg) {
+      if (cfg.appId === appId) match = cfg;
+    });
+    if (!match) return Promise.resolve();
+    return clearPhotoStore(match.db, match.store);
+  }
+
+  function deleteAppData(appId) {
+    if (appId === OTHER_APP_ID) {
+      deleteOtherJson();
+      return Promise.resolve({ ok: true, appId: appId });
+    }
+    if (!isKnownAppId(appId)) {
+      return Promise.resolve({ ok: false, error: "Unknown app" });
+    }
+    deleteAppJson(appId);
+    unhideApp(appId);
+    return deleteAppPhotos(appId).then(function () {
+      return { ok: true, appId: appId };
+    });
+  }
+
+  function cleanBackup(bundle) {
+    var removedApps = [];
+    var removedHidden = [];
+    if (!bundle || typeof bundle !== "object") {
+      return { bundle: null, removedApps: removedApps, removedHidden: removedHidden };
+    }
+    if (!isUnifiedBackup(bundle)) {
+      return { bundle: bundle, removedApps: removedApps, removedHidden: removedHidden };
+    }
+    var out = {
+      format: bundle.format,
+      version: bundle.version,
+      exportedAt: bundle.exportedAt,
+      excluded: Array.isArray(bundle.excluded) ? bundle.excluded.slice() : [],
+      apps: {},
+      launcher: { hiddenApps: [] },
+      _meta: { included: [] },
+    };
+    Object.keys(bundle.apps || {}).forEach(function (id) {
+      if (isKnownAppId(id)) {
+        out.apps[id] = bundle.apps[id];
+      } else {
+        removedApps.push(id);
+      }
+    });
+    out._meta.included = Object.keys(out.apps);
+    if (bundle.launcher && Array.isArray(bundle.launcher.hiddenApps)) {
+      bundle.launcher.hiddenApps.forEach(function (id) {
+        if (isKnownAppId(id)) out.launcher.hiddenApps.push(id);
+        else removedHidden.push(id);
+      });
+    }
+    return { bundle: out, removedApps: removedApps, removedHidden: removedHidden };
+  }
+
+  function summarizeCleanResult(result) {
+    if (!result) return "";
+    var parts = [];
+    if (result.removedApps && result.removedApps.length) {
+      parts.push(
+        result.removedApps.length +
+          " removed app" +
+          (result.removedApps.length === 1 ? "" : "s") +
+          ": " +
+          result.removedApps.map(appLabel).join(", ")
+      );
+    }
+    if (result.removedHidden && result.removedHidden.length) {
+      parts.push(
+        result.removedHidden.length +
+          " old hidden-app" +
+          (result.removedHidden.length === 1 ? "" : "s")
+      );
+    }
+    return parts.length ? parts.join("; ") : "Already clean";
+  }
+
   function formatBytes(bytes) {
     var n = Number(bytes);
     if (!isFinite(n) || n < 0) return "—";
@@ -1020,7 +1150,7 @@
         included.push(id);
       }
     });
-    return {
+    return cleanBackup({
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
@@ -1028,7 +1158,7 @@
       apps: apps,
       launcher: { hiddenApps: getHiddenAppIds() },
       _meta: { included: included },
-    };
+    }).bundle;
   }
 
   function summarizeBundle(bundle) {
@@ -1050,8 +1180,10 @@
     options = options || {};
     var mode = options.mode || "merge";
     var only = Array.isArray(options.appIds) ? options.appIds : null;
+    var cleaned = cleanBackup(bundle);
+    bundle = cleaned.bundle;
     if (!isUnifiedBackup(bundle)) {
-      return { ok: false, error: "Not a cursor-apps backup file" };
+      return { ok: false, error: "Not a cursor-apps backup file", cleaned: cleaned };
     }
     var imported = [];
     var failed = [];
@@ -1081,11 +1213,13 @@
       skipped: skipped,
       summary: summarizeBundle(bundle),
       mode: mode,
+      cleaned: cleaned,
     };
   }
 
-  function downloadBundle(bundle, filename) {
-    recordLastExport();
+  function downloadBundle(bundle, filename, options) {
+    options = options || {};
+    if (options.recordExport !== false) recordLastExport();
     var blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
     var url = URL.createObjectURL(blob);
     var a = document.createElement("a");
@@ -1110,6 +1244,10 @@
     return "cursor-apps-backup-" + stamp + ".json";
   }
 
+  function cleanedFilename() {
+    return defaultFilename().replace("cursor-apps-backup-", "cursor-apps-backup-cleaned-");
+  }
+
   function parseBackupFile(file) {
     return new Promise(function (resolve, reject) {
       var reader = new FileReader();
@@ -1130,17 +1268,23 @@
   var AppsBackup = {
     FORMAT: FORMAT,
     BUNDLE_VERSION: BUNDLE_VERSION,
+    OTHER_APP_ID: OTHER_APP_ID,
     APP_REGISTRY: APP_REGISTRY,
     APP_LABELS: APP_LABELS,
     isUnifiedBackup: isUnifiedBackup,
+    isKnownAppId: isKnownAppId,
     getAppSlice: getAppSlice,
     isLegacyAppBackup: isLegacyAppBackup,
     exportAll: exportAll,
     importAll: importAll,
+    cleanBackup: cleanBackup,
+    summarizeCleanResult: summarizeCleanResult,
+    deleteAppData: deleteAppData,
     summarizeBundle: summarizeBundle,
     listBundleApps: listBundleApps,
     downloadBundle: downloadBundle,
     defaultFilename: defaultFilename,
+    cleanedFilename: cleanedFilename,
     parseBackupFile: parseBackupFile,
     getStorageStats: getStorageStats,
     getStorageBreakdown: getStorageBreakdown,
