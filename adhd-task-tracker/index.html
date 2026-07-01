@@ -175,6 +175,7 @@
   }
   .quick-add-link {
     padding: 0 12px;
+    border-bottom: 1px solid var(--border);
   }
   .quick-add-link input {
     width: 100%;
@@ -199,6 +200,40 @@
   }
   .quick-add-btn:active { background: var(--accent-dark); }
   .quick-add-btn svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+  .quick-add-priority {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 10px;
+  }
+  .quick-add-priority-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 2px;
+  }
+  .quick-prio-btn {
+    width: 32px;
+    height: 32px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  .quick-prio-btn.selected {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px currentColor;
+  }
+  .quick-prio-btn:active { transform: scale(0.95); }
+  .quick-prio-btn[data-prio="3"] { background: #dc2626; color: #dc2626; }
+  .quick-prio-btn[data-prio="2"] { background: #eab308; color: #eab308; }
+  .quick-prio-btn[data-prio="1"] { background: #16a34a; color: #16a34a; }
 
   /* ---------- Task list ---------- */
   .task-list { display: flex; flex-direction: column; gap: 6px; }
@@ -1258,6 +1293,12 @@
       <div class="quick-add-link">
         <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
       </div>
+      <div class="quick-add-priority" id="listQuickPriority">
+        <span class="quick-add-priority-label">Priority</span>
+        <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
+        <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
+        <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1274,6 +1315,12 @@
       </div>
       <div class="quick-add-link">
         <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="quick-add-priority" id="inboxQuickPriority">
+        <span class="quick-add-priority-label">Priority</span>
+        <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
+        <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
+        <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
       </div>
     </div>
     <div id="inboxTasks"></div>
@@ -3792,10 +3839,39 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  function wireQuickAdd(titleInputId, linkInputId, btnId, getListId) {
+  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId) {
     const titleInput = document.getElementById(titleInputId);
     const linkInput = document.getElementById(linkInputId);
     const btn = document.getElementById(btnId);
+    const prioRow = document.getElementById(prioRowId);
+    const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
+    let selectedPrio = 0;
+
+    const resetPrio = () => {
+      selectedPrio = 0;
+      prioBtns.forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+    };
+
+    prioBtns.forEach(prioBtn => {
+      prioBtn.addEventListener('click', () => {
+        const p = parseInt(prioBtn.dataset.prio, 10);
+        if (prioBtn.classList.contains('selected')) {
+          resetPrio();
+          return;
+        }
+        selectedPrio = p;
+        prioBtns.forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        prioBtn.classList.add('selected');
+        prioBtn.setAttribute('aria-pressed', 'true');
+      });
+    });
+
     const submit = () => {
       const title = titleInput.value.trim();
       if (!title) return;
@@ -3804,9 +3880,15 @@ function wireQuickAdds() {
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
-      addTask({ title, listId: getListId(), link: link || '' });
+      addTask({
+        title,
+        listId: getListId(),
+        link: link || '',
+        priority: selectedPrio
+      });
       titleInput.value = '';
       linkInput.value = '';
+      resetPrio();
       render();
     };
     btn.addEventListener('click', submit);
@@ -3814,8 +3896,8 @@ function wireQuickAdds() {
     linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   }
 
-  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickBtn', () => 'inbox');
-  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickBtn', () => state.activeListId);
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId);
 }
 
 function wireDateNav() {
