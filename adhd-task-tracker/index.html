@@ -240,6 +240,19 @@
 
   .task-body { flex: 1; min-width: 0; }
   .task-title { font-size: 0.95rem; font-weight: 500; line-height: 1.35; word-wrap: break-word; }
+  .task-title-link {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.35;
+    word-wrap: break-word;
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
+  .task-title-link:active { opacity: 0.75; }
+  .task.completed .task-title-link { color: var(--text-muted); }
   .task-meta {
     display: flex; flex-wrap: wrap; gap: 4px 10px;
     margin-top: 4px;
@@ -356,6 +369,12 @@
     border-color: var(--success);
   }
   .mtask-title { flex: 1; min-width: 0; word-wrap: break-word; }
+  .mtask-title.task-title-link {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
   .quadrant-empty {
     color: var(--text-faint);
     font-size: 0.75rem;
@@ -1731,6 +1750,39 @@ function linkDisplayLabel(url) {
   }
 }
 
+function extractFirstUrl(text) {
+  const m = (text || '').match(/https?:\/\/[^\s<>"']+/i);
+  if (!m) return '';
+  const url = normalizeTaskLink(m[0].replace(/[.,;:!?)]+$/, ''));
+  return isValidTaskLink(url) ? url : '';
+}
+
+function getTaskLinkUrl(task) {
+  if (!task) return '';
+  if (task.link) {
+    const url = normalizeTaskLink(task.link);
+    if (url && isValidTaskLink(url)) return url;
+  }
+  return extractFirstUrl(task.notes);
+}
+
+function appendTaskTitle(parent, task, titleClass) {
+  const linkUrl = getTaskLinkUrl(task);
+  if (linkUrl) {
+    parent.appendChild(el('a', {
+      class: titleClass + ' task-title-link',
+      text: task.title,
+      href: linkUrl,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      title: 'Open ' + linkDisplayLabel(linkUrl),
+      onClick: (e) => e.stopPropagation()
+    }));
+  } else {
+    parent.appendChild(el('div', { class: titleClass, text: task.title }));
+  }
+}
+
 function normalizeTask(t) {
   return {
     id: t.id || uid(),
@@ -2100,7 +2152,7 @@ function renderTaskRow(task, opts) {
     class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : ''),
     dataset: { id: task.id },
     onClick: (e) => {
-      if (e.target.closest('.task-check')) return;
+      if (e.target.closest('.task-check') || e.target.closest('.task-title-link')) return;
       openTaskEditor(task.id);
     }
   });
@@ -2112,7 +2164,7 @@ function renderTaskRow(task, opts) {
   row.appendChild(check);
 
   const body = el('div', { class: 'task-body' });
-  body.appendChild(el('div', { class: 'task-title', text: task.title }));
+  appendTaskTitle(body, task, 'task-title');
 
   const meta = el('div', { class: 'task-meta' });
   if (task.dueDate) {
@@ -2132,19 +2184,6 @@ function renderTaskRow(task, opts) {
   }
   if (task.hasPhoto) {
     meta.appendChild(el('span', { class: 'pill photo', text: '📷' }));
-  }
-  if (task.link) {
-    const linkUrl = normalizeTaskLink(task.link);
-    if (linkUrl && isValidTaskLink(linkUrl)) {
-      meta.appendChild(el('a', {
-        class: 'pill link',
-        text: '🔗 ' + linkDisplayLabel(linkUrl),
-        href: linkUrl,
-        target: '_blank',
-        rel: 'noopener noreferrer',
-        onClick: (e) => e.stopPropagation()
-      }));
-    }
   }
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
@@ -2284,7 +2323,7 @@ function renderMatrixTask(task) {
     dataset: { id: task.id },
     draggable: 'true',
     onClick: (e) => {
-      if (e.target.closest('.mtask-check')) return;
+      if (e.target.closest('.mtask-check') || e.target.closest('.task-title-link')) return;
       openTaskEditor(task.id);
     }
   });
@@ -2293,7 +2332,7 @@ function renderMatrixTask(task) {
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
   node.appendChild(check);
-  node.appendChild(el('div', { class: 'mtask-title', text: task.title }));
+  appendTaskTitle(node, task, 'mtask-title');
 
   // Drag (desktop / touch)
   node.addEventListener('dragstart', (e) => {
