@@ -44,6 +44,7 @@
         };
       });
     data.items.sort(function (a, b) {
+      if (a.checked !== b.checked) return a.checked ? 1 : -1;
       return new Date(a.createdAt) - new Date(b.createdAt);
     });
     return data;
@@ -238,7 +239,10 @@
     var clearBtn = document.getElementById('clearCheckedBtn');
     if (!list) return;
 
-    var items = data.items;
+    var items = data.items.slice().sort(function (a, b) {
+      if (a.checked !== b.checked) return a.checked ? 1 : -1;
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
     var checkedCount = items.filter(function (it) { return it.checked; }).length;
 
     countEl.textContent = items.length + ' item' + (items.length === 1 ? '' : 's');
