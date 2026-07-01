@@ -16,6 +16,7 @@
       return {
         id: m.id,
         date: m.date,
+        time: m.time,
         venue: m.venue,
         home: resolveSide(m.home, standings, thirdSlots),
         away: resolveSide(m.away, standings, thirdSlots)
@@ -85,6 +86,7 @@
       var match = {
         id: def.id,
         date: def.date,
+        time: def.time,
         venue: def.venue,
         home: winnerFromMatch(def.home, matchMap, core),
         away: winnerFromMatch(def.away, matchMap, core)
@@ -120,6 +122,7 @@
     var bronze = {
       id: 103,
       date: window.WC2026_BRACKET.bronze.date,
+      time: window.WC2026_BRACKET.bronze.time,
       venue: window.WC2026_BRACKET.bronze.venue,
       home: loserFromMatch(101, matchMap, core),
       away: loserFromMatch(102, matchMap, core),
@@ -130,6 +133,7 @@
     var finalM = {
       id: 104,
       date: window.WC2026_BRACKET.final.date,
+      time: window.WC2026_BRACKET.final.time,
       venue: window.WC2026_BRACKET.final.venue,
       home: winnerFromMatch(101, matchMap, core),
       away: winnerFromMatch(102, matchMap, core),
