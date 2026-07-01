@@ -165,6 +165,8 @@
     html += "</div>";
 
     html += '<div class="bracket-tree-scroll" id="bracket-tree-scroll">';
+    html += '<div class="bracket-tree-canvas">';
+    html += '<span id="bracket-anchor-left" class="bracket-tree-anchor" aria-hidden="true"></span>';
 
     html += '<div class="bracket-tree-header split">';
     cols.forEach(function (col) {
@@ -172,7 +174,7 @@
     });
     html += "</div>";
 
-    html += '<div class="bracket-tree-grid split" style="grid-template-rows:repeat(' + layout.rows + ",32px)'>";
+    html += '<div class="bracket-tree-grid split">';
     cols.forEach(function (col, colIdx) {
       var ids = columnMatchIds(layout, col);
       var span = col.span;
@@ -191,6 +193,9 @@
           "</div>";
       });
     });
+    html += "</div>";
+
+    html += '<span id="bracket-anchor-right" class="bracket-tree-anchor" aria-hidden="true"></span>';
     html += "</div></div>";
 
     html += '<div class="bracket-tree-extras">';
@@ -201,6 +206,18 @@
     html += '<p class="bracket-hint tree-hint">Scroll sideways for the full bracket · arrows jump to each side · tap a match to enter score</p>';
     html += "</div>";
     return html;
+  }
+
+  function scrollTreeTo(side) {
+    var anchor = document.getElementById(
+      side === "left" ? "bracket-anchor-left" : "bracket-anchor-right"
+    );
+    if (!anchor) return;
+    anchor.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: side === "left" ? "start" : "end"
+    });
   }
 
   function setupTreeScroll() {
@@ -222,8 +239,12 @@
     }
 
     function scrollToCenter() {
-      if (!needsScroll()) return;
-      scroll.scrollLeft = (scroll.scrollWidth - scroll.clientWidth) / 2;
+      var finalSlot = scroll.querySelector('.bracket-tree-slot[data-col="final"]');
+      if (finalSlot && needsScroll()) {
+        finalSlot.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
+        return;
+      }
+      scroll.scrollLeft = 0;
     }
 
     if (!scroll.dataset.navReady) {
@@ -381,15 +402,13 @@
     if (!scroll) return;
 
     if (e.target.closest(".bracket-scroll-left")) {
-      scroll.scrollTo({ left: 0, behavior: "smooth" });
+      scrollTreeTo("left");
       return;
     }
 
     if (e.target.closest(".bracket-scroll-right")) {
-      scroll.scrollTo({
-        left: scroll.scrollWidth - scroll.clientWidth,
-        behavior: "smooth"
-      });
+      scrollTreeTo("right");
+      return;
     }
   });
 
