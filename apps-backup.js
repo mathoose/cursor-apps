@@ -750,6 +750,25 @@
     return meta.hiddenApps;
   }
 
+  function getAppOrderIds() {
+    var meta = readLauncherMeta();
+    return Array.isArray(meta.appOrder) ? meta.appOrder.filter(Boolean) : [];
+  }
+
+  function setAppOrderIds(ids) {
+    var meta = readLauncherMeta();
+    meta.appOrder = (ids || []).filter(Boolean);
+    writeLauncherMeta(meta);
+    return meta.appOrder;
+  }
+
+  function mergeAppOrderIds(incoming) {
+    if (!Array.isArray(incoming) || !incoming.length) return getAppOrderIds();
+    return setAppOrderIds(incoming.filter(function (id) {
+      return isKnownAppId(id);
+    }));
+  }
+
   function hideApp(appId) {
     if (!appId) return getHiddenAppIds();
     var ids = getHiddenAppIds();
@@ -861,7 +880,7 @@
       exportedAt: bundle.exportedAt,
       excluded: Array.isArray(bundle.excluded) ? bundle.excluded.slice() : [],
       apps: {},
-      launcher: { hiddenApps: [] },
+      launcher: { hiddenApps: [], appOrder: [] },
       _meta: { included: [] },
     };
     Object.keys(bundle.apps || {}).forEach(function (id) {
@@ -876,6 +895,11 @@
       bundle.launcher.hiddenApps.forEach(function (id) {
         if (isKnownAppId(id)) out.launcher.hiddenApps.push(id);
         else removedHidden.push(id);
+      });
+    }
+    if (bundle.launcher && Array.isArray(bundle.launcher.appOrder)) {
+      bundle.launcher.appOrder.forEach(function (id) {
+        if (isKnownAppId(id)) out.launcher.appOrder.push(id);
       });
     }
     return { bundle: out, removedApps: removedApps, removedHidden: removedHidden };
@@ -1228,7 +1252,7 @@
       exportedAt: new Date().toISOString(),
       excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1"],
       apps: apps,
-      launcher: { hiddenApps: getHiddenAppIds() },
+      launcher: { hiddenApps: getHiddenAppIds(), appOrder: getAppOrderIds() },
       _meta: { included: included },
     }).bundle;
   }
@@ -1277,6 +1301,9 @@
     });
     if (bundle.launcher && Array.isArray(bundle.launcher.hiddenApps)) {
       mergeHiddenAppIds(bundle.launcher.hiddenApps);
+    }
+    if (bundle.launcher && Array.isArray(bundle.launcher.appOrder) && bundle.launcher.appOrder.length) {
+      mergeAppOrderIds(bundle.launcher.appOrder);
     }
     return {
       ok: failed.length === 0,
@@ -1376,6 +1403,9 @@
     setHiddenAppIds: setHiddenAppIds,
     hideApp: hideApp,
     unhideApp: unhideApp,
+    getAppOrderIds: getAppOrderIds,
+    setAppOrderIds: setAppOrderIds,
+    mergeAppOrderIds: mergeAppOrderIds,
   };
 
   global.AppsBackup = AppsBackup;
