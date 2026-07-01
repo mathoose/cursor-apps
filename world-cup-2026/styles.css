@@ -980,40 +980,80 @@ body.modal-open { overflow: hidden; }
   border-color: var(--accent);
 }
 
-/* Visual bracket tree */
+/* Visual bracket tree — split layout (left / final / right) */
 .bracket-tree-wrap {
   padding: 0 0 24px;
+}
+
+.bracket-tree-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px 8px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.bracket-scroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.bracket-scroll-btn:active {
+  background: var(--bg-card-hover);
+  transform: scale(0.96);
+}
+
+.bracket-scroll-btn[hidden] {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .bracket-tree-scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
   padding: 0 12px 8px;
 }
 
-.bracket-tree-header {
+.bracket-tree-header.split {
   display: grid;
-  grid-template-columns: repeat(5, 108px);
-  gap: 10px;
-  min-width: 580px;
+  grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
+  gap: 8px;
+  min-width: 868px;
   margin-bottom: 8px;
 }
 
 .bracket-tree-col-label {
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
   text-align: center;
+  line-height: 1.2;
 }
 
-.bracket-tree-grid {
+.bracket-tree-header.split .bracket-tree-col-label:nth-child(5) {
+  color: var(--gold);
+  font-size: 0.625rem;
+}
+
+.bracket-tree-grid.split {
   display: grid;
-  grid-template-columns: repeat(5, 108px);
-  grid-template-rows: repeat(16, 28px);
-  gap: 0 10px;
-  min-width: 580px;
+  grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
+  gap: 0 8px;
+  min-width: 868px;
   position: relative;
 }
 
@@ -1022,19 +1062,31 @@ body.modal-open { overflow: hidden; }
   align-items: center;
   padding: 2px 0;
   position: relative;
+  scroll-snap-align: center;
 }
 
-.bracket-tree-slot::after {
+.bracket-tree-slot[data-side="left"]::after {
   content: "";
   position: absolute;
-  right: -10px;
+  right: -8px;
   top: 50%;
-  width: 10px;
+  width: 8px;
   height: 1px;
   background: rgba(255, 255, 255, 0.15);
 }
 
-.bracket-tree-slot[data-col="5"]::after {
+.bracket-tree-slot[data-side="right"]::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 8px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bracket-tree-slot[data-col="final"]::after,
+.bracket-tree-slot[data-col="final"]::before {
   display: none;
 }
 
@@ -1124,13 +1176,14 @@ body.modal-open { overflow: hidden; }
 }
 
 @media (min-width: 640px) {
-  .bracket-tree-header,
-  .bracket-tree-grid {
-    grid-template-columns: repeat(5, 120px);
-    min-width: 640px;
+  .bracket-tree-header.split,
+  .bracket-tree-grid.split {
+    grid-template-columns: repeat(4, 104px) 112px repeat(4, 104px);
+    min-width: 976px;
     margin-left: auto;
     margin-right: auto;
   }
 
+  .bracket-tree-col-label { font-size: 0.625rem; }
   .tree-name { font-size: 0.6875rem; }
 }
