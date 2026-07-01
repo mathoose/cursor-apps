@@ -254,6 +254,69 @@
       color: var(--accent);
       margin-top: 2px;
     }
+    .habit-label-hide-btn {
+      align-self: flex-end;
+      margin-top: 2px;
+      padding: 1px 4px;
+      border: none;
+      border-radius: 3px;
+      background: transparent;
+      font-size: 0.5625rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1.2;
+    }
+    .habit-label-hide-btn:active {
+      background: rgba(196, 92, 92, 0.08);
+      color: var(--accent-dark);
+    }
+    .month-hidden-section {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .month-hidden-heading {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+    .month-hidden-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+      min-width: 0;
+      min-height: 36px;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      font: inherit;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 1px 4px rgba(44, 36, 25, 0.05);
+    }
+    .month-hidden-chip:active {
+      background: #f5f0e8;
+    }
+    .month-hidden-chip-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .month-hidden-chip-action {
+      flex-shrink: 0;
+      font-size: 0.625rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+    }
     .graph-range-row {
       display: flex;
       flex-wrap: wrap;
@@ -1858,6 +1921,14 @@
     });
   }
 
+  function getHiddenHabitsFiltered() {
+    return state.habits.filter(function (h) {
+      if (!h.hidden) return false;
+      if (!state.categoryFilter || state.categoryFilter === "all") return true;
+      return h.category === state.categoryFilter;
+    });
+  }
+
   function moveHabitInOrder(habitId, direction) {
     const filtered = getFilteredHabits(true);
     const idx = filtered.findIndex(function (h) {
@@ -1955,6 +2026,39 @@
       habitMonthLabelHtml(habit) +
       "</button>";
     html += "</div>";
+    html += "</div>";
+    html +=
+      '<button type="button" class="habit-label-hide-btn" data-hide="' +
+      escapeHtml(habit.id) +
+      '" aria-label="Hide ' +
+      escapeHtml(habit.name) +
+      '">Hide</button>';
+    html += "</div>";
+    return html;
+  }
+
+  function renderMonthHiddenRowHtml(hiddenHabits) {
+    if (!hiddenHabits.length) return "";
+    let html = '<div class="month-hidden-section">';
+    html +=
+      '<p class="month-hidden-heading">Hidden (' +
+      hiddenHabits.length +
+      ")</p>";
+    html += '<div class="year-collapsed-grid year-grid-3">';
+    hiddenHabits.forEach(function (habit) {
+      html +=
+        '<button type="button" class="month-hidden-chip" data-hide="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Show ' +
+        escapeHtml(habit.name) +
+        '">';
+      html +=
+        '<span class="month-hidden-chip-name">' +
+        escapeHtml(habit.name) +
+        "</span>";
+      html += '<span class="month-hidden-chip-action">Show</span>';
+      html += "</button>";
+    });
     html += "</div></div>";
     return html;
   }
@@ -2002,6 +2106,18 @@
       btn.onclick = function (e) {
         e.stopPropagation();
         openHabitEdit(btn.getAttribute("data-habit-edit"));
+      };
+    });
+  }
+
+  function bindMonthHabitHide(root) {
+    root.querySelectorAll("[data-hide]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        const h = state.habits.find(function (x) {
+          return x.id === btn.dataset.hide;
+        });
+        if (h) setHabitHidden(h.id, !h.hidden);
       };
     });
   }
@@ -3057,24 +3173,25 @@
     const dim = daysInMonth(state.year, state.month);
     const eraserNote = eraserMode ? " Eraser on — tap a cell to subtract." : "";
     const filtered = getFilteredHabits(true);
+    const hiddenHabits = getHiddenHabitsFiltered();
     let html = renderCategoryFiltersHtml(true);
-    html += '<p class="hint">Tap a name to edit · Mark or Eraser in the bar below.' + eraserNote + " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
+    html +=
+      '<p class="hint">Tap a name to edit · Hide on each row · hidden habits below.' +
+      eraserNote +
+      " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
-      const hiddenCount = state.habits.filter(function (h) {
-        if (!h.hidden) return false;
-        if (!state.categoryFilter || state.categoryFilter === "all") return true;
-        return h.category === state.categoryFilter;
-      }).length;
       html +=
         '<p class="month-empty">No habits in this view. Add one above.' +
-        (hiddenCount
-          ? " " + hiddenCount + " hidden — unhide in the Habits tab or when editing a habit."
+        (hiddenHabits.length
+          ? " Tap Show below to bring hidden habits back."
           : "") +
         "</p>";
+      html += renderMonthHiddenRowHtml(hiddenHabits);
       root.innerHTML = html;
       bindCategoryFilters(root);
       bindMonthAddHabit(root);
+      bindMonthHabitHide(root);
       return;
     }
     let cols = "108px";
@@ -3095,12 +3212,14 @@
     });
 
     html += "</div></div>";
+    html += renderMonthHiddenRowHtml(hiddenHabits);
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindCells(root);
     bindMonthAddHabit(root);
     bindMonthHabitSort(root);
     bindMonthHabitEdit(root);
+    bindMonthHabitHide(root);
 
     const scroller = root.querySelector(".scroll-x");
     if (scroller) {
