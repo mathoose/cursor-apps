@@ -247,6 +247,13 @@
       color: var(--muted);
       margin-top: 2px;
     }
+    .habit-label-streak {
+      display: block;
+      font-size: 0.5625rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 2px;
+    }
     .month-grid .cell.col-today {
       box-shadow: inset 0 0 0 2px var(--accent);
     }
@@ -2391,6 +2398,32 @@
     return typeof v === "number" ? v : null;
   }
 
+  function isCellFilled(habit, value) {
+    if (value === null || value === undefined) return false;
+    if (habit.type === "yesno") return value >= 1;
+    return value > 0;
+  }
+
+  function habitStreak(habit) {
+    let streak = 0;
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+    for (let guard = 0; guard < 4000; guard++) {
+      const y = cursor.getFullYear();
+      const m = cursor.getMonth();
+      const d = cursor.getDate();
+      if (isDayExcluded(habit, y, m, d)) {
+        cursor.setDate(cursor.getDate() - 1);
+        continue;
+      }
+      const val = getCellValue(cellKey(habit.id, y, m, d));
+      if (!isCellFilled(habit, val)) break;
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
+  }
+
   function getAllTimeHigh(habitId) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return 0;
@@ -2463,6 +2496,15 @@
     let html = (habit.pinned ? "★ " : "") + escapeHtml(habit.name);
     if (habit.type === "counter") {
       html += '<span class="habit-label-step">(' + escapeHtml(formatStepBracket(habit.step)) + ")</span>";
+    }
+    const streak = habitStreak(habit);
+    if (streak > 0) {
+      html +=
+        '<span class="habit-label-streak">' +
+        streak +
+        " day" +
+        (streak === 1 ? "" : "s") +
+        "</span>";
     }
     return html;
   }

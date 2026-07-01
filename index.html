@@ -680,7 +680,7 @@
       <button type="button" class="dock-btn dock-btn-secondary" id="importAllBtn">Import backup…</button>
       <button type="button" class="dock-btn dock-btn-secondary" id="cleanBackupBtn">Clean backup file…</button>
     </div>
-    <p class="dock-hint">Export skips removed apps automatically. Clean backup file strips old apps (e.g. Rep Tracker) from a saved JSON. Delete per-app data under ⓘ → By app.</p>
+    <p class="dock-hint">Export skips removed apps automatically. Clean backup file strips old apps from a saved JSON. Delete per-app data under ⓘ → By app.</p>
   </div>
 
   <p class="hint">Tap to open · long-press or Edit to hide apps · Safari: Share → Add to Home Screen to pin this launcher.</p>
@@ -762,7 +762,7 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "7 · Jul 1, 2026";
+  const HOME_VERSION = "8 · Jul 1, 2026";
   const ICON_VERSION = "6";
   const LONG_PRESS_MS = 500;
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
@@ -1229,7 +1229,7 @@
     document.getElementById("deleteSheetTitle").textContent = "Delete " + deleteTargetLabel(appId) + "?";
     document.getElementById("deletePreview").textContent =
       appId === AppsBackup.OTHER_APP_ID
-        ? "Removes leftover data from removed apps (e.g. Rep Tracker) on this device. Photos in real apps are not affected. Cannot be undone — export first if you want a backup."
+        ? "Removes leftover data from removed apps on this device. Photos in real apps are not affected. Cannot be undone — export first if you want a backup."
         : "Removes all " +
           deleteTargetLabel(appId) +
           " data on this device, including photos stored in the browser. Cannot be undone — export first if you want a backup.";

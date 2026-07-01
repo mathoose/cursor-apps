@@ -128,6 +128,34 @@
     font-size: 0.7rem;
     font-weight: 600;
   }
+  .completed-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 20px 4px 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    text-align: left;
+    font-family: inherit;
+  }
+  .completed-summary:first-child { margin-top: 4px; }
+  .completed-summary .count {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
 
   /* ---------- Quick add ---------- */
   .quick-add {
@@ -1504,6 +1532,7 @@ const DEFAULT_LISTS = [
   { id: 'work', name: 'Work' }
 ];
 
+let listsCompletedExpanded = false;
 let state = {
   version: SCHEMA_VERSION,
   tasks: [],
@@ -2413,10 +2442,25 @@ function renderListsView() {
     container.appendChild(list);
   }
   if (done.length) {
-    container.appendChild(sectionTitle('Completed', done.length));
-    const list = el('div', { class: 'task-list' });
-    done.forEach(t => list.appendChild(renderTaskRow(t)));
-    container.appendChild(list);
+    const summary = el("button", {
+      class: "completed-summary",
+      type: "button",
+      onClick: function () {
+        listsCompletedExpanded = !listsCompletedExpanded;
+        renderListsView();
+      },
+    });
+    const label = el("span", { text: "Completed" });
+    summary.appendChild(label);
+    summary.appendChild(el("span", { class: "count", text: String(done.length) }));
+    container.appendChild(summary);
+    if (listsCompletedExpanded) {
+      const list = el("div", { class: "task-list" });
+      done.forEach(function (t) {
+        list.appendChild(renderTaskRow(t));
+      });
+      container.appendChild(list);
+    }
   }
 }
 
