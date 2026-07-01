@@ -158,15 +158,34 @@
   }
 
   /* ---------- Quick add ---------- */
-  .quick-add {
-    display: flex; align-items: center; gap: 8px;
+  .quick-add-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 6px 6px 6px 12px;
     box-shadow: var(--shadow);
     margin-bottom: 12px;
+    overflow: hidden;
   }
+  .quick-add {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 6px 6px 12px;
+  }
+  .quick-add-card .quick-add {
+    border-bottom: 1px solid var(--border);
+  }
+  .quick-add-link {
+    padding: 0 12px;
+  }
+  .quick-add-link input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .quick-add-link input::placeholder { color: var(--text-faint); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -221,6 +240,19 @@
 
   .task-body { flex: 1; min-width: 0; }
   .task-title { font-size: 0.95rem; font-weight: 500; line-height: 1.35; word-wrap: break-word; }
+  .task-title-link {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.35;
+    word-wrap: break-word;
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
+  .task-title-link:active { opacity: 0.75; }
+  .task.completed .task-title-link { color: var(--text-muted); }
   .task-meta {
     display: flex; flex-wrap: wrap; gap: 4px 10px;
     margin-top: 4px;
@@ -238,6 +270,13 @@
   .pill.due-future { background: var(--surface-2); color: var(--text-muted); }
   .pill.list { background: var(--accent-soft); color: var(--accent-dark); }
   .pill.subtasks { background: var(--surface-2); color: var(--text-muted); }
+  .pill.link {
+    background: var(--surface-2);
+    color: var(--accent-dark);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .pill.link:active { opacity: 0.75; }
 
   .empty {
     text-align: center;
@@ -330,6 +369,12 @@
     border-color: var(--success);
   }
   .mtask-title { flex: 1; min-width: 0; word-wrap: break-word; }
+  .mtask-title.task-title-link {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
   .quadrant-empty {
     color: var(--text-faint);
     font-size: 0.75rem;
@@ -889,6 +934,7 @@
     display: block;
   }
   .field input[type="text"],
+  .field input[type="url"],
   .field input[type="date"],
   .field textarea,
   .field select {
@@ -905,6 +951,15 @@
     border-color: var(--accent);
   }
   .field textarea { resize: vertical; min-height: 72px; }
+  .task-link-open {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
+  .task-link-open[hidden] { display: none; }
 
   .priority-picker { display: flex; gap: 6px; }
   .prio-btn {
@@ -1193,11 +1248,16 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="quick-add">
-      <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
-      <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
+        <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1205,11 +1265,16 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
-    <div class="quick-add">
-      <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
-      <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
+        <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -1252,6 +1317,11 @@
       <div class="field">
         <label class="field-label">Notes</label>
         <textarea id="taskNotesInput" placeholder="Add notes…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Link</label>
+        <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <a class="task-link-open" id="taskLinkOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
       </div>
       <div class="field task-photo-block">
         <label class="field-label">Photo</label>
@@ -1653,11 +1723,72 @@ function normalizeCounter(c) {
   };
 }
 
+function normalizeTaskLink(url) {
+  const s = (url || '').trim();
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  return 'https://' + s;
+}
+
+function isValidTaskLink(url) {
+  if (!url) return true;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function linkDisplayLabel(url) {
+  try {
+    const u = new URL(url);
+    if (/instagram\.com/i.test(u.hostname)) return 'Instagram';
+    return u.hostname.replace(/^www\./, '');
+  } catch {
+    return 'Open link';
+  }
+}
+
+function extractFirstUrl(text) {
+  const m = (text || '').match(/https?:\/\/[^\s<>"']+/i);
+  if (!m) return '';
+  const url = normalizeTaskLink(m[0].replace(/[.,;:!?)]+$/, ''));
+  return isValidTaskLink(url) ? url : '';
+}
+
+function getTaskLinkUrl(task) {
+  if (!task) return '';
+  if (task.link) {
+    const url = normalizeTaskLink(task.link);
+    if (url && isValidTaskLink(url)) return url;
+  }
+  return extractFirstUrl(task.notes);
+}
+
+function appendTaskTitle(parent, task, titleClass) {
+  const linkUrl = getTaskLinkUrl(task);
+  if (linkUrl) {
+    parent.appendChild(el('a', {
+      class: titleClass + ' task-title-link',
+      text: task.title,
+      href: linkUrl,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      title: 'Open ' + linkDisplayLabel(linkUrl),
+      onClick: (e) => e.stopPropagation()
+    }));
+  } else {
+    parent.appendChild(el('div', { class: titleClass, text: task.title }));
+  }
+}
+
 function normalizeTask(t) {
   return {
     id: t.id || uid(),
     title: t.title || '',
     notes: t.notes || '',
+    link: normalizeTaskLink(t.link),
     listId: t.listId || 'inbox',
     dueDate: t.dueDate || null,
     priority: typeof t.priority === 'number' ? t.priority : 0,
@@ -2021,7 +2152,7 @@ function renderTaskRow(task, opts) {
     class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : ''),
     dataset: { id: task.id },
     onClick: (e) => {
-      if (e.target.closest('.task-check')) return;
+      if (e.target.closest('.task-check') || e.target.closest('.task-title-link')) return;
       openTaskEditor(task.id);
     }
   });
@@ -2033,7 +2164,7 @@ function renderTaskRow(task, opts) {
   row.appendChild(check);
 
   const body = el('div', { class: 'task-body' });
-  body.appendChild(el('div', { class: 'task-title', text: task.title }));
+  appendTaskTitle(body, task, 'task-title');
 
   const meta = el('div', { class: 'task-meta' });
   if (task.dueDate) {
@@ -2192,7 +2323,7 @@ function renderMatrixTask(task) {
     dataset: { id: task.id },
     draggable: 'true',
     onClick: (e) => {
-      if (e.target.closest('.mtask-check')) return;
+      if (e.target.closest('.mtask-check') || e.target.closest('.task-title-link')) return;
       openTaskEditor(task.id);
     }
   });
@@ -2201,7 +2332,7 @@ function renderMatrixTask(task) {
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
   node.appendChild(check);
-  node.appendChild(el('div', { class: 'mtask-title', text: task.title }));
+  appendTaskTitle(node, task, 'mtask-title');
 
   // Drag (desktop / touch)
   node.addEventListener('dragstart', (e) => {
@@ -2493,14 +2624,17 @@ function openTaskEditor(taskId) {
   revokeTaskModalPhotoUrl();
   const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
-    id: null, title: '', notes: '', listId: state.activeListId || 'inbox',
+    id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
     completed: false, hasPhoto: false, subtasks: []
   };
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
 
   document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
   document.getElementById('taskTitleInput').value = editingTaskDraft.title;
   document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
+  document.getElementById('taskLinkInput').value = editingTaskDraft.link;
+  updateTaskLinkOpenButton();
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
 
   // List select
@@ -2661,12 +2795,31 @@ function removeTaskPhoto() {
   renderTaskPhotoEditor();
 }
 
+function updateTaskLinkOpenButton() {
+  const btn = document.getElementById('taskLinkOpen');
+  if (!btn) return;
+  const url = normalizeTaskLink(editingTaskDraft && editingTaskDraft.link);
+  if (!url || !isValidTaskLink(url)) {
+    btn.hidden = true;
+    btn.href = '#';
+    return;
+  }
+  btn.hidden = false;
+  btn.href = url;
+  btn.textContent = 'Open ' + linkDisplayLabel(url);
+}
+
 function saveTaskEditor() {
   if (!editingTaskDraft || !editingTaskDraft.title.trim()) {
     closeTaskEditor();
     return;
   }
   editingTaskDraft.title = editingTaskDraft.title.trim();
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.link && !isValidTaskLink(editingTaskDraft.link)) {
+    showToast('Link must be a valid http(s) URL', { error: true });
+    return;
+  }
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -3639,32 +3792,30 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  // Inbox
-  const inboxInput = document.getElementById('inboxQuickInput');
-  const inboxBtn = document.getElementById('inboxQuickBtn');
-  const addInbox = () => {
-    const v = inboxInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: 'inbox' });
-    inboxInput.value = '';
-    render();
-  };
-  inboxBtn.addEventListener('click', addInbox);
-  inboxInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addInbox(); });
+  function wireQuickAdd(titleInputId, linkInputId, btnId, getListId) {
+    const titleInput = document.getElementById(titleInputId);
+    const linkInput = document.getElementById(linkInputId);
+    const btn = document.getElementById(btnId);
+    const submit = () => {
+      const title = titleInput.value.trim();
+      if (!title) return;
+      const link = normalizeTaskLink(linkInput.value.trim());
+      if (link && !isValidTaskLink(link)) {
+        showToast('Link must be a valid http(s) URL', { error: true });
+        return;
+      }
+      addTask({ title, listId: getListId(), link: link || '' });
+      titleInput.value = '';
+      linkInput.value = '';
+      render();
+    };
+    btn.addEventListener('click', submit);
+    titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  }
 
-  // Lists
-  const listInput = document.getElementById('listQuickInput');
-  const listBtn = document.getElementById('listQuickBtn');
-  const addToList = () => {
-    const v = listInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: state.activeListId });
-    listInput.value = '';
-    render();
-  };
-  listBtn.addEventListener('click', addToList);
-  listInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addToList(); });
-
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickBtn', () => 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickBtn', () => state.activeListId);
 }
 
 function wireDateNav() {
@@ -3731,6 +3882,15 @@ function wireTaskEditor() {
   });
   document.getElementById('taskNotesInput').addEventListener('input', (e) => {
     editingTaskDraft.notes = e.target.value;
+  });
+  document.getElementById('taskLinkInput').addEventListener('input', (e) => {
+    editingTaskDraft.link = e.target.value;
+    updateTaskLinkOpenButton();
+  });
+  document.getElementById('taskLinkOpen').addEventListener('click', (e) => {
+    if (!editingTaskDraft || !editingTaskDraft.link || !isValidTaskLink(normalizeTaskLink(editingTaskDraft.link))) {
+      e.preventDefault();
+    }
   });
   document.getElementById('taskDueInput').addEventListener('change', (e) => {
     editingTaskDraft.dueDate = e.target.value || null;
