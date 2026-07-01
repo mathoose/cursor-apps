@@ -12,7 +12,6 @@
       "world-cup-2026": { "storageKey": "world-cup-2026-scores-v1" },
       "meal-menu": { "storageKey": "meal-menu-v1" },
       "dont-forget": { "storageKey": "dont-forget-v1" },
-      "rep-tracker": { "storageKey": "rep-tracker-v1" },
       "process-guide": { "storageKey": "process-guide-v1" },
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" }
@@ -60,12 +59,6 @@
       "name": "Don't Forget",
       "subtitle": "Where did I leave it?",
       "storageKey": "dont-forget-v1"
-    },
-    {
-      "id": "rep-tracker",
-      "name": "Rep Tracker",
-      "subtitle": "House & Senate map",
-      "storageKey": "rep-tracker-v1"
     },
     {
       "id": "process-guide",
