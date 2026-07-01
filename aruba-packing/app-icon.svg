@@ -1,24 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
   <defs>
-    <linearGradient id="bg" x1="0.5" y1="0" x2="0.5" y2="1">
-      <stop offset="0%" stop-color="#e9d5ff"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
     </linearGradient>
   </defs>
   <rect width="180" height="180" rx="40" fill="url(#bg)"/>
-  <!-- closet rod -->
-  <rect x="28" y="38" width="124" height="8" rx="4" fill="#6d28d9"/>
-  <!-- hangers -->
-  <g stroke="#4c1d95" stroke-width="4" fill="none" stroke-linecap="round">
-    <path d="M52 46 L52 58 Q52 72 66 72 L78 72"/>
-    <circle cx="52" cy="42" r="6" fill="#4c1d95" stroke="none"/>
-    <path d="M90 46 L90 58 Q90 72 104 72 L116 72"/>
-    <circle cx="90" cy="42" r="6" fill="#4c1d95" stroke="none"/>
-    <path d="M128 46 L128 58 Q128 72 114 72 L102 72"/>
-    <circle cx="128" cy="42" r="6" fill="#4c1d95" stroke="none"/>
-  </g>
-  <!-- clothes on hangers -->
-  <path d="M58 72 Q58 88 66 118 L78 118 Q86 88 86 72 Z" fill="#faf5ff" stroke="#7c3aed" stroke-width="3"/>
-  <path d="M96 72 Q96 92 104 128 L116 128 Q124 92 124 72 Z" fill="#f3e8ff" stroke="#7c3aed" stroke-width="3"/>
-  <path d="M114 72 Q114 86 108 108 L102 108 Q96 86 96 72 Z" fill="#ddd6fe" stroke="#7c3aed" stroke-width="3"/>
+  <rect x="36" y="42" width="108" height="8" rx="4" fill="#fff"/>
+  <path d="M68 50v18" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="68" cy="44" r="8" fill="#fff"/>
+  <path d="M112 50v18" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="112" cy="44" r="8" fill="#fff"/>
+  <path d="M58 68 Q58 88 68 118 L88 118 Q98 88 98 68 Z" fill="#fff"/>
+  <path d="M82 68 Q82 92 92 128 L112 128 Q122 92 122 68 Z" fill="#ede9fe"/>
+  <path d="M104 68 Q104 84 98 104 L88 104 Q82 84 82 68 Z" fill="#fff" opacity="0.85"/>
 </svg>

@@ -1,13 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-  <rect width="180" height="180" rx="40" fill="#1a2332"/>
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M22 90h28" stroke="#3d9ee8" stroke-width="7"/>
-    <path d="M42 72l8 18-8 18" stroke="#3d9ee8" stroke-width="7"/>
-    <path d="M58 90h28" stroke="#3d9ee8" stroke-width="7"/>
-    <path d="M78 72l8 18-8 18" stroke="#3d9ee8" stroke-width="7"/>
-    <path d="M94 90h28" stroke="#3d9ee8" stroke-width="7"/>
-    <path d="M114 72l8 18-8 18" stroke="#3d9ee8" stroke-width="7"/>
-    <circle cx="148" cy="90" r="26" fill="#3ecf8e" stroke="none"/>
-    <path d="M134 90l10 10 22-24" stroke="#fff" stroke-width="6"/>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <rect x="28" y="36" width="124" height="108" rx="16" fill="#fff"/>
+  <g fill="none" stroke="#93c5fd" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M48 58h28"/>
+    <path d="M68 44l8 14-8 14"/>
+    <path d="M84 58h28"/>
+    <path d="M104 44l8 14-8 14"/>
+    <path d="M120 58h12"/>
   </g>
+  <circle cx="132" cy="58" r="18" fill="#22c55e"/>
+  <path d="M122 58l7 7 14-16" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="48" y="88" width="84" height="8" rx="4" fill="#dbeafe"/>
+  <rect x="48" y="108" width="68" height="8" rx="4" fill="#dbeafe"/>
+  <rect x="48" y="128" width="76" height="8" rx="4" fill="#dbeafe"/>
 </svg>
