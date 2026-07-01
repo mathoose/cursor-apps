@@ -980,7 +980,7 @@ body.modal-open { overflow: hidden; }
   border-color: var(--accent);
 }
 
-/* Visual bracket tree — split layout (left / final / right) */
+/* Visual bracket tree — split flex layout (left / final / right) */
 .bracket-tree-wrap {
   padding: 0 0 24px;
 }
@@ -1030,63 +1030,33 @@ body.modal-open { overflow: hidden; }
 
 .bracket-tree-canvas {
   display: inline-block;
-  min-width: 868px;
+  min-width: min-content;
   padding: 0 12px;
-  position: relative;
   vertical-align: top;
 }
 
-.bracket-tree-anchor {
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 1px;
-  pointer-events: none;
-}
-
-#bracket-anchor-left { left: 0; }
-#bracket-anchor-right { right: 0; }
-
-.bracket-tree-header.split {
-  display: grid;
-  grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.bracket-tree-col-label {
-  font-size: 0.5625rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-  text-align: center;
-  line-height: 1.2;
-}
-
-.bracket-tree-header.split .bracket-tree-col-label:nth-child(5) {
-  color: var(--gold);
-  font-size: 0.625rem;
-}
-
-.bracket-tree-grid.split {
-  display: grid;
-  grid-template-columns: repeat(4, 92px) 100px repeat(4, 92px);
-  grid-template-rows: repeat(8, 52px);
-  gap: 0 8px;
-  position: relative;
-}
-
-.bracket-tree-slot {
+.bracket-tree-board {
   display: flex;
-  align-items: center;
-  padding: 2px 0;
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+  height: 440px;
 }
 
-.bracket-tree-slot[data-side="left"]::after {
+.bracket-tree-col {
+  width: 92px;
+  flex: 0 0 92px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.bracket-tree-col.is-final {
+  width: 100px;
+  flex-basis: 100px;
+}
+
+.bracket-tree-col[data-side="left"]::after {
   content: "";
   position: absolute;
   right: -8px;
@@ -1094,9 +1064,10 @@ body.modal-open { overflow: hidden; }
   width: 8px;
   height: 1px;
   background: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
 }
 
-.bracket-tree-slot[data-side="right"]::before {
+.bracket-tree-col[data-side="right"]::before {
   content: "";
   position: absolute;
   left: -8px;
@@ -1104,11 +1075,47 @@ body.modal-open { overflow: hidden; }
   width: 8px;
   height: 1px;
   background: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
 }
 
-.bracket-tree-slot[data-col="final"]::after,
-.bracket-tree-slot[data-col="final"]::before {
+.bracket-tree-col.is-final::before,
+.bracket-tree-col.is-final::after {
   display: none;
+}
+
+.bracket-tree-col-label {
+  flex: 0 0 auto;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 8px;
+  min-height: 2.4em;
+}
+
+.bracket-tree-col.is-final .bracket-tree-col-label {
+  color: var(--gold);
+  font-size: 0.625rem;
+}
+
+.bracket-tree-col-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: 0;
+}
+
+.bracket-tree-col-body.count-1 {
+  justify-content: center;
+}
+
+.bracket-tree-slot {
+  flex: 0 0 auto;
+  position: relative;
 }
 
 .tree-node {
@@ -1197,13 +1204,14 @@ body.modal-open { overflow: hidden; }
 }
 
 @media (min-width: 640px) {
-  .bracket-tree-canvas {
-    min-width: 976px;
+  .bracket-tree-col {
+    width: 104px;
+    flex-basis: 104px;
   }
 
-  .bracket-tree-header.split,
-  .bracket-tree-grid.split {
-    grid-template-columns: repeat(4, 104px) 112px repeat(4, 104px);
+  .bracket-tree-col.is-final {
+    width: 112px;
+    flex-basis: 112px;
   }
 
   .bracket-tree-col-label { font-size: 0.625rem; }
