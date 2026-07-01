@@ -1087,7 +1087,7 @@ body.modal-open { overflow: hidden; }
 
 .bracket-tree-scroll {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
   width: 100%;
@@ -1097,7 +1097,7 @@ body.modal-open { overflow: hidden; }
 .bracket-tree-canvas {
   display: inline-block;
   min-width: min-content;
-  padding: 0 12px;
+  padding: 0 12px 4px;
   vertical-align: top;
 }
 
@@ -1106,7 +1106,7 @@ body.modal-open { overflow: hidden; }
   flex-direction: row;
   align-items: stretch;
   gap: 8px;
-  height: 460px;
+  min-height: 520px;
 }
 
 .bracket-tree-col {
@@ -1120,6 +1120,34 @@ body.modal-open { overflow: hidden; }
 .bracket-tree-col.is-final {
   width: 100px;
   flex-basis: 100px;
+}
+
+.bracket-tree-center-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+}
+
+.bracket-tree-slot-final {
+  flex: 0 0 auto;
+}
+
+.bracket-tree-bronze-block {
+  flex: 0 0 auto;
+  margin-top: 4px;
+}
+
+.bracket-tree-bronze-label {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(205, 127, 50, 0.9);
+  text-align: center;
+  margin-bottom: 6px;
 }
 
 .bracket-tree-col[data-side="left"]::after {
@@ -1173,6 +1201,11 @@ body.modal-open { overflow: hidden; }
   flex-direction: column;
   justify-content: space-evenly;
   min-height: 0;
+}
+
+.bracket-tree-col-body.count-8 {
+  justify-content: space-between;
+  padding: 2px 0;
 }
 
 .bracket-tree-col-body.count-1 {
@@ -1269,20 +1302,6 @@ body.modal-open { overflow: hidden; }
 
 .tree-team.winner .tree-team-score {
   color: var(--gold);
-}
-
-.bracket-tree-extras {
-  margin: 20px 12px 0;
-  max-width: 200px;
-}
-
-.bracket-tree-extra-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 6px;
 }
 
 .bracket-hint.tree-hint {
