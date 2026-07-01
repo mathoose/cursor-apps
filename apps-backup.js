@@ -16,7 +16,6 @@
     "meal-menu": "Our Menu",
     "philly-dates": "Philly Dates",
     "dont-forget": "Don't Forget",
-    "rep-tracker": "Rep Tracker",
     "process-guide": "Process Guide",
     "media-shelf": "Media Shelf",
     "shopping-list": "Our Groceries",
@@ -410,41 +409,6 @@
           }
         });
         return { version: 1, items: items };
-      },
-    },
-    "rep-tracker": {
-      storageKey: "rep-tracker-v1",
-      legacyKeys: [],
-      readSlice: function () {
-        var raw = readKey("rep-tracker-v1");
-        if (!raw) return null;
-        try {
-          var p = JSON.parse(raw);
-          if (!p || typeof p !== "object") return null;
-          return p;
-        } catch (e) {
-          return null;
-        }
-      },
-      writeSlice: function (slice) {
-        if (!slice || typeof slice !== "object") return false;
-        return writeKey("rep-tracker-v1", JSON.stringify(slice));
-      },
-      isLegacy: function (obj) {
-        return obj && obj.notes && typeof obj.notes === "object" && obj.format !== FORMAT;
-      },
-      summarize: function (slice) {
-        var n = slice.notes ? Object.keys(slice.notes).length : 0;
-        return n + " note" + (n === 1 ? "" : "s");
-      },
-      mergeSlice: function (existing, incoming) {
-        if (!incoming) return existing;
-        if (!existing) return incoming;
-        var notes = Object.assign({}, existing.notes || {});
-        Object.keys(incoming.notes || {}).forEach(function (k) {
-          if (!notes[k]) notes[k] = incoming.notes[k];
-        });
-        return Object.assign({}, existing, { notes: notes });
       },
     },
     "process-guide": {
