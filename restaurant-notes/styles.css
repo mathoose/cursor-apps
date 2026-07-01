@@ -109,6 +109,16 @@ main { padding: 12px; max-width: 640px; margin: 0 auto; }
   margin-top: 6px;
 }
 .add-category-row input { flex: 1; min-width: 0; }
+.ig-row { display: flex; gap: 8px; align-items: stretch; }
+.ig-row input { flex: 1; min-width: 0; }
+.help-body { padding-top: 4px; }
+.help-block { margin-bottom: 20px; }
+.help-block h3 { margin: 0 0 8px; font-size: 0.95rem; }
+.help-steps { margin: 0; padding-left: 1.2rem; font-size: 0.88rem; line-height: 1.5; }
+.help-steps li { margin-bottom: 8px; }
+.help-optional { padding: 12px; background: var(--btn-bg); border-radius: 10px; }
+.help-optional p { margin: 0 0 8px; font-size: 0.85rem; color: var(--muted); line-height: 1.45; }
+.help-optional p:last-child { margin-bottom: 0; }
 .manage-cat-list {
   list-style: none;
   margin: 0 0 12px;

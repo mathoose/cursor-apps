@@ -466,6 +466,42 @@ function handleUrlParams() {
   }
 }
 
+function pasteInstagramLink() {
+  var el = document.getElementById('f-instagram');
+  if (!el) return;
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(function(text) {
+      var t = (text || '').trim();
+      if (!t) { toast('Clipboard is empty'); return; }
+      if (t.indexOf('instagram.com') === -1 && t.indexOf('instagr.am') === -1) {
+        toast('Copy an Instagram link first');
+        return;
+      }
+      el.value = normalizeInstagram(t);
+      debouncedSave();
+      toast('Link pasted');
+    }).catch(function() {
+      toast('Tap Instagram field and paste manually');
+    });
+    return;
+  }
+  el.focus();
+  toast('Tap the field, then Paste');
+}
+
+function openHelpModal() {
+  document.getElementById('help-modal').classList.add('open');
+  document.body.classList.add('modal-open');
+}
+
+function closeHelpModal() {
+  document.getElementById('help-modal').classList.remove('open');
+  if (!document.getElementById('edit-modal').classList.contains('open')
+      && !document.getElementById('cats-modal').classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
 function openCatsModal() {
   renderManageCatList();
   document.getElementById('cats-modal').classList.add('open');
@@ -523,6 +559,12 @@ function wireEvents() {
     if (e.key === 'Enter') document.getElementById('add-category-btn').click();
   });
   document.getElementById('manage-cats-btn').addEventListener('click', openCatsModal);
+  document.getElementById('help-btn').addEventListener('click', openHelpModal);
+  document.getElementById('help-close').addEventListener('click', closeHelpModal);
+  document.getElementById('help-modal').addEventListener('click', function(e) {
+    if (e.target.id === 'help-modal') closeHelpModal();
+  });
+  document.getElementById('paste-ig-btn').addEventListener('click', pasteInstagramLink);
   document.getElementById('cats-close').addEventListener('click', closeCatsModal);
   document.getElementById('cats-modal').addEventListener('click', function(e) {
     if (e.target.id === 'cats-modal') closeCatsModal();
@@ -588,7 +630,8 @@ function wireEvents() {
   });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      if (document.getElementById('cats-modal').classList.contains('open')) closeCatsModal();
+      if (document.getElementById('help-modal').classList.contains('open')) closeHelpModal();
+      else if (document.getElementById('cats-modal').classList.contains('open')) closeCatsModal();
       else if (document.getElementById('edit-modal').classList.contains('open')) closeEditor();
     }
   });

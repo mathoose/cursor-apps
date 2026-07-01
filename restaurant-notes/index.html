@@ -29,11 +29,12 @@
       <button type="button" class="btn btn-primary" id="add-btn">+ Add</button>
       <button type="button" class="btn btn-secondary" id="export-all-btn">Copy all for import</button>
       <button type="button" class="btn btn-icon" id="manage-cats-btn" title="Manage categories" aria-label="Manage categories">🏷️</button>
+      <button type="button" class="btn btn-icon" id="help-btn" title="How to use" aria-label="How to use">?</button>
     </div>
   </header>
 
   <main>
-    <p class="hint" id="list-hint">Saved on this device as you type. Export when ready, then paste into Philly Dates → Settings → Import from text.</p>
+    <p class="hint" id="list-hint"><strong>From Instagram:</strong> Copy link → + Add → Paste link. When done: Copy all → paste in Philly Dates Settings.</p>
     <div class="category-filters" id="category-filters" role="group" aria-label="Filter by category"></div>
     <ul class="note-list" id="note-list"></ul>
     <p class="empty" id="list-empty" hidden>No notes yet. Tap + Add or open from an Instagram link.</p>
@@ -60,7 +61,10 @@
           <button type="button" class="btn btn-secondary btn-sm" id="add-category-btn">Add</button>
         </div>
         <label for="f-instagram">Instagram</label>
-        <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+        <div class="ig-row">
+          <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
+          <button type="button" class="btn btn-secondary btn-sm" id="paste-ig-btn">Paste link</button>
+        </div>
         <label for="f-neighborhood">Neighborhood</label>
         <input type="text" id="f-neighborhood" placeholder="e.g. Rittenhouse" autocomplete="off" />
         <label for="f-address">Address</label>
@@ -94,6 +98,39 @@
           <input type="text" id="manage-new-cat" placeholder="New category name" maxlength="32" autocomplete="off" />
           <button type="button" class="btn btn-primary btn-sm" id="manage-add-cat-btn">Add</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div><h2 id="help-title">How to use</h2></div>
+        <button type="button" class="modal-close" id="help-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body help-body">
+        <section class="help-block">
+          <h3>Save a spot from Instagram</h3>
+          <ol class="help-steps">
+            <li>In Instagram, tap <strong>Share</strong> on the post → <strong>Copy link</strong>.</li>
+            <li>Open <strong>Resto Notes</strong> (this app) → tap <strong>+ Add</strong>.</li>
+            <li>Tap <strong>Paste link</strong> next to Instagram. Add the name and anything else.</li>
+            <li>Tap <strong>Done</strong>. It saves automatically.</li>
+          </ol>
+        </section>
+        <section class="help-block">
+          <h3>Move into Philly Dates</h3>
+          <ol class="help-steps">
+            <li>Here: tap <strong>Copy all for import</strong>.</li>
+            <li>Open <strong>Philly Dates</strong> → <strong>Settings</strong> (⚙️).</li>
+            <li>Scroll to <strong>Import from text</strong> → paste → <strong>Import pasted text</strong>.</li>
+          </ol>
+        </section>
+        <section class="help-block help-optional">
+          <h3>Shortcuts (optional — skip if confusing)</h3>
+          <p>You don’t need Apple Shortcuts. <strong>Copy link + Paste link</strong> above is enough.</p>
+          <p>If you want one less step later, ask and we can walk through it — it’s not required.</p>
+        </section>
       </div>
     </div>
   </div>
