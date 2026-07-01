@@ -651,7 +651,9 @@ function wireEvents() {
     saveCurrentForm();
     var p = getPlace(currentId);
     if (!p) return;
-    copyText(serializePlace(p));
+    copyText(serializePlace(p)).then(function() {
+      toast('Copied — paste in Philly Dates');
+    });
   });
   document.getElementById('edit-modal').addEventListener('click', function(e) {
     if (e.target.id === 'edit-modal') closeEditor();
