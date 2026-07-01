@@ -28,11 +28,13 @@
     <div class="top-actions-row">
       <button type="button" class="btn btn-primary" id="add-btn">+ Add</button>
       <button type="button" class="btn btn-secondary" id="export-all-btn">Copy all for import</button>
+      <button type="button" class="btn btn-icon" id="manage-cats-btn" title="Manage categories" aria-label="Manage categories">🏷️</button>
     </div>
   </header>
 
   <main>
     <p class="hint" id="list-hint">Saved on this device as you type. Export when ready, then paste into Philly Dates → Settings → Import from text.</p>
+    <div class="category-filters" id="category-filters" role="group" aria-label="Filter by category"></div>
     <ul class="note-list" id="note-list"></ul>
     <p class="empty" id="list-empty" hidden>No notes yet. Tap + Add or open from an Instagram link.</p>
   </main>
@@ -49,16 +51,22 @@
       <div class="modal-body">
         <label for="f-name">Name</label>
         <input type="text" id="f-name" placeholder="Restaurant name" autocomplete="off" />
+        <label for="f-description">Description</label>
+        <textarea id="f-description" placeholder="Vibe, what to order, why you want to go…" rows="3"></textarea>
+        <label>Categories</label>
+        <div class="category-chips" id="edit-category-chips" role="group" aria-label="Categories"></div>
+        <div class="add-category-row">
+          <input type="text" id="new-category-input" placeholder="New category" maxlength="32" autocomplete="off" />
+          <button type="button" class="btn btn-secondary btn-sm" id="add-category-btn">Add</button>
+        </div>
         <label for="f-instagram">Instagram</label>
         <input type="url" id="f-instagram" placeholder="https://instagram.com/…" autocomplete="off" inputmode="url" />
         <label for="f-neighborhood">Neighborhood</label>
         <input type="text" id="f-neighborhood" placeholder="e.g. Rittenhouse" autocomplete="off" />
         <label for="f-address">Address</label>
         <input type="text" id="f-address" placeholder="Optional" autocomplete="off" />
-        <label for="f-description">Description</label>
-        <textarea id="f-description" placeholder="Vibe, what to order…"></textarea>
         <label for="f-notes">Your notes</label>
-        <textarea id="f-notes" placeholder="Where you saw it, who recommended it…"></textarea>
+        <textarea id="f-notes" placeholder="Where you saw it, who recommended it…" rows="2"></textarea>
         <label>Happy hour times <span class="label-hint">(leave blank if unknown)</span></label>
         <table class="hh-grid" id="hh-grid">
           <thead><tr><th>Day</th><th>Start</th><th>End</th><th></th></tr></thead>
@@ -68,6 +76,23 @@
           <button type="button" class="btn btn-danger" id="delete-btn">Delete</button>
           <button type="button" class="btn btn-secondary" id="copy-one-btn">Copy this one</button>
           <button type="button" class="btn btn-primary" id="done-btn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="cats-modal" role="dialog" aria-modal="true" aria-labelledby="cats-title">
+    <div class="modal">
+      <div class="modal-header">
+        <div><h2 id="cats-title">Categories</h2></div>
+        <button type="button" class="modal-close" id="cats-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="hint">Tap a category when editing a restaurant to assign it. Delete removes it from all notes.</p>
+        <ul class="manage-cat-list" id="manage-cat-list"></ul>
+        <div class="add-category-row">
+          <input type="text" id="manage-new-cat" placeholder="New category name" maxlength="32" autocomplete="off" />
+          <button type="button" class="btn btn-primary btn-sm" id="manage-add-cat-btn">Add</button>
         </div>
       </div>
     </div>

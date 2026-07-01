@@ -1628,6 +1628,7 @@ function parseRestaurantTextBlocks(text) {
       address: '',
       description: '',
       notes: '',
+      categories: '',
       schedule: {}
     };
     var inSchedule = false;
@@ -1662,6 +1663,7 @@ function parseRestaurantTextBlocks(text) {
       else if (key === 'neighborhood') place.neighborhood = val;
       else if (key === 'address') place.address = val;
       else if (key === 'description') place.description = val;
+      else if (key === 'categories') place.categories = val;
       else if (key === 'notes') {
         place.notes = val;
         if (val && !place.description) place.description = val;
@@ -1686,6 +1688,14 @@ function importRestaurantsFromText(text) {
     var existed = !!byName[name];
     var schedule = p.schedule || {};
     var description = p.description || '';
+    if (p.categories) {
+      description = description
+        ? description + ' · Categories: ' + p.categories
+        : 'Categories: ' + p.categories;
+    }
+    if (p.notes && !description.includes(p.notes)) {
+      description = description ? description + ' * ' + p.notes : p.notes;
+    }
     var r = byName[name];
     if (!r) {
       r = {

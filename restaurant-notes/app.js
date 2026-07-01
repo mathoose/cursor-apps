@@ -4,7 +4,15 @@
 var STORAGE_KEY = 'restaurant-notes-v1';
 var FORMAT_MARKER = 'philly-restaurant-v1';
 var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var DEFAULT_CATEGORIES = [
+  { id: 'want-to-try', label: 'Want to try' },
+  { id: 'date-night', label: 'Date night' },
+  { id: 'happy-hour', label: 'Happy hour' },
+  { id: 'brunch', label: 'Brunch' }
+];
+var MAX_CATEGORIES = 24;
 var currentId = '';
+var filterCategoryId = '';
 var autosaveTimer = null;
 
 function uid() {
@@ -20,25 +28,89 @@ function defaultPlace() {
     address: '',
     description: '',
     notes: '',
+    categoryIds: [],
     schedule: {},
     updatedAt: new Date().toISOString()
   };
 }
 
+function slugCatId(label) {
+  return String(label || '').trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || ('cat-' + uid());
+}
+
+function normalizeData(raw) {
+  var data = raw && typeof raw === 'object' ? raw : { version: 2, places: [] };
+  if (!Array.isArray(data.places)) data.places = [];
+  if (!Array.isArray(data.categories) || !data.categories.length) {
+    data.categories = DEFAULT_CATEGORIES.slice();
+  }
+  data.places = data.places.map(function(p) {
+    if (!Array.isArray(p.categoryIds)) p.categoryIds = [];
+    return p;
+  });
+  data.version = 2;
+  return data;
+}
+
 function loadData() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { version: 1, places: [] };
-    var data = JSON.parse(raw);
-    if (!data.places) data.places = [];
-    return data;
+    if (!raw) return normalizeData({ places: [] });
+    return normalizeData(JSON.parse(raw));
   } catch (e) {
-    return { version: 1, places: [] };
+    return normalizeData({ places: [] });
   }
 }
 
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeData(data)));
+}
+
+function getCategories() {
+  return loadData().categories || [];
+}
+
+function categoryLabel(id) {
+  var cat = getCategories().find(function(c) { return c.id === id; });
+  return cat ? cat.label : id;
+}
+
+function addCategory(label) {
+  var text = (label || '').trim();
+  if (!text) return null;
+  var data = loadData();
+  if (data.categories.length >= MAX_CATEGORIES) {
+    toast('Max ' + MAX_CATEGORIES + ' categories');
+    return null;
+  }
+  if (data.categories.some(function(c) { return c.label.toLowerCase() === text.toLowerCase(); })) {
+    toast('Category already exists');
+    return data.categories.find(function(c) { return c.label.toLowerCase() === text.toLowerCase(); });
+  }
+  var cat = { id: slugCatId(text), label: text };
+  data.categories.push(cat);
+  saveData(data);
+  renderCategoryFilters();
+  renderEditCategoryChips();
+  renderManageCatList();
+  return cat;
+}
+
+function deleteCategory(id) {
+  var data = loadData();
+  data.categories = data.categories.filter(function(c) { return c.id !== id; });
+  data.places.forEach(function(p) {
+    if (Array.isArray(p.categoryIds)) {
+      p.categoryIds = p.categoryIds.filter(function(cid) { return cid !== id; });
+    }
+  });
+  if (filterCategoryId === id) filterCategoryId = '';
+  saveData(data);
+  renderCategoryFilters();
+  renderEditCategoryChips();
+  renderManageCatList();
+  renderList();
 }
 
 function escapeHtml(s) {
@@ -99,6 +171,71 @@ function deletePlace(id) {
   saveData(data);
 }
 
+function truncate(s, n) {
+  s = (s || '').trim();
+  if (s.length <= n) return s;
+  return s.slice(0, n - 1) + '…';
+}
+
+function renderCategoryFilters() {
+  var el = document.getElementById('category-filters');
+  if (!el) return;
+  var cats = getCategories();
+  var chips = '<button type="button" class="cat-chip' + (!filterCategoryId ? ' on' : '') + '" data-cat="">All</button>';
+  chips += cats.map(function(c) {
+    return '<button type="button" class="cat-chip' + (filterCategoryId === c.id ? ' on' : '') + '" data-cat="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</button>';
+  }).join('');
+  el.innerHTML = chips;
+}
+
+function renderEditCategoryChips() {
+  var el = document.getElementById('edit-category-chips');
+  if (!el) return;
+  var place = currentId ? getPlace(currentId) : null;
+  var selected = place && Array.isArray(place.categoryIds) ? place.categoryIds : [];
+  var cats = getCategories();
+  if (!cats.length) {
+    el.innerHTML = '<p class="hint" style="margin:0">Add a category below.</p>';
+    return;
+  }
+  el.innerHTML = cats.map(function(c) {
+    var on = selected.indexOf(c.id) >= 0;
+    return '<button type="button" class="cat-chip' + (on ? ' on' : '') + '" data-cat-id="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</button>';
+  }).join('');
+}
+
+function renderManageCatList() {
+  var el = document.getElementById('manage-cat-list');
+  if (!el) return;
+  var cats = getCategories();
+  if (!cats.length) {
+    el.innerHTML = '<li class="hint">No categories yet.</li>';
+    return;
+  }
+  el.innerHTML = cats.map(function(c) {
+  var count = loadData().places.filter(function(p) {
+    return p.categoryIds && p.categoryIds.indexOf(c.id) >= 0;
+  }).length;
+    return '<li class="manage-cat-row"><span>' + escapeHtml(c.label)
+      + ' <span class="hint">(' + count + ')</span></span>'
+      + '<button type="button" data-del-cat="' + escapeHtml(c.id) + '">Delete</button></li>';
+  }).join('');
+}
+
+function togglePlaceCategory(catId) {
+  if (!currentId) return;
+  var place = getPlace(currentId);
+  if (!place) return;
+  if (!Array.isArray(place.categoryIds)) place.categoryIds = [];
+  var i = place.categoryIds.indexOf(catId);
+  if (i >= 0) place.categoryIds.splice(i, 1);
+  else place.categoryIds.push(catId);
+  upsertPlace(place);
+  renderEditCategoryChips();
+  renderList();
+  setEditStatus('Saved', true);
+}
+
 function scheduleSummary(schedule) {
   if (!schedule) return 'no HH times';
   var days = DAY_NAMES.filter(function(d) {
@@ -112,23 +249,46 @@ function scheduleSummary(schedule) {
 
 function renderList() {
   var data = loadData();
+  var places = data.places;
+  if (filterCategoryId) {
+    places = places.filter(function(p) {
+      return p.categoryIds && p.categoryIds.indexOf(filterCategoryId) >= 0;
+    });
+  }
   var list = document.getElementById('note-list');
   var empty = document.getElementById('list-empty');
   if (!list) return;
-  if (!data.places.length) {
+  if (!places.length) {
     list.innerHTML = '';
-    if (empty) empty.hidden = false;
+    if (empty) {
+      empty.hidden = false;
+      empty.textContent = filterCategoryId
+        ? 'No restaurants in this category.'
+        : 'No notes yet. Tap + Add or open from an Instagram link.';
+    }
     return;
   }
   if (empty) empty.hidden = true;
-  list.innerHTML = data.places.map(function(p) {
+  list.innerHTML = places.map(function(p) {
     var title = p.name ? escapeHtml(p.name) : 'Untitled';
+    var descHtml = p.description
+      ? '<span class="note-desc">' + escapeHtml(truncate(p.description, 100)) + '</span>'
+      : '';
     var sub = [];
+    if (p.neighborhood) sub.push(escapeHtml(p.neighborhood));
     if (p.instagram) sub.push(escapeHtml(p.instagram.replace(/^https?:\/\/(www\.)?/, '')));
     sub.push(scheduleSummary(p.schedule));
+    var catsHtml = '';
+    if (p.categoryIds && p.categoryIds.length) {
+      catsHtml = '<span class="note-cats">' + p.categoryIds.map(function(id) {
+        return '<span class="cat-badge">' + escapeHtml(categoryLabel(id)) + '</span>';
+      }).join('') + '</span>';
+    }
     return '<li><button type="button" class="note-item" data-id="' + escapeHtml(p.id) + '">'
       + '<span class="note-title">' + title + '</span>'
+      + descHtml
       + '<span class="note-sub">' + sub.join(' · ') + '</span>'
+      + catsHtml
       + '</button></li>';
   }).join('');
 }
@@ -175,6 +335,7 @@ function collectForm() {
     address: document.getElementById('f-address').value.trim(),
     description: document.getElementById('f-description').value.trim(),
     notes: document.getElementById('f-notes').value.trim(),
+    categoryIds: (getPlace(currentId) && getPlace(currentId).categoryIds) ? getPlace(currentId).categoryIds.slice() : [],
     schedule: schedule
   };
 }
@@ -212,6 +373,7 @@ function openEditor(id, prefill) {
   document.getElementById('f-notes').value = place.notes || '';
   document.getElementById('edit-title').textContent = place.name || 'New restaurant';
   buildHhRows(place.schedule);
+  renderEditCategoryChips();
   setEditStatus(place.name || place.instagram ? 'Draft restored' : '', !!(place.name || place.instagram));
   document.getElementById('edit-modal').classList.add('open');
   document.body.classList.add('modal-open');
@@ -236,6 +398,9 @@ function serializePlace(p) {
   lines.push('address: ' + (p.address || ''));
   lines.push('description: ' + (p.description || ''));
   lines.push('notes: ' + (p.notes || ''));
+  if (p.categoryIds && p.categoryIds.length) {
+    lines.push('categories: ' + p.categoryIds.map(categoryLabel).join(', '));
+  }
   lines.push('schedule:');
   DAY_NAMES.forEach(function(day) {
     var s = p.schedule && p.schedule[day];
@@ -301,12 +466,85 @@ function handleUrlParams() {
   }
 }
 
+function openCatsModal() {
+  renderManageCatList();
+  document.getElementById('cats-modal').classList.add('open');
+  document.body.classList.add('modal-open');
+}
+
+function closeCatsModal() {
+  document.getElementById('cats-modal').classList.remove('open');
+  if (!document.getElementById('edit-modal').classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
 function wireEvents() {
   document.getElementById('add-btn').addEventListener('click', function() { openEditor(null); });
   document.getElementById('export-all-btn').addEventListener('click', function() {
     var data = loadData();
-    if (!data.places.length) { toast('No notes to export'); return; }
-    copyText(serializeAll(data.places));
+    var places = filterCategoryId
+      ? data.places.filter(function(p) { return p.categoryIds && p.categoryIds.indexOf(filterCategoryId) >= 0; })
+      : data.places;
+    if (!places.length) { toast('No notes to export'); return; }
+    copyText(serializeAll(places));
+  });
+  document.getElementById('category-filters').addEventListener('click', function(e) {
+    var chip = e.target.closest('.cat-chip');
+    if (!chip) return;
+    filterCategoryId = chip.getAttribute('data-cat') || '';
+    renderCategoryFilters();
+    renderList();
+  });
+  document.getElementById('edit-category-chips').addEventListener('click', function(e) {
+    var chip = e.target.closest('[data-cat-id]');
+    if (!chip) return;
+    togglePlaceCategory(chip.getAttribute('data-cat-id'));
+  });
+  document.getElementById('add-category-btn').addEventListener('click', function() {
+    var inp = document.getElementById('new-category-input');
+    var cat = addCategory(inp.value);
+    if (cat && currentId) {
+      var place = getPlace(currentId);
+      if (place) {
+        if (!Array.isArray(place.categoryIds)) place.categoryIds = [];
+        if (place.categoryIds.indexOf(cat.id) < 0) {
+          place.categoryIds.push(cat.id);
+          upsertPlace(place);
+          renderEditCategoryChips();
+          renderList();
+          setEditStatus('Saved', true);
+        }
+      }
+    }
+    if (inp) inp.value = '';
+  });
+  document.getElementById('new-category-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('add-category-btn').click();
+  });
+  document.getElementById('manage-cats-btn').addEventListener('click', openCatsModal);
+  document.getElementById('cats-close').addEventListener('click', closeCatsModal);
+  document.getElementById('cats-modal').addEventListener('click', function(e) {
+    if (e.target.id === 'cats-modal') closeCatsModal();
+  });
+  document.getElementById('manage-add-cat-btn').addEventListener('click', function() {
+    var inp = document.getElementById('manage-new-cat');
+    if (addCategory(inp.value)) {
+      inp.value = '';
+      toast('Category added');
+    }
+  });
+  document.getElementById('manage-new-cat').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('manage-add-cat-btn').click();
+  });
+  document.getElementById('manage-cat-list').addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-del-cat]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-del-cat');
+    var label = categoryLabel(id);
+    if (!confirm('Delete category “' + label + '”?')) return;
+    deleteCategory(id);
+    toast('Category deleted');
   });
   document.getElementById('note-list').addEventListener('click', function(e) {
     var btn = e.target.closest('.note-item');
@@ -349,13 +587,15 @@ function wireEvents() {
     }
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.getElementById('edit-modal').classList.contains('open')) {
-      closeEditor();
+    if (e.key === 'Escape') {
+      if (document.getElementById('cats-modal').classList.contains('open')) closeCatsModal();
+      else if (document.getElementById('edit-modal').classList.contains('open')) closeEditor();
     }
   });
 }
 
 wireEvents();
+renderCategoryFilters();
 renderList();
 handleUrlParams();
 

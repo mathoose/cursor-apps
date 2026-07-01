@@ -31,8 +31,10 @@ body {
 .top-titles { flex: 1; min-width: 0; }
 .top-titles h1 { margin: 0; font-size: 1.2rem; }
 .top-titles .sub { margin: 2px 0 0; font-size: 0.75rem; color: var(--muted); }
-.top-actions-row { display: flex; gap: 8px; margin-top: 10px; }
+.top-actions-row { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
 .top-actions-row .btn { flex: 1; }
+.top-actions-row .btn-icon { flex: 0 0 auto; width: 42px; padding: 10px; }
+.btn-sm { padding: 8px 12px; font-size: 0.82rem; flex: 0 0 auto; }
 .btn {
   border: none;
   border-radius: 10px;
@@ -60,7 +62,82 @@ main { padding: 12px; max-width: 640px; margin: 0 auto; }
 }
 .note-item:active { background: var(--btn-bg); }
 .note-title { font-weight: 600; font-size: 0.95rem; display: block; }
+.note-desc {
+  font-size: 0.8rem;
+  color: var(--text);
+  margin-top: 4px;
+  display: block;
+  line-height: 1.35;
+  opacity: 0.88;
+}
 .note-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; display: block; }
+.note-cats { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.cat-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #efebe9;
+  color: var(--accent);
+}
+.category-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cat-chip {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cat-chip.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.category-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.add-category-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.add-category-row input { flex: 1; min-width: 0; }
+.manage-cat-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.manage-cat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  font-size: 0.88rem;
+}
+.manage-cat-row button {
+  border: none;
+  background: #ffebee;
+  color: #b71c1c;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+}
 .empty { text-align: center; color: var(--muted); padding: 24px 12px; font-size: 0.9rem; }
 .modal-backdrop {
   display: none;
