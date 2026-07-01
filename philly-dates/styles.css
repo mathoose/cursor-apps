@@ -201,10 +201,11 @@ body {
   color: var(--text);
 }
 .btn-add {
-  padding: 10px 14px;
+  padding: 10px 12px;
   background: var(--cell-active);
   color: #fff;
   white-space: nowrap;
+  font-size: 0.85rem;
 }
 .btn-primary { background: var(--cell-active); color: #fff; padding: 10px 14px; }
 .btn-secondary { background: var(--btn-bg); color: var(--text); padding: 10px 14px; }
@@ -480,6 +481,58 @@ body.modal-open { overflow: hidden; }
 .copy-prev-btn { padding: 4px 8px; font-size: 0.72rem; border: none; border-radius: 6px; cursor: pointer; background: var(--btn-bg); }
 .edit-actions { display: flex; gap: 8px; margin-top: 16px; }
 .edit-actions button { flex: 1; }
+.quick-add-sub {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.quick-add-form label { display: block; font-size: 0.8rem; font-weight: 600; margin: 12px 0 4px; }
+.quick-add-form input[type="text"],
+.quick-add-form input[type="url"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+}
+.quick-add-status {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.quick-add-status.saved { color: var(--cell-active); }
+.quick-add-actions { flex-wrap: wrap; }
+.quick-add-actions .btn-danger { flex: 0 1 auto; }
+.quick-add-full-link {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  border: none;
+  background: none;
+  color: var(--link);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.list-row.draft-row .list-title { color: var(--text); font-style: italic; }
+.fav-toggle.draft-spacer { visibility: hidden; pointer-events: none; }
+.list-draft-badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #c62828;
+  background: #ffebee;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-style: normal;
+}
+[data-theme="dark"] .list-draft-badge {
+  color: #ef9a9a;
+  background: #3d1f24;
+}
 .settings-section { margin-bottom: 20px; }
 .settings-section h3 { margin: 0 0 8px; font-size: 0.95rem; }
 .settings-row { display: flex; align-items: center; gap: 10px; }
