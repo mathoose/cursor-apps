@@ -403,6 +403,50 @@
     return diffDays + " days late";
   }
 
+  function formatOverdueCompact(dateIso) {
+    var d = parseDate(dateIso);
+    if (!d) return "Late";
+    var now = new Date();
+    var diffDays = Math.floor((startOfDay(now) - startOfDay(d)) / 86400000);
+    if (diffDays <= 0) return "Today";
+    if (diffDays === 1) return "1d late";
+    return diffDays + "d late";
+  }
+
+  function formatDaysSince(dateIso) {
+    var d = parseDate(dateIso);
+    if (!d) return "Never";
+    var now = new Date();
+    var diffDays = Math.floor((startOfDay(now) - startOfDay(d)) / 86400000);
+    if (diffDays <= 0) return "Today";
+    if (diffDays === 1) return "1d";
+    if (diffDays < 7) return diffDays + "d";
+    if (diffDays < 30) return Math.floor(diffDays / 7) + "w";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  function getShowOverdueDays(show, asOf) {
+    if (!show || show.type !== "airing" || !show.schedule.length) return 0;
+    if (isCaughtUp(show, asOf)) return 0;
+    var missed = getLatestDueAirDate(show, asOf);
+    if (!missed) return 0;
+    return Math.floor((startOfDay(asOf || new Date()) - startOfDay(missed)) / 86400000);
+  }
+
+  function getWatchingShowsForHome() {
+    var now = new Date();
+    return state.shows
+      .filter(function (s) { return s.status === "watching"; })
+      .sort(function (a, b) {
+        var aLate = getShowOverdueDays(a, now);
+        var bLate = getShowOverdueDays(b, now);
+        if (aLate !== bLate) return bLate - aLate;
+        var aT = a.lastWatchedAt ? new Date(a.lastWatchedAt).getTime() : 0;
+        var bT = b.lastWatchedAt ? new Date(b.lastWatchedAt).getTime() : 0;
+        return aT - bT;
+      });
+  }
+
   function buildEpisodeReminderItem(show, atDate, overdue) {
     return {
       id: "air-" + show.id + "-" + atDate.getTime(),
@@ -527,6 +571,46 @@
     });
 
     return { all: items, byDate: byDate };
+  }
+
+  function renderShowRow(show) {
+    var now = new Date();
+    var overdueDays = getShowOverdueDays(show, now);
+    var isOverdue = overdueDays > 0;
+    var missed = isOverdue ? getLatestDueAirDate(show, now) : null;
+    var sinceLabel = isOverdue && missed
+      ? formatOverdueCompact(missed.toISOString())
+      : formatDaysSince(show.lastWatchedAt);
+    var rowClass = "show-row" + (isOverdue ? " overdue" : "");
+    var typeClass = show.type === "airing" ? "airing" : "binge";
+
+    return (
+      '<div class="' + rowClass + '">' +
+      '<button type="button" class="show-row-main" data-show-id="' + escapeHtml(show.id) + '">' +
+      '<span class="show-row-type ' + typeClass + '" aria-hidden="true"></span>' +
+      '<span class="show-row-title">' + escapeHtml(show.title) + "</span>" +
+      '<span class="show-row-ep">' + escapeHtml(episodeLabel(show)) + "</span>" +
+      '<span class="show-row-since' + (isOverdue ? " overdue" : "") + '">' + escapeHtml(sinceLabel) + "</span>" +
+      "</button>" +
+      '<button type="button" class="show-row-log" data-quick-log-show="' + escapeHtml(show.id) + '" aria-label="Log episode">+</button>' +
+      "</div>"
+    );
+  }
+
+  function renderCustomReminderCompact(item) {
+    var d = parseDate(item.at);
+    var now = new Date();
+    var whenLabel = d ? formatDateTime(item.at) : "No date";
+    if (item.overdue) whenLabel = formatOverdueCompact(item.at);
+    else if (d && isSameDay(d, now)) whenLabel = "Today";
+    else if (d && isSameDay(d, addDays(now, 1))) whenLabel = "Tomorrow";
+
+    return (
+      '<button type="button" class="reminder-compact" data-reminder-id="' + escapeHtml(item.id) + '">' +
+      '<span class="reminder-compact-title">' + escapeHtml(item.title) + "</span>" +
+      '<span class="reminder-compact-when' + (item.overdue ? " overdue" : "") + '">' + escapeHtml(whenLabel) + "</span>" +
+      "</button>"
+    );
   }
 
   function renderShowCard(show) {
@@ -671,22 +755,29 @@
   function render() {
     var reminders = collectReminders();
 
-    document.getElementById("homeOverdue").innerHTML = reminders.overdue.map(function (item) {
-      return renderReminderCard(item);
-    }).join("");
-    document.getElementById("homeOverdueEmpty").hidden = reminders.overdue.length > 0;
+    var watching = getWatchingShowsForHome();
+    document.getElementById("homeWatching").innerHTML = watching.map(renderShowRow).join("");
+    document.getElementById("homeWatchingEmpty").hidden = watching.length > 0;
 
-    document.getElementById("homeUpcoming").innerHTML = reminders.upcoming.map(function (item) {
-      return renderReminderCard(item);
-    }).join("");
-    document.getElementById("homeUpcomingEmpty").hidden = reminders.upcoming.length > 0;
-
-    var continueWatch = state.shows
-      .filter(function (s) { return s.status === "watching"; })
-      .sort(function (a, b) { return new Date(b.lastWatchedAt || 0) - new Date(a.lastWatchedAt || 0); })
-      .slice(0, 4);
-    document.getElementById("homeContinueWatch").innerHTML = continueWatch.map(renderShowCard).join("");
-    document.getElementById("homeWatchEmpty").hidden = continueWatch.length > 0;
+    var now = new Date();
+    var homeWindowEnd = addDays(startOfDay(now), HOME_WINDOW_DAYS + 1);
+    var homeCustom = reminders.all.filter(function (item) {
+      if (item.kind !== "custom") return false;
+      if (item.overdue) return true;
+      var d = parseDate(item.at);
+      return d && d < homeWindowEnd;
+    });
+    var remindersLabel = document.getElementById("homeRemindersLabel");
+    var remindersEl = document.getElementById("homeReminders");
+    if (homeCustom.length > 0) {
+      remindersLabel.hidden = false;
+      remindersEl.hidden = false;
+      remindersEl.innerHTML = homeCustom.map(renderCustomReminderCompact).join("");
+    } else {
+      remindersLabel.hidden = true;
+      remindersEl.hidden = true;
+      remindersEl.innerHTML = "";
+    }
 
     var continueRead = state.books
       .filter(function (b) { return b.status === "reading"; })
@@ -850,7 +941,7 @@
     });
 
     var titles = {
-      home: ["Media Shelf", "Upcoming & overdue"],
+      home: ["Media Shelf", "Your watch list"],
       watch: ["Watching", "Shows & episodes"],
       read: ["Reading", "Books & manga"],
       calendar: ["Calendar", "Episodes & reminders"],
