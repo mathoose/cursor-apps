@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-24h-changelog-v7 -->
+  <!-- build: hj-activity-log-tab-v8 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -316,6 +316,75 @@
       font-size: 0.75rem;
       white-space: nowrap;
     }
+    .activity-log-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .activity-log-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      border-left: 4px solid var(--border);
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .activity-log-item:first-child {
+      border-radius: 10px 10px 0 0;
+    }
+    .activity-log-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 10px 10px;
+    }
+    .activity-log-item:only-child {
+      border-radius: 10px;
+    }
+    .activity-log-item.add {
+      border-left-color: #16a34a;
+      background: rgba(22, 163, 74, 0.08);
+    }
+    .activity-log-item.erase {
+      border-left-color: #dc2626;
+      background: rgba(220, 38, 38, 0.08);
+    }
+    .activity-log-item .log-main {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    .activity-log-item .log-habit {
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .activity-log-item.add .log-change { color: #15803d; font-weight: 600; }
+    .activity-log-item.erase .log-change { color: #b91c1c; font-weight: 600; }
+    .activity-log-item .log-time {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .activity-log-legend {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .activity-log-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .activity-log-legend .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+    .activity-log-legend .swatch.add { background: #16a34a; }
+    .activity-log-legend .swatch.erase { background: #dc2626; }
     .habit-label-hide-btn {
       flex-shrink: 0;
       padding: 0 2px;
@@ -1522,6 +1591,7 @@
     <section class="panel" id="panelYear" aria-label="Yearly view"></section>
     <section class="panel" id="panelGraph" aria-label="Graph view"></section>
     <section class="panel" id="panelHabits" aria-label="Habits"></section>
+    <section class="panel" id="panelLog" aria-label="Activity log"></section>
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
 
@@ -1593,6 +1663,10 @@
       <button type="button" class="tab" data-tab="graph">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 17V9"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
         Graph
+      </button>
+      <button type="button" class="tab" data-tab="log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Log
       </button>
       <button type="button" class="tab" data-tab="habits">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -2675,6 +2749,57 @@
       });
   }
 
+  function getAllRecentChanges() {
+    const cutoff = Date.now() - CHANGELOG_TTL_MS;
+    return (changeLog.events || [])
+      .filter(function (e) {
+        return e && e.action === "cell" && e.ts > cutoff;
+      })
+      .sort(function (a, b) {
+        return b.ts - a.ts;
+      });
+  }
+
+  function yesnoChangeScore(value) {
+    if (value === null || value === undefined) return 0;
+    if (value === 0) return 1;
+    if (value === YESNO_PROGRESS) return 2;
+    return 3;
+  }
+
+  function getChangeLogKind(entry, habit) {
+    if (!entry || entry.action !== "cell" || !habit) return "neutral";
+    const detail = entry.detail || {};
+    const oldValue = detail.oldValue != null ? detail.oldValue : null;
+    const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "counter") {
+      const delta = (newValue || 0) - (oldValue || 0);
+      if (delta > 0) return "add";
+      return "erase";
+    }
+    const delta = yesnoChangeScore(newValue) - yesnoChangeScore(oldValue);
+    if (delta > 0) return "add";
+    if (delta < 0) return "erase";
+    return "neutral";
+  }
+
+  function formatChangeLogCellSummary(entry, habit) {
+    if (!entry || !habit) return "";
+    const detail = entry.detail || {};
+    const dateLabel = formatChangeLogDate(detail.date);
+    const oldValue = detail.oldValue != null ? detail.oldValue : null;
+    const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "counter") {
+      const delta = (newValue || 0) - (oldValue || 0);
+      if (delta > 0) return dateLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      if (delta < 0) {
+        return dateLabel + ": " + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      }
+      return dateLabel + ": cleared";
+    }
+    return dateLabel + ": " + cellValueLabel(habit, oldValue) + " → " + cellValueLabel(habit, newValue);
+  }
+
   function getLastHabitChange(habitId) {
     const changes = getHabitChanges(habitId);
     return changes.length ? changes[0] : null;
@@ -2821,7 +2946,7 @@
 
   function showFatalError(msg) {
     var html = '<div class="card"><p class="hint">' + escapeHtml(msg) + "</p></div>";
-    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelData"].forEach(function (id) {
+    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelLog", "panelData"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.innerHTML = html;
     });
@@ -3134,6 +3259,10 @@
       renderGraph();
       return;
     }
+    if (activeTab === "log") {
+      renderLog();
+      return;
+    }
     render();
   }
 
@@ -3304,7 +3433,7 @@
   function renderTopNav() {
     const nav = document.getElementById("topNav");
     if (!nav) return;
-    if (activeTab === "habits" || activeTab === "data") {
+    if (activeTab === "habits" || activeTab === "data" || activeTab === "log") {
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
     }
@@ -4153,6 +4282,43 @@
     });
   }
 
+  function renderLog() {
+    const root = document.getElementById("panelLog");
+    if (!root) return;
+    const entries = getAllRecentChanges();
+    let html =
+      '<p class="hint">Additions and erases from the last 24 hours. Older entries drop off automatically.</p>' +
+      '<div class="activity-log-legend">' +
+      '<span><span class="swatch add" aria-hidden="true"></span> Addition</span>' +
+      '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
+      "</div>";
+    if (!entries.length) {
+      html += '<div class="card"><p class="hint">No marks or erases yet. Tap a cell on Month or Year to start logging.</p></div>';
+      root.innerHTML = html;
+      return;
+    }
+    html += '<div class="card"><ul class="activity-log-list">';
+    entries.forEach(function (entry) {
+      const habit = state.habits.find(function (h) { return h.id === entry.habitId; });
+      const habitName = habit ? habit.name : "Removed habit";
+      const kind = getChangeLogKind(entry, habit);
+      const summary = habit ? formatChangeLogCellSummary(entry, habit) : "Updated";
+      html +=
+        '<li class="activity-log-item ' +
+        kind +
+        '">' +
+        '<div class="log-main"><span class="log-habit">' +
+        escapeHtml(habitName) +
+        '</span> · <span class="log-change">' +
+        escapeHtml(summary) +
+        '</span></div><span class="log-time">' +
+        escapeHtml(formatSavedWhen(entry.ts)) +
+        "</span></li>";
+    });
+    html += "</ul></div>";
+    root.innerHTML = html;
+  }
+
   function renderData() {
     const root = document.getElementById("panelData");
     const meta = readMeta() || {};
@@ -4310,7 +4476,7 @@
     reader.readAsText(file);
   });
 
-  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", data: "panelData" };
+  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", log: "panelLog", data: "panelData" };
 
   document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-mode-action]");
@@ -4374,6 +4540,7 @@
       }
       else if (activeTab === "habits") renderHabits();
       else if (activeTab === "graph") renderGraph();
+      else if (activeTab === "log") renderLog();
       else if (activeTab === "data") renderData();
     } catch (err) {
       console.error("Habit Journal render error:", err);
