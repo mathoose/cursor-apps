@@ -99,6 +99,20 @@
     body.edit-mode .app:active .icon-wrap { transform: none; opacity: 1; }
     body.edit-mode .app { pointer-events: none; }
     body.edit-mode .app-hide-btn { pointer-events: auto; }
+    body.edit-mode .app-slot {
+      touch-action: none;
+      cursor: grab;
+    }
+    body.edit-mode .app-slot.dragging {
+      opacity: 0.45;
+      z-index: 3;
+    }
+    body.edit-mode .app-slot.drag-over .icon-wrap {
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.95),
+        0 2px 6px rgba(0,0,0,0.35);
+      transform: scale(1.04);
+    }
     .app {
       display: flex;
       flex-direction: column;
@@ -683,7 +697,7 @@
     <p class="dock-hint">Export skips removed apps automatically. Clean backup file strips old apps from a saved JSON. Delete per-app data under ⓘ → By app.</p>
   </div>
 
-  <p class="hint">Tap to open · long-press or Edit to hide apps · Safari: Share → Add to Home Screen to pin this launcher.</p>
+  <p class="hint">Tap to open · long-press or Edit to hide or reorder apps · Safari: Share → Add to Home Screen to pin this launcher.</p>
   <p class="version" id="homeVersion" aria-label="Launcher version"></p>
 
   <input type="file" id="importAllInput" accept="application/json,.json" />
@@ -782,6 +796,7 @@
   var longPressTimer = null;
   var longPressTarget = null;
   var suppressClickUntil = 0;
+  var dragReorderState = null;
 
   function humanize(slug) {
     return slug.replace(/-/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
@@ -905,6 +920,11 @@
   }
 
   function setEditMode(on) {
+    if (!on && dragReorderState) {
+      if (dragReorderState.slot) dragReorderState.slot.classList.remove("dragging");
+      dragReorderState = null;
+      clearDragOverStates();
+    }
     editMode = !!on;
     document.body.classList.toggle("edit-mode", editMode);
     var btn = document.getElementById("editToggle");
@@ -925,13 +945,17 @@
       "</a>";
     if (editMode && !hiddenSet.has(app.id)) {
       return (
-        '<div class="app-slot">' +
+        '<div class="app-slot" data-app-slot-id="' + escapeHtml(app.id) + '">' +
         '<button type="button" class="app-hide-btn" data-hide-id="' + escapeHtml(app.id) + '" aria-label="Hide ' + escapeHtml(app.name) + '">−</button>' +
         link +
         "</div>"
       );
     }
-    return link;
+    return (
+      '<div class="app-slot" data-app-slot-id="' + escapeHtml(app.id) + '">' +
+      link +
+      "</div>"
+    );
   }
 
   function renderHiddenApps(hiddenSet) {
@@ -1051,7 +1075,7 @@
     document.getElementById("grid").innerHTML = h;
   }
 
-  function orderAppsForGrid(apps) {
+  function defaultOrderApps(apps) {
     var habit = null;
     var rest = [];
     apps.forEach(function (a) {
@@ -1061,6 +1085,147 @@
     rest.sort(function (a, b) { return a.name.localeCompare(b.name); });
     if (!habit || rest.length < 9) return rest.concat(habit ? [habit] : []);
     return rest.slice(0, 9).concat([habit], rest.slice(9));
+  }
+
+  function orderAppsForGrid(apps) {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.getAppOrderIds) {
+      return defaultOrderApps(apps);
+    }
+    var order = AppsBackup.getAppOrderIds();
+    if (!order.length) return defaultOrderApps(apps);
+    var byId = {};
+    apps.forEach(function (a) { byId[a.id] = a; });
+    var result = [];
+    order.forEach(function (id) {
+      if (byId[id]) {
+        result.push(byId[id]);
+        delete byId[id];
+      }
+    });
+    Object.keys(byId)
+      .sort(function (a, b) { return byId[a].name.localeCompare(byId[b].name); })
+      .forEach(function (id) { result.push(byId[id]); });
+    return result;
+  }
+
+  function getFullAppOrder() {
+    var order = [];
+    if (typeof AppsBackup !== "undefined" && AppsBackup.getAppOrderIds) {
+      order = AppsBackup.getAppOrderIds().slice();
+    }
+    if (!order.length) {
+      order = defaultOrderApps(launcherData.apps).map(function (a) { return a.id; });
+    }
+    launcherData.apps.forEach(function (a) {
+      if (order.indexOf(a.id) < 0) order.push(a.id);
+    });
+    return order;
+  }
+
+  function saveFullAppOrder(order) {
+    if (typeof AppsBackup === "undefined" || !AppsBackup.setAppOrderIds) return;
+    AppsBackup.setAppOrderIds(order);
+  }
+
+  function moveVisibleApp(dragId, dropId) {
+    if (!dragId || !dropId || dragId === dropId) return;
+    var hiddenSet = getHiddenSet();
+    var order = getFullAppOrder();
+    var visibleOrder = order.filter(function (id) { return !hiddenSet.has(id); });
+    var fromIdx = visibleOrder.indexOf(dragId);
+    var toIdx = visibleOrder.indexOf(dropId);
+    if (fromIdx < 0 || toIdx < 0) return;
+    visibleOrder.splice(fromIdx, 1);
+    visibleOrder.splice(toIdx, 0, dragId);
+    var vi = 0;
+    var newOrder = order.map(function (id) {
+      if (hiddenSet.has(id)) return id;
+      return visibleOrder[vi++];
+    });
+    saveFullAppOrder(newOrder);
+  }
+
+  function clearDragOverStates() {
+    document.querySelectorAll(".app-slot.drag-over").forEach(function (el) {
+      el.classList.remove("drag-over");
+    });
+  }
+
+  function slotFromPoint(x, y) {
+    var el = document.elementFromPoint(x, y);
+    return el ? el.closest("[data-app-slot-id]") : null;
+  }
+
+  function bindEditReorder() {
+    document.querySelectorAll(".app-slot[data-app-slot-id]").forEach(function (slot) {
+      if (slot.dataset.reorderBound) return;
+      slot.dataset.reorderBound = "1";
+
+      function canStartReorder(target) {
+        return editMode && !target.closest(".app-hide-btn");
+      }
+
+      function endReorder() {
+        if (!dragReorderState) return;
+        var state = dragReorderState;
+        dragReorderState = null;
+        state.slot.classList.remove("dragging");
+        clearDragOverStates();
+        if (state.pointerId != null && state.slot.releasePointerCapture) {
+          try { state.slot.releasePointerCapture(state.pointerId); } catch (e) {}
+        }
+        if (state.dropId && state.dropId !== state.dragId) {
+          moveVisibleApp(state.dragId, state.dropId);
+          renderLauncher();
+        }
+      }
+
+      slot.addEventListener("pointerdown", function (e) {
+        if (!canStartReorder(e.target)) return;
+        dragReorderState = {
+          dragId: slot.getAttribute("data-app-slot-id"),
+          dropId: null,
+          slot: slot,
+          pointerId: e.pointerId,
+          active: false,
+        };
+        if (slot.setPointerCapture) slot.setPointerCapture(e.pointerId);
+      });
+
+      slot.addEventListener("pointermove", function (e) {
+        if (!dragReorderState || dragReorderState.slot !== slot || e.pointerId !== dragReorderState.pointerId) return;
+        if (!editMode) {
+          endReorder();
+          return;
+        }
+        if (!dragReorderState.active) {
+          dragReorderState.active = true;
+          slot.classList.add("dragging");
+        }
+        var over = slotFromPoint(e.clientX, e.clientY);
+        clearDragOverStates();
+        if (over && over !== slot) {
+          over.classList.add("drag-over");
+          dragReorderState.dropId = over.getAttribute("data-app-slot-id");
+        } else {
+          dragReorderState.dropId = null;
+        }
+      });
+
+      slot.addEventListener("pointerup", function (e) {
+        if (!dragReorderState || dragReorderState.slot !== slot || e.pointerId !== dragReorderState.pointerId) return;
+        if (!dragReorderState.active) {
+          dragReorderState = null;
+          return;
+        }
+        endReorder();
+      });
+
+      slot.addEventListener("pointercancel", function (e) {
+        if (!dragReorderState || dragReorderState.slot !== slot || e.pointerId !== dragReorderState.pointerId) return;
+        endReorder();
+      });
+    });
   }
 
   function renderLauncher() {
@@ -1085,6 +1250,7 @@
     }).join("");
     bindIconFallbacks();
     bindLongPressHide();
+    bindEditReorder();
     renderHiddenApps(hiddenSet);
   }
 
@@ -1116,6 +1282,15 @@
     var pruned = AppsBackup.getHiddenAppIds().filter(function (id) { return known[id]; });
     if (pruned.length !== AppsBackup.getHiddenAppIds().length) {
       AppsBackup.setHiddenAppIds(pruned);
+    }
+    if (AppsBackup.getAppOrderIds && AppsBackup.setAppOrderIds) {
+      var order = AppsBackup.getAppOrderIds().filter(function (id) { return known[id]; });
+      launcherData.apps.forEach(function (a) {
+        if (order.indexOf(a.id) < 0) order.push(a.id);
+      });
+      if (order.join("|") !== AppsBackup.getAppOrderIds().join("|")) {
+        AppsBackup.setAppOrderIds(order);
+      }
     }
   }
 
