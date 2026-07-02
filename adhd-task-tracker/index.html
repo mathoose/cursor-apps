@@ -531,10 +531,8 @@
   .matrix {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
     gap: 8px;
-    min-height: calc(100vh - 270px);
-    min-height: calc(100dvh - 270px);
+    align-items: start;
   }
   .quadrant {
     background: var(--surface);
@@ -542,8 +540,16 @@
     border-radius: var(--radius);
     padding: 10px;
     display: flex; flex-direction: column;
-    min-height: 200px;
     overflow: hidden;
+    min-width: 0;
+  }
+  .quadrant.q1,
+  .quadrant.q2 {
+    height: clamp(140px, 32vh, 220px);
+  }
+  .quadrant.q3,
+  .quadrant.q4 {
+    max-height: clamp(160px, 38vh, 320px);
   }
   .quadrant.q1 { border-color: var(--q1-border); background: var(--q1-soft); }
   .quadrant.q2 { border-color: var(--q2-border); background: var(--q2-soft); }
@@ -2311,6 +2317,8 @@ function getTaskThumbUrl(taskId) {
 
 function isUrgent(task) {
   if (task.urgent !== null && task.urgent !== undefined) return task.urgent;
+  // Low priority is never auto-urgent — stays in not-important quadrants
+  if (task.priority === 1) return false;
   // Auto: due today or overdue
   if (!task.dueDate) return false;
   return diffDays(task.dueDate) <= 0;
@@ -2318,7 +2326,9 @@ function isUrgent(task) {
 
 function isImportant(task) {
   if (task.important !== null && task.important !== undefined) return task.important;
-  // Auto: priority medium or high
+  // Low priority → not important (bottom-right / delegate quadrants)
+  if (task.priority === 1) return false;
+  // Medium or high → important
   return task.priority >= 2;
 }
 
