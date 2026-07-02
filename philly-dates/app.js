@@ -2066,7 +2066,9 @@ function renderGridView() {
   if (tagF && tagF !== 'all') summaryParts.push('tag <strong>' + escapeHtml(tagLabel(tagF)) + '</strong>');
   if (getNeverTriedFilter()) summaryParts.push('<strong>never tried</strong>');
   document.getElementById('summary').innerHTML = summaryParts.join(' · ')
-    + (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
+    + (activeNow.length ? ': ' + activeNow.map(function(r) {
+      return '<button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</button>';
+    }).join(', ') : '');
   const thead = document.querySelector('#grid thead');
   thead.innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
     slots.map(t => {
@@ -2085,6 +2087,10 @@ function renderGridView() {
   }).join('');
 }
 document.querySelector('#grid tbody').addEventListener('click', e => {
+  const btn = e.target.closest('.rest-link');
+  if (btn) openModal(btn.dataset.name);
+});
+document.getElementById('summary').addEventListener('click', e => {
   const btn = e.target.closest('.rest-link');
   if (btn) openModal(btn.dataset.name);
 });

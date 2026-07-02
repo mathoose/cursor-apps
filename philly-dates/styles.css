@@ -247,6 +247,10 @@ main { padding: 12px; max-width: 900px; margin: 0 auto; }
   line-height: 1.45;
 }
 .summary strong { color: var(--cell-active); }
+.summary .rest-link {
+  display: inline;
+  white-space: normal;
+}
 .grid-wrap {
   overflow: auto;
   max-height: calc(100dvh - 280px);
