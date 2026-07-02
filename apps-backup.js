@@ -22,6 +22,7 @@
     "shopping-list": "Our Groceries",
     "world-cup-2026": "World Cup",
     "times-tables": "Times Tables",
+    "things-book": "Things Book",
   };
 
   var PHOTO_DATABASES = [
@@ -31,6 +32,7 @@
     { appId: "adhd-task-tracker", db: "adhd-tracker-photos-v1", store: "photos" },
     { appId: "process-guide", db: "process-guide-photos-v1", store: "photos" },
     { appId: "philly-dates", db: "philly-dates-menu-photos-v1", store: "menus" },
+    { appId: "things-book", db: "things-book-photos-v1", store: "photos" },
   ];
 
   var EXTRA_JSON_KEYS = {
@@ -636,6 +638,72 @@
           return new Date(a.date) - new Date(b.date);
         });
         return out;
+      },
+    },
+    "things-book": {
+      storageKey: "things-book-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("things-book-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.lists)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.lists)) return false;
+        return writeKey("things-book-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.lists) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var lists = slice.lists ? slice.lists.length : 0;
+        var items = slice.items ? slice.items.length : 0;
+        return lists + " list" + (lists === 1 ? "" : "s") + ", " + items + " thing" + (items === 1 ? "" : "s") + " (no photos)";
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var listIds = {};
+        var tagIds = {};
+        var itemIds = {};
+        var lists = (existing.lists || []).slice();
+        var tags = (existing.tags || []).slice();
+        var items = (existing.items || []).slice();
+        var tagFilters = Object.assign({}, existing.tagFilters || {});
+        lists.forEach(function (l) { listIds[l.id] = true; });
+        tags.forEach(function (t) { tagIds[t.id] = true; });
+        items.forEach(function (it) { itemIds[it.id] = true; });
+        (incoming.lists || []).forEach(function (l) {
+          if (!l || !l.id || listIds[l.id]) return;
+          lists.push(l);
+          listIds[l.id] = true;
+        });
+        (incoming.tags || []).forEach(function (t) {
+          if (!t || !t.id || tagIds[t.id]) return;
+          tags.push(t);
+          tagIds[t.id] = true;
+        });
+        (incoming.items || []).forEach(function (it) {
+          if (!it || !it.id || itemIds[it.id]) return;
+          items.push(it);
+          itemIds[it.id] = true;
+        });
+        Object.keys(incoming.tagFilters || {}).forEach(function (k) {
+          if (!tagFilters[k]) tagFilters[k] = incoming.tagFilters[k];
+        });
+        return {
+          version: 1,
+          lists: lists,
+          tags: tags,
+          items: items,
+          tagFilters: tagFilters,
+        };
       },
     },
   };
