@@ -135,8 +135,8 @@
       min-width: min-content;
     }
     .month-grid .corner {
-      width: 108px;
-      min-width: 108px;
+      width: 132px;
+      min-width: 132px;
       position: sticky;
       left: 0;
       z-index: 4;
@@ -189,8 +189,8 @@
       z-index: 3;
       background: rgba(255, 255, 255, 0.94);
       box-shadow: 4px 0 8px rgba(44, 36, 25, 0.06);
-      max-width: 108px;
-      min-width: 108px;
+      max-width: 132px;
+      min-width: 132px;
     }
     .habit-label-row {
       display: flex;
@@ -280,14 +280,6 @@
       width: 100%;
       min-height: 0;
       padding-left: 0;
-    }
-    .habit-label-recent {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.5625rem;
-      font-weight: 600;
-      color: var(--muted);
-      line-height: 1.15;
     }
     .habit-recent-log {
       list-style: none;
@@ -2230,7 +2222,6 @@
         '">Hide</button>';
       html += "</div>";
     }
-    html += renderHabitRecentActivityHtml(habit);
     html += "</div>";
     html += "</div>";
     html += "</div>";
@@ -2905,32 +2896,6 @@
     return detail.summary || "Updated";
   }
 
-  function renderHabitRecentActivityHtml(habit) {
-    const last = getLastHabitChange(habit.id);
-    if (!last) return "";
-    const summary = formatChangeLogEntry(last, habit);
-    return (
-      '<div class="habit-label-meta habit-label-recent-wrap">' +
-      '<span class="habit-label-recent">' +
-      escapeHtml(formatSavedWhen(last.ts) + " · " + summary) +
-      "</span>" +
-      "</div>"
-    );
-  }
-
-  function refreshHabitRecentActivity(habitId) {
-    const habit = state.habits.find(function (h) { return h.id === habitId; });
-    if (!habit) return;
-    const label = document.querySelector('#panelMonth .habit-label[data-habit-row="' + habitId + '"]');
-    if (!label) return;
-    const existing = label.querySelector(".habit-label-recent-wrap");
-    const html = renderHabitRecentActivityHtml(habit);
-    if (existing) existing.remove();
-    if (!html) return;
-    const textWrap = label.querySelector(".habit-label-text");
-    if (textWrap) textWrap.insertAdjacentHTML("beforeend", html);
-  }
-
   function renderHabitEditChangeLog(habitId) {
     const list = document.getElementById("habitEditRecentLog");
     const empty = document.getElementById("habitEditRecentEmpty");
@@ -3285,10 +3250,7 @@
       document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
     if (btn) {
       refreshCellButton(btn);
-      if (activeTab === "month") {
-        refreshHabitRecentActivity(habitId);
-        return;
-      }
+      if (activeTab === "month") return;
       if (activeTab === "year" && yearFullscreenHabitId) return;
     }
     if (activeTab === "month") {
@@ -3638,7 +3600,7 @@
       bindMonthHabitHide(root);
       return;
     }
-    let cols = "108px";
+    let cols = "132px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
     html += '<div class="card scroll-x month-scroll"><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
@@ -3674,7 +3636,7 @@
           monthGridScrolledToToday = true;
           const grid = scroller.querySelector(".month-grid");
           const offset = todayHead.offsetLeft - (scroller.clientWidth - todayHead.offsetWidth) / 2;
-          scroller.scrollLeft = Math.max(0, offset - 108);
+          scroller.scrollLeft = Math.max(0, offset - 132);
         }
       }
     }
