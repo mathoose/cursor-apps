@@ -428,6 +428,89 @@
     cursor: pointer;
   }
   .pill.link:active { opacity: 0.75; }
+  .task-edit-btn {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-top: -2px;
+  }
+  .task-edit-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-edit-btn:active { background: var(--surface-2); color: var(--accent); }
+  .mtask-edit-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .mtask-edit-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .category-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .category-picker select { flex: 1; min-width: 0; }
+  .category-add-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .category-add-btn:active { background: var(--accent-soft); }
+  .category-new-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .category-new-row input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    background: var(--surface);
+    outline: none;
+  }
+  .category-new-row input:focus { border-color: var(--accent); }
 
   .empty {
     text-align: center;
@@ -1496,8 +1579,8 @@
         <input type="text" id="taskTitleInput" placeholder="Task title" autocomplete="off">
       </div>
       <div class="field">
-        <label class="field-label">Notes</label>
-        <textarea id="taskNotesInput" placeholder="Add notes…"></textarea>
+        <label class="field-label">Description</label>
+        <textarea id="taskNotesInput" placeholder="Add a description…"></textarea>
       </div>
       <div class="field">
         <label class="field-label">Link</label>
@@ -1552,8 +1635,15 @@
         </div>
       </div>
       <div class="field">
-        <label class="field-label">List</label>
-        <select id="taskListSelect"></select>
+        <label class="field-label">Category</label>
+        <div class="category-picker">
+          <select id="taskListSelect"></select>
+          <button type="button" class="category-add-btn" id="taskCategoryAddBtn" aria-label="Add category">+</button>
+        </div>
+        <div class="category-new-row" id="taskCategoryNewRow" hidden>
+          <input type="text" id="taskCategoryNewInput" placeholder="New category name" autocomplete="off">
+          <button type="button" class="btn btn-primary" id="taskCategoryNewSave">Add</button>
+        </div>
       </div>
       <div class="field">
         <label class="field-label">Subtasks</label>
@@ -1962,21 +2052,33 @@ function getTaskLinkUrl(task) {
   return extractFirstUrl(task.notes);
 }
 
-function appendTaskTitle(parent, task, titleClass) {
+function appendTaskTitle(parent, task, titleClass, opts) {
+  opts = opts || {};
+  parent.appendChild(el('div', { class: titleClass, text: task.title }));
+}
+
+function appendTaskLinkPill(meta, task) {
   const linkUrl = getTaskLinkUrl(task);
-  if (linkUrl) {
-    parent.appendChild(el('a', {
-      class: titleClass + ' task-title-link',
-      text: task.title,
-      href: linkUrl,
-      target: '_blank',
-      rel: 'noopener noreferrer',
-      title: 'Open ' + linkDisplayLabel(linkUrl),
-      onClick: (e) => e.stopPropagation()
-    }));
-  } else {
-    parent.appendChild(el('div', { class: titleClass, text: task.title }));
-  }
+  if (!linkUrl) return;
+  meta.appendChild(el('a', {
+    class: 'pill link',
+    text: '🔗 ' + linkDisplayLabel(linkUrl),
+    href: linkUrl,
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'Open ' + linkDisplayLabel(linkUrl),
+    onClick: (e) => e.stopPropagation()
+  }));
+}
+
+function taskEditButton(className, onEdit) {
+  return el('button', {
+    class: className,
+    type: 'button',
+    'aria-label': 'Edit task',
+    html: '<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+    onClick: (e) => { e.stopPropagation(); onEdit(); }
+  });
 }
 
 function normalizeTask(t) {
@@ -2353,11 +2455,7 @@ function renderTaskRow(task, opts) {
   const overdue = task.dueDate && !task.completed && diffDays(task.dueDate) < 0;
   const row = el('div', {
     class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : ''),
-    dataset: { id: task.id },
-    onClick: (e) => {
-      if (e.target.closest('.task-check') || e.target.closest('.task-title-link')) return;
-      openTaskEditor(task.id);
-    }
+    dataset: { id: task.id }
   });
   const check = el('div', {
     class: 'task-check' + (task.ams ? ' ams' : ' ' + priorityClass(task.priority)),
@@ -2391,8 +2489,10 @@ function renderTaskRow(task, opts) {
   if (task.hasPhoto) {
     meta.appendChild(el('span', { class: 'pill photo', text: '📷' }));
   }
+  appendTaskLinkPill(meta, task);
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
+  row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
   return row;
 }
 
@@ -2527,11 +2627,7 @@ function renderMatrixTask(task) {
   const node = el('div', {
     class: 'mtask' + (task.completed ? ' completed' : ''),
     dataset: { id: task.id },
-    draggable: 'true',
-    onClick: (e) => {
-      if (e.target.closest('.mtask-check') || e.target.closest('.task-title-link')) return;
-      openTaskEditor(task.id);
-    }
+    draggable: 'true'
   });
   const check = el('div', {
     class: 'mtask-check',
@@ -2544,6 +2640,7 @@ function renderMatrixTask(task) {
     node.appendChild(amsWrap);
   }
   appendTaskTitle(node, task, 'mtask-title');
+  node.appendChild(taskEditButton('mtask-edit-btn', () => openTaskEditor(task.id)));
 
   // Drag (desktop / touch)
   node.addEventListener('dragstart', (e) => {
@@ -2826,9 +2923,48 @@ function renderInbox() {
   container.appendChild(list);
 }
 
-// ============================================================================
-// TASK EDITOR
-// ============================================================================
+function renderTaskCategorySelect() {
+  const listSel = document.getElementById('taskListSelect');
+  if (!listSel || !editingTaskDraft) return;
+  listSel.innerHTML = '';
+  state.lists.forEach(l => {
+    const opt = el('option', { value: l.id, text: l.name });
+    if (l.id === editingTaskDraft.listId) opt.selected = true;
+    listSel.appendChild(opt);
+  });
+}
+
+function hideTaskCategoryNewRow() {
+  const row = document.getElementById('taskCategoryNewRow');
+  const input = document.getElementById('taskCategoryNewInput');
+  if (row) row.hidden = true;
+  if (input) input.value = '';
+}
+
+function saveTaskCategoryNew() {
+  const input = document.getElementById('taskCategoryNewInput');
+  if (!input || !editingTaskDraft) return;
+  const name = input.value.trim();
+  if (!name) {
+    showToast('Enter a category name', { error: true });
+    input.focus();
+    return;
+  }
+  const existing = state.lists.find(l => l.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    editingTaskDraft.listId = existing.id;
+    renderTaskCategorySelect();
+    hideTaskCategoryNewRow();
+    return;
+  }
+  const id = addList(name, { silent: true });
+  if (!id) return;
+  editingTaskDraft.listId = id;
+  renderTaskCategorySelect();
+  hideTaskCategoryNewRow();
+  showToast('Added category: ' + name);
+}
+
 function openTaskEditor(taskId) {
   editingTaskId = taskId;
   pendingNewTaskPhotoBlob = null;
@@ -2849,15 +2985,8 @@ function openTaskEditor(taskId) {
   document.getElementById('taskAmsInput').checked = !!editingTaskDraft.ams;
   updateTaskLinkOpenButton();
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
-
-  // List select
-  const listSel = document.getElementById('taskListSelect');
-  listSel.innerHTML = '';
-  state.lists.forEach(l => {
-    const opt = el('option', { value: l.id, text: l.name });
-    if (l.id === editingTaskDraft.listId) opt.selected = true;
-    listSel.appendChild(opt);
-  });
+  hideTaskCategoryNewRow();
+  renderTaskCategorySelect();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
@@ -3169,16 +3298,23 @@ function moveList(index, direction) {
   render();
 }
 
-function addList(name) {
+function addList(name, opts) {
+  opts = opts || {};
   name = (name || '').trim();
   if (!name) {
-    showToast('Enter a list name', { error: true });
-    return;
+    if (!opts.silent) showToast('Enter a list name', { error: true });
+    return null;
+  }
+  const existing = state.lists.find(l => l.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    if (!opts.silent) showToast('Category already exists', { error: true });
+    return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
   state.lists.push({ id, name });
   saveState();
-  showToast('Added list: ' + name);
+  if (!opts.silent) showToast('Added list: ' + name);
+  return id;
 }
 
 // ============================================================================
@@ -4158,6 +4294,21 @@ function wireTaskEditor() {
   });
   document.getElementById('taskListSelect').addEventListener('change', (e) => {
     editingTaskDraft.listId = e.target.value;
+  });
+  document.getElementById('taskCategoryAddBtn').addEventListener('click', () => {
+    const row = document.getElementById('taskCategoryNewRow');
+    const input = document.getElementById('taskCategoryNewInput');
+    if (!row || !input) return;
+    row.hidden = !row.hidden;
+    if (!row.hidden) {
+      input.value = '';
+      setTimeout(() => input.focus(), 50);
+    }
+  });
+  document.getElementById('taskCategoryNewSave').addEventListener('click', saveTaskCategoryNew);
+  document.getElementById('taskCategoryNewInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveTaskCategoryNew();
+    if (e.key === 'Escape') hideTaskCategoryNewRow();
   });
 
   // Priority
