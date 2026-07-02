@@ -767,6 +767,7 @@
     }
 
     document.getElementById('newTagInput').value = '';
+    document.getElementById('photoPickHint').hidden = !!editId;
     renderItemTagChips();
     overlay.hidden = false;
     titleInput.focus();
@@ -911,7 +912,21 @@
     });
   }
 
-  function handlePhotoInput(file) {
+  function titleFromFilename(name) {
+    if (!name) return 'Untitled';
+    var base = String(name).replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+    return base || 'Untitled';
+  }
+
+  function handlePhotoFiles(files) {
+    if (!files || !files.length) return;
+
+    if (!ui.editingItemId && files.length > 1) {
+      batchAddItems(files);
+      return;
+    }
+
+    var file = files[0];
     if (!file || !isValidImageFile(file)) {
       showToast('Please choose an image');
       return;
@@ -927,6 +942,53 @@
       updateItemSaveBtn();
     }).catch(function () {
       showToast('Could not process image');
+    });
+  }
+
+  function batchAddItems(files) {
+    var listId = ui.activeListId;
+    if (!listId) return;
+
+    var st = getState();
+    var itemIds = [];
+    files.forEach(function (file) {
+      if (!isValidImageFile(file)) return;
+      var itemId = newId('item');
+      itemIds.push({ id: itemId, file: file });
+      st.items.unshift({
+        id: itemId,
+        listId: listId,
+        title: titleFromFilename(file.name),
+        notes: '',
+        tagIds: [],
+        createdAt: new Date().toISOString()
+      });
+    });
+
+    if (!itemIds.length) {
+      showToast('No valid images selected');
+      return;
+    }
+
+    saveState(st);
+    closeItemSheet();
+
+    Promise.all(itemIds.map(function (row) {
+      return preparePhotoBlob(row.file).then(function (blob) {
+        return putPhoto(row.id, blob);
+      });
+    })).then(function () {
+      showToast('Added ' + itemIds.length + ' thing' + (itemIds.length === 1 ? '' : 's'));
+      ui.swipeIndex = 0;
+      if (ui.view === 'list') {
+        renderTagFilters();
+        renderSwipeView();
+      }
+      renderHome();
+    }).catch(function () {
+      showToast('Could not save some photos');
+      renderHome();
+      if (ui.view === 'list') renderSwipeView();
     });
   }
 
@@ -1104,12 +1166,13 @@
     });
 
     document.getElementById('photoPickBtn').addEventListener('click', function () {
-      document.getElementById('photoInput').click();
-    });
-
-    document.getElementById('photoInput').addEventListener('change', function () {
-      if (this.files && this.files[0]) handlePhotoInput(this.files[0]);
-      this.value = '';
+      if (typeof AppsPhotoPicker === 'undefined') return;
+      AppsPhotoPicker.prompt({
+        title: ui.editingItemId ? 'Replace photo' : 'Add photo',
+        multiple: !ui.editingItemId,
+        onFiles: handlePhotoFiles,
+        onInvalid: function () { showToast('Please choose an image'); }
+      });
     });
 
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);

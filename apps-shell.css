@@ -68,3 +68,71 @@
 body.has-bottom-nav .app-version {
   bottom: calc(56px + env(safe-area-inset-bottom, 0px));
 }
+
+/* Shared photo picker (apps-photo-picker.js) */
+.apps-photo-choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+.apps-photo-choice-sheet {
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 8px 16px max(20px, env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 32px rgba(15, 23, 42, 0.12);
+  animation: appsPhotoSheetUp 0.22s ease;
+}
+@keyframes appsPhotoSheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.apps-photo-choice-handle {
+  width: 36px;
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 2px;
+  margin: 4px auto 12px;
+}
+.apps-photo-choice-title {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.apps-photo-choice-btn,
+.apps-photo-choice-cancel {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-family: inherit;
+}
+.apps-photo-choice-btn {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.apps-photo-choice-btn:active {
+  background: #dbeafe;
+}
+.apps-photo-choice-cancel {
+  background: #f1f5f9;
+  color: #64748b;
+  margin-bottom: 0;
+}
+.apps-photo-choice-cancel:active {
+  background: #e2e8f0;
+}

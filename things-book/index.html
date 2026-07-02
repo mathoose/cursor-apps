@@ -65,8 +65,6 @@
     </section>
   </main>
 
-  <input type="file" id="photoInput" accept="image/*,.heic,.heif" capture="environment" hidden />
-
   <!-- New list sheet -->
   <div class="overlay" id="listSheetOverlay" role="dialog" aria-modal="true" hidden>
     <div class="sheet">
@@ -96,9 +94,10 @@
         <img id="itemPhotoPreview" alt="" hidden />
         <span class="photo-pick-placeholder" id="photoPickPlaceholder">
           <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Add photo
+          Tap to add photo
         </span>
       </button>
+      <p class="photo-pick-hint" id="photoPickHint">Choose from Photos (multi-select) or take a new one</p>
       <div class="field">
         <label class="field-label" for="itemTitleInput">Title</label>
         <input type="text" id="itemTitleInput" placeholder="e.g. Benchy" maxlength="80" autocomplete="off" enterkeyhint="next" />
@@ -174,7 +173,8 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

@@ -4112,6 +4112,23 @@
     });
   }
 
+  function openWardrobePhotoPicker(target) {
+    if (typeof AppsPhotoPicker === "undefined") {
+      pendingPhoto = target;
+      document.getElementById("fileInput").click();
+      return;
+    }
+    AppsPhotoPicker.prompt({
+      title: "Add wardrobe photo",
+      multiple: false,
+      onFiles: function (files) {
+        if (!files.length) return;
+        savePhotoForSlot(target, files[0]);
+      },
+      onInvalid: function () { toast("Please choose an image"); },
+    });
+  }
+
   function gridDisplayName(id) {
     const cat = CATALOG[id];
     if (cat && cat.gridLabel) return cat.gridLabel;
@@ -5003,8 +5020,7 @@
             : gridDisplayName(itemId) + " · #" + (index + 1);
           openPhotoViewer(itemId, index, caption);
         } else {
-          pendingPhoto = { itemId: itemId, slot: index };
-          document.getElementById("fileInput").click();
+          openWardrobePhotoPicker({ itemId: itemId, slot: index });
         }
       };
     });
@@ -6919,9 +6935,9 @@
   document.getElementById("viewerClose").onclick = closePhotoViewer;
   document.getElementById("viewerReplace").onclick = function () {
     if (!viewerPhoto) return;
-    pendingPhoto = { itemId: viewerPhoto.itemId, slot: viewerPhoto.slot };
+    const target = { itemId: viewerPhoto.itemId, slot: viewerPhoto.slot };
     closePhotoViewer();
-    document.getElementById("fileInput").click();
+    openWardrobePhotoPicker(target);
   };
   document.getElementById("viewerDelete").onclick = function () {
     if (!viewerPhoto) return;
@@ -7087,6 +7103,7 @@
 })();
   </script>
   <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

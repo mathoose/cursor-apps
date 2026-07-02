@@ -21,6 +21,7 @@ Before `</body>`:
 
 ```html
 <script src="../apps-backup.js"></script>
+<script src="../apps-photo-picker.js"></script>
 <script src="../apps-shell.js" defer></script>
 ```
 
@@ -28,6 +29,45 @@ Before `</body>`:
 6. Push to `main` — the home page auto-discovers new folders on GitHub Pages.
 
 The launcher lists every folder that contains `index.html`. `apps.json` only customizes the display name.
+
+## Photo picker (gallery + camera)
+
+Whenever an app lets the user add a photo, **always offer both** “Choose from Photos” (gallery) and “Take Photo” (camera). Do not use a single `<input capture="environment">` as the only option.
+
+Include **`apps-photo-picker.js`** (after `apps-backup.js`, before your app script). Styles ship in **`apps-shell.css`**.
+
+**Action sheet** (one tap target, e.g. a photo area or “Add photo” button):
+
+```javascript
+AppsPhotoPicker.prompt({
+  title: "Add photo",
+  multiple: false, // true to allow multi-select from gallery only
+  onFiles: function (files) { /* handle File[] */ },
+  onInvalid: function () { /* not an image */ }
+});
+```
+
+**Inline buttons** (two visible buttons):
+
+```html
+<button type="button" id="photo-library">Choose from Photos</button>
+<button type="button" id="photo-camera">Take Photo</button>
+<input type="file" id="photo-library-file" accept="image/*,.heic,.heif" hidden>
+<input type="file" id="photo-camera-file" accept="image/*" capture="environment" hidden>
+```
+
+```javascript
+AppsPhotoPicker.bind({
+  libraryInput: document.getElementById("photo-library-file"),
+  cameraInput: document.getElementById("photo-camera-file"),
+  libraryBtn: document.getElementById("photo-library"),
+  cameraBtn: document.getElementById("photo-camera"),
+  multiple: false,
+  onFiles: function (files) { /* ... */ }
+});
+```
+
+Gallery inputs may use `multiple` for batch adds; camera stays single-photo.
 
 ## Version numbers
 

@@ -1272,11 +1272,13 @@ function renderEditMode(r) {
     + '<div class="menu-photo-edit"><label>Menu photo</label>'
     + '<div id="edit-menu-photo-preview"></div>'
     + '<div class="menu-photo-actions">'
-    + '<button type="button" class="btn-secondary" id="menu-photo-pick">Add menu photo</button>'
+    + '<button type="button" class="btn-secondary" id="menu-photo-library">Choose from Photos</button>'
+    + '<button type="button" class="btn-secondary" id="menu-photo-camera">Take Photo</button>'
     + '<button type="button" class="btn-secondary" id="menu-photo-remove" hidden>Remove photo</button>'
     + '</div>'
-    + '<input type="file" id="menu-photo-file" accept="image/*" capture="environment" hidden>'
-    + '<p class="menu-photo-hint">Saved on this device only — snap the HH menu when you have it.</p></div>'
+    + '<input type="file" id="menu-photo-file" accept="image/*,.heic,.heif" hidden>'
+    + '<input type="file" id="menu-photo-camera-file" accept="image/*" capture="environment" hidden>'
+    + '<p class="menu-photo-hint">Saved on this device only — gallery or camera.</p></div>'
     + '<label>Happy hour times (leave blank if none that day)</label>'
     + '<table class="hh-grid"><thead><tr><th>Day</th><th>Start</th><th>End</th><th>Copy prev</th></tr></thead><tbody>' + rows + '</tbody></table>'
     + '<div class="edit-actions">'
@@ -1296,9 +1298,11 @@ function renderEditMode(r) {
 
 function wireMenuPhotoEdit(name) {
   var fileInp = document.getElementById('menu-photo-file');
-  var pickBtn = document.getElementById('menu-photo-pick');
+  var cameraInp = document.getElementById('menu-photo-camera-file');
+  var libraryBtn = document.getElementById('menu-photo-library');
+  var cameraBtn = document.getElementById('menu-photo-camera');
   var removeBtn = document.getElementById('menu-photo-remove');
-  if (!fileInp || !pickBtn) return;
+  if (!fileInp || !libraryBtn) return;
   function currentName() {
     if (addingNewPlace) {
       var el = document.getElementById('edit-name');
@@ -1326,10 +1330,7 @@ function wireMenuPhotoEdit(name) {
       if (removeBtn) removeBtn.hidden = false;
     });
   }
-  pickBtn.onclick = function() { fileInp.click(); };
-  fileInp.onchange = function() {
-    var f = fileInp.files && fileInp.files[0];
-    fileInp.value = '';
+  function handleMenuPhotoFile(f) {
     var n = currentName();
     if (!f) return;
     if (!n) { alert('Enter the place name first.'); return; }
@@ -1341,7 +1342,24 @@ function wireMenuPhotoEdit(name) {
     }).catch(function() {
       showError('Could not save menu photo.');
     });
-  };
+  }
+  if (typeof AppsPhotoPicker !== 'undefined') {
+    AppsPhotoPicker.bind({
+      libraryInput: fileInp,
+      cameraInput: cameraInp,
+      libraryBtn: libraryBtn,
+      cameraBtn: cameraBtn,
+      onFiles: function(files) { handleMenuPhotoFile(files[0]); },
+      onInvalid: function() { showError('Please choose an image.'); }
+    });
+  } else {
+    libraryBtn.onclick = function() { fileInp.click(); };
+    fileInp.onchange = function() {
+      var f = fileInp.files && fileInp.files[0];
+      fileInp.value = '';
+      handleMenuPhotoFile(f);
+    };
+  }
   if (removeBtn) {
     removeBtn.onclick = function() {
       var n = currentName();

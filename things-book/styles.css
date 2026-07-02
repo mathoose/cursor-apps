@@ -495,6 +495,14 @@ main { padding: 0 16px 16px; }
   stroke-width: 1.5;
 }
 
+.photo-pick-hint {
+  margin: -6px 0 14px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.4;
+}
+
 .tag-chips-edit {
   display: flex;
   flex-wrap: wrap;
