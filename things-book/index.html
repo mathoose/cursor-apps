@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Things Book</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Things Book" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-home">
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <button type="button" class="icon-btn" id="backBtn" hidden aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="header-title-block">
+        <h1 class="view-title" id="headerTitle">Things Book</h1>
+        <p class="view-subtitle" id="headerSubtitle">Your collections</p>
+      </div>
+      <button type="button" class="btn btn-header" id="createListBtn">Create</button>
+      <button type="button" class="btn btn-header" id="addItemBtn" hidden>+ Add</button>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+    <div class="tag-filters-wrap" id="tagFiltersWrap" hidden>
+      <div class="tag-filters" id="tagFilters" role="group" aria-label="Filter by tag"></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" id="viewHome" data-view="home">
+      <div class="home-intro">
+        <p>Keep track of things with photos. Create lists, swipe through stacks, and filter by tags.</p>
+      </div>
+      <div class="list-feed" id="listFeed"></div>
+      <div class="empty-state" id="homeEmpty" hidden>
+        <p>No lists yet.<br />Tap <strong>Create</strong> to start your first collection.</p>
+      </div>
+    </section>
+
+    <section class="view" id="viewList" data-view="list" hidden>
+      <div class="swipe-area" id="swipeArea">
+        <div class="swipe-card-wrap" id="swipeCardWrap"></div>
+        <div class="swipe-nav" id="swipeNav">
+          <button type="button" class="swipe-nav-btn" id="swipePrev" aria-label="Previous">‹</button>
+          <span class="swipe-counter" id="swipeCounter">0 of 0</span>
+          <button type="button" class="swipe-nav-btn" id="swipeNext" aria-label="Next">›</button>
+        </div>
+      </div>
+      <div class="list-empty" id="listEmpty" hidden>
+        <p>No items match this filter.</p>
+        <button type="button" class="btn btn-primary" id="listEmptyAddBtn">+ Add first thing</button>
+      </div>
+    </section>
+  </main>
+
+  <input type="file" id="photoInput" accept="image/*,.heic,.heif" capture="environment" hidden />
+
+  <!-- New list sheet -->
+  <div class="overlay" id="listSheetOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="listSheetTitle">New list</h2>
+      <div class="field">
+        <label class="field-label" for="listTitleInput">List name</label>
+        <input type="text" id="listTitleInput" placeholder="e.g. 3D Prints" maxlength="48" autocomplete="off" enterkeyhint="done" />
+      </div>
+      <div class="field">
+        <label class="field-label">Color</label>
+        <div class="color-picks" id="colorPicks"></div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="listSheetCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="listSheetSave" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / edit item sheet -->
+  <div class="overlay" id="itemSheetOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet sheet-tall">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="itemSheetTitle">Add thing</h2>
+      <button type="button" class="photo-pick" id="photoPickBtn">
+        <img id="itemPhotoPreview" alt="" hidden />
+        <span class="photo-pick-placeholder" id="photoPickPlaceholder">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Add photo
+        </span>
+      </button>
+      <div class="field">
+        <label class="field-label" for="itemTitleInput">Title</label>
+        <input type="text" id="itemTitleInput" placeholder="e.g. Benchy" maxlength="80" autocomplete="off" enterkeyhint="next" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="itemNotesInput">Notes <span class="optional">(optional)</span></label>
+        <textarea id="itemNotesInput" placeholder="Filament, settings, thoughts…" rows="3" maxlength="2000"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Tags</label>
+        <div class="tag-chips-edit" id="itemTagChips"></div>
+        <div class="tag-add-row">
+          <input type="text" id="newTagInput" placeholder="New tag" maxlength="32" autocomplete="off" />
+          <button type="button" class="btn btn-secondary btn-sm" id="addTagBtn">Add</button>
+        </div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="itemSheetCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="itemSheetSave" disabled>Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail overlay -->
+  <div class="overlay detail-overlay" id="detailOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="detail-panel">
+      <div class="detail-header">
+        <button type="button" class="icon-btn" id="detailCloseBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <button type="button" class="icon-btn" id="detailEditBtn" aria-label="Edit">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+        </button>
+      </div>
+      <div class="detail-photo-wrap" id="detailPhotoWrap">
+        <span class="detail-photo-loading">Loading photo…</span>
+      </div>
+      <div class="detail-body">
+        <p class="detail-notes" id="detailNotes"></p>
+        <div class="detail-tags" id="detailTags"></div>
+        <p class="detail-date" id="detailDate"></p>
+        <div class="detail-actions">
+          <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings sheet -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>Data</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Lists</h3>
+        <div id="manageLists"></div>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

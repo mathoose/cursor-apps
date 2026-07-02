@@ -4,7 +4,7 @@
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
-    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1"],
+    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
@@ -17,7 +17,8 @@
       "process-guide": { "storageKey": "process-guide-v1" },
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" },
-      "times-tables": { "storageKey": "times-tables-v1" }
+      "times-tables": { "storageKey": "times-tables-v1" },
+      "things-book": { "storageKey": "things-book-v1" }
     }
   },
   "apps": [
@@ -86,6 +87,12 @@
       "name": "Times Tables",
       "subtitle": "Calculator drill",
       "storageKey": "times-tables-v1"
+    },
+    {
+      "id": "things-book",
+      "name": "Things Book",
+      "subtitle": "Photo collections & tags",
+      "storageKey": "things-book-v1"
     }
   ]
 }
