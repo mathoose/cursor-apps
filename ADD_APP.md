@@ -24,9 +24,27 @@ Before `</body>`:
 <script src="../apps-shell.js" defer></script>
 ```
 
-5. Push to `main` — the home page auto-discovers new folders on GitHub Pages.
+5. Add the app to **`versions.json`** under `apps` with a starting version, e.g. `"your-app-name": "1 · Jul 1, 2026"`.
+6. Push to `main` — the home page auto-discovers new folders on GitHub Pages.
 
 The launcher lists every folder that contains `index.html`. `apps.json` only customizes the display name.
+
+## Version numbers
+
+All version strings live in **`versions.json`**:
+
+- `launcher` — home screen (`index.html`, `apps.json`, `apps-backup.js`, `apps-shell.*`)
+- `apps.<app-id>` — each app folder
+
+Every app that includes `apps-shell.css` / `apps-shell.js` shows its version at the bottom of the screen. The launcher shows `launcher` at the bottom.
+
+**When you change something, bump the matching version(s)** in `versions.json` (increment the number and update the date). Use the format `"N · Mon D, YYYY"`.
+
+**End every commit message with the versions that changed**, for example:
+
+```
+Versions: launcher 10, adhd-task-tracker 12
+```
 
 **Saving data on iPhone:** Use one browser (Safari), normal (not Private) mode, and always the same URL (`mathoose.github.io`).
 
