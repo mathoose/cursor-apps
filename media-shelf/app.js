@@ -85,12 +85,15 @@
       totalEpisodes: raw.totalEpisodes != null && raw.totalEpisodes !== "" ? Math.max(0, parseInt(raw.totalEpisodes, 10)) : null,
       totalSeasons: raw.totalSeasons != null && raw.totalSeasons !== "" ? Math.max(0, parseInt(raw.totalSeasons, 10)) : null,
       lastWatchedAt: raw.lastWatchedAt || null,
-      watchingSeason: raw.watchingSeason != null && raw.watchingEpisode > 0
-        ? Math.max(1, parseInt(raw.watchingSeason, 10) || 1)
-        : null,
-      watchingEpisode: raw.watchingEpisode != null && parseInt(raw.watchingEpisode, 10) > 0
-        ? Math.max(1, parseInt(raw.watchingEpisode, 10))
-        : null,
+      watchingSeason: (function () {
+        var ep = parseInt(raw.watchingEpisode, 10);
+        if (!ep || ep <= 0) return null;
+        return Math.max(1, parseInt(raw.watchingSeason, 10) || parseInt(raw.season, 10) || 1);
+      })(),
+      watchingEpisode: (function () {
+        var ep = parseInt(raw.watchingEpisode, 10);
+        return ep > 0 ? ep : null;
+      })(),
       status: ["watching", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "watching",
       schedule: schedule,
       subscriptionId: raw.subscriptionId || null,
@@ -396,12 +399,25 @@
     return epShort(show.season, show.episode);
   }
 
-  function progressLabel(show) {
+  function progressLabel(show, compact) {
     if (!show) return "";
-    if (isWatchingEpisode(show)) return "▶ " + epShort(show.watchingSeason, show.watchingEpisode);
-    if (show.episode === 0) return "→ " + epShort(show.season || 1, 1);
+    if (isWatchingEpisode(show)) {
+      var watchingText = epShort(show.watchingSeason, show.watchingEpisode);
+      if (compact && show.watchingSeason === show.season) watchingText = "E" + show.watchingEpisode;
+      return "▶ " + watchingText;
+    }
     var next = getNextEpisode(show);
-    return epShort(show.season, show.episode) + " → " + epShort(next.season, next.episode);
+    if (show.episode === 0) {
+      var startText = epShort(next.season, next.episode);
+      if (compact && next.season === (show.season || 1)) startText = "E" + next.episode;
+      return "→ " + startText;
+    }
+    var nextText = epShort(next.season, next.episode);
+    if (compact) {
+      if (next.season === show.season) nextText = "E" + next.episode;
+      return "→ " + nextText;
+    }
+    return epShort(show.season, show.episode) + " → " + nextText;
   }
 
   function progressStatusLabel(show, now) {
@@ -638,7 +654,7 @@
       '<button type="button" class="show-row-main" data-show-id="' + escapeHtml(show.id) + '">' +
       '<span class="show-row-type ' + typeClass + '" aria-hidden="true"></span>' +
       '<span class="show-row-title">' + escapeHtml(show.title) + "</span>" +
-      '<span class="' + epClass + '">' + escapeHtml(progressLabel(show)) + "</span>" +
+      '<span class="' + epClass + '">' + escapeHtml(progressLabel(show, true)) + "</span>" +
       '<span class="show-row-since' + (isOverdue ? " overdue" : "") + (watching ? " watching" : "") + '">' + escapeHtml(sinceLabel) + "</span>" +
       "</button>" +
       '<button type="button" class="show-row-log' + (watching ? " finish" : "") + '" data-quick-log-show="' + escapeHtml(show.id) + '" data-quick-action="' + quickAction + '" aria-label="' + escapeHtml(quickLabel) + '">' + (watching ? "✓" : "+") + "</button>" +
@@ -1121,6 +1137,17 @@
         payload.status = existing.status;
         payload.createdAt = existing.createdAt;
         payload.subscriptionId = document.getElementById("showSubscription").value || existing.subscriptionId || null;
+        var editedEpisode = payload.episode;
+        var editedSeason = payload.season;
+        if (existing.watchingEpisode > 0) {
+          var watchingAhead =
+            editedSeason > existing.watchingSeason ||
+            (editedSeason === existing.watchingSeason && editedEpisode >= existing.watchingEpisode);
+          if (watchingAhead) {
+            payload.watchingSeason = null;
+            payload.watchingEpisode = null;
+          }
+        }
       }
       state.shows = state.shows.map(function (s) {
         return s.id === ui.editingShowId ? normalizeShow(payload) : s;
@@ -1163,10 +1190,10 @@
       : "Start or finish an episode";
     document.getElementById("logEpisodeLabel").textContent = watching ? "Episode to finish" : "Episode";
     document.getElementById("logWatchedAtField").hidden = false;
-    document.getElementById("startWatchingBtn").hidden = watching;
-    document.getElementById("logFinishedBtn").hidden = watching;
-    document.getElementById("finishEpisodeBtn").hidden = !watching;
-    document.getElementById("stopWatchingBtn").hidden = !watching;
+    document.getElementById("startWatchingBtn").hidden = watching || show.status === "completed";
+    document.getElementById("logFinishedBtn").hidden = watching || show.status === "completed";
+    document.getElementById("finishEpisodeBtn").hidden = !watching || show.status === "completed";
+    document.getElementById("stopWatchingBtn").hidden = !watching || show.status === "completed";
   }
 
   function openShowDetail(id) {
@@ -1705,6 +1732,8 @@
       var show = getShow(ui.detailShowId);
       if (!show) return;
       show.status = "completed";
+      show.watchingSeason = null;
+      show.watchingEpisode = null;
       show.updatedAt = new Date().toISOString();
       closeOverlay("showDetailOverlay");
       save();

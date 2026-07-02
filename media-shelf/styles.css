@@ -207,8 +207,9 @@ main {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
-  min-width: 4.5rem;
+  min-width: 3.25rem;
   text-align: right;
+  white-space: nowrap;
 }
 
 .show-row-since {
