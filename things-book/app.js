@@ -1185,6 +1185,262 @@
     showToast('Thing deleted');
   }
 
+  /* ——— ZIP photo backup (photos + metadata, date folders) ——— */
+
+  function sanitizeZipSegment(s) {
+    return String(s || 'item').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60);
+  }
+
+  function dateFolderFromIso(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return 'unknown-date';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function blobExtension(blob) {
+    var t = (blob && blob.type) || '';
+    if (t.indexOf('png') >= 0) return 'png';
+    if (t.indexOf('webp') >= 0) return 'webp';
+    if (t.indexOf('gif') >= 0) return 'gif';
+    return 'jpg';
+  }
+
+  function blobToUint8Array(blob) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(new Uint8Array(r.result)); };
+      r.onerror = reject;
+      r.readAsArrayBuffer(blob);
+    });
+  }
+
+  function crc32(bytes) {
+    var crc = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (var j = 0; j < 8; j++) {
+        var mask = -(crc & 1);
+        crc = (crc >>> 1) ^ (0xedb88320 & mask);
+      }
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function buildStoreZip(entries) {
+    var chunks = [];
+    var central = [];
+    var offset = 0;
+    entries.forEach(function (entry) {
+      var nameBytes = new TextEncoder().encode(entry.name);
+      var data = entry.data;
+      var size = data.length;
+      var checksum = crc32(data);
+      var local = new Uint8Array(30 + nameBytes.length);
+      var lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint32(14, checksum, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      local.set(nameBytes, 30);
+      chunks.push(local, data);
+      var centralHeader = new Uint8Array(46 + nameBytes.length);
+      var cv = new DataView(centralHeader.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint32(16, checksum, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint32(42, offset, true);
+      centralHeader.set(nameBytes, 46);
+      central.push(centralHeader);
+      offset += local.length + data.length;
+    });
+    var centralSize = central.reduce(function (sum, part) { return sum + part.length; }, 0);
+    var end = new Uint8Array(22);
+    var ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, entries.length, true);
+    ev.setUint16(10, entries.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    return new Blob(chunks.concat(central, [end]), { type: 'application/zip' });
+  }
+
+  function findZipEocd(bytes) {
+    for (var i = bytes.length - 22; i >= 0; i--) {
+      if (bytes[i] === 0x50 && bytes[i + 1] === 0x4b && bytes[i + 2] === 0x05 && bytes[i + 3] === 0x06) return i;
+    }
+    return -1;
+  }
+
+  function parseStoreZip(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var eocd = findZipEocd(bytes);
+    if (eocd < 0) throw new Error('Invalid zip');
+    var view = new DataView(buffer);
+    var centralOffset = view.getUint32(eocd + 16, true);
+    var totalEntries = view.getUint16(eocd + 10, true);
+    var entries = [];
+    var offset = centralOffset;
+    for (var i = 0; i < totalEntries; i++) {
+      if (view.getUint32(offset, true) !== 0x02014b50) break;
+      var compMethod = view.getUint16(offset + 10, true);
+      var uncompSize = view.getUint32(offset + 24, true);
+      var nameLen = view.getUint16(offset + 28, true);
+      var extraLen = view.getUint16(offset + 30, true);
+      var commentLen = view.getUint16(offset + 32, true);
+      var localOffset = view.getUint32(offset + 42, true);
+      var name = new TextDecoder().decode(bytes.subarray(offset + 46, offset + 46 + nameLen)).replace(/\\/g, '/');
+      offset += 46 + nameLen + extraLen + commentLen;
+      if (compMethod !== 0) continue;
+      var localNameLen = view.getUint16(localOffset + 26, true);
+      var localExtraLen = view.getUint16(localOffset + 28, true);
+      var dataStart = localOffset + 30 + localNameLen + localExtraLen;
+      entries.push({ name: name, data: bytes.subarray(dataStart, dataStart + uncompSize) });
+    }
+    return entries;
+  }
+
+  function mimeFromPath(path) {
+    var lower = String(path || '').toLowerCase();
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    return 'image/jpeg';
+  }
+
+  function downloadBlob(blob, filename) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportPhotosZip() {
+    var btn = document.getElementById('exportPhotosBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Zipping…'; }
+    var st = getState();
+    if (!st.items.length) {
+      showToast('No things to export');
+      if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+      return;
+    }
+    var usedNames = {};
+    var manifestPhotos = [];
+    var tasks = st.items.map(function (item) {
+      return getPhotoBlob(item.id).then(function (blob) {
+        if (!blob) return null;
+        var ext = blobExtension(blob);
+        var day = dateFolderFromIso(item.createdAt);
+        var base = 'photos/' + day + '/' + sanitizeZipSegment(item.id) + '-' + sanitizeZipSegment(item.title);
+        var fileName = base + '.' + ext;
+        if (usedNames[fileName]) {
+          usedNames[fileName] += 1;
+          fileName = base + '-' + usedNames[fileName] + '.' + ext;
+        } else {
+          usedNames[fileName] = 1;
+        }
+        manifestPhotos.push({
+          itemId: item.id,
+          path: fileName,
+          title: item.title,
+          listId: item.listId,
+          notes: item.notes,
+          tagIds: item.tagIds,
+          createdAt: item.createdAt
+        });
+        return blobToUint8Array(blob).then(function (bytes) {
+          return { name: fileName, data: bytes };
+        });
+      });
+    });
+    Promise.all(tasks).then(function (results) {
+      var zipEntries = results.filter(Boolean);
+      if (!zipEntries.length) {
+        showToast('No photos on this device');
+        return null;
+      }
+      zipEntries.unshift({
+        name: 'manifest.json',
+        data: new TextEncoder().encode(JSON.stringify({
+          format: 'things-book-photos',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          photoCount: manifestPhotos.length,
+          state: st,
+          photos: manifestPhotos
+        }, null, 2))
+      });
+      return buildStoreZip(zipEntries);
+    }).then(function (zipBlob) {
+      if (!zipBlob) return;
+      downloadBlob(zipBlob, 'things-book-photos-' + new Date().toISOString().slice(0, 10) + '.zip');
+      showToast('Photo backup downloaded');
+    }).catch(function () {
+      showToast('Could not export photos');
+    }).finally(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+    });
+  }
+
+  function importPhotosZip(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var zipEntries = parseStoreZip(reader.result);
+        var byName = {};
+        zipEntries.forEach(function (z) { byName[z.name] = z; });
+        var manifestEntry = zipEntries.find(function (z) { return z.name === 'manifest.json'; });
+        if (!manifestEntry) {
+          showToast('Invalid backup — manifest.json missing');
+          return;
+        }
+        var manifest = JSON.parse(new TextDecoder().decode(manifestEntry.data));
+        if (manifest.format !== 'things-book-photos') {
+          showToast('Not a Things Book photo backup');
+          return;
+        }
+        if (manifest.state) {
+          saveState(normalizeState(manifest.state));
+        }
+        var photos = Array.isArray(manifest.photos) ? manifest.photos : [];
+        if (!photos.length) {
+          showToast('No photos in file');
+          return;
+        }
+        var imported = 0;
+        var chain = Promise.resolve();
+        photos.forEach(function (photo) {
+          chain = chain.then(function () {
+            var ze = byName[photo.path];
+            if (!ze) return;
+            var blob = new Blob([ze.data], { type: mimeFromPath(photo.path) });
+            return putPhoto(photo.itemId, blob).then(function () {
+              revokeThumb(photo.itemId);
+              imported++;
+            });
+          });
+        });
+        chain.then(function () {
+          showToast('Restored ' + imported + ' photo' + (imported === 1 ? '' : 's'));
+          closeSettings();
+          setView('home');
+        }).catch(function () {
+          showToast('Import failed');
+        });
+      } catch (e) {
+        showToast('Could not read ZIP');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
   /* ——— Settings ——— */
 
   function openSettings() {
@@ -1341,6 +1597,11 @@
     document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
     document.getElementById('importJsonFile').addEventListener('change', function () {
       if (this.files && this.files[0]) importJson(this.files[0]);
+      this.value = '';
+    });
+    document.getElementById('exportPhotosBtn').addEventListener('click', exportPhotosZip);
+    document.getElementById('importPhotosFile').addEventListener('change', function () {
+      if (this.files && this.files[0]) importPhotosZip(this.files[0]);
       this.value = '';
     });
 

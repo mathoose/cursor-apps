@@ -168,7 +168,16 @@
             <input type="file" id="importJsonFile" accept=".json,application/json" />
           </label>
         </div>
-        <p class="settings-note">JSON export is metadata only (lists, titles, tags). Photos are stored separately in IndexedDB on this device — not in localStorage.</p>
+      <div class="settings-section">
+        <h3>Photos</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportPhotosBtn">Export photos (ZIP)</button>
+          <label class="btn btn-secondary import-label">
+            Import photos (ZIP)
+            <input type="file" id="importPhotosFile" accept=".zip,application/zip" />
+          </label>
+        </div>
+        <p class="settings-note">ZIP includes all photos plus lists, titles, and tags. Photos are grouped by date (<code>photos/2026-07-02/…</code>) so you can browse in Files or iCloud. Restore with Import photos (ZIP). JSON-only export is metadata without images.</p>
       </div>
       <div class="settings-section">
         <h3>Lists</h3>
@@ -183,6 +192,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
