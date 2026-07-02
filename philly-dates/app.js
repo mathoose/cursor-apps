@@ -1807,17 +1807,6 @@ document.getElementById('import-text-btn').addEventListener('click', function() 
   if (ta) ta.value = '';
   closeSettings();
 });
-var quickAddNotesLink = document.getElementById('quick-add-notes');
-if (quickAddNotesLink) {
-  quickAddNotesLink.addEventListener('click', function() {
-    var nameEl = document.getElementById('quick-add-name');
-    var igEl = document.getElementById('quick-add-instagram');
-    var url = '../restaurant-notes/?quickAdd=1';
-    if (igEl && igEl.value.trim()) url += '&instagram=' + encodeURIComponent(igEl.value.trim());
-    if (nameEl && nameEl.value.trim()) url += '&name=' + encodeURIComponent(nameEl.value.trim());
-    quickAddNotesLink.href = url;
-  });
-}
 document.getElementById('import-json-file').addEventListener('change', function(e) {
   var file = e.target.files && e.target.files[0];
   e.target.value = '';
