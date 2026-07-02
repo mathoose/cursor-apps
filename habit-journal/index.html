@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-activity-log-tab-v8 -->
+  <!-- build: hj-activity-log-tab-v9 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -325,10 +325,19 @@
       display: flex;
       align-items: flex-start;
       gap: 10px;
+      width: 100%;
       padding: 12px 14px;
+      border: none;
       border-bottom: 1px solid var(--border);
       border-left: 4px solid var(--border);
       background: rgba(255, 255, 255, 0.5);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+    }
+    .activity-log-item.selected {
+      box-shadow: inset 0 0 0 2px var(--accent);
     }
     .activity-log-item:first-child {
       border-radius: 10px 10px 0 0;
@@ -385,6 +394,27 @@
     }
     .activity-log-legend .swatch.add { background: #16a34a; }
     .activity-log-legend .swatch.erase { background: #dc2626; }
+    .log-graph-card {
+      margin-top: 14px;
+    }
+    .log-graph-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: var(--ink);
+    }
+    .log-graph-canvas-wrap {
+      margin-top: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #faf8f4;
+      border: 1px solid var(--border);
+    }
+    #logGraphCanvas {
+      display: block;
+      width: 100%;
+      height: 220px;
+    }
     .habit-label-hide-btn {
       flex-shrink: 0;
       padding: 0 2px;
@@ -1739,6 +1769,7 @@
   let habitsCatPanelOpen = false;
   let pendingImport = null;
   let graphSelectedIds = {};
+  let logGraphHabitId = null;
   let graphRange = "90";
   let graphUserToggled = false;
 
@@ -4287,7 +4318,7 @@
     if (!root) return;
     const entries = getAllRecentChanges();
     let html =
-      '<p class="hint">Additions and erases from the last 24 hours. Older entries drop off automatically.</p>' +
+      '<p class="hint">Additions and erases from the last 24 hours. Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
       '<div class="activity-log-legend">' +
       '<span><span class="swatch add" aria-hidden="true"></span> Addition</span>' +
       '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
@@ -4303,9 +4334,13 @@
       const habitName = habit ? habit.name : "Removed habit";
       const kind = getChangeLogKind(entry, habit);
       const summary = habit ? formatChangeLogCellSummary(entry, habit) : "Updated";
+      const selected = entry.habitId === logGraphHabitId ? " selected" : "";
       html +=
-        '<li class="activity-log-item ' +
+        '<li><button type="button" class="activity-log-item ' +
         kind +
+        selected +
+        '" data-log-habit="' +
+        escapeHtml(entry.habitId) +
         '">' +
         '<div class="log-main"><span class="log-habit">' +
         escapeHtml(habitName) +
@@ -4313,10 +4348,246 @@
         escapeHtml(summary) +
         '</span></div><span class="log-time">' +
         escapeHtml(formatSavedWhen(entry.ts)) +
-        "</span></li>";
+        "</span></button></li>";
     });
     html += "</ul></div>";
+
+    if (logGraphHabitId) {
+      const series = buildLog24hSeries(logGraphHabitId);
+      const habit = series.habit;
+      const habitName = habit ? habit.name : "Removed habit";
+      html += '<div class="card log-graph-card">';
+      html += '<p class="log-graph-title">' + escapeHtml(habitName) + " · last 24 hours</p>";
+      if (!habit || !series.points.length) {
+        html += '<p class="hint" style="margin:0">No chart data for this habit in the last 24 hours.</p>';
+      } else {
+        html += '<p class="hint" style="margin:0 0 8px">Value resets to zero at each midnight.</p>';
+        html += '<div class="log-graph-canvas-wrap"><canvas id="logGraphCanvas" aria-label="24 hour habit chart"></canvas></div>';
+      }
+      html += "</div>";
+    }
+
     root.innerHTML = html;
+    bindLogControls(root);
+    if (logGraphHabitId) {
+      const series = buildLog24hSeries(logGraphHabitId);
+      if (series.habit && series.points.length) {
+        const canvas = root.querySelector("#logGraphCanvas");
+        drawLog24hChart(canvas, series.habit, series.points);
+      }
+    }
+  }
+
+  function localDateStrFromTs(ts) {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function logGraphNumericValue(habit, cellValue) {
+    if (cellValue === null || cellValue === undefined) return 0;
+    if (habit.type === "yesno") {
+      if (cellValue === YESNO_PROGRESS) return 0.5;
+      if (cellValue >= 1) return 1;
+      return 0;
+    }
+    return cellValue;
+  }
+
+  function getHabitCellValueAtTime(habitId, ts) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return 0;
+    const dateStr = localDateStrFromTs(ts);
+    const events = (changeLog.events || [])
+      .filter(function (e) {
+        return (
+          e.habitId === habitId &&
+          e.action === "cell" &&
+          e.ts <= ts &&
+          e.detail &&
+          e.detail.date === dateStr
+        );
+      })
+      .sort(function (a, b) { return a.ts - b.ts; });
+    if (!events.length) return 0;
+    const last = events[events.length - 1];
+    return logGraphNumericValue(habit, last.detail.newValue);
+  }
+
+  function nextLocalMidnightAfter(ts) {
+    const d = new Date(ts);
+    d.setHours(24, 0, 0, 0);
+    return d.getTime();
+  }
+
+  function buildLog24hSeries(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return { habit: null, points: [] };
+    const now = Date.now();
+    const start = now - CHANGELOG_TTL_MS;
+    const points = [];
+
+    points.push({ ts: start, value: getHabitCellValueAtTime(habitId, start) });
+
+    let mid = nextLocalMidnightAfter(start);
+    while (mid < now) {
+      points.push({ ts: mid - 1, value: getHabitCellValueAtTime(habitId, mid - 1) });
+      points.push({ ts: mid, value: 0 });
+      mid = nextLocalMidnightAfter(mid);
+    }
+
+    (changeLog.events || [])
+      .filter(function (e) {
+        return e.habitId === habitId && e.action === "cell" && e.ts > start && e.ts <= now;
+      })
+      .sort(function (a, b) { return a.ts - b.ts; })
+      .forEach(function (e) {
+        points.push({ ts: e.ts, value: logGraphNumericValue(habit, e.detail.newValue) });
+      });
+
+    points.push({ ts: now, value: getHabitCellValueAtTime(habitId, now) });
+    points.sort(function (a, b) { return a.ts - b.ts; });
+
+    const collapsed = [];
+    points.forEach(function (p) {
+      const prev = collapsed[collapsed.length - 1];
+      if (prev && prev.ts === p.ts) prev.value = p.value;
+      else collapsed.push({ ts: p.ts, value: p.value });
+    });
+    return { habit: habit, points: collapsed };
+  }
+
+  function formatLogGraphAxisTime(ts, now) {
+    const d = new Date(ts);
+    const nowD = new Date(now);
+    const yesterday = new Date(nowD);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const ampm = h >= 12 ? "p" : "a";
+    const hour12 = h % 12 || 12;
+    const time = m ? hour12 + ":" + String(m).padStart(2, "0") + ampm : hour12 + ampm;
+    if (now - ts < 90000) return "Now";
+    if (d.toDateString() === nowD.toDateString()) return time;
+    if (d.toDateString() === yesterday.toDateString()) return "Yday " + time;
+    return d.getMonth() + 1 + "/" + d.getDate() + " " + time;
+  }
+
+  function drawLog24hChart(canvas, habit, points) {
+    if (!canvas || !points.length) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(rect.width, 280);
+    const h = 220;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const now = Date.now();
+    const start = now - CHANGELOG_TTL_MS;
+    const pad = { top: 16, right: 12, bottom: 34, left: 40 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+    let maxVal = 0;
+    points.forEach(function (p) {
+      if (p.value > maxVal) maxVal = p.value;
+    });
+    if (maxVal <= 0) maxVal = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
+
+    const color = habit.color || GRAPH_COLORS[0];
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#faf8f4";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      const tickVal = maxVal * (1 - g / 4);
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      let label;
+      if (habit.type === "yesno") {
+        if (tickVal >= 0.75) label = "Yes";
+        else if (tickVal >= 0.25) label = "…";
+        else label = "No";
+      } else {
+        label = Number.isInteger(tickVal) ? String(Math.round(tickVal)) : tickVal.toFixed(1);
+      }
+      ctx.fillText(label, pad.left - 6, gy + 3);
+    }
+
+    let mid = nextLocalMidnightAfter(start);
+    while (mid < now) {
+      const x = pad.left + ((mid - start) / (now - start)) * plotW;
+      ctx.strokeStyle = "rgba(196, 92, 92, 0.35)";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#9a8f82";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Midnight", x, pad.top - 4);
+      mid = nextLocalMidnightAfter(mid);
+    }
+
+    const labelSlots = [0, 0.25, 0.5, 0.75, 1];
+    labelSlots.forEach(function (slot) {
+      const ts = start + (now - start) * slot;
+      const x = pad.left + plotW * slot;
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(formatLogGraphAxisTime(ts, now), x, h - 10);
+    });
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    let started = false;
+    points.forEach(function (p) {
+      const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+      const y = pad.top + plotH - (p.value / maxVal) * plotH;
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    points.forEach(function (p) {
+      const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+      const y = pad.top + plotH - (p.value / maxVal) * plotH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+  }
+
+  function bindLogControls(root) {
+    root.querySelectorAll("[data-log-habit]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-log-habit");
+        logGraphHabitId = logGraphHabitId === id ? null : id;
+        renderLog();
+      };
+    });
   }
 
   function renderData() {
