@@ -762,8 +762,10 @@
   "use strict";
 
   const REPO = "mathoose/cursor-apps";
-  const HOME_VERSION = "9 · Jul 1, 2026";
+  const HOME_VERSION_FALLBACK = "10 · Jul 1, 2026";
   const ICON_VERSION = "11";
+  var launcherVersion = HOME_VERSION_FALLBACK;
+  var appVersions = {};
   const LONG_PRESS_MS = 500;
   const IGNORE = new Set([".github", "scripts", "docs", "node_modules"]);
   const ICON_FILES = ["app-icon.png", "app-icon.svg", "apple-touch-icon.png", "icon.svg", "icon.png"];
@@ -797,6 +799,20 @@
     return fetch("apps.json?" + Date.now())
       .then(function (r) { return r.ok ? r.json() : FALLBACK_MANIFEST; })
       .catch(function () { return FALLBACK_MANIFEST; });
+  }
+
+  function loadVersions() {
+    return fetch("versions.json?" + Date.now())
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+  }
+
+  function applyVersions(versions) {
+    if (!versions || typeof versions !== "object") return;
+    if (versions.launcher) launcherVersion = versions.launcher;
+    if (versions.apps && typeof versions.apps === "object") appVersions = versions.apps;
+    var homeVersion = document.getElementById("homeVersion");
+    if (homeVersion) homeVersion.textContent = "Launcher v" + launcherVersion;
   }
 
   function fetchRootDirs() {
@@ -1586,13 +1602,14 @@
     });
   }
 
-  document.getElementById("homeVersion").textContent = "Launcher v" + HOME_VERSION;
+  document.getElementById("homeVersion").textContent = "Launcher v" + launcherVersion;
 
   renderSkeleton(4);
   initBackupDock();
   initExportReminder();
   bindLauncherActions();
   refreshStorageStats();
+  loadVersions().then(applyVersions);
 
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "visible") refreshStorageStats();
