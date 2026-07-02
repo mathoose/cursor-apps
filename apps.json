@@ -1,5 +1,6 @@
 {
   "title": "Mathoose's apps",
+  "launcherHidden": ["restaurant-notes"],
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
@@ -43,12 +44,6 @@
       "name": "Philly Dates",
       "subtitle": "Happy hours & menus",
       "storageKey": "philly-dates-v2"
-    },
-    {
-      "id": "restaurant-notes",
-      "name": "Resto Notes",
-      "subtitle": "Capture before import",
-      "storageKey": "restaurant-notes-v1"
     },
     {
       "id": "world-cup-2026",

@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-year-gallery-v6 -->
+  <!-- build: hj-activity-log-tab-v9 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -177,13 +177,13 @@
     .month-grid .habit-label {
       font-size: 0.625rem;
       font-weight: 600;
-      padding: 4px 3px;
+      padding: 2px 3px;
       display: flex;
       flex-direction: column;
       align-items: stretch;
       justify-content: center;
-      line-height: 1.15;
-      min-height: 32px;
+      line-height: 1.1;
+      min-height: 28px;
       position: sticky;
       left: 0;
       z-index: 3;
@@ -195,12 +195,29 @@
     .habit-label-row {
       display: flex;
       gap: 3px;
-      align-items: flex-start;
+      align-items: center;
       width: 100%;
     }
     .habit-label-text {
       flex: 1;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .habit-label-name-row {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      width: 100%;
+      min-width: 0;
+    }
+    .habit-label-name-row .habit-label-edit {
+      flex: 1;
+      min-width: 0;
+    }
+    .habit-label-name-row .habit-label-hide-btn {
+      align-self: center;
     }
     .habit-label-edit {
       border: none;
@@ -248,16 +265,159 @@
       margin-top: 2px;
     }
     .habit-label-streak {
-      display: block;
+      flex: 1;
+      min-width: 0;
       font-size: 0.5625rem;
       font-weight: 700;
       color: var(--accent);
-      margin-top: 2px;
+      line-height: 1.1;
+    }
+    .habit-label-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      width: 100%;
+      min-height: 0;
+      padding-left: 0;
+    }
+    .habit-label-recent {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.5625rem;
+      font-weight: 600;
+      color: var(--muted);
+      line-height: 1.15;
+    }
+    .habit-recent-log {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 168px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.45);
+    }
+    .habit-recent-log li {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      font-size: 0.8125rem;
+      line-height: 1.35;
+      border-bottom: 1px solid var(--border);
+    }
+    .habit-recent-log li:last-child { border-bottom: none; }
+    .habit-recent-log .recent-time {
+      flex-shrink: 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+    .activity-log-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .activity-log-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 14px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-left: 4px solid var(--border);
+      background: rgba(255, 255, 255, 0.5);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      color: inherit;
+    }
+    .activity-log-item.selected {
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+    .activity-log-item:first-child {
+      border-radius: 10px 10px 0 0;
+    }
+    .activity-log-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 10px 10px;
+    }
+    .activity-log-item:only-child {
+      border-radius: 10px;
+    }
+    .activity-log-item.add {
+      border-left-color: #16a34a;
+      background: rgba(22, 163, 74, 0.08);
+    }
+    .activity-log-item.erase {
+      border-left-color: #dc2626;
+      background: rgba(220, 38, 38, 0.08);
+    }
+    .activity-log-item .log-main {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    .activity-log-item .log-habit {
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .activity-log-item.add .log-change { color: #15803d; font-weight: 600; }
+    .activity-log-item.erase .log-change { color: #b91c1c; font-weight: 600; }
+    .activity-log-item .log-time {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .activity-log-legend {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .activity-log-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .activity-log-legend .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+    .activity-log-legend .swatch.add { background: #16a34a; }
+    .activity-log-legend .swatch.erase { background: #dc2626; }
+    .log-graph-card {
+      margin-top: 14px;
+    }
+    .log-graph-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin: 0 0 4px;
+      color: var(--ink);
+    }
+    .log-graph-canvas-wrap {
+      margin-top: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #faf8f4;
+      border: 1px solid var(--border);
+    }
+    #logGraphCanvas {
+      display: block;
+      width: 100%;
+      height: 220px;
     }
     .habit-label-hide-btn {
-      align-self: flex-end;
-      margin-top: 2px;
-      padding: 1px 4px;
+      flex-shrink: 0;
+      padding: 0 2px;
       border: none;
       border-radius: 3px;
       background: transparent;
@@ -1461,6 +1621,7 @@
     <section class="panel" id="panelYear" aria-label="Yearly view"></section>
     <section class="panel" id="panelGraph" aria-label="Graph view"></section>
     <section class="panel" id="panelHabits" aria-label="Habits"></section>
+    <section class="panel" id="panelLog" aria-label="Activity log"></section>
     <section class="panel" id="panelData" aria-label="Export and import"></section>
   </main>
 
@@ -1504,6 +1665,11 @@
         <button type="button" class="habit-hide-btn" id="habitEditHide" aria-pressed="false">Hide from grid</button>
         <p class="hint exclude-days-hint">Hidden habits stay here in Habits — they won’t clutter your daily grid.</p>
       </div>
+      <div class="habit-edit-field" id="habitEditRecentWrap">
+        <span>Last 24 hours</span>
+        <ul class="habit-recent-log" id="habitEditRecentLog" hidden></ul>
+        <p class="hint exclude-days-hint" id="habitEditRecentEmpty">No activity in the last 24 hours.</p>
+      </div>
       <div class="habit-edit-actions">
         <button type="button" class="btn btn-primary" id="habitEditSave">Save</button>
       </div>
@@ -1527,6 +1693,10 @@
       <button type="button" class="tab" data-tab="graph">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 17V9"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
         Graph
+      </button>
+      <button type="button" class="tab" data-tab="log">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        Log
       </button>
       <button type="button" class="tab" data-tab="habits">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
@@ -1564,6 +1734,8 @@
   const STORAGE_BACKUP_KEY = "habit-journal-v2-backup";
   const STORAGE_LOCAL_BACKUP_KEY = "habit-journal-v2-local-backup";
   const STORAGE_META_KEY = "habit-journal-v2-meta";
+  const STORAGE_CHANGELOG_KEY = "habit-journal-v2-changelog";
+  const CHANGELOG_TTL_MS = 24 * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1597,6 +1769,7 @@
   let habitsCatPanelOpen = false;
   let pendingImport = null;
   let graphSelectedIds = {};
+  let logGraphHabitId = null;
   let graphRange = "90";
   let graphUserToggled = false;
 
@@ -1886,6 +2059,7 @@
     if (!habit) return;
     habit.hidden = !!hidden;
     if (habit.hidden && yearFullscreenHabitId === habitId) closeYearFullscreen();
+    logHabitChange(habitId, "hide", { hidden: habit.hidden });
     save();
     render();
     toast(habit.hidden ? "Hidden from Month & Year" : "Showing in Month & Year");
@@ -1954,7 +2128,7 @@
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
     const stepVal = Math.min(MAX_STEP, Math.max(1, parseInt(step, 10) || 1));
-    state.habits.push({
+    const habit = {
       id: uid(),
       name: habitName,
       type: "counter",
@@ -1962,7 +2136,9 @@
       category: cat,
       pinned: false,
       hidden: false,
-    });
+    };
+    state.habits.push(habit);
+    logHabitChange(habit.id, "create");
     return save();
   }
 
@@ -1996,7 +2172,8 @@
   }
 
   function renderMonthHabitLabelHtml(habit, index, total) {
-    let html = '<div class="habit-label">';
+    const streak = habitStreak(habit);
+    let html = '<div class="habit-label" data-habit-row="' + escapeHtml(habit.id) + '">';
     html += '<div class="habit-label-row">';
     html += '<div class="habit-sort-btns">';
     html +=
@@ -2017,6 +2194,7 @@
       ' down">▼</button>';
     html += "</div>";
     html += '<div class="habit-label-text">';
+    html += '<div class="habit-label-name-row">';
     html +=
       '<button type="button" class="habit-label-edit" data-habit-edit="' +
       escapeHtml(habit.id) +
@@ -2025,14 +2203,34 @@
       '">' +
       habitMonthLabelHtml(habit) +
       "</button>";
+    if (streak <= 0) {
+      html +=
+        '<button type="button" class="habit-label-hide-btn" data-hide="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Hide ' +
+        escapeHtml(habit.name) +
+        '">Hide</button>';
+    }
+    html += "</div>";
+    if (streak > 0) {
+      html += '<div class="habit-label-meta">';
+      html +=
+        '<span class="habit-label-streak">' +
+        streak +
+        " day" +
+        (streak === 1 ? "" : "s") +
+        "</span>";
+      html +=
+        '<button type="button" class="habit-label-hide-btn" data-hide="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Hide ' +
+        escapeHtml(habit.name) +
+        '">Hide</button>';
+      html += "</div>";
+    }
+    html += renderHabitRecentActivityHtml(habit);
     html += "</div>";
     html += "</div>";
-    html +=
-      '<button type="button" class="habit-label-hide-btn" data-hide="' +
-      escapeHtml(habit.id) +
-      '" aria-label="Hide ' +
-      escapeHtml(habit.name) +
-      '">Hide</button>';
     html += "</div>";
     return html;
   }
@@ -2152,6 +2350,7 @@
       hideBtn.setAttribute("aria-pressed", String(!!habit.hidden));
       hideBtn.textContent = renderHabitHideBtnLabel(habit.hidden, true);
     }
+    renderHabitEditChangeLog(habitId);
     document.getElementById("habitEditSheet").hidden = false;
     document.body.classList.add("habit-edit-open");
     document.getElementById("habitEditName").focus();
@@ -2184,6 +2383,7 @@
       habit.excludeDays = normalizeExcludeDays(habit.excludeDays);
       purgeExcludedCellMarks(habit.id);
     }
+    logHabitChange(habit.id, "edit", { summary: "Settings updated" });
     if (!save()) return;
     const savedName = habit.name;
     closeHabitEdit();
@@ -2529,15 +2729,234 @@
     return new Date(ts).toLocaleString();
   }
 
+  let changeLog = { events: [] };
+
+  function pruneChangeLog(log) {
+    const cutoff = Date.now() - CHANGELOG_TTL_MS;
+    log.events = (log.events || []).filter(function (e) {
+      return e && typeof e.ts === "number" && e.ts > cutoff;
+    });
+    return log;
+  }
+
+  function loadChangeLog() {
+    try {
+      const raw = localStorage.getItem(STORAGE_CHANGELOG_KEY);
+      if (!raw) return { events: [] };
+      const parsed = JSON.parse(raw);
+      return pruneChangeLog({ events: Array.isArray(parsed.events) ? parsed.events : [] });
+    } catch (e) {
+      return { events: [] };
+    }
+  }
+
+  function persistChangeLog() {
+    if (!storageOk) return;
+    pruneChangeLog(changeLog);
+    try {
+      localStorage.setItem(STORAGE_CHANGELOG_KEY, JSON.stringify(changeLog));
+    } catch (e) { /* ok */ }
+  }
+
+  function logHabitChange(habitId, action, detail) {
+    if (!habitId) return;
+    changeLog.events.push({
+      ts: Date.now(),
+      habitId: habitId,
+      action: action,
+      detail: detail || null,
+    });
+    persistChangeLog();
+  }
+
+  function getHabitChanges(habitId) {
+    const cutoff = Date.now() - CHANGELOG_TTL_MS;
+    return (changeLog.events || [])
+      .filter(function (e) {
+        return e.habitId === habitId && e.ts > cutoff;
+      })
+      .sort(function (a, b) {
+        return b.ts - a.ts;
+      });
+  }
+
+  function getAllRecentChanges() {
+    const cutoff = Date.now() - CHANGELOG_TTL_MS;
+    return (changeLog.events || [])
+      .filter(function (e) {
+        return e && e.action === "cell" && e.ts > cutoff;
+      })
+      .sort(function (a, b) {
+        return b.ts - a.ts;
+      });
+  }
+
+  function yesnoChangeScore(value) {
+    if (value === null || value === undefined) return 0;
+    if (value === 0) return 1;
+    if (value === YESNO_PROGRESS) return 2;
+    return 3;
+  }
+
+  function getChangeLogKind(entry, habit) {
+    if (!entry || entry.action !== "cell" || !habit) return "neutral";
+    const detail = entry.detail || {};
+    const oldValue = detail.oldValue != null ? detail.oldValue : null;
+    const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "counter") {
+      const delta = (newValue || 0) - (oldValue || 0);
+      if (delta > 0) return "add";
+      return "erase";
+    }
+    const delta = yesnoChangeScore(newValue) - yesnoChangeScore(oldValue);
+    if (delta > 0) return "add";
+    if (delta < 0) return "erase";
+    return "neutral";
+  }
+
+  function formatChangeLogCellSummary(entry, habit) {
+    if (!entry || !habit) return "";
+    const detail = entry.detail || {};
+    const dateLabel = formatChangeLogDate(detail.date);
+    const oldValue = detail.oldValue != null ? detail.oldValue : null;
+    const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "counter") {
+      const delta = (newValue || 0) - (oldValue || 0);
+      if (delta > 0) return dateLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      if (delta < 0) {
+        return dateLabel + ": " + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      }
+      return dateLabel + ": cleared";
+    }
+    return dateLabel + ": " + cellValueLabel(habit, oldValue) + " → " + cellValueLabel(habit, newValue);
+  }
+
+  function getLastHabitChange(habitId) {
+    const changes = getHabitChanges(habitId);
+    return changes.length ? changes[0] : null;
+  }
+
+  function cellValueLabel(habit, value) {
+    if (value === null || value === undefined) return "empty";
+    if (habit.type === "yesno") {
+      if (value === YESNO_PROGRESS) return "In progress";
+      if (value >= 1) return "Yes";
+      return "No";
+    }
+    return String(value);
+  }
+
+  function formatChangeLogDate(dateStr) {
+    if (!dateStr) return "";
+    const parts = String(dateStr).split("-");
+    if (parts.length !== 3) return dateStr;
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    if (m >= 0 && m < 12 && d > 0) return MONTHS[m] + " " + d;
+    return dateStr;
+  }
+
+  function formatChangeLogEntry(entry, habit) {
+    if (!entry) return "";
+    if (!habit) {
+      habit = state.habits.find(function (h) { return h.id === entry.habitId; });
+    }
+    const detail = entry.detail || {};
+    if (entry.action === "cell" && habit) {
+      const dateLabel = formatChangeLogDate(detail.date);
+      const oldValue = detail.oldValue != null ? detail.oldValue : null;
+      const newValue = detail.newValue != null ? detail.newValue : null;
+      if (habit.type === "counter") {
+        const delta = (newValue || 0) - (oldValue || 0);
+        if (delta > 0) {
+          return dateLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+        }
+        if (delta < 0) {
+          return (
+            dateLabel +
+            ": " +
+            delta +
+            " (now " +
+            cellValueLabel(habit, newValue) +
+            ")"
+          );
+        }
+        return dateLabel + ": cleared";
+      }
+      return dateLabel + ": " + cellValueLabel(habit, oldValue) + " → " + cellValueLabel(habit, newValue);
+    }
+    if (entry.action === "create") return "Habit created";
+    if (entry.action === "edit") return detail.summary || "Settings updated";
+    if (entry.action === "hide") return detail.hidden ? "Hidden from grid" : "Shown in grid";
+    if (entry.action === "delete") return "Habit removed";
+    return detail.summary || "Updated";
+  }
+
+  function renderHabitRecentActivityHtml(habit) {
+    const last = getLastHabitChange(habit.id);
+    if (!last) return "";
+    const summary = formatChangeLogEntry(last, habit);
+    return (
+      '<div class="habit-label-meta habit-label-recent-wrap">' +
+      '<span class="habit-label-recent">' +
+      escapeHtml(formatSavedWhen(last.ts) + " · " + summary) +
+      "</span>" +
+      "</div>"
+    );
+  }
+
+  function refreshHabitRecentActivity(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    const label = document.querySelector('#panelMonth .habit-label[data-habit-row="' + habitId + '"]');
+    if (!label) return;
+    const existing = label.querySelector(".habit-label-recent-wrap");
+    const html = renderHabitRecentActivityHtml(habit);
+    if (existing) existing.remove();
+    if (!html) return;
+    const textWrap = label.querySelector(".habit-label-text");
+    if (textWrap) textWrap.insertAdjacentHTML("beforeend", html);
+  }
+
+  function renderHabitEditChangeLog(habitId) {
+    const list = document.getElementById("habitEditRecentLog");
+    const empty = document.getElementById("habitEditRecentEmpty");
+    if (!list || !empty) return;
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    const entries = getHabitChanges(habitId);
+    if (!entries.length) {
+      list.hidden = true;
+      list.innerHTML = "";
+      empty.hidden = false;
+      return;
+    }
+    empty.hidden = true;
+    list.hidden = false;
+    list.innerHTML = entries
+      .map(function (entry) {
+        return (
+          '<li><span>' +
+          escapeHtml(formatChangeLogEntry(entry, habit)) +
+          '</span><span class="recent-time">' +
+          escapeHtml(formatSavedWhen(entry.ts)) +
+          "</span></li>"
+        );
+      })
+      .join("");
+  }
+
   function clearAllStorage() {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(STORAGE_LOCAL_BACKUP_KEY);
     localStorage.removeItem(STORAGE_META_KEY);
+    localStorage.removeItem(STORAGE_CHANGELOG_KEY);
     localStorage.removeItem(STORAGE_KEY_LEGACY);
     sessionStorage.removeItem(STORAGE_BACKUP_KEY);
+    changeLog = { events: [] };
   }
 
   let state = loadState();
+  changeLog = loadChangeLog();
   let activeTab = "month";
   let eraserMode = false;
 
@@ -2558,7 +2977,7 @@
 
   function showFatalError(msg) {
     var html = '<div class="card"><p class="hint">' + escapeHtml(msg) + "</p></div>";
-    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelData"].forEach(function (id) {
+    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelLog", "panelData"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.innerHTML = html;
     });
@@ -2569,6 +2988,7 @@
       toast("Saving disabled — use Safari, not Private mode");
       return false;
     }
+    persistChangeLog();
     const json = JSON.stringify(state);
     try {
       localStorage.setItem(STORAGE_KEY, json);
@@ -2713,15 +3133,6 @@
     if (habit.type === "counter") {
       html += '<span class="habit-label-step">(' + escapeHtml(formatStepBracket(habit.step)) + ")</span>";
     }
-    const streak = habitStreak(habit);
-    if (streak > 0) {
-      html +=
-        '<span class="habit-label-streak">' +
-        streak +
-        " day" +
-        (streak === 1 ? "" : "s") +
-        "</span>";
-    }
     return html;
   }
 
@@ -2861,7 +3272,10 @@
       document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
     if (btn) {
       refreshCellButton(btn);
-      if (activeTab === "month") return;
+      if (activeTab === "month") {
+        refreshHabitRecentActivity(habitId);
+        return;
+      }
       if (activeTab === "year" && yearFullscreenHabitId) return;
     }
     if (activeTab === "month") {
@@ -2874,6 +3288,10 @@
     }
     if (activeTab === "graph") {
       renderGraph();
+      return;
+    }
+    if (activeTab === "log") {
+      renderLog();
       return;
     }
     render();
@@ -2969,17 +3387,23 @@
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
     const key = cellKey(habitId, y, m, d);
-    const v = getCellValue(key);
+    const oldValue = getCellValue(key);
     if (habit.type === "yesno") {
-      if (v === null) state.cells[key] = YESNO_PROGRESS;
-      else if (v === YESNO_PROGRESS) state.cells[key] = 1;
-      else if (v === 1) state.cells[key] = 0;
+      if (oldValue === null) state.cells[key] = YESNO_PROGRESS;
+      else if (oldValue === YESNO_PROGRESS) state.cells[key] = 1;
+      else if (oldValue === 1) state.cells[key] = 0;
       else delete state.cells[key];
     } else {
       const step = habit.step || 1;
-      const next = (v || 0) + step;
+      const next = (oldValue || 0) + step;
       state.cells[key] = next;
     }
+    const newValue = getCellValue(key);
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: newValue,
+    });
     afterCellChange(habitId, y, m, d);
   }
 
@@ -2988,18 +3412,24 @@
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
     const key = cellKey(habitId, y, m, d);
-    const v = getCellValue(key);
-    if (v === null) return;
+    const oldValue = getCellValue(key);
+    if (oldValue === null) return;
     if (habit.type === "yesno") {
-      if (v === 0) state.cells[key] = 1;
-      else if (v === 1) state.cells[key] = YESNO_PROGRESS;
+      if (oldValue === 0) state.cells[key] = 1;
+      else if (oldValue === 1) state.cells[key] = YESNO_PROGRESS;
       else delete state.cells[key];
     } else {
       const step = habit.step || 1;
-      const next = v - step;
+      const next = oldValue - step;
       if (next <= 0) delete state.cells[key];
       else state.cells[key] = next;
     }
+    const newValue = getCellValue(key);
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: newValue,
+    });
     afterCellChange(habitId, y, m, d);
   }
 
@@ -3034,7 +3464,7 @@
   function renderTopNav() {
     const nav = document.getElementById("topNav");
     if (!nav) return;
-    if (activeTab === "habits" || activeTab === "data") {
+    if (activeTab === "habits" || activeTab === "data" || activeTab === "log") {
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
     }
@@ -3812,6 +4242,7 @@
         if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
         if (!confirm("Remove this habit and all its dots?")) return;
         const id = btn.dataset.del;
+        logHabitChange(id, "delete");
         state.habits = state.habits.filter(function (h) { return h.id !== id; });
         Object.keys(state.cells).forEach(function (k) {
           if (k.indexOf(id + "-") === 0) delete state.cells[k];
@@ -3878,6 +4309,283 @@
       btn.onclick = function () {
         const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
         if (h) setHabitHidden(h.id, !h.hidden);
+      };
+    });
+  }
+
+  function renderLog() {
+    const root = document.getElementById("panelLog");
+    if (!root) return;
+    const entries = getAllRecentChanges();
+    let html =
+      '<p class="hint">Additions and erases from the last 24 hours. Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
+      '<div class="activity-log-legend">' +
+      '<span><span class="swatch add" aria-hidden="true"></span> Addition</span>' +
+      '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
+      "</div>";
+    if (!entries.length) {
+      html += '<div class="card"><p class="hint">No marks or erases yet. Tap a cell on Month or Year to start logging.</p></div>';
+      root.innerHTML = html;
+      return;
+    }
+    html += '<div class="card"><ul class="activity-log-list">';
+    entries.forEach(function (entry) {
+      const habit = state.habits.find(function (h) { return h.id === entry.habitId; });
+      const habitName = habit ? habit.name : "Removed habit";
+      const kind = getChangeLogKind(entry, habit);
+      const summary = habit ? formatChangeLogCellSummary(entry, habit) : "Updated";
+      const selected = entry.habitId === logGraphHabitId ? " selected" : "";
+      html +=
+        '<li><button type="button" class="activity-log-item ' +
+        kind +
+        selected +
+        '" data-log-habit="' +
+        escapeHtml(entry.habitId) +
+        '">' +
+        '<div class="log-main"><span class="log-habit">' +
+        escapeHtml(habitName) +
+        '</span> · <span class="log-change">' +
+        escapeHtml(summary) +
+        '</span></div><span class="log-time">' +
+        escapeHtml(formatSavedWhen(entry.ts)) +
+        "</span></button></li>";
+    });
+    html += "</ul></div>";
+
+    if (logGraphHabitId) {
+      const series = buildLog24hSeries(logGraphHabitId);
+      const habit = series.habit;
+      const habitName = habit ? habit.name : "Removed habit";
+      html += '<div class="card log-graph-card">';
+      html += '<p class="log-graph-title">' + escapeHtml(habitName) + " · last 24 hours</p>";
+      if (!habit || !series.points.length) {
+        html += '<p class="hint" style="margin:0">No chart data for this habit in the last 24 hours.</p>';
+      } else {
+        html += '<p class="hint" style="margin:0 0 8px">Value resets to zero at each midnight.</p>';
+        html += '<div class="log-graph-canvas-wrap"><canvas id="logGraphCanvas" aria-label="24 hour habit chart"></canvas></div>';
+      }
+      html += "</div>";
+    }
+
+    root.innerHTML = html;
+    bindLogControls(root);
+    if (logGraphHabitId) {
+      const series = buildLog24hSeries(logGraphHabitId);
+      if (series.habit && series.points.length) {
+        const canvas = root.querySelector("#logGraphCanvas");
+        drawLog24hChart(canvas, series.habit, series.points);
+      }
+    }
+  }
+
+  function localDateStrFromTs(ts) {
+    const d = new Date(ts);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function logGraphNumericValue(habit, cellValue) {
+    if (cellValue === null || cellValue === undefined) return 0;
+    if (habit.type === "yesno") {
+      if (cellValue === YESNO_PROGRESS) return 0.5;
+      if (cellValue >= 1) return 1;
+      return 0;
+    }
+    return cellValue;
+  }
+
+  function getHabitCellValueAtTime(habitId, ts) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return 0;
+    const dateStr = localDateStrFromTs(ts);
+    const events = (changeLog.events || [])
+      .filter(function (e) {
+        return (
+          e.habitId === habitId &&
+          e.action === "cell" &&
+          e.ts <= ts &&
+          e.detail &&
+          e.detail.date === dateStr
+        );
+      })
+      .sort(function (a, b) { return a.ts - b.ts; });
+    if (!events.length) return 0;
+    const last = events[events.length - 1];
+    return logGraphNumericValue(habit, last.detail.newValue);
+  }
+
+  function nextLocalMidnightAfter(ts) {
+    const d = new Date(ts);
+    d.setHours(24, 0, 0, 0);
+    return d.getTime();
+  }
+
+  function buildLog24hSeries(habitId) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return { habit: null, points: [] };
+    const now = Date.now();
+    const start = now - CHANGELOG_TTL_MS;
+    const points = [];
+
+    points.push({ ts: start, value: getHabitCellValueAtTime(habitId, start) });
+
+    let mid = nextLocalMidnightAfter(start);
+    while (mid < now) {
+      points.push({ ts: mid - 1, value: getHabitCellValueAtTime(habitId, mid - 1) });
+      points.push({ ts: mid, value: 0 });
+      mid = nextLocalMidnightAfter(mid);
+    }
+
+    (changeLog.events || [])
+      .filter(function (e) {
+        return e.habitId === habitId && e.action === "cell" && e.ts > start && e.ts <= now;
+      })
+      .sort(function (a, b) { return a.ts - b.ts; })
+      .forEach(function (e) {
+        points.push({ ts: e.ts, value: logGraphNumericValue(habit, e.detail.newValue) });
+      });
+
+    points.push({ ts: now, value: getHabitCellValueAtTime(habitId, now) });
+    points.sort(function (a, b) { return a.ts - b.ts; });
+
+    const collapsed = [];
+    points.forEach(function (p) {
+      const prev = collapsed[collapsed.length - 1];
+      if (prev && prev.ts === p.ts) prev.value = p.value;
+      else collapsed.push({ ts: p.ts, value: p.value });
+    });
+    return { habit: habit, points: collapsed };
+  }
+
+  function formatLogGraphAxisTime(ts, now) {
+    const d = new Date(ts);
+    const nowD = new Date(now);
+    const yesterday = new Date(nowD);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const h = d.getHours();
+    const m = d.getMinutes();
+    const ampm = h >= 12 ? "p" : "a";
+    const hour12 = h % 12 || 12;
+    const time = m ? hour12 + ":" + String(m).padStart(2, "0") + ampm : hour12 + ampm;
+    if (now - ts < 90000) return "Now";
+    if (d.toDateString() === nowD.toDateString()) return time;
+    if (d.toDateString() === yesterday.toDateString()) return "Yday " + time;
+    return d.getMonth() + 1 + "/" + d.getDate() + " " + time;
+  }
+
+  function drawLog24hChart(canvas, habit, points) {
+    if (!canvas || !points.length) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(rect.width, 280);
+    const h = 220;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const now = Date.now();
+    const start = now - CHANGELOG_TTL_MS;
+    const pad = { top: 16, right: 12, bottom: 34, left: 40 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+    let maxVal = 0;
+    points.forEach(function (p) {
+      if (p.value > maxVal) maxVal = p.value;
+    });
+    if (maxVal <= 0) maxVal = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
+
+    const color = habit.color || GRAPH_COLORS[0];
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#faf8f4";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      const tickVal = maxVal * (1 - g / 4);
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      let label;
+      if (habit.type === "yesno") {
+        if (tickVal >= 0.75) label = "Yes";
+        else if (tickVal >= 0.25) label = "…";
+        else label = "No";
+      } else {
+        label = Number.isInteger(tickVal) ? String(Math.round(tickVal)) : tickVal.toFixed(1);
+      }
+      ctx.fillText(label, pad.left - 6, gy + 3);
+    }
+
+    let mid = nextLocalMidnightAfter(start);
+    while (mid < now) {
+      const x = pad.left + ((mid - start) / (now - start)) * plotW;
+      ctx.strokeStyle = "rgba(196, 92, 92, 0.35)";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#9a8f82";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Midnight", x, pad.top - 4);
+      mid = nextLocalMidnightAfter(mid);
+    }
+
+    const labelSlots = [0, 0.25, 0.5, 0.75, 1];
+    labelSlots.forEach(function (slot) {
+      const ts = start + (now - start) * slot;
+      const x = pad.left + plotW * slot;
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(formatLogGraphAxisTime(ts, now), x, h - 10);
+    });
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    let started = false;
+    points.forEach(function (p) {
+      const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+      const y = pad.top + plotH - (p.value / maxVal) * plotH;
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    points.forEach(function (p) {
+      const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+      const y = pad.top + plotH - (p.value / maxVal) * plotH;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+  }
+
+  function bindLogControls(root) {
+    root.querySelectorAll("[data-log-habit]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-log-habit");
+        logGraphHabitId = logGraphHabitId === id ? null : id;
+        renderLog();
       };
     });
   }
@@ -4039,7 +4747,7 @@
     reader.readAsText(file);
   });
 
-  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", data: "panelData" };
+  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", log: "panelLog", data: "panelData" };
 
   document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-mode-action]");
@@ -4103,6 +4811,7 @@
       }
       else if (activeTab === "habits") renderHabits();
       else if (activeTab === "graph") renderGraph();
+      else if (activeTab === "log") renderLog();
       else if (activeTab === "data") renderData();
     } catch (err) {
       console.error("Habit Journal render error:", err);

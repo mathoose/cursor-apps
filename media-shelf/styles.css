@@ -138,10 +138,167 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-faint);
-  margin: 20px 0 10px;
+  margin: 16px 0 8px;
 }
 .section-label:first-child { margin-top: 4px; }
 .section-label-overdue { color: var(--danger); }
+
+.show-row-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.show-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-height: 48px;
+}
+
+.show-row.overdue .show-row-main {
+  border-color: rgba(248, 113, 113, 0.35);
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.show-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.show-row-main:active {
+  transform: scale(0.99);
+  border-color: var(--border-strong);
+}
+
+.show-row-type {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.show-row-type.binge { background: #c4b5fd; }
+.show-row-type.airing { background: var(--watch); }
+
+.show-row-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.show-row-ep {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 3.25rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.show-row-since {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  min-width: 3.25rem;
+  text-align: right;
+}
+
+.show-row-since.overdue { color: var(--danger); }
+
+.show-row.in-progress .show-row-main {
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: inset 3px 0 0 var(--watch);
+}
+
+.show-row-ep.watching {
+  color: var(--watch);
+  font-weight: 700;
+}
+
+.show-row-since.watching {
+  color: var(--watch);
+}
+
+.show-row-log.finish {
+  color: var(--watch);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.show-row-log {
+  flex-shrink: 0;
+  align-self: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(244, 114, 182, 0.45);
+  border-radius: var(--radius-sm);
+  background: var(--watch-soft);
+  color: var(--watch);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.show-row-log:active { opacity: 0.85; }
+
+.reminder-compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reminder-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.reminder-compact-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reminder-compact-when {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+
+.reminder-compact-when.overdue { color: var(--danger); }
 
 .empty-state-compact {
   padding: 16px 20px;
@@ -755,6 +912,17 @@ main {
   font-weight: 700;
   letter-spacing: -0.03em;
 }
+.last-log-icon.watching {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--watch);
+}
+
+.last-log-icon.watching svg {
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+}
+
 .last-log {
   display: flex;
   align-items: center;

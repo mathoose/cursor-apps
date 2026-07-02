@@ -204,7 +204,24 @@
       var ids = columnMatchIds(layout, col);
       var sideAttr = col.side ? ' data-side="' + col.side + '"' : "";
       var colKey = col.key === "final" ? "final" : col.key;
-      var colClass = "bracket-tree-col" + (col.key === "final" ? " is-final" : "");
+      var colClass = "bracket-tree-col" + (col.key === "final" ? " is-final is-center" : "");
+
+      if (col.key === "final") {
+        var finalM = bracket.matchMap[String(layout.final)];
+        html +=
+          '<div class="' + colClass + '" data-col="' + colKey + '"' + sideAttr +
+          ' data-idx="' + colIdx + '">';
+        html += '<div class="bracket-tree-col-label">' + escapeHtml(col.label) + "</div>";
+        html += '<div class="bracket-tree-center-body">';
+        if (finalM) {
+          html += '<div class="bracket-tree-slot bracket-tree-slot-final">' + treeNodeHtml(finalM) + "</div>";
+        }
+        html += '<div class="bracket-tree-bronze-block">';
+        html += '<div class="bracket-tree-bronze-label">Third place</div>';
+        html += '<div class="bracket-tree-slot">' + treeNodeHtml(bracket.bronze) + "</div>";
+        html += "</div></div></div>";
+        return;
+      }
 
       html +=
         '<div class="' + colClass + '" data-col="' + colKey + '"' + sideAttr +
@@ -222,11 +239,6 @@
     });
 
     html += "</div></div></div>";
-
-    html += '<div class="bracket-tree-extras">';
-    html += '<div class="bracket-tree-extra-label">Third place</div>';
-    html += treeNodeHtml(bracket.bronze);
-    html += "</div>";
 
     html += '<p class="bracket-hint tree-hint">Swipe sideways for the full bracket · arrows jump to each side · tap a match to enter score</p>';
     html += "</div>";

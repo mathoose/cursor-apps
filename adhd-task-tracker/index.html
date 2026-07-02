@@ -41,7 +41,13 @@
     --q4-border: #e4e4e7;
     --p3: #dc2626;
     --p2: #f59e0b;
-    --p1: #2563eb;
+    --p1: #16a34a;
+    --p3-soft: #fef2f2;
+    --p3-border: #fecaca;
+    --p2-soft: #fffbeb;
+    --p2-border: #fde68a;
+    --p1-soft: #f0fdf4;
+    --p1-border: #bbf7d0;
     --p0: #a1a1aa;
     --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
@@ -158,15 +164,35 @@
   }
 
   /* ---------- Quick add ---------- */
-  .quick-add {
-    display: flex; align-items: center; gap: 8px;
+  .quick-add-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 6px 6px 6px 12px;
     box-shadow: var(--shadow);
     margin-bottom: 12px;
+    overflow: hidden;
   }
+  .quick-add {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 6px 6px 12px;
+  }
+  .quick-add-card .quick-add {
+    border-bottom: 1px solid var(--border);
+  }
+  .quick-add-link {
+    padding: 0 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .quick-add-link input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .quick-add-link input::placeholder { color: var(--text-faint); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -180,6 +206,156 @@
   }
   .quick-add-btn:active { background: var(--accent-dark); }
   .quick-add-btn svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+  .quick-add-priority {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 10px;
+  }
+  .quick-add-priority-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-right: 2px;
+  }
+  .quick-prio-btn {
+    width: 32px;
+    height: 32px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  .quick-prio-btn.selected {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px currentColor;
+  }
+  .quick-prio-btn:active { transform: scale(0.95); }
+  .quick-prio-btn[data-prio="3"] { background: #dc2626; color: #dc2626; }
+  .quick-prio-btn[data-prio="2"] { background: #eab308; color: #eab308; }
+  .quick-prio-btn[data-prio="1"] { background: #16a34a; color: #16a34a; }
+  .quick-add-ams {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .ams-toggle {
+    position: relative;
+    display: block;
+    width: 54px;
+    height: 28px;
+  }
+  .ams-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .ams-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #dc2626, #eab308, #16a34a, #2563eb);
+    opacity: 0.28;
+    transition: opacity 0.2s, box-shadow 0.2s;
+    border: 1.5px solid var(--border);
+  }
+  .ams-toggle input:checked + .ams-toggle-track {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px #2563eb;
+  }
+  .ams-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ams-toggle input:checked ~ .ams-toggle-thumb {
+    transform: translateX(26px);
+  }
+  .ams-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    border: 1.5px solid #1f2937;
+    overflow: hidden;
+    background: linear-gradient(90deg,
+      #dc2626 0%, #dc2626 25%,
+      #eab308 25%, #eab308 50%,
+      #16a34a 50%, #16a34a 75%,
+      #2563eb 75%, #2563eb 100%
+    );
+    flex-shrink: 0;
+  }
+  .ams-badge-text {
+    font-size: 0.46rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+  }
+  .ams-badge.row-badge {
+    width: 28px;
+    height: 22px;
+    border-radius: 4px;
+  }
+  .ams-badge.row-badge .ams-badge-text {
+    font-size: 0.54rem;
+  }
+  .task-check.ams {
+    border: none;
+    background: transparent;
+    width: 28px;
+    height: 22px;
+    border-radius: 4px;
+    position: relative;
+  }
+  .task-check.ams .ams-badge { pointer-events: none; }
+  .task.completed .task-check.ams .ams-badge { opacity: 0.45; }
+  .task.completed .task-check.ams svg {
+    opacity: 1;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    z-index: 1;
+  }
+  .mtask-ams {
+    flex-shrink: 0;
+    width: 22px;
+    height: 16px;
+    margin-top: 1px;
+  }
+  .mtask-ams .ams-badge-text { font-size: 0.42rem; }
+  .field-ams-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .field-ams-toggle .ams-toggle { flex-shrink: 0; }
 
   /* ---------- Task list ---------- */
   .task-list { display: flex; flex-direction: column; gap: 6px; }
@@ -189,14 +365,15 @@
     border-radius: var(--radius);
     padding: 12px;
     display: flex; align-items: flex-start; gap: 12px;
-    cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
     position: relative;
   }
-  .task:active { background: var(--surface-2); }
   .task.completed { opacity: 0.55; }
   .task.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
   .task.overdue:not(.completed) { border-color: var(--q1-border); }
+  .task.prio-3:not(.completed) { background: var(--p3-soft); border-color: var(--p3-border); }
+  .task.prio-2:not(.completed) { background: var(--p2-soft); border-color: var(--p2-border); }
+  .task.prio-1:not(.completed) { background: var(--p1-soft); border-color: var(--p1-border); }
 
   .task-check {
     flex-shrink: 0; width: 24px; height: 24px;
@@ -208,9 +385,9 @@
     margin-top: 1px;
     transition: all 0.15s;
   }
-  .task-check.p3 { border-color: var(--p3); }
-  .task-check.p2 { border-color: var(--p2); }
-  .task-check.p1 { border-color: var(--p1); }
+  .task-check.p3 { border-color: var(--p3); background: rgba(220, 38, 38, 0.08); }
+  .task-check.p2 { border-color: var(--p2); background: rgba(245, 158, 11, 0.1); }
+  .task-check.p1 { border-color: var(--p1); background: rgba(22, 163, 74, 0.08); }
   .task-check:active { transform: scale(0.9); }
   .task.completed .task-check {
     background: var(--success);
@@ -221,6 +398,19 @@
 
   .task-body { flex: 1; min-width: 0; }
   .task-title { font-size: 0.95rem; font-weight: 500; line-height: 1.35; word-wrap: break-word; }
+  .task-title-link {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.35;
+    word-wrap: break-word;
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
+  .task-title-link:active { opacity: 0.75; }
+  .task.completed .task-title-link { color: var(--text-muted); }
   .task-meta {
     display: flex; flex-wrap: wrap; gap: 4px 10px;
     margin-top: 4px;
@@ -238,6 +428,96 @@
   .pill.due-future { background: var(--surface-2); color: var(--text-muted); }
   .pill.list { background: var(--accent-soft); color: var(--accent-dark); }
   .pill.subtasks { background: var(--surface-2); color: var(--text-muted); }
+  .pill.link {
+    background: var(--surface-2);
+    color: var(--accent-dark);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .pill.link:active { opacity: 0.75; }
+  .task-edit-btn {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-top: -2px;
+  }
+  .task-edit-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .task-edit-btn:active { background: var(--surface-2); color: var(--accent); }
+  .mtask-edit-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .mtask-edit-btn svg {
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .category-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .category-picker select { flex: 1; min-width: 0; }
+  .category-add-btn {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 1.35rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .category-add-btn:active { background: var(--accent-soft); }
+  .category-new-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .category-new-row input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    background: var(--surface);
+    outline: none;
+  }
+  .category-new-row input:focus { border-color: var(--accent); }
 
   .empty {
     text-align: center;
@@ -251,10 +531,8 @@
   .matrix {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
     gap: 8px;
-    min-height: calc(100vh - 270px);
-    min-height: calc(100dvh - 270px);
+    align-items: start;
   }
   .quadrant {
     background: var(--surface);
@@ -262,12 +540,20 @@
     border-radius: var(--radius);
     padding: 10px;
     display: flex; flex-direction: column;
-    min-height: 200px;
     overflow: hidden;
+    min-width: 0;
   }
-  .quadrant.q1 { border-color: var(--q1-border); background: var(--q1-soft); }
-  .quadrant.q2 { border-color: var(--q2-border); background: var(--q2-soft); }
-  .quadrant.q3 { border-color: var(--q3-border); background: var(--q3-soft); }
+  .quadrant.q1,
+  .quadrant.q2 {
+    height: clamp(140px, 32vh, 220px);
+  }
+  .quadrant.q3,
+  .quadrant.q4 {
+    max-height: clamp(160px, 38vh, 320px);
+  }
+  .quadrant.q1 { border-color: var(--p3-border); background: var(--p3-soft); }
+  .quadrant.q2 { border-color: var(--p2-border); background: var(--p2-soft); }
+  .quadrant.q3 { border-color: var(--p1-border); background: var(--p1-soft); }
   .quadrant.q4 { border-color: var(--q4-border); background: var(--q4-soft); }
   .quadrant.drag-over { transform: scale(1.02); box-shadow: var(--shadow-lg); }
 
@@ -278,9 +564,9 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-  .q1 .quadrant-label { color: var(--q1); }
-  .q2 .quadrant-label { color: var(--q2); }
-  .q3 .quadrant-label { color: var(--q3); }
+  .q1 .quadrant-label { color: var(--p3); }
+  .q2 .quadrant-label { color: var(--p2); }
+  .q3 .quadrant-label { color: var(--p1); }
   .q4 .quadrant-label { color: var(--q4); }
   .quadrant-title {
     font-size: 0.95rem;
@@ -317,6 +603,9 @@
   }
   .mtask.completed { opacity: 0.5; text-decoration: line-through; }
   .mtask.dragging { opacity: 0.4; }
+  .mtask.prio-3:not(.completed) { background: var(--p3-soft); border-color: var(--p3-border); }
+  .mtask.prio-2:not(.completed) { background: var(--p2-soft); border-color: var(--p2-border); }
+  .mtask.prio-1:not(.completed) { background: var(--p1-soft); border-color: var(--p1-border); }
   .mtask-check {
     flex-shrink: 0; width: 16px; height: 16px;
     border: 1.5px solid var(--border-strong);
@@ -329,7 +618,16 @@
     background: var(--success);
     border-color: var(--success);
   }
+  .mtask-check.p3 { border-color: var(--p3); background: rgba(220, 38, 38, 0.08); }
+  .mtask-check.p2 { border-color: var(--p2); background: rgba(245, 158, 11, 0.1); }
+  .mtask-check.p1 { border-color: var(--p1); background: rgba(22, 163, 74, 0.08); }
   .mtask-title { flex: 1; min-width: 0; word-wrap: break-word; }
+  .mtask-title.task-title-link {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 2px;
+  }
   .quadrant-empty {
     color: var(--text-faint);
     font-size: 0.75rem;
@@ -889,6 +1187,7 @@
     display: block;
   }
   .field input[type="text"],
+  .field input[type="url"],
   .field input[type="date"],
   .field textarea,
   .field select {
@@ -905,6 +1204,15 @@
     border-color: var(--accent);
   }
   .field textarea { resize: vertical; min-height: 72px; }
+  .task-link-open {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    text-decoration: none;
+  }
+  .task-link-open[hidden] { display: none; }
 
   .priority-picker { display: flex; gap: 6px; }
   .prio-btn {
@@ -928,7 +1236,7 @@
   .prio-btn[data-prio="2"] .flag { border-color: var(--p2); }
   .prio-btn[data-prio="3"] .flag { border-color: var(--p3); }
   .prio-btn.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
-  .prio-btn.selected[data-prio="1"] { border-color: var(--p1); background: #eff6ff; color: var(--p1); }
+  .prio-btn.selected[data-prio="1"] { border-color: var(--p1); background: var(--p1-soft); color: var(--p1); }
   .prio-btn.selected[data-prio="2"] { border-color: var(--p2); background: var(--q3-soft); color: #92400e; }
   .prio-btn.selected[data-prio="3"] { border-color: var(--p3); background: var(--q1-soft); color: var(--p3); }
   .prio-btn.selected .flag { background: currentColor; }
@@ -953,9 +1261,9 @@
     font-weight: 600;
     border: 1px solid;
   }
-  .quadrant-badge.q1 { background: var(--q1-soft); color: var(--q1); border-color: var(--q1-border); }
-  .quadrant-badge.q2 { background: var(--q2-soft); color: var(--q2); border-color: var(--q2-border); }
-  .quadrant-badge.q3 { background: var(--q3-soft); color: #92400e; border-color: var(--q3-border); }
+  .quadrant-badge.q1 { background: var(--p3-soft); color: var(--p3); border-color: var(--p3-border); }
+  .quadrant-badge.q2 { background: var(--p2-soft); color: var(--p2); border-color: var(--p2-border); }
+  .quadrant-badge.q3 { background: var(--p1-soft); color: var(--p1); border-color: var(--p1-border); }
   .quadrant-badge.q4 { background: var(--q4-soft); color: var(--q4); border-color: var(--q4-border); }
 
   /* ---------- Subtasks ---------- */
@@ -1141,33 +1449,33 @@
     <div class="matrix" id="matrixGrid">
       <div class="quadrant q1" data-q="1">
         <div class="quadrant-header">
-          <div class="quadrant-label">Urgent · Important</div>
-          <div class="quadrant-title">Do now</div>
-          <div class="quadrant-hint">Tackle immediately</div>
+          <div class="quadrant-label">High · Red</div>
+          <div class="quadrant-title">Do first</div>
+          <div class="quadrant-hint">H priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="1"></div>
       </div>
       <div class="quadrant q2" data-q="2">
         <div class="quadrant-header">
-          <div class="quadrant-label">Important · Not urgent</div>
+          <div class="quadrant-label">Medium · Yellow</div>
           <div class="quadrant-title">Schedule</div>
-          <div class="quadrant-hint">Plan time for these</div>
+          <div class="quadrant-hint">M priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="2"></div>
       </div>
       <div class="quadrant q3" data-q="3">
         <div class="quadrant-header">
-          <div class="quadrant-label">Urgent · Not important</div>
-          <div class="quadrant-title">Delegate / batch</div>
-          <div class="quadrant-hint">Quick or handoff</div>
+          <div class="quadrant-label">Low · Green</div>
+          <div class="quadrant-title">When you can</div>
+          <div class="quadrant-hint">L priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="3"></div>
       </div>
       <div class="quadrant q4" data-q="4">
         <div class="quadrant-header">
-          <div class="quadrant-label">Not urgent · Not important</div>
-          <div class="quadrant-title">Drop / defer</div>
-          <div class="quadrant-hint">Reduce or delete</div>
+          <div class="quadrant-label">None · Grey</div>
+          <div class="quadrant-title">Someday</div>
+          <div class="quadrant-hint">No priority set</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="4"></div>
       </div>
@@ -1193,11 +1501,31 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="quick-add">
-      <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
-      <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
+        <button class="quick-add-btn" id="listQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="quick-add-priority" id="listQuickPriority">
+        <span class="quick-add-priority-label">Priority</span>
+        <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
+        <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
+        <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+        <div class="quick-add-ams">
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
+        </div>
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1205,11 +1533,31 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
-    <div class="quick-add">
-      <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
-      <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
+    <div class="quick-add-card">
+      <div class="quick-add">
+        <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
+        <button class="quick-add-btn" id="inboxQuickBtn" aria-label="Add">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="quick-add-link">
+        <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+      <div class="quick-add-priority" id="inboxQuickPriority">
+        <span class="quick-add-priority-label">Priority</span>
+        <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
+        <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
+        <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+        <div class="quick-add-ams">
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
+        </div>
+      </div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -1250,8 +1598,13 @@
         <input type="text" id="taskTitleInput" placeholder="Task title" autocomplete="off">
       </div>
       <div class="field">
-        <label class="field-label">Notes</label>
-        <textarea id="taskNotesInput" placeholder="Add notes…"></textarea>
+        <label class="field-label">Description</label>
+        <textarea id="taskNotesInput" placeholder="Add a description…"></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">Link</label>
+        <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <a class="task-link-open" id="taskLinkOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
       </div>
       <div class="field task-photo-block">
         <label class="field-label">Photo</label>
@@ -1286,8 +1639,30 @@
         </div>
       </div>
       <div class="field">
-        <label class="field-label">List</label>
-        <select id="taskListSelect"></select>
+        <div class="field-ams-toggle">
+          <div>
+            <label class="field-label" style="margin-bottom: 2px;">AMS</label>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Show rainbow AMS badge on task row</div>
+          </div>
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" id="taskAmsInput" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Category</label>
+        <div class="category-picker">
+          <select id="taskListSelect"></select>
+          <button type="button" class="category-add-btn" id="taskCategoryAddBtn" aria-label="Add category">+</button>
+        </div>
+        <div class="category-new-row" id="taskCategoryNewRow" hidden>
+          <input type="text" id="taskCategoryNewInput" placeholder="New category name" autocomplete="off">
+          <button type="button" class="btn btn-primary" id="taskCategoryNewSave">Add</button>
+        </div>
       </div>
       <div class="field">
         <label class="field-label">Subtasks</label>
@@ -1297,7 +1672,7 @@
         </div>
       </div>
       <div class="field">
-        <label class="field-label">Quadrant</label>
+        <label class="field-label">Matrix</label>
         <div id="quadrantBadgeWrap"></div>
       </div>
     </div>
@@ -1653,11 +2028,84 @@ function normalizeCounter(c) {
   };
 }
 
+function normalizeTaskLink(url) {
+  const s = (url || '').trim();
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  return 'https://' + s;
+}
+
+function isValidTaskLink(url) {
+  if (!url) return true;
+  try {
+    const u = new URL(url);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function linkDisplayLabel(url) {
+  try {
+    const u = new URL(url);
+    if (/instagram\.com/i.test(u.hostname)) return 'Instagram';
+    return u.hostname.replace(/^www\./, '');
+  } catch {
+    return 'Open link';
+  }
+}
+
+function extractFirstUrl(text) {
+  const m = (text || '').match(/https?:\/\/[^\s<>"']+/i);
+  if (!m) return '';
+  const url = normalizeTaskLink(m[0].replace(/[.,;:!?)]+$/, ''));
+  return isValidTaskLink(url) ? url : '';
+}
+
+function getTaskLinkUrl(task) {
+  if (!task) return '';
+  if (task.link) {
+    const url = normalizeTaskLink(task.link);
+    if (url && isValidTaskLink(url)) return url;
+  }
+  return extractFirstUrl(task.notes);
+}
+
+function appendTaskTitle(parent, task, titleClass, opts) {
+  opts = opts || {};
+  parent.appendChild(el('div', { class: titleClass, text: task.title }));
+}
+
+function appendTaskLinkPill(meta, task) {
+  const linkUrl = getTaskLinkUrl(task);
+  if (!linkUrl) return;
+  meta.appendChild(el('a', {
+    class: 'pill link',
+    text: '🔗 ' + linkDisplayLabel(linkUrl),
+    href: linkUrl,
+    target: '_blank',
+    rel: 'noopener noreferrer',
+    title: 'Open ' + linkDisplayLabel(linkUrl),
+    onClick: (e) => e.stopPropagation()
+  }));
+}
+
+function taskEditButton(className, onEdit) {
+  return el('button', {
+    class: className,
+    type: 'button',
+    'aria-label': 'Edit task',
+    html: '<svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+    onClick: (e) => { e.stopPropagation(); onEdit(); }
+  });
+}
+
 function normalizeTask(t) {
   return {
     id: t.id || uid(),
     title: t.title || '',
     notes: t.notes || '',
+    link: normalizeTaskLink(t.link),
     listId: t.listId || 'inbox',
     dueDate: t.dueDate || null,
     priority: typeof t.priority === 'number' ? t.priority : 0,
@@ -1666,6 +2114,7 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
+    ams: !!t.ams,
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
       title: s.title || '',
@@ -1861,64 +2310,35 @@ function getTaskThumbUrl(taskId) {
 }
 
 // ============================================================================
-// EISENHOWER MATRIX LOGIC
+// PRIORITY MATRIX LOGIC
 // ============================================================================
-// Quadrants: 1 = Urgent+Important (Do), 2 = Important+NotUrgent (Schedule),
-//            3 = Urgent+NotImportant (Delegate), 4 = Neither (Drop)
-
-function isUrgent(task) {
-  if (task.urgent !== null && task.urgent !== undefined) return task.urgent;
-  // Auto: due today or overdue
-  if (!task.dueDate) return false;
-  return diffDays(task.dueDate) <= 0;
-}
-
-function isImportant(task) {
-  if (task.important !== null && task.important !== undefined) return task.important;
-  // Auto: priority medium or high
-  return task.priority >= 2;
-}
+// Quadrants map to priority: 1 = High (red), 2 = Medium (yellow),
+//                            3 = Low (green), 4 = None (grey)
 
 function quadrantOf(task) {
-  const u = isUrgent(task);
-  const i = isImportant(task);
-  if (u && i) return 1;
-  if (!u && i) return 2;
-  if (u && !i) return 3;
+  if (task.priority === 3) return 1;
+  if (task.priority === 2) return 2;
+  if (task.priority === 1) return 3;
   return 4;
 }
 
 function applyQuadrant(task, q) {
-  // Move task to quadrant q, set explicit urgent/important + adjust priority/date
   switch (q) {
-    case 1:
-      task.urgent = true; task.important = true;
-      if (task.priority < 2) task.priority = 3;
-      if (!task.dueDate || diffDays(task.dueDate) > 0) task.dueDate = todayStr();
-      break;
-    case 2:
-      task.urgent = false; task.important = true;
-      if (task.priority < 2) task.priority = 2;
-      if (task.dueDate && diffDays(task.dueDate) <= 0) task.dueDate = addDaysStr(null, 3);
-      break;
-    case 3:
-      task.urgent = true; task.important = false;
-      if (task.priority > 1) task.priority = 1;
-      if (!task.dueDate || diffDays(task.dueDate) > 0) task.dueDate = todayStr();
-      break;
-    case 4:
-      task.urgent = false; task.important = false;
-      if (task.priority > 1) task.priority = 1;
-      break;
+    case 1: task.priority = 3; break;
+    case 2: task.priority = 2; break;
+    case 3: task.priority = 1; break;
+    default: task.priority = 0; break;
   }
+  task.urgent = null;
+  task.important = null;
   task.updatedAt = new Date().toISOString();
 }
 
 const QUADRANT_LABELS = {
-  1: { name: 'Do now', hint: 'Urgent · Important' },
-  2: { name: 'Schedule', hint: 'Important · Not urgent' },
-  3: { name: 'Delegate / batch', hint: 'Urgent · Not important' },
-  4: { name: 'Drop / defer', hint: 'Not urgent · Not important' }
+  1: { name: 'High', hint: 'Red · top left' },
+  2: { name: 'Medium', hint: 'Yellow · top right' },
+  3: { name: 'Low', hint: 'Green · bottom left' },
+  4: { name: 'None', hint: 'Grey · bottom right' }
 };
 
 // ============================================================================
@@ -2010,30 +2430,42 @@ function taskCheckmark() {
   return svg;
 }
 
+function amsBadgeEl(extraClass) {
+  const badge = el('span', { class: 'ams-badge' + (extraClass ? ' ' + extraClass : '') });
+  badge.appendChild(el('span', { class: 'ams-badge-text', text: 'AMS' }));
+  return badge;
+}
+
 function priorityClass(p) {
   return p === 3 ? 'p3' : p === 2 ? 'p2' : p === 1 ? 'p1' : 'p0';
+}
+
+function taskRowPriorityClass(priority) {
+  if (priority === 3) return ' prio-3';
+  if (priority === 2) return ' prio-2';
+  if (priority === 1) return ' prio-1';
+  return '';
 }
 
 function renderTaskRow(task, opts) {
   opts = opts || {};
   const overdue = task.dueDate && !task.completed && diffDays(task.dueDate) < 0;
   const row = el('div', {
-    class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : ''),
-    dataset: { id: task.id },
-    onClick: (e) => {
-      if (e.target.closest('.task-check')) return;
-      openTaskEditor(task.id);
-    }
+    class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : '') + taskRowPriorityClass(task.priority),
+    dataset: { id: task.id }
   });
   const check = el('div', {
-    class: 'task-check ' + priorityClass(task.priority),
+    class: 'task-check' + (task.ams ? ' ams' : ' ' + priorityClass(task.priority)),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
+  if (task.ams) {
+    check.appendChild(amsBadgeEl('row-badge'));
+  }
   check.appendChild(taskCheckmark());
   row.appendChild(check);
 
   const body = el('div', { class: 'task-body' });
-  body.appendChild(el('div', { class: 'task-title', text: task.title }));
+  appendTaskTitle(body, task, 'task-title');
 
   const meta = el('div', { class: 'task-meta' });
   if (task.dueDate) {
@@ -2054,8 +2486,10 @@ function renderTaskRow(task, opts) {
   if (task.hasPhoto) {
     meta.appendChild(el('span', { class: 'pill photo', text: '📷' }));
   }
+  appendTaskLinkPill(meta, task);
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
+  row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
   return row;
 }
 
@@ -2086,9 +2520,9 @@ function renderHeader() {
   if (currentView === 'matrix') {
     if (state.matrixFilter && state.matrixFilter !== 'all') {
       const list = state.lists.find(l => l.id === state.matrixFilter);
-      sub.textContent = list ? `Filtered to ${list.name}` : 'Drag tasks between quadrants';
+      sub.textContent = list ? `Filtered to ${list.name}` : 'Drag tasks to change priority';
     } else {
-      sub.textContent = 'Drag tasks between quadrants';
+      sub.textContent = 'Drag tasks to change priority';
     }
   } else if (currentView === 'inbox') {
     sub.textContent = 'Capture now, sort later';
@@ -2105,7 +2539,7 @@ function renderFocusStripInto(container) {
   const overdue = state.tasks.filter(t => !t.completed && t.dueDate && diffDays(t.dueDate) < 0);
   const dueToday = state.tasks.filter(t => !t.completed && t.dueDate && diffDays(t.dueDate) === 0);
   const doNow = [...overdue, ...dueToday]
-    .filter(t => quadrantOf(t) === 1)
+    .filter(t => t.priority >= 3)
     .sort((a, b) => (b.priority - a.priority));
   if (!doNow.length) return;
   const focus = doNow[0];
@@ -2117,7 +2551,7 @@ function renderFocusStripInto(container) {
   strip.appendChild(el('div', { class: 'focus-strip-title', text: focus.title }));
   strip.appendChild(el('div', {
     class: 'focus-strip-sub',
-    text: doNow.length > 1 ? `+ ${doNow.length - 1} more urgent — check the Matrix` : 'Tap to open this task'
+    text: doNow.length > 1 ? `+ ${doNow.length - 1} more high priority — check the Matrix` : 'Tap to open this task'
   }));
   container.appendChild(strip);
 }
@@ -2188,20 +2622,22 @@ function renderMatrixFilter() {
 
 function renderMatrixTask(task) {
   const node = el('div', {
-    class: 'mtask' + (task.completed ? ' completed' : ''),
+    class: 'mtask' + (task.completed ? ' completed' : '') + taskRowPriorityClass(task.priority),
     dataset: { id: task.id },
-    draggable: 'true',
-    onClick: (e) => {
-      if (e.target.closest('.mtask-check')) return;
-      openTaskEditor(task.id);
-    }
+    draggable: 'true'
   });
   const check = el('div', {
-    class: 'mtask-check',
+    class: 'mtask-check ' + priorityClass(task.priority),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
   node.appendChild(check);
-  node.appendChild(el('div', { class: 'mtask-title', text: task.title }));
+  if (task.ams) {
+    const amsWrap = el('div', { class: 'mtask-ams' });
+    amsWrap.appendChild(amsBadgeEl());
+    node.appendChild(amsWrap);
+  }
+  appendTaskTitle(node, task, 'mtask-title');
+  node.appendChild(taskEditButton('mtask-edit-btn', () => openTaskEditor(task.id)));
 
   // Drag (desktop / touch)
   node.addEventListener('dragstart', (e) => {
@@ -2484,33 +2920,70 @@ function renderInbox() {
   container.appendChild(list);
 }
 
-// ============================================================================
-// TASK EDITOR
-// ============================================================================
-function openTaskEditor(taskId) {
-  editingTaskId = taskId;
-  pendingNewTaskPhotoBlob = null;
-  revokeTaskModalPhotoUrl();
-  const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
-  editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
-    id: null, title: '', notes: '', listId: state.activeListId || 'inbox',
-    dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, subtasks: []
-  };
-
-  document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
-  document.getElementById('taskTitleInput').value = editingTaskDraft.title;
-  document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
-  document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
-
-  // List select
+function renderTaskCategorySelect() {
   const listSel = document.getElementById('taskListSelect');
+  if (!listSel || !editingTaskDraft) return;
   listSel.innerHTML = '';
   state.lists.forEach(l => {
     const opt = el('option', { value: l.id, text: l.name });
     if (l.id === editingTaskDraft.listId) opt.selected = true;
     listSel.appendChild(opt);
   });
+}
+
+function hideTaskCategoryNewRow() {
+  const row = document.getElementById('taskCategoryNewRow');
+  const input = document.getElementById('taskCategoryNewInput');
+  if (row) row.hidden = true;
+  if (input) input.value = '';
+}
+
+function saveTaskCategoryNew() {
+  const input = document.getElementById('taskCategoryNewInput');
+  if (!input || !editingTaskDraft) return;
+  const name = input.value.trim();
+  if (!name) {
+    showToast('Enter a category name', { error: true });
+    input.focus();
+    return;
+  }
+  const existing = state.lists.find(l => l.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    editingTaskDraft.listId = existing.id;
+    renderTaskCategorySelect();
+    hideTaskCategoryNewRow();
+    return;
+  }
+  const id = addList(name, { silent: true });
+  if (!id) return;
+  editingTaskDraft.listId = id;
+  renderTaskCategorySelect();
+  hideTaskCategoryNewRow();
+  showToast('Added category: ' + name);
+}
+
+function openTaskEditor(taskId) {
+  editingTaskId = taskId;
+  pendingNewTaskPhotoBlob = null;
+  revokeTaskModalPhotoUrl();
+  const task = taskId ? state.tasks.find(t => t.id === taskId) : null;
+  editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
+    id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
+    dueDate: null, priority: 0, urgent: null, important: null,
+    completed: false, hasPhoto: false, ams: false, subtasks: []
+  };
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
+
+  document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
+  document.getElementById('taskTitleInput').value = editingTaskDraft.title;
+  document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
+  document.getElementById('taskLinkInput').value = editingTaskDraft.link;
+  document.getElementById('taskAmsInput').checked = !!editingTaskDraft.ams;
+  updateTaskLinkOpenButton();
+  document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
+  hideTaskCategoryNewRow();
+  renderTaskCategorySelect();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
@@ -2557,20 +3030,6 @@ function renderQuadrantBadge() {
   const q = quadrantOf(editingTaskDraft);
   const info = QUADRANT_LABELS[q];
   wrap.appendChild(el('span', { class: 'quadrant-badge q' + q, text: info.name + ' · ' + info.hint }));
-  const manual = editingTaskDraft.urgent !== null || editingTaskDraft.important !== null;
-  if (manual) {
-    const reset = el('button', {
-      class: 'btn-ghost',
-      style: 'margin-left: 8px; font-size: 0.78rem; color: var(--accent); text-decoration: underline; cursor: pointer; background: none; border: none;',
-      text: 'Auto from priority + date',
-      onClick: () => {
-        editingTaskDraft.urgent = null;
-        editingTaskDraft.important = null;
-        renderQuadrantBadge();
-      }
-    });
-    wrap.appendChild(reset);
-  }
 }
 
 function closeTaskEditor() {
@@ -2661,12 +3120,31 @@ function removeTaskPhoto() {
   renderTaskPhotoEditor();
 }
 
+function updateTaskLinkOpenButton() {
+  const btn = document.getElementById('taskLinkOpen');
+  if (!btn) return;
+  const url = normalizeTaskLink(editingTaskDraft && editingTaskDraft.link);
+  if (!url || !isValidTaskLink(url)) {
+    btn.hidden = true;
+    btn.href = '#';
+    return;
+  }
+  btn.hidden = false;
+  btn.href = url;
+  btn.textContent = 'Open ' + linkDisplayLabel(url);
+}
+
 function saveTaskEditor() {
   if (!editingTaskDraft || !editingTaskDraft.title.trim()) {
     closeTaskEditor();
     return;
   }
   editingTaskDraft.title = editingTaskDraft.title.trim();
+  editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.link && !isValidTaskLink(editingTaskDraft.link)) {
+    showToast('Link must be a valid http(s) URL', { error: true });
+    return;
+  }
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -2803,16 +3281,23 @@ function moveList(index, direction) {
   render();
 }
 
-function addList(name) {
+function addList(name, opts) {
+  opts = opts || {};
   name = (name || '').trim();
   if (!name) {
-    showToast('Enter a list name', { error: true });
-    return;
+    if (!opts.silent) showToast('Enter a list name', { error: true });
+    return null;
+  }
+  const existing = state.lists.find(l => l.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    if (!opts.silent) showToast('Category already exists', { error: true });
+    return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
   state.lists.push({ id, name });
   saveState();
-  showToast('Added list: ' + name);
+  if (!opts.silent) showToast('Added list: ' + name);
+  return id;
 }
 
 // ============================================================================
@@ -3639,32 +4124,72 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  // Inbox
-  const inboxInput = document.getElementById('inboxQuickInput');
-  const inboxBtn = document.getElementById('inboxQuickBtn');
-  const addInbox = () => {
-    const v = inboxInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: 'inbox' });
-    inboxInput.value = '';
-    render();
-  };
-  inboxBtn.addEventListener('click', addInbox);
-  inboxInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addInbox(); });
+  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId) {
+    const titleInput = document.getElementById(titleInputId);
+    const linkInput = document.getElementById(linkInputId);
+    const btn = document.getElementById(btnId);
+    const prioRow = document.getElementById(prioRowId);
+    const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
+    const amsInput = prioRow.querySelector('.quick-ams-input');
+    let selectedPrio = 0;
 
-  // Lists
-  const listInput = document.getElementById('listQuickInput');
-  const listBtn = document.getElementById('listQuickBtn');
-  const addToList = () => {
-    const v = listInput.value.trim();
-    if (!v) return;
-    addTask({ title: v, listId: state.activeListId });
-    listInput.value = '';
-    render();
-  };
-  listBtn.addEventListener('click', addToList);
-  listInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addToList(); });
+    const resetPrio = () => {
+      selectedPrio = 0;
+      prioBtns.forEach(b => {
+        b.classList.remove('selected');
+        b.setAttribute('aria-pressed', 'false');
+      });
+    };
 
+    const resetAms = () => {
+      if (amsInput) amsInput.checked = false;
+    };
+
+    prioBtns.forEach(prioBtn => {
+      prioBtn.addEventListener('click', () => {
+        const p = parseInt(prioBtn.dataset.prio, 10);
+        if (prioBtn.classList.contains('selected')) {
+          resetPrio();
+          return;
+        }
+        selectedPrio = p;
+        prioBtns.forEach(b => {
+          b.classList.remove('selected');
+          b.setAttribute('aria-pressed', 'false');
+        });
+        prioBtn.classList.add('selected');
+        prioBtn.setAttribute('aria-pressed', 'true');
+      });
+    });
+
+    const submit = () => {
+      const title = titleInput.value.trim();
+      if (!title) return;
+      const link = normalizeTaskLink(linkInput.value.trim());
+      if (link && !isValidTaskLink(link)) {
+        showToast('Link must be a valid http(s) URL', { error: true });
+        return;
+      }
+      addTask({
+        title,
+        listId: getListId(),
+        link: link || '',
+        priority: selectedPrio,
+        ams: !!(amsInput && amsInput.checked)
+      });
+      titleInput.value = '';
+      linkInput.value = '';
+      resetPrio();
+      resetAms();
+      render();
+    };
+    btn.addEventListener('click', submit);
+    titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+  }
+
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId);
 }
 
 function wireDateNav() {
@@ -3732,6 +4257,18 @@ function wireTaskEditor() {
   document.getElementById('taskNotesInput').addEventListener('input', (e) => {
     editingTaskDraft.notes = e.target.value;
   });
+  document.getElementById('taskLinkInput').addEventListener('input', (e) => {
+    editingTaskDraft.link = e.target.value;
+    updateTaskLinkOpenButton();
+  });
+  document.getElementById('taskLinkOpen').addEventListener('click', (e) => {
+    if (!editingTaskDraft || !editingTaskDraft.link || !isValidTaskLink(normalizeTaskLink(editingTaskDraft.link))) {
+      e.preventDefault();
+    }
+  });
+  document.getElementById('taskAmsInput').addEventListener('change', (e) => {
+    if (editingTaskDraft) editingTaskDraft.ams = e.target.checked;
+  });
   document.getElementById('taskDueInput').addEventListener('change', (e) => {
     editingTaskDraft.dueDate = e.target.value || null;
     editingTaskDraft.urgent = null;
@@ -3740,6 +4277,21 @@ function wireTaskEditor() {
   });
   document.getElementById('taskListSelect').addEventListener('change', (e) => {
     editingTaskDraft.listId = e.target.value;
+  });
+  document.getElementById('taskCategoryAddBtn').addEventListener('click', () => {
+    const row = document.getElementById('taskCategoryNewRow');
+    const input = document.getElementById('taskCategoryNewInput');
+    if (!row || !input) return;
+    row.hidden = !row.hidden;
+    if (!row.hidden) {
+      input.value = '';
+      setTimeout(() => input.focus(), 50);
+    }
+  });
+  document.getElementById('taskCategoryNewSave').addEventListener('click', saveTaskCategoryNew);
+  document.getElementById('taskCategoryNewInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveTaskCategoryNew();
+    if (e.key === 'Escape') hideTaskCategoryNewRow();
   });
 
   // Priority

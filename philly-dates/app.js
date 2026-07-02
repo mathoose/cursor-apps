@@ -1628,6 +1628,7 @@ function parseRestaurantTextBlocks(text) {
       address: '',
       description: '',
       notes: '',
+      categories: '',
       schedule: {}
     };
     var inSchedule = false;
@@ -1662,6 +1663,7 @@ function parseRestaurantTextBlocks(text) {
       else if (key === 'neighborhood') place.neighborhood = val;
       else if (key === 'address') place.address = val;
       else if (key === 'description') place.description = val;
+      else if (key === 'categories') place.categories = val;
       else if (key === 'notes') {
         place.notes = val;
         if (val && !place.description) place.description = val;
@@ -1686,6 +1688,14 @@ function importRestaurantsFromText(text) {
     var existed = !!byName[name];
     var schedule = p.schedule || {};
     var description = p.description || '';
+    if (p.categories) {
+      description = description
+        ? description + ' · Categories: ' + p.categories
+        : 'Categories: ' + p.categories;
+    }
+    if (p.notes && !description.includes(p.notes)) {
+      description = description ? description + ' * ' + p.notes : p.notes;
+    }
     var r = byName[name];
     if (!r) {
       r = {
@@ -1797,17 +1807,6 @@ document.getElementById('import-text-btn').addEventListener('click', function() 
   if (ta) ta.value = '';
   closeSettings();
 });
-var quickAddNotesLink = document.getElementById('quick-add-notes');
-if (quickAddNotesLink) {
-  quickAddNotesLink.addEventListener('click', function() {
-    var nameEl = document.getElementById('quick-add-name');
-    var igEl = document.getElementById('quick-add-instagram');
-    var url = '../restaurant-notes/?quickAdd=1';
-    if (igEl && igEl.value.trim()) url += '&instagram=' + encodeURIComponent(igEl.value.trim());
-    if (nameEl && nameEl.value.trim()) url += '&name=' + encodeURIComponent(nameEl.value.trim());
-    quickAddNotesLink.href = url;
-  });
-}
 document.getElementById('import-json-file').addEventListener('change', function(e) {
   var file = e.target.files && e.target.files[0];
   e.target.value = '';
@@ -2067,7 +2066,9 @@ function renderGridView() {
   if (tagF && tagF !== 'all') summaryParts.push('tag <strong>' + escapeHtml(tagLabel(tagF)) + '</strong>');
   if (getNeverTriedFilter()) summaryParts.push('<strong>never tried</strong>');
   document.getElementById('summary').innerHTML = summaryParts.join(' · ')
-    + (activeNow.length ? ': ' + activeNow.map(r => r.name).join(', ') : '');
+    + (activeNow.length ? ': ' + activeNow.map(function(r) {
+      return '<button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</button>';
+    }).join(', ') : '');
   const thead = document.querySelector('#grid thead');
   thead.innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
     slots.map(t => {
@@ -2086,6 +2087,10 @@ function renderGridView() {
   }).join('');
 }
 document.querySelector('#grid tbody').addEventListener('click', e => {
+  const btn = e.target.closest('.rest-link');
+  if (btn) openModal(btn.dataset.name);
+});
+document.getElementById('summary').addEventListener('click', e => {
   const btn = e.target.closest('.rest-link');
   if (btn) openModal(btn.dataset.name);
 });
