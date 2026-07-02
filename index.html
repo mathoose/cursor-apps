@@ -793,6 +793,10 @@
       .replace(/"/g, "&quot;");
   }
 
+  function getLauncherHiddenIds(manifest) {
+    return new Set((manifest && manifest.launcherHidden || []).filter(Boolean));
+  }
+
   function loadManifest() {
     return fetch("apps.json?" + Date.now())
       .then(function (r) { return r.ok ? r.json() : FALLBACK_MANIFEST; })
@@ -835,7 +839,10 @@
         }));
       })
       .then(function (ids) {
-        return ids.filter(Boolean).map(function (id) {
+        var launcherHidden = getLauncherHiddenIds(manifest);
+        return ids.filter(Boolean)
+          .filter(function (id) { return !launcherHidden.has(id); })
+          .map(function (id) {
           const m = meta[id] || {};
           return {
             id: id,
@@ -1071,7 +1078,10 @@
   }
 
   function renderOffline(manifest) {
-    const apps = (manifest.apps || []).map(function (a) {
+    var launcherHidden = getLauncherHiddenIds(manifest);
+    const apps = (manifest.apps || [])
+      .filter(function (a) { return !launcherHidden.has(a.id); })
+      .map(function (a) {
       return {
         id: a.id,
         name: a.name || humanize(a.id),
