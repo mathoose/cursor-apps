@@ -443,6 +443,42 @@ main { padding: 0 16px 16px; }
 .field textarea:focus { border-color: var(--accent); }
 .field textarea { resize: vertical; min-height: 72px; }
 
+.field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  padding: 12px 14px;
+  font-size: 1rem;
+  outline: none;
+}
+.field select:focus { border-color: var(--accent); }
+
+.list-row-uncat .list-row-bar {
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+}
+
+.list-empty .btn { margin-top: 12px; }
+.list-empty .btn + .btn { margin-left: 8px; }
+
+.settings-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 10px 0 0;
+}
+
+.header-row .btn-header {
+  padding: 0 10px;
+  font-size: 0.75rem;
+}
+
+body.view-home .header-row .btn-header#importPhotosBtn {
+  background: var(--surface);
+  color: var(--accent-dark);
+  border: 1.5px solid var(--accent);
+}
+
 .color-picks {
   display: flex;
   flex-wrap: wrap;

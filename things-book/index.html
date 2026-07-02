@@ -27,6 +27,7 @@
         <h1 class="view-title" id="headerTitle">Things Book</h1>
         <p class="view-subtitle" id="headerSubtitle">Your collections</p>
       </div>
+      <button type="button" class="btn btn-header" id="importPhotosBtn">Import</button>
       <button type="button" class="btn btn-header" id="createListBtn">Create</button>
       <button type="button" class="btn btn-header" id="addItemBtn" hidden>+ Add</button>
       <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
@@ -41,7 +42,7 @@
   <main>
     <section class="view active" id="viewHome" data-view="home">
       <div class="home-intro">
-        <p>Keep track of things with photos. Create lists, swipe through stacks, and filter by tags.</p>
+        <p>Import photos to file later, or add them straight to a list. Photos stay in IndexedDB on this device — only titles and notes go in JSON backup.</p>
       </div>
       <div class="list-feed" id="listFeed"></div>
       <div class="empty-state" id="homeEmpty" hidden>
@@ -59,8 +60,9 @@
         </div>
       </div>
       <div class="list-empty" id="listEmpty" hidden>
-        <p>No items match this filter.</p>
+        <p id="listEmptyText">No items match this filter.</p>
         <button type="button" class="btn btn-primary" id="listEmptyAddBtn">+ Add first thing</button>
+        <button type="button" class="btn btn-primary" id="listEmptyImportBtn" hidden>Import photos</button>
       </div>
     </section>
   </main>
@@ -97,7 +99,11 @@
           Tap to add photo
         </span>
       </button>
-      <p class="photo-pick-hint" id="photoPickHint">Choose from Photos (multi-select) or take a new one</p>
+      <p class="photo-pick-hint" id="photoPickHint">Single photo here — use Import on home for multiple</p>
+      <div class="field" id="fileListField" hidden>
+        <label class="field-label" for="itemListSelect">File into list</label>
+        <select id="itemListSelect"></select>
+      </div>
       <div class="field">
         <label class="field-label" for="itemTitleInput">Title</label>
         <input type="text" id="itemTitleInput" placeholder="e.g. Benchy" maxlength="80" autocomplete="off" enterkeyhint="next" />
@@ -106,7 +112,7 @@
         <label class="field-label" for="itemNotesInput">Notes <span class="optional">(optional)</span></label>
         <textarea id="itemNotesInput" placeholder="Filament, settings, thoughts…" rows="3" maxlength="2000"></textarea>
       </div>
-      <div class="field">
+      <div class="field" id="itemTagsField">
         <label class="field-label">Tags</label>
         <div class="tag-chips-edit" id="itemTagChips"></div>
         <div class="tag-add-row">
@@ -141,6 +147,7 @@
         <div class="detail-tags" id="detailTags"></div>
         <p class="detail-date" id="detailDate"></p>
         <div class="detail-actions">
+          <button type="button" class="btn btn-primary" id="detailFileBtn" hidden>File into list</button>
           <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
         </div>
       </div>
@@ -161,6 +168,7 @@
             <input type="file" id="importJsonFile" accept=".json,application/json" />
           </label>
         </div>
+        <p class="settings-note">JSON export is metadata only (lists, titles, tags). Photos are stored separately in IndexedDB on this device — not in localStorage.</p>
       </div>
       <div class="settings-section">
         <h3>Lists</h3>
@@ -175,6 +183,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

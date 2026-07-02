@@ -7,6 +7,8 @@
   var PHOTO_STORE = 'photos';
   var MAX_TAGS = 32;
   var MAX_ORIGINAL_BYTES = 8 * 1024 * 1024;
+  var UNCATEGORIZED_ID = '__uncategorized__';
+  var UNCATEGORIZED_COLOR = '#64748b';
 
   var LIST_COLORS = [
     '#2563eb', '#7c3aed', '#db2777', '#dc2626',
@@ -23,7 +25,8 @@
     pendingPreviewUrl: null,
     selectedColor: LIST_COLORS[0],
     itemSelectedTags: [],
-    listSheetEditingId: null
+    listSheetEditingId: null,
+    filingListId: null
   };
 
   var thumbCache = {};
@@ -99,11 +102,14 @@
     });
 
     st.items = st.items.filter(function (it) {
-      return it && it.id && it.listId && it.title;
+      return it && it.id && it.title;
     }).map(function (it) {
+      var listId = it.listId;
+      if (!listId || listId === UNCATEGORIZED_ID) listId = UNCATEGORIZED_ID;
+      else if (!st.lists.some(function (l) { return l.id === listId; })) listId = UNCATEGORIZED_ID;
       return {
         id: it.id,
-        listId: it.listId,
+        listId: listId,
         title: String(it.title).trim(),
         notes: it.notes ? String(it.notes) : '',
         tagIds: Array.isArray(it.tagIds) ? it.tagIds.slice() : [],
@@ -133,7 +139,22 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeState(st)));
   }
 
+  function isUncategorized(listId) {
+    return !listId || listId === UNCATEGORIZED_ID;
+  }
+
+  function getUncategorizedList() {
+    return {
+      id: UNCATEGORIZED_ID,
+      title: 'Uncategorized',
+      color: UNCATEGORIZED_COLOR,
+      order: -1,
+      createdAt: ''
+    };
+  }
+
   function getList(listId) {
+    if (isUncategorized(listId)) return getUncategorizedList();
     return getState().lists.find(function (l) { return l.id === listId; }) || null;
   }
 
@@ -151,11 +172,18 @@
   }
 
   function getItemsForList(listId, tagFilter) {
-    var items = getState().items.filter(function (it) { return it.listId === listId; });
-    if (!tagFilter || tagFilter === 'all') return items;
+    var id = isUncategorized(listId) ? UNCATEGORIZED_ID : listId;
+    var items = getState().items.filter(function (it) {
+      return isUncategorized(it.listId) ? id === UNCATEGORIZED_ID : it.listId === id;
+    });
+    if (isUncategorized(id) || !tagFilter || tagFilter === 'all') return items;
     return items.filter(function (it) {
       return it.tagIds.indexOf(tagFilter) >= 0;
     });
+  }
+
+  function countUncategorized() {
+    return getItemsForList(UNCATEGORIZED_ID).length;
   }
 
   function getTagFilter(listId) {
@@ -405,18 +433,26 @@
 
     document.getElementById('backBtn').hidden = view !== 'list';
     document.getElementById('createListBtn').hidden = view !== 'home';
-    document.getElementById('addItemBtn').hidden = view !== 'list';
-    document.getElementById('tagFiltersWrap').hidden = view !== 'list';
+    document.getElementById('importPhotosBtn').hidden = view !== 'home';
+    document.getElementById('addItemBtn').hidden = view !== 'list' || isUncategorized(listId);
+    document.getElementById('tagFiltersWrap').hidden = view !== 'list' || isUncategorized(listId);
 
     if (view === 'home') {
       document.getElementById('headerTitle').textContent = 'Things Book';
-      document.getElementById('headerSubtitle').textContent = 'Your collections';
+      var uncatN = countUncategorized();
+      document.getElementById('headerSubtitle').textContent = uncatN
+        ? (uncatN + ' uncategorized · your collections')
+        : 'Your collections';
       renderHome();
     } else if (view === 'list' && listId) {
       var list = getList(listId);
       document.getElementById('headerTitle').textContent = list ? list.title : 'List';
-      document.getElementById('headerSubtitle').textContent = getItemsForList(listId).length + ' things';
-      renderTagFilters();
+      var n = getItemsForList(listId).length;
+      document.getElementById('headerSubtitle').textContent = isUncategorized(listId)
+        ? (n + ' to file into lists')
+        : (n + ' things');
+      if (!isUncategorized(listId)) renderTagFilters();
+      else document.getElementById('tagFilters').innerHTML = '';
       renderSwipeView();
     }
   }
@@ -427,35 +463,43 @@
     var empty = document.getElementById('homeEmpty');
     feed.innerHTML = '';
 
-    if (!st.lists.length) {
+    var uncatItems = getItemsForList(UNCATEGORIZED_ID);
+    if (uncatItems.length) {
+      feed.appendChild(buildListRow(getUncategorizedList(), uncatItems));
+    }
+
+    st.lists.forEach(function (list) {
+      feed.appendChild(buildListRow(list, getItemsForList(list.id)));
+    });
+
+    if (!st.lists.length && !uncatItems.length) {
       empty.hidden = false;
       return;
     }
     empty.hidden = true;
+  }
 
-    st.lists.forEach(function (list) {
-      var items = getItemsForList(list.id);
-      var row = document.createElement('button');
-      row.type = 'button';
-      row.className = 'list-row';
-      row.setAttribute('data-list-id', list.id);
+  function buildListRow(list, items) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'list-row' + (list.id === UNCATEGORIZED_ID ? ' list-row-uncat' : '');
+    row.setAttribute('data-list-id', list.id);
 
-      var countLabel = items.length ? ('+' + items.length) : '0';
-      row.innerHTML =
-        '<div class="list-row-bar" style="background:' + escapeHtml(list.color) + '">' +
-          '<span>' + escapeHtml(list.title) + '</span>' +
-          '<span class="list-row-count">' + countLabel + '</span>' +
-        '</div>' +
-        '<div class="list-row-stack" data-stack-for="' + escapeHtml(list.id) + '"></div>';
+    var countLabel = items.length ? ('+' + items.length) : '0';
+    row.innerHTML =
+      '<div class="list-row-bar" style="background:' + escapeHtml(list.color) + '">' +
+        '<span>' + escapeHtml(list.title) + '</span>' +
+        '<span class="list-row-count">' + countLabel + '</span>' +
+      '</div>' +
+      '<div class="list-row-stack" data-stack-for="' + escapeHtml(list.id) + '"></div>';
 
-      row.addEventListener('click', function () {
-        ui.swipeIndex = 0;
-        setView('list', list.id);
-      });
-
-      feed.appendChild(row);
-      renderStackPreview(list.id, row.querySelector('[data-stack-for]'), items);
+    row.addEventListener('click', function () {
+      ui.swipeIndex = 0;
+      setView('list', list.id);
     });
+
+    renderStackPreview(list.id, row.querySelector('[data-stack-for]'), items);
+    return row;
   }
 
   function renderStackPreview(listId, container, items) {
@@ -543,6 +587,16 @@
 
     swipeArea.hidden = false;
     listEmpty.hidden = true;
+
+    var isUncat = isUncategorized(listId);
+    var emptyText = document.getElementById('listEmptyText');
+    var emptyAdd = document.getElementById('listEmptyAddBtn');
+    var emptyImport = document.getElementById('listEmptyImportBtn');
+    if (emptyText) {
+      emptyText.textContent = isUncat ? 'Nothing to file yet.' : 'No items match this filter.';
+    }
+    if (emptyAdd) emptyAdd.hidden = isUncat;
+    if (emptyImport) emptyImport.hidden = !isUncat;
 
     if (ui.swipeIndex >= items.length) ui.swipeIndex = items.length - 1;
     if (ui.swipeIndex < 0) ui.swipeIndex = 0;
@@ -729,6 +783,7 @@
   function openItemSheet(editId) {
     ui.editingItemId = editId || null;
     ui.itemSelectedTags = [];
+    ui.filingListId = null;
     clearPendingPhoto();
 
     var overlay = document.getElementById('itemSheetOverlay');
@@ -738,13 +793,17 @@
     var preview = document.getElementById('itemPhotoPreview');
     var placeholder = document.getElementById('photoPickPlaceholder');
     var saveBtn = document.getElementById('itemSheetSave');
+    var fileListField = document.getElementById('fileListField');
+    var tagsField = document.getElementById('itemTagsField');
 
     if (editId) {
       var item = getItem(editId);
-      titleEl.textContent = 'Edit thing';
+      var uncategorized = item && isUncategorized(item.listId);
+      titleEl.textContent = uncategorized ? 'File into list' : 'Edit thing';
       titleInput.value = item ? item.title : '';
       notesInput.value = item ? item.notes : '';
       ui.itemSelectedTags = item ? item.tagIds.slice() : [];
+      ui.filingListId = uncategorized ? '' : (item ? item.listId : '');
       preview.hidden = true;
       placeholder.hidden = false;
       if (item) {
@@ -756,13 +815,19 @@
           }
         });
       }
-      saveBtn.disabled = !titleInput.value.trim();
+      fileListField.hidden = !uncategorized;
+      tagsField.hidden = uncategorized && !ui.filingListId;
+      if (uncategorized) renderListSelect('');
+      else renderListSelect(item ? item.listId : '');
+      saveBtn.disabled = uncategorized ? true : !titleInput.value.trim();
     } else {
       titleEl.textContent = 'Add thing';
       titleInput.value = '';
       notesInput.value = '';
       preview.hidden = true;
       placeholder.hidden = false;
+      fileListField.hidden = true;
+      tagsField.hidden = false;
       saveBtn.disabled = true;
     }
 
@@ -771,6 +836,21 @@
     renderItemTagChips();
     overlay.hidden = false;
     titleInput.focus();
+  }
+
+  function renderListSelect(selectedId) {
+    var select = document.getElementById('itemListSelect');
+    if (!select) return;
+    var st = getState();
+    select.innerHTML = '<option value="">Choose a list…</option>';
+    st.lists.forEach(function (list) {
+      var opt = document.createElement('option');
+      opt.value = list.id;
+      opt.textContent = list.title;
+      if (list.id === selectedId) opt.selected = true;
+      select.appendChild(opt);
+    });
+    ui.filingListId = selectedId || '';
   }
 
   function closeItemSheet() {
@@ -785,8 +865,11 @@
 
   function renderItemTagChips() {
     var container = document.getElementById('itemTagChips');
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId || isUncategorized(listId)) {
+      container.innerHTML = '<span style="font-size:0.8125rem;color:var(--text-muted)">Choose a list first to add tags</span>';
+      return;
+    }
 
     var tags = getTagsForList(listId);
     container.innerHTML = '';
@@ -812,8 +895,11 @@
   }
 
   function addTagFromInput() {
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId || isUncategorized(listId)) {
+      showToast('Choose a list first');
+      return;
+    }
 
     var input = document.getElementById('newTagInput');
     var label = input.value.trim();
@@ -849,16 +935,22 @@
 
   function updateItemSaveBtn() {
     var title = document.getElementById('itemTitleInput').value.trim();
+    var item = ui.editingItemId ? getItem(ui.editingItemId) : null;
+    var filing = item && isUncategorized(item.listId);
     if (ui.editingItemId) {
-      document.getElementById('itemSheetSave').disabled = !title;
+      if (filing) {
+        document.getElementById('itemSheetSave').disabled = !title || !ui.filingListId;
+      } else {
+        document.getElementById('itemSheetSave').disabled = !title;
+      }
     } else {
       document.getElementById('itemSheetSave').disabled = !title || !ui.pendingPhotoBlob;
     }
   }
 
   function saveItem() {
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId && !ui.editingItemId) return;
 
     var title = document.getElementById('itemTitleInput').value.trim();
     var notes = document.getElementById('itemNotesInput').value.trim();
@@ -866,17 +958,34 @@
 
     var st = getState();
     var itemId;
+    var wasUncategorized = false;
 
     if (ui.editingItemId) {
       itemId = ui.editingItemId;
-      var item = st.items.find(function (it) { return it.id === itemId; });
-      if (!item) return;
-      item.title = title;
-      item.notes = notes;
-      item.tagIds = ui.itemSelectedTags.slice();
+      var editItem = st.items.find(function (it) { return it.id === itemId; });
+      if (!editItem) return;
+      wasUncategorized = isUncategorized(editItem.listId);
+      editItem.title = title;
+      editItem.notes = notes;
+      if (ui.filingListId && wasUncategorized) {
+        editItem.listId = ui.filingListId;
+        editItem.tagIds = ui.itemSelectedTags.filter(function (tid) {
+          var tag = st.tags.find(function (t) { return t.id === tid; });
+          return tag && tag.listId === ui.filingListId;
+        });
+      } else {
+        editItem.tagIds = ui.itemSelectedTags.slice();
+        if (ui.filingListId && !isUncategorized(ui.filingListId)) {
+          editItem.listId = ui.filingListId;
+        }
+      }
     } else {
       if (!ui.pendingPhotoBlob) {
         showToast('Add a photo first');
+        return;
+      }
+      if (isUncategorized(listId)) {
+        showToast('Choose a list to add things');
         return;
       }
       itemId = newId('item');
@@ -892,6 +1001,14 @@
 
     saveState(st);
 
+    var toastMsg = 'Thing added';
+    if (ui.editingItemId) {
+      var saved = st.items.find(function (it) { return it.id === itemId; });
+      toastMsg = wasUncategorized && saved && !isUncategorized(saved.listId)
+        ? 'Filed into list'
+        : 'Thing updated';
+    }
+
     var photoPromise = ui.pendingPhotoBlob
       ? putPhoto(itemId, ui.pendingPhotoBlob).then(function () {
           revokeThumb(itemId);
@@ -900,10 +1017,10 @@
 
     photoPromise.then(function () {
       closeItemSheet();
-      showToast(ui.editingItemId ? 'Thing updated' : 'Thing added');
+      showToast(toastMsg);
       ui.swipeIndex = 0;
       if (ui.view === 'list') {
-        renderTagFilters();
+        if (!isUncategorized(ui.activeListId)) renderTagFilters();
         renderSwipeView();
       }
       renderHome();
@@ -922,7 +1039,7 @@
     if (!files || !files.length) return;
 
     if (!ui.editingItemId && files.length > 1) {
-      batchAddItems(files);
+      importPhotosToUncategorized(files);
       return;
     }
 
@@ -945,10 +1062,7 @@
     });
   }
 
-  function batchAddItems(files) {
-    var listId = ui.activeListId;
-    if (!listId) return;
-
+  function importPhotosToUncategorized(files) {
     var st = getState();
     var itemIds = [];
     files.forEach(function (file) {
@@ -957,7 +1071,7 @@
       itemIds.push({ id: itemId, file: file });
       st.items.unshift({
         id: itemId,
-        listId: listId,
+        listId: UNCATEGORIZED_ID,
         title: titleFromFilename(file.name),
         notes: '',
         tagIds: [],
@@ -978,17 +1092,32 @@
         return putPhoto(row.id, blob);
       });
     })).then(function () {
-      showToast('Added ' + itemIds.length + ' thing' + (itemIds.length === 1 ? '' : 's'));
+      showToast('Imported ' + itemIds.length + ' photo' + (itemIds.length === 1 ? '' : 's') + ' — file when ready');
       ui.swipeIndex = 0;
-      if (ui.view === 'list') {
-        renderTagFilters();
+      if (ui.view === 'list' && isUncategorized(ui.activeListId)) {
         renderSwipeView();
+      } else if (ui.view === 'home') {
+        renderHome();
+      } else {
+        renderHome();
+        if (ui.view === 'list') renderSwipeView();
       }
-      renderHome();
     }).catch(function () {
       showToast('Could not save some photos');
       renderHome();
       if (ui.view === 'list') renderSwipeView();
+    });
+  }
+
+  function promptImportPhotos() {
+    if (typeof AppsPhotoPicker === 'undefined') return;
+    AppsPhotoPicker.prompt({
+      title: 'Import photos',
+      multiple: true,
+      libraryLabel: 'Choose from Photos',
+      cameraLabel: 'Take Photo',
+      onFiles: importPhotosToUncategorized,
+      onInvalid: function () { showToast('Please choose images'); }
     });
   }
 
@@ -1026,6 +1155,11 @@
     });
 
     overlay.hidden = false;
+
+    var fileBtn = document.getElementById('detailFileBtn');
+    var editBtn = document.getElementById('detailEditBtn');
+    if (fileBtn) fileBtn.hidden = !isUncategorized(item.listId);
+    if (editBtn) editBtn.hidden = isUncategorized(item.listId);
   }
 
   function closeDetail() {
@@ -1136,12 +1270,24 @@
       openListSheet();
     });
 
+    document.getElementById('importPhotosBtn').addEventListener('click', promptImportPhotos);
+
     document.getElementById('addItemBtn').addEventListener('click', function () {
       openItemSheet();
     });
 
     document.getElementById('listEmptyAddBtn').addEventListener('click', function () {
       openItemSheet();
+    });
+
+    document.getElementById('listEmptyImportBtn').addEventListener('click', promptImportPhotos);
+
+    document.getElementById('itemListSelect').addEventListener('change', function () {
+      ui.filingListId = this.value;
+      document.getElementById('itemTagsField').hidden = !ui.filingListId;
+      ui.itemSelectedTags = [];
+      renderItemTagChips();
+      updateItemSaveBtn();
     });
 
     document.getElementById('backBtn').addEventListener('click', function () {
@@ -1177,6 +1323,11 @@
 
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
     document.getElementById('detailEditBtn').addEventListener('click', function () {
+      var id = ui.detailItemId;
+      closeDetail();
+      if (id) openItemSheet(id);
+    });
+    document.getElementById('detailFileBtn').addEventListener('click', function () {
       var id = ui.detailItemId;
       closeDetail();
       if (id) openItemSheet(id);
