@@ -193,7 +193,7 @@
           <input type="number" id="showSeason" min="1" value="1" inputmode="numeric" />
         </div>
         <div class="field">
-          <label class="field-label" for="showEpisode">Episode</label>
+          <label class="field-label" for="showEpisode">Last finished episode</label>
           <input type="number" id="showEpisode" min="0" value="0" inputmode="numeric" />
         </div>
       </div>
@@ -237,6 +237,16 @@
         <span class="badge" id="showDetailBadge"></span>
       </div>
 
+      <div class="last-log" id="showWatchingNow" hidden>
+        <div class="last-log-icon watching">
+          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div class="last-log-text">
+          <strong id="showWatchingEpisode"></strong>
+          <span id="showWatchingHint">In progress — finish when you're done</span>
+        </div>
+      </div>
+
       <div class="last-log" id="showLastLog" hidden>
         <div class="last-log-icon">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
@@ -253,24 +263,29 @@
         <p class="field-hint" id="showDetailNextAir" style="margin-top:10px"></p>
       </div>
 
+      <p class="section-label" style="margin-top:0;margin-bottom:8px" id="showLogSectionLabel">Episode</p>
+
       <div class="field-row">
         <div class="field">
           <label class="field-label" for="logSeason">Season</label>
           <input type="number" id="logSeason" min="1" value="1" inputmode="numeric" />
         </div>
         <div class="field">
-          <label class="field-label" for="logEpisode">Episode watched</label>
+          <label class="field-label" for="logEpisode" id="logEpisodeLabel">Episode</label>
           <input type="number" id="logEpisode" min="0" value="1" inputmode="numeric" />
         </div>
       </div>
 
-      <div class="field">
-        <label class="field-label" for="logWatchedAt">Watched on</label>
+      <div class="field" id="logWatchedAtField">
+        <label class="field-label" for="logWatchedAt">Finished on</label>
         <input type="datetime-local" id="logWatchedAt" />
       </div>
 
       <div class="sheet-actions stacked">
-        <button type="button" class="btn btn-watch" id="logEpisodeBtn">Log this episode</button>
+        <button type="button" class="btn btn-watch" id="startWatchingBtn">Start watching</button>
+        <button type="button" class="btn btn-secondary" id="logFinishedBtn">Log as finished</button>
+        <button type="button" class="btn btn-watch" id="finishEpisodeBtn" hidden>Finish episode</button>
+        <button type="button" class="btn btn-secondary" id="stopWatchingBtn" hidden>Stop watching</button>
         <button type="button" class="btn btn-secondary" id="showEditBtn">Edit show</button>
         <button type="button" class="btn btn-secondary" id="showMarkCompleteBtn">Mark completed</button>
         <button type="button" class="btn btn-danger" id="showDeleteBtn">Delete show</button>

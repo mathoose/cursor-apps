@@ -207,8 +207,9 @@ main {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-muted);
-  min-width: 4.5rem;
+  min-width: 3.25rem;
   text-align: right;
+  white-space: nowrap;
 }
 
 .show-row-since {
@@ -221,6 +222,26 @@ main {
 }
 
 .show-row-since.overdue { color: var(--danger); }
+
+.show-row.in-progress .show-row-main {
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: inset 3px 0 0 var(--watch);
+}
+
+.show-row-ep.watching {
+  color: var(--watch);
+  font-weight: 700;
+}
+
+.show-row-since.watching {
+  color: var(--watch);
+}
+
+.show-row-log.finish {
+  color: var(--watch);
+  font-size: 1rem;
+  font-weight: 700;
+}
 
 .show-row-log {
   flex-shrink: 0;
@@ -891,6 +912,17 @@ main {
   font-weight: 700;
   letter-spacing: -0.03em;
 }
+.last-log-icon.watching {
+  background: rgba(236, 72, 153, 0.15);
+  color: var(--watch);
+}
+
+.last-log-icon.watching svg {
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+}
+
 .last-log {
   display: flex;
   align-items: center;
