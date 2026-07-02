@@ -531,10 +531,8 @@
   .matrix {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
     gap: 8px;
-    min-height: calc(100vh - 270px);
-    min-height: calc(100dvh - 270px);
+    align-items: start;
   }
   .quadrant {
     background: var(--surface);
@@ -542,12 +540,20 @@
     border-radius: var(--radius);
     padding: 10px;
     display: flex; flex-direction: column;
-    min-height: 200px;
     overflow: hidden;
+    min-width: 0;
   }
-  .quadrant.q1 { border-color: var(--q1-border); background: var(--q1-soft); }
-  .quadrant.q2 { border-color: var(--q2-border); background: var(--q2-soft); }
-  .quadrant.q3 { border-color: var(--q3-border); background: var(--q3-soft); }
+  .quadrant.q1,
+  .quadrant.q2 {
+    height: clamp(140px, 32vh, 220px);
+  }
+  .quadrant.q3,
+  .quadrant.q4 {
+    max-height: clamp(160px, 38vh, 320px);
+  }
+  .quadrant.q1 { border-color: var(--p3-border); background: var(--p3-soft); }
+  .quadrant.q2 { border-color: var(--p2-border); background: var(--p2-soft); }
+  .quadrant.q3 { border-color: var(--p1-border); background: var(--p1-soft); }
   .quadrant.q4 { border-color: var(--q4-border); background: var(--q4-soft); }
   .quadrant.drag-over { transform: scale(1.02); box-shadow: var(--shadow-lg); }
 
@@ -558,9 +564,9 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-  .q1 .quadrant-label { color: var(--q1); }
-  .q2 .quadrant-label { color: var(--q2); }
-  .q3 .quadrant-label { color: var(--q3); }
+  .q1 .quadrant-label { color: var(--p3); }
+  .q2 .quadrant-label { color: var(--p2); }
+  .q3 .quadrant-label { color: var(--p1); }
   .q4 .quadrant-label { color: var(--q4); }
   .quadrant-title {
     font-size: 0.95rem;
@@ -1255,9 +1261,9 @@
     font-weight: 600;
     border: 1px solid;
   }
-  .quadrant-badge.q1 { background: var(--q1-soft); color: var(--q1); border-color: var(--q1-border); }
-  .quadrant-badge.q2 { background: var(--q2-soft); color: var(--q2); border-color: var(--q2-border); }
-  .quadrant-badge.q3 { background: var(--q3-soft); color: #92400e; border-color: var(--q3-border); }
+  .quadrant-badge.q1 { background: var(--p3-soft); color: var(--p3); border-color: var(--p3-border); }
+  .quadrant-badge.q2 { background: var(--p2-soft); color: var(--p2); border-color: var(--p2-border); }
+  .quadrant-badge.q3 { background: var(--p1-soft); color: var(--p1); border-color: var(--p1-border); }
   .quadrant-badge.q4 { background: var(--q4-soft); color: var(--q4); border-color: var(--q4-border); }
 
   /* ---------- Subtasks ---------- */
@@ -1443,33 +1449,33 @@
     <div class="matrix" id="matrixGrid">
       <div class="quadrant q1" data-q="1">
         <div class="quadrant-header">
-          <div class="quadrant-label">Urgent · Important</div>
-          <div class="quadrant-title">Do now</div>
-          <div class="quadrant-hint">Tackle immediately</div>
+          <div class="quadrant-label">High · Red</div>
+          <div class="quadrant-title">Do first</div>
+          <div class="quadrant-hint">H priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="1"></div>
       </div>
       <div class="quadrant q2" data-q="2">
         <div class="quadrant-header">
-          <div class="quadrant-label">Important · Not urgent</div>
+          <div class="quadrant-label">Medium · Yellow</div>
           <div class="quadrant-title">Schedule</div>
-          <div class="quadrant-hint">Plan time for these</div>
+          <div class="quadrant-hint">M priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="2"></div>
       </div>
       <div class="quadrant q3" data-q="3">
         <div class="quadrant-header">
-          <div class="quadrant-label">Urgent · Not important</div>
-          <div class="quadrant-title">Delegate / batch</div>
-          <div class="quadrant-hint">Quick or handoff</div>
+          <div class="quadrant-label">Low · Green</div>
+          <div class="quadrant-title">When you can</div>
+          <div class="quadrant-hint">L priority</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="3"></div>
       </div>
       <div class="quadrant q4" data-q="4">
         <div class="quadrant-header">
-          <div class="quadrant-label">Not urgent · Not important</div>
-          <div class="quadrant-title">Drop / defer</div>
-          <div class="quadrant-hint">Reduce or delete</div>
+          <div class="quadrant-label">None · Grey</div>
+          <div class="quadrant-title">Someday</div>
+          <div class="quadrant-hint">No priority set</div>
         </div>
         <div class="quadrant-tasks" data-q-tasks="4"></div>
       </div>
@@ -1666,7 +1672,7 @@
         </div>
       </div>
       <div class="field">
-        <label class="field-label">Quadrant</label>
+        <label class="field-label">Matrix</label>
         <div id="quadrantBadgeWrap"></div>
       </div>
     </div>
@@ -2304,64 +2310,35 @@ function getTaskThumbUrl(taskId) {
 }
 
 // ============================================================================
-// EISENHOWER MATRIX LOGIC
+// PRIORITY MATRIX LOGIC
 // ============================================================================
-// Quadrants: 1 = Urgent+Important (Do), 2 = Important+NotUrgent (Schedule),
-//            3 = Urgent+NotImportant (Delegate), 4 = Neither (Drop)
-
-function isUrgent(task) {
-  if (task.urgent !== null && task.urgent !== undefined) return task.urgent;
-  // Auto: due today or overdue
-  if (!task.dueDate) return false;
-  return diffDays(task.dueDate) <= 0;
-}
-
-function isImportant(task) {
-  if (task.important !== null && task.important !== undefined) return task.important;
-  // Auto: priority medium or high
-  return task.priority >= 2;
-}
+// Quadrants map to priority: 1 = High (red), 2 = Medium (yellow),
+//                            3 = Low (green), 4 = None (grey)
 
 function quadrantOf(task) {
-  const u = isUrgent(task);
-  const i = isImportant(task);
-  if (u && i) return 1;
-  if (!u && i) return 2;
-  if (u && !i) return 3;
+  if (task.priority === 3) return 1;
+  if (task.priority === 2) return 2;
+  if (task.priority === 1) return 3;
   return 4;
 }
 
 function applyQuadrant(task, q) {
-  // Move task to quadrant q, set explicit urgent/important + adjust priority/date
   switch (q) {
-    case 1:
-      task.urgent = true; task.important = true;
-      if (task.priority < 2) task.priority = 3;
-      if (!task.dueDate || diffDays(task.dueDate) > 0) task.dueDate = todayStr();
-      break;
-    case 2:
-      task.urgent = false; task.important = true;
-      if (task.priority < 2) task.priority = 2;
-      if (task.dueDate && diffDays(task.dueDate) <= 0) task.dueDate = addDaysStr(null, 3);
-      break;
-    case 3:
-      task.urgent = true; task.important = false;
-      if (task.priority > 1) task.priority = 1;
-      if (!task.dueDate || diffDays(task.dueDate) > 0) task.dueDate = todayStr();
-      break;
-    case 4:
-      task.urgent = false; task.important = false;
-      if (task.priority > 1) task.priority = 1;
-      break;
+    case 1: task.priority = 3; break;
+    case 2: task.priority = 2; break;
+    case 3: task.priority = 1; break;
+    default: task.priority = 0; break;
   }
+  task.urgent = null;
+  task.important = null;
   task.updatedAt = new Date().toISOString();
 }
 
 const QUADRANT_LABELS = {
-  1: { name: 'Do now', hint: 'Urgent · Important' },
-  2: { name: 'Schedule', hint: 'Important · Not urgent' },
-  3: { name: 'Delegate / batch', hint: 'Urgent · Not important' },
-  4: { name: 'Drop / defer', hint: 'Not urgent · Not important' }
+  1: { name: 'High', hint: 'Red · top left' },
+  2: { name: 'Medium', hint: 'Yellow · top right' },
+  3: { name: 'Low', hint: 'Green · bottom left' },
+  4: { name: 'None', hint: 'Grey · bottom right' }
 };
 
 // ============================================================================
@@ -2543,9 +2520,9 @@ function renderHeader() {
   if (currentView === 'matrix') {
     if (state.matrixFilter && state.matrixFilter !== 'all') {
       const list = state.lists.find(l => l.id === state.matrixFilter);
-      sub.textContent = list ? `Filtered to ${list.name}` : 'Drag tasks between quadrants';
+      sub.textContent = list ? `Filtered to ${list.name}` : 'Drag tasks to change priority';
     } else {
-      sub.textContent = 'Drag tasks between quadrants';
+      sub.textContent = 'Drag tasks to change priority';
     }
   } else if (currentView === 'inbox') {
     sub.textContent = 'Capture now, sort later';
@@ -2562,7 +2539,7 @@ function renderFocusStripInto(container) {
   const overdue = state.tasks.filter(t => !t.completed && t.dueDate && diffDays(t.dueDate) < 0);
   const dueToday = state.tasks.filter(t => !t.completed && t.dueDate && diffDays(t.dueDate) === 0);
   const doNow = [...overdue, ...dueToday]
-    .filter(t => quadrantOf(t) === 1)
+    .filter(t => t.priority >= 3)
     .sort((a, b) => (b.priority - a.priority));
   if (!doNow.length) return;
   const focus = doNow[0];
@@ -2574,7 +2551,7 @@ function renderFocusStripInto(container) {
   strip.appendChild(el('div', { class: 'focus-strip-title', text: focus.title }));
   strip.appendChild(el('div', {
     class: 'focus-strip-sub',
-    text: doNow.length > 1 ? `+ ${doNow.length - 1} more urgent — check the Matrix` : 'Tap to open this task'
+    text: doNow.length > 1 ? `+ ${doNow.length - 1} more high priority — check the Matrix` : 'Tap to open this task'
   }));
   container.appendChild(strip);
 }
@@ -3053,20 +3030,6 @@ function renderQuadrantBadge() {
   const q = quadrantOf(editingTaskDraft);
   const info = QUADRANT_LABELS[q];
   wrap.appendChild(el('span', { class: 'quadrant-badge q' + q, text: info.name + ' · ' + info.hint }));
-  const manual = editingTaskDraft.urgent !== null || editingTaskDraft.important !== null;
-  if (manual) {
-    const reset = el('button', {
-      class: 'btn-ghost',
-      style: 'margin-left: 8px; font-size: 0.78rem; color: var(--accent); text-decoration: underline; cursor: pointer; background: none; border: none;',
-      text: 'Auto from priority + date',
-      onClick: () => {
-        editingTaskDraft.urgent = null;
-        editingTaskDraft.important = null;
-        renderQuadrantBadge();
-      }
-    });
-    wrap.appendChild(reset);
-  }
 }
 
 function closeTaskEditor() {
