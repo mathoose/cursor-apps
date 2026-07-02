@@ -234,6 +234,122 @@
   .quick-prio-btn[data-prio="3"] { background: #dc2626; color: #dc2626; }
   .quick-prio-btn[data-prio="2"] { background: #eab308; color: #eab308; }
   .quick-prio-btn[data-prio="1"] { background: #16a34a; color: #16a34a; }
+  .quick-add-ams {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .ams-toggle {
+    position: relative;
+    display: block;
+    width: 54px;
+    height: 28px;
+  }
+  .ams-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .ams-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #dc2626, #eab308, #16a34a, #2563eb);
+    opacity: 0.28;
+    transition: opacity 0.2s, box-shadow 0.2s;
+    border: 1.5px solid var(--border);
+  }
+  .ams-toggle input:checked + .ams-toggle-track {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px #2563eb;
+  }
+  .ams-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .ams-toggle input:checked ~ .ams-toggle-thumb {
+    transform: translateX(26px);
+  }
+  .ams-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    border: 1.5px solid #1f2937;
+    overflow: hidden;
+    background: linear-gradient(90deg,
+      #dc2626 0%, #dc2626 25%,
+      #eab308 25%, #eab308 50%,
+      #16a34a 50%, #16a34a 75%,
+      #2563eb 75%, #2563eb 100%
+    );
+    flex-shrink: 0;
+  }
+  .ams-badge-text {
+    font-size: 0.46rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.45);
+  }
+  .ams-badge.row-badge {
+    width: 28px;
+    height: 22px;
+    border-radius: 4px;
+  }
+  .ams-badge.row-badge .ams-badge-text {
+    font-size: 0.54rem;
+  }
+  .task-check.ams {
+    border: none;
+    background: transparent;
+    width: 28px;
+    height: 22px;
+    border-radius: 4px;
+    position: relative;
+  }
+  .task-check.ams .ams-badge { pointer-events: none; }
+  .task.completed .task-check.ams .ams-badge { opacity: 0.45; }
+  .task.completed .task-check.ams svg {
+    opacity: 1;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    z-index: 1;
+  }
+  .mtask-ams {
+    flex-shrink: 0;
+    width: 22px;
+    height: 16px;
+    margin-top: 1px;
+  }
+  .mtask-ams .ams-badge-text { font-size: 0.42rem; }
+  .field-ams-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .field-ams-toggle .ams-toggle { flex-shrink: 0; }
 
   /* ---------- Task list ---------- */
   .task-list { display: flex; flex-direction: column; gap: 6px; }
@@ -1298,6 +1414,15 @@
         <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
         <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
         <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+        <div class="quick-add-ams">
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
+        </div>
       </div>
     </div>
     <div id="listTasks"></div>
@@ -1321,6 +1446,15 @@
         <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
         <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
         <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+        <div class="quick-add-ams">
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
+        </div>
       </div>
     </div>
     <div id="inboxTasks"></div>
@@ -1400,6 +1534,21 @@
           <button type="button" class="prio-btn" data-prio="1"><span class="flag"></span><span>Low</span></button>
           <button type="button" class="prio-btn" data-prio="2"><span class="flag"></span><span>Medium</span></button>
           <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-ams-toggle">
+          <div>
+            <label class="field-label" style="margin-bottom: 2px;">AMS</label>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Show rainbow AMS badge on task row</div>
+          </div>
+          <label class="ams-toggle" title="AMS multicolor">
+            <input type="checkbox" id="taskAmsInput" aria-label="AMS multicolor">
+            <span class="ams-toggle-track"></span>
+            <span class="ams-toggle-thumb">
+              <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+            </span>
+          </label>
         </div>
       </div>
       <div class="field">
@@ -1844,6 +1993,7 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
+    ams: !!t.ams,
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
       title: s.title || '',
@@ -2188,6 +2338,12 @@ function taskCheckmark() {
   return svg;
 }
 
+function amsBadgeEl(extraClass) {
+  const badge = el('span', { class: 'ams-badge' + (extraClass ? ' ' + extraClass : '') });
+  badge.appendChild(el('span', { class: 'ams-badge-text', text: 'AMS' }));
+  return badge;
+}
+
 function priorityClass(p) {
   return p === 3 ? 'p3' : p === 2 ? 'p2' : p === 1 ? 'p1' : 'p0';
 }
@@ -2204,9 +2360,12 @@ function renderTaskRow(task, opts) {
     }
   });
   const check = el('div', {
-    class: 'task-check ' + priorityClass(task.priority),
+    class: 'task-check' + (task.ams ? ' ams' : ' ' + priorityClass(task.priority)),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
+  if (task.ams) {
+    check.appendChild(amsBadgeEl('row-badge'));
+  }
   check.appendChild(taskCheckmark());
   row.appendChild(check);
 
@@ -2379,6 +2538,11 @@ function renderMatrixTask(task) {
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
   node.appendChild(check);
+  if (task.ams) {
+    const amsWrap = el('div', { class: 'mtask-ams' });
+    amsWrap.appendChild(amsBadgeEl());
+    node.appendChild(amsWrap);
+  }
   appendTaskTitle(node, task, 'mtask-title');
 
   // Drag (desktop / touch)
@@ -2673,14 +2837,16 @@ function openTaskEditor(taskId) {
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, subtasks: []
+    completed: false, hasPhoto: false, ams: false, subtasks: []
   };
   editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
 
   document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
   document.getElementById('taskTitleInput').value = editingTaskDraft.title;
   document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
   document.getElementById('taskLinkInput').value = editingTaskDraft.link;
+  document.getElementById('taskAmsInput').checked = !!editingTaskDraft.ams;
   updateTaskLinkOpenButton();
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
 
@@ -3845,6 +4011,7 @@ function wireQuickAdds() {
     const btn = document.getElementById(btnId);
     const prioRow = document.getElementById(prioRowId);
     const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
+    const amsInput = prioRow.querySelector('.quick-ams-input');
     let selectedPrio = 0;
 
     const resetPrio = () => {
@@ -3853,6 +4020,10 @@ function wireQuickAdds() {
         b.classList.remove('selected');
         b.setAttribute('aria-pressed', 'false');
       });
+    };
+
+    const resetAms = () => {
+      if (amsInput) amsInput.checked = false;
     };
 
     prioBtns.forEach(prioBtn => {
@@ -3884,11 +4055,13 @@ function wireQuickAdds() {
         title,
         listId: getListId(),
         link: link || '',
-        priority: selectedPrio
+        priority: selectedPrio,
+        ams: !!(amsInput && amsInput.checked)
       });
       titleInput.value = '';
       linkInput.value = '';
       resetPrio();
+      resetAms();
       render();
     };
     btn.addEventListener('click', submit);
@@ -3973,6 +4146,9 @@ function wireTaskEditor() {
     if (!editingTaskDraft || !editingTaskDraft.link || !isValidTaskLink(normalizeTaskLink(editingTaskDraft.link))) {
       e.preventDefault();
     }
+  });
+  document.getElementById('taskAmsInput').addEventListener('change', (e) => {
+    if (editingTaskDraft) editingTaskDraft.ams = e.target.checked;
   });
   document.getElementById('taskDueInput').addEventListener('change', (e) => {
     editingTaskDraft.dueDate = e.target.value || null;
