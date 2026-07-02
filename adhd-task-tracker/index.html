@@ -180,10 +180,15 @@
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link {
-    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px 0 12px;
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link input {
+    flex: 1;
+    min-width: 0;
     width: 100%;
     border: none;
     outline: none;
@@ -193,6 +198,19 @@
     color: var(--text-muted);
   }
   .quick-add-link input::placeholder { color: var(--text-faint); }
+  .quick-link-paste-btn {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-2);
+    color: var(--accent-dark);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 7px 11px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .quick-link-paste-btn:active { background: var(--accent-soft); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -1204,6 +1222,16 @@
     border-color: var(--accent);
   }
   .field textarea { resize: vertical; min-height: 72px; }
+  .task-link-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .task-link-row input[type="url"] {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
   .task-link-open {
     display: inline-block;
     margin-top: 8px;
@@ -1510,6 +1538,7 @@
       </div>
       <div class="quick-add-link">
         <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste-btn" data-paste-for="listQuickLinkInput" aria-label="Paste link from clipboard">Paste</button>
       </div>
       <div class="quick-add-priority" id="listQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -1542,6 +1571,7 @@
       </div>
       <div class="quick-add-link">
         <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste-btn" data-paste-for="inboxQuickLinkInput" aria-label="Paste link from clipboard">Paste</button>
       </div>
       <div class="quick-add-priority" id="inboxQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -1603,7 +1633,10 @@
       </div>
       <div class="field">
         <label class="field-label">Link</label>
-        <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="task-link-row">
+          <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+          <button type="button" class="quick-link-paste-btn" id="taskLinkPasteBtn" aria-label="Paste link from clipboard">Paste</button>
+        </div>
         <a class="task-link-open" id="taskLinkOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
       </div>
       <div class="field task-photo-block">
@@ -2042,6 +2075,28 @@ function isValidTaskLink(url) {
     return u.protocol === 'http:' || u.protocol === 'https:';
   } catch {
     return false;
+  }
+}
+
+async function pasteIntoLinkInput(input) {
+  if (!input) return;
+  if (!navigator.clipboard || !navigator.clipboard.readText) {
+    input.focus();
+    showToast('Tap and hold the field to paste', { error: true });
+    return;
+  }
+  try {
+    const text = (await navigator.clipboard.readText()).trim();
+    if (!text) {
+      showToast('Clipboard is empty', { error: true });
+      return;
+    }
+    input.value = text;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    showToast('Link pasted');
+  } catch {
+    input.focus();
+    showToast('Could not read clipboard — tap and hold to paste', { error: true });
   }
 }
 
@@ -4190,6 +4245,12 @@ function wireQuickAdds() {
 
   wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox');
   wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId);
+
+  document.querySelectorAll('.quick-link-paste-btn[data-paste-for]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pasteIntoLinkInput(document.getElementById(btn.dataset.pasteFor));
+    });
+  });
 }
 
 function wireDateNav() {
@@ -4260,6 +4321,9 @@ function wireTaskEditor() {
   document.getElementById('taskLinkInput').addEventListener('input', (e) => {
     editingTaskDraft.link = e.target.value;
     updateTaskLinkOpenButton();
+  });
+  document.getElementById('taskLinkPasteBtn').addEventListener('click', () => {
+    pasteIntoLinkInput(document.getElementById('taskLinkInput'));
   });
   document.getElementById('taskLinkOpen').addEventListener('click', (e) => {
     if (!editingTaskDraft || !editingTaskDraft.link || !isValidTaskLink(normalizeTaskLink(editingTaskDraft.link))) {
