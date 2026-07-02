@@ -26,6 +26,8 @@ Data lives in Safari on your phone. App updates do not erase it; clearing websit
 
 Push to `main` → GitHub Pages updates.
 
+**Agents:** see [AGENTS.md](AGENTS.md) for PR workflow, version bumps, and the required end-of-turn PR summary table.
+
 ## UI patterns (dev)
 
 Reusable HTML interaction demos live in [html-features/](html-features/) (local only, not on the app launcher).
