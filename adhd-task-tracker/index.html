@@ -41,7 +41,13 @@
     --q4-border: #e4e4e7;
     --p3: #dc2626;
     --p2: #f59e0b;
-    --p1: #2563eb;
+    --p1: #16a34a;
+    --p3-soft: #fef2f2;
+    --p3-border: #fecaca;
+    --p2-soft: #fffbeb;
+    --p2-border: #fde68a;
+    --p1-soft: #f0fdf4;
+    --p1-border: #bbf7d0;
     --p0: #a1a1aa;
     --shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
     --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.05);
@@ -359,14 +365,15 @@
     border-radius: var(--radius);
     padding: 12px;
     display: flex; align-items: flex-start; gap: 12px;
-    cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
     position: relative;
   }
-  .task:active { background: var(--surface-2); }
   .task.completed { opacity: 0.55; }
   .task.completed .task-title { text-decoration: line-through; color: var(--text-muted); }
   .task.overdue:not(.completed) { border-color: var(--q1-border); }
+  .task.prio-3:not(.completed) { background: var(--p3-soft); border-color: var(--p3-border); }
+  .task.prio-2:not(.completed) { background: var(--p2-soft); border-color: var(--p2-border); }
+  .task.prio-1:not(.completed) { background: var(--p1-soft); border-color: var(--p1-border); }
 
   .task-check {
     flex-shrink: 0; width: 24px; height: 24px;
@@ -378,9 +385,9 @@
     margin-top: 1px;
     transition: all 0.15s;
   }
-  .task-check.p3 { border-color: var(--p3); }
-  .task-check.p2 { border-color: var(--p2); }
-  .task-check.p1 { border-color: var(--p1); }
+  .task-check.p3 { border-color: var(--p3); background: rgba(220, 38, 38, 0.08); }
+  .task-check.p2 { border-color: var(--p2); background: rgba(245, 158, 11, 0.1); }
+  .task-check.p1 { border-color: var(--p1); background: rgba(22, 163, 74, 0.08); }
   .task-check:active { transform: scale(0.9); }
   .task.completed .task-check {
     background: var(--success);
@@ -590,6 +597,9 @@
   }
   .mtask.completed { opacity: 0.5; text-decoration: line-through; }
   .mtask.dragging { opacity: 0.4; }
+  .mtask.prio-3:not(.completed) { background: var(--p3-soft); border-color: var(--p3-border); }
+  .mtask.prio-2:not(.completed) { background: var(--p2-soft); border-color: var(--p2-border); }
+  .mtask.prio-1:not(.completed) { background: var(--p1-soft); border-color: var(--p1-border); }
   .mtask-check {
     flex-shrink: 0; width: 16px; height: 16px;
     border: 1.5px solid var(--border-strong);
@@ -602,6 +612,9 @@
     background: var(--success);
     border-color: var(--success);
   }
+  .mtask-check.p3 { border-color: var(--p3); background: rgba(220, 38, 38, 0.08); }
+  .mtask-check.p2 { border-color: var(--p2); background: rgba(245, 158, 11, 0.1); }
+  .mtask-check.p1 { border-color: var(--p1); background: rgba(22, 163, 74, 0.08); }
   .mtask-title { flex: 1; min-width: 0; word-wrap: break-word; }
   .mtask-title.task-title-link {
     color: var(--accent-dark);
@@ -1217,7 +1230,7 @@
   .prio-btn[data-prio="2"] .flag { border-color: var(--p2); }
   .prio-btn[data-prio="3"] .flag { border-color: var(--p3); }
   .prio-btn.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
-  .prio-btn.selected[data-prio="1"] { border-color: var(--p1); background: #eff6ff; color: var(--p1); }
+  .prio-btn.selected[data-prio="1"] { border-color: var(--p1); background: var(--p1-soft); color: var(--p1); }
   .prio-btn.selected[data-prio="2"] { border-color: var(--p2); background: var(--q3-soft); color: #92400e; }
   .prio-btn.selected[data-prio="3"] { border-color: var(--p3); background: var(--q1-soft); color: var(--p3); }
   .prio-btn.selected .flag { background: currentColor; }
@@ -2450,11 +2463,18 @@ function priorityClass(p) {
   return p === 3 ? 'p3' : p === 2 ? 'p2' : p === 1 ? 'p1' : 'p0';
 }
 
+function taskRowPriorityClass(priority) {
+  if (priority === 3) return ' prio-3';
+  if (priority === 2) return ' prio-2';
+  if (priority === 1) return ' prio-1';
+  return '';
+}
+
 function renderTaskRow(task, opts) {
   opts = opts || {};
   const overdue = task.dueDate && !task.completed && diffDays(task.dueDate) < 0;
   const row = el('div', {
-    class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : ''),
+    class: 'task' + (task.completed ? ' completed' : '') + (overdue ? ' overdue' : '') + taskRowPriorityClass(task.priority),
     dataset: { id: task.id }
   });
   const check = el('div', {
@@ -2625,12 +2645,12 @@ function renderMatrixFilter() {
 
 function renderMatrixTask(task) {
   const node = el('div', {
-    class: 'mtask' + (task.completed ? ' completed' : ''),
+    class: 'mtask' + (task.completed ? ' completed' : '') + taskRowPriorityClass(task.priority),
     dataset: { id: task.id },
     draggable: 'true'
   });
   const check = el('div', {
-    class: 'mtask-check',
+    class: 'mtask-check ' + priorityClass(task.priority),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
   node.appendChild(check);
