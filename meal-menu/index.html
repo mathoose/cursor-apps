@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png?v=menu-photo1" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png?v=menu-photo1" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <header class="top">
@@ -20,6 +20,9 @@
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
       </a>
+      <button type="button" class="menu-section-back" id="menu-back-btn" hidden aria-label="Back to menu sections">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
       <div class="top-titles">
         <h1>Our Menu</h1>
         <p class="sub" id="section-sub">What sounds good?</p>
@@ -73,8 +76,19 @@
       </section>
 
       <section class="panel" id="panel-menu" data-panel="menu" hidden>
-        <nav class="category-tabs" id="category-tabs" aria-label="Menu sections"></nav>
-        <div class="category-panels" id="category-panels"></div>
+        <div class="menu-landing" id="menu-landing">
+          <div class="menu-landing-intro card">
+            <h2 class="serif">Your personal menu</h2>
+            <p class="hint">Save takeout spots, recipes, and go-tos — like your own little delivery app.</p>
+            <button type="button" class="btn btn-primary btn-landing-add" id="landing-add-btn">+ Add something new</button>
+          </div>
+          <p class="menu-landing-label">Browse by section</p>
+          <div class="category-grid" id="category-grid" role="list"></div>
+        </div>
+        <div class="menu-category-view" id="menu-category-view" hidden>
+          <nav class="category-tabs" id="category-tabs" aria-label="Menu sections"></nav>
+          <div class="category-panels" id="category-panels"></div>
+        </div>
       </section>
 
       <section class="panel" id="panel-ate" data-panel="ate" hidden>
@@ -188,7 +202,7 @@
   </div>
 
   <script src="../apps-backup.js"></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

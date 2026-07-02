@@ -27,6 +27,7 @@ var SEED_ENTRIES = [
 
 var activeRootTab = 'spin';
 var activeCategory = 'cooking';
+var menuView = 'landing';
 var currentEntryId = '';
 var editMode = false;
 var addingNew = false;
@@ -45,6 +46,33 @@ var pickerRotation = 0;
 var pickerSpinning = false;
 var pickerWinnerId = '';
 var PICKER_COLORS = ['#8b3a3a', '#6e3a8b', '#3a6e8b', '#3a8b5c', '#8b6e3a', '#8b3a6e', '#5c6e8b', '#8b5c3a'];
+
+var CATEGORY_ICON_SVGS = {
+  'take-out': '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 22h36l-4 32H18L14 22z"/><path d="M22 22V14a10 10 0 0 1 20 0v8"/><line x1="26" y1="34" x2="26" y2="46"/><line x1="32" y1="34" x2="32" y2="46"/><line x1="38" y1="34" x2="38" y2="46"/></svg>',
+  'eat-out': '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 48V20c0-4 4-8 8-8h24c4 0 8 4 8 8v28"/><path d="M8 48h48"/><path d="M20 12v8M28 12v8M36 12v8"/><ellipse cx="32" cy="30" rx="14" ry="6"/><path d="M18 30c0 8 6 14 14 14s14-6 14-14"/></svg>',
+  'cooking': '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 38c0-10 7-18 16-18s16 8 16 18"/><path d="M12 38h40"/><path d="M20 20c2-6 6-10 12-10s10 4 12 10"/><line x1="32" y1="10" x2="32" y2="6"/><line x1="24" y1="12" x2="22" y2="8"/><line x1="40" y1="12" x2="42" y2="8"/></svg>',
+  'frozen': '<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="18" y="18" width="28" height="28" rx="4"/><line x1="32" y1="10" x2="32" y2="54"/><line x1="10" y1="32" x2="54" y2="32"/><line x1="16" y1="16" x2="48" y2="48"/><line x1="48" y1="16" x2="16" y2="48"/></svg>',
+  'drinks': '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M22 14h20l-6 28H28L22 14z"/><line x1="20" y1="14" x2="44" y2="14"/><path d="M26 42h12v6H26z"/><line x1="24" y1="48" x2="40" y2="48"/></svg>',
+  'groceries': '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 20h8l4 28h16l4-28h8"/><path d="M24 20V14a8 8 0 0 1 16 0v6"/><circle cx="26" cy="52" r="3"/><circle cx="38" cy="52" r="3"/></svg>',
+  'default': '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="20"/><path d="M22 32c0-6 4-10 10-10s10 4 10 10"/><line x1="32" y1="22" x2="32" y2="18"/></svg>'
+};
+
+var FOOD_PLACEHOLDER_SVG = '<svg viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="38" rx="22" ry="10"/><path d="M14 38c0-12 8-20 18-20s18 8 18 20"/><line x1="24" y1="16" x2="24" y2="10"/><line x1="32" y1="14" x2="32" y2="6"/><line x1="40" y1="16" x2="40" y2="10"/></svg>';
+
+function categoryIconSvg(catId) {
+  return CATEGORY_ICON_SVGS[catId] || CATEGORY_ICON_SVGS.default;
+}
+
+function truncBlurb(text, max) {
+  if (!text) return '';
+  var t = String(text).trim();
+  if (t.length <= max) return t;
+  return t.slice(0, max - 1).trim() + '…';
+}
+
+function countEntriesInCategory(catId) {
+  return getState().entries.filter(function(e) { return e.category === catId; }).length;
+}
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -467,32 +495,29 @@ function renderListForCategory(catId) {
   var panel = document.getElementById('cat-panel-' + catId);
   if (!panel) return;
   var list = entriesForCategory(catId);
-  var ul = panel.querySelector('.menu-list');
+  var ul = panel.querySelector('.menu-cards');
   if (!ul) return;
   if (!list.length) {
-    ul.innerHTML = '<li class="empty-state">Nothing on this page yet — tap + Add</li>';
+    ul.innerHTML = '<li class="empty-state">Nothing here yet — tap + Add to save a go-to</li>';
     return;
   }
   ul.innerHTML = list.map(function(e) {
-    var tagsHtml = '';
-    if (e.tagIds && e.tagIds.length) {
-      tagsHtml = '<span class="menu-item-tag">' + escapeHtml(tagLabel(e.tagIds[0])) + '</span>';
-      if (e.tagIds.length > 1) tagsHtml += '<span class="menu-item-tag">+' + (e.tagIds.length - 1) + '</span>';
-    }
-    var thumb = hasPhoto(e.id)
-      ? '<img class="menu-item-thumb" data-thumb-id="' + escapeHtml(e.id) + '" alt="" hidden>'
-      : '';
-    var photoMark = hasPhoto(e.id) ? '' : '';
-    var sub = (isRestaurantCategory(e.category) && e.restaurantName) ? ' · ' + escapeHtml(e.restaurantName) : '';
-    return '<li class="menu-item' + (hasPhoto(e.id) ? ' has-thumb' : '') + '" data-entry-id="' + escapeHtml(e.id) + '" role="button" tabindex="0">'
-      + thumb
-      + '<span class="menu-item-name">' + escapeHtml(e.name) + sub + '</span>'
-      + '<span class="menu-item-leader" aria-hidden="true"></span>'
-      + '<span class="menu-item-meta">'
-      + tagsHtml
-      + photoMark
-      + (e.favorite ? '<span class="fav" aria-label="Favorite">★</span>' : '')
-      + '</span></li>';
+    var blurb = truncBlurb(e.notes, 72);
+    var rest = (isRestaurantCategory(e.category) && e.restaurantName)
+      ? '<p class="menu-card-restaurant">' + escapeHtml(e.restaurantName) + '</p>' : '';
+    var imgBlock = hasPhoto(e.id)
+      ? '<img class="menu-card-img" data-thumb-id="' + escapeHtml(e.id) + '" alt="" hidden>'
+      : '<span class="menu-card-placeholder">' + FOOD_PLACEHOLDER_SVG + '</span>';
+    return '<li class="menu-card" data-entry-id="' + escapeHtml(e.id) + '" role="button" tabindex="0">'
+      + '<div class="menu-card-img-wrap">'
+      + imgBlock
+      + '<span class="menu-card-fav' + (e.favorite ? ' on' : '') + '" aria-hidden="true">' + (e.favorite ? '★' : '☆') + '</span>'
+      + '</div>'
+      + '<div class="menu-card-body">'
+      + '<h3 class="menu-card-name">' + escapeHtml(e.name) + '</h3>'
+      + (blurb ? '<p class="menu-card-blurb">' + escapeHtml(blurb) + '</p>' : '')
+      + rest
+      + '</div></li>';
   }).join('');
 
   list.forEach(function(e) {
@@ -503,6 +528,8 @@ function renderListForCategory(catId) {
       if (!img) return;
       img.src = url;
       img.hidden = false;
+      var placeholder = img.parentElement.querySelector('.menu-card-placeholder');
+      if (placeholder) placeholder.remove();
     });
   });
 }
@@ -511,6 +538,7 @@ function renderAllLists() {
   getAllCategories().forEach(function(c) {
     renderListForCategory(c.id);
   });
+  renderCategoryGrid();
   refreshPicker();
 }
 
@@ -523,9 +551,59 @@ function ensureCategoryPanels() {
     sec.className = 'cat-panel';
     sec.id = 'cat-panel-' + c.id;
     sec.setAttribute('data-category', c.id);
-    sec.innerHTML = '<ul class="menu-list" role="list"></ul>';
+    sec.innerHTML = '<ul class="menu-cards" role="list"></ul>';
     wrap.appendChild(sec);
   });
+}
+
+function renderCategoryGrid() {
+  var grid = document.getElementById('category-grid');
+  if (!grid) return;
+  grid.innerHTML = getAllCategories().map(function(c) {
+    var count = countEntriesInCategory(c.id);
+    var countLabel = count === 0 ? 'Empty' : count + ' item' + (count === 1 ? '' : 's');
+    return '<button type="button" class="category-tile" data-cat-nav="' + escapeHtml(c.id) + '" role="listitem">'
+      + '<span class="category-tile-art">' + categoryIconSvg(c.id) + '</span>'
+      + '<span class="category-tile-label">' + escapeHtml(c.label) + '</span>'
+      + '<span class="category-tile-count">' + countLabel + '</span>'
+      + '</button>';
+  }).join('');
+}
+
+function updateMenuView() {
+  var landing = document.getElementById('menu-landing');
+  var detail = document.getElementById('menu-category-view');
+  var backBtn = document.getElementById('menu-back-btn');
+  var isLanding = menuView === 'landing';
+  if (landing) landing.hidden = !isLanding;
+  if (detail) detail.hidden = isLanding;
+  if (backBtn) backBtn.hidden = !(activeRootTab === 'menu' && !isLanding);
+}
+
+function showMenuLanding() {
+  menuView = 'landing';
+  document.querySelectorAll('.cat-panel').forEach(function(p) {
+    p.classList.remove('on');
+    p.hidden = true;
+  });
+  updateMenuView();
+  renderCategoryGrid();
+  updateHeaderForTab();
+}
+
+function enterMenuCategory(catId) {
+  if (!catId) return;
+  menuView = 'category';
+  activeCategory = catId;
+  document.querySelectorAll('.cat-panel').forEach(function(p) {
+    var on = p.getAttribute('data-category') === catId;
+    p.classList.toggle('on', on);
+    p.hidden = !on;
+  });
+  renderCategoryTabs();
+  renderListForCategory(catId);
+  updateMenuView();
+  updateHeaderForTab();
 }
 
 function renderCategoryTabs() {
@@ -546,15 +624,8 @@ function updateRootTabs() {
 }
 
 function switchCategory(catId) {
-  if (!catId || activeCategory === catId) return;
-  activeCategory = catId;
-  document.querySelectorAll('.cat-panel').forEach(function(p) {
-    var on = p.getAttribute('data-category') === catId;
-    p.classList.toggle('on', on);
-    p.hidden = !on;
-  });
-  renderCategoryTabs();
-  updateHeaderForTab();
+  if (!catId) return;
+  enterMenuCategory(catId);
   populatePickCategorySelect();
 }
 
@@ -564,14 +635,16 @@ function updateHeaderForTab() {
   var tagWrap = document.getElementById('tag-filters-wrap');
   var addBtn = document.getElementById('add-btn');
   var isMenu = activeRootTab === 'menu';
-  if (searchRow) searchRow.hidden = !isMenu;
-  if (tagWrap) tagWrap.hidden = !isMenu;
+  var isMenuDetail = isMenu && menuView === 'category';
+  if (searchRow) searchRow.hidden = !isMenuDetail;
+  if (tagWrap) tagWrap.hidden = !isMenuDetail;
   if (addBtn) addBtn.hidden = !isMenu;
   if (sub) {
     if (activeRootTab === 'spin') sub.textContent = 'Spin to decide';
     else if (activeRootTab === 'manage') sub.textContent = 'Tags, categories & backup';
     else if (activeRootTab === 'ate') sub.textContent = 'Log what you ate';
-    else sub.textContent = categoryLabel(activeCategory) + ' · tap a line for details';
+    else if (menuView === 'landing') sub.textContent = 'Pick a section or add something new';
+    else sub.textContent = categoryLabel(activeCategory) + ' · tap a card for details';
   }
 }
 
@@ -611,8 +684,11 @@ function switchRootTab(tabId) {
 
   if (tabId === 'menu') {
     ensureCategoryPanels();
-    switchCategory(activeCategory);
-    renderCategoryTabs();
+    if (menuView === 'landing') {
+      showMenuLanding();
+    } else {
+      enterMenuCategory(activeCategory);
+    }
     renderAllLists();
   }
   if (tabId === 'spin') {
@@ -988,7 +1064,7 @@ function openEntry(id) {
 }
 
 function openAddEntry() {
-  var cat = activeRootTab === 'menu' ? activeCategory : 'cooking';
+  var cat = activeRootTab === 'menu' && menuView === 'category' ? activeCategory : 'cooking';
   addingNew = true;
   editMode = true;
   editSelectedTags = [];
@@ -1055,6 +1131,7 @@ function addCustomCategory(label) {
   st.categories.push({ id: id, label: name, builtin: false });
   saveAppState(st);
   ensureCategoryPanels();
+  renderCategoryGrid();
   renderCategoryTabs();
   renderManage();
   showStatus('Category added');
@@ -1791,6 +1868,10 @@ function bindEvents() {
   });
   document.getElementById('search').addEventListener('input', renderAllLists);
   document.getElementById('add-btn').addEventListener('click', openAddEntry);
+  var landingAdd = document.getElementById('landing-add-btn');
+  if (landingAdd) landingAdd.addEventListener('click', openAddEntry);
+  var menuBack = document.getElementById('menu-back-btn');
+  if (menuBack) menuBack.addEventListener('click', showMenuLanding);
 
   document.getElementById('tabbar').addEventListener('click', function(e) {
     var tab = e.target.closest('[data-tab]');
@@ -1799,8 +1880,16 @@ function bindEvents() {
 
   document.getElementById('category-tabs').addEventListener('click', function(e) {
     var tab = e.target.closest('[data-category]');
-    if (tab) switchCategory(tab.getAttribute('data-category'));
+    if (tab) enterMenuCategory(tab.getAttribute('data-category'));
   });
+
+  var categoryGrid = document.getElementById('category-grid');
+  if (categoryGrid) {
+    categoryGrid.addEventListener('click', function(e) {
+      var tile = e.target.closest('[data-cat-nav]');
+      if (tile) enterMenuCategory(tile.getAttribute('data-cat-nav'));
+    });
+  }
 
   document.getElementById('category-panels').addEventListener('click', function(e) {
     var item = e.target.closest('[data-entry-id]');
@@ -1918,6 +2007,7 @@ function boot() {
   initState();
   reconcileEntryPhotosFromIdb().finally(function() {
   ensureCategoryPanels();
+  renderCategoryGrid();
   renderCategoryTabs();
   renderTagFilters();
   renderAllLists();
@@ -1926,6 +2016,7 @@ function boot() {
   renderPickTags();
   refreshPicker();
   bindEvents();
+  updateMenuView();
 
   document.querySelectorAll('.panel').forEach(function(p) {
     p.hidden = true;
