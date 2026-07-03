@@ -1516,7 +1516,7 @@
         <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
         <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
         <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
-        <div class="quick-add-ams">
+        <div class="quick-add-ams" hidden>
           <label class="ams-toggle" title="AMS multicolor">
             <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
             <span class="ams-toggle-track"></span>
@@ -2984,6 +2984,7 @@ function saveTaskCategoryNew() {
     editingTaskDraft.listId = existing.id;
     renderTaskCategorySelect();
     hideTaskCategoryNewRow();
+    syncTaskEditorAms();
     return;
   }
   const id = addList(name, { silent: true });
@@ -2991,6 +2992,7 @@ function saveTaskCategoryNew() {
   editingTaskDraft.listId = id;
   renderTaskCategorySelect();
   hideTaskCategoryNewRow();
+  syncTaskEditorAms();
   showToast('Added category: ' + name);
 }
 
@@ -3178,6 +3180,7 @@ function saveTaskEditor() {
     showToast('Link must be a valid http(s) URL', { error: true });
     return;
   }
+  if (!isAmsList(editingTaskDraft.listId)) editingTaskDraft.ams = false;
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
