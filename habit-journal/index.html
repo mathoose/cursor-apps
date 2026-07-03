@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-activity-log-tab-v9 -->
+  <!-- build: hj-log-tab-time-v9 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -135,8 +135,8 @@
       min-width: min-content;
     }
     .month-grid .corner {
-      width: 108px;
-      min-width: 108px;
+      width: 132px;
+      min-width: 132px;
       position: sticky;
       left: 0;
       z-index: 4;
@@ -189,8 +189,8 @@
       z-index: 3;
       background: rgba(255, 255, 255, 0.94);
       box-shadow: 4px 0 8px rgba(44, 36, 25, 0.06);
-      max-width: 108px;
-      min-width: 108px;
+      max-width: 132px;
+      min-width: 132px;
     }
     .habit-label-row {
       display: flex;
@@ -281,14 +281,6 @@
       min-height: 0;
       padding-left: 0;
     }
-    .habit-label-recent {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.5625rem;
-      font-weight: 600;
-      color: var(--muted);
-      line-height: 1.15;
-    }
     .habit-recent-log {
       list-style: none;
       margin: 0;
@@ -371,9 +363,11 @@
     .activity-log-item.erase .log-change { color: #b91c1c; font-weight: 600; }
     .activity-log-item .log-time {
       flex-shrink: 0;
+      margin-left: auto;
       font-size: 0.75rem;
       color: var(--muted);
       white-space: nowrap;
+      text-align: right;
     }
     .activity-log-legend {
       display: flex;
@@ -2228,7 +2222,6 @@
         '">Hide</button>';
       html += "</div>";
     }
-    html += renderHabitRecentActivityHtml(habit);
     html += "</div>";
     html += "</div>";
     html += "</div>";
@@ -2719,6 +2712,15 @@
     }
   }
 
+  function formatLogClockTime(ts) {
+    if (!ts) return "";
+    return new Date(ts).toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+
   function formatSavedWhen(ts) {
     if (!ts) return "not yet";
     const sec = Math.floor((Date.now() - ts) / 1000);
@@ -2818,17 +2820,19 @@
     if (!entry || !habit) return "";
     const detail = entry.detail || {};
     const dateLabel = formatChangeLogDate(detail.date);
+    const clockLabel = formatLogClockTime(entry.ts);
+    const whenLabel = clockLabel ? dateLabel + ", " + clockLabel : dateLabel;
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
     if (habit.type === "counter") {
       const delta = (newValue || 0) - (oldValue || 0);
-      if (delta > 0) return dateLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      if (delta > 0) return whenLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
       if (delta < 0) {
-        return dateLabel + ": " + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+        return whenLabel + ": " + delta + " (now " + cellValueLabel(habit, newValue) + ")";
       }
-      return dateLabel + ": cleared";
+      return whenLabel + ": cleared";
     }
-    return dateLabel + ": " + cellValueLabel(habit, oldValue) + " → " + cellValueLabel(habit, newValue);
+    return whenLabel + ": " + cellValueLabel(habit, oldValue) + " → " + cellValueLabel(habit, newValue);
   }
 
   function getLastHabitChange(habitId) {
@@ -2890,32 +2894,6 @@
     if (entry.action === "hide") return detail.hidden ? "Hidden from grid" : "Shown in grid";
     if (entry.action === "delete") return "Habit removed";
     return detail.summary || "Updated";
-  }
-
-  function renderHabitRecentActivityHtml(habit) {
-    const last = getLastHabitChange(habit.id);
-    if (!last) return "";
-    const summary = formatChangeLogEntry(last, habit);
-    return (
-      '<div class="habit-label-meta habit-label-recent-wrap">' +
-      '<span class="habit-label-recent">' +
-      escapeHtml(formatSavedWhen(last.ts) + " · " + summary) +
-      "</span>" +
-      "</div>"
-    );
-  }
-
-  function refreshHabitRecentActivity(habitId) {
-    const habit = state.habits.find(function (h) { return h.id === habitId; });
-    if (!habit) return;
-    const label = document.querySelector('#panelMonth .habit-label[data-habit-row="' + habitId + '"]');
-    if (!label) return;
-    const existing = label.querySelector(".habit-label-recent-wrap");
-    const html = renderHabitRecentActivityHtml(habit);
-    if (existing) existing.remove();
-    if (!html) return;
-    const textWrap = label.querySelector(".habit-label-text");
-    if (textWrap) textWrap.insertAdjacentHTML("beforeend", html);
   }
 
   function renderHabitEditChangeLog(habitId) {
@@ -3272,10 +3250,7 @@
       document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
     if (btn) {
       refreshCellButton(btn);
-      if (activeTab === "month") {
-        refreshHabitRecentActivity(habitId);
-        return;
-      }
+      if (activeTab === "month") return;
       if (activeTab === "year" && yearFullscreenHabitId) return;
     }
     if (activeTab === "month") {
@@ -3458,6 +3433,7 @@
     const show = activeTab === "month" || activeTab === "year";
     bar.hidden = !show;
     document.body.classList.toggle("has-mode-bar", show);
+    if (!show) document.body.classList.remove("eraser-mode");
     syncModeButtons();
   }
 
@@ -3624,7 +3600,7 @@
       bindMonthHabitHide(root);
       return;
     }
-    let cols = "108px";
+    let cols = "132px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
     html += '<div class="card scroll-x month-scroll"><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
@@ -3660,7 +3636,7 @@
           monthGridScrolledToToday = true;
           const grid = scroller.querySelector(".month-grid");
           const offset = todayHead.offsetLeft - (scroller.clientWidth - todayHead.offsetWidth) / 2;
-          scroller.scrollLeft = Math.max(0, offset - 108);
+          scroller.scrollLeft = Math.max(0, offset - 132);
         }
       }
     }
@@ -4324,7 +4300,7 @@
       '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
       "</div>";
     if (!entries.length) {
-      html += '<div class="card"><p class="hint">No marks or erases yet. Tap a cell on Month or Year to start logging.</p></div>';
+      html += '<div class="card"><p class="hint">No additions or erases in the last 24 hours.</p></div>';
       root.innerHTML = html;
       return;
     }
