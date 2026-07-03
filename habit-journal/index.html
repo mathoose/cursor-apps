@@ -4073,7 +4073,7 @@
     const root = document.getElementById("panelToday");
     if (!root) return;
     const parts = getTodayDateParts();
-    let html = '<p class="hint">Tap to mark done · Hide clears a finished habit until tomorrow.</p>';
+    let html = '<p class="hint">Tap to mark done · Yes/No habits can Hide when done until tomorrow.</p>';
     html += '<div class="today-groups">';
     let any = false;
     state.categories.forEach(function (cat) {
@@ -4088,7 +4088,7 @@
         html += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
         html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
         html += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
-        if (done) {
+        if (habit.type === "yesno" && done) {
           html +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
