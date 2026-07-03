@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-tab-v12 -->
+  <!-- build: hj-today-tab-v14 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -43,6 +43,14 @@
     }
     body.has-mode-bar {
       padding-bottom: calc(128px + var(--safe-bottom));
+    }
+    body.habit-journal .app-version {
+      bottom: calc(70px + var(--safe-bottom));
+      opacity: 0.55;
+      z-index: 45;
+    }
+    body.habit-journal.has-mode-bar .app-version {
+      bottom: calc(134px + var(--safe-bottom));
     }
     button, .cell, .tab, .nav-btn { touch-action: manipulation; }
     .topbar {
@@ -2350,6 +2358,13 @@
     return isCellFilled(habit, val);
   }
 
+  function isYesNoMarkedToday(habit) {
+    if (habit.type !== "yesno") return false;
+    const parts = getTodayDateParts();
+    const val = getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d));
+    return val !== null && val !== undefined;
+  }
+
   function getTodayHabitsForCategory(catId) {
     const parts = getTodayDateParts();
     return state.habits.filter(function (h) {
@@ -4073,7 +4088,7 @@
     const root = document.getElementById("panelToday");
     if (!root) return;
     const parts = getTodayDateParts();
-    let html = '<p class="hint">Tap to mark done · Yes/No habits can Hide when done until tomorrow.</p>';
+    let html = '<p class="hint">Tap to mark done · Yes/No habits can Hide once marked until tomorrow.</p>';
     html += '<div class="today-groups">';
     let any = false;
     state.categories.forEach(function (cat) {
@@ -4084,11 +4099,10 @@
       html += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
       html += '<div class="today-habits-row">';
       habits.forEach(function (habit) {
-        const done = isHabitDoneToday(habit);
         html += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
         html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
         html += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
-        if (habit.type === "yesno" && done) {
+        if (habit.type === "yesno" && isYesNoMarkedToday(habit)) {
           html +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
