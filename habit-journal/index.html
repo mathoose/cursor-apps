@@ -2386,10 +2386,11 @@
     return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() };
   }
 
-  function isHabitDoneToday(habit) {
+  function isYesNoMarkedToday(habit) {
+    if (habit.type !== "yesno") return false;
     const parts = getTodayDateParts();
     const val = getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d));
-    return isCellFilled(habit, val);
+    return val !== null && val !== undefined;
   }
 
   function getTodayHabitsForCategory(catId) {
@@ -4125,11 +4126,10 @@
       html += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
       html += '<div class="today-habits-row">';
       habits.forEach(function (habit) {
-        const done = isHabitDoneToday(habit);
         html += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
         html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
         html += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
-        if (habit.type === "yesno" && done) {
+        if (isYesNoMarkedToday(habit)) {
           html +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
