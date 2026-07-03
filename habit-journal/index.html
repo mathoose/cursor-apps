@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-syntax-fix-v22 -->
+  <!-- build: hj-month-today-fix-v23 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -44,13 +44,15 @@
     body.has-mode-bar {
       padding-bottom: calc(128px + var(--safe-bottom));
     }
-    body.habit-journal .app-version {
-      bottom: calc(70px + var(--safe-bottom));
-      opacity: 0.55;
-      z-index: 45;
-    }
-    body.habit-journal.has-mode-bar .app-version {
-      bottom: calc(134px + var(--safe-bottom));
+    body.habit-journal > .app-version { display: none !important; }
+    .panel-version {
+      margin-top: 28px;
+      padding: 8px 0 4px;
+      text-align: center;
+      font-size: 0.6875rem;
+      opacity: 0.4;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
     }
     button, .cell, .tab, .nav-btn { touch-action: manipulation; }
     .topbar {
@@ -1675,6 +1677,72 @@
       text-align: left;
     }
     .today-hide-btn:active { color: var(--accent); }
+    .today-hidden-section {
+      margin-top: 16px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .today-hidden-section summary {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 0 8px;
+    }
+    .today-hidden-section summary::-webkit-details-marker { display: none; }
+    .today-hidden-section summary::before {
+      content: "▶";
+      font-size: 0.625rem;
+      color: var(--muted);
+      transition: transform 0.15s ease;
+    }
+    .today-hidden-section[open] summary::before { transform: rotate(90deg); }
+    .today-hidden-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .today-hidden-restore {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.92);
+      font: inherit;
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
+    }
+    .today-hidden-restore:active { background: #f5f0e8; }
+    .today-hidden-restore-plus {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      line-height: 22px;
+      text-align: center;
+    }
+    .today-hidden-restore-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     /* Graphs tab toggle */
     .graphs-mode-bar {
       display: flex;
@@ -3714,6 +3782,59 @@
     return { text: "", cls: "" };
   }
 
+  function refreshCellsForKey(habitId, y, m, d) {
+    const key = habitId + "|" + y + "|" + m + "|" + d;
+    document.querySelectorAll(".cell[data-key]").forEach(function (btn) {
+      if (btn.dataset.key === key) refreshCellButton(btn);
+    });
+  }
+
+  function renderVersionFooterHtml() {
+    const el = document.querySelector("body.habit-journal > .app-version");
+    const text = el && el.textContent ? el.textContent.trim() : "";
+    if (!text) return "";
+    return '<p class="panel-version" aria-label="App version">' + escapeHtml(text) + "</p>";
+  }
+
+  function getTodayDismissedHabits() {
+    pruneTodayDismissed();
+    const list = state.todayDismissed[todayDateKey()] || [];
+    return state.habits.filter(function (h) {
+      if (h.hidden) return false;
+      if (list.indexOf(h.id) < 0) return false;
+      if (state.categoryFilter && state.categoryFilter !== "all" && h.category !== state.categoryFilter) {
+        return false;
+      }
+      const parts = getTodayDateParts();
+      if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
+      return true;
+    });
+  }
+
+  function renderTodayHiddenSectionHtml() {
+    const dismissed = getTodayDismissedHabits();
+    if (!dismissed.length) return "";
+    let html = '<details class="today-hidden-section">';
+    html +=
+      "<summary>Hidden for today (" +
+      dismissed.length +
+      ")</summary>";
+    html += '<div class="today-hidden-list">';
+    dismissed.forEach(function (habit) {
+      html +=
+        '<button type="button" class="today-hidden-restore" data-today-show="' +
+        escapeHtml(habit.id) +
+        '" aria-label="Show ' +
+        escapeHtml(habit.name) +
+        ' on Today">';
+      html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
+      html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
+      html += "</button>";
+    });
+    html += "</div></details>";
+    return html;
+  }
+
   function isTodayColumn(y, m, d) {
     const t = new Date();
     return y === t.getFullYear() && m === t.getMonth() && d === t.getDate();
@@ -3780,20 +3901,12 @@
 
   function afterCellChange(habitId, y, m, d) {
     save();
-    const key = habitId + "|" + y + "|" + m + "|" + d;
-    const btn =
-      document.querySelector('#yearFsBody .year-fs-cells .cell[data-key="' + key + '"]') ||
-      document.querySelector('#panelGraphs .cell[data-key="' + key + '"]') ||
-      document.querySelector('#panelToday .cell[data-key="' + key + '"]') ||
-      document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
-    if (btn) {
-      refreshCellButton(btn);
-      if (activeTab === "month") return;
-      if (activeTab === "stats" && graphsMode === "grid" && yearFullscreenHabitId) return;
-      if (activeTab === "today") {
-        renderToday();
-        return;
-      }
+    refreshCellsForKey(habitId, y, m, d);
+    if (activeTab === "month") return;
+    if (activeTab === "stats" && graphsMode === "grid" && yearFullscreenHabitId) return;
+    if (activeTab === "today") {
+      renderToday();
+      return;
     }
     if (activeTab === "month") {
       renderMonth();
@@ -4179,6 +4292,13 @@
         toast("Hidden for today");
       };
     });
+    root.querySelectorAll("[data-today-show]").forEach(function (btn) {
+      btn.onclick = function () {
+        setTodayDismissed(btn.getAttribute("data-today-show"), false);
+        renderToday();
+        toast("Showing on Today");
+      };
+    });
     root.querySelectorAll(".cell[data-today]").forEach(function (btn) {
       btn.onclick = function () {
         const p = btn.dataset.key.split("|");
@@ -4215,34 +4335,37 @@
     if (!root) return;
     const parts = getTodayDateParts();
     let html = '<p class="hint">Yes/No: tap ◐ ongoing → ✓ → ✗ → clear · Hide when marked until tomorrow.</p>';
-    html += '<div class="today-groups">';
     let any = false;
+    let groupsHtml = '<div class="today-groups">';
     state.categories.forEach(function (cat) {
       const habits = getTodayHabitsForCategory(cat.id);
       if (!habits.length) return;
       any = true;
-      html += '<div class="today-group">';
-      html += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
-      html += '<div class="today-habits-row">';
+      groupsHtml += '<div class="today-group">';
+      groupsHtml += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
+      groupsHtml += '<div class="today-habits-row">';
       habits.forEach(function (habit) {
-        html += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
-        html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
-        html += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
+        groupsHtml += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
+        groupsHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
+        groupsHtml += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
         if (isYesNoMarkedToday(habit)) {
-          html +=
+          groupsHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
             '">Hide</button>';
         }
-        html += "</div>";
+        groupsHtml += "</div>";
       });
-      html += "</div></div>";
+      groupsHtml += "</div></div>";
     });
-    html += "</div>";
-    if (!any) {
-      html =
-        '<p class="hint">No habits for today — add habits on the Habits tab or show hidden ones.</p>';
+    groupsHtml += "</div>";
+    if (any) {
+      html += groupsHtml;
+    } else if (!getTodayDismissedHabits().length) {
+      html += '<p class="hint">No habits for today — add habits on the Habits tab or show hidden ones.</p>';
     }
+    html += renderTodayHiddenSectionHtml();
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindTodayPanel(root);
   }
@@ -4271,6 +4394,7 @@
           : "") +
         "</p>";
       html += renderMonthHiddenRowHtml(hiddenHabits);
+      html += renderVersionFooterHtml();
       root.innerHTML = html;
       bindCategoryFilters(root);
       bindMonthAddHabit(root);
@@ -4296,6 +4420,7 @@
 
     html += "</div></div>";
     html += renderMonthHiddenRowHtml(hiddenHabits);
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindCells(root);
@@ -4734,8 +4859,10 @@
     html += renderStatsSetAllHtml();
     if (!filtered.length) {
       html += '<p class="month-empty">No habits in this category.</p>';
+      html += renderVersionFooterHtml();
       root.innerHTML = html;
       bindCategoryFilters(root);
+      bindStats(root);
       return;
     }
     html += '<div class="year-collapsed-grid year-grid-3 stats-picker-grid">';
@@ -4749,6 +4876,7 @@
       });
       if (habit) html += renderStatsDetailHtml(habit);
     }
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindStats(root);
@@ -4830,6 +4958,7 @@
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindYearGrid(root);
@@ -5081,6 +5210,7 @@
 
     if (!habits.length) {
       html += '<p class="month-empty">No habits in this category.</p>';
+      html += renderVersionFooterHtml();
       root.innerHTML = html;
       bindCategoryFilters(root);
       return;
@@ -5125,6 +5255,7 @@
       html += "</div>";
     }
     html += "</div>";
+    html += renderVersionFooterHtml();
 
     root.innerHTML = html;
     bindCategoryFilters(root);
@@ -5391,6 +5522,7 @@
       html += "</div>";
     }
 
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
 
     bindDataActions(root);
@@ -5637,6 +5769,7 @@
       html += "</div>";
     }
 
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindLogControls(root);
     if (logGraphHabitId) {
