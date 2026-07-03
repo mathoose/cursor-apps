@@ -24,6 +24,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Verify habit-journal JS syntax
+        run: bash scripts/verify-habit-journal-js.sh
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
