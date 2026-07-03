@@ -2390,6 +2390,8 @@
     }
     return out;
   }
+
+  function setHabitHidden(habitId, hidden) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     habit.hidden = !!hidden;
