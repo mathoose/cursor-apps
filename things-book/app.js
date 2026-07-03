@@ -323,13 +323,61 @@
     });
   }
 
+  function snapshotFile(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var type = normalizeImageMime(file);
+        resolve(new File([reader.result], file.name || 'photo.jpg', {
+          type: type,
+          lastModified: file.lastModified || Date.now()
+        }));
+      };
+      reader.onerror = function () { reject(reader.error || new Error('Could not read file')); };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function normalizeImageMime(file) {
+    var type = (file && file.type) ? file.type.toLowerCase() : '';
+    if (type && type.indexOf('image/') === 0 && type !== 'application/octet-stream') return type;
+    var name = (file && file.name) ? file.name.toLowerCase() : '';
+    if (/\.png$/i.test(name)) return 'image/png';
+    if (/\.gif$/i.test(name)) return 'image/gif';
+    if (/\.webp$/i.test(name)) return 'image/webp';
+    if (/\.heic$/i.test(name)) return 'image/heic';
+    if (/\.heif$/i.test(name)) return 'image/heif';
+    return 'image/jpeg';
+  }
+
   function loadImageFromFile(file) {
+    if (typeof createImageBitmap === 'function') {
+      return createImageBitmap(file).then(function (bitmap) {
+        return {
+          kind: 'bitmap',
+          source: bitmap,
+          width: bitmap.width,
+          height: bitmap.height
+        };
+      }).catch(function () {
+        return loadImageElementFromFile(file);
+      });
+    }
+    return loadImageElementFromFile(file);
+  }
+
+  function loadImageElementFromFile(file) {
     return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file);
       var img = new Image();
       img.onload = function () {
         URL.revokeObjectURL(url);
-        resolve(img);
+        resolve({
+          kind: 'image',
+          source: img,
+          width: img.naturalWidth,
+          height: img.naturalHeight
+        });
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
@@ -363,9 +411,9 @@
   }
 
   function compressImageWithOrientation(file, maxEdge, orientation) {
-    return loadImageFromFile(file).then(function (img) {
-      var w = img.naturalWidth;
-      var h = img.naturalHeight;
+    return loadImageFromFile(file).then(function (loaded) {
+      var w = loaded.width;
+      var h = loaded.height;
       if (!w || !h) throw new Error('Invalid image dimensions');
       if (w > maxEdge || h > maxEdge) {
         if (w >= h) {
@@ -376,17 +424,45 @@
           h = maxEdge;
         }
       }
-      var rot = orientation >= 5 && orientation <= 8;
+      var rot = loaded.kind === 'image' && orientation >= 5 && orientation <= 8;
       var canvas = document.createElement('canvas');
       canvas.width = rot ? h : w;
       canvas.height = rot ? w : h;
       var ctx = canvas.getContext('2d');
-      drawOrientedImage(ctx, img, orientation, w, h);
+      if (loaded.kind === 'bitmap') {
+        ctx.drawImage(loaded.source, 0, 0, w, h);
+        if (loaded.source.close) loaded.source.close();
+      } else {
+        drawOrientedImage(ctx, loaded.source, orientation, w, h);
+      }
       return canvasToJpeg(canvas, 0.82);
     });
   }
 
   function compressImage(file) {
+    var isHeic = /heic|heif/i.test(file.type || '') || /\.heic$/i.test(file.name || '') || /\.heif$/i.test(file.name || '');
+    if (isHeic) {
+      return loadImageFromFile(file).then(function (loaded) {
+        var w = loaded.width;
+        var h = loaded.height;
+        var maxEdge = 1200;
+        if (w > maxEdge || h > maxEdge) {
+          if (w >= h) {
+            h = Math.round(h * (maxEdge / w));
+            w = maxEdge;
+          } else {
+            w = Math.round(w * (maxEdge / h));
+            h = maxEdge;
+          }
+        }
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(loaded.source, 0, 0, w, h);
+        if (loaded.kind === 'bitmap' && loaded.source.close) loaded.source.close();
+        return canvasToJpeg(canvas, 0.82);
+      });
+    }
     return readExifOrientation(file).then(function (orientation) {
       return compressImageWithOrientation(file, 1200, orientation).catch(function () {
         return compressImageWithOrientation(file, 800, orientation);
@@ -397,9 +473,31 @@
   function preparePhotoBlob(file) {
     return compressImage(file).catch(function () {
       if (file.size <= MAX_ORIGINAL_BYTES && isValidImageFile(file)) {
-        return file;
+        var type = normalizeImageMime(file);
+        if (file.type === type) return file;
+        return file.arrayBuffer ? file.arrayBuffer().then(function (buf) {
+          return new Blob([buf], { type: type });
+        }) : file;
       }
       throw new Error('Could not process image');
+    });
+  }
+
+  function storePhotoForItem(itemId, file) {
+    return preparePhotoBlob(file).then(function (blob) {
+      return putPhoto(itemId, blob);
+    }).then(function () {
+      revokeThumb(itemId);
+      return true;
+    }).catch(function () {
+      return snapshotFile(file).then(function (snap) {
+        return putPhoto(itemId, snap);
+      }).then(function () {
+        revokeThumb(itemId);
+        return true;
+      }).catch(function () {
+        return false;
+      });
     });
   }
 
@@ -1063,49 +1161,60 @@
   }
 
   function importPhotosToUncategorized(files) {
-    var st = getState();
-    var itemIds = [];
-    files.forEach(function (file) {
-      if (!isValidImageFile(file)) return;
-      var itemId = newId('item');
-      itemIds.push({ id: itemId, file: file });
-      st.items.unshift({
-        id: itemId,
-        listId: UNCATEGORIZED_ID,
-        title: titleFromFilename(file.name),
-        notes: '',
-        tagIds: [],
-        createdAt: new Date().toISOString()
-      });
-    });
-
-    if (!itemIds.length) {
+    var valid = Array.prototype.slice.call(files || []).filter(isValidImageFile);
+    if (!valid.length) {
       showToast('No valid images selected');
       return;
     }
 
-    saveState(st);
-    closeItemSheet();
+    showToast('Importing ' + valid.length + ' photo' + (valid.length === 1 ? '' : 's') + '…');
 
-    Promise.all(itemIds.map(function (row) {
-      return preparePhotoBlob(row.file).then(function (blob) {
-        return putPhoto(row.id, blob);
+    Promise.all(valid.map(snapshotFile)).then(function (snapshots) {
+      var st = getState();
+      var rows = snapshots.map(function (file) {
+        var itemId = newId('item');
+        st.items.unshift({
+          id: itemId,
+          listId: UNCATEGORIZED_ID,
+          title: titleFromFilename(file.name),
+          notes: '',
+          tagIds: [],
+          createdAt: new Date().toISOString()
+        });
+        return { id: itemId, file: file };
       });
-    })).then(function () {
-      showToast('Imported ' + itemIds.length + ' photo' + (itemIds.length === 1 ? '' : 's') + ' — file when ready');
-      ui.swipeIndex = 0;
-      if (ui.view === 'list' && isUncategorized(ui.activeListId)) {
-        renderSwipeView();
-      } else if (ui.view === 'home') {
-        renderHome();
-      } else {
-        renderHome();
-        if (ui.view === 'list') renderSwipeView();
-      }
+      saveState(st);
+      closeItemSheet();
+
+      var imported = 0;
+      var chain = Promise.resolve();
+      rows.forEach(function (row) {
+        chain = chain.then(function () {
+          return storePhotoForItem(row.id, row.file).then(function (ok) {
+            if (ok) imported++;
+          });
+        });
+      });
+      return chain.then(function () {
+        if (!imported) {
+          showToast('Could not save photos — try again');
+          return;
+        }
+        if (imported < rows.length) {
+          showToast('Imported ' + imported + ' of ' + rows.length + ' photos');
+        } else {
+          showToast('Imported ' + imported + ' photo' + (imported === 1 ? '' : 's') + ' — file when ready');
+        }
+        ui.swipeIndex = 0;
+        if (ui.view === 'home') {
+          setView('list', UNCATEGORIZED_ID);
+        } else {
+          renderHome();
+          if (ui.view === 'list') renderSwipeView();
+        }
+      });
     }).catch(function () {
-      showToast('Could not save some photos');
-      renderHome();
-      if (ui.view === 'list') renderSwipeView();
+      showToast('Could not read selected photos');
     });
   }
 
