@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-stats-tab-v16 -->
+  <!-- build: hj-stats-tab-v17 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -43,6 +43,14 @@
     }
     body.has-mode-bar {
       padding-bottom: calc(128px + var(--safe-bottom));
+    }
+    body.habit-journal .app-version {
+      bottom: calc(70px + var(--safe-bottom));
+      opacity: 0.55;
+      z-index: 45;
+    }
+    body.habit-journal.has-mode-bar .app-version {
+      bottom: calc(134px + var(--safe-bottom));
     }
     button, .cell, .tab, .nav-btn { touch-action: manipulation; }
     .topbar {
@@ -3816,15 +3824,14 @@
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
+    if (habit.type === "yesno") {
+      tapCell(habitId, y, m, d);
+      return;
+    }
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
-    if (habit.type === "yesno") {
-      if (oldValue === null || oldValue === YESNO_PROGRESS) state.cells[key] = 1;
-      else delete state.cells[key];
-    } else {
-      const step = habit.step || 1;
-      state.cells[key] = (oldValue || 0) + step;
-    }
+    const step = habit.step || 1;
+    state.cells[key] = (oldValue || 0) + step;
     const newValue = getCellValue(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
@@ -4107,7 +4114,7 @@
     const root = document.getElementById("panelToday");
     if (!root) return;
     const parts = getTodayDateParts();
-    let html = '<p class="hint">Tap to mark done · Yes/No habits can Hide when done until tomorrow.</p>';
+    let html = '<p class="hint">Yes/No: tap ◐ ongoing → ✓ → ✗ → clear · Hide when marked until tomorrow.</p>';
     html += '<div class="today-groups">';
     let any = false;
     state.categories.forEach(function (cat) {
@@ -4383,11 +4390,7 @@
         "</p>";
       if (s.year.count) {
         html +=
-          '<p class="stats-line">Average: <strong>' +
-          escapeHtml(formatCounterDisplay(Math.round(s.year.mean))) +
-          "</strong></p>";
-        html +=
-          '<p class="stats-line">Mean: <strong>' +
+          '<p class="stats-line">Mean (average): <strong>' +
           escapeHtml(formatCounterDisplay(Math.round(s.year.mean))) +
           "</strong></p>";
         html +=

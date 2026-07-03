@@ -40,7 +40,7 @@
     if (!versionText) return;
     if (document.querySelector(".app-version")) return;
 
-    if (document.querySelector(".bottom-nav")) {
+    if (document.querySelector(".bottom-nav") || document.querySelector(".tabbar") || document.querySelector(".bottom-dock")) {
       document.body.classList.add("has-bottom-nav");
     }
 

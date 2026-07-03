@@ -35,3 +35,7 @@ See [ADD_APP.md](ADD_APP.md#version-numbers). All display versions live in `vers
 
 - Live site: `https://mathoose.github.io/cursor-apps/` (GitHub Pages from **`main`**).
 - Habit data and other app data stay on the user's phone (`localStorage`); app updates do not erase it.
+
+## UX changes — confirm first
+
+Before **removing or simplifying** an existing user-facing interaction (tap cycles, states like yes/no/in-progress, tabs, labels), **ask the user to confirm**. Do not skip steps in multi-state flows (e.g. yes/no **ongoing** ◐ → ✓ → ✗) unless they explicitly request a shorter flow.
