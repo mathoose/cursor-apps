@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-tab-v11 -->
+  <!-- build: hj-today-tab-v12 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -1611,20 +1611,20 @@
     .today-habits-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 4px;
     }
     .today-habit-card {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      width: 52px;
+      align-items: stretch;
+      gap: 3px;
+      width: 44px;
       flex-shrink: 0;
     }
     .today-habit-card .cell {
-      width: 36px;
-      height: 36px;
-      min-width: 36px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
       border-radius: 10px;
       border: 1.5px solid var(--border);
       font-size: 0.8125rem;
@@ -1635,21 +1635,23 @@
       justify-content: center;
       padding: 0;
       background: #fff;
+      align-self: center;
     }
     .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.875rem; }
     .today-habit-card .cell.col-today {
       box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
     }
     .today-habit-name {
-      font-size: 0.625rem;
+      font-size: 0.5625rem;
       font-weight: 600;
       color: var(--ink);
-      text-align: center;
+      text-align: left;
       width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      line-height: 1.15;
+      overflow: visible;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.2;
+      hyphens: auto;
     }
     .today-hide-btn {
       border: none;
@@ -1657,10 +1659,12 @@
       color: var(--muted);
       font-size: 0.5625rem;
       font-weight: 700;
-      padding: 2px 0 0;
+      padding: 0;
       cursor: pointer;
       text-decoration: underline;
       text-underline-offset: 2px;
+      align-self: flex-start;
+      text-align: left;
     }
     .today-hide-btn:active { color: var(--accent); }
     /* Graphs tab toggle */
