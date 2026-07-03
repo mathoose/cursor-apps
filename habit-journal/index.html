@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-stats-tab-v17 -->
+  <!-- build: hj-stats-start-v19 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -1729,6 +1729,50 @@
       margin-top: 8px;
       font-variant-numeric: tabular-nums;
     }
+    .stats-start-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      gap: 8px 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-start-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .stats-start-input {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+    .stats-start-clear {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .stats-start-clear:active { color: var(--accent); border-color: var(--accent); }
     /* Month drag reorder */
     .month-scroll { position: relative; }
     .habit-drag-handle {
@@ -2116,6 +2160,28 @@
     return out.sort(function (a, b) { return a - b; });
   }
 
+  function parseIsoDateParts(iso) {
+    if (!iso || typeof iso !== "string") return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+    if (!m) return null;
+    const y = parseInt(m[1], 10);
+    const mo = parseInt(m[2], 10) - 1;
+    const d = parseInt(m[3], 10);
+    const date = new Date(y, mo, d);
+    if (date.getFullYear() !== y || date.getMonth() !== mo || date.getDate() !== d) return null;
+    return { y: y, m: mo, d: d };
+  }
+
+  function formatIsoDate(y, m, d) {
+    return (
+      y +
+      "-" +
+      String(m + 1).padStart(2, "0") +
+      "-" +
+      String(d).padStart(2, "0")
+    );
+  }
+
   function weekdayIndex(y, m, d) {
     return new Date(y, m, d).getDay();
   }
@@ -2270,6 +2336,10 @@
         hidden: base.hidden,
       };
       if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
+      if (h.statsStart) {
+        const sd = parseIsoDateParts(h.statsStart);
+        if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
+      }
       return out;
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
@@ -2289,10 +2359,12 @@
       hidden: base.hidden,
     };
     if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
+    if (h.statsStart) {
+      const sd = parseIsoDateParts(h.statsStart);
+      if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
+    }
     return out;
   }
-
-  function setHabitHidden(habitId, hidden) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     habit.hidden = !!hidden;
@@ -4229,6 +4301,48 @@
     return end;
   }
 
+  function getHabitStatsRangeStart(habit) {
+    const yearStart = new Date(state.year, 0, 1);
+    yearStart.setHours(0, 0, 0, 0);
+    const parsed = parseIsoDateParts(habit.statsStart);
+    if (!parsed) return yearStart;
+    if (parsed.y > state.year) {
+      const afterYear = new Date(state.year, 11, 31);
+      afterYear.setDate(afterYear.getDate() + 1);
+      afterYear.setHours(0, 0, 0, 0);
+      return afterYear;
+    }
+    if (parsed.y < state.year) return yearStart;
+    const custom = new Date(parsed.y, parsed.m, parsed.d);
+    custom.setHours(0, 0, 0, 0);
+    return custom;
+  }
+
+  function getStatsStartInputValue(habit) {
+    const parsed = parseIsoDateParts(habit.statsStart);
+    if (parsed && parsed.y === state.year) {
+      return formatIsoDate(parsed.y, parsed.m, parsed.d);
+    }
+    return formatIsoDate(state.year, 0, 1);
+  }
+
+  function formatStatsPeriodLabel(habit) {
+    const start = getHabitStatsRangeStart(habit);
+    const yearStart = new Date(state.year, 0, 1);
+    yearStart.setHours(0, 0, 0, 0);
+    if (start.getTime() <= yearStart.getTime()) return "this year";
+    return (
+      "from " +
+      start.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    );
+  }
+
+  function getStatsDateInputBounds() {
+    const min = formatIsoDate(state.year, 0, 1);
+    const end = getYearStatsRangeEnd();
+    return { min: min, max: formatIsoDate(end.getFullYear(), end.getMonth(), end.getDate()) };
+  }
+
   function enumerateEligibleDays(habit, rangeStart, rangeEnd) {
     const out = [];
     const cur = new Date(rangeStart);
@@ -4261,7 +4375,7 @@
   }
 
   function buildYesNoHabitStats(habit) {
-    const start = new Date(state.year, 0, 1);
+    const start = getHabitStatsRangeStart(habit);
     const end = getYearStatsRangeEnd();
     const eligible = enumerateEligibleDays(habit, start, end);
     let done = 0;
@@ -4292,6 +4406,7 @@
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - 29);
     cutoff.setHours(0, 0, 0, 0);
+    const rangeStart = getHabitStatsRangeStart(habit);
     const yearEnd = getYearStatsRangeEnd();
     Object.keys(state.cells).forEach(function (k) {
       if (k.indexOf(prefix) !== 0) return;
@@ -4300,7 +4415,8 @@
       const parsed = parseCellKeyDate(k);
       if (!parsed || parsed.y !== state.year) return;
       const date = new Date(parsed.y, parsed.m, parsed.d);
-      if (date > yearEnd) return;
+      date.setHours(0, 0, 0, 0);
+      if (date < rangeStart || date > yearEnd) return;
       if (last30Only && date < cutoff) return;
       values.push(v);
     });
@@ -4348,9 +4464,41 @@
     return html;
   }
 
+  function renderStatsStartControlsHtml(habit) {
+    const bounds = getStatsDateInputBounds();
+    const value = getStatsStartInputValue(habit);
+    const parsedStart = parseIsoDateParts(habit.statsStart);
+    const hasCustom = !!(parsedStart && parsedStart.y === state.year && value !== bounds.min);
+    let html = '<div class="stats-start-row">';
+    html += '<label class="stats-start-label">Count from';
+    html +=
+      '<input type="date" class="stats-start-input" data-stats-start="' +
+      escapeHtml(habit.id) +
+      '" value="' +
+      escapeHtml(value) +
+      '" min="' +
+      escapeHtml(bounds.min) +
+      '" max="' +
+      escapeHtml(bounds.max) +
+      '" aria-label="Stats start date for ' +
+      escapeHtml(habit.name) +
+      '">';
+    html += "</label>";
+    html +=
+      '<button type="button" class="stats-start-clear" data-stats-start-clear="' +
+      escapeHtml(habit.id) +
+      '"' +
+      (hasCustom ? "" : " hidden") +
+      ">From Jan 1</button>";
+    html += "</div>";
+    return html;
+  }
+
   function renderStatsDetailHtml(habit) {
     let html = '<div class="stats-detail card">';
     html += '<h3 class="stats-detail-title">' + escapeHtml(habit.name) + "</h3>";
+    html += renderStatsStartControlsHtml(habit);
+    const periodLabel = formatStatsPeriodLabel(habit);
     if (habit.type === "yesno") {
       const s = buildYesNoHabitStats(habit);
       html +=
@@ -4358,7 +4506,9 @@
         escapeHtml(s.daysLabel) +
         "</strong> = " +
         s.total +
-        " this year</p>";
+        " " +
+        periodLabel +
+        "</p>";
       html +=
         '<p class="stats-line">' +
         s.done +
@@ -4385,8 +4535,8 @@
         s.year.count +
         " logged day" +
         (s.year.count === 1 ? "" : "s") +
-        " in " +
-        state.year +
+        " " +
+        periodLabel +
         "</p>";
       if (s.year.count) {
         html +=
@@ -4395,14 +4545,14 @@
           "</strong></p>";
         html +=
           '<p class="stats-line">Min / max (' +
-          state.year +
+          periodLabel +
           "): <strong>" +
           escapeHtml(formatCounterDisplay(s.year.min)) +
           "</strong> / <strong>" +
           escapeHtml(formatCounterDisplay(s.year.max)) +
           "</strong></p>";
       } else {
-        html += '<p class="stats-line stats-muted">No marks in ' + state.year + " yet.</p>";
+        html += '<p class="stats-line stats-muted">No marks ' + periodLabel + " yet.</p>";
       }
       if (s.last30.count) {
         html +=
@@ -4423,12 +4573,40 @@
     return html;
   }
 
+  function setHabitStatsStart(habitId, isoValue) {
+    const habit = state.habits.find(function (h) {
+      return h.id === habitId;
+    });
+    if (!habit) return;
+    const yearStart = formatIsoDate(state.year, 0, 1);
+    if (!isoValue || isoValue === yearStart) {
+      delete habit.statsStart;
+    } else {
+      const parts = parseIsoDateParts(isoValue);
+      if (!parts || parts.y !== state.year) return;
+      habit.statsStart = formatIsoDate(parts.y, parts.m, parts.d);
+    }
+    logHabitChange(habitId, "edit", { summary: "Stats start date updated" });
+    save();
+    renderGraphs();
+  }
+
   function bindStats(root) {
     root.querySelectorAll("[data-stats-pick]").forEach(function (btn) {
       btn.onclick = function () {
         const id = btn.getAttribute("data-stats-pick");
         statsSelectedHabitId = statsSelectedHabitId === id ? null : id;
         renderGraphs();
+      };
+    });
+    root.querySelectorAll("[data-stats-start]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        setHabitStatsStart(inp.getAttribute("data-stats-start"), inp.value);
+      });
+    });
+    root.querySelectorAll("[data-stats-start-clear]").forEach(function (btn) {
+      btn.onclick = function () {
+        setHabitStatsStart(btn.getAttribute("data-stats-start-clear"), null);
       };
     });
   }
@@ -4447,7 +4625,7 @@
     }
     let html = renderCategoryFiltersHtml(true);
     html +=
-      '<p class="hint">Tap a habit for stats · ' +
+      '<p class="hint">Tap a habit · set <strong>Count from</strong> if you started mid-year · ' +
       state.year +
       " through today</p>";
     if (!filtered.length) {
