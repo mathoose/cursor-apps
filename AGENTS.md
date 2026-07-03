@@ -2,7 +2,7 @@
 
 Instructions for Cloud Agents and other automated contributors working in this repo.
 
-**Cursor skill:** [`.cursor/skills/github-pr-edits/SKILL.md`](.cursor/skills/github-pr-edits/SKILL.md) — same rules in skill format for the agent to auto-apply.
+**Cursor user skill:** [`cursor-user-skills/github-pr-edits/SKILL.md`](cursor-user-skills/github-pr-edits/SKILL.md) — install to `~/.cursor/skills/github-pr-edits/` with [`scripts/install-github-pr-edits-skill.sh`](scripts/install-github-pr-edits-skill.sh). It auto-applies when making GitHub edits (PRs, pushes, repo changes), not for local-only work.
 
 ## Pull requests
 
