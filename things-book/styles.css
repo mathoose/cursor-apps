@@ -536,6 +536,9 @@ body.view-home .header-row .btn-header#importPhotosBtn {
   fill: none;
   stroke-width: 1.5;
 }
+.photo-pick.has-photo .photo-pick-placeholder {
+  display: none !important;
+}
 
 .photo-pick-hint {
   margin: -6px 0 14px;
