@@ -26,7 +26,7 @@ Data lives in Safari on your phone. App updates do not erase it; clearing websit
 
 Push to `main` → GitHub Pages updates.
 
-**Agents:** see [AGENTS.md](AGENTS.md) for PR workflow, version bumps, and the required end-of-turn PR summary table.
+**Agents:** see [AGENTS.md](AGENTS.md) and the Cursor skill [`.cursor/skills/github-pr-edits/SKILL.md`](.cursor/skills/github-pr-edits/SKILL.md) for PR workflow, version bumps, and the required end-of-turn PR summary table.
 
 ## UI patterns (dev)
 

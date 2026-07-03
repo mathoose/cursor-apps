@@ -2,6 +2,8 @@
 
 Instructions for Cloud Agents and other automated contributors working in this repo.
 
+**Cursor skill:** [`.cursor/skills/github-pr-edits/SKILL.md`](.cursor/skills/github-pr-edits/SKILL.md) — same rules in skill format for the agent to auto-apply.
+
 ## Pull requests
 
 **Create a new PR for each round of changes** (do not reuse a branch after its PR has been merged).
