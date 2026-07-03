@@ -855,33 +855,62 @@
       });
   }
 
-  function discoverApps(manifest) {
-    const meta = {};
+  function appHref(appId) {
+    if (appId === "habit-journal") return appId + "/?v=label132";
+    if (appId === "adhd-task-tracker") return appId + "/?v=focus2";
+    if (appId === "world-cup-2026") return appId + "/?v=wc-tree1";
+    return appId + "/";
+  }
+
+  function makeAppEntry(id, meta) {
+    var m = (meta && meta[id]) || {};
+    return {
+      id: id,
+      name: m.name || humanize(id),
+      subtitle: m.subtitle || "",
+      href: appHref(id),
+    };
+  }
+
+  function appsFromManifest(manifest) {
+    var launcherHidden = getLauncherHiddenIds(manifest);
+    var meta = {};
     (manifest.apps || []).forEach(function (a) {
       meta[a.id] = { name: a.name, subtitle: a.subtitle || "" };
     });
+    return (manifest.apps || [])
+      .filter(function (a) { return a.id && !launcherHidden.has(a.id); })
+      .map(function (a) { return makeAppEntry(a.id, meta); });
+  }
+
+  function discoverApps(manifest) {
+    var meta = {};
+    (manifest.apps || []).forEach(function (a) {
+      meta[a.id] = { name: a.name, subtitle: a.subtitle || "" };
+    });
+    var launcherHidden = getLauncherHiddenIds(manifest);
+    var manifestApps = appsFromManifest(manifest);
+    var manifestIds = {};
+    manifestApps.forEach(function (a) { manifestIds[a.id] = true; });
 
     return fetchRootDirs()
       .then(function (dirs) {
-        return Promise.all(dirs.map(function (d) {
+        var extraDirs = dirs.filter(function (d) {
+          return !manifestIds[d.name] && !launcherHidden.has(d.name);
+        });
+        if (!extraDirs.length) return manifestApps;
+        return Promise.all(extraDirs.map(function (d) {
           return dirHasIndex(d.name).then(function (ok) {
             return ok ? d.name : null;
           });
-        }));
-      })
-      .then(function (ids) {
-        var launcherHidden = getLauncherHiddenIds(manifest);
-        return ids.filter(Boolean)
-          .filter(function (id) { return !launcherHidden.has(id); })
-          .map(function (id) {
-          const m = meta[id] || {};
-          return {
-            id: id,
-            name: m.name || humanize(id),
-            subtitle: m.subtitle || "",
-            href: id === "habit-journal" ? id + "/?v=label132" : id === "adhd-task-tracker" ? id + "/?v=focus2" : id === "world-cup-2026" ? id + "/?v=wc-tree1" : id + "/",
-          };
+        })).then(function (extraIds) {
+          return manifestApps.concat(
+            extraIds.filter(Boolean).map(function (id) { return makeAppEntry(id, meta); })
+          );
         });
+      })
+      .catch(function () {
+        return manifestApps;
       })
       .then(function (apps) {
         apps.sort(function (a, b) { return a.name.localeCompare(b.name); });
@@ -1260,19 +1289,8 @@
   }
 
   function renderOffline(manifest) {
-    var launcherHidden = getLauncherHiddenIds(manifest);
-    const apps = (manifest.apps || [])
-      .filter(function (a) { return !launcherHidden.has(a.id); })
-      .map(function (a) {
-      return {
-        id: a.id,
-        name: a.name || humanize(a.id),
-        subtitle: a.subtitle || "",
-        href: a.id === "habit-journal" ? a.id + "/?v=label132" : a.id === "adhd-task-tracker" ? a.id + "/?v=focus2" : a.id === "world-cup-2026" ? a.id + "/?v=wc-tree1" : a.id + "/",
-      };
-    });
     document.getElementById("status").textContent = "Offline list";
-    render({ title: manifest.title || "Mathoose's apps", apps: apps });
+    render({ title: manifest.title || "Mathoose's apps", apps: appsFromManifest(manifest) });
   }
 
   function pruneStaleHiddenApps() {
@@ -1802,12 +1820,7 @@
 
   loadManifest()
     .then(function (manifest) {
-      return discoverApps(manifest).catch(function () {
-        document.getElementById("status").textContent = "Using local list";
-        return { title: manifest.title, apps: (manifest.apps || []).map(function (a) {
-          return { id: a.id, name: a.name, subtitle: a.subtitle, href: a.id + "/" };
-        })};
-      });
+      return discoverApps(manifest);
     })
     .then(function (data) {
       render(data);
