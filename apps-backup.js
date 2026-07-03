@@ -134,8 +134,10 @@
             version: p.version || 1,
             tasks: p.tasks,
             lists: p.lists || [],
+            categories: p.categories || [],
             activeListId: p.activeListId,
             matrixFilter: p.matrixFilter || "all",
+            categoryFilter: p.categoryFilter || "all",
           };
         } catch (e) {
           return null;

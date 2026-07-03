@@ -240,6 +240,94 @@
   .quick-prio-btn[data-prio="3"] { background: #dc2626; color: #dc2626; }
   .quick-prio-btn[data-prio="2"] { background: #eab308; color: #eab308; }
   .quick-prio-btn[data-prio="1"] { background: #16a34a; color: #16a34a; }
+  .quick-add-categories {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .quick-add-categories-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .category-chip-scroll {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .category-chip-scroll::-webkit-scrollbar { display: none; }
+  .category-chip {
+    flex-shrink: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .category-chip.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent-dark);
+  }
+  .category-chip:active { transform: scale(0.97); }
+  .category-chip-add {
+    border-style: dashed;
+    color: var(--accent);
+    min-width: 32px;
+    padding: 5px 10px;
+  }
+  .category-chip-new-input {
+    flex-shrink: 0;
+    width: 110px;
+    border: 1.5px solid var(--accent);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    background: var(--surface);
+    outline: none;
+  }
+  .list-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .list-filter-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .list-filter-select {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font-size: 0.88rem;
+    background: var(--surface);
+    color: var(--text);
+  }
+  .pill.category { background: #ecfdf5; color: #047857; }
   .quick-add-ams {
     margin-left: auto;
     display: flex;
@@ -1501,6 +1589,10 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
+    <div class="list-filter-row" id="listCategoryFilterRow" hidden>
+      <span class="list-filter-label">Filter by</span>
+      <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+    </div>
     <div class="quick-add-card">
       <div class="quick-add">
         <input id="listQuickInput" type="text" placeholder="Add task to this list…" autocomplete="off">
@@ -1526,6 +1618,7 @@
           </label>
         </div>
       </div>
+      <div class="quick-add-categories" id="listQuickCategories"></div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1533,6 +1626,10 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
+    <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
+      <span class="list-filter-label">Filter by</span>
+      <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+    </div>
     <div class="quick-add-card">
       <div class="quick-add">
         <input id="inboxQuickInput" type="text" placeholder="What's on your mind?" autocomplete="off">
@@ -1558,6 +1655,7 @@
           </label>
         </div>
       </div>
+      <div class="quick-add-categories" id="inboxQuickCategories"></div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -1637,6 +1735,10 @@
           <button type="button" class="prio-btn" data-prio="2"><span class="flag"></span><span>Medium</span></button>
           <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
         </div>
+      </div>
+      <div class="field" id="taskEditorCategoriesField">
+        <label class="field-label">Categories</label>
+        <div class="quick-add-categories" id="taskEditorCategories" style="padding: 0; border: none;"></div>
       </div>
       <div class="field" id="taskAmsField" hidden>
         <div class="field-ams-toggle">
@@ -1722,6 +1824,13 @@
       </div>
       <div class="settings-row">
         <div>
+          <div class="settings-label">Manage categories</div>
+          <div class="settings-sub">Reorder how categories appear when creating tasks.</div>
+        </div>
+        <button class="btn" id="manageCategoriesBtn">Categories</button>
+      </div>
+      <div class="settings-row">
+        <div>
           <div class="settings-label">Clear completed</div>
           <div class="settings-sub">Remove all completed tasks.</div>
         </div>
@@ -1764,6 +1873,23 @@
         <input type="text" id="newListInput" placeholder="Add new list…" autocomplete="off">
         <button class="btn btn-primary" id="addListBtn" style="padding: 6px 12px; min-height: 32px;">Add</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Categories manager modal -->
+<div class="modal-backdrop" id="categoriesModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Manage categories</div>
+      <button class="icon-btn" id="categoriesModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px;">Drag order with arrows. Add new categories from the task creation row.</p>
+      <div id="categoriesManagerList"></div>
     </div>
   </div>
 </div>
@@ -1924,10 +2050,18 @@ let state = {
   version: SCHEMA_VERSION,
   tasks: [],
   lists: DEFAULT_LISTS.slice(),
+  categories: [],
   activeListId: 'inbox',
   calendarMonth: null,
   selectedDate: null,
-  matrixFilter: 'all'
+  matrixFilter: 'all',
+  categoryFilter: 'all'
+};
+
+const quickAddCategoryUi = {
+  list: { selected: new Set(), adding: false },
+  inbox: { selected: new Set(), adding: false },
+  editor: { adding: false }
 };
 
 let currentView = 'lists';
@@ -2013,10 +2147,12 @@ function loadState() {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return;
-    if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
     if (Array.isArray(parsed.lists) && parsed.lists.length) state.lists = ensureSystemLists(parsed.lists);
+    if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
+    if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
+    if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -2125,6 +2261,7 @@ function normalizeTask(t) {
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
     ams: isAmsList(t.listId || 'inbox') ? !!t.ams : false,
+    categoryIds: normalizeCategoryIds(t.categoryIds),
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
       title: s.title || '',
@@ -2141,14 +2278,75 @@ function ensureSystemLists(lists) {
   return lists;
 }
 
+function normalizeCategoryDef(c) {
+  return {
+    id: c.id || ('cat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6)),
+    name: (c.name || '').trim()
+  };
+}
+
+function normalizeCategoryIds(ids) {
+  if (!Array.isArray(ids)) return [];
+  const valid = new Set(state.categories.map(c => c.id));
+  return ids.filter(id => valid.has(id));
+}
+
+function getCategory(id) {
+  return state.categories.find(c => c.id === id) || null;
+}
+
+function addCategory(name, opts) {
+  opts = opts || {};
+  name = (name || '').trim();
+  if (!name) {
+    if (!opts.silent) showToast('Enter a category name', { error: true });
+    return null;
+  }
+  const existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+  if (existing) {
+    if (!opts.silent) showToast('Category already exists', { error: true });
+    return existing.id;
+  }
+  const id = 'cat_' + Date.now().toString(36);
+  state.categories.push({ id, name });
+  saveState();
+  if (!opts.silent) showToast('Added category: ' + name);
+  return id;
+}
+
+function deleteCategory(id) {
+  state.categories = state.categories.filter(c => c.id !== id);
+  state.tasks.forEach(t => {
+    if (Array.isArray(t.categoryIds)) t.categoryIds = t.categoryIds.filter(cid => cid !== id);
+  });
+  if (state.categoryFilter === id) state.categoryFilter = 'all';
+  saveState();
+}
+
+function moveCategory(index, direction) {
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= state.categories.length) return;
+  const item = state.categories[index];
+  state.categories.splice(index, 1);
+  state.categories.splice(newIndex, 0, item);
+  saveState();
+}
+
+function taskMatchesCategoryFilter(task) {
+  if (state.categoryFilter === 'all') return true;
+  return Array.isArray(task.categoryIds) && task.categoryIds.includes(state.categoryFilter);
+}
+
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       version: SCHEMA_VERSION,
       tasks: state.tasks,
       lists: state.lists,
+      categories: state.categories,
       activeListId: state.activeListId,
-      matrixFilter: state.matrixFilter
+      matrixFilter: state.matrixFilter,
+      categoryFilter: state.categoryFilter
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -2461,6 +2659,165 @@ function syncTaskEditorAms() {
   }
 }
 
+function onCategoriesChanged() {
+  renderCategoryFilters();
+  renderQuickAddCategories();
+  if (editingTaskDraft) renderTaskEditorCategories();
+}
+
+function renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate) {
+  if (!container) return;
+  container.innerHTML = '';
+  const label = el('span', { class: 'quick-add-categories-label', text: 'Categories' });
+  const scroll = el('div', { class: 'category-chip-scroll' });
+
+  state.categories.forEach(cat => {
+    const selected = getSelection().has(cat.id);
+    scroll.appendChild(el('button', {
+      type: 'button',
+      class: 'category-chip' + (selected ? ' selected' : ''),
+      text: cat.name,
+      'aria-pressed': selected ? 'true' : 'false',
+      onClick: () => {
+        const sel = getSelection();
+        if (sel.has(cat.id)) sel.delete(cat.id);
+        else sel.add(cat.id);
+        onUpdate();
+        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+      }
+    }));
+  });
+
+  if (uiState.adding) {
+    const input = el('input', {
+      type: 'text',
+      class: 'category-chip-new-input',
+      placeholder: 'New…',
+      autocomplete: 'off',
+      'aria-label': 'New category name'
+    });
+    const finishAdd = () => {
+      const name = input.value.trim();
+      uiState.adding = false;
+      if (name) {
+        const id = addCategory(name, { silent: true });
+        if (id) {
+          getSelection().add(id);
+          onUpdate();
+          showToast('Added category: ' + name);
+          onCategoriesChanged();
+        }
+      }
+      renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+      renderCategoryFilters();
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') finishAdd();
+      if (e.key === 'Escape') {
+        uiState.adding = false;
+        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+      }
+    });
+    input.addEventListener('blur', finishAdd);
+    scroll.appendChild(input);
+    setTimeout(() => input.focus(), 30);
+  } else {
+    scroll.appendChild(el('button', {
+      type: 'button',
+      class: 'category-chip category-chip-add',
+      text: '+',
+      'aria-label': 'Add category',
+      onClick: () => {
+        uiState.adding = true;
+        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+      }
+    }));
+  }
+
+  container.appendChild(label);
+  container.appendChild(scroll);
+}
+
+function renderQuickAddCategories() {
+  renderCategoryChipRow(
+    document.getElementById('listQuickCategories'),
+    quickAddCategoryUi.list,
+    () => quickAddCategoryUi.list.selected,
+    (sel) => { quickAddCategoryUi.list.selected = sel; },
+    () => {}
+  );
+  renderCategoryChipRow(
+    document.getElementById('inboxQuickCategories'),
+    quickAddCategoryUi.inbox,
+    () => quickAddCategoryUi.inbox.selected,
+    (sel) => { quickAddCategoryUi.inbox.selected = sel; },
+    () => {}
+  );
+}
+
+function renderTaskEditorCategories() {
+  const container = document.getElementById('taskEditorCategories');
+  const field = document.getElementById('taskEditorCategoriesField');
+  if (!container || !field || !editingTaskDraft) return;
+  if (!editingTaskDraft.categoryIds) editingTaskDraft.categoryIds = [];
+  const selection = new Set(editingTaskDraft.categoryIds);
+  renderCategoryChipRow(
+    container,
+    quickAddCategoryUi.editor,
+    () => selection,
+    () => {},
+    () => {
+      editingTaskDraft.categoryIds = Array.from(selection);
+    }
+  );
+}
+
+function renderCategoryFilters() {
+  const selects = [
+    document.getElementById('listCategoryFilter'),
+    document.getElementById('inboxCategoryFilter')
+  ];
+  const rows = [
+    document.getElementById('listCategoryFilterRow'),
+    document.getElementById('inboxCategoryFilterRow')
+  ];
+  const hasCategories = state.categories.length > 0;
+  rows.forEach(row => { if (row) row.hidden = !hasCategories; });
+  if (!hasCategories) {
+    state.categoryFilter = 'all';
+    return;
+  }
+  if (state.categoryFilter !== 'all' && !getCategory(state.categoryFilter)) {
+    state.categoryFilter = 'all';
+    saveState();
+  }
+  selects.forEach(select => {
+    if (!select) return;
+    select.innerHTML = '';
+    const allOpt = el('option', { value: 'all', text: 'All categories' });
+    if (state.categoryFilter === 'all') allOpt.selected = true;
+    select.appendChild(allOpt);
+    state.categories.forEach(cat => {
+      const opt = el('option', { value: cat.id, text: cat.name });
+      if (state.categoryFilter === cat.id) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = (e) => {
+      state.categoryFilter = e.target.value;
+      saveState();
+      render();
+    };
+  });
+}
+
+function appendTaskCategoryPills(meta, task) {
+  if (!Array.isArray(task.categoryIds) || !task.categoryIds.length) return;
+  task.categoryIds.forEach(id => {
+    const cat = getCategory(id);
+    if (cat) meta.appendChild(el('span', { class: 'pill category', text: cat.name }));
+  });
+}
+
 function amsBadgeEl(extraClass) {
   const badge = el('span', { class: 'ams-badge' + (extraClass ? ' ' + extraClass : '') });
   badge.appendChild(el('span', { class: 'ams-badge-text', text: 'AMS' }));
@@ -2510,6 +2867,7 @@ function renderTaskRow(task, opts) {
     const list = state.lists.find(l => l.id === task.listId);
     if (list) meta.appendChild(el('span', { class: 'pill list', text: list.name }));
   }
+  appendTaskCategoryPills(meta, task);
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
     meta.appendChild(el('span', { class: 'pill subtasks', text: `${done}/${task.subtasks.length}` }));
@@ -2536,6 +2894,8 @@ function emptyState(emoji, message) {
 // ============================================================================
 function render() {
   renderHeader();
+  renderCategoryFilters();
+  renderQuickAddCategories();
   if (currentView === 'matrix') renderMatrix();
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'lists') renderListsView();
@@ -2896,9 +3256,13 @@ function renderListsView() {
 
   const container = document.getElementById('listTasks');
   container.innerHTML = '';
-  const tasks = state.tasks.filter(t => t.listId === state.activeListId);
+  const tasks = state.tasks.filter(t => t.listId === state.activeListId && taskMatchesCategoryFilter(t));
   if (!tasks.length) {
-    container.appendChild(emptyState('📋', 'No tasks in this list yet.'));
+    const msg = state.categoryFilter !== 'all'
+      ? 'No tasks with this category.'
+      : 'No tasks in this list yet.';
+    container.appendChild(emptyState('📋', msg));
+    syncQuickAddAms();
     return;
   }
   const open = tasks.filter(t => !t.completed);
@@ -2940,9 +3304,12 @@ function renderListsView() {
 function renderInbox() {
   const container = document.getElementById('inboxTasks');
   container.innerHTML = '';
-  const tasks = state.tasks.filter(t => t.listId === 'inbox' && !t.completed);
+  const tasks = state.tasks.filter(t => t.listId === 'inbox' && !t.completed && taskMatchesCategoryFilter(t));
   if (!tasks.length) {
-    container.appendChild(emptyState('🧠', 'Inbox is clear.'));
+    const msg = state.categoryFilter !== 'all'
+      ? 'No inbox tasks with this category.'
+      : 'Inbox is clear.';
+    container.appendChild(emptyState('🧠', msg));
     return;
   }
   const list = el('div', { class: 'task-list' });
@@ -3004,10 +3371,12 @@ function openTaskEditor(taskId) {
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, ams: false, subtasks: []
+    completed: false, hasPhoto: false, ams: false, categoryIds: [], subtasks: []
   };
   editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
   if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
+  if (!Array.isArray(editingTaskDraft.categoryIds)) editingTaskDraft.categoryIds = [];
+  editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
 
   document.getElementById('taskModalTitle').textContent = task ? 'Edit task' : 'New task';
   document.getElementById('taskTitleInput').value = editingTaskDraft.title;
@@ -3019,6 +3388,7 @@ function openTaskEditor(taskId) {
   hideTaskCategoryNewRow();
   renderTaskCategorySelect();
   syncTaskEditorAms();
+  renderTaskEditorCategories();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
@@ -3181,6 +3551,7 @@ function saveTaskEditor() {
     return;
   }
   if (!isAmsList(editingTaskDraft.listId)) editingTaskDraft.ams = false;
+  editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -3326,7 +3697,7 @@ function addList(name, opts) {
   }
   const existing = state.lists.find(l => l.name.toLowerCase() === name.toLowerCase());
   if (existing) {
-    if (!opts.silent) showToast('Category already exists', { error: true });
+    if (!opts.silent) showToast('List already exists', { error: true });
     return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
@@ -3334,6 +3705,77 @@ function addList(name, opts) {
   saveState();
   if (!opts.silent) showToast('Added list: ' + name);
   return id;
+}
+
+// ============================================================================
+// CATEGORIES MANAGER
+// ============================================================================
+function openCategoriesManager() {
+  renderCategoriesManager();
+  openModal('categoriesModal');
+}
+
+function renderCategoriesManager() {
+  const container = document.getElementById('categoriesManagerList');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!state.categories.length) {
+    container.appendChild(el('p', {
+      style: 'font-size: 0.85rem; color: var(--text-faint); font-style: italic; margin: 0;',
+      text: 'No categories yet. Tap + on the task creation row to add one.'
+    }));
+    return;
+  }
+  state.categories.forEach((cat, index) => {
+    const row = el('div', { class: 'list-manage-row' });
+    row.appendChild(el('div', { class: 'settings-label', text: cat.name }));
+
+    const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;' });
+    const reorder = el('div', { class: 'list-reorder' });
+    const upBtn = el('button', {
+      type: 'button',
+      class: 'list-reorder-btn',
+      text: '▲',
+      'aria-label': 'Move up',
+      onClick: () => {
+        moveCategory(index, -1);
+        renderCategoriesManager();
+        onCategoriesChanged();
+      }
+    });
+    if (index === 0) upBtn.disabled = true;
+    reorder.appendChild(upBtn);
+    const downBtn = el('button', {
+      type: 'button',
+      class: 'list-reorder-btn',
+      text: '▼',
+      'aria-label': 'Move down',
+      onClick: () => {
+        moveCategory(index, 1);
+        renderCategoriesManager();
+        onCategoriesChanged();
+      }
+    });
+    if (index >= state.categories.length - 1) downBtn.disabled = true;
+    reorder.appendChild(downBtn);
+    actions.appendChild(reorder);
+
+    actions.appendChild(el('button', {
+      class: 'btn btn-danger',
+      style: 'padding: 6px 10px; min-height: 32px; font-size: 0.8rem;',
+      text: 'Delete',
+      onClick: () => {
+        if (!confirm(`Delete category "${cat.name}"? It will be removed from all tasks.`)) return;
+        deleteCategory(cat.id);
+        renderCategoriesManager();
+        onCategoriesChanged();
+        render();
+      }
+    }));
+
+    row.appendChild(actions);
+    container.appendChild(row);
+  });
 }
 
 // ============================================================================
@@ -3346,8 +3788,10 @@ function exportBackup() {
       exportedAt: new Date().toISOString(),
       tasks: state.tasks,
       lists: state.lists,
+      categories: state.categories,
       activeListId: state.activeListId,
-      matrixFilter: state.matrixFilter
+      matrixFilter: state.matrixFilter,
+      categoryFilter: state.categoryFilter
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -3382,7 +3826,9 @@ function handleImportFile(file) {
       pendingImport = parsed;
       const taskCount = parsed.tasks.length;
       const listCount = (parsed.lists || []).length;
-      const summary = `Backup contains ${taskCount} task${taskCount === 1 ? '' : 's'} and ${listCount} list${listCount === 1 ? '' : 's'}.`;
+      const catCount = (parsed.categories || []).length;
+      let summary = `Backup contains ${taskCount} task${taskCount === 1 ? '' : 's'} and ${listCount} list${listCount === 1 ? '' : 's'}.`;
+      if (catCount) summary += ` ${catCount} categor${catCount === 1 ? 'y' : 'ies'}.`;
       document.getElementById('importSummary').textContent = summary;
       openModal('importModal');
     } catch (e) {
@@ -3395,6 +3841,16 @@ function handleImportFile(file) {
 
 function importMerge() {
   if (!pendingImport) return;
+  if (Array.isArray(pendingImport.categories)) {
+    const existingCatIds = new Set(state.categories.map(c => c.id));
+    pendingImport.categories.forEach(c => {
+      const norm = normalizeCategoryDef(c);
+      if (norm.name && !existingCatIds.has(norm.id)) {
+        state.categories.push(norm);
+        existingCatIds.add(norm.id);
+      }
+    });
+  }
   const existingIds = new Set(state.tasks.map(t => t.id));
   pendingImport.tasks.forEach(t => {
     if (!existingIds.has(t.id)) state.tasks.push(normalizeTask(t));
@@ -3416,11 +3872,15 @@ function importMerge() {
 function importReplace() {
   if (!pendingImport) return;
   if (!confirm('Replace all current data with this backup? This cannot be undone.')) return;
-  state.tasks = pendingImport.tasks.map(normalizeTask);
   state.lists = Array.isArray(pendingImport.lists) && pendingImport.lists.length
     ? ensureSystemLists(pendingImport.lists)
     : DEFAULT_LISTS.slice();
+  state.categories = Array.isArray(pendingImport.categories)
+    ? pendingImport.categories.map(normalizeCategoryDef).filter(c => c.name)
+    : [];
+  state.tasks = pendingImport.tasks.map(normalizeTask);
   state.activeListId = 'inbox';
+  state.categoryFilter = 'all';
   saveState();
   pendingImport = null;
   closeModal('importModal');
@@ -4160,7 +4620,7 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId) {
+  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId, categoryUiKey) {
     const titleInput = document.getElementById(titleInputId);
     const linkInput = document.getElementById(linkInputId);
     const btn = document.getElementById(btnId);
@@ -4179,6 +4639,12 @@ function wireQuickAdds() {
 
     const resetAms = () => {
       if (amsInput) amsInput.checked = false;
+    };
+
+    const resetCategories = () => {
+      quickAddCategoryUi[categoryUiKey].selected.clear();
+      quickAddCategoryUi[categoryUiKey].adding = false;
+      renderQuickAddCategories();
     };
 
     prioBtns.forEach(prioBtn => {
@@ -4211,12 +4677,14 @@ function wireQuickAdds() {
         listId: getListId(),
         link: link || '',
         priority: selectedPrio,
-        ams: !!(amsInput && amsInput.checked && isAmsList(getListId()))
+        ams: !!(amsInput && amsInput.checked && isAmsList(getListId())),
+        categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected)
       });
       titleInput.value = '';
       linkInput.value = '';
       resetPrio();
       resetAms();
+      resetCategories();
       render();
     };
     btn.addEventListener('click', submit);
@@ -4224,8 +4692,8 @@ function wireQuickAdds() {
     linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   }
 
-  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox');
-  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId);
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox', 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId, 'list');
 }
 
 function wireDateNav() {
@@ -4415,9 +4883,14 @@ function wireSettings() {
   document.getElementById('importReplaceBtn').addEventListener('click', importReplace);
 
   document.getElementById('manageListsBtn').addEventListener('click', openListsManager);
+  document.getElementById('manageCategoriesBtn').addEventListener('click', openCategoriesManager);
   document.getElementById('listsModalClose').addEventListener('click', () => closeModal('listsModal'));
+  document.getElementById('categoriesModalClose').addEventListener('click', () => closeModal('categoriesModal'));
   document.getElementById('listsModal').addEventListener('click', (e) => {
     if (e.target.id === 'listsModal') closeModal('listsModal');
+  });
+  document.getElementById('categoriesModal').addEventListener('click', (e) => {
+    if (e.target.id === 'categoriesModal') closeModal('categoriesModal');
   });
   document.getElementById('addListBtn').addEventListener('click', () => {
     const inp = document.getElementById('newListInput');
@@ -4457,7 +4930,9 @@ function wireSettings() {
     if (!confirm('Really reset everything?')) return;
     state.tasks = [];
     state.lists = DEFAULT_LISTS.slice();
+    state.categories = [];
     state.activeListId = 'inbox';
+    state.categoryFilter = 'all';
     state.counters = [];
     state.counterLogs = {};
     state.compareHabitIds = [];
