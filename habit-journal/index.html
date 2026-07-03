@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-log-tab-time-v9 -->
+  <!-- build: hj-today-tab-v11 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -103,7 +103,7 @@
     main { max-width: 520px; margin: 0 auto; padding: 12px 10px 16px; }
     .panel { display: none; }
     .panel.on { display: block; }
-    #panelYear { padding-bottom: 8px; }
+    #panelGraphs { padding-bottom: 8px; }
     .card {
       background: rgba(255, 255, 255, 0.88);
       border: 1px solid var(--border);
@@ -1192,9 +1192,9 @@
       grid-template-rows: repeat(31, minmax(0, 1fr));
       margin: 0;
     }
-    #panelYear .year-gallery-heatmap .cell,
-    #panelYear .year-gallery-heatmap .cell.cell-year-shade,
-    #panelYear .year-gallery-heatmap .cell.cell-pad {
+    #panelGraphs .year-gallery-heatmap .cell,
+    #panelGraphs .year-gallery-heatmap .cell.cell-year-shade,
+    #panelGraphs .year-gallery-heatmap .cell.cell-pad {
       width: 100% !important;
       min-width: 0 !important;
       max-width: none !important;
@@ -1212,11 +1212,11 @@
       cursor: default;
       transition: none;
     }
-    #panelYear .year-gallery-heatmap button.cell {
+    #panelGraphs .year-gallery-heatmap button.cell {
       appearance: none;
       -webkit-appearance: none;
     }
-    #panelYear .year-gallery-heatmap .cell.cell-pad {
+    #panelGraphs .year-gallery-heatmap .cell.cell-pad {
       background: #d8d4cc !important;
       border-color: #c8c4bc !important;
       opacity: 0.85;
@@ -1598,6 +1598,205 @@
       color: #b91c1c;
       border-color: #fecaca;
     }
+    /* Today tab */
+    .today-groups { display: flex; flex-direction: column; gap: 10px; }
+    .today-group-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .today-habits-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .today-habit-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 52px;
+      flex-shrink: 0;
+    }
+    .today-habit-card .cell {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      background: #fff;
+    }
+    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.875rem; }
+    .today-habit-card .cell.col-today {
+      box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
+    }
+    .today-habit-name {
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-align: center;
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 1.15;
+    }
+    .today-hide-btn {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.5625rem;
+      font-weight: 700;
+      padding: 2px 0 0;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .today-hide-btn:active { color: var(--accent); }
+    /* Graphs tab toggle */
+    .graphs-mode-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .graphs-mode-btn {
+      flex: 1;
+      min-height: 40px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .graphs-mode-btn.on {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    /* Month drag reorder */
+    .month-scroll { position: relative; }
+    .habit-drag-handle {
+      width: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      padding: 4px 2px;
+      flex-shrink: 0;
+      cursor: grab;
+      touch-action: none;
+    }
+    .habit-drag-handle span {
+      display: block;
+      height: 2px;
+      background: var(--muted);
+      border-radius: 1px;
+    }
+    body.month-drag-active { user-select: none; }
+    body.month-drag-active .scroll-x { overflow-x: hidden; }
+    .habit-label.drag-slot-glow,
+    .month-grid .cell.drag-slot-glow {
+      box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.4);
+      background: rgba(196, 92, 92, 0.07) !important;
+    }
+    .habit-label.dragging,
+    .month-grid .cell.dragging {
+      opacity: 0.75;
+      box-shadow: 0 2px 8px rgba(44, 36, 25, 0.15);
+    }
+    .month-drop-indicator {
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+      pointer-events: none;
+      z-index: 8;
+      display: none;
+    }
+    .month-drop-indicator.on { display: block; }
+    /* Compact habits */
+    .habits-backup-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .habits-backup-row .btn { flex: 1; min-height: 40px; font-size: 0.8125rem; }
+    .habits-data-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .habits-danger-bar { margin-bottom: 12px; }
+    .habits-danger-toggle {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 4px 0;
+      cursor: pointer;
+    }
+    .habits-danger-panel { margin-top: 8px; }
+    .habit-compact-row {
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .habit-compact-row.is-hidden-row { opacity: 0.75; }
+    .habit-compact-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .habit-compact-name {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .habit-compact-meta {
+      font-size: 0.6875rem;
+      color: var(--muted);
+      flex-shrink: 0;
+      max-width: 45%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .habit-compact-chevron {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 8px 4px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .habit-compact-body {
+      padding: 0 0 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .habit-compact-body[hidden] { display: none !important; }
   </style>
 </head>
 <body class="habit-journal">
@@ -1611,12 +1810,11 @@
   </header>
 
   <main>
-    <section class="panel on" id="panelMonth" aria-label="Monthly view"></section>
-    <section class="panel" id="panelYear" aria-label="Yearly view"></section>
-    <section class="panel" id="panelGraph" aria-label="Graph view"></section>
-    <section class="panel" id="panelHabits" aria-label="Habits"></section>
+    <section class="panel on" id="panelToday" aria-label="Today"></section>
+    <section class="panel" id="panelMonth" aria-label="Monthly view"></section>
+    <section class="panel" id="panelGraphs" aria-label="Graphs view"></section>
     <section class="panel" id="panelLog" aria-label="Activity log"></section>
-    <section class="panel" id="panelData" aria-label="Export and import"></section>
+    <section class="panel" id="panelHabits" aria-label="Habits"></section>
   </main>
 
   <div class="year-fullscreen" id="yearFullscreen" hidden role="dialog" aria-modal="true" aria-labelledby="yearFsTitle">
@@ -1676,17 +1874,17 @@
       <button type="button" class="mode-btn" data-mode-action="eraser" aria-pressed="false">Eraser</button>
     </div>
     <nav class="tabbar" aria-label="Main">
-      <button type="button" class="tab on" data-tab="month">
+      <button type="button" class="tab on" data-tab="today">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        Today
+      </button>
+      <button type="button" class="tab" data-tab="month">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         Month
       </button>
-      <button type="button" class="tab" data-tab="year">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Year
-      </button>
-      <button type="button" class="tab" data-tab="graph">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 17V9"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
-        Graph
+      <button type="button" class="tab" data-tab="graphs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M4 19V9"/><path d="M4 19h16"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
+        Graphs
       </button>
       <button type="button" class="tab" data-tab="log">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
@@ -1695,10 +1893,6 @@
       <button type="button" class="tab" data-tab="habits">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
         Habits
-      </button>
-      <button type="button" class="tab" data-tab="data">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M5 21h14"/></svg>
-        Data
       </button>
     </nav>
   </div>
@@ -1766,6 +1960,9 @@
   let logGraphHabitId = null;
   let graphRange = "90";
   let graphUserToggled = false;
+  let graphsMode = "grid";
+  let habitsExpandedId = null;
+  let habitsDangerOpen = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -1792,6 +1989,7 @@
         },
       ],
       cells: {},
+      todayDismissed: {},
     };
   }
 
@@ -2097,24 +2295,100 @@
     });
   }
 
-  function moveHabitInOrder(habitId, direction) {
+  function todayDateKey() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function pruneTodayDismissed() {
+    if (!state.todayDismissed || typeof state.todayDismissed !== "object") {
+      state.todayDismissed = {};
+      return;
+    }
+    const today = todayDateKey();
+    Object.keys(state.todayDismissed).forEach(function (k) {
+      if (k !== today) delete state.todayDismissed[k];
+    });
+  }
+
+  function isTodayDismissed(habitId) {
+    pruneTodayDismissed();
+    const list = state.todayDismissed[todayDateKey()] || [];
+    return list.indexOf(habitId) >= 0;
+  }
+
+  function setTodayDismissed(habitId, dismissed) {
+    pruneTodayDismissed();
+    const key = todayDateKey();
+    let list = (state.todayDismissed[key] || []).slice();
+    const idx = list.indexOf(habitId);
+    if (dismissed) {
+      if (idx < 0) list.push(habitId);
+    } else if (idx >= 0) {
+      list.splice(idx, 1);
+    }
+    if (list.length) state.todayDismissed[key] = list;
+    else delete state.todayDismissed[key];
+    save();
+  }
+
+  function getTodayDateParts() {
+    const d = new Date();
+    return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() };
+  }
+
+  function isHabitDoneToday(habit) {
+    const parts = getTodayDateParts();
+    const val = getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d));
+    return isCellFilled(habit, val);
+  }
+
+  function getTodayHabitsForCategory(catId) {
+    const parts = getTodayDateParts();
+    return state.habits.filter(function (h) {
+      if (h.hidden) return false;
+      if (isTodayDismissed(h.id)) return false;
+      if (h.category !== catId) return false;
+      if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
+      return true;
+    });
+  }
+
+  function formatTodayNavLabel() {
+    const d = new Date();
+    return (
+      "Today · " +
+      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })
+    );
+  }
+
+  function reorderHabitToIndex(habitId, targetIndex) {
     const filtered = getFilteredHabits(true);
-    const idx = filtered.findIndex(function (h) {
+    const fromIdx = filtered.findIndex(function (h) {
       return h.id === habitId;
     });
-    if (idx < 0) return false;
-    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
-    if (swapIdx < 0 || swapIdx >= filtered.length) return false;
-    const iA = state.habits.findIndex(function (h) {
-      return h.id === filtered[idx].id;
+    if (fromIdx < 0) return false;
+    targetIndex = Math.max(0, Math.min(targetIndex, filtered.length - 1));
+    if (fromIdx === targetIndex) return false;
+    const reordered = filtered.slice();
+    const moved = reordered.splice(fromIdx, 1)[0];
+    reordered.splice(targetIndex, 0, moved);
+    const slots = [];
+    state.habits.forEach(function (h, i) {
+      if (filtered.some(function (f) {
+        return f.id === h.id;
+      })) {
+        slots.push(i);
+      }
     });
-    const iB = state.habits.findIndex(function (h) {
-      return h.id === filtered[swapIdx].id;
+    const next = state.habits.slice();
+    reordered.forEach(function (h, i) {
+      next[slots[i]] = h;
     });
-    if (iA < 0 || iB < 0) return false;
-    const tmp = state.habits[iA];
-    state.habits[iA] = state.habits[iB];
-    state.habits[iB] = tmp;
+    state.habits = next;
     return save();
   }
 
@@ -2169,24 +2443,12 @@
     const streak = habitStreak(habit);
     let html = '<div class="habit-label" data-habit-row="' + escapeHtml(habit.id) + '">';
     html += '<div class="habit-label-row">';
-    html += '<div class="habit-sort-btns">';
     html +=
-      '<button type="button" class="habit-sort-btn" data-habit-move="' +
+      '<div class="habit-drag-handle" data-drag-handle="' +
       escapeHtml(habit.id) +
-      '" data-dir="up"' +
-      (index === 0 ? " disabled" : "") +
-      ' aria-label="Move ' +
+      '" aria-label="Drag to reorder ' +
       escapeHtml(habit.name) +
-      ' up">▲</button>';
-    html +=
-      '<button type="button" class="habit-sort-btn" data-habit-move="' +
-      escapeHtml(habit.id) +
-      '" data-dir="down"' +
-      (index === total - 1 ? " disabled" : "") +
-      ' aria-label="Move ' +
-      escapeHtml(habit.name) +
-      ' down">▼</button>';
-    html += "</div>";
+      '"><span></span><span></span><span></span></div>';
     html += '<div class="habit-label-text">';
     html += '<div class="habit-label-name-row">';
     html +=
@@ -2281,14 +2543,140 @@
     }
   }
 
-  function bindMonthHabitSort(root) {
-    root.querySelectorAll("[data-habit-move]").forEach(function (btn) {
-      btn.onclick = function (e) {
-        e.stopPropagation();
-        if (btn.disabled) return;
-        moveHabitInOrder(btn.getAttribute("data-habit-move"), btn.getAttribute("data-dir"));
-        render();
-      };
+  function bindMonthHabitDrag(root) {
+    const scroller = root.querySelector(".month-scroll");
+    if (!scroller) return;
+    let indicator = scroller.querySelector(".month-drop-indicator");
+    if (!indicator) {
+      indicator = document.createElement("div");
+      indicator.className = "month-drop-indicator";
+      scroller.appendChild(indicator);
+    }
+    const labels = Array.prototype.slice.call(root.querySelectorAll(".habit-label[data-habit-row]"));
+    let dragId = null;
+    let dragFromIdx = -1;
+    let holdTimer = null;
+    let dragging = false;
+    let dropIdx = -1;
+
+    function clearDragUi() {
+      dragging = false;
+      dragId = null;
+      dragFromIdx = -1;
+      dropIdx = -1;
+      document.body.classList.remove("month-drag-active");
+      indicator.classList.remove("on");
+      root.querySelectorAll(".drag-slot-glow, .dragging").forEach(function (el) {
+        el.classList.remove("drag-slot-glow", "dragging");
+      });
+    }
+
+    function habitCells(habitId) {
+      return root.querySelectorAll(
+        '.habit-label[data-habit-row="' + habitId + '"], .cell[data-key^="' + habitId + '|"]'
+      );
+    }
+
+    function updateDropUi(idx) {
+      dropIdx = idx;
+      root.querySelectorAll(".drag-slot-glow").forEach(function (el) {
+        el.classList.remove("drag-slot-glow");
+      });
+      if (idx < 0 || idx > labels.length) {
+        indicator.classList.remove("on");
+        return;
+      }
+      const above = labels[Math.max(0, idx - 1)];
+      const below = labels[Math.min(labels.length - 1, idx)];
+      if (above) {
+        habitCells(above.getAttribute("data-habit-row")).forEach(function (el) {
+          el.classList.add("drag-slot-glow");
+        });
+      }
+      if (below && below !== above) {
+        habitCells(below.getAttribute("data-habit-row")).forEach(function (el) {
+          el.classList.add("drag-slot-glow");
+        });
+      }
+      const ref = labels[idx] || labels[labels.length - 1];
+      if (ref) {
+        const grid = root.querySelector(".month-grid");
+        const top = ref.offsetTop + (idx >= labels.length ? ref.offsetHeight : 0);
+        indicator.style.top = top - scroller.scrollTop + (grid ? grid.offsetTop : 0) + "px";
+        indicator.classList.add("on");
+      }
+    }
+
+    function dropIndexFromY(clientY) {
+      for (let i = 0; i < labels.length; i++) {
+        const rect = labels[i].getBoundingClientRect();
+        const mid = rect.top + rect.height / 2;
+        if (clientY < mid) return i;
+      }
+      return labels.length;
+    }
+
+    function startDrag(id) {
+      dragId = id;
+      dragFromIdx = labels.findIndex(function (el) {
+        return el.getAttribute("data-habit-row") === id;
+      });
+      dragging = true;
+      document.body.classList.add("month-drag-active");
+      habitCells(id).forEach(function (el) {
+        el.classList.add("dragging");
+      });
+    }
+
+    function onMove(clientY) {
+      if (!dragging) return;
+      updateDropUi(dropIndexFromY(clientY));
+    }
+
+    function onEnd() {
+      clearTimeout(holdTimer);
+      if (!dragging || !dragId) {
+        clearDragUi();
+        return;
+      }
+      const target = dropIdx < 0 ? dragFromIdx : dropIdx;
+      const id = dragId;
+      clearDragUi();
+      if (target !== dragFromIdx && reorderHabitToIndex(id, target)) {
+        renderMonth();
+      }
+    }
+
+    root.querySelectorAll("[data-drag-handle]").forEach(function (handle) {
+      const id = handle.getAttribute("data-drag-handle");
+
+      handle.addEventListener(
+        "pointerdown",
+        function (e) {
+          if (e.button !== 0) return;
+          e.preventDefault();
+          clearTimeout(holdTimer);
+          holdTimer = setTimeout(function () {
+            startDrag(id);
+            updateDropUi(dragFromIdx);
+          }, 250);
+        },
+        { passive: false }
+      );
+
+      handle.addEventListener("pointermove", function (e) {
+        if (!dragging) return;
+        e.preventDefault();
+        onMove(e.clientY);
+      });
+
+      handle.addEventListener("pointerup", function () {
+        onEnd();
+      });
+
+      handle.addEventListener("pointercancel", function () {
+        onEnd();
+      });
     });
   }
 
@@ -2551,7 +2939,7 @@
         e.stopPropagation();
         const id = btn.getAttribute("data-year-toggle");
         setYearHabitExpanded(id, !isYearHabitExpanded(id));
-        renderYear();
+        renderGraphs();
       };
     });
     root.querySelectorAll("[data-year-open-fs]").forEach(function (el) {
@@ -2653,6 +3041,9 @@
         return normalizeHabit(h, s.categories);
       });
       if (!s.habits.length) s.habits = defaultState().habits;
+      if (p.todayDismissed && typeof p.todayDismissed === "object") {
+        s.todayDismissed = p.todayDismissed;
+      }
       const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h && h.levels; });
       if (isLegacy) {
         try {
@@ -2935,7 +3326,7 @@
 
   let state = loadState();
   changeLog = loadChangeLog();
-  let activeTab = "month";
+  let activeTab = "today";
   let eraserMode = false;
 
   function ensureHabitsReady() {
@@ -2955,7 +3346,7 @@
 
   function showFatalError(msg) {
     var html = '<div class="card"><p class="hint">' + escapeHtml(msg) + "</p></div>";
-    ["panelMonth", "panelYear", "panelGraph", "panelHabits", "panelLog", "panelData"].forEach(function (id) {
+    ["panelToday", "panelMonth", "panelGraphs", "panelHabits", "panelLog"].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.innerHTML = html;
     });
@@ -3246,23 +3637,24 @@
     const key = habitId + "|" + y + "|" + m + "|" + d;
     const btn =
       document.querySelector('#yearFsBody .year-fs-cells .cell[data-key="' + key + '"]') ||
-      document.querySelector('#panelYear .cell[data-key="' + key + '"]') ||
+      document.querySelector('#panelGraphs .cell[data-key="' + key + '"]') ||
+      document.querySelector('#panelToday .cell[data-key="' + key + '"]') ||
       document.querySelector('#panelMonth .cell[data-key="' + key + '"]');
     if (btn) {
       refreshCellButton(btn);
       if (activeTab === "month") return;
-      if (activeTab === "year" && yearFullscreenHabitId) return;
+      if (activeTab === "graphs" && graphsMode === "grid" && yearFullscreenHabitId) return;
+      if (activeTab === "today") {
+        renderToday();
+        return;
+      }
     }
     if (activeTab === "month") {
       renderMonth();
       return;
     }
-    if (activeTab === "year") {
-      renderYear();
-      return;
-    }
-    if (activeTab === "graph") {
-      renderGraph();
+    if (activeTab === "graphs") {
+      renderGraphs();
       return;
     }
     if (activeTab === "log") {
@@ -3382,6 +3774,28 @@
     afterCellChange(habitId, y, m, d);
   }
 
+  function tapCellToday(habitId, y, m, d) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit) return;
+    if (isDayExcluded(habit, y, m, d)) return;
+    const key = cellKey(habitId, y, m, d);
+    const oldValue = getCellValue(key);
+    if (habit.type === "yesno") {
+      if (oldValue === null || oldValue === YESNO_PROGRESS) state.cells[key] = 1;
+      else delete state.cells[key];
+    } else {
+      const step = habit.step || 1;
+      state.cells[key] = (oldValue || 0) + step;
+    }
+    const newValue = getCellValue(key);
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: newValue,
+    });
+    afterCellChange(habitId, y, m, d);
+  }
+
   function eraseCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
@@ -3430,7 +3844,9 @@
   function updateModeBar() {
     const bar = document.getElementById("modeBar");
     if (!bar) return;
-    const show = activeTab === "month" || activeTab === "year";
+    const show =
+      activeTab === "month" ||
+      (activeTab === "graphs" && graphsMode === "grid");
     bar.hidden = !show;
     document.body.classList.toggle("has-mode-bar", show);
     if (!show) document.body.classList.remove("eraser-mode");
@@ -3440,11 +3856,15 @@
   function renderTopNav() {
     const nav = document.getElementById("topNav");
     if (!nav) return;
-    if (activeTab === "habits" || activeTab === "data" || activeTab === "log") {
+    if (activeTab === "today") {
+      nav.innerHTML = '<span class="nav-label">' + formatTodayNavLabel() + "</span>";
+      return;
+    }
+    if (activeTab === "habits" || activeTab === "log") {
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
     }
-    if (activeTab === "graph" || activeTab === "year") {
+    if (activeTab === "graphs") {
       nav.innerHTML =
         '<button type="button" class="nav-btn" id="yearPrev" aria-label="Previous year">‹</button>' +
         '<span class="nav-label">' + state.year + "</span>" +
@@ -3570,6 +3990,119 @@
     });
   }
 
+  function renderTodayCellButton(habit, y, m, d) {
+    const dataKey = habit.id + "|" + y + "|" + m + "|" + d;
+    if (isDayExcluded(habit, y, m, d)) {
+      return (
+        '<button type="button" class="cell cell-blocked col-today" data-key="' +
+        dataKey +
+        '" disabled style="' +
+        cellStyle(habit, null, y, m, d) +
+        '" aria-label="' +
+        escapeHtml(habit.name) +
+        ' blocked"></button>'
+      );
+    }
+    const value = getCellValue(cellKey(habit.id, y, m, d));
+    const disp = cellDisplay(habit, value);
+    const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    return (
+      '<button type="button" class="cell ' +
+      disp.cls +
+      ' col-today" data-key="' +
+      dataKey +
+      '" data-today="1"' +
+      counterAttr +
+      ' style="' +
+      cellStyle(habit, value, y, m, d) +
+      '" aria-label="' +
+      escapeHtml(habit.name) +
+      " " +
+      (value != null ? value : "empty") +
+      '">' +
+      disp.text +
+      "</button>"
+    );
+  }
+
+  function bindTodayPanel(root) {
+    root.querySelectorAll(".today-hide-btn").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        setTodayDismissed(btn.getAttribute("data-today-hide"), true);
+        renderToday();
+        toast("Hidden for today");
+      };
+    });
+    root.querySelectorAll(".cell[data-today]").forEach(function (btn) {
+      btn.onclick = function () {
+        const p = btn.dataset.key.split("|");
+        tapCellToday(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+      };
+      if (btn.dataset.counter) {
+        let holdTimer;
+        let held = false;
+        btn.addEventListener(
+          "touchstart",
+          function () {
+            held = false;
+            holdTimer = setTimeout(function () {
+              held = true;
+              const p = btn.dataset.key.split("|");
+              decrementCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+            }, 450);
+          },
+          { passive: true }
+        );
+        btn.addEventListener("touchend", function () {
+          clearTimeout(holdTimer);
+        });
+        btn.addEventListener("touchcancel", function () {
+          clearTimeout(holdTimer);
+        });
+      }
+    });
+  }
+
+  function renderToday() {
+    pruneTodayDismissed();
+    const root = document.getElementById("panelToday");
+    if (!root) return;
+    const parts = getTodayDateParts();
+    let html = '<p class="hint">Tap to mark done · Hide clears a finished habit until tomorrow.</p>';
+    html += '<div class="today-groups">';
+    let any = false;
+    state.categories.forEach(function (cat) {
+      const habits = getTodayHabitsForCategory(cat.id);
+      if (!habits.length) return;
+      any = true;
+      html += '<div class="today-group">';
+      html += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
+      html += '<div class="today-habits-row">';
+      habits.forEach(function (habit) {
+        const done = isHabitDoneToday(habit);
+        html += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
+        html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
+        html += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
+        if (done) {
+          html +=
+            '<button type="button" class="today-hide-btn" data-today-hide="' +
+            escapeHtml(habit.id) +
+            '">Hide</button>';
+        }
+        html += "</div>";
+      });
+      html += "</div></div>";
+    });
+    html += "</div>";
+    if (!any) {
+      html =
+        '<p class="hint">No habits for today — add habits on the Habits tab or show hidden ones.</p>';
+    }
+    root.innerHTML = html;
+    bindTodayPanel(root);
+  }
+
   function renderMonth() {
     const root = document.getElementById("panelMonth");
     if (!root) return;
@@ -3584,7 +4117,7 @@
     html +=
       '<p class="hint">Tap a name to edit · Hide on each row · hidden habits below.' +
       eraserNote +
-      " Hold a counter cell to subtract. ▲▼ reorders rows.</p>";
+      " Hold a counter cell to subtract. Hold ≡ to drag habits.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -3602,7 +4135,7 @@
     }
     let cols = "132px";
     for (let d = 1; d <= dim; d++) cols += " 28px";
-    html += '<div class="card scroll-x month-scroll"><div class="month-grid" style="grid-template-columns:' + cols + '">';
+    html += '<div class="card scroll-x month-scroll"><div class="month-drop-indicator"></div><div class="month-grid" style="grid-template-columns:' + cols + '">';
     html += '<div class="corner"></div>';
     for (let d = 1; d <= dim; d++) {
       const dow = WEEKDAY_LETTERS[new Date(state.year, state.month, d).getDay()];
@@ -3623,7 +4156,7 @@
     bindCategoryFilters(root);
     bindCells(root);
     bindMonthAddHabit(root);
-    bindMonthHabitSort(root);
+    bindMonthHabitDrag(root);
     bindMonthHabitEdit(root);
     bindMonthHabitHide(root);
 
@@ -3642,8 +4175,39 @@
     }
   }
 
-  function renderYear() {
-    const root = document.getElementById("panelYear");
+  function renderGraphs() {
+    const root = document.getElementById("panelGraphs");
+    if (!root) return;
+    let html = '<div class="graphs-mode-bar" role="toolbar" aria-label="Grid or plot">';
+    html +=
+      '<button type="button" class="graphs-mode-btn' +
+      (graphsMode === "grid" ? " on" : "") +
+      '" data-graphs-mode="grid" aria-pressed="' +
+      (graphsMode === "grid") +
+      '">Grid</button>';
+    html +=
+      '<button type="button" class="graphs-mode-btn' +
+      (graphsMode === "plot" ? " on" : "") +
+      '" data-graphs-mode="plot" aria-pressed="' +
+      (graphsMode === "plot") +
+      '">Plot</button>';
+    html += '</div><div id="graphsBody"></div>';
+    root.innerHTML = html;
+    root.querySelectorAll("[data-graphs-mode]").forEach(function (btn) {
+      btn.onclick = function () {
+        graphsMode = btn.getAttribute("data-graphs-mode");
+        updateModeBar();
+        renderGraphs();
+      };
+    });
+    const body = document.getElementById("graphsBody");
+    if (!body) return;
+    if (graphsMode === "grid") renderYear(body);
+    else renderGraph(body);
+  }
+
+  function renderYear(targetRoot) {
+    const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
     const prevExpandedScroll = root.querySelector(".year-expanded-scroll");
     if (prevExpandedScroll) yearExpandedScrollLeft = prevExpandedScroll.scrollLeft;
@@ -3688,11 +4252,11 @@
 
     document.getElementById("yearExpandAll").onclick = function () {
       expandAllYearHabits(filtered);
-      renderYear();
+      renderGraphs();
     };
     document.getElementById("yearCollapseAll").onclick = function () {
       collapseAllYearHabits();
-      renderYear();
+      renderGraphs();
     };
   }
 
@@ -3878,7 +4442,7 @@
     root.querySelectorAll("[data-graph-range]").forEach(function (btn) {
       btn.onclick = function () {
         graphRange = btn.getAttribute("data-graph-range");
-        renderGraph();
+        renderGraphs();
       };
     });
     root.querySelectorAll("[data-graph-habit]").forEach(function (btn) {
@@ -3892,13 +4456,13 @@
         const id = btn.getAttribute("data-graph-habit");
         if (graphSelectedIds[id]) delete graphSelectedIds[id];
         else graphSelectedIds[id] = true;
-        renderGraph();
+        renderGraphs();
       };
     });
   }
 
-  function renderGraph() {
-    const root = document.getElementById("panelGraph");
+  function renderGraph(targetRoot) {
+    const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
     const habits = getFilteredHabits(true);
     const selectedHabits = getGraphSelectedHabits(habits);
@@ -3986,9 +4550,87 @@
     }
   }
 
+  function habitCompactMeta(habit) {
+    const type =
+      habit.type === "counter"
+        ? "Counter +" + formatStepBracket(habit.step)
+        : "Yes/No";
+    return categoryLabel(habit.category) + " · " + type + (habit.pinned ? " · ★" : "");
+  }
+
+  function bindDataActions(root) {
+    const btnExport = root.querySelector("#btnExport");
+    const btnImport = root.querySelector("#btnImport");
+    const btnReset = root.querySelector("#btnReset");
+    if (btnExport) {
+      btnExport.onclick = function () {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        const d = new Date();
+        const stamp =
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0");
+        a.download = "habit-journal-backup-" + stamp + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        try {
+          localStorage.setItem("habit-journal-last-export", String(Date.now()));
+        } catch (e) { /* ok */ }
+        toast("Backup saved — keep the file somewhere safe");
+      };
+    }
+    if (btnImport) {
+      btnImport.onclick = function () {
+        document.getElementById("importInput").click();
+      };
+    }
+    if (btnReset) {
+      btnReset.onclick = function () {
+        if (!confirm("Erase all habits and marks? This cannot be undone.")) return;
+        if (!confirm("Really delete everything? Export first if you want a backup.")) return;
+        clearAllStorage();
+        state = defaultState();
+        save();
+        render();
+        toast("Reset complete");
+      };
+    }
+  }
+
   function renderHabits() {
     const root = document.getElementById("panelHabits");
-    let html =
+    const meta = readMeta() || {};
+    const marks = Object.keys(state.cells).length;
+    let html = '<div class="habits-backup-row">';
+    html +=
+      '<button type="button" class="btn btn-primary" id="btnExport">Export backup</button>';
+    html +=
+      '<button type="button" class="btn btn-secondary" id="btnImport">Import backup</button>';
+    html += "</div>";
+    html +=
+      '<p class="habits-data-meta">' +
+      state.habits.length +
+      " habits · " +
+      marks +
+      " marked days · last saved " +
+      escapeHtml(formatSavedWhen(meta.lastSavedAt)) +
+      "</p>";
+    html += '<div class="habits-danger-bar">';
+    html +=
+      '<button type="button" class="habits-danger-toggle" id="habitsDangerToggle" aria-expanded="' +
+      habitsDangerOpen +
+      '">' +
+      (habitsDangerOpen ? "▼" : "▶") +
+      " Danger zone</button>";
+    html +=
+      '<div class="habits-danger-panel" id="habitsDangerPanel"' +
+      (habitsDangerOpen ? "" : " hidden") +
+      '><button type="button" class="btn btn-secondary btn-block" id="btnReset" style="color:#b91c1c;border-color:#fecaca">Reset all data</button></div></div>';
+    html +=
       '<div class="habits-cat-bar' +
       (habitsCatPanelOpen ? " is-open" : "") +
       '"><button type="button" class="habits-cat-toggle" id="habitsCatToggle" aria-expanded="' +
@@ -4019,7 +4661,7 @@
     html +=
       '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
-    html += '<p class="hint">Reorder on the Month tab (▲▼). Counter shows + per tap on the Habits tab. Hide habits you don’t track daily — they stay here, not in Month/Year.</p>';
+    html += '<p class="hint">Reorder on the Month tab (hold ≡). Hide habits you don’t track daily.</p>';
 
     html += '<div class="add-habit-row add-habit-row-top">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
@@ -4045,19 +4687,57 @@
     html +=
       '<button type="button" class="btn btn-primary add-habit-plus-btn" id="addHabit" aria-label="Add habit">+</button></div>';
 
-    function renderHabitManageCard(habit, isHiddenSection) {
-      let card = '<div class="card habit-card' + (habit.hidden ? " is-hidden" : "") + '" data-habit="' + habit.id + '">';
-      card += '<div class="habit-row">';
-      card += '<input type="text" value="' + escapeHtml(habit.name) + '" data-name="' + habit.id + '" maxlength="40" />';
-      card += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
-      card += '<div class="habit-meta-row">';
-      card += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
+    function renderHabitCompactRow(habit, isHiddenSection) {
+      const expanded = habitsExpandedId === habit.id;
+      let row =
+        '<div class="habit-compact-row' +
+        (habit.hidden ? " is-hidden-row" : "") +
+        '" data-habit="' +
+        habit.id +
+        '">';
+      row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
+      row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
+      row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
+      row +=
+        '<button type="button" class="habit-compact-chevron" data-habit-toggle="' +
+        habit.id +
+        '" aria-label="Expand ' +
+        escapeHtml(habit.name) +
+        '">' +
+        (expanded ? "▲" : "▼") +
+        "</button>";
+      row += "</div>";
+      row += '<div class="habit-compact-body"' + (expanded ? "" : " hidden") + ">";
+      row += '<div class="habit-row">';
+      row +=
+        '<input type="text" value="' +
+        escapeHtml(habit.name) +
+        '" data-name="' +
+        habit.id +
+        '" maxlength="40" />';
+      row += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+      row += '<div class="habit-meta-row">';
+      row += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
       state.categories.forEach(function (cat) {
-        card += '<option value="' + cat.id + '"' + (habit.category === cat.id ? " selected" : "") + ">" + escapeHtml(cat.label) + "</option>";
+        row +=
+          '<option value="' +
+          cat.id +
+          '"' +
+          (habit.category === cat.id ? " selected" : "") +
+          ">" +
+          escapeHtml(cat.label) +
+          "</option>";
       });
-      card += "</select>";
-      card += '<button type="button" class="habit-pin-btn' + (habit.pinned ? " on" : "") + '" data-pin="' + habit.id + '">' + (habit.pinned ? "★ Pinned" : "☆ Pin") + "</button>";
-      card +=
+      row += "</select>";
+      row +=
+        '<button type="button" class="habit-pin-btn' +
+        (habit.pinned ? " on" : "") +
+        '" data-pin="' +
+        habit.id +
+        '">' +
+        (habit.pinned ? "★ Pinned" : "☆ Pin") +
+        "</button>";
+      row +=
         '<button type="button" class="habit-hide-btn' +
         (habit.hidden ? " on" : "") +
         '" data-hide="' +
@@ -4067,14 +4747,24 @@
         '">' +
         (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
         "</button>";
-      card += "</div>";
-      card += '<div class="habit-settings">';
-      card += '<div class="type-row">';
-      card += '<button type="button" class="type-pill' + (habit.type === "counter" ? " on" : "") + '" data-type="counter" data-hid="' + habit.id + '">Counter</button>';
-      card += '<button type="button" class="type-pill' + (habit.type === "yesno" ? " on" : "") + '" data-type="yesno" data-hid="' + habit.id + '">Yes / No</button>';
-      card += "</div>";
+      row += "</div>";
+      row += '<div class="habit-settings">';
+      row += '<div class="type-row">';
+      row +=
+        '<button type="button" class="type-pill' +
+        (habit.type === "counter" ? " on" : "") +
+        '" data-type="counter" data-hid="' +
+        habit.id +
+        '">Counter</button>';
+      row +=
+        '<button type="button" class="type-pill' +
+        (habit.type === "yesno" ? " on" : "") +
+        '" data-type="yesno" data-hid="' +
+        habit.id +
+        '">Yes / No</button>';
+      row += "</div>";
       if (habit.type === "counter") {
-        card +=
+        row +=
           '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
           MAX_STEP +
           '" value="' +
@@ -4085,39 +4775,57 @@
           MAX_STEP +
           "</span></div>";
         if (isStepsHabitName(habit.name)) {
-          card +=
+          row +=
             '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
         }
       } else {
-        card += renderExcludeDaysHtml(habit);
+        row += renderExcludeDaysHtml(habit);
       }
-      card += '<div class="legend">' + renderLegend(habit) + "</div>";
-      card += "</div></div>";
-      return card;
+      row += '<div class="legend">' + renderLegend(habit) + "</div>";
+      row += "</div></div></div>";
+      return row;
     }
 
     const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
     const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
 
     visibleHabits.forEach(function (habit) {
-      html += renderHabitManageCard(habit, false);
+      html += renderHabitCompactRow(habit, false);
     });
 
     if (hiddenHabits.length) {
       html += '<div class="habits-hidden-section">';
       html +=
-        '<p class="habits-hidden-heading">Hidden from Month &amp; Year (' +
+        '<p class="habits-hidden-heading">Hidden from Month &amp; Graphs (' +
         hiddenHabits.length +
         ")</p>";
       hiddenHabits.forEach(function (habit) {
-        html += renderHabitManageCard(habit, true);
+        html += renderHabitCompactRow(habit, true);
       });
       html += "</div>";
     }
 
     root.innerHTML = html;
 
+    bindDataActions(root);
     bindExcludeDays(root);
+
+    const dangerToggle = document.getElementById("habitsDangerToggle");
+    if (dangerToggle) {
+      dangerToggle.onclick = function () {
+        habitsDangerOpen = !habitsDangerOpen;
+        renderHabits();
+      };
+    }
+
+    root.querySelectorAll("[data-habit-toggle]").forEach(function (el) {
+      el.onclick = function (e) {
+        e.stopPropagation();
+        const id = el.getAttribute("data-habit-toggle");
+        habitsExpandedId = habitsExpandedId === id ? null : id;
+        renderHabits();
+      };
+    });
 
     document.getElementById("habitsCatToggle").onclick = function () {
       habitsCatPanelOpen = !habitsCatPanelOpen;
@@ -4566,53 +5274,6 @@
     });
   }
 
-  function renderData() {
-    const root = document.getElementById("panelData");
-    const meta = readMeta() || {};
-    const marks = Object.keys(state.cells).length;
-    root.innerHTML =
-      '<div class="data-status">' +
-      "<strong>Your data is saved on this phone.</strong> " +
-      "Reloading the app or pushing updates does <em>not</em> erase habits — only Reset or clearing Safari website data does." +
-      '<p class="meta">' + state.habits.length + " habits · " + marks + " marked days · last saved " +
-      escapeHtml(formatSavedWhen(meta.lastSavedAt)) + " · auto-backup on every change</p></div>" +
-      '<p class="hint">For peace of mind, export a JSON file occasionally (Files, email, or AirDrop). You can also use Export all on the Apps home screen. Import accepts this file or a full backup — you choose whether to add or replace.</p>' +
-      '<div class="card">' +
-      '<button type="button" class="btn btn-primary btn-block" id="btnExport">Export backup (JSON)</button>' +
-      '<button type="button" class="btn btn-secondary btn-block" id="btnImport">Import backup (JSON)</button>' +
-      '<button type="button" class="btn btn-secondary btn-block" id="btnReset" style="margin-top:16px;color:#b91c1c;border-color:#fecaca">Reset all data</button>' +
-      "</div>";
-
-    document.getElementById("btnExport").onclick = function () {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      const d = new Date();
-      const stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-      a.download = "habit-journal-backup-" + stamp + ".json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-      try {
-        localStorage.setItem("habit-journal-last-export", String(Date.now()));
-      } catch (e) { /* ok */ }
-      toast("Backup saved — keep the file somewhere safe");
-    };
-
-    document.getElementById("btnImport").onclick = function () {
-      document.getElementById("importInput").click();
-    };
-
-    document.getElementById("btnReset").onclick = function () {
-      if (!confirm("Erase all habits and marks? This cannot be undone.")) return;
-      if (!confirm("Really delete everything? Export first if you want a backup.")) return;
-      clearAllStorage();
-      state = defaultState();
-      save();
-      render();
-      toast("Reset complete");
-    };
-  }
-
   function escapeHtml(s) {
     return String(s)
       .replace(/&/g, "&amp;")
@@ -4723,7 +5384,7 @@
     reader.readAsText(file);
   });
 
-  const panelIds = { month: "panelMonth", year: "panelYear", graph: "panelGraph", habits: "panelHabits", log: "panelLog", data: "panelData" };
+  const panelIds = { today: "panelToday", month: "panelMonth", graphs: "panelGraphs", habits: "panelHabits", log: "panelLog" };
 
   document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-mode-action]");
@@ -4762,7 +5423,7 @@
 
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
-      if (tab.dataset.tab !== "year") closeYearFullscreen();
+      if (tab.dataset.tab !== "graphs") closeYearFullscreen();
       closeHabitEdit();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
@@ -4775,23 +5436,26 @@
   function render() {
     try {
       ensureHabitsReady();
-      document.body.classList.toggle("eraser-mode", eraserMode && (activeTab === "month" || activeTab === "year"));
+      pruneTodayDismissed();
+      document.body.classList.toggle(
+        "eraser-mode",
+        eraserMode && (activeTab === "month" || (activeTab === "graphs" && graphsMode === "grid"))
+      );
       updateModeBar();
       renderTopNav();
-      if (activeTab === "month") renderMonth();
-      else if (activeTab === "year") {
-        renderYear();
+      if (activeTab === "today") renderToday();
+      else if (activeTab === "month") renderMonth();
+      else if (activeTab === "graphs") {
+        renderGraphs();
         if (yearFullscreenHabitId) {
           openYearFullscreen(yearFullscreenHabitId);
         }
       }
       else if (activeTab === "habits") renderHabits();
-      else if (activeTab === "graph") renderGraph();
       else if (activeTab === "log") renderLog();
-      else if (activeTab === "data") renderData();
     } catch (err) {
       console.error("Habit Journal render error:", err);
-      showFatalError("Could not display habits. Open the Data tab, tap Reset, then reload. If it persists, clear Safari website data for mathoose.github.io.");
+      showFatalError("Could not display habits. Open the Habits tab, tap Reset, then reload. If it persists, clear Safari website data for mathoose.github.io.");
     }
   }
 
@@ -4804,10 +5468,14 @@
 
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") flushSave();
+    else if (document.visibilityState === "visible") {
+      pruneTodayDismissed();
+      if (activeTab === "today") renderToday();
+    }
   });
   window.addEventListener("pagehide", flushSave);
   window.addEventListener("resize", function () {
-    if (activeTab === "graph") renderGraph();
+    if (activeTab === "graphs" && graphsMode === "plot") renderGraphs();
   });
 
   try {
