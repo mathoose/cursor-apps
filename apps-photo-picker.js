@@ -104,22 +104,21 @@
     function finish(files) {
       if (settled) return;
       settled = true;
-      cleanup();
       var valid = filterImages(files);
       if (valid.length) {
         onFiles(valid);
-        return;
+      } else if (files.length) {
+        onInvalid();
+      } else {
+        onCancel();
       }
-      if (files.length) onInvalid();
-      else onCancel();
+      cleanup();
     }
 
     function wireInput(input, cb) {
       input.addEventListener("change", function onChange() {
         input.removeEventListener("change", onChange);
-        var f = filesFromInput(input);
-        input.value = "";
-        cb(f);
+        cb(filesFromInput(input));
       });
     }
 
@@ -187,13 +186,13 @@
 
     pair.library.addEventListener("change", function () {
       var f = filesFromInput(pair.library);
-      pair.library.value = "";
       handleFiles(f);
+      pair.library.value = "";
     });
     pair.camera.addEventListener("change", function () {
       var f = filesFromInput(pair.camera);
-      pair.camera.value = "";
       handleFiles(f.slice(0, 1));
+      pair.camera.value = "";
     });
 
     return pair;

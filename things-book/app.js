@@ -338,6 +338,19 @@
     });
   }
 
+  function snapshotFilesSequential(files) {
+    var chain = Promise.resolve([]);
+    files.forEach(function (file) {
+      chain = chain.then(function (acc) {
+        return snapshotFile(file).then(function (snap) {
+          acc.push(snap);
+          return acc;
+        });
+      });
+    });
+    return chain;
+  }
+
   function normalizeImageMime(file) {
     var type = (file && file.type) ? file.type.toLowerCase() : '';
     if (type && type.indexOf('image/') === 0 && type !== 'application/octet-stream') return type;
@@ -352,7 +365,8 @@
 
   function loadImageFromFile(file) {
     if (typeof createImageBitmap === 'function') {
-      return createImageBitmap(file).then(function (bitmap) {
+      var bitmapOpts = { imageOrientation: 'from-image' };
+      return createImageBitmap(file, bitmapOpts).then(function (bitmap) {
         return {
           kind: 'bitmap',
           source: bitmap,
@@ -360,7 +374,16 @@
           height: bitmap.height
         };
       }).catch(function () {
-        return loadImageElementFromFile(file);
+        return createImageBitmap(file).then(function (bitmap) {
+          return {
+            kind: 'bitmap',
+            source: bitmap,
+            width: bitmap.width,
+            height: bitmap.height
+          };
+        }).catch(function () {
+          return loadImageElementFromFile(file);
+        });
       });
     }
     return loadImageElementFromFile(file);
@@ -1196,9 +1219,8 @@
       return;
     }
 
-    showToast('Importing ' + valid.length + ' photo' + (valid.length === 1 ? '' : 's') + '…');
-
-    Promise.all(valid.map(snapshotFile)).then(function (snapshots) {
+    snapshotFilesSequential(valid).then(function (snapshots) {
+      showToast('Importing ' + snapshots.length + ' photo' + (snapshots.length === 1 ? '' : 's') + '…');
       var st = getState();
       var rows = snapshots.map(function (file) {
         var itemId = newId('item');
@@ -1243,7 +1265,7 @@
         }
       });
     }).catch(function () {
-      showToast('Could not read selected photos');
+      showToast('Could not read selected photos — try importing one at a time');
     });
   }
 
