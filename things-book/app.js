@@ -7,6 +7,8 @@
   var PHOTO_STORE = 'photos';
   var MAX_TAGS = 32;
   var MAX_ORIGINAL_BYTES = 8 * 1024 * 1024;
+  var UNCATEGORIZED_ID = '__uncategorized__';
+  var UNCATEGORIZED_COLOR = '#64748b';
 
   var LIST_COLORS = [
     '#2563eb', '#7c3aed', '#db2777', '#dc2626',
@@ -23,7 +25,8 @@
     pendingPreviewUrl: null,
     selectedColor: LIST_COLORS[0],
     itemSelectedTags: [],
-    listSheetEditingId: null
+    listSheetEditingId: null,
+    filingListId: null
   };
 
   var thumbCache = {};
@@ -99,11 +102,14 @@
     });
 
     st.items = st.items.filter(function (it) {
-      return it && it.id && it.listId && it.title;
+      return it && it.id && it.title;
     }).map(function (it) {
+      var listId = it.listId;
+      if (!listId || listId === UNCATEGORIZED_ID) listId = UNCATEGORIZED_ID;
+      else if (!st.lists.some(function (l) { return l.id === listId; })) listId = UNCATEGORIZED_ID;
       return {
         id: it.id,
-        listId: it.listId,
+        listId: listId,
         title: String(it.title).trim(),
         notes: it.notes ? String(it.notes) : '',
         tagIds: Array.isArray(it.tagIds) ? it.tagIds.slice() : [],
@@ -133,7 +139,22 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeState(st)));
   }
 
+  function isUncategorized(listId) {
+    return !listId || listId === UNCATEGORIZED_ID;
+  }
+
+  function getUncategorizedList() {
+    return {
+      id: UNCATEGORIZED_ID,
+      title: 'Uncategorized',
+      color: UNCATEGORIZED_COLOR,
+      order: -1,
+      createdAt: ''
+    };
+  }
+
   function getList(listId) {
+    if (isUncategorized(listId)) return getUncategorizedList();
     return getState().lists.find(function (l) { return l.id === listId; }) || null;
   }
 
@@ -151,11 +172,18 @@
   }
 
   function getItemsForList(listId, tagFilter) {
-    var items = getState().items.filter(function (it) { return it.listId === listId; });
-    if (!tagFilter || tagFilter === 'all') return items;
+    var id = isUncategorized(listId) ? UNCATEGORIZED_ID : listId;
+    var items = getState().items.filter(function (it) {
+      return isUncategorized(it.listId) ? id === UNCATEGORIZED_ID : it.listId === id;
+    });
+    if (isUncategorized(id) || !tagFilter || tagFilter === 'all') return items;
     return items.filter(function (it) {
       return it.tagIds.indexOf(tagFilter) >= 0;
     });
+  }
+
+  function countUncategorized() {
+    return getItemsForList(UNCATEGORIZED_ID).length;
   }
 
   function getTagFilter(listId) {
@@ -405,18 +433,26 @@
 
     document.getElementById('backBtn').hidden = view !== 'list';
     document.getElementById('createListBtn').hidden = view !== 'home';
-    document.getElementById('addItemBtn').hidden = view !== 'list';
-    document.getElementById('tagFiltersWrap').hidden = view !== 'list';
+    document.getElementById('importPhotosBtn').hidden = view !== 'home';
+    document.getElementById('addItemBtn').hidden = view !== 'list' || isUncategorized(listId);
+    document.getElementById('tagFiltersWrap').hidden = view !== 'list' || isUncategorized(listId);
 
     if (view === 'home') {
       document.getElementById('headerTitle').textContent = 'Things Book';
-      document.getElementById('headerSubtitle').textContent = 'Your collections';
+      var uncatN = countUncategorized();
+      document.getElementById('headerSubtitle').textContent = uncatN
+        ? (uncatN + ' uncategorized · your collections')
+        : 'Your collections';
       renderHome();
     } else if (view === 'list' && listId) {
       var list = getList(listId);
       document.getElementById('headerTitle').textContent = list ? list.title : 'List';
-      document.getElementById('headerSubtitle').textContent = getItemsForList(listId).length + ' things';
-      renderTagFilters();
+      var n = getItemsForList(listId).length;
+      document.getElementById('headerSubtitle').textContent = isUncategorized(listId)
+        ? (n + ' to file into lists')
+        : (n + ' things');
+      if (!isUncategorized(listId)) renderTagFilters();
+      else document.getElementById('tagFilters').innerHTML = '';
       renderSwipeView();
     }
   }
@@ -427,35 +463,43 @@
     var empty = document.getElementById('homeEmpty');
     feed.innerHTML = '';
 
-    if (!st.lists.length) {
+    var uncatItems = getItemsForList(UNCATEGORIZED_ID);
+    if (uncatItems.length) {
+      feed.appendChild(buildListRow(getUncategorizedList(), uncatItems));
+    }
+
+    st.lists.forEach(function (list) {
+      feed.appendChild(buildListRow(list, getItemsForList(list.id)));
+    });
+
+    if (!st.lists.length && !uncatItems.length) {
       empty.hidden = false;
       return;
     }
     empty.hidden = true;
+  }
 
-    st.lists.forEach(function (list) {
-      var items = getItemsForList(list.id);
-      var row = document.createElement('button');
-      row.type = 'button';
-      row.className = 'list-row';
-      row.setAttribute('data-list-id', list.id);
+  function buildListRow(list, items) {
+    var row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'list-row' + (list.id === UNCATEGORIZED_ID ? ' list-row-uncat' : '');
+    row.setAttribute('data-list-id', list.id);
 
-      var countLabel = items.length ? ('+' + items.length) : '0';
-      row.innerHTML =
-        '<div class="list-row-bar" style="background:' + escapeHtml(list.color) + '">' +
-          '<span>' + escapeHtml(list.title) + '</span>' +
-          '<span class="list-row-count">' + countLabel + '</span>' +
-        '</div>' +
-        '<div class="list-row-stack" data-stack-for="' + escapeHtml(list.id) + '"></div>';
+    var countLabel = items.length ? ('+' + items.length) : '0';
+    row.innerHTML =
+      '<div class="list-row-bar" style="background:' + escapeHtml(list.color) + '">' +
+        '<span>' + escapeHtml(list.title) + '</span>' +
+        '<span class="list-row-count">' + countLabel + '</span>' +
+      '</div>' +
+      '<div class="list-row-stack" data-stack-for="' + escapeHtml(list.id) + '"></div>';
 
-      row.addEventListener('click', function () {
-        ui.swipeIndex = 0;
-        setView('list', list.id);
-      });
-
-      feed.appendChild(row);
-      renderStackPreview(list.id, row.querySelector('[data-stack-for]'), items);
+    row.addEventListener('click', function () {
+      ui.swipeIndex = 0;
+      setView('list', list.id);
     });
+
+    renderStackPreview(list.id, row.querySelector('[data-stack-for]'), items);
+    return row;
   }
 
   function renderStackPreview(listId, container, items) {
@@ -543,6 +587,16 @@
 
     swipeArea.hidden = false;
     listEmpty.hidden = true;
+
+    var isUncat = isUncategorized(listId);
+    var emptyText = document.getElementById('listEmptyText');
+    var emptyAdd = document.getElementById('listEmptyAddBtn');
+    var emptyImport = document.getElementById('listEmptyImportBtn');
+    if (emptyText) {
+      emptyText.textContent = isUncat ? 'Nothing to file yet.' : 'No items match this filter.';
+    }
+    if (emptyAdd) emptyAdd.hidden = isUncat;
+    if (emptyImport) emptyImport.hidden = !isUncat;
 
     if (ui.swipeIndex >= items.length) ui.swipeIndex = items.length - 1;
     if (ui.swipeIndex < 0) ui.swipeIndex = 0;
@@ -729,6 +783,7 @@
   function openItemSheet(editId) {
     ui.editingItemId = editId || null;
     ui.itemSelectedTags = [];
+    ui.filingListId = null;
     clearPendingPhoto();
 
     var overlay = document.getElementById('itemSheetOverlay');
@@ -738,13 +793,17 @@
     var preview = document.getElementById('itemPhotoPreview');
     var placeholder = document.getElementById('photoPickPlaceholder');
     var saveBtn = document.getElementById('itemSheetSave');
+    var fileListField = document.getElementById('fileListField');
+    var tagsField = document.getElementById('itemTagsField');
 
     if (editId) {
       var item = getItem(editId);
-      titleEl.textContent = 'Edit thing';
+      var uncategorized = item && isUncategorized(item.listId);
+      titleEl.textContent = uncategorized ? 'File into list' : 'Edit thing';
       titleInput.value = item ? item.title : '';
       notesInput.value = item ? item.notes : '';
       ui.itemSelectedTags = item ? item.tagIds.slice() : [];
+      ui.filingListId = uncategorized ? '' : (item ? item.listId : '');
       preview.hidden = true;
       placeholder.hidden = false;
       if (item) {
@@ -756,20 +815,42 @@
           }
         });
       }
-      saveBtn.disabled = !titleInput.value.trim();
+      fileListField.hidden = !uncategorized;
+      tagsField.hidden = uncategorized && !ui.filingListId;
+      if (uncategorized) renderListSelect('');
+      else renderListSelect(item ? item.listId : '');
+      saveBtn.disabled = uncategorized ? true : !titleInput.value.trim();
     } else {
       titleEl.textContent = 'Add thing';
       titleInput.value = '';
       notesInput.value = '';
       preview.hidden = true;
       placeholder.hidden = false;
+      fileListField.hidden = true;
+      tagsField.hidden = false;
       saveBtn.disabled = true;
     }
 
     document.getElementById('newTagInput').value = '';
+    document.getElementById('photoPickHint').hidden = !!editId;
     renderItemTagChips();
     overlay.hidden = false;
     titleInput.focus();
+  }
+
+  function renderListSelect(selectedId) {
+    var select = document.getElementById('itemListSelect');
+    if (!select) return;
+    var st = getState();
+    select.innerHTML = '<option value="">Choose a list…</option>';
+    st.lists.forEach(function (list) {
+      var opt = document.createElement('option');
+      opt.value = list.id;
+      opt.textContent = list.title;
+      if (list.id === selectedId) opt.selected = true;
+      select.appendChild(opt);
+    });
+    ui.filingListId = selectedId || '';
   }
 
   function closeItemSheet() {
@@ -784,8 +865,11 @@
 
   function renderItemTagChips() {
     var container = document.getElementById('itemTagChips');
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId || isUncategorized(listId)) {
+      container.innerHTML = '<span style="font-size:0.8125rem;color:var(--text-muted)">Choose a list first to add tags</span>';
+      return;
+    }
 
     var tags = getTagsForList(listId);
     container.innerHTML = '';
@@ -811,8 +895,11 @@
   }
 
   function addTagFromInput() {
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId || isUncategorized(listId)) {
+      showToast('Choose a list first');
+      return;
+    }
 
     var input = document.getElementById('newTagInput');
     var label = input.value.trim();
@@ -848,16 +935,22 @@
 
   function updateItemSaveBtn() {
     var title = document.getElementById('itemTitleInput').value.trim();
+    var item = ui.editingItemId ? getItem(ui.editingItemId) : null;
+    var filing = item && isUncategorized(item.listId);
     if (ui.editingItemId) {
-      document.getElementById('itemSheetSave').disabled = !title;
+      if (filing) {
+        document.getElementById('itemSheetSave').disabled = !title || !ui.filingListId;
+      } else {
+        document.getElementById('itemSheetSave').disabled = !title;
+      }
     } else {
       document.getElementById('itemSheetSave').disabled = !title || !ui.pendingPhotoBlob;
     }
   }
 
   function saveItem() {
-    var listId = ui.activeListId;
-    if (!listId) return;
+    var listId = ui.filingListId || ui.activeListId;
+    if (!listId && !ui.editingItemId) return;
 
     var title = document.getElementById('itemTitleInput').value.trim();
     var notes = document.getElementById('itemNotesInput').value.trim();
@@ -865,17 +958,34 @@
 
     var st = getState();
     var itemId;
+    var wasUncategorized = false;
 
     if (ui.editingItemId) {
       itemId = ui.editingItemId;
-      var item = st.items.find(function (it) { return it.id === itemId; });
-      if (!item) return;
-      item.title = title;
-      item.notes = notes;
-      item.tagIds = ui.itemSelectedTags.slice();
+      var editItem = st.items.find(function (it) { return it.id === itemId; });
+      if (!editItem) return;
+      wasUncategorized = isUncategorized(editItem.listId);
+      editItem.title = title;
+      editItem.notes = notes;
+      if (ui.filingListId && wasUncategorized) {
+        editItem.listId = ui.filingListId;
+        editItem.tagIds = ui.itemSelectedTags.filter(function (tid) {
+          var tag = st.tags.find(function (t) { return t.id === tid; });
+          return tag && tag.listId === ui.filingListId;
+        });
+      } else {
+        editItem.tagIds = ui.itemSelectedTags.slice();
+        if (ui.filingListId && !isUncategorized(ui.filingListId)) {
+          editItem.listId = ui.filingListId;
+        }
+      }
     } else {
       if (!ui.pendingPhotoBlob) {
         showToast('Add a photo first');
+        return;
+      }
+      if (isUncategorized(listId)) {
+        showToast('Choose a list to add things');
         return;
       }
       itemId = newId('item');
@@ -891,6 +1001,14 @@
 
     saveState(st);
 
+    var toastMsg = 'Thing added';
+    if (ui.editingItemId) {
+      var saved = st.items.find(function (it) { return it.id === itemId; });
+      toastMsg = wasUncategorized && saved && !isUncategorized(saved.listId)
+        ? 'Filed into list'
+        : 'Thing updated';
+    }
+
     var photoPromise = ui.pendingPhotoBlob
       ? putPhoto(itemId, ui.pendingPhotoBlob).then(function () {
           revokeThumb(itemId);
@@ -899,10 +1017,10 @@
 
     photoPromise.then(function () {
       closeItemSheet();
-      showToast(ui.editingItemId ? 'Thing updated' : 'Thing added');
+      showToast(toastMsg);
       ui.swipeIndex = 0;
       if (ui.view === 'list') {
-        renderTagFilters();
+        if (!isUncategorized(ui.activeListId)) renderTagFilters();
         renderSwipeView();
       }
       renderHome();
@@ -911,7 +1029,21 @@
     });
   }
 
-  function handlePhotoInput(file) {
+  function titleFromFilename(name) {
+    if (!name) return 'Untitled';
+    var base = String(name).replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+    return base || 'Untitled';
+  }
+
+  function handlePhotoFiles(files) {
+    if (!files || !files.length) return;
+
+    if (!ui.editingItemId && files.length > 1) {
+      importPhotosToUncategorized(files);
+      return;
+    }
+
+    var file = files[0];
     if (!file || !isValidImageFile(file)) {
       showToast('Please choose an image');
       return;
@@ -927,6 +1059,65 @@
       updateItemSaveBtn();
     }).catch(function () {
       showToast('Could not process image');
+    });
+  }
+
+  function importPhotosToUncategorized(files) {
+    var st = getState();
+    var itemIds = [];
+    files.forEach(function (file) {
+      if (!isValidImageFile(file)) return;
+      var itemId = newId('item');
+      itemIds.push({ id: itemId, file: file });
+      st.items.unshift({
+        id: itemId,
+        listId: UNCATEGORIZED_ID,
+        title: titleFromFilename(file.name),
+        notes: '',
+        tagIds: [],
+        createdAt: new Date().toISOString()
+      });
+    });
+
+    if (!itemIds.length) {
+      showToast('No valid images selected');
+      return;
+    }
+
+    saveState(st);
+    closeItemSheet();
+
+    Promise.all(itemIds.map(function (row) {
+      return preparePhotoBlob(row.file).then(function (blob) {
+        return putPhoto(row.id, blob);
+      });
+    })).then(function () {
+      showToast('Imported ' + itemIds.length + ' photo' + (itemIds.length === 1 ? '' : 's') + ' — file when ready');
+      ui.swipeIndex = 0;
+      if (ui.view === 'list' && isUncategorized(ui.activeListId)) {
+        renderSwipeView();
+      } else if (ui.view === 'home') {
+        renderHome();
+      } else {
+        renderHome();
+        if (ui.view === 'list') renderSwipeView();
+      }
+    }).catch(function () {
+      showToast('Could not save some photos');
+      renderHome();
+      if (ui.view === 'list') renderSwipeView();
+    });
+  }
+
+  function promptImportPhotos() {
+    if (typeof AppsPhotoPicker === 'undefined') return;
+    AppsPhotoPicker.prompt({
+      title: 'Import photos',
+      multiple: true,
+      libraryLabel: 'Choose from Photos',
+      cameraLabel: 'Take Photo',
+      onFiles: importPhotosToUncategorized,
+      onInvalid: function () { showToast('Please choose images'); }
     });
   }
 
@@ -964,6 +1155,11 @@
     });
 
     overlay.hidden = false;
+
+    var fileBtn = document.getElementById('detailFileBtn');
+    var editBtn = document.getElementById('detailEditBtn');
+    if (fileBtn) fileBtn.hidden = !isUncategorized(item.listId);
+    if (editBtn) editBtn.hidden = isUncategorized(item.listId);
   }
 
   function closeDetail() {
@@ -987,6 +1183,262 @@
     renderSwipeView();
     renderHome();
     showToast('Thing deleted');
+  }
+
+  /* ——— ZIP photo backup (photos + metadata, date folders) ——— */
+
+  function sanitizeZipSegment(s) {
+    return String(s || 'item').replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 60);
+  }
+
+  function dateFolderFromIso(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return 'unknown-date';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function blobExtension(blob) {
+    var t = (blob && blob.type) || '';
+    if (t.indexOf('png') >= 0) return 'png';
+    if (t.indexOf('webp') >= 0) return 'webp';
+    if (t.indexOf('gif') >= 0) return 'gif';
+    return 'jpg';
+  }
+
+  function blobToUint8Array(blob) {
+    return new Promise(function (resolve, reject) {
+      var r = new FileReader();
+      r.onload = function () { resolve(new Uint8Array(r.result)); };
+      r.onerror = reject;
+      r.readAsArrayBuffer(blob);
+    });
+  }
+
+  function crc32(bytes) {
+    var crc = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) {
+      crc ^= bytes[i];
+      for (var j = 0; j < 8; j++) {
+        var mask = -(crc & 1);
+        crc = (crc >>> 1) ^ (0xedb88320 & mask);
+      }
+    }
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+
+  function buildStoreZip(entries) {
+    var chunks = [];
+    var central = [];
+    var offset = 0;
+    entries.forEach(function (entry) {
+      var nameBytes = new TextEncoder().encode(entry.name);
+      var data = entry.data;
+      var size = data.length;
+      var checksum = crc32(data);
+      var local = new Uint8Array(30 + nameBytes.length);
+      var lv = new DataView(local.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint32(14, checksum, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      local.set(nameBytes, 30);
+      chunks.push(local, data);
+      var centralHeader = new Uint8Array(46 + nameBytes.length);
+      var cv = new DataView(centralHeader.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint32(16, checksum, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint32(42, offset, true);
+      centralHeader.set(nameBytes, 46);
+      central.push(centralHeader);
+      offset += local.length + data.length;
+    });
+    var centralSize = central.reduce(function (sum, part) { return sum + part.length; }, 0);
+    var end = new Uint8Array(22);
+    var ev = new DataView(end.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(8, entries.length, true);
+    ev.setUint16(10, entries.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    return new Blob(chunks.concat(central, [end]), { type: 'application/zip' });
+  }
+
+  function findZipEocd(bytes) {
+    for (var i = bytes.length - 22; i >= 0; i--) {
+      if (bytes[i] === 0x50 && bytes[i + 1] === 0x4b && bytes[i + 2] === 0x05 && bytes[i + 3] === 0x06) return i;
+    }
+    return -1;
+  }
+
+  function parseStoreZip(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var eocd = findZipEocd(bytes);
+    if (eocd < 0) throw new Error('Invalid zip');
+    var view = new DataView(buffer);
+    var centralOffset = view.getUint32(eocd + 16, true);
+    var totalEntries = view.getUint16(eocd + 10, true);
+    var entries = [];
+    var offset = centralOffset;
+    for (var i = 0; i < totalEntries; i++) {
+      if (view.getUint32(offset, true) !== 0x02014b50) break;
+      var compMethod = view.getUint16(offset + 10, true);
+      var uncompSize = view.getUint32(offset + 24, true);
+      var nameLen = view.getUint16(offset + 28, true);
+      var extraLen = view.getUint16(offset + 30, true);
+      var commentLen = view.getUint16(offset + 32, true);
+      var localOffset = view.getUint32(offset + 42, true);
+      var name = new TextDecoder().decode(bytes.subarray(offset + 46, offset + 46 + nameLen)).replace(/\\/g, '/');
+      offset += 46 + nameLen + extraLen + commentLen;
+      if (compMethod !== 0) continue;
+      var localNameLen = view.getUint16(localOffset + 26, true);
+      var localExtraLen = view.getUint16(localOffset + 28, true);
+      var dataStart = localOffset + 30 + localNameLen + localExtraLen;
+      entries.push({ name: name, data: bytes.subarray(dataStart, dataStart + uncompSize) });
+    }
+    return entries;
+  }
+
+  function mimeFromPath(path) {
+    var lower = String(path || '').toLowerCase();
+    if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.webp')) return 'image/webp';
+    if (lower.endsWith('.gif')) return 'image/gif';
+    return 'image/jpeg';
+  }
+
+  function downloadBlob(blob, filename) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function exportPhotosZip() {
+    var btn = document.getElementById('exportPhotosBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Zipping…'; }
+    var st = getState();
+    if (!st.items.length) {
+      showToast('No things to export');
+      if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+      return;
+    }
+    var usedNames = {};
+    var manifestPhotos = [];
+    var tasks = st.items.map(function (item) {
+      return getPhotoBlob(item.id).then(function (blob) {
+        if (!blob) return null;
+        var ext = blobExtension(blob);
+        var day = dateFolderFromIso(item.createdAt);
+        var base = 'photos/' + day + '/' + sanitizeZipSegment(item.id) + '-' + sanitizeZipSegment(item.title);
+        var fileName = base + '.' + ext;
+        if (usedNames[fileName]) {
+          usedNames[fileName] += 1;
+          fileName = base + '-' + usedNames[fileName] + '.' + ext;
+        } else {
+          usedNames[fileName] = 1;
+        }
+        manifestPhotos.push({
+          itemId: item.id,
+          path: fileName,
+          title: item.title,
+          listId: item.listId,
+          notes: item.notes,
+          tagIds: item.tagIds,
+          createdAt: item.createdAt
+        });
+        return blobToUint8Array(blob).then(function (bytes) {
+          return { name: fileName, data: bytes };
+        });
+      });
+    });
+    Promise.all(tasks).then(function (results) {
+      var zipEntries = results.filter(Boolean);
+      if (!zipEntries.length) {
+        showToast('No photos on this device');
+        return null;
+      }
+      zipEntries.unshift({
+        name: 'manifest.json',
+        data: new TextEncoder().encode(JSON.stringify({
+          format: 'things-book-photos',
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          photoCount: manifestPhotos.length,
+          state: st,
+          photos: manifestPhotos
+        }, null, 2))
+      });
+      return buildStoreZip(zipEntries);
+    }).then(function (zipBlob) {
+      if (!zipBlob) return;
+      downloadBlob(zipBlob, 'things-book-photos-' + new Date().toISOString().slice(0, 10) + '.zip');
+      showToast('Photo backup downloaded');
+    }).catch(function () {
+      showToast('Could not export photos');
+    }).finally(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
+    });
+  }
+
+  function importPhotosZip(file) {
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var zipEntries = parseStoreZip(reader.result);
+        var byName = {};
+        zipEntries.forEach(function (z) { byName[z.name] = z; });
+        var manifestEntry = zipEntries.find(function (z) { return z.name === 'manifest.json'; });
+        if (!manifestEntry) {
+          showToast('Invalid backup — manifest.json missing');
+          return;
+        }
+        var manifest = JSON.parse(new TextDecoder().decode(manifestEntry.data));
+        if (manifest.format !== 'things-book-photos') {
+          showToast('Not a Things Book photo backup');
+          return;
+        }
+        if (manifest.state) {
+          saveState(normalizeState(manifest.state));
+        }
+        var photos = Array.isArray(manifest.photos) ? manifest.photos : [];
+        if (!photos.length) {
+          showToast('No photos in file');
+          return;
+        }
+        var imported = 0;
+        var chain = Promise.resolve();
+        photos.forEach(function (photo) {
+          chain = chain.then(function () {
+            var ze = byName[photo.path];
+            if (!ze) return;
+            var blob = new Blob([ze.data], { type: mimeFromPath(photo.path) });
+            return putPhoto(photo.itemId, blob).then(function () {
+              revokeThumb(photo.itemId);
+              imported++;
+            });
+          });
+        });
+        chain.then(function () {
+          showToast('Restored ' + imported + ' photo' + (imported === 1 ? '' : 's'));
+          closeSettings();
+          setView('home');
+        }).catch(function () {
+          showToast('Import failed');
+        });
+      } catch (e) {
+        showToast('Could not read ZIP');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   }
 
   /* ——— Settings ——— */
@@ -1074,12 +1526,24 @@
       openListSheet();
     });
 
+    document.getElementById('importPhotosBtn').addEventListener('click', promptImportPhotos);
+
     document.getElementById('addItemBtn').addEventListener('click', function () {
       openItemSheet();
     });
 
     document.getElementById('listEmptyAddBtn').addEventListener('click', function () {
       openItemSheet();
+    });
+
+    document.getElementById('listEmptyImportBtn').addEventListener('click', promptImportPhotos);
+
+    document.getElementById('itemListSelect').addEventListener('change', function () {
+      ui.filingListId = this.value;
+      document.getElementById('itemTagsField').hidden = !ui.filingListId;
+      ui.itemSelectedTags = [];
+      renderItemTagChips();
+      updateItemSaveBtn();
     });
 
     document.getElementById('backBtn').addEventListener('click', function () {
@@ -1104,16 +1568,22 @@
     });
 
     document.getElementById('photoPickBtn').addEventListener('click', function () {
-      document.getElementById('photoInput').click();
-    });
-
-    document.getElementById('photoInput').addEventListener('change', function () {
-      if (this.files && this.files[0]) handlePhotoInput(this.files[0]);
-      this.value = '';
+      if (typeof AppsPhotoPicker === 'undefined') return;
+      AppsPhotoPicker.prompt({
+        title: ui.editingItemId ? 'Replace photo' : 'Add photo',
+        multiple: !ui.editingItemId,
+        onFiles: handlePhotoFiles,
+        onInvalid: function () { showToast('Please choose an image'); }
+      });
     });
 
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
     document.getElementById('detailEditBtn').addEventListener('click', function () {
+      var id = ui.detailItemId;
+      closeDetail();
+      if (id) openItemSheet(id);
+    });
+    document.getElementById('detailFileBtn').addEventListener('click', function () {
       var id = ui.detailItemId;
       closeDetail();
       if (id) openItemSheet(id);
@@ -1127,6 +1597,11 @@
     document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
     document.getElementById('importJsonFile').addEventListener('change', function () {
       if (this.files && this.files[0]) importJson(this.files[0]);
+      this.value = '';
+    });
+    document.getElementById('exportPhotosBtn').addEventListener('click', exportPhotosZip);
+    document.getElementById('importPhotosFile').addEventListener('change', function () {
+      if (this.files && this.files[0]) importPhotosZip(this.files[0]);
       this.value = '';
     });
 

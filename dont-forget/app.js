@@ -983,20 +983,19 @@
 
   function wireEvents() {
     document.getElementById('snapBtn').addEventListener('click', function () {
-      document.getElementById('cameraInput').click();
-    });
-
-    document.getElementById('cameraInput').addEventListener('change', function () {
-      var file = this.files && this.files[0];
-      this.value = '';
-      if (!file || !isValidImageFile(file)) {
-        toast('Please choose an image');
-        return;
-      }
-      preparePhotoBlob(file).then(function (blob) {
-        openSaveSheet(blob);
-      }).catch(function () {
-        toast('Could not process photo');
+      if (typeof AppsPhotoPicker === 'undefined') return;
+      AppsPhotoPicker.prompt({
+        title: 'Add photo',
+        multiple: false,
+        onFiles: function (files) {
+          if (!files.length) return;
+          preparePhotoBlob(files[0]).then(function (blob) {
+            openSaveSheet(blob);
+          }).catch(function () {
+            toast('Could not process photo');
+          });
+        },
+        onInvalid: function () { toast('Please choose an image'); }
       });
     });
 

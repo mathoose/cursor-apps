@@ -1,18 +1,23 @@
 {
   "launcher": "12 · Jul 2, 2026",
   "apps": {
+<<<<<<< HEAD
+    "habit-journal": "9 · Jul 2, 2026",
+    "aruba-packing": "2 · Jul 2, 2026",
+=======
     "habit-journal": "10 · Jul 2, 2026",
     "aruba-packing": "1 · Jul 1, 2026",
+>>>>>>> origin/main
     "adhd-task-tracker": "16 · Jul 1, 2026",
-    "philly-dates": "1 · Jul 1, 2026",
+    "philly-dates": "2 · Jul 2, 2026",
     "restaurant-notes": "1 · Jul 1, 2026",
     "world-cup-2026": "7 · Jul 1, 2026",
     "meal-menu": "2 · Jul 2, 2026",
-    "dont-forget": "1 · Jul 1, 2026",
-    "process-guide": "1 · Jul 1, 2026",
+    "dont-forget": "2 · Jul 2, 2026",
+    "process-guide": "2 · Jul 2, 2026",
     "media-shelf": "1 · Jul 1, 2026",
     "shopping-list": "1 · Jul 1, 2026",
     "times-tables": "1 · Jul 1, 2026",
-    "things-book": "1 · Jul 2, 2026"
+    "things-book": "4 · Jul 2, 2026"
   }
 }

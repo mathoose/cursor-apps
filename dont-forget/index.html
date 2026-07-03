@@ -71,8 +71,7 @@
     </button>
   </nav>
 
-  <!-- Hidden camera input -->
-  <input type="file" id="cameraInput" accept="image/*,.heic,.heif" capture="environment" hidden />
+  <!-- Hidden photo inputs via apps-photo-picker.js -->
 
   <!-- Save sheet -->
   <div class="overlay" id="saveOverlay" role="dialog" aria-modal="true" aria-labelledby="saveSheetTitle">
@@ -156,6 +155,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
   <script src="app.js?v=1"></script>
 </body>

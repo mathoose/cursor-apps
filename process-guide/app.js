@@ -713,8 +713,7 @@
     var imgHtml = branch.hasImage
       ? '<img class="pe-fork-option-img" alt="' + escapeAttr(branch.imageName || letter) + '" data-pe-branch-img="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" data-pe-photo="' + photoAttr(process.id, branchPhotoSlot(node.id, branch.id)) + '" />'
       : '<div class="pe-fork-option-img-placeholder project-paste-zone" data-pe-branch-paste="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" tabindex="0">' +
-        '<span class="pe-fork-option-add">+ Photo</span></div>' +
-        '<input type="file" accept="image/*" capture="environment" hidden data-pe-branch-file="' + escapeAttr(path) + '" data-pe-branch-idx="' + bi + '" />';
+        '<span class="pe-fork-option-add">+ Photo</span></div>';
     return '<div class="pe-fork-option" data-pe-branch="' + bi + '">' +
       '<div class="pe-fork-option-letter">' + letter + "</div>" +
       imgHtml +
@@ -797,8 +796,7 @@
       "<label>Caution (optional)</label>" +
       '<input type="text" data-pe-field="caution" value="' + escapeAttr(node.caution) + '" placeholder="Safety or quality warning" />' +
       '<div class="project-paste-zone" data-pe-paste="' + escapeAttr(path) + '" tabindex="0" style="margin-top:0.65rem">' +
-      "Tap to add a photo (paste or pick)</div>" +
-      '<input type="file" accept="image/*" capture="environment" hidden data-pe-file="' + escapeAttr(path) + '" />' +
+      "Tap to add a photo (gallery, camera, or paste)</div>" +
       (node.hasImage ? '<img alt="' + escapeAttr(node.imageName || "Step") + '" data-pe-img="' + escapeAttr(path) + '" data-pe-photo="' + photoAttr(process.id, stepPhotoSlot(node.id)) + '" />' : "") +
       '<div class="btn-row" style="margin-top:0.5rem">' +
       '<button type="button" class="primary" data-pe-save-step="' + escapeAttr(path) + '">Save step</button>' +
@@ -983,8 +981,19 @@
       var path = zone.dataset.pePaste;
       zone.onclick = function () {
         zone.focus();
-        var fileInput = pane.querySelector('[data-pe-file="' + path + '"]');
-        if (fileInput) fileInput.click();
+        if (typeof AppsPhotoPicker === "undefined") return;
+        AppsPhotoPicker.prompt({
+          title: "Add step photo",
+          multiple: false,
+          onFiles: function (files) {
+            if (!files.length) return;
+            var ctx = getNodeContext(process, path);
+            if (!ctx || ctx.node.type !== "step") return;
+            handleImageFile(process, files[0], function (blob, name) {
+              return applyImageToNode(process, ctx.node, blob, name);
+            });
+          },
+        });
       };
       zone.onpaste = function (e) {
         var items = e.clipboardData && e.clipboardData.items;
@@ -1005,27 +1014,28 @@
       };
     });
 
-    pane.querySelectorAll("[data-pe-file]").forEach(function (input) {
-      input.onchange = function () {
-        var file = input.files && input.files[0];
-        input.value = "";
-        if (!file) return;
-        var path = input.dataset.peFile;
-        var ctx = getNodeContext(process, path);
-        if (!ctx || ctx.node.type !== "step") return;
-        handleImageFile(process, file, function (blob, name) {
-          return applyImageToNode(process, ctx.node, blob, name);
-        });
-      };
-    });
-
     pane.querySelectorAll("[data-pe-branch-paste]").forEach(function (zone) {
       var path = zone.dataset.peBranchPaste;
       var bi = parseInt(zone.dataset.peBranchIdx, 10);
       zone.onclick = function () {
         zone.focus();
-        var fileInput = pane.querySelector('[data-pe-branch-file="' + path + '"][data-pe-branch-idx="' + bi + '"]');
-        if (fileInput) fileInput.click();
+        if (typeof AppsPhotoPicker === "undefined") return;
+        AppsPhotoPicker.prompt({
+          title: "Add option photo",
+          multiple: false,
+          onFiles: function (files) {
+            if (!files.length) return;
+            var ctx = getNodeContext(process, path);
+            if (!ctx || ctx.node.type !== "fork") return;
+            var branch = ctx.node.branches[bi];
+            if (!branch) return;
+            handleImageFile(process, files[0], function (blob, name) {
+              return applyImageToBranch(process, ctx.node, branch, blob, name).then(function () {
+                ctx.node.updatedAt = nowISO();
+              });
+            });
+          },
+        });
       };
       zone.onpaste = function (e) {
         var items = e.clipboardData && e.clipboardData.items;
@@ -1047,25 +1057,6 @@
             return;
           }
         }
-      };
-    });
-
-    pane.querySelectorAll("[data-pe-branch-file]").forEach(function (input) {
-      input.onchange = function () {
-        var file = input.files && input.files[0];
-        input.value = "";
-        if (!file) return;
-        var path = input.dataset.peBranchFile;
-        var bi = parseInt(input.dataset.peBranchIdx, 10);
-        var ctx = getNodeContext(process, path);
-        if (!ctx || ctx.node.type !== "fork") return;
-        var branch = ctx.node.branches[bi];
-        if (!branch) return;
-        handleImageFile(process, file, function (blob, name) {
-          return applyImageToBranch(process, ctx.node, branch, blob, name).then(function () {
-            ctx.node.updatedAt = nowISO();
-          });
-        });
       };
     });
 
