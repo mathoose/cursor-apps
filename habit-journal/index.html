@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-tab-v12 -->
+  <!-- build: hj-stats-tab-v16 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -1679,15 +1679,47 @@
       border-radius: 12px;
       border: 1.5px solid var(--border);
       background: #fff;
-      font-size: 0.875rem;
+      font-size: 0.8125rem;
       font-weight: 700;
       color: var(--ink);
       cursor: pointer;
+      padding: 0 6px;
     }
     .graphs-mode-btn.on {
       background: var(--accent);
       border-color: var(--accent-dark);
       color: #fff;
+    }
+    .year-grid-card.is-stats-selected {
+      border-color: var(--accent);
+      background: #fdeaea;
+    }
+    .year-grid-card.is-stats-selected .year-grid-card-head {
+      color: var(--accent-dark);
+    }
+    .stats-picker-grid { margin-bottom: 12px; }
+    .stats-detail {
+      padding: 14px 12px;
+      margin-top: 4px;
+    }
+    .stats-detail-title {
+      font-family: Georgia, serif;
+      font-size: 1.0625rem;
+      margin-bottom: 10px;
+    }
+    .stats-line {
+      font-size: 0.875rem;
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+    .stats-line.stats-muted { color: var(--muted); font-size: 0.8125rem; }
+    .stats-occurrence { font-size: 0.9375rem; }
+    .stats-pct {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--accent-dark);
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
     }
     /* Month drag reorder */
     .month-scroll { position: relative; }
@@ -1816,7 +1848,7 @@
   <main>
     <section class="panel on" id="panelToday" aria-label="Today"></section>
     <section class="panel" id="panelMonth" aria-label="Monthly view"></section>
-    <section class="panel" id="panelGraphs" aria-label="Graphs view"></section>
+    <section class="panel" id="panelGraphs" aria-label="Stats view"></section>
     <section class="panel" id="panelLog" aria-label="Activity log"></section>
     <section class="panel" id="panelHabits" aria-label="Habits"></section>
   </main>
@@ -1886,9 +1918,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         Month
       </button>
-      <button type="button" class="tab" data-tab="graphs">
+      <button type="button" class="tab" data-tab="stats">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><path d="M4 19V9"/><path d="M4 19h16"/><path d="M12 17V6"/><path d="M16 17v-4"/></svg>
-        Graphs
+        Stats
       </button>
       <button type="button" class="tab" data-tab="log">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
@@ -1934,6 +1966,7 @@
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const WEEKDAY_LETTERS = ["S", "M", "T", "W", "T", "F", "S"];
+  const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const YESNO_PROGRESS = 2;
   const DEFAULT_CATEGORIES = [
     { id: "general", label: "General" },
@@ -1965,6 +1998,7 @@
   let graphRange = "90";
   let graphUserToggled = false;
   let graphsMode = "grid";
+  let statsSelectedHabitId = null;
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
 
@@ -3647,7 +3681,7 @@
     if (btn) {
       refreshCellButton(btn);
       if (activeTab === "month") return;
-      if (activeTab === "graphs" && graphsMode === "grid" && yearFullscreenHabitId) return;
+      if (activeTab === "stats" && graphsMode === "grid" && yearFullscreenHabitId) return;
       if (activeTab === "today") {
         renderToday();
         return;
@@ -3657,7 +3691,7 @@
       renderMonth();
       return;
     }
-    if (activeTab === "graphs") {
+    if (activeTab === "stats") {
       renderGraphs();
       return;
     }
@@ -3850,7 +3884,7 @@
     if (!bar) return;
     const show =
       activeTab === "month" ||
-      (activeTab === "graphs" && graphsMode === "grid");
+      (activeTab === "stats" && graphsMode === "grid");
     bar.hidden = !show;
     document.body.classList.toggle("has-mode-bar", show);
     if (!show) document.body.classList.remove("eraser-mode");
@@ -3868,7 +3902,7 @@
       nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
       return;
     }
-    if (activeTab === "graphs") {
+    if (activeTab === "stats") {
       nav.innerHTML =
         '<button type="button" class="nav-btn" id="yearPrev" aria-label="Previous year">‹</button>' +
         '<span class="nav-label">' + state.year + "</span>" +
@@ -4179,10 +4213,266 @@
     }
   }
 
+  function getYearStatsRangeEnd() {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const end = new Date(state.year, 11, 31);
+    end.setHours(23, 59, 59, 999);
+    if (state.year === today.getFullYear() && end > today) return today;
+    return end;
+  }
+
+  function enumerateEligibleDays(habit, rangeStart, rangeEnd) {
+    const out = [];
+    const cur = new Date(rangeStart);
+    cur.setHours(0, 0, 0, 0);
+    const end = new Date(rangeEnd);
+    end.setHours(0, 0, 0, 0);
+    while (cur <= end) {
+      const y = cur.getFullYear();
+      const m = cur.getMonth();
+      const d = cur.getDate();
+      if (habit.type === "yesno" && isDayExcluded(habit, y, m, d)) {
+        cur.setDate(cur.getDate() + 1);
+        continue;
+      }
+      out.push({ y: y, m: m, d: d });
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }
+
+  function formatHabitPossibleDaysLabel(habit) {
+    if (habit.type !== "yesno") return "Every day";
+    const excluded = habit.excludeDays || [];
+    if (!excluded.length) return "Every day";
+    const parts = [];
+    for (let i = 0; i < 7; i++) {
+      if (excluded.indexOf(i) < 0) parts.push(WEEKDAY_SHORT[i].toLowerCase());
+    }
+    return parts.join(", ");
+  }
+
+  function buildYesNoHabitStats(habit) {
+    const start = new Date(state.year, 0, 1);
+    const end = getYearStatsRangeEnd();
+    const eligible = enumerateEligibleDays(habit, start, end);
+    let done = 0;
+    let missed = 0;
+    let unmarked = 0;
+    eligible.forEach(function (p) {
+      const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
+      if (val === null || val === undefined || val === YESNO_PROGRESS) unmarked++;
+      else if (val >= 1) done++;
+      else if (val === 0) missed++;
+      else unmarked++;
+    });
+    const total = eligible.length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    return {
+      daysLabel: formatHabitPossibleDaysLabel(habit),
+      total: total,
+      done: done,
+      missed: missed,
+      unmarked: unmarked,
+      pct: pct,
+    };
+  }
+
+  function collectCounterDailyValues(habit, last30Only) {
+    const prefix = habit.id + "-";
+    const values = [];
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 29);
+    cutoff.setHours(0, 0, 0, 0);
+    const yearEnd = getYearStatsRangeEnd();
+    Object.keys(state.cells).forEach(function (k) {
+      if (k.indexOf(prefix) !== 0) return;
+      const v = state.cells[k];
+      if (typeof v !== "number" || v <= 0) return;
+      const parsed = parseCellKeyDate(k);
+      if (!parsed || parsed.y !== state.year) return;
+      const date = new Date(parsed.y, parsed.m, parsed.d);
+      if (date > yearEnd) return;
+      if (last30Only && date < cutoff) return;
+      values.push(v);
+    });
+    return values;
+  }
+
+  function calcMinMaxMean(values) {
+    if (!values.length) return { min: null, max: null, mean: null, count: 0 };
+    let sum = 0;
+    let min = values[0];
+    let max = values[0];
+    values.forEach(function (v) {
+      sum += v;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    });
+    return { min: min, max: max, mean: sum / values.length, count: values.length };
+  }
+
+  function buildCounterHabitStats(habit) {
+    return {
+      year: calcMinMaxMean(collectCounterDailyValues(habit, false)),
+      last30: calcMinMaxMean(collectCounterDailyValues(habit, true)),
+    };
+  }
+
+  function renderStatsPickerCard(habit) {
+    const selected = statsSelectedHabitId === habit.id;
+    let html =
+      '<article class="year-grid-card is-collapsed' +
+      (selected ? " is-stats-selected" : "") +
+      (habit.pinned ? " pin" : "") +
+      '" data-habit-id="' +
+      escapeHtml(habit.id) +
+      '">';
+    html +=
+      '<button type="button" class="year-grid-card-head" data-stats-pick="' +
+      escapeHtml(habit.id) +
+      '" aria-pressed="' +
+      selected +
+      '">';
+    html += '<span class="year-caret" aria-hidden="true">' + (selected ? "▼" : "▶") + "</span>";
+    html += '<span class="year-grid-card-title">' + escapeHtml(habit.name) + "</span>";
+    html += "</button></article>";
+    return html;
+  }
+
+  function renderStatsDetailHtml(habit) {
+    let html = '<div class="stats-detail card">';
+    html += '<h3 class="stats-detail-title">' + escapeHtml(habit.name) + "</h3>";
+    if (habit.type === "yesno") {
+      const s = buildYesNoHabitStats(habit);
+      html +=
+        '<p class="stats-line stats-occurrence"><strong>' +
+        escapeHtml(s.daysLabel) +
+        "</strong> = " +
+        s.total +
+        " this year</p>";
+      html +=
+        '<p class="stats-line">' +
+        s.done +
+        "/" +
+        s.total +
+        " done · " +
+        s.missed +
+        "/" +
+        s.total +
+        " missed</p>";
+      if (s.unmarked > 0) {
+        html +=
+          '<p class="stats-line stats-muted">' +
+          s.unmarked +
+          "/" +
+          s.total +
+          " not marked yet</p>";
+      }
+      html += '<p class="stats-pct">' + s.pct + "%</p>";
+    } else {
+      const s = buildCounterHabitStats(habit);
+      html +=
+        '<p class="stats-line stats-occurrence"><strong>Every day</strong> · ' +
+        s.year.count +
+        " logged day" +
+        (s.year.count === 1 ? "" : "s") +
+        " in " +
+        state.year +
+        "</p>";
+      if (s.year.count) {
+        html +=
+          '<p class="stats-line">Average: <strong>' +
+          escapeHtml(formatCounterDisplay(Math.round(s.year.mean))) +
+          "</strong></p>";
+        html +=
+          '<p class="stats-line">Mean: <strong>' +
+          escapeHtml(formatCounterDisplay(Math.round(s.year.mean))) +
+          "</strong></p>";
+        html +=
+          '<p class="stats-line">Min / max (' +
+          state.year +
+          "): <strong>" +
+          escapeHtml(formatCounterDisplay(s.year.min)) +
+          "</strong> / <strong>" +
+          escapeHtml(formatCounterDisplay(s.year.max)) +
+          "</strong></p>";
+      } else {
+        html += '<p class="stats-line stats-muted">No marks in ' + state.year + " yet.</p>";
+      }
+      if (s.last30.count) {
+        html +=
+          '<p class="stats-line">Min / max (30d): <strong>' +
+          escapeHtml(formatCounterDisplay(s.last30.min)) +
+          "</strong> / <strong>" +
+          escapeHtml(formatCounterDisplay(s.last30.max)) +
+          "</strong></p>";
+        html +=
+          '<p class="stats-line">Mean (30d): <strong>' +
+          escapeHtml(formatCounterDisplay(Math.round(s.last30.mean))) +
+          "</strong></p>";
+      } else {
+        html += '<p class="stats-line stats-muted">No marks in the last 30 days.</p>';
+      }
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function bindStats(root) {
+    root.querySelectorAll("[data-stats-pick]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-stats-pick");
+        statsSelectedHabitId = statsSelectedHabitId === id ? null : id;
+        renderGraphs();
+      };
+    });
+  }
+
+  function renderStats(targetRoot) {
+    const root = targetRoot || document.getElementById("graphsBody");
+    if (!root) return;
+    const filtered = getFilteredHabits(true);
+    if (
+      statsSelectedHabitId &&
+      !filtered.some(function (h) {
+        return h.id === statsSelectedHabitId;
+      })
+    ) {
+      statsSelectedHabitId = null;
+    }
+    let html = renderCategoryFiltersHtml(true);
+    html +=
+      '<p class="hint">Tap a habit for stats · ' +
+      state.year +
+      " through today</p>";
+    if (!filtered.length) {
+      html += '<p class="month-empty">No habits in this category.</p>';
+      root.innerHTML = html;
+      bindCategoryFilters(root);
+      return;
+    }
+    html += '<div class="year-collapsed-grid year-grid-3 stats-picker-grid">';
+    filtered.forEach(function (habit) {
+      html += renderStatsPickerCard(habit);
+    });
+    html += "</div>";
+    if (statsSelectedHabitId) {
+      const habit = filtered.find(function (h) {
+        return h.id === statsSelectedHabitId;
+      });
+      if (habit) html += renderStatsDetailHtml(habit);
+    }
+    root.innerHTML = html;
+    bindCategoryFilters(root);
+    bindStats(root);
+  }
+
   function renderGraphs() {
     const root = document.getElementById("panelGraphs");
     if (!root) return;
-    let html = '<div class="graphs-mode-bar" role="toolbar" aria-label="Grid or plot">';
+    let html = '<div class="graphs-mode-bar" role="toolbar" aria-label="Grid, plot, or stats">';
     html +=
       '<button type="button" class="graphs-mode-btn' +
       (graphsMode === "grid" ? " on" : "") +
@@ -4195,6 +4485,12 @@
       '" data-graphs-mode="plot" aria-pressed="' +
       (graphsMode === "plot") +
       '">Plot</button>';
+    html +=
+      '<button type="button" class="graphs-mode-btn' +
+      (graphsMode === "stats" ? " on" : "") +
+      '" data-graphs-mode="stats" aria-pressed="' +
+      (graphsMode === "stats") +
+      '">Stats</button>';
     html += '</div><div id="graphsBody"></div>';
     root.innerHTML = html;
     root.querySelectorAll("[data-graphs-mode]").forEach(function (btn) {
@@ -4207,6 +4503,7 @@
     const body = document.getElementById("graphsBody");
     if (!body) return;
     if (graphsMode === "grid") renderYear(body);
+    else if (graphsMode === "stats") renderStats(body);
     else renderGraph(body);
   }
 
@@ -4800,7 +5097,7 @@
     if (hiddenHabits.length) {
       html += '<div class="habits-hidden-section">';
       html +=
-        '<p class="habits-hidden-heading">Hidden from Month &amp; Graphs (' +
+        '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
         hiddenHabits.length +
         ")</p>";
       hiddenHabits.forEach(function (habit) {
@@ -5388,7 +5685,7 @@
     reader.readAsText(file);
   });
 
-  const panelIds = { today: "panelToday", month: "panelMonth", graphs: "panelGraphs", habits: "panelHabits", log: "panelLog" };
+  const panelIds = { today: "panelToday", month: "panelMonth", stats: "panelGraphs", habits: "panelHabits", log: "panelLog" };
 
   document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-mode-action]");
@@ -5427,7 +5724,7 @@
 
   document.querySelectorAll(".tab").forEach(function (tab) {
     tab.onclick = function () {
-      if (tab.dataset.tab !== "graphs") closeYearFullscreen();
+      if (tab.dataset.tab !== "stats") closeYearFullscreen();
       closeHabitEdit();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
@@ -5443,13 +5740,13 @@
       pruneTodayDismissed();
       document.body.classList.toggle(
         "eraser-mode",
-        eraserMode && (activeTab === "month" || (activeTab === "graphs" && graphsMode === "grid"))
+        eraserMode && (activeTab === "month" || (activeTab === "stats" && graphsMode === "grid"))
       );
       updateModeBar();
       renderTopNav();
       if (activeTab === "today") renderToday();
       else if (activeTab === "month") renderMonth();
-      else if (activeTab === "graphs") {
+      else if (activeTab === "stats") {
         renderGraphs();
         if (yearFullscreenHabitId) {
           openYearFullscreen(yearFullscreenHabitId);
@@ -5479,7 +5776,7 @@
   });
   window.addEventListener("pagehide", flushSave);
   window.addEventListener("resize", function () {
-    if (activeTab === "graphs" && graphsMode === "plot") renderGraphs();
+    if (activeTab === "stats" && graphsMode === "plot") renderGraphs();
   });
 
   try {
