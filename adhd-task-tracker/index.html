@@ -309,6 +309,56 @@
     gap: 8px;
     margin-bottom: 10px;
   }
+  .list-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .list-toolbar .list-filter-row {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+  }
+  .list-tag-btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    min-height: 36px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .bulk-tag-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .bulk-tag-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .bulk-tag-option input { margin-top: 3px; flex-shrink: 0; }
+  .bulk-add-categories {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .bulk-add-categories textarea {
+    width: 100%;
+    min-height: 72px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    background: var(--surface);
+    resize: vertical;
+    margin-bottom: 8px;
+  }
+  .bulk-add-categories textarea:focus { border-color: var(--accent); outline: none; }
   .list-filter-label {
     font-size: 0.72rem;
     font-weight: 600;
@@ -1589,9 +1639,12 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="list-filter-row" id="listCategoryFilterRow" hidden>
-      <span class="list-filter-label">Filter by</span>
-      <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+    <div class="list-toolbar" id="listToolbar" hidden>
+      <div class="list-filter-row" id="listCategoryFilterRow" hidden>
+        <span class="list-filter-label">Filter by</span>
+        <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+      </div>
+      <button type="button" class="btn list-tag-btn" id="bulkTagListBtn">Tag list</button>
     </div>
     <div class="quick-add-card">
       <div class="quick-add">
@@ -1890,6 +1943,42 @@
     <div class="modal-body">
       <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px;">Drag order with arrows. Add new categories from the task creation row.</p>
       <div id="categoriesManagerList"></div>
+      <div class="bulk-add-categories">
+        <label class="field-label" for="bulkAddCategoriesInput">Add multiple at once</label>
+        <textarea id="bulkAddCategoriesInput" placeholder="One per line or comma-separated&#10;e.g. Filament, Maintenance, AMS" autocomplete="off"></textarea>
+        <button type="button" class="btn btn-primary" id="bulkAddCategoriesBtn">Add all</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk tag list modal -->
+<div class="modal-backdrop" id="bulkTagModal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Tag list with categories</div>
+      <button class="icon-btn" id="bulkTagModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p id="bulkTagSummary" style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 12px;"></p>
+      <div class="quick-add-categories" id="bulkTagCategories" style="padding: 0; border: none;"></div>
+      <div class="bulk-tag-options">
+        <label class="bulk-tag-option">
+          <input type="checkbox" id="bulkTagIncludeCompleted">
+          <span>Include completed tasks</span>
+        </label>
+        <label class="bulk-tag-option">
+          <input type="checkbox" id="bulkTagReplace">
+          <span>Replace existing categories (instead of adding)</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="bulkTagCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="bulkTagApplyBtn">Apply to list</button>
     </div>
   </div>
 </div>
@@ -2061,7 +2150,8 @@ let state = {
 const quickAddCategoryUi = {
   list: { selected: new Set(), adding: false },
   inbox: { selected: new Set(), adding: false },
-  editor: { adding: false }
+  editor: { adding: false },
+  bulkTag: { selected: new Set(), adding: false }
 };
 
 let currentView = 'lists';
@@ -2307,11 +2397,39 @@ function addCategory(name, opts) {
     if (!opts.silent) showToast('Category already exists', { error: true });
     return existing.id;
   }
-  const id = 'cat_' + Date.now().toString(36);
+  const id = 'cat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
   state.categories.push({ id, name });
-  saveState();
+  if (!opts.deferSave) saveState();
   if (!opts.silent) showToast('Added category: ' + name);
   return id;
+}
+
+function addCategoriesBulk(text) {
+  const names = [];
+  const seen = new Set();
+  text.split(/[\n,]+/).forEach(part => {
+    const name = part.trim();
+    if (!name) return;
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    names.push(name);
+  });
+  if (!names.length) {
+    showToast('Enter at least one category name', { error: true });
+    return 0;
+  }
+  const startLen = state.categories.length;
+  names.forEach(name => addCategory(name, { silent: true, deferSave: true }));
+  const added = state.categories.length - startLen;
+  if (added) {
+    saveState();
+    onCategoriesChanged();
+    showToast(`Added ${added} categor${added === 1 ? 'y' : 'ies'}`);
+  } else {
+    showToast('All names already exist', { error: true });
+  }
+  return added;
 }
 
 function deleteCategory(id) {
@@ -2663,6 +2781,10 @@ function onCategoriesChanged() {
   renderCategoryFilters();
   renderQuickAddCategories();
   if (editingTaskDraft) renderTaskEditorCategories();
+  if (document.getElementById('bulkTagModal')?.classList.contains('open')) {
+    renderBulkTagCategories();
+    updateBulkTagSummary();
+  }
 }
 
 function renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate) {
@@ -2808,6 +2930,14 @@ function renderCategoryFilters() {
       render();
     };
   });
+  syncListToolbar();
+}
+
+function syncListToolbar() {
+  const toolbar = document.getElementById('listToolbar');
+  if (!toolbar) return;
+  const hasTasks = state.tasks.some(t => t.listId === state.activeListId);
+  toolbar.hidden = !(currentView === 'lists' && hasTasks);
 }
 
 function appendTaskCategoryPills(meta, task) {
@@ -3263,6 +3393,7 @@ function renderListsView() {
       : 'No tasks in this list yet.';
     container.appendChild(emptyState('📋', msg));
     syncQuickAddAms();
+    syncListToolbar();
     return;
   }
   const open = tasks.filter(t => !t.completed);
@@ -3296,6 +3427,7 @@ function renderListsView() {
     }
   }
   syncQuickAddAms();
+  syncListToolbar();
 }
 
 // ============================================================================
@@ -3776,6 +3908,89 @@ function renderCategoriesManager() {
     row.appendChild(actions);
     container.appendChild(row);
   });
+}
+
+function getBulkTagCandidateTasks(includeCompleted) {
+  return state.tasks.filter(t =>
+    t.listId === state.activeListId &&
+    taskMatchesCategoryFilter(t) &&
+    (includeCompleted || !t.completed)
+  );
+}
+
+function updateBulkTagSummary() {
+  const summary = document.getElementById('bulkTagSummary');
+  if (!summary) return;
+  const list = state.lists.find(l => l.id === state.activeListId);
+  const includeCompleted = document.getElementById('bulkTagIncludeCompleted')?.checked;
+  const tasks = getBulkTagCandidateTasks(!!includeCompleted);
+  const listName = list ? list.name : 'this list';
+  summary.textContent = `Apply categories to ${tasks.length} task${tasks.length === 1 ? '' : 's'} in ${listName}.`;
+}
+
+function renderBulkTagCategories() {
+  renderCategoryChipRow(
+    document.getElementById('bulkTagCategories'),
+    quickAddCategoryUi.bulkTag,
+    () => quickAddCategoryUi.bulkTag.selected,
+    () => {},
+    () => {}
+  );
+}
+
+function openBulkTagModal() {
+  const tasks = getBulkTagCandidateTasks(false);
+  if (!tasks.length) {
+    showToast('No open tasks to tag in this list', { error: true });
+    return;
+  }
+  quickAddCategoryUi.bulkTag.selected.clear();
+  quickAddCategoryUi.bulkTag.adding = false;
+  const includeEl = document.getElementById('bulkTagIncludeCompleted');
+  const replaceEl = document.getElementById('bulkTagReplace');
+  if (includeEl) includeEl.checked = false;
+  if (replaceEl) replaceEl.checked = false;
+  updateBulkTagSummary();
+  renderBulkTagCategories();
+  openModal('bulkTagModal');
+}
+
+function applyBulkTagToList() {
+  const categoryIds = Array.from(quickAddCategoryUi.bulkTag.selected);
+  if (!categoryIds.length) {
+    showToast('Select at least one category', { error: true });
+    return;
+  }
+  const includeCompleted = !!document.getElementById('bulkTagIncludeCompleted')?.checked;
+  const replace = !!document.getElementById('bulkTagReplace')?.checked;
+  const tasks = getBulkTagCandidateTasks(includeCompleted);
+  if (!tasks.length) {
+    showToast('No tasks to tag', { error: true });
+    return;
+  }
+  tasks.forEach(t => {
+    if (!Array.isArray(t.categoryIds)) t.categoryIds = [];
+    if (replace) {
+      t.categoryIds = categoryIds.slice();
+    } else {
+      categoryIds.forEach(id => {
+        if (!t.categoryIds.includes(id)) t.categoryIds.push(id);
+      });
+    }
+    t.categoryIds = normalizeCategoryIds(t.categoryIds);
+    t.updatedAt = new Date().toISOString();
+  });
+  saveState();
+  closeModal('bulkTagModal');
+  quickAddCategoryUi.bulkTag.selected.clear();
+  render();
+  showToast(`Tagged ${tasks.length} task${tasks.length === 1 ? '' : 's'}`);
+}
+
+function closeBulkTagModal() {
+  closeModal('bulkTagModal');
+  quickAddCategoryUi.bulkTag.selected.clear();
+  quickAddCategoryUi.bulkTag.adding = false;
 }
 
 // ============================================================================
@@ -4909,6 +5124,16 @@ function wireSettings() {
     }
   });
 
+  document.getElementById('bulkAddCategoriesBtn').addEventListener('click', () => {
+    const input = document.getElementById('bulkAddCategoriesInput');
+    if (!input) return;
+    const added = addCategoriesBulk(input.value);
+    if (added) {
+      input.value = '';
+      renderCategoriesManager();
+    }
+  });
+
   document.getElementById('clearCompletedBtn').addEventListener('click', () => {
     const count = state.tasks.filter(t => t.completed).length;
     if (!count) { showToast('No completed tasks'); return; }
@@ -4941,6 +5166,17 @@ function wireSettings() {
     render();
     showToast('All data cleared');
   });
+}
+
+function wireBulkTag() {
+  document.getElementById('bulkTagListBtn').addEventListener('click', openBulkTagModal);
+  document.getElementById('bulkTagModalClose').addEventListener('click', closeBulkTagModal);
+  document.getElementById('bulkTagCancelBtn').addEventListener('click', closeBulkTagModal);
+  document.getElementById('bulkTagApplyBtn').addEventListener('click', applyBulkTagToList);
+  document.getElementById('bulkTagModal').addEventListener('click', (e) => {
+    if (e.target.id === 'bulkTagModal') closeBulkTagModal();
+  });
+  document.getElementById('bulkTagIncludeCompleted').addEventListener('change', updateBulkTagSummary);
 }
 
 function wireCalendar() {
@@ -4977,6 +5213,7 @@ function init() {
   wireQuickAdds();
   wireTaskEditor();
   wireSettings();
+  wireBulkTag();
   wireCalendar();
   wireQuadrantDnd();
   wireHeaderScroll();
