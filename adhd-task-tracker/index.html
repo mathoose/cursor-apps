@@ -1548,7 +1548,7 @@
         <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
         <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
         <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
-        <div class="quick-add-ams">
+        <div class="quick-add-ams" hidden>
           <label class="ams-toggle" title="AMS multicolor">
             <input type="checkbox" class="quick-ams-input" aria-label="AMS multicolor">
             <span class="ams-toggle-track"></span>
@@ -1638,7 +1638,7 @@
           <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
         </div>
       </div>
-      <div class="field">
+      <div class="field" id="taskAmsField" hidden>
         <div class="field-ams-toggle">
           <div>
             <label class="field-label" style="margin-bottom: 2px;">AMS</label>
@@ -1908,6 +1908,16 @@ const DEFAULT_LISTS = [
   { id: 'personal', name: 'Personal' },
   { id: 'work', name: 'Work' }
 ];
+const AMS_LIST_NAME = '3d printer';
+
+function normalizeListName(name) {
+  return (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function isAmsList(listId) {
+  const list = state.lists.find(l => l.id === listId);
+  return !!list && normalizeListName(list.name) === AMS_LIST_NAME;
+}
 
 let listsCompletedExpanded = false;
 let state = {
@@ -2114,7 +2124,7 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
-    ams: !!t.ams,
+    ams: isAmsList(t.listId || 'inbox') ? !!t.ams : false,
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
       title: s.title || '',
@@ -2428,6 +2438,27 @@ function taskCheckmark() {
   path.setAttribute('d', 'M5 12l5 5L20 7');
   svg.appendChild(path);
   return svg;
+}
+
+function syncQuickAddAms() {
+  const wrap = document.querySelector('#listQuickPriority .quick-add-ams');
+  const input = wrap && wrap.querySelector('.quick-ams-input');
+  if (!wrap) return;
+  const show = isAmsList(state.activeListId);
+  wrap.hidden = !show;
+  if (!show && input) input.checked = false;
+}
+
+function syncTaskEditorAms() {
+  const field = document.getElementById('taskAmsField');
+  const input = document.getElementById('taskAmsInput');
+  if (!field || !editingTaskDraft) return;
+  const show = isAmsList(editingTaskDraft.listId);
+  field.hidden = !show;
+  if (!show) {
+    editingTaskDraft.ams = false;
+    if (input) input.checked = false;
+  }
 }
 
 function amsBadgeEl(extraClass) {
@@ -2900,6 +2931,7 @@ function renderListsView() {
       container.appendChild(list);
     }
   }
+  syncQuickAddAms();
 }
 
 // ============================================================================
@@ -2984,6 +3016,7 @@ function openTaskEditor(taskId) {
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
   hideTaskCategoryNewRow();
   renderTaskCategorySelect();
+  syncTaskEditorAms();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
@@ -4175,7 +4208,7 @@ function wireQuickAdds() {
         listId: getListId(),
         link: link || '',
         priority: selectedPrio,
-        ams: !!(amsInput && amsInput.checked)
+        ams: !!(amsInput && amsInput.checked && isAmsList(getListId()))
       });
       titleInput.value = '';
       linkInput.value = '';
@@ -4277,6 +4310,7 @@ function wireTaskEditor() {
   });
   document.getElementById('taskListSelect').addEventListener('change', (e) => {
     editingTaskDraft.listId = e.target.value;
+    syncTaskEditorAms();
   });
   document.getElementById('taskCategoryAddBtn').addEventListener('click', () => {
     const row = document.getElementById('taskCategoryNewRow');
