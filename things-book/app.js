@@ -878,6 +878,29 @@
 
   /* ——— Item sheet ——— */
 
+  function getItemSheetListId() {
+    if (ui.filingListId) return ui.filingListId;
+    if (ui.activeListId && !isUncategorized(ui.activeListId)) return ui.activeListId;
+    return '';
+  }
+
+  function setPhotoPreviewVisible(hasPhoto) {
+    var btn = document.getElementById('photoPickBtn');
+    var preview = document.getElementById('itemPhotoPreview');
+    var placeholder = document.getElementById('photoPickPlaceholder');
+    if (!btn || !preview || !placeholder) return;
+    if (hasPhoto) {
+      btn.classList.add('has-photo');
+      preview.hidden = false;
+      placeholder.hidden = true;
+    } else {
+      btn.classList.remove('has-photo');
+      preview.hidden = true;
+      preview.removeAttribute('src');
+      placeholder.hidden = false;
+    }
+  }
+
   function openItemSheet(editId) {
     ui.editingItemId = editId || null;
     ui.itemSelectedTags = [];
@@ -893,6 +916,7 @@
     var saveBtn = document.getElementById('itemSheetSave');
     var fileListField = document.getElementById('fileListField');
     var tagsField = document.getElementById('itemTagsField');
+    var listLabel = document.querySelector('label[for="itemListSelect"]');
 
     if (editId) {
       var item = getItem(editId);
@@ -902,17 +926,16 @@
       notesInput.value = item ? item.notes : '';
       ui.itemSelectedTags = item ? item.tagIds.slice() : [];
       ui.filingListId = uncategorized ? '' : (item ? item.listId : '');
-      preview.hidden = true;
-      placeholder.hidden = false;
+      setPhotoPreviewVisible(false);
       if (item) {
         loadThumb(item.id).then(function (url) {
           if (url) {
             preview.src = url;
-            preview.hidden = false;
-            placeholder.hidden = true;
+            setPhotoPreviewVisible(true);
           }
         });
       }
+      if (listLabel) listLabel.textContent = uncategorized ? 'File into list' : 'List';
       fileListField.hidden = !uncategorized;
       tagsField.hidden = uncategorized && !ui.filingListId;
       if (uncategorized) renderListSelect('');
@@ -922,10 +945,14 @@
       titleEl.textContent = 'Add thing';
       titleInput.value = '';
       notesInput.value = '';
-      preview.hidden = true;
-      placeholder.hidden = false;
-      fileListField.hidden = true;
-      tagsField.hidden = false;
+      setPhotoPreviewVisible(false);
+      var targetListId = getItemSheetListId();
+      ui.filingListId = targetListId;
+      if (listLabel) listLabel.textContent = 'Add to list';
+      fileListField.hidden = false;
+      tagsField.hidden = !targetListId;
+      renderListSelect(targetListId);
+      if (!getState().lists.length) showToast('Create a list first');
       saveBtn.disabled = true;
     }
 
@@ -955,15 +982,12 @@
     document.getElementById('itemSheetOverlay').hidden = true;
     ui.editingItemId = null;
     clearPendingPhoto();
-    var preview = document.getElementById('itemPhotoPreview');
-    preview.hidden = true;
-    preview.removeAttribute('src');
-    document.getElementById('photoPickPlaceholder').hidden = false;
+    setPhotoPreviewVisible(false);
   }
 
   function renderItemTagChips() {
     var container = document.getElementById('itemTagChips');
-    var listId = ui.filingListId || ui.activeListId;
+    var listId = getItemSheetListId();
     if (!listId || isUncategorized(listId)) {
       container.innerHTML = '<span style="font-size:0.8125rem;color:var(--text-muted)">Choose a list first to add tags</span>';
       return;
@@ -993,8 +1017,8 @@
   }
 
   function addTagFromInput() {
-    var listId = ui.filingListId || ui.activeListId;
-    if (!listId || isUncategorized(listId)) {
+    var listId = getItemSheetListId();
+    if (!listId) {
       showToast('Choose a list first');
       return;
     }
@@ -1042,13 +1066,17 @@
         document.getElementById('itemSheetSave').disabled = !title;
       }
     } else {
-      document.getElementById('itemSheetSave').disabled = !title || !ui.pendingPhotoBlob;
+      var listId = getItemSheetListId();
+      document.getElementById('itemSheetSave').disabled = !title || !ui.pendingPhotoBlob || !listId;
     }
   }
 
   function saveItem() {
-    var listId = ui.filingListId || ui.activeListId;
-    if (!listId && !ui.editingItemId) return;
+    var listId = getItemSheetListId();
+    if (!listId && !ui.editingItemId) {
+      showToast('Choose a list first');
+      return;
+    }
 
     var title = document.getElementById('itemTitleInput').value.trim();
     var notes = document.getElementById('itemNotesInput').value.trim();
@@ -1082,8 +1110,8 @@
         showToast('Add a photo first');
         return;
       }
-      if (isUncategorized(listId)) {
-        showToast('Choose a list to add things');
+      if (!listId) {
+        showToast('Choose a list first');
         return;
       }
       itemId = newId('item');
@@ -1154,8 +1182,7 @@
       ui.pendingPreviewUrl = URL.createObjectURL(blob);
       var preview = document.getElementById('itemPhotoPreview');
       preview.src = ui.pendingPreviewUrl;
-      preview.hidden = false;
-      document.getElementById('photoPickPlaceholder').hidden = true;
+      setPhotoPreviewVisible(true);
       updateItemSaveBtn();
     }).catch(function () {
       showToast('Could not process image');
