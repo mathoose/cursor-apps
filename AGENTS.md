@@ -35,6 +35,7 @@ See [ADD_APP.md](ADD_APP.md#version-numbers). All display versions live in `vers
 
 - Live site: `https://mathoose.github.io/cursor-apps/` (GitHub Pages from **`main`**).
 - Habit data and other app data stay on the user's phone (`localStorage`); app updates do not erase it.
+- **Pages source must be GitHub Actions** (Settings → Pages → Build and deployment → Source: **GitHub Actions** → workflow **Deploy Pages**). Legacy “deploy from branch” conflicts with the Actions workflow and can wedge deploys.
 
 ## UX changes — confirm first
 
