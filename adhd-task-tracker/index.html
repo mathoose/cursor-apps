@@ -303,6 +303,105 @@
     background: var(--surface);
     outline: none;
   }
+  .quick-add-filament {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .filament-color-scroll {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px 2px 6px;
+  }
+  .filament-color-scroll::-webkit-scrollbar { display: none; }
+  .filament-pencil {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    padding: 2px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+  .filament-pencil:active { transform: scale(0.94); }
+  .filament-pencil.selected {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+  }
+  .filament-pencil-shape {
+    width: 22px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.18));
+  }
+  .filament-pencil-tip {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 9px solid var(--filament-tip, #333);
+  }
+  .filament-pencil-wood {
+    width: 12px;
+    height: 7px;
+    background: linear-gradient(180deg, #f0e0c8 0%, #d4b896 100%);
+  }
+  .filament-pencil-body {
+    width: 12px;
+    flex: 1;
+    background: var(--filament-color, #888);
+    border-radius: 0 0 2px 2px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: none;
+  }
+  .filament-pencil.light .filament-pencil-body,
+  .filament-pencil.light .filament-pencil-tip {
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+  .filament-pencil-add {
+    flex-shrink: 0;
+    width: 28px;
+    height: 48px;
+    border: 1.5px dashed var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--accent);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-bottom: 2px;
+  }
+  .filament-pencil-add:active { transform: scale(0.94); }
+  .filament-color-input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .pill.filament {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 6px 1px 4px;
+  }
+  .pill-filament-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+  }
   .list-filter-row {
     display: flex;
     align-items: center;
@@ -1734,6 +1833,10 @@
         </div>
       </div>
       <div class="quick-add-categories" id="listQuickCategories"></div>
+      <div class="quick-add-filament" id="listQuickFilament" hidden>
+        <span class="quick-add-categories-label">Filament</span>
+        <div class="filament-color-scroll" id="listFilamentColors"></div>
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -1854,6 +1957,12 @@
       <div class="field" id="taskEditorCategoriesField">
         <label class="field-label">Categories</label>
         <div class="quick-add-categories" id="taskEditorCategories" style="padding: 0; border: none;"></div>
+      </div>
+      <div class="field" id="taskEditorFilamentField" hidden>
+        <label class="field-label">Filament color</label>
+        <div class="quick-add-filament" id="taskEditorFilament" style="padding: 0; border: none;">
+          <div class="filament-color-scroll" id="taskEditorFilamentColors"></div>
+        </div>
       </div>
       <div class="field" id="taskAmsField" hidden>
         <div class="field-ams-toggle">
@@ -2193,6 +2302,37 @@ const DEFAULT_LISTS = [
   { id: 'work', name: 'Work' }
 ];
 const AMS_LIST_NAME = '3d printer';
+const FILAMENT_SORT_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const DEFAULT_FILAMENT_HEXES = [
+  '#8B4513', '#D4A574', '#9C27B0', '#1A237E', '#1B5E20', '#C62828', '#F57C00', '#F9D71C',
+  '#E91E8C', '#00ACC1', '#FFFFFF', '#212121', '#78909C', '#5D4037', '#7E57C2', '#3949AB',
+  '#00897B', '#AED581', '#FF7043', '#FFD54F', '#4FC3F7', '#F06292', '#8BC34A', '#FFEB3B'
+];
+
+function normalizeFilamentHex(hex) {
+  const s = (hex || '').trim().toUpperCase();
+  if (/^#[0-9A-F]{6}$/.test(s)) return s;
+  if (/^#[0-9A-F]{3}$/.test(s)) {
+    return '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+  }
+  return '#888888';
+}
+
+function filamentTipColor(hex) {
+  const h = normalizeFilamentHex(hex).slice(1);
+  const r = Math.max(0, parseInt(h.slice(0, 2), 16) - 40);
+  const g = Math.max(0, parseInt(h.slice(2, 4), 16) - 40);
+  const b = Math.max(0, parseInt(h.slice(4, 6), 16) - 40);
+  return '#' + [r, g, b].map(n => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+function isLightFilament(hex) {
+  const h = normalizeFilamentHex(hex).slice(1);
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 200;
+}
 
 function normalizeListName(name) {
   return (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -2209,6 +2349,8 @@ let state = {
   tasks: [],
   lists: DEFAULT_LISTS.slice(),
   categories: [],
+  filamentColors: [],
+  filamentColorSortAt: 0,
   activeListId: 'inbox',
   calendarMonth: null,
   selectedDate: null,
@@ -2221,6 +2363,11 @@ const quickAddCategoryUi = {
   inbox: { selected: new Set(), adding: false },
   editor: { adding: false },
   bulkTag: { selected: new Set(), tasksSelected: new Set(), adding: false }
+};
+
+const filamentColorUi = {
+  list: { selected: null },
+  editor: { selected: null }
 };
 
 let currentView = 'lists';
@@ -2308,6 +2455,12 @@ function loadState() {
     if (!parsed || typeof parsed !== 'object') return;
     if (Array.isArray(parsed.lists) && parsed.lists.length) state.lists = ensureSystemLists(parsed.lists);
     if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
+    if (Array.isArray(parsed.filamentColors)) {
+      state.filamentColors = parsed.filamentColors.map(normalizeFilamentColorDef);
+    }
+    if (typeof parsed.filamentColorSortAt === 'number') state.filamentColorSortAt = parsed.filamentColorSortAt;
+    ensureFilamentColors();
+    maybeReorderFilamentColors();
     if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
@@ -2420,6 +2573,7 @@ function normalizeTask(t) {
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
     ams: isAmsList(t.listId || 'inbox') ? !!t.ams : false,
+    filamentColorId: isAmsList(t.listId || 'inbox') ? (t.filamentColorId || null) : null,
     categoryIds: normalizeCategoryIds(t.categoryIds),
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
@@ -2435,6 +2589,71 @@ function ensureSystemLists(lists) {
   const hasInbox = lists.some(l => l.id === 'inbox');
   if (!hasInbox) lists.unshift({ id: 'inbox', name: 'Inbox', system: true });
   return lists;
+}
+
+function normalizeFilamentColorDef(c) {
+  return {
+    id: c.id || ('fc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6)),
+    hex: normalizeFilamentHex(c.hex),
+    name: (c.name || '').trim(),
+    useCount: typeof c.useCount === 'number' ? c.useCount : 0,
+    createdAt: c.createdAt || new Date().toISOString()
+  };
+}
+
+function ensureFilamentColors() {
+  if (!Array.isArray(state.filamentColors)) state.filamentColors = [];
+  if (!state.filamentColors.length) {
+    state.filamentColors = DEFAULT_FILAMENT_HEXES.map((hex, i) => normalizeFilamentColorDef({
+      hex,
+      createdAt: new Date(Date.now() - i).toISOString()
+    }));
+    state.filamentColorSortAt = Date.now();
+  }
+}
+
+function getFilamentColor(id) {
+  return state.filamentColors.find(c => c.id === id) || null;
+}
+
+function maybeReorderFilamentColors() {
+  ensureFilamentColors();
+  const now = Date.now();
+  const lastSort = state.filamentColorSortAt || 0;
+  if (now - lastSort < FILAMENT_SORT_INTERVAL_MS) return;
+  state.filamentColors.sort((a, b) => {
+    const diff = (b.useCount || 0) - (a.useCount || 0);
+    if (diff !== 0) return diff;
+    return (a.createdAt || '') < (b.createdAt || '') ? -1 : 1;
+  });
+  state.filamentColors.forEach(c => { c.useCount = 0; });
+  state.filamentColorSortAt = now;
+  saveState();
+}
+
+function recordFilamentColorUse(colorId) {
+  if (!colorId) return;
+  maybeReorderFilamentColors();
+  const color = getFilamentColor(colorId);
+  if (!color) return;
+  color.useCount = (color.useCount || 0) + 1;
+  saveState();
+}
+
+function addFilamentColor(hex, opts) {
+  opts = opts || {};
+  const normalized = normalizeFilamentHex(hex);
+  const existing = state.filamentColors.find(c => c.hex === normalized);
+  if (existing) return existing.id;
+  const id = 'fc_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+  state.filamentColors.push(normalizeFilamentColorDef({
+    id,
+    hex: normalized,
+    name: opts.name || '',
+    useCount: 0
+  }));
+  saveState();
+  return id;
 }
 
 function normalizeCategoryDef(c) {
@@ -2531,6 +2750,8 @@ function saveState() {
       tasks: state.tasks,
       lists: state.lists,
       categories: state.categories,
+      filamentColors: state.filamentColors,
+      filamentColorSortAt: state.filamentColorSortAt,
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter
@@ -2834,6 +3055,106 @@ function syncQuickAddAms() {
   if (!show && input) input.checked = false;
 }
 
+function syncQuickAddFilament() {
+  const wrap = document.getElementById('listQuickFilament');
+  if (!wrap) return;
+  const show = isAmsList(state.activeListId);
+  wrap.hidden = !show;
+  if (!show) filamentColorUi.list.selected = null;
+}
+
+function filamentPencilButton(color, selected, onClick) {
+  const hex = normalizeFilamentHex(color.hex);
+  const tip = filamentTipColor(hex);
+  const btn = el('button', {
+    type: 'button',
+    class: 'filament-pencil' + (selected ? ' selected' : '') + (isLightFilament(hex) ? ' light' : ''),
+    title: color.name || hex,
+    'aria-label': color.name || ('Filament ' + hex),
+    'aria-pressed': selected ? 'true' : 'false',
+    onClick
+  });
+  const shape = el('div', { class: 'filament-pencil-shape' });
+  const tipEl = el('div', { class: 'filament-pencil-tip' });
+  tipEl.style.setProperty('--filament-tip', tip);
+  tipEl.style.borderBottomColor = tip;
+  shape.appendChild(tipEl);
+  shape.appendChild(el('div', { class: 'filament-pencil-wood' }));
+  const body = el('div', { class: 'filament-pencil-body' });
+  body.style.setProperty('--filament-color', hex);
+  body.style.background = hex;
+  shape.appendChild(body);
+  btn.appendChild(shape);
+  return btn;
+}
+
+function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
+  if (!container) return;
+  container.innerHTML = '';
+  ensureFilamentColors();
+  maybeReorderFilamentColors();
+
+  state.filamentColors.forEach(color => {
+    const selected = getSelected() === color.id;
+    container.appendChild(filamentPencilButton(color, selected, () => {
+      const next = selected ? null : color.id;
+      setSelected(next);
+      renderFilamentColorRow(container, uiKey, getSelected, setSelected);
+    }));
+  });
+
+  const colorInput = el('input', {
+    type: 'color',
+    class: 'filament-color-input',
+    value: '#6366f1',
+    'aria-hidden': 'true',
+    tabindex: -1
+  });
+  colorInput.addEventListener('change', () => {
+    const id = addFilamentColor(colorInput.value);
+    setSelected(id);
+    renderFilamentColorRow(container, uiKey, getSelected, setSelected);
+    showToast('Added filament color');
+  });
+
+  const addBtn = el('button', {
+    type: 'button',
+    class: 'filament-pencil-add',
+    text: '+',
+    'aria-label': 'Add filament color',
+    onClick: () => colorInput.click()
+  });
+  container.appendChild(colorInput);
+  container.appendChild(addBtn);
+}
+
+function renderQuickAddFilament() {
+  syncQuickAddFilament();
+  renderFilamentColorRow(
+    document.getElementById('listFilamentColors'),
+    'list',
+    () => filamentColorUi.list.selected,
+    (id) => { filamentColorUi.list.selected = id; }
+  );
+}
+
+function renderTaskEditorFilament() {
+  const field = document.getElementById('taskEditorFilamentField');
+  if (!field || !editingTaskDraft) return;
+  const show = isAmsList(editingTaskDraft.listId);
+  field.hidden = !show;
+  if (!show) {
+    editingTaskDraft.filamentColorId = null;
+    return;
+  }
+  renderFilamentColorRow(
+    document.getElementById('taskEditorFilamentColors'),
+    'editor',
+    () => editingTaskDraft.filamentColorId || null,
+    (id) => { editingTaskDraft.filamentColorId = id; }
+  );
+}
+
 function syncTaskEditorAms() {
   const field = document.getElementById('taskAmsField');
   const input = document.getElementById('taskAmsInput');
@@ -2842,8 +3163,10 @@ function syncTaskEditorAms() {
   field.hidden = !show;
   if (!show) {
     editingTaskDraft.ams = false;
+    editingTaskDraft.filamentColorId = null;
     if (input) input.checked = false;
   }
+  renderTaskEditorFilament();
 }
 
 function onCategoriesChanged() {
@@ -3010,6 +3333,17 @@ function syncListToolbar() {
   toolbar.hidden = !(currentView === 'lists' && hasTasks);
 }
 
+function appendTaskFilamentPill(meta, task) {
+  if (!task.filamentColorId) return;
+  const color = getFilamentColor(task.filamentColorId);
+  if (!color) return;
+  const pill = el('span', { class: 'pill filament', text: color.name || 'Filament' });
+  const dot = el('span', { class: 'pill-filament-dot' });
+  dot.style.background = color.hex;
+  pill.insertBefore(dot, pill.firstChild);
+  meta.appendChild(pill);
+}
+
 function appendTaskCategoryPills(meta, task) {
   if (!Array.isArray(task.categoryIds) || !task.categoryIds.length) return;
   task.categoryIds.forEach(id => {
@@ -3068,6 +3402,7 @@ function renderTaskRow(task, opts) {
     if (list) meta.appendChild(el('span', { class: 'pill list', text: list.name }));
   }
   appendTaskCategoryPills(meta, task);
+  appendTaskFilamentPill(meta, task);
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
     meta.appendChild(el('span', { class: 'pill subtasks', text: `${done}/${task.subtasks.length}` }));
@@ -3096,6 +3431,7 @@ function render() {
   renderHeader();
   renderCategoryFilters();
   renderQuickAddCategories();
+  renderQuickAddFilament();
   if (currentView === 'matrix') renderMatrix();
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'lists') renderListsView();
@@ -3573,10 +3909,11 @@ function openTaskEditor(taskId) {
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, ams: false, categoryIds: [], subtasks: []
+    completed: false, hasPhoto: false, ams: false, filamentColorId: null, categoryIds: [], subtasks: []
   };
   editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
   if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
+  if (editingTaskDraft.filamentColorId == null) editingTaskDraft.filamentColorId = null;
   if (!Array.isArray(editingTaskDraft.categoryIds)) editingTaskDraft.categoryIds = [];
   editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
 
@@ -3591,6 +3928,7 @@ function openTaskEditor(taskId) {
   renderTaskCategorySelect();
   syncTaskEditorAms();
   renderTaskEditorCategories();
+  renderTaskEditorFilament();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
@@ -3752,8 +4090,14 @@ function saveTaskEditor() {
     showToast('Link must be a valid http(s) URL', { error: true });
     return;
   }
-  if (!isAmsList(editingTaskDraft.listId)) editingTaskDraft.ams = false;
+  if (!isAmsList(editingTaskDraft.listId)) {
+    editingTaskDraft.ams = false;
+    editingTaskDraft.filamentColorId = null;
+  }
   editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
+  const prevFilamentId = editingTaskId
+    ? (state.tasks.find(x => x.id === editingTaskId) || {}).filamentColorId
+    : null;
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -3766,6 +4110,9 @@ function saveTaskEditor() {
     state.tasks.push(task);
   }
   saveState();
+  if (editingTaskDraft.filamentColorId && editingTaskDraft.filamentColorId !== prevFilamentId) {
+    recordFilamentColorUse(editingTaskDraft.filamentColorId);
+  }
   closeTaskEditor();
   if (photoBlob && savedId) {
     putTaskPhoto(savedId, photoBlob).then(() => {
@@ -4132,6 +4479,8 @@ function exportBackup() {
       tasks: state.tasks,
       lists: state.lists,
       categories: state.categories,
+      filamentColors: state.filamentColors,
+      filamentColorSortAt: state.filamentColorSortAt,
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter
@@ -4194,6 +4543,18 @@ function importMerge() {
       }
     });
   }
+  if (Array.isArray(pendingImport.filamentColors)) {
+    const existingFcIds = new Set(state.filamentColors.map(c => c.id));
+    const existingFcHex = new Set(state.filamentColors.map(c => c.hex));
+    pendingImport.filamentColors.forEach(c => {
+      const norm = normalizeFilamentColorDef(c);
+      if (!existingFcIds.has(norm.id) && !existingFcHex.has(norm.hex)) {
+        state.filamentColors.push(norm);
+        existingFcIds.add(norm.id);
+        existingFcHex.add(norm.hex);
+      }
+    });
+  }
   const existingIds = new Set(state.tasks.map(t => t.id));
   pendingImport.tasks.forEach(t => {
     if (!existingIds.has(t.id)) state.tasks.push(normalizeTask(t));
@@ -4221,6 +4582,13 @@ function importReplace() {
   state.categories = Array.isArray(pendingImport.categories)
     ? pendingImport.categories.map(normalizeCategoryDef).filter(c => c.name)
     : [];
+  state.filamentColors = Array.isArray(pendingImport.filamentColors)
+    ? pendingImport.filamentColors.map(normalizeFilamentColorDef)
+    : [];
+  ensureFilamentColors();
+  state.filamentColorSortAt = typeof pendingImport.filamentColorSortAt === 'number'
+    ? pendingImport.filamentColorSortAt
+    : Date.now();
   state.tasks = pendingImport.tasks.map(normalizeTask);
   state.activeListId = 'inbox';
   state.categoryFilter = 'all';
@@ -4990,6 +5358,12 @@ function wireQuickAdds() {
       renderQuickAddCategories();
     };
 
+    const resetFilament = () => {
+      if (categoryUiKey !== 'list') return;
+      filamentColorUi.list.selected = null;
+      renderQuickAddFilament();
+    };
+
     prioBtns.forEach(prioBtn => {
       prioBtn.addEventListener('click', () => {
         const p = parseInt(prioBtn.dataset.prio, 10);
@@ -5015,19 +5389,25 @@ function wireQuickAdds() {
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
+      const filamentColorId = categoryUiKey === 'list' && isAmsList(getListId())
+        ? filamentColorUi.list.selected
+        : null;
       addTask({
         title,
         listId: getListId(),
         link: link || '',
         priority: selectedPrio,
         ams: !!(amsInput && amsInput.checked && isAmsList(getListId())),
-        categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected)
+        categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected),
+        filamentColorId: filamentColorId || null
       });
+      if (filamentColorId) recordFilamentColorUse(filamentColorId);
       titleInput.value = '';
       linkInput.value = '';
       resetPrio();
       resetAms();
       resetCategories();
+      resetFilament();
       render();
     };
     btn.addEventListener('click', submit);
@@ -5336,6 +5716,8 @@ function purgeLegacyFitnessHabitStorage() {
 
 function init() {
   loadState();
+  ensureFilamentColors();
+  maybeReorderFilamentColors();
   purgeLegacyFitnessHabitStorage();
   wireNav();
   wireQuickAdds();
