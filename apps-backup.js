@@ -12,6 +12,7 @@
 
   var APP_LABELS = {
     "habit-journal": "Habit Journal",
+    "body-journal": "Body Journal",
     "adhd-task-tracker": "Focus",
     "aruba-packing": "Closet Picker",
     "meal-menu": "Our Menu",
@@ -119,6 +120,94 @@
           }
         });
         return out;
+      },
+    },
+    "body-journal": {
+      storageKey: "body-journal-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("body-journal-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.topics) || !Array.isArray(p.entries)) return null;
+          return {
+            version: p.version || 1,
+            topics: p.topics,
+            entries: p.entries,
+            settings: p.settings && typeof p.settings === "object" ? p.settings : {},
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.topics) || !Array.isArray(slice.entries)) return false;
+        return writeKey(
+          "body-journal-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            topics: slice.topics,
+            entries: slice.entries,
+            settings: slice.settings && typeof slice.settings === "object" ? slice.settings : {},
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.topics) && Array.isArray(obj.entries) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var entries = slice.entries ? slice.entries.length : 0;
+        var topics = slice.topics ? slice.topics.length : 0;
+        return entries + " journal entr" + (entries === 1 ? "y" : "ies") + ", " + topics + " topic" + (topics === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var topics = (existing.topics || []).slice();
+        var entries = (existing.entries || []).slice();
+        var topicIds = {};
+        var topicNames = {};
+        var remap = {};
+        topics.forEach(function (topic) {
+          if (!topic) return;
+          topicIds[topic.id] = true;
+          topicNames[String(topic.name || "").toLowerCase()] = topic.id;
+        });
+        (incoming.topics || []).forEach(function (topic) {
+          if (!topic || !topic.id) return;
+          var key = String(topic.name || "").toLowerCase();
+          if (topicIds[topic.id]) {
+            remap[topic.id] = topic.id;
+            return;
+          }
+          if (topicNames[key]) {
+            remap[topic.id] = topicNames[key];
+            return;
+          }
+          topics.push(topic);
+          topicIds[topic.id] = true;
+          topicNames[key] = topic.id;
+          remap[topic.id] = topic.id;
+        });
+        var entryIds = {};
+        entries.forEach(function (entry) { if (entry && entry.id) entryIds[entry.id] = true; });
+        (incoming.entries || []).forEach(function (entry) {
+          if (!entry || !entry.id || entryIds[entry.id]) return;
+          var copy = Object.assign({}, entry);
+          if (copy.topicId && remap[copy.topicId]) copy.topicId = remap[copy.topicId];
+          entries.push(copy);
+          entryIds[copy.id] = true;
+        });
+        entries.sort(function (a, b) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        return {
+          version: 1,
+          topics: topics,
+          entries: entries,
+          settings: Object.assign({}, existing.settings || {}, incoming.settings || {}),
+        };
       },
     },
     "adhd-task-tracker": {

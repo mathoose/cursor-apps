@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Body Journal icon">
+  <defs>
+    <linearGradient id="bg" x1="20" y1="15" x2="160" y2="170" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#effff7"/>
+      <stop offset="0.48" stop-color="#d9c6ff"/>
+      <stop offset="1" stop-color="#fff1a6"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="52" y1="38" x2="128" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8af0ce"/>
+      <stop offset="0.5" stop-color="#b7e7ff"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#111111" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#bg)"/>
+  <circle cx="132" cy="44" r="22" fill="#ffffff" opacity="0.58"/>
+  <circle cx="44" cy="135" r="28" fill="#ffffff" opacity="0.42"/>
+  <g filter="url(#shadow)">
+    <rect x="43" y="38" width="94" height="112" rx="25" fill="#111111"/>
+    <rect x="51" y="48" width="78" height="92" rx="18" fill="#fbfaf5"/>
+    <path d="M67 70c15-18 32-18 47 0v49c-15-13-32-13-47 0V70Z" fill="none" stroke="url(#glow)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M90 66v58" stroke="#d9c6ff" stroke-width="5" stroke-linecap="round"/>
+    <path d="M68 103h43" stroke="#8af0ce" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
+  </g>
+</svg>
