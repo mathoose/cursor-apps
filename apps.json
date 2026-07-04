@@ -7,6 +7,7 @@
     "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
+      "body-journal": { "storageKey": "body-journal-v1" },
       "adhd-task-tracker": { "storageKey": "adhd-tracker-v1" },
       "aruba-packing": { "storageKey": "aruba-pack-v1" },
       "philly-dates": { "storageKey": "philly-dates-v2", "legacyKeys": ["philly-hh-app-v1"] },
@@ -27,6 +28,12 @@
       "name": "Habit Journal",
       "subtitle": "Bullet-style dots",
       "storageKey": "habit-journal-v2"
+    },
+    {
+      "id": "body-journal",
+      "name": "Body Journal",
+      "subtitle": "Pain, mood & symptoms",
+      "storageKey": "body-journal-v1"
     },
     {
       "id": "aruba-packing",

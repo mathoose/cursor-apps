@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Body Journal</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Body Journal" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#111111" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-today">
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-title-block">
+        <p class="eyebrow" id="headerEyebrow">Daily check-in</p>
+        <h1 class="view-title" id="headerTitle">Body Journal</h1>
+      </div>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M2 12h3M19 12h3M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="view active" id="viewToday" data-view="today">
+      <div class="hero-panel">
+        <div class="hero-copy">
+          <p class="hero-kicker">Make journaling a</p>
+          <h2>daily habit</h2>
+          <p>Track body notes, pain patterns, moods, and what helped in one place.</p>
+        </div>
+        <div class="phone-preview" aria-hidden="true">
+          <div class="phone-card mint"></div>
+          <div class="phone-card lavender"></div>
+          <div class="phone-card blue"></div>
+          <div class="phone-card yellow"></div>
+        </div>
+      </div>
+
+      <div class="tracker-strip" id="trackerStrip" aria-label="Days since last entry"></div>
+
+      <section class="entry-card" aria-labelledby="entryTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">New entry</p>
+            <h2 id="entryTitle">What do you want to remember?</h2>
+          </div>
+        </div>
+        <form id="entryForm" autocomplete="off">
+          <div class="field-grid">
+            <label class="field">
+              <span>Group</span>
+              <input type="text" id="topicInput" list="topicSuggestions" placeholder="Elbow, knee, mood..." required />
+              <datalist id="topicSuggestions"></datalist>
+            </label>
+            <label class="field">
+              <span>Type</span>
+              <select id="typeInput">
+                <option value="Pain">Pain</option>
+                <option value="Mood">Mood</option>
+                <option value="Energy">Energy</option>
+                <option value="Medication">Medication</option>
+                <option value="Appointment">Appointment</option>
+                <option value="Reflection">Reflection</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Intensity / feeling</span>
+            <input type="range" id="ratingInput" min="0" max="10" value="4" />
+          </label>
+          <div class="rating-row">
+            <span>Low</span>
+            <strong id="ratingValue">4</strong>
+            <span>High</span>
+          </div>
+
+          <label class="field">
+            <span>Note</span>
+            <textarea id="noteInput" rows="5" placeholder="My elbow hurt after lifting groceries. It felt sharp when bending..." required></textarea>
+          </label>
+
+          <label class="field">
+            <span>Tags</span>
+            <input type="text" id="tagsInput" placeholder="after workout, ice helped, morning" />
+          </label>
+
+          <div class="prompt-grid" id="promptGrid" aria-label="Journal prompts"></div>
+
+          <button type="submit" class="primary-btn">Save entry</button>
+        </form>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Recent</p>
+            <h2>Latest notes</h2>
+          </div>
+        </div>
+        <div class="entry-list" id="todayRecentList"></div>
+        <div class="empty-state" id="todayEmpty" hidden>
+          <p>No entries yet. Save your first check-in above.</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="viewTopics" data-view="topics">
+      <div class="section-heading top-space">
+        <div>
+          <p class="eyebrow">Grouped journals</p>
+          <h2>Topics</h2>
+        </div>
+        <button type="button" class="small-btn" id="addTopicBtn">Add</button>
+      </div>
+      <div class="topic-grid" id="topicGrid"></div>
+      <div class="empty-state" id="topicsEmpty" hidden>
+        <p>No topics yet. Add one for a body area, symptom, or feeling.</p>
+      </div>
+    </section>
+
+    <section class="view" id="viewTimeline" data-view="timeline">
+      <div class="timeline-header top-space">
+        <div>
+          <p class="eyebrow">All notes</p>
+          <h2>Timeline</h2>
+        </div>
+        <label class="search-field">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="search" id="searchInput" placeholder="Search notes, tags, groups" />
+        </label>
+      </div>
+      <div class="filter-row" id="topicFilters"></div>
+      <div class="entry-list" id="timelineList"></div>
+      <div class="empty-state" id="timelineEmpty" hidden>
+        <p>No matching notes yet.</p>
+      </div>
+    </section>
+
+    <section class="view" id="viewInsights" data-view="insights">
+      <div class="section-heading top-space">
+        <div>
+          <p class="eyebrow">Patterns</p>
+          <h2>Insights</h2>
+        </div>
+      </div>
+      <div class="insight-grid" id="insightGrid"></div>
+      <div class="summary-card">
+        <p class="eyebrow">Most recent groups</p>
+        <div id="recentTopicSummary"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist" aria-label="Body Journal views">
+    <button type="button" class="nav-btn active" data-view="today" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 012-2h12a2 2 0 012 2v14.5"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+      <span class="nav-btn-label">Today</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="topics" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg>
+      <span class="nav-btn-label">Topics</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="timeline" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+      <span class="nav-btn-label">Timeline</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="insights" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M8 17V9M13 17V6M18 17v-4"/></svg>
+      <span class="nav-btn-label">Insights</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="topicOverlay" role="dialog" aria-modal="true" aria-labelledby="topicSheetTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="topicSheetTitle">Add a topic</h2>
+      <label class="field">
+        <span>Name</span>
+        <input type="text" id="newTopicName" placeholder="Shoulder, headaches, anxiety..." />
+      </label>
+      <label class="field">
+        <span>Color</span>
+        <select id="newTopicColor">
+          <option value="mint">Mint</option>
+          <option value="lavender">Lavender</option>
+          <option value="yellow">Yellow</option>
+          <option value="blue">Blue</option>
+          <option value="peach">Peach</option>
+        </select>
+      </label>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="topicCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="topicSaveBtn">Save topic</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay detail-overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailTitle" hidden>
+    <div class="detail-panel">
+      <div class="detail-header">
+        <button type="button" class="icon-btn" id="detailCloseBtn" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <h2 id="detailTitle">Entry</h2>
+        <button type="button" class="icon-btn danger-icon" id="detailDeleteBtn" aria-label="Delete entry">
+          <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M7 6l1 14h8l1-14"/></svg>
+        </button>
+      </div>
+      <div class="detail-body" id="detailBody"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+      <div class="settings-section">
+        <h3>Data</h3>
+        <p>Your journal stays in this browser on this device unless you export it.</p>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <button type="button" class="btn btn-secondary" id="importJsonBtn">Import JSON</button>
+          <input type="file" id="importJsonFile" accept="application/json,.json" hidden />
+        </div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="settingsCloseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1" defer></script>
+</body>
+</html>
