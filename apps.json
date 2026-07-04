@@ -32,7 +32,7 @@
     {
       "id": "body-journal",
       "name": "Body Journal",
-      "subtitle": "Pain, mood & symptoms",
+      "subtitle": "Journal by topic",
       "storageKey": "body-journal-v1"
     },
     {

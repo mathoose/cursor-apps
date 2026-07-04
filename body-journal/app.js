@@ -11,9 +11,9 @@
   };
   var PROMPTS = [
     "What changed since last time?",
-    "Where do you feel it?",
-    "What helped or made it worse?",
-    "How do you feel emotionally?",
+    "What are you grateful for today?",
+    "What do you want to remember?",
+    "How are you feeling about this?",
   ];
 
   var currentView = "today";
@@ -24,11 +24,12 @@
   function starterTopics() {
     var now = new Date().toISOString();
     return [
-      { id: "topic-elbow", name: "Elbow", color: "mint", createdAt: now },
-      { id: "topic-knee", name: "Knee", color: "lavender", createdAt: now },
+      { id: "topic-relationship", name: "Relationship", color: "lavender", createdAt: now },
+      { id: "topic-family", name: "Family", color: "mint", createdAt: now },
+      { id: "topic-work", name: "Work", color: "blue", createdAt: now },
+      { id: "topic-health", name: "Health", color: "peach", createdAt: now },
       { id: "topic-mood", name: "Mood", color: "yellow", createdAt: now },
-      { id: "topic-sleep", name: "Sleep", color: "blue", createdAt: now },
-      { id: "topic-stress", name: "Stress", color: "peach", createdAt: now },
+      { id: "topic-personal", name: "Personal", color: "lavender", createdAt: now },
     ];
   }
 
@@ -389,11 +390,11 @@
     var todayCount = state.entries.filter(function (entry) { return daysSince(entry.createdAt) === 0; }).length;
     var insightCards = [
       ["Entries", state.entries.length, "Total notes saved"],
-      ["Active groups", activeTopics, "Topics with entries"],
-      ["Avg intensity", averageRating(state.entries), "Across all notes"],
+      ["Active topics", activeTopics, "Topics with entries"],
+      ["Avg rating", averageRating(state.entries), "Across all notes"],
       ["Today", todayCount, "Entries saved today"],
       ["Last entry", last ? (daysSince(last.createdAt) === 0 ? "Today" : formatDate(last.createdAt)) : "--", last ? last.topicName : "No entries yet"],
-      ["Trackers", state.topics.length, "Groups available"],
+      ["Trackers", state.topics.length, "Topics available"],
     ];
     document.getElementById("insightGrid").innerHTML = insightCards.map(function (card, index) {
       var color = ["mint", "lavender", "yellow", "blue", "peach", "mint"][index];
@@ -437,7 +438,7 @@
     var topicName = cleanText(document.getElementById("topicInput").value, 48);
     var note = cleanText(document.getElementById("noteInput").value, 4000);
     if (!topicName || !note) {
-      showToast("Add a group and a note");
+      showToast("Add a topic and a note");
       return;
     }
     var topic = ensureTopic(state, topicName);

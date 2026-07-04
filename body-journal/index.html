@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body class="view-today">
   <header class="app-header" id="appHeader">
@@ -36,7 +36,7 @@
         <div class="hero-copy">
           <p class="hero-kicker">Make journaling a</p>
           <h2>daily habit</h2>
-          <p>Track body notes, pain patterns, moods, and what helped in one place.</p>
+          <p>Group journal entries by topic—relationship, family, work, health, or anything that matters to you.</p>
         </div>
         <div class="phone-preview" aria-hidden="true">
           <div class="phone-card mint"></div>
@@ -58,41 +58,41 @@
         <form id="entryForm" autocomplete="off">
           <div class="field-grid">
             <label class="field">
-              <span>Group</span>
-              <input type="text" id="topicInput" list="topicSuggestions" placeholder="Elbow, knee, mood..." required />
+              <span>Topic</span>
+              <input type="text" id="topicInput" list="topicSuggestions" placeholder="Relationship, family, work..." required />
               <datalist id="topicSuggestions"></datalist>
             </label>
             <label class="field">
               <span>Type</span>
               <select id="typeInput">
-                <option value="Pain">Pain</option>
-                <option value="Mood">Mood</option>
-                <option value="Energy">Energy</option>
-                <option value="Medication">Medication</option>
-                <option value="Appointment">Appointment</option>
                 <option value="Reflection">Reflection</option>
+                <option value="Update">Update</option>
+                <option value="Gratitude">Gratitude</option>
+                <option value="Concern">Concern</option>
+                <option value="Milestone">Milestone</option>
+                <option value="Note">Note</option>
               </select>
             </label>
           </div>
 
           <label class="field">
-            <span>Intensity / feeling</span>
+            <span>How much it matters (0–10)</span>
             <input type="range" id="ratingInput" min="0" max="10" value="4" />
           </label>
           <div class="rating-row">
-            <span>Low</span>
+            <span>Light</span>
             <strong id="ratingValue">4</strong>
-            <span>High</span>
+            <span>Big</span>
           </div>
 
           <label class="field">
             <span>Note</span>
-            <textarea id="noteInput" rows="5" placeholder="My elbow hurt after lifting groceries. It felt sharp when bending..." required></textarea>
+            <textarea id="noteInput" rows="5" placeholder="Had a good talk with Mom today. Feeling closer after..." required></textarea>
           </label>
 
           <label class="field">
             <span>Tags</span>
-            <input type="text" id="tagsInput" placeholder="after workout, ice helped, morning" />
+            <input type="text" id="tagsInput" placeholder="weekend, grateful, follow-up" />
           </label>
 
           <div class="prompt-grid" id="promptGrid" aria-label="Journal prompts"></div>
@@ -125,7 +125,7 @@
       </div>
       <div class="topic-grid" id="topicGrid"></div>
       <div class="empty-state" id="topicsEmpty" hidden>
-        <p>No topics yet. Add one for a body area, symptom, or feeling.</p>
+        <p>No topics yet. Add one for relationship, family, work, or any area of life.</p>
       </div>
     </section>
 
@@ -137,7 +137,7 @@
         </div>
         <label class="search-field">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input type="search" id="searchInput" placeholder="Search notes, tags, groups" />
+          <input type="search" id="searchInput" placeholder="Search notes, tags, topics" />
         </label>
       </div>
       <div class="filter-row" id="topicFilters"></div>
@@ -156,7 +156,7 @@
       </div>
       <div class="insight-grid" id="insightGrid"></div>
       <div class="summary-card">
-        <p class="eyebrow">Most recent groups</p>
+        <p class="eyebrow">Most recent topics</p>
         <div id="recentTopicSummary"></div>
       </div>
     </section>
@@ -187,7 +187,7 @@
       <h2 class="sheet-title" id="topicSheetTitle">Add a topic</h2>
       <label class="field">
         <span>Name</span>
-        <input type="text" id="newTopicName" placeholder="Shoulder, headaches, anxiety..." />
+        <input type="text" id="newTopicName" placeholder="Relationship, family, hobbies..." />
       </label>
       <label class="field">
         <span>Color</span>
@@ -244,6 +244,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1" defer></script>
+  <script src="app.js?v=2" defer></script>
 </body>
 </html>
