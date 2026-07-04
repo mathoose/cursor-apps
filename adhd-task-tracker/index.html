@@ -322,99 +322,58 @@
   .filament-color-stagger {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0;
     width: max-content;
     min-width: 100%;
   }
   .filament-color-row {
     display: flex;
     align-items: flex-end;
-    gap: 2px;
+    gap: 0;
     width: max-content;
   }
   .filament-color-row-bottom {
-    padding-left: 12px;
+    padding-left: 9px;
+    margin-top: -5px;
   }
   .filament-pencil {
     flex-shrink: 0;
     border: none;
     background: transparent;
-    padding: 1px;
+    padding: 0;
+    margin-right: -2px;
     cursor: pointer;
-    border-radius: 8px;
-    transition: transform 0.12s, box-shadow 0.12s;
+    border-radius: 4px;
+    line-height: 0;
+    transition: transform 0.1s;
   }
-  .filament-pencil:active { transform: scale(0.95); }
+  .filament-pencil:active { transform: scale(0.96); }
   .filament-pencil.selected {
-    box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
   }
-  .filament-pencil-shape {
-    width: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.22));
-  }
-  .filament-pencil.tall .filament-pencil-shape { height: 60px; }
-  .filament-pencil.short .filament-pencil-shape { height: 52px; }
-  .filament-pencil-lead {
-    width: 18px;
-    height: 12px;
-    flex-shrink: 0;
-    background: var(--filament-tip, #333);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-  }
-  .filament-pencil-wood {
-    width: 18px;
-    height: 9px;
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #f5e6cc 0%, #e2c9a0 55%, #c9a66b 100%);
-    border-left: 1px solid rgba(0, 0, 0, 0.06);
-    border-right: 1px solid rgba(0, 0, 0, 0.06);
-  }
-  .filament-pencil-ferrule {
-    width: 20px;
-    height: 3px;
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 50%, #c4c4c4 100%);
-    border-radius: 1px;
-  }
-  .filament-pencil-body {
-    width: 18px;
-    flex: 1;
-    min-height: 28px;
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--filament-color, #888) 82%, black) 0%,
-      var(--filament-color, #888) 18%,
-      var(--filament-color, #888) 72%,
-      color-mix(in srgb, var(--filament-color, #888) 78%, white) 100%
-    );
-    border-radius: 0 0 3px 3px;
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
-  }
-  .filament-pencil.light .filament-pencil-body {
-    border: 1px solid rgba(0, 0, 0, 0.14);
-    border-top: none;
+  .filament-pencil-svg {
+    display: block;
+    width: 22px;
+    height: auto;
+    filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.18));
   }
   .filament-pencil-add {
     flex-shrink: 0;
-    width: 34px;
-    height: 52px;
+    width: 22px;
+    height: 48px;
+    margin-left: 4px;
+    margin-right: 0;
     border: 1.5px dashed var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     background: var(--surface);
     color: var(--accent);
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
     align-self: flex-end;
-    margin-bottom: 1px;
   }
-  .filament-pencil-add:active { transform: scale(0.95); }
+  .filament-pencil-add:active { transform: scale(0.96); }
   .filament-color-input {
     position: absolute;
     width: 0;
@@ -2352,10 +2311,11 @@ function normalizeFilamentHex(hex) {
 }
 
 function filamentTipColor(hex) {
+  if (isLightFilament(hex)) return '#4A4A4A';
   const h = normalizeFilamentHex(hex).slice(1);
-  const r = Math.max(0, parseInt(h.slice(0, 2), 16) - 40);
-  const g = Math.max(0, parseInt(h.slice(2, 4), 16) - 40);
-  const b = Math.max(0, parseInt(h.slice(4, 6), 16) - 40);
+  const r = Math.max(0, parseInt(h.slice(0, 2), 16) - 55);
+  const g = Math.max(0, parseInt(h.slice(2, 4), 16) - 55);
+  const b = Math.max(0, parseInt(h.slice(4, 6), 16) - 55);
   return '#' + [r, g, b].map(n => n.toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
@@ -3096,30 +3056,72 @@ function syncQuickAddFilament() {
   if (!show) filamentColorUi.list.selected = null;
 }
 
-function filamentPencilButton(color, selected, onClick, heightClass) {
+function filamentPencilButton(color, selected, onClick, heightPx) {
   const hex = normalizeFilamentHex(color.hex);
   const tip = filamentTipColor(hex);
+  const light = isLightFilament(hex);
+  const h = heightPx || 54;
+  const bodyH = h - 20;
   const btn = el('button', {
     type: 'button',
-    class: 'filament-pencil ' + (heightClass || 'tall') +
-      (selected ? ' selected' : '') +
-      (isLightFilament(hex) ? ' light' : ''),
+    class: 'filament-pencil' + (selected ? ' selected' : ''),
     title: color.name || hex,
     'aria-label': color.name || ('Filament ' + hex),
     'aria-pressed': selected ? 'true' : 'false',
     onClick
   });
-  const shape = el('div', { class: 'filament-pencil-shape' });
-  const lead = el('div', { class: 'filament-pencil-lead' });
-  lead.style.setProperty('--filament-tip', tip);
-  lead.style.background = tip;
-  shape.appendChild(lead);
-  shape.appendChild(el('div', { class: 'filament-pencil-wood' }));
-  shape.appendChild(el('div', { class: 'filament-pencil-ferrule' }));
-  const body = el('div', { class: 'filament-pencil-body' });
-  body.style.setProperty('--filament-color', hex);
-  shape.appendChild(body);
-  btn.appendChild(shape);
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 20 ' + h);
+  svg.setAttribute('class', 'filament-pencil-svg');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const tipEl = document.createElementNS(svgNS, 'polygon');
+  tipEl.setAttribute('points', '10,1 3.5,12 16.5,12');
+  tipEl.setAttribute('fill', tip);
+  svg.appendChild(tipEl);
+
+  const wood = document.createElementNS(svgNS, 'rect');
+  wood.setAttribute('x', '4');
+  wood.setAttribute('y', '12');
+  wood.setAttribute('width', '12');
+  wood.setAttribute('height', '6.5');
+  wood.setAttribute('fill', '#e8d4b0');
+  svg.appendChild(wood);
+
+  const ferrule = document.createElementNS(svgNS, 'rect');
+  ferrule.setAttribute('x', '3.5');
+  ferrule.setAttribute('y', '18.5');
+  ferrule.setAttribute('width', '13');
+  ferrule.setAttribute('height', '1.5');
+  ferrule.setAttribute('rx', '0.3');
+  ferrule.setAttribute('fill', '#a8a8a8');
+  svg.appendChild(ferrule);
+
+  const body = document.createElementNS(svgNS, 'rect');
+  body.setAttribute('x', '4');
+  body.setAttribute('y', '20');
+  body.setAttribute('width', '12');
+  body.setAttribute('height', String(bodyH));
+  body.setAttribute('rx', '1.2');
+  body.setAttribute('fill', hex);
+  if (light) {
+    body.setAttribute('stroke', '#b0b0b0');
+    body.setAttribute('stroke-width', '0.5');
+  }
+  svg.appendChild(body);
+
+  const shine = document.createElementNS(svgNS, 'rect');
+  shine.setAttribute('x', '5');
+  shine.setAttribute('y', '22');
+  shine.setAttribute('width', '1.8');
+  shine.setAttribute('height', String(Math.max(bodyH - 4, 4)));
+  shine.setAttribute('rx', '0.4');
+  shine.setAttribute('fill', '#fff');
+  shine.setAttribute('opacity', light ? '0.35' : '0.18');
+  svg.appendChild(shine);
+
+  btn.appendChild(svg);
   return btn;
 }
 
@@ -3135,12 +3137,12 @@ function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
 
   state.filamentColors.forEach((color, i) => {
     const selected = getSelected() === color.id;
-    const heightClass = i % 4 < 2 ? 'tall' : 'short';
+    const heightPx = i % 4 < 2 ? 56 : 50;
     const btn = filamentPencilButton(color, selected, () => {
       const next = selected ? null : color.id;
       setSelected(next);
       renderFilamentColorRow(container, uiKey, getSelected, setSelected);
-    }, heightClass);
+    }, heightPx);
     if (i % 2 === 0) topRow.appendChild(btn);
     else bottomRow.appendChild(btn);
   });
