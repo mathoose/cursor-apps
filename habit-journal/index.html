@@ -44,7 +44,7 @@
     body.has-mode-bar {
       padding-bottom: calc(128px + var(--safe-bottom));
     }
-    body.habit-journal > .app-version { display: none !important; }
+    body.habit-journal .app-version-footer { display: none !important; }
     .panel-version {
       margin-top: 28px;
       padding: 8px 0 4px;
@@ -3790,7 +3790,7 @@
   }
 
   function renderVersionFooterHtml() {
-    const el = document.querySelector("body.habit-journal > .app-version");
+    const el = document.querySelector(".app-version");
     const text = el && el.textContent ? el.textContent.trim() : "";
     if (!text) return "";
     return '<p class="panel-version" aria-label="App version">' + escapeHtml(text) + "</p>";

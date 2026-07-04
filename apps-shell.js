@@ -44,11 +44,21 @@
       document.body.classList.add("has-bottom-nav");
     }
 
+    var footer = document.createElement("footer");
+    footer.className = "app-version-footer";
+
     var node = document.createElement("p");
     node.className = "app-version";
     node.setAttribute("aria-label", "App version");
     node.textContent = "v" + versionText;
-    document.body.appendChild(node);
+    footer.appendChild(node);
+
+    var main = document.querySelector("main");
+    if (main && main.parentNode) {
+      main.parentNode.insertBefore(footer, main.nextSibling);
+    } else {
+      document.body.appendChild(footer);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function () {

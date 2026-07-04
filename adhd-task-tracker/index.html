@@ -2359,8 +2359,7 @@ const quickAddCategoryUi = {
 };
 
 const filamentColorUi = {
-  list: { selected: null },
-  editor: { selected: null }
+  list: { selected: new Set() }
 };
 
 let currentView = 'lists';
@@ -2566,7 +2565,9 @@ function normalizeTask(t) {
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
     ams: isAmsList(t.listId || 'inbox') ? !!t.ams : false,
-    filamentColorId: isAmsList(t.listId || 'inbox') ? (t.filamentColorId || null) : null,
+    filamentColorIds: isAmsList(t.listId || 'inbox')
+      ? normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId)
+      : [],
     categoryIds: normalizeCategoryIds(t.categoryIds),
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
@@ -2647,6 +2648,18 @@ function addFilamentColor(hex, opts) {
   }));
   saveState();
   return id;
+}
+
+function normalizeFilamentColorIds(ids, legacyId) {
+  let list = Array.isArray(ids) ? ids.slice() : [];
+  if (!list.length && legacyId) list = [legacyId];
+  const valid = new Set(state.filamentColors.map(c => c.id));
+  const seen = new Set();
+  return list.filter(id => {
+    if (!id || !valid.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
 }
 
 function normalizeCategoryDef(c) {
@@ -3053,7 +3066,7 @@ function syncQuickAddFilament() {
   if (!wrap) return;
   const show = isAmsList(state.activeListId);
   wrap.hidden = !show;
-  if (!show) filamentColorUi.list.selected = null;
+  if (!show) filamentColorUi.list.selected.clear();
 }
 
 function filamentPencilButton(color, selected, onClick, heightPx) {
@@ -3125,7 +3138,7 @@ function filamentPencilButton(color, selected, onClick, heightPx) {
   return btn;
 }
 
-function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
+function renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged) {
   if (!container) return;
   container.innerHTML = '';
   ensureFilamentColors();
@@ -3134,14 +3147,16 @@ function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
   const stagger = el('div', { class: 'filament-color-stagger' });
   const topRow = el('div', { class: 'filament-color-row filament-color-row-top' });
   const bottomRow = el('div', { class: 'filament-color-row filament-color-row-bottom' });
+  const selected = getSelectedSet();
 
   state.filamentColors.forEach((color, i) => {
-    const selected = getSelected() === color.id;
+    const isSelected = selected.has(color.id);
     const heightPx = i % 4 < 2 ? 56 : 50;
-    const btn = filamentPencilButton(color, selected, () => {
-      const next = selected ? null : color.id;
-      setSelected(next);
-      renderFilamentColorRow(container, uiKey, getSelected, setSelected);
+    const btn = filamentPencilButton(color, isSelected, () => {
+      if (selected.has(color.id)) selected.delete(color.id);
+      else selected.add(color.id);
+      if (onChanged) onChanged(Array.from(selected));
+      renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged);
     }, heightPx);
     if (i % 2 === 0) topRow.appendChild(btn);
     else bottomRow.appendChild(btn);
@@ -3156,8 +3171,9 @@ function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
   });
   colorInput.addEventListener('change', () => {
     const id = addFilamentColor(colorInput.value);
-    setSelected(id);
-    renderFilamentColorRow(container, uiKey, getSelected, setSelected);
+    selected.add(id);
+    if (onChanged) onChanged(Array.from(selected));
+    renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged);
     showToast('Added filament color');
   });
 
@@ -3181,8 +3197,7 @@ function renderQuickAddFilament() {
   renderFilamentColorRow(
     document.getElementById('listFilamentColors'),
     'list',
-    () => filamentColorUi.list.selected,
-    (id) => { filamentColorUi.list.selected = id; }
+    () => filamentColorUi.list.selected
   );
 }
 
@@ -3192,14 +3207,18 @@ function renderTaskEditorFilament() {
   const show = isAmsList(editingTaskDraft.listId);
   field.hidden = !show;
   if (!show) {
-    editingTaskDraft.filamentColorId = null;
+    editingTaskDraft.filamentColorIds = [];
     return;
   }
+  if (!Array.isArray(editingTaskDraft.filamentColorIds)) {
+    editingTaskDraft.filamentColorIds = [];
+  }
+  const selected = new Set(editingTaskDraft.filamentColorIds);
   renderFilamentColorRow(
     document.getElementById('taskEditorFilamentColors'),
     'editor',
-    () => editingTaskDraft.filamentColorId || null,
-    (id) => { editingTaskDraft.filamentColorId = id; }
+    () => selected,
+    (ids) => { editingTaskDraft.filamentColorIds = ids; }
   );
 }
 
@@ -3211,7 +3230,7 @@ function syncTaskEditorAms() {
   field.hidden = !show;
   if (!show) {
     editingTaskDraft.ams = false;
-    editingTaskDraft.filamentColorId = null;
+    editingTaskDraft.filamentColorIds = [];
     if (input) input.checked = false;
   }
   renderTaskEditorFilament();
@@ -3381,15 +3400,18 @@ function syncListToolbar() {
   toolbar.hidden = !(currentView === 'lists' && hasTasks);
 }
 
-function appendTaskFilamentPill(meta, task) {
-  if (!task.filamentColorId) return;
-  const color = getFilamentColor(task.filamentColorId);
-  if (!color) return;
-  const pill = el('span', { class: 'pill filament', text: color.name || 'Filament' });
-  const dot = el('span', { class: 'pill-filament-dot' });
-  dot.style.background = color.hex;
-  pill.insertBefore(dot, pill.firstChild);
-  meta.appendChild(pill);
+function appendTaskFilamentPills(meta, task) {
+  if (!Array.isArray(task.filamentColorIds) || !task.filamentColorIds.length) return;
+  task.filamentColorIds.forEach(id => {
+    const color = getFilamentColor(id);
+    if (!color) return;
+    const pill = el('span', { class: 'pill filament', title: color.name || color.hex });
+    const dot = el('span', { class: 'pill-filament-dot' });
+    dot.style.background = color.hex;
+    pill.appendChild(dot);
+    if (color.name) pill.appendChild(document.createTextNode(color.name));
+    meta.appendChild(pill);
+  });
 }
 
 function appendTaskCategoryPills(meta, task) {
@@ -3450,7 +3472,7 @@ function renderTaskRow(task, opts) {
     if (list) meta.appendChild(el('span', { class: 'pill list', text: list.name }));
   }
   appendTaskCategoryPills(meta, task);
-  appendTaskFilamentPill(meta, task);
+  appendTaskFilamentPills(meta, task);
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
     meta.appendChild(el('span', { class: 'pill subtasks', text: `${done}/${task.subtasks.length}` }));
@@ -3957,11 +3979,12 @@ function openTaskEditor(taskId) {
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, ams: false, filamentColorId: null, categoryIds: [], subtasks: []
+    completed: false, hasPhoto: false, ams: false, filamentColorIds: [], categoryIds: [], subtasks: []
   };
   editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
   if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
-  if (editingTaskDraft.filamentColorId == null) editingTaskDraft.filamentColorId = null;
+  if (!Array.isArray(editingTaskDraft.filamentColorIds)) editingTaskDraft.filamentColorIds = [];
+  editingTaskDraft.filamentColorIds = normalizeFilamentColorIds(editingTaskDraft.filamentColorIds);
   if (!Array.isArray(editingTaskDraft.categoryIds)) editingTaskDraft.categoryIds = [];
   editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
 
@@ -4140,12 +4163,15 @@ function saveTaskEditor() {
   }
   if (!isAmsList(editingTaskDraft.listId)) {
     editingTaskDraft.ams = false;
-    editingTaskDraft.filamentColorId = null;
+    editingTaskDraft.filamentColorIds = [];
   }
   editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
-  const prevFilamentId = editingTaskId
-    ? (state.tasks.find(x => x.id === editingTaskId) || {}).filamentColorId
-    : null;
+  editingTaskDraft.filamentColorIds = normalizeFilamentColorIds(editingTaskDraft.filamentColorIds);
+  const prevFilamentIds = new Set(
+    editingTaskId
+      ? normalizeFilamentColorIds((state.tasks.find(x => x.id === editingTaskId) || {}).filamentColorIds)
+      : []
+  );
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
@@ -4158,9 +4184,9 @@ function saveTaskEditor() {
     state.tasks.push(task);
   }
   saveState();
-  if (editingTaskDraft.filamentColorId && editingTaskDraft.filamentColorId !== prevFilamentId) {
-    recordFilamentColorUse(editingTaskDraft.filamentColorId);
-  }
+  (editingTaskDraft.filamentColorIds || []).forEach(id => {
+    if (!prevFilamentIds.has(id)) recordFilamentColorUse(id);
+  });
   closeTaskEditor();
   if (photoBlob && savedId) {
     putTaskPhoto(savedId, photoBlob).then(() => {
@@ -5408,7 +5434,7 @@ function wireQuickAdds() {
 
     const resetFilament = () => {
       if (categoryUiKey !== 'list') return;
-      filamentColorUi.list.selected = null;
+      filamentColorUi.list.selected.clear();
       renderQuickAddFilament();
     };
 
@@ -5437,9 +5463,9 @@ function wireQuickAdds() {
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
-      const filamentColorId = categoryUiKey === 'list' && isAmsList(getListId())
-        ? filamentColorUi.list.selected
-        : null;
+      const filamentColorIds = categoryUiKey === 'list' && isAmsList(getListId())
+        ? Array.from(filamentColorUi.list.selected)
+        : [];
       addTask({
         title,
         listId: getListId(),
@@ -5447,9 +5473,9 @@ function wireQuickAdds() {
         priority: selectedPrio,
         ams: !!(amsInput && amsInput.checked && isAmsList(getListId())),
         categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected),
-        filamentColorId: filamentColorId || null
+        filamentColorIds
       });
-      if (filamentColorId) recordFilamentColorUse(filamentColorId);
+      filamentColorIds.forEach(id => recordFilamentColorUse(id));
       titleInput.value = '';
       linkInput.value = '';
       resetPrio();
