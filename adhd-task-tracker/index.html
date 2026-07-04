@@ -313,75 +313,108 @@
   .filament-color-scroll {
     flex: 1;
     min-width: 0;
-    display: flex;
-    align-items: flex-end;
-    gap: 8px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding: 4px 2px 6px;
   }
   .filament-color-scroll::-webkit-scrollbar { display: none; }
+  .filament-color-stagger {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: max-content;
+    min-width: 100%;
+  }
+  .filament-color-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    width: max-content;
+  }
+  .filament-color-row-bottom {
+    padding-left: 12px;
+  }
   .filament-pencil {
     flex-shrink: 0;
     border: none;
     background: transparent;
-    padding: 2px;
+    padding: 1px;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: transform 0.12s, box-shadow 0.12s;
   }
-  .filament-pencil:active { transform: scale(0.94); }
+  .filament-pencil:active { transform: scale(0.95); }
   .filament-pencil.selected {
     box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
   }
   .filament-pencil-shape {
-    width: 22px;
-    height: 48px;
+    width: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.18));
+    filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.22));
   }
-  .filament-pencil-tip {
-    width: 0;
-    height: 0;
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-bottom: 9px solid var(--filament-tip, #333);
+  .filament-pencil.tall .filament-pencil-shape { height: 60px; }
+  .filament-pencil.short .filament-pencil-shape { height: 52px; }
+  .filament-pencil-lead {
+    width: 18px;
+    height: 12px;
+    flex-shrink: 0;
+    background: var(--filament-tip, #333);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
   }
   .filament-pencil-wood {
-    width: 12px;
-    height: 7px;
-    background: linear-gradient(180deg, #f0e0c8 0%, #d4b896 100%);
+    width: 18px;
+    height: 9px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #f5e6cc 0%, #e2c9a0 55%, #c9a66b 100%);
+    border-left: 1px solid rgba(0, 0, 0, 0.06);
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .filament-pencil-ferrule {
+    width: 20px;
+    height: 3px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 50%, #c4c4c4 100%);
+    border-radius: 1px;
   }
   .filament-pencil-body {
-    width: 12px;
+    width: 18px;
     flex: 1;
-    background: var(--filament-color, #888);
-    border-radius: 0 0 2px 2px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-top: none;
+    min-height: 28px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--filament-color, #888) 82%, black) 0%,
+      var(--filament-color, #888) 18%,
+      var(--filament-color, #888) 72%,
+      color-mix(in srgb, var(--filament-color, #888) 78%, white) 100%
+    );
+    border-radius: 0 0 3px 3px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.14);
   }
-  .filament-pencil.light .filament-pencil-body,
-  .filament-pencil.light .filament-pencil-tip {
-    border: 1px solid rgba(0, 0, 0, 0.12);
+  .filament-pencil.light .filament-pencil-body {
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-top: none;
   }
   .filament-pencil-add {
     flex-shrink: 0;
-    width: 28px;
-    height: 48px;
+    width: 34px;
+    height: 52px;
     border: 1.5px dashed var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--surface);
     color: var(--accent);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 600;
     cursor: pointer;
     align-self: flex-end;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
-  .filament-pencil-add:active { transform: scale(0.94); }
+  .filament-pencil-add:active { transform: scale(0.95); }
   .filament-color-input {
     position: absolute;
     width: 0;
@@ -3063,26 +3096,28 @@ function syncQuickAddFilament() {
   if (!show) filamentColorUi.list.selected = null;
 }
 
-function filamentPencilButton(color, selected, onClick) {
+function filamentPencilButton(color, selected, onClick, heightClass) {
   const hex = normalizeFilamentHex(color.hex);
   const tip = filamentTipColor(hex);
   const btn = el('button', {
     type: 'button',
-    class: 'filament-pencil' + (selected ? ' selected' : '') + (isLightFilament(hex) ? ' light' : ''),
+    class: 'filament-pencil ' + (heightClass || 'tall') +
+      (selected ? ' selected' : '') +
+      (isLightFilament(hex) ? ' light' : ''),
     title: color.name || hex,
     'aria-label': color.name || ('Filament ' + hex),
     'aria-pressed': selected ? 'true' : 'false',
     onClick
   });
   const shape = el('div', { class: 'filament-pencil-shape' });
-  const tipEl = el('div', { class: 'filament-pencil-tip' });
-  tipEl.style.setProperty('--filament-tip', tip);
-  tipEl.style.borderBottomColor = tip;
-  shape.appendChild(tipEl);
+  const lead = el('div', { class: 'filament-pencil-lead' });
+  lead.style.setProperty('--filament-tip', tip);
+  lead.style.background = tip;
+  shape.appendChild(lead);
   shape.appendChild(el('div', { class: 'filament-pencil-wood' }));
+  shape.appendChild(el('div', { class: 'filament-pencil-ferrule' }));
   const body = el('div', { class: 'filament-pencil-body' });
   body.style.setProperty('--filament-color', hex);
-  body.style.background = hex;
   shape.appendChild(body);
   btn.appendChild(shape);
   return btn;
@@ -3094,13 +3129,20 @@ function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
   ensureFilamentColors();
   maybeReorderFilamentColors();
 
-  state.filamentColors.forEach(color => {
+  const stagger = el('div', { class: 'filament-color-stagger' });
+  const topRow = el('div', { class: 'filament-color-row filament-color-row-top' });
+  const bottomRow = el('div', { class: 'filament-color-row filament-color-row-bottom' });
+
+  state.filamentColors.forEach((color, i) => {
     const selected = getSelected() === color.id;
-    container.appendChild(filamentPencilButton(color, selected, () => {
+    const heightClass = i % 4 < 2 ? 'tall' : 'short';
+    const btn = filamentPencilButton(color, selected, () => {
       const next = selected ? null : color.id;
       setSelected(next);
       renderFilamentColorRow(container, uiKey, getSelected, setSelected);
-    }));
+    }, heightClass);
+    if (i % 2 === 0) topRow.appendChild(btn);
+    else bottomRow.appendChild(btn);
   });
 
   const colorInput = el('input', {
@@ -3124,8 +3166,12 @@ function renderFilamentColorRow(container, uiKey, getSelected, setSelected) {
     'aria-label': 'Add filament color',
     onClick: () => colorInput.click()
   });
-  container.appendChild(colorInput);
-  container.appendChild(addBtn);
+  bottomRow.appendChild(colorInput);
+  bottomRow.appendChild(addBtn);
+
+  stagger.appendChild(topRow);
+  stagger.appendChild(bottomRow);
+  container.appendChild(stagger);
 }
 
 function renderQuickAddFilament() {
