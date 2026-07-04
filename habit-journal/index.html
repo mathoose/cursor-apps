@@ -3695,7 +3695,7 @@
     const high = getAllTimeHigh(habit.id);
     const b = valueToBucket(habit, value, high);
     let style = "background:" + GRADIENT[b] + ";border-color:" + (b === 0 ? "var(--border)" : "transparent");
-    if (b === 5) style += ";color:#fff";
+    if (b >= 3) style += ";color:#fff";
     return style;
   }
 
