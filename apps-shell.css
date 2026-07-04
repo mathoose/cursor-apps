@@ -51,22 +51,22 @@
   display: none;
 }
 .storage-banner.show { display: block; }
+.app-version-footer {
+  padding: 28px 16px 12px;
+  margin-top: 8px;
+}
 .app-version {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  position: static;
   text-align: center;
   font-size: 0.6875rem;
   opacity: 0.4;
   pointer-events: none;
-  z-index: 40;
   font-variant-numeric: tabular-nums;
   margin: 0;
   line-height: 1.2;
 }
-body.has-bottom-nav .app-version {
-  bottom: calc(56px + env(safe-area-inset-bottom, 0px));
+body.has-bottom-nav .app-version-footer {
+  padding-bottom: 4px;
 }
 
 /* Shared photo picker (apps-photo-picker.js) */
