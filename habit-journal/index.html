@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-steps-hide-v31 -->
+  <!-- build: hj-today-version-v32 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -86,7 +86,10 @@
       font-size: 0.875rem;
     }
     body.tab-today .panel-version {
-      display: none;
+      display: block;
+      margin-top: 10px;
+      padding: 4px 0 2px;
+      opacity: 0.45;
     }
     body.habit-journal .app-version-footer { display: none !important; }
     .panel-version {
@@ -1757,6 +1760,9 @@
       font-weight: 500;
       color: var(--muted);
       line-height: 1.1;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: visible;
     }
     #panelToday .today-hide-btn {
       position: absolute;
@@ -2209,6 +2215,7 @@
   const CHANGELOG_TTL_MS = 24 * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
+  let habitJournalVersionText = "";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -3855,7 +3862,8 @@
     if (habit.type !== "counter") return "";
     const step = Math.round(habit.step || 1);
     if (isStepsHabitName(habit.name)) {
-      return step >= 1000 ? formatCounterDisplay(step) : "k";
+      const stepsStep = Math.max(step, STEPS_BASELINE);
+      return stepsStep >= 1000 ? formatCounterDisplay(stepsStep) : String(stepsStep);
     }
     if (step <= 1) return "";
     if (step >= 1000) return formatCounterDisplay(step);
@@ -3949,11 +3957,30 @@
     });
   }
 
-  function renderVersionFooterHtml() {
+  function getAppVersionDisplayText() {
     const el = document.querySelector(".app-version");
-    const text = el && el.textContent ? el.textContent.trim() : "";
+    const fromDom = el && el.textContent ? el.textContent.trim() : "";
+    if (fromDom) return fromDom;
+    return habitJournalVersionText;
+  }
+
+  function renderVersionFooterHtml() {
+    const text = getAppVersionDisplayText();
     if (!text) return "";
     return '<p class="panel-version" aria-label="App version">' + escapeHtml(text) + "</p>";
+  }
+
+  function loadHabitJournalVersion() {
+    fetch("../versions.json?" + Date.now())
+      .then(function (r) {
+        return r.ok ? r.json() : null;
+      })
+      .then(function (v) {
+        if (!v || !v.apps || !v.apps["habit-journal"]) return;
+        habitJournalVersionText = "v" + v.apps["habit-journal"];
+        if (activeTab === "today") renderToday();
+      })
+      .catch(function () {});
   }
 
   function getTodayDismissedHabits() {
@@ -4576,6 +4603,7 @@
       html += '<p class="hint">No habits for this day — add habits on the Habits tab.</p>';
     }
     if (viewingToday) html += renderTodayHiddenSectionHtml();
+    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindTodayPanel(root);
   }
@@ -6409,6 +6437,7 @@
   });
 
   try {
+    loadHabitJournalVersion();
     render();
     if (window.__hjRecoveredFrom) {
       toast("Restored your data from automatic backup");
