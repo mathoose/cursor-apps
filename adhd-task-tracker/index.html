@@ -451,6 +451,21 @@
     border: 1px solid rgba(0, 0, 0, 0.12);
     flex-shrink: 0;
   }
+  .task-filament-strip {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 4px;
+    min-height: 24px;
+  }
+  .task-filament-strip .filament-pencil {
+    margin-right: -3px;
+    pointer-events: none;
+  }
+  .task-filament-strip .filament-pencil-svg {
+    filter: drop-shadow(0 0.5px 1px rgba(0, 0, 0, 0.12));
+  }
   .list-filter-row {
     display: flex;
     align-items: center;
@@ -2003,10 +2018,6 @@
           <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
         </div>
       </div>
-      <div class="field" id="taskEditorCategoriesField">
-        <label class="field-label">Categories</label>
-        <div class="quick-add-categories" id="taskEditorCategories" style="padding: 0; border: none;"></div>
-      </div>
       <div class="field" id="taskEditorFilamentField" hidden>
         <label class="field-label">Filament color</label>
         <div class="quick-add-filament" id="taskEditorFilament" style="padding: 0; border: none;">
@@ -2028,8 +2039,12 @@
           </label>
         </div>
       </div>
+      <div class="field" id="taskEditorCategoriesField">
+        <label class="field-label">Categories</label>
+        <div class="quick-add-categories" id="taskEditorCategories" style="padding: 0; border: none;"></div>
+      </div>
       <div class="field">
-        <label class="field-label">Category</label>
+        <label class="field-label">List</label>
         <div class="category-picker">
           <select id="taskListSelect"></select>
           <button type="button" class="category-add-btn" id="taskCategoryAddBtn" aria-label="Add category">+</button>
@@ -2412,7 +2427,16 @@ function normalizeListName(name) {
 
 function isAmsList(listId) {
   const list = state.lists.find(l => l.id === listId);
-  return !!list && normalizeListName(list.name) === AMS_LIST_NAME;
+  if (!list) return false;
+  const name = normalizeListName(list.name);
+  return name === AMS_LIST_NAME || name.includes(AMS_LIST_NAME);
+}
+
+function shouldShowPrinterTaskFields(draft) {
+  if (!draft) return false;
+  if (isAmsList(draft.listId)) return true;
+  if (draft.ams) return true;
+  return Array.isArray(draft.filamentColorIds) && draft.filamentColorIds.length > 0;
 }
 
 let listsCompletedExpanded = false;
@@ -2633,12 +2657,16 @@ function taskEditButton(className, onEdit) {
 }
 
 function normalizeTask(t) {
+  const listId = t.listId || 'inbox';
+  const onPrinterList = isAmsList(listId);
+  const filamentColorIds = normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId);
+  const keepPrinterData = onPrinterList || !!t.ams || filamentColorIds.length > 0;
   return {
     id: t.id || uid(),
     title: t.title || '',
     notes: t.notes || '',
     link: normalizeTaskLink(t.link),
-    listId: t.listId || 'inbox',
+    listId: listId,
     dueDate: t.dueDate || null,
     priority: typeof t.priority === 'number' ? t.priority : 0,
     urgent: typeof t.urgent === 'boolean' ? t.urgent : null,
@@ -2646,10 +2674,8 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
-    ams: isAmsList(t.listId || 'inbox') ? !!t.ams : false,
-    filamentColorIds: isAmsList(t.listId || 'inbox')
-      ? normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId)
-      : [],
+    ams: keepPrinterData ? !!t.ams : false,
+    filamentColorIds: keepPrinterData ? filamentColorIds : [],
     categoryIds: normalizeCategoryIds(t.categoryIds),
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
@@ -3362,12 +3388,9 @@ function renderQuickAddFilament() {
 function renderTaskEditorFilament() {
   const field = document.getElementById('taskEditorFilamentField');
   if (!field || !editingTaskDraft) return;
-  const show = isAmsList(editingTaskDraft.listId);
+  const show = shouldShowPrinterTaskFields(editingTaskDraft);
   field.hidden = !show;
-  if (!show) {
-    editingTaskDraft.filamentColorIds = [];
-    return;
-  }
+  if (!show) return;
   if (!Array.isArray(editingTaskDraft.filamentColorIds)) {
     editingTaskDraft.filamentColorIds = [];
   }
@@ -3384,13 +3407,9 @@ function syncTaskEditorAms() {
   const field = document.getElementById('taskAmsField');
   const input = document.getElementById('taskAmsInput');
   if (!field || !editingTaskDraft) return;
-  const show = isAmsList(editingTaskDraft.listId);
+  const show = shouldShowPrinterTaskFields(editingTaskDraft);
   field.hidden = !show;
-  if (!show) {
-    editingTaskDraft.ams = false;
-    editingTaskDraft.filamentColorIds = [];
-    if (input) input.checked = false;
-  }
+  if (input) input.checked = !!editingTaskDraft.ams;
   renderTaskEditorFilament();
 }
 
@@ -3572,6 +3591,19 @@ function appendTaskFilamentPills(meta, task) {
   });
 }
 
+function appendTaskFilamentStrip(parent, task) {
+  if (!Array.isArray(task.filamentColorIds) || !task.filamentColorIds.length) return;
+  const strip = el('div', { class: 'task-filament-strip', 'aria-label': 'Filament colors' });
+  task.filamentColorIds.forEach((id, i) => {
+    const color = getFilamentColor(id);
+    if (!color) return;
+    const pencil = filamentPencilButton(color, false, () => {}, i % 2 === 0 ? 30 : 26);
+    pencil.setAttribute('tabindex', '-1');
+    strip.appendChild(pencil);
+  });
+  if (strip.childNodes.length) parent.appendChild(strip);
+}
+
 function appendTaskCategoryPills(meta, task) {
   if (!Array.isArray(task.categoryIds) || !task.categoryIds.length) return;
   task.categoryIds.forEach(id => {
@@ -3616,6 +3648,7 @@ function renderTaskRow(task, opts) {
 
   const body = el('div', { class: 'task-body' });
   appendTaskTitle(body, task, 'task-title');
+  appendTaskFilamentStrip(body, task);
 
   const meta = el('div', { class: 'task-meta' });
   if (task.dueDate) {
@@ -4157,7 +4190,6 @@ function openTaskEditor(taskId) {
   renderTaskCategorySelect();
   syncTaskEditorAms();
   renderTaskEditorCategories();
-  renderTaskEditorFilament();
 
   // Priority picker
   document.querySelectorAll('#prioPicker .prio-btn').forEach(b => {
