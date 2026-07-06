@@ -444,6 +444,17 @@
     gap: 4px;
     padding: 1px 6px 1px 4px;
   }
+  .pill.ams {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 6px;
+    background: linear-gradient(90deg, #dc2626 0%, #dc2626 25%, #eab308 25%, #eab308 50%, #16a34a 50%, #16a34a 75%, #2563eb 75%, #2563eb 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+  }
   .pill-filament-dot {
     width: 10px;
     height: 10px;
@@ -1866,8 +1877,12 @@
     <div class="list-tabs" id="listTabs"></div>
     <div class="list-toolbar" id="listToolbar" hidden>
       <div class="list-filter-row" id="listCategoryFilterRow" hidden>
-        <span class="list-filter-label">Filter by</span>
+        <span class="list-filter-label">Category</span>
         <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+      </div>
+      <div class="list-filter-row" id="listAmsFilterRow" hidden>
+        <span class="list-filter-label">AMS</span>
+        <select id="listAmsFilter" class="list-filter-select" aria-label="Filter by AMS"></select>
       </div>
       <button type="button" class="btn list-tag-btn" id="bulkTagListBtn">Tag list</button>
     </div>
@@ -2425,18 +2440,41 @@ function normalizeListName(name) {
   return (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-function isAmsList(listId) {
+function isPrinterListName(name) {
+  const n = normalizeListName(name);
+  if (!n) return false;
+  if (n === AMS_LIST_NAME || n.includes(AMS_LIST_NAME)) return true;
+  if (n.includes('3d print')) return true;
+  if (n === 'printer' || n.includes('printer')) return true;
+  if (n.includes('filament') || n.includes('bambu')) return true;
+  return false;
+}
+
+function isPrinterList(listId) {
   const list = state.lists.find(l => l.id === listId);
   if (!list) return false;
-  const name = normalizeListName(list.name);
-  return name === AMS_LIST_NAME || name.includes(AMS_LIST_NAME);
+  if (list.printer) return true;
+  return isPrinterListName(list.name);
+}
+
+/** @deprecated use isPrinterList */
+function isAmsList(listId) {
+  return isPrinterList(listId);
 }
 
 function shouldShowPrinterTaskFields(draft) {
   if (!draft) return false;
-  if (isAmsList(draft.listId)) return true;
+  if (isPrinterList(draft.listId)) return true;
   if (draft.ams) return true;
   return Array.isArray(draft.filamentColorIds) && draft.filamentColorIds.length > 0;
+}
+
+function ensurePrinterLists(lists) {
+  return lists.map(function (l) {
+    const next = Object.assign({}, l);
+    if (next.printer == null) next.printer = isPrinterListName(next.name);
+    return next;
+  });
 }
 
 let listsCompletedExpanded = false;
@@ -2451,7 +2489,8 @@ let state = {
   calendarMonth: null,
   selectedDate: null,
   matrixFilter: 'all',
-  categoryFilter: 'all'
+  categoryFilter: 'all',
+  amsFilter: 'all'
 };
 
 const quickAddCategoryUi = {
@@ -2551,7 +2590,9 @@ function loadState() {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return;
-    if (Array.isArray(parsed.lists) && parsed.lists.length) state.lists = ensureSystemLists(parsed.lists);
+    if (Array.isArray(parsed.lists) && parsed.lists.length) {
+      state.lists = ensurePrinterLists(ensureSystemLists(parsed.lists));
+    }
     if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
     if (Array.isArray(parsed.filamentColors)) {
       state.filamentColors = parsed.filamentColors.map(normalizeFilamentColorDef);
@@ -2563,6 +2604,9 @@ function loadState() {
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
     if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
+    if (parsed.amsFilter === 'all' || parsed.amsFilter === 'ams' || parsed.amsFilter === 'no-ams') {
+      state.amsFilter = parsed.amsFilter;
+    }
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -2658,9 +2702,7 @@ function taskEditButton(className, onEdit) {
 
 function normalizeTask(t) {
   const listId = t.listId || 'inbox';
-  const onPrinterList = isAmsList(listId);
   const filamentColorIds = normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId);
-  const keepPrinterData = onPrinterList || !!t.ams || filamentColorIds.length > 0;
   return {
     id: t.id || uid(),
     title: t.title || '',
@@ -2674,8 +2716,8 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
-    ams: keepPrinterData ? !!t.ams : false,
-    filamentColorIds: keepPrinterData ? filamentColorIds : [],
+    ams: !!t.ams,
+    filamentColorIds: filamentColorIds,
     categoryIds: normalizeCategoryIds(t.categoryIds),
     subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
       id: s.id || uid(),
@@ -2917,6 +2959,17 @@ function taskMatchesCategoryFilter(task) {
   return Array.isArray(task.categoryIds) && task.categoryIds.includes(state.categoryFilter);
 }
 
+function taskMatchesAmsFilter(task) {
+  if (state.amsFilter === 'all') return true;
+  if (state.amsFilter === 'ams') return !!task.ams;
+  if (state.amsFilter === 'no-ams') return !task.ams;
+  return true;
+}
+
+function taskMatchesListFilters(task) {
+  return taskMatchesCategoryFilter(task) && taskMatchesAmsFilter(task);
+}
+
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -2928,7 +2981,8 @@ function saveState() {
       filamentColorSortAt: state.filamentColorSortAt,
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
-      categoryFilter: state.categoryFilter
+      categoryFilter: state.categoryFilter,
+      amsFilter: state.amsFilter
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -3224,7 +3278,7 @@ function syncQuickAddAms() {
   const wrap = document.querySelector('#listQuickPriority .quick-add-ams');
   const input = wrap && wrap.querySelector('.quick-ams-input');
   if (!wrap) return;
-  const show = isAmsList(state.activeListId);
+  const show = isPrinterList(state.activeListId);
   wrap.hidden = !show;
   if (!show && input) input.checked = false;
 }
@@ -3232,7 +3286,7 @@ function syncQuickAddAms() {
 function syncQuickAddFilament() {
   const wrap = document.getElementById('listQuickFilament');
   if (!wrap) return;
-  const show = isAmsList(state.activeListId);
+  const show = isPrinterList(state.activeListId);
   wrap.hidden = !show;
   if (!show) filamentColorUi.list.selected.clear();
 }
@@ -3544,7 +3598,6 @@ function renderCategoryFilters() {
   rows.forEach(row => { if (row) row.hidden = !hasCategories; });
   if (!hasCategories) {
     state.categoryFilter = 'all';
-    return;
   }
   if (state.categoryFilter !== 'all' && !getCategory(state.categoryFilter)) {
     state.categoryFilter = 'all';
@@ -3567,14 +3620,52 @@ function renderCategoryFilters() {
       render();
     };
   });
+  renderAmsFilter();
   syncListToolbar();
+}
+
+function renderAmsFilter() {
+  const row = document.getElementById('listAmsFilterRow');
+  const select = document.getElementById('listAmsFilter');
+  if (!row || !select) return;
+  const show = currentView === 'lists' && isPrinterList(state.activeListId);
+  row.hidden = !show;
+  if (!show) {
+    if (state.amsFilter !== 'all') {
+      state.amsFilter = 'all';
+      saveState();
+    }
+    return;
+  }
+  select.innerHTML = '';
+  [
+    { value: 'all', label: 'All tasks' },
+    { value: 'ams', label: 'AMS only' },
+    { value: 'no-ams', label: 'Non-AMS' }
+  ].forEach(opt => {
+    const node = el('option', { value: opt.value, text: opt.label });
+    if (state.amsFilter === opt.value) node.selected = true;
+    select.appendChild(node);
+  });
+  select.onchange = (e) => {
+    state.amsFilter = e.target.value;
+    saveState();
+    renderListsView();
+  };
 }
 
 function syncListToolbar() {
   const toolbar = document.getElementById('listToolbar');
   if (!toolbar) return;
   const hasTasks = state.tasks.some(t => t.listId === state.activeListId);
-  toolbar.hidden = !(currentView === 'lists' && hasTasks);
+  const printerList = isPrinterList(state.activeListId);
+  const hasCategories = state.categories.length > 0;
+  toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
+}
+
+function appendTaskAmsPill(meta, task) {
+  if (!task.ams) return;
+  meta.appendChild(el('span', { class: 'pill ams', text: 'AMS' }));
 }
 
 function appendTaskFilamentPills(meta, task) {
@@ -3663,6 +3754,7 @@ function renderTaskRow(task, opts) {
     if (list) meta.appendChild(el('span', { class: 'pill list', text: list.name }));
   }
   appendTaskCategoryPills(meta, task);
+  appendTaskAmsPill(meta, task);
   appendTaskFilamentPills(meta, task);
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
@@ -4033,7 +4125,7 @@ function renderListsView() {
     const count = state.tasks.filter(t => t.listId === list.id && !t.completed).length;
     const tab = el('button', {
       class: 'list-tab' + (list.id === state.activeListId ? ' active' : ''),
-      onClick: () => { state.activeListId = list.id; saveState(); renderListsView(); renderHeader(); }
+      onClick: () => { state.activeListId = list.id; saveState(); render(); }
     });
     tab.appendChild(document.createTextNode(list.name));
     if (count > 0) {
@@ -4053,13 +4145,15 @@ function renderListsView() {
 
   const container = document.getElementById('listTasks');
   container.innerHTML = '';
-  const tasks = state.tasks.filter(t => t.listId === state.activeListId && taskMatchesCategoryFilter(t));
+  const tasks = state.tasks.filter(t => t.listId === state.activeListId && taskMatchesListFilters(t));
   if (!tasks.length) {
-    const msg = state.categoryFilter !== 'all'
-      ? 'No tasks with this category.'
-      : 'No tasks in this list yet.';
+    let msg = 'No tasks in this list yet.';
+    if (state.categoryFilter !== 'all' && state.amsFilter !== 'all') msg = 'No tasks match these filters.';
+    else if (state.categoryFilter !== 'all') msg = 'No tasks with this category.';
+    else if (state.amsFilter !== 'all') msg = state.amsFilter === 'ams' ? 'No AMS tasks yet.' : 'No non-AMS tasks.';
     container.appendChild(emptyState('📋', msg));
     syncQuickAddAms();
+    syncQuickAddFilament();
     syncListToolbar();
     return;
   }
@@ -4094,6 +4188,7 @@ function renderListsView() {
     }
   }
   syncQuickAddAms();
+  syncQuickAddFilament();
   syncListToolbar();
 }
 
@@ -4351,10 +4446,6 @@ function saveTaskEditor() {
     showToast('Link must be a valid http(s) URL', { error: true });
     return;
   }
-  if (!isAmsList(editingTaskDraft.listId)) {
-    editingTaskDraft.ams = false;
-    editingTaskDraft.filamentColorIds = [];
-  }
   editingTaskDraft.categoryIds = normalizeCategoryIds(editingTaskDraft.categoryIds);
   editingTaskDraft.filamentColorIds = normalizeFilamentColorIds(editingTaskDraft.filamentColorIds);
   const prevFilamentIds = new Set(
@@ -4365,16 +4456,16 @@ function saveTaskEditor() {
   const photoBlob = pendingNewTaskPhotoBlob;
   pendingNewTaskPhotoBlob = null;
   let savedId = editingTaskId;
+  const normalized = normalizeTask(Object.assign({ id: editingTaskId || uid() }, editingTaskDraft));
   if (editingTaskId) {
     const t = state.tasks.find(x => x.id === editingTaskId);
-    Object.assign(t, editingTaskDraft, { updatedAt: new Date().toISOString() });
+    Object.assign(t, normalized, { updatedAt: new Date().toISOString() });
   } else {
-    const task = normalizeTask(Object.assign({ id: uid() }, editingTaskDraft));
-    savedId = task.id;
-    state.tasks.push(task);
+    savedId = normalized.id;
+    state.tasks.push(normalized);
   }
   saveState();
-  (editingTaskDraft.filamentColorIds || []).forEach(id => {
+  (normalized.filamentColorIds || []).forEach(id => {
     if (!prevFilamentIds.has(id)) recordFilamentColorUse(id);
   });
   closeTaskEditor();
@@ -4439,9 +4530,32 @@ function renderListsManager() {
   const minIndex = state.lists[0] && state.lists[0].system ? 1 : 0;
   state.lists.forEach((list, index) => {
     const row = el('div', { class: 'list-manage-row' });
-    row.appendChild(el('div', { class: 'settings-label', text: list.name }));
+    const labelCol = el('div', { style: 'flex:1;min-width:0;' });
+    labelCol.appendChild(el('div', { class: 'settings-label', text: list.name }));
+    if (!list.system) {
+      labelCol.appendChild(el('div', {
+        class: 'settings-sub',
+        text: list.printer ? '3D Printer list · AMS & filament enabled' : 'Tap 3D Printer to enable AMS & filament'
+      }));
+    }
+    row.appendChild(labelCol);
 
-    const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;' });
+    const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;flex-shrink:0;' });
+
+    if (!list.system) {
+      actions.appendChild(el('button', {
+        type: 'button',
+        class: 'btn' + (list.printer ? ' btn-primary' : ''),
+        style: 'padding: 6px 10px; min-height: 32px; font-size: 0.75rem; white-space: nowrap;',
+        text: list.printer ? '3D Printer ✓' : '3D Printer',
+        onClick: () => {
+          list.printer = !list.printer;
+          saveState();
+          renderListsManager();
+          render();
+        }
+      }));
+    }
 
     const reorder = el('div', { class: 'list-reorder' });
     const upBtn = el('button', {
@@ -4514,7 +4628,7 @@ function addList(name, opts) {
     return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
-  state.lists.push({ id, name });
+  state.lists.push({ id, name, printer: isPrinterListName(name) });
   saveState();
   if (!opts.silent) showToast('Added list: ' + name);
   return id;
@@ -4823,7 +4937,8 @@ function exportBackup() {
       filamentColorSortAt: state.filamentColorSortAt,
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
-      categoryFilter: state.categoryFilter
+      categoryFilter: state.categoryFilter,
+      amsFilter: state.amsFilter
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -4904,6 +5019,7 @@ function importMerge() {
     pendingImport.lists.forEach(l => {
       if (!existingListIds.has(l.id)) state.lists.push(l);
     });
+    state.lists = ensurePrinterLists(state.lists);
   }
   saveState();
   pendingImport = null;
@@ -4917,7 +5033,7 @@ function importReplace() {
   if (!pendingImport) return;
   if (!confirm('Replace all current data with this backup? This cannot be undone.')) return;
   state.lists = Array.isArray(pendingImport.lists) && pendingImport.lists.length
-    ? ensureSystemLists(pendingImport.lists)
+    ? ensurePrinterLists(ensureSystemLists(pendingImport.lists))
     : DEFAULT_LISTS.slice();
   state.categories = Array.isArray(pendingImport.categories)
     ? pendingImport.categories.map(normalizeCategoryDef).filter(c => c.name)
@@ -4932,6 +5048,7 @@ function importReplace() {
   state.tasks = pendingImport.tasks.map(normalizeTask);
   state.activeListId = 'inbox';
   state.categoryFilter = 'all';
+  state.amsFilter = 'all';
   saveState();
   pendingImport = null;
   closeModal('importModal');
@@ -5729,7 +5846,7 @@ function wireQuickAdds() {
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
-      const filamentColorIds = categoryUiKey === 'list' && isAmsList(getListId())
+      const filamentColorIds = categoryUiKey === 'list' && isPrinterList(getListId())
         ? Array.from(filamentColorUi.list.selected)
         : [];
       addTask({
@@ -5737,7 +5854,7 @@ function wireQuickAdds() {
         listId: getListId(),
         link: link || '',
         priority: selectedPrio,
-        ams: !!(amsInput && amsInput.checked && isAmsList(getListId())),
+        ams: !!(amsInput && amsInput.checked && isPrinterList(getListId())),
         categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected),
         filamentColorIds
       });
@@ -6018,6 +6135,7 @@ function wireSettings() {
     state.categories = [];
     state.activeListId = 'inbox';
     state.categoryFilter = 'all';
+    state.amsFilter = 'all';
     state.counters = [];
     state.counterLogs = {};
     state.compareHabitIds = [];
