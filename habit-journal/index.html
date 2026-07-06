@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-eraser-layout-v27 -->
+  <!-- build: hj-today-dense-grid-v28 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -45,10 +45,36 @@
       padding-bottom: calc(128px + var(--safe-bottom));
     }
     body.tab-today {
-      padding-top: calc(52px + var(--safe-top));
+      padding-top: calc(44px + var(--safe-top));
     }
     body.tab-today main {
-      padding: 4px 10px 8px;
+      padding: 2px 8px 4px;
+    }
+    body.tab-today .topbar {
+      padding: calc(4px + var(--safe-top)) 8px 4px;
+    }
+    body.tab-today .topbar h1 {
+      display: none;
+    }
+    body.tab-today .topbar-inner {
+      gap: 6px;
+    }
+    body.tab-today .nav-row {
+      flex: 1;
+      min-width: 0;
+    }
+    body.tab-today .nav-btn {
+      min-height: 32px;
+      min-width: 32px;
+      padding: 0 8px;
+    }
+    body.tab-today .nav-label {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.8125rem;
+    }
+    body.tab-today .panel-version {
+      display: none;
     }
     body.habit-journal .app-version-footer { display: none !important; }
     .panel-version {
@@ -1624,42 +1650,43 @@
       color: #b91c1c;
       border-color: #fecaca;
     }
-    /* Today tab */
-    body.tab-today .hint {
-      font-size: 0.75rem;
-      line-height: 1.35;
-      margin-bottom: 8px;
-    }
-    .today-groups { display: flex; flex-direction: column; gap: 12px; }
+    /* Today tab — dense grid so more habits fit on one screen */
+    .today-groups { display: flex; flex-direction: column; gap: 8px; }
     .today-group-title {
-      font-size: 0.6875rem;
+      font-size: 0.625rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
       color: var(--muted);
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+      padding-left: 2px;
     }
     .today-habits-row {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+      gap: 4px 4px;
     }
     .today-habit-card {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 2px;
+      min-width: 0;
+      padding: 0;
+    }
+    .today-cell-wrap {
+      position: relative;
       width: 100%;
-      min-height: 56px;
-      padding: 2px 0;
+      max-width: 52px;
     }
     .today-habit-card .cell {
-      width: 56px;
-      height: 56px;
-      min-width: 56px;
-      border-radius: 12px;
+      width: 100%;
+      aspect-ratio: 1;
+      height: auto;
+      min-width: 0;
+      border-radius: 10px;
       border: 1.5px solid var(--border);
-      font-size: 0.875rem;
+      font-size: 0.6875rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -1667,39 +1694,49 @@
       justify-content: center;
       padding: 0;
       background: #fff;
-      flex-shrink: 0;
     }
-    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.9375rem; }
+    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.75rem; }
     .today-habit-card .cell.col-today {
       box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
     }
     .today-habit-name {
-      flex: 1;
-      min-width: 0;
-      font-size: 0.9375rem;
+      width: 100%;
+      font-size: 0.5625rem;
       font-weight: 600;
       color: var(--ink);
-      text-align: left;
-      line-height: 1.25;
+      text-align: center;
+      line-height: 1.15;
       word-break: break-word;
+      hyphens: auto;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
     .today-hide-btn {
-      border: none;
-      background: transparent;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      z-index: 2;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: #fff;
       color: var(--muted);
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 6px 0 6px 8px;
+      line-height: 1;
+      padding: 0;
       cursor: pointer;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      flex-shrink: 0;
-      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .today-hide-btn:active { color: var(--accent); }
     .today-hidden-section {
-      margin-top: 12px;
-      padding-top: 8px;
+      margin-top: 8px;
+      padding-top: 6px;
       border-top: 1px dashed var(--border);
     }
     .today-hidden-section summary {
@@ -4436,11 +4473,7 @@
     if (!root) return;
     const parts = getTodayDateParts();
     const viewingToday = isViewingActualToday();
-    const eraserNote = eraserMode ? " Eraser on — tap to subtract or clear." : "";
-    let hintExtra = viewingToday
-      ? " Yes/No: ◐ → ✓ → ✗ → clear · Hide when done."
-      : " Hold a counter to subtract without Eraser.";
-    let html = '<p class="hint">Mark or Eraser below.' + eraserNote + hintExtra + "</p>";
+    let html = "";
     let any = false;
     let groupsHtml = '<div class="today-groups">';
     state.categories.forEach(function (cat) {
@@ -4452,14 +4485,18 @@
       groupsHtml += '<div class="today-habits-row">';
       habits.forEach(function (habit) {
         groupsHtml += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
+        groupsHtml += '<div class="today-cell-wrap">';
         groupsHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
-        groupsHtml += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
         if (viewingToday && isYesNoMarkedToday(habit)) {
           groupsHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
-            '">Hide</button>';
+            '" aria-label="Hide ' +
+            escapeHtml(habit.name) +
+            '">×</button>';
         }
+        groupsHtml += "</div>";
+        groupsHtml += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
         groupsHtml += "</div>";
       });
       groupsHtml += "</div></div>";
@@ -4473,7 +4510,6 @@
       html += '<p class="hint">No habits for this day — add habits on the Habits tab.</p>';
     }
     if (viewingToday) html += renderTodayHiddenSectionHtml();
-    html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindTodayPanel(root);
   }
