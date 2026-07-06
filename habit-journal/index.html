@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-dense-grid-v28 -->
+  <!-- build: hj-today-grid-v29 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -72,6 +72,18 @@
       flex: 1;
       min-width: 0;
       font-size: 0.8125rem;
+    }
+    body.tab-today.has-mode-bar {
+      padding-bottom: calc(108px + var(--safe-bottom));
+    }
+    body.tab-today .mode-bar {
+      padding: 5px 8px 3px;
+      gap: 6px;
+    }
+    body.tab-today .mode-btn {
+      min-height: 36px;
+      border-radius: 10px;
+      font-size: 0.875rem;
     }
     body.tab-today .panel-version {
       display: none;
@@ -139,7 +151,7 @@
     .nav-btn.eraser-btn svg { display: block; }
     body.eraser-mode .month-grid .cell:not(.invalid):not(:disabled),
     body.eraser-mode .year-fs-cells .cell:not(.invalid):not(:disabled),
-    body.eraser-mode .today-habit-card .cell:not(.cell-blocked):not(:disabled) {
+    body.eraser-mode #panelToday .today-tile .cell:not(.cell-blocked):not(:disabled) {
       box-shadow: inset 0 0 0 1px rgba(196, 92, 92, 0.35);
     }
     .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
@@ -1650,43 +1662,49 @@
       color: #b91c1c;
       border-color: #fecaca;
     }
-    /* Today tab — dense grid so more habits fit on one screen */
-    .today-groups { display: flex; flex-direction: column; gap: 8px; }
-    .today-group-title {
-      font-size: 0.625rem;
+    /* Today tab — single 5-column grid, all categories together */
+    #panelToday .today-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      column-gap: 2px;
+      row-gap: 5px;
+      align-content: start;
+    }
+    #panelToday .today-cat-head {
+      grid-column: 1 / -1;
+      font-size: 0.5625rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: var(--muted);
-      margin-bottom: 2px;
-      padding-left: 2px;
+      padding: 2px 1px 0;
+      margin: 0;
     }
-    .today-habits-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-      gap: 4px 4px;
+    #panelToday .today-cat-head:not(:first-child) {
+      padding-top: 4px;
     }
-    .today-habit-card {
+    #panelToday .today-tile {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
+      justify-content: flex-start;
+      gap: 1px;
       min-width: 0;
-      padding: 0;
     }
-    .today-cell-wrap {
+    #panelToday .today-cell-wrap {
       position: relative;
-      width: 100%;
-      max-width: 52px;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
     }
-    .today-habit-card .cell {
-      width: 100%;
-      aspect-ratio: 1;
-      height: auto;
-      min-width: 0;
-      border-radius: 10px;
+    #panelToday .today-tile .cell {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 9px;
       border: 1.5px solid var(--border);
-      font-size: 0.6875rem;
+      font-size: 0.625rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -1695,17 +1713,17 @@
       padding: 0;
       background: #fff;
     }
-    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.75rem; }
-    .today-habit-card .cell.col-today {
+    #panelToday .today-tile .cell.cell-yes { border-radius: 50%; font-size: 0.6875rem; }
+    #panelToday .today-tile .cell.col-today {
       box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
     }
-    .today-habit-name {
+    #panelToday .today-tile-name {
       width: 100%;
-      font-size: 0.5625rem;
+      font-size: 0.5rem;
       font-weight: 600;
       color: var(--ink);
       text-align: center;
-      line-height: 1.15;
+      line-height: 1.1;
       word-break: break-word;
       hyphens: auto;
       display: -webkit-box;
@@ -1713,18 +1731,18 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .today-hide-btn {
+    #panelToday .today-hide-btn {
       position: absolute;
-      top: -5px;
-      right: -5px;
+      top: -4px;
+      right: -4px;
       z-index: 2;
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border: 1px solid var(--border);
       border-radius: 50%;
       background: #fff;
       color: var(--muted);
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       font-weight: 700;
       line-height: 1;
       padding: 0;
@@ -1733,22 +1751,22 @@
       align-items: center;
       justify-content: center;
     }
-    .today-hide-btn:active { color: var(--accent); }
-    .today-hidden-section {
-      margin-top: 8px;
-      padding-top: 6px;
+    #panelToday .today-hide-btn:active { color: var(--accent); }
+    #panelToday .today-hidden-section {
+      margin-top: 6px;
+      padding-top: 4px;
       border-top: 1px dashed var(--border);
     }
     .today-hidden-section summary {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       font-weight: 600;
       color: var(--muted);
       cursor: pointer;
       list-style: none;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 0 8px;
+      gap: 4px;
+      padding: 2px 0 4px;
     }
     .today-hidden-section summary::-webkit-details-marker { display: none; }
     .today-hidden-section summary::before {
@@ -4475,35 +4493,32 @@
     const viewingToday = isViewingActualToday();
     let html = "";
     let any = false;
-    let groupsHtml = '<div class="today-groups">';
+    let gridHtml = '<div class="today-grid">';
     state.categories.forEach(function (cat) {
       const habits = getTodayHabitsForCategory(cat.id);
       if (!habits.length) return;
       any = true;
-      groupsHtml += '<div class="today-group">';
-      groupsHtml += '<div class="today-group-title">' + escapeHtml(cat.label) + "</div>";
-      groupsHtml += '<div class="today-habits-row">';
+      gridHtml += '<div class="today-cat-head">' + escapeHtml(cat.label) + "</div>";
       habits.forEach(function (habit) {
-        groupsHtml += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
-        groupsHtml += '<div class="today-cell-wrap">';
-        groupsHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
+        gridHtml += '<div class="today-tile" data-habit-card="' + escapeHtml(habit.id) + '">';
+        gridHtml += '<div class="today-cell-wrap">';
+        gridHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
         if (viewingToday && isYesNoMarkedToday(habit)) {
-          groupsHtml +=
+          gridHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
             '" aria-label="Hide ' +
             escapeHtml(habit.name) +
             '">×</button>';
         }
-        groupsHtml += "</div>";
-        groupsHtml += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
-        groupsHtml += "</div>";
+        gridHtml += "</div>";
+        gridHtml += '<span class="today-tile-name">' + escapeHtml(habit.name) + "</span>";
+        gridHtml += "</div>";
       });
-      groupsHtml += "</div></div>";
     });
-    groupsHtml += "</div>";
+    gridHtml += "</div>";
     if (any) {
-      html += groupsHtml;
+      html += gridHtml;
     } else if (viewingToday && !getTodayDismissedHabits().length) {
       html += '<p class="hint">No habits for today — add habits on the Habits tab or show hidden ones.</p>';
     } else if (!any) {
