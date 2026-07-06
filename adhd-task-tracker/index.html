@@ -393,50 +393,138 @@
   }
   .filament-pencil-add:active,
   .filament-pencil-manage:active { transform: scale(0.96); }
-  .filament-color-input {
-    position: fixed;
-    left: -9999px;
-    top: 0;
-    width: 1px;
-    height: 1px;
-    opacity: 0.01;
-  }
   .filament-manage-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 0;
+    gap: 8px;
+    padding: 5px 0;
     border-bottom: 1px solid var(--border);
   }
   .filament-manage-row:last-child { border-bottom: none; }
-  .filament-manage-swatch { flex-shrink: 0; pointer-events: none; }
-  .filament-manage-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-  .filament-manage-fields input[type="text"] {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 10px;
-    font-size: 0.88rem;
-    background: var(--surface);
-  }
   .filament-manage-color-btn {
-    align-self: flex-start;
+    flex: 1;
+    min-width: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 6px 10px;
+    min-height: 36px;
     font-size: 0.82rem;
     background: var(--surface);
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    text-align: left;
   }
+  .filament-manage-color-btn:active { background: var(--surface-2); }
   .filament-manage-color-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
     border: 1px solid rgba(0, 0, 0, 0.12);
     flex-shrink: 0;
+  }
+  .filament-manage-hex {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.84rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .filament-manage-delete {
+    padding: 6px 10px;
+    min-height: 36px;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+  }
+  .modal-backdrop.fcp-layer { z-index: 110; }
+  .filament-color-picker-modal { max-height: min(88vh, 88dvh); }
+  .fcp-preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .fcp-preview-swatch {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  }
+  .fcp-preview-hex {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .fcp-sv {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    border-radius: 10px;
+    overflow: hidden;
+    touch-action: none;
+    cursor: crosshair;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .fcp-sv-white,
+  .fcp-sv-black {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .fcp-sv-white { background: linear-gradient(to right, #fff, transparent); }
+  .fcp-sv-black { background: linear-gradient(to top, #000, transparent); }
+  .fcp-thumb {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+  .fcp-slider-wrap { margin-bottom: 12px; }
+  .fcp-slider-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+  }
+  .fcp-hue,
+  .fcp-brightness {
+    position: relative;
+    width: 100%;
+    height: 22px;
+    border-radius: 11px;
+    touch-action: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+  }
+  .fcp-hue {
+    background: linear-gradient(to right,
+      #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+  }
+  .fcp-brightness {
+    background: linear-gradient(to right, #000, #fff);
+  }
+  .fcp-slider-thumb {
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    background: var(--surface);
   }
   .pill.filament {
     display: inline-flex;
@@ -2321,11 +2409,51 @@
       </button>
     </div>
     <div class="modal-body">
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px;">Edit names, change colors, or delete. Tap + in the row to add new colors.</p>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0 0 8px;">Tap a color to edit. Use Add color for the picker.</p>
       <div id="filamentManagerList"></div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-primary" id="filamentAddColorBtn">Add color</button>
+    </div>
+  </div>
+</div>
+
+<!-- Filament color picker -->
+<div class="modal-backdrop fcp-layer" id="filamentColorPickerModal" role="dialog" aria-modal="true">
+  <div class="modal filament-color-picker-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="fcpTitle">Pick color</div>
+      <button class="icon-btn" id="fcpClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="fcp-preview-row">
+        <div class="fcp-preview-swatch" id="fcpPreview"></div>
+        <div class="fcp-preview-hex" id="fcpHex">#FFFFFF</div>
+      </div>
+      <div class="fcp-sv" id="fcpSv" role="slider" aria-label="Saturation and brightness">
+        <div class="fcp-sv-white"></div>
+        <div class="fcp-sv-black"></div>
+        <div class="fcp-thumb" id="fcpSvThumb"></div>
+      </div>
+      <div class="fcp-slider-wrap">
+        <span class="fcp-slider-label">Hue</span>
+        <div class="fcp-hue" id="fcpHue" role="slider" aria-label="Hue">
+          <div class="fcp-slider-thumb" id="fcpHueThumb"></div>
+        </div>
+      </div>
+      <div class="fcp-slider-wrap">
+        <span class="fcp-slider-label">Brightness</span>
+        <div class="fcp-brightness" id="fcpBrightness" role="slider" aria-label="Brightness">
+          <div class="fcp-slider-thumb" id="fcpBrightnessThumb"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="fcpCancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="fcpConfirm">Add color</button>
     </div>
   </div>
 </div>
@@ -2612,8 +2740,8 @@ const filamentColorUi = {
   list: { selected: new Set() }
 };
 
-let filamentPickerOnPick = null;
-let filamentColorInputEl = null;
+let filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
+let fcpUiBound = false;
 
 let currentView = 'lists';
 let editingTaskId = null;
@@ -2940,33 +3068,173 @@ function onFilamentColorsChanged() {
   render();
 }
 
-function ensureFilamentColorInput() {
-  if (filamentColorInputEl) return filamentColorInputEl;
-  filamentColorInputEl = document.createElement('input');
-  filamentColorInputEl.type = 'color';
-  filamentColorInputEl.className = 'filament-color-input';
-  filamentColorInputEl.addEventListener('change', () => {
-    if (filamentPickerOnPick) {
-      const cb = filamentPickerOnPick;
-      filamentPickerOnPick = null;
-      cb(filamentColorInputEl.value);
-    }
-  });
-  document.body.appendChild(filamentColorInputEl);
-  return filamentColorInputEl;
+function parseFilamentRgb(hex) {
+  const h = normalizeFilamentHex(hex).slice(1);
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16)
+  };
 }
 
-function pickFilamentColor(onPick, defaultHex) {
-  const input = ensureFilamentColorInput();
-  filamentPickerOnPick = onPick;
-  input.value = normalizeFilamentHex(defaultHex || '#6366F1');
-  if (typeof input.showPicker === 'function') {
-    try {
-      input.showPicker();
-      return;
-    } catch (e) { /* fall through */ }
+function rgbToFilamentHsv(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  const v = max;
+  const s = max === 0 ? 0 : d / max;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
   }
-  input.click();
+  return { h: h * 360, s, v };
+}
+
+function filamentHsvToRgb(h, s, v) {
+  h = ((h % 360) + 360) % 360;
+  const c = v * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = v - c;
+  let r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; }
+  else if (h < 120) { r = x; g = c; }
+  else if (h < 180) { g = c; b = x; }
+  else if (h < 240) { g = x; b = c; }
+  else if (h < 300) { r = x; b = c; }
+  else { r = c; b = x; }
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255)
+  };
+}
+
+function filamentRgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(n => n.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
+
+function filamentHsvToHex(h, s, v) {
+  const rgb = filamentHsvToRgb(h, s, v);
+  return filamentRgbToHex(rgb.r, rgb.g, rgb.b);
+}
+
+function filamentHexToHsv(hex) {
+  const { r, g, b } = parseFilamentRgb(hex);
+  return rgbToFilamentHsv(r, g, b);
+}
+
+function syncFilamentColorPickerUI() {
+  const { h, s, v } = filamentPickerState;
+  const hex = filamentHsvToHex(h, s, v);
+  const sv = document.getElementById('fcpSv');
+  const svThumb = document.getElementById('fcpSvThumb');
+  const hueThumb = document.getElementById('fcpHueThumb');
+  const brightThumb = document.getElementById('fcpBrightnessThumb');
+  const bright = document.getElementById('fcpBrightness');
+  const preview = document.getElementById('fcpPreview');
+  const hexEl = document.getElementById('fcpHex');
+  if (sv) sv.style.backgroundColor = filamentHsvToHex(h, 1, 1);
+  if (svThumb) {
+    svThumb.style.left = (s * 100) + '%';
+    svThumb.style.top = ((1 - v) * 100) + '%';
+    svThumb.style.background = hex;
+  }
+  if (hueThumb) hueThumb.style.left = (h / 360 * 100) + '%';
+  if (brightThumb) brightThumb.style.left = (v * 100) + '%';
+  if (bright) {
+    const left = filamentHsvToHex(h, s, 0);
+    const right = filamentHsvToHex(h, s, 1);
+    bright.style.background = 'linear-gradient(to right, ' + left + ', ' + right + ')';
+  }
+  if (preview) preview.style.background = hex;
+  if (hexEl) hexEl.textContent = hex;
+}
+
+function bindFilamentColorPickerUi() {
+  if (fcpUiBound) return;
+  fcpUiBound = true;
+
+  function bindAxisDrag(el, onFrac) {
+    const move = (clientX, clientY) => {
+      const rect = el.getBoundingClientRect();
+      onFrac(
+        Math.max(0, Math.min(1, (clientX - rect.left) / rect.width)),
+        Math.max(0, Math.min(1, (clientY - rect.top) / rect.height))
+      );
+    };
+    const onPointer = (e) => {
+      e.preventDefault();
+      const pt = e.touches ? e.touches[0] : e;
+      move(pt.clientX, pt.clientY);
+      const onMove = (ev) => {
+        ev.preventDefault();
+        const p = ev.touches ? ev.touches[0] : ev;
+        move(p.clientX, p.clientY);
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onUp);
+    };
+    el.addEventListener('mousedown', onPointer);
+    el.addEventListener('touchstart', onPointer, { passive: false });
+  }
+
+  bindAxisDrag(document.getElementById('fcpSv'), (fx, fy) => {
+    filamentPickerState.s = fx;
+    filamentPickerState.v = 1 - fy;
+    syncFilamentColorPickerUI();
+  });
+  bindAxisDrag(document.getElementById('fcpHue'), (fx) => {
+    filamentPickerState.h = fx * 360;
+    syncFilamentColorPickerUI();
+  });
+  bindAxisDrag(document.getElementById('fcpBrightness'), (fx) => {
+    filamentPickerState.v = fx;
+    syncFilamentColorPickerUI();
+  });
+
+  document.getElementById('fcpConfirm').addEventListener('click', () => {
+    const hex = filamentHsvToHex(
+      filamentPickerState.h,
+      filamentPickerState.s,
+      filamentPickerState.v
+    );
+    const cb = filamentPickerState.onConfirm;
+    closeModal('filamentColorPickerModal');
+    if (cb) cb(hex);
+  });
+  document.getElementById('fcpCancel').addEventListener('click', () => closeModal('filamentColorPickerModal'));
+  document.getElementById('fcpClose').addEventListener('click', () => closeModal('filamentColorPickerModal'));
+  document.getElementById('filamentColorPickerModal').addEventListener('click', (e) => {
+    if (e.target.id === 'filamentColorPickerModal') closeModal('filamentColorPickerModal');
+  });
+}
+
+function openFilamentColorPicker(opts) {
+  opts = opts || {};
+  bindFilamentColorPickerUi();
+  const hsv = filamentHexToHsv(opts.defaultHex || '#F57C00');
+  filamentPickerState.h = hsv.h;
+  filamentPickerState.s = hsv.s;
+  filamentPickerState.v = hsv.v;
+  filamentPickerState.onConfirm = opts.onConfirm || null;
+  filamentPickerState.confirmLabel = opts.confirmLabel || 'Add color';
+  const titleEl = document.getElementById('fcpTitle');
+  const confirmBtn = document.getElementById('fcpConfirm');
+  if (titleEl) titleEl.textContent = opts.title || 'Pick color';
+  if (confirmBtn) confirmBtn.textContent = filamentPickerState.confirmLabel;
+  syncFilamentColorPickerUI();
+  openModal('filamentColorPickerModal');
 }
 
 function normalizeFilamentColorIds(ids, legacyId) {
@@ -3508,21 +3776,6 @@ function renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged) {
     else bottomRow.appendChild(btn);
   });
 
-  const colorInput = el('input', {
-    type: 'color',
-    class: 'filament-color-input',
-    value: '#6366f1',
-    'aria-hidden': 'true',
-    tabindex: -1
-  });
-  colorInput.addEventListener('change', () => {
-    const id = addFilamentColor(colorInput.value);
-    selected.add(id);
-    if (onChanged) onChanged(Array.from(selected));
-    renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged);
-    showToast('Added filament color');
-  });
-
   const manageBtn = el('button', {
     type: 'button',
     class: 'filament-pencil-manage',
@@ -3537,12 +3790,16 @@ function renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged) {
     text: '+',
     'aria-label': 'Add filament color',
     onClick: () => {
-      pickFilamentColor((hex) => {
-        const id = addFilamentColor(hex);
-        selected.add(id);
-        if (onChanged) onChanged(Array.from(selected));
-        renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged);
-        showToast('Added filament color');
+      openFilamentColorPicker({
+        title: 'Add color',
+        confirmLabel: 'Add color',
+        onConfirm: (hex) => {
+          const id = addFilamentColor(hex);
+          selected.add(id);
+          if (onChanged) onChanged(Array.from(selected));
+          renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged);
+          showToast('Added filament color');
+        }
       });
     }
   });
@@ -4795,50 +5052,34 @@ function renderFilamentManager() {
   }
   state.filamentColors.forEach(color => {
     const row = el('div', { class: 'filament-manage-row' });
-    const swatchWrap = el('div', { class: 'filament-manage-swatch' });
-    swatchWrap.appendChild(filamentPencilButton(color, false, () => {}, 50));
-    row.appendChild(swatchWrap);
-
-    const fields = el('div', { class: 'filament-manage-fields' });
-    const nameInput = el('input', {
-      type: 'text',
-      value: color.name || '',
-      placeholder: 'Name (optional)',
-      autocomplete: 'off',
-      'aria-label': 'Filament name'
-    });
-    nameInput.addEventListener('change', () => {
-      updateFilamentColor(color.id, { name: nameInput.value });
-      onFilamentColorsChanged();
-    });
-    fields.appendChild(nameInput);
-
     const colorBtn = el('button', {
       type: 'button',
       class: 'filament-manage-color-btn',
-      'aria-label': 'Change color'
+      'aria-label': 'Change color ' + color.hex
     });
     const dot = el('span', { class: 'filament-manage-color-dot' });
     dot.style.background = color.hex;
     colorBtn.appendChild(dot);
-    colorBtn.appendChild(document.createTextNode(color.hex));
+    colorBtn.appendChild(el('span', { class: 'filament-manage-hex', text: color.hex }));
     colorBtn.addEventListener('click', () => {
-      pickFilamentColor((hex) => {
-        updateFilamentColor(color.id, { hex });
-        onFilamentColorsChanged();
-        showToast('Color updated');
-      }, color.hex);
+      openFilamentColorPicker({
+        defaultHex: color.hex,
+        title: 'Edit color',
+        confirmLabel: 'Save',
+        onConfirm: (hex) => {
+          updateFilamentColor(color.id, { hex });
+          onFilamentColorsChanged();
+          showToast('Color updated');
+        }
+      });
     });
-    fields.appendChild(colorBtn);
-    row.appendChild(fields);
+    row.appendChild(colorBtn);
 
     row.appendChild(el('button', {
-      class: 'btn btn-danger',
-      style: 'padding: 6px 10px; min-height: 32px; font-size: 0.8rem; flex-shrink: 0;',
+      class: 'btn btn-danger filament-manage-delete',
       text: 'Delete',
       onClick: () => {
-        const label = color.name || color.hex;
-        if (!confirm(`Delete filament color "${label}"? It will be removed from all tasks.`)) return;
+        if (!confirm(`Delete filament color ${color.hex}? It will be removed from all tasks.`)) return;
         deleteFilamentColor(color.id);
         onFilamentColorsChanged();
         showToast('Filament color deleted');
@@ -6227,11 +6468,15 @@ function wireSettings() {
     if (e.target.id === 'filamentModal') closeModal('filamentModal');
   });
   document.getElementById('filamentAddColorBtn').addEventListener('click', () => {
-    pickFilamentColor((hex) => {
-      const id = addFilamentColor(hex);
-      filamentColorUi.list.selected.add(id);
-      onFilamentColorsChanged();
-      showToast('Added filament color');
+    openFilamentColorPicker({
+      title: 'Add color',
+      confirmLabel: 'Add color',
+      onConfirm: (hex) => {
+        const id = addFilamentColor(hex);
+        filamentColorUi.list.selected.add(id);
+        onFilamentColorsChanged();
+        showToast('Added filament color');
+      }
     });
   });
   document.getElementById('addListBtn').addEventListener('click', () => {
