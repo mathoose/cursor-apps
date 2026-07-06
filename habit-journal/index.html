@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-grid-v30 -->
+  <!-- build: hj-today-steps-hide-v31 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -1708,36 +1708,55 @@
       min-height: 0;
       border-radius: 10px;
       border: 1.5px solid var(--border);
-      font-size: 0.6875rem;
+      font-size: 0.8125rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0;
+      padding: 1px;
       background: #fff;
+      line-height: 1;
     }
-    #panelToday .today-tile .cell.cell-yes { border-radius: 50%; font-size: 0.75rem; }
+    #panelToday .today-tile .cell.cell-count {
+      font-size: 0.875rem;
+      letter-spacing: -0.02em;
+    }
+    #panelToday .today-tile .cell.cell-dot {
+      border-radius: 50%;
+    }
+    #panelToday .today-tile .cell.cell-yes { border-radius: 50%; font-size: 0.875rem; }
+    #panelToday .today-tile .cell.cell-progress,
+    #panelToday .today-tile .cell.cell-no {
+      font-size: 0.8125rem;
+    }
     #panelToday .today-tile .cell.col-today {
       box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
     }
     #panelToday .today-tile-name {
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      overflow: hidden;
+    }
+    #panelToday .today-tile-label {
+      width: 100%;
       font-size: 0.5625rem;
       font-weight: 600;
       color: var(--ink);
       text-align: center;
-      line-height: 1.15;
-      word-break: break-word;
-      hyphens: auto;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
+      line-height: 1.1;
+      white-space: nowrap;
       overflow: hidden;
+      text-overflow: ellipsis;
     }
     #panelToday .today-tile-unit {
+      font-size: 0.5rem;
       font-weight: 500;
       color: var(--muted);
+      line-height: 1.1;
     }
     #panelToday .today-hide-btn {
       position: absolute;
@@ -3834,8 +3853,10 @@
 
   function todayHabitUnitParen(habit) {
     if (habit.type !== "counter") return "";
-    if (isStepsHabitName(habit.name)) return "k";
     const step = Math.round(habit.step || 1);
+    if (isStepsHabitName(habit.name)) {
+      return step >= 1000 ? formatCounterDisplay(step) : "k";
+    }
     if (step <= 1) return "";
     if (step >= 1000) return formatCounterDisplay(step);
     return String(step);
@@ -3843,9 +3864,9 @@
 
   function todayTileLabelHtml(habit) {
     const unit = todayHabitUnitParen(habit);
-    let html = escapeHtml(habit.name);
+    let html = '<span class="today-tile-label">' + escapeHtml(habit.name) + "</span>";
     if (unit) {
-      html += '<span class="today-tile-unit"> (' + escapeHtml(unit) + ")</span>";
+      html += '<span class="today-tile-unit">(' + escapeHtml(unit) + ")</span>";
     }
     return html;
   }
@@ -4435,9 +4456,13 @@
     const value = getCellValue(cellKey(habit.id, y, m, d));
     const disp = cellDisplay(habit, value);
     const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    const emptyYesNo =
+      habit.type === "yesno" && (value === null || value === undefined);
+    const dotCls = emptyYesNo ? " cell-dot" : "";
     return (
       '<button type="button" class="cell ' +
       disp.cls +
+      dotCls +
       todayCls +
       '" data-key="' +
       dataKey +
@@ -4529,7 +4554,7 @@
         gridHtml += '<div class="today-tile" data-habit-card="' + escapeHtml(habit.id) + '">';
         gridHtml += '<div class="today-cell-wrap">';
         gridHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
-        if (viewingToday && isYesNoMarkedToday(habit)) {
+        if (viewingToday && habit.type === "yesno") {
           gridHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
