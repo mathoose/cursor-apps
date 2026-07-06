@@ -601,7 +601,8 @@
     min-width: 0;
     margin-bottom: 0;
   }
-  .list-tag-btn {
+  .list-tag-btn,
+  .list-reorder-mode-btn {
     flex-shrink: 0;
     padding: 8px 12px;
     min-height: 36px;
@@ -1006,6 +1007,35 @@
     stroke-linejoin: round;
   }
   .task-edit-btn:active { background: var(--surface-2); color: var(--accent); }
+  .task-reorder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+    width: 42px;
+    margin-top: 1px;
+  }
+  .task-reorder-btn {
+    width: 32px;
+    height: 18px;
+    padding: 0;
+    font-size: 0.62rem;
+    line-height: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .task-reorder-btn:active:not(:disabled) { background: var(--accent-soft); color: var(--accent-dark); }
+  .task-reorder-btn:disabled { opacity: 0.3; cursor: default; }
+  .task-position-slider {
+    width: 36px;
+    margin: 1px 0 0;
+    accent-color: var(--accent);
+  }
+  .list-reorder-mode-btn.btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
   .mtask-edit-btn {
     flex-shrink: 0;
     width: 28px;
@@ -2056,6 +2086,7 @@
         <span class="list-filter-label">AMS</span>
         <select id="listAmsFilter" class="list-filter-select" aria-label="Filter by AMS"></select>
       </div>
+      <button type="button" class="btn list-reorder-mode-btn" id="listReorderToggle" hidden>Reorder</button>
       <button type="button" class="btn list-tag-btn" id="bulkTagListBtn">Tag list</button>
     </div>
     <div class="quick-add-card">
@@ -2104,6 +2135,9 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
+    <div class="list-filter-row" id="inboxToolbarRow" hidden>
+      <button type="button" class="btn list-reorder-mode-btn" id="inboxReorderToggle">Reorder</button>
+    </div>
     <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
       <span class="list-filter-label">Filter by</span>
       <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
@@ -2714,6 +2748,7 @@ function ensurePrinterLists(lists) {
 }
 
 let listsCompletedExpanded = false;
+let taskReorderMode = false;
 let state = {
   version: SCHEMA_VERSION,
   tasks: [],
@@ -2837,6 +2872,7 @@ function loadState() {
     ensureFilamentColors();
     maybeReorderFilamentColors();
     if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
+    ensureTaskSortOrders();
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
     if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
@@ -2936,6 +2972,45 @@ function taskEditButton(className, onEdit) {
   });
 }
 
+function appendTaskReorderControls(row, reorder) {
+  if (!reorder) return;
+  const wrap = el('div', { class: 'task-reorder' });
+  const upBtn = el('button', {
+    type: 'button',
+    class: 'task-reorder-btn',
+    text: '▲',
+    'aria-label': 'Move up',
+    onClick: (e) => { e.stopPropagation(); moveTaskInGroup(reorder.taskId, -1); }
+  });
+  if (reorder.index === 0) upBtn.disabled = true;
+  wrap.appendChild(upBtn);
+  const downBtn = el('button', {
+    type: 'button',
+    class: 'task-reorder-btn',
+    text: '▼',
+    'aria-label': 'Move down',
+    onClick: (e) => { e.stopPropagation(); moveTaskInGroup(reorder.taskId, 1); }
+  });
+  if (reorder.index >= reorder.count - 1) downBtn.disabled = true;
+  wrap.appendChild(downBtn);
+  if (reorder.count > 2) {
+    const slider = el('input', {
+      type: 'range',
+      class: 'task-position-slider',
+      min: '0',
+      max: String(reorder.count - 1),
+      value: String(reorder.index),
+      'aria-label': 'Position in list'
+    });
+    slider.addEventListener('change', (e) => {
+      e.stopPropagation();
+      moveTaskToIndex(reorder.taskId, parseInt(slider.value, 10));
+    });
+    wrap.appendChild(slider);
+  }
+  row.appendChild(wrap);
+}
+
 function normalizeTask(t) {
   const listId = t.listId || 'inbox';
   const filamentColorIds = normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId);
@@ -2962,8 +3037,112 @@ function normalizeTask(t) {
       done: !!s.done
     })) : [],
     createdAt: t.createdAt || new Date().toISOString(),
-    updatedAt: t.updatedAt || new Date().toISOString()
+    updatedAt: t.updatedAt || new Date().toISOString(),
+    sortOrder: typeof t.sortOrder === 'number' ? t.sortOrder : null
   };
+}
+
+function compareTaskOrder(a, b) {
+  const ao = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
+  const bo = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
+  if (ao !== bo) return ao - bo;
+  if (a.completed !== b.completed) return a.completed ? 1 : -1;
+  const prio = (b.priority - a.priority);
+  if (prio) return prio;
+  if ((a.dueDate || '9999') !== (b.dueDate || '9999')) {
+    return (a.dueDate || '9999') < (b.dueDate || '9999') ? -1 : 1;
+  }
+  return a.createdAt < b.createdAt ? -1 : 1;
+}
+
+function taskGroupKey(task) {
+  return task.listId + ':' + (task.completed ? '1' : '0');
+}
+
+function ensureTaskSortOrders() {
+  const groups = {};
+  state.tasks.forEach(t => {
+    const key = taskGroupKey(t);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(t);
+  });
+  Object.values(groups).forEach(tasks => {
+    if (tasks.every(t => typeof t.sortOrder === 'number')) return;
+    tasks.sort(compareTaskOrder);
+    tasks.forEach((t, i) => { t.sortOrder = i; });
+  });
+}
+
+function sortTasksByOrder(tasks) {
+  ensureTaskSortOrders();
+  return tasks.slice().sort(compareTaskOrder);
+}
+
+function nextTaskSortOrder(listId, completed) {
+  const siblings = state.tasks.filter(t => t.listId === listId && t.completed === completed);
+  if (!siblings.length) return 0;
+  let max = -1;
+  siblings.forEach(t => {
+    if (typeof t.sortOrder === 'number' && t.sortOrder > max) max = t.sortOrder;
+  });
+  return max + 1;
+}
+
+function assignTaskToGroupEnd(task) {
+  task.sortOrder = nextTaskSortOrder(task.listId, task.completed);
+}
+
+function getTaskSiblings(task) {
+  return sortTasksByOrder(state.tasks.filter(t =>
+    t.listId === task.listId && t.completed === task.completed
+  ));
+}
+
+function moveTaskToIndex(taskId, newIndex) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const siblings = getTaskSiblings(task);
+  const idx = siblings.findIndex(t => t.id === taskId);
+  if (idx < 0 || newIndex < 0 || newIndex >= siblings.length || newIndex === idx) return;
+  siblings.splice(idx, 1);
+  siblings.splice(newIndex, 0, task);
+  siblings.forEach((t, i) => { t.sortOrder = i; });
+  saveState();
+  render();
+}
+
+function moveTaskInGroup(taskId, direction) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const siblings = getTaskSiblings(task);
+  const idx = siblings.findIndex(t => t.id === taskId);
+  moveTaskToIndex(taskId, idx + direction);
+}
+
+function canReorderTasksInView() {
+  if (currentView === 'lists') {
+    return state.categoryFilter === 'all' && state.amsFilter === 'all';
+  }
+  if (currentView === 'inbox') return state.categoryFilter === 'all';
+  return false;
+}
+
+function syncTaskReorderToggle() {
+  const can = canReorderTasksInView();
+  if (!can && taskReorderMode) taskReorderMode = false;
+  const listBtn = document.getElementById('listReorderToggle');
+  const inboxBtn = document.getElementById('inboxReorderToggle');
+  const inboxRow = document.getElementById('inboxToolbarRow');
+  if (listBtn) {
+    listBtn.hidden = !can || currentView !== 'lists';
+    listBtn.textContent = taskReorderMode ? 'Done' : 'Reorder';
+    listBtn.classList.toggle('btn-primary', taskReorderMode);
+  }
+  if (inboxBtn) {
+    inboxBtn.textContent = taskReorderMode ? 'Done' : 'Reorder';
+    inboxBtn.classList.toggle('btn-primary', taskReorderMode);
+  }
+  if (inboxRow) inboxRow.hidden = !(currentView === 'inbox' && can);
 }
 
 function ensureSystemLists(lists) {
@@ -3569,6 +3748,9 @@ function addTask(partial) {
   const task = normalizeTask(Object.assign({ id: uid() }, partial));
   // If urgent/important not explicit and quick-add to "today", set due
   if (partial.dueDate === undefined && partial.listId === 'today') task.dueDate = todayStr();
+  if (typeof task.sortOrder !== 'number') {
+    task.sortOrder = nextTaskSortOrder(task.listId, task.completed);
+  }
   state.tasks.push(task);
   saveState();
   return task;
@@ -3597,6 +3779,7 @@ function toggleTask(id) {
   t.completed = !t.completed;
   t.completedAt = t.completed ? new Date().toISOString() : null;
   t.updatedAt = new Date().toISOString();
+  assignTaskToGroupEnd(t);
   saveState();
 }
 
@@ -4052,6 +4235,7 @@ function syncListToolbar() {
   const printerList = isPrinterList(state.activeListId);
   const hasCategories = state.categories.length > 0;
   toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
+  syncTaskReorderToggle();
 }
 
 function appendTaskRowMarks(parent, task) {
@@ -4162,8 +4346,17 @@ function renderTaskRow(task, opts) {
   appendTaskLinkPill(meta, task);
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
+  if (opts.reorder) appendTaskReorderControls(row, opts.reorder);
   row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
   return row;
+}
+
+function renderTaskRowWithReorder(task, index, count, opts) {
+  opts = opts || {};
+  if (taskReorderMode && canReorderTasksInView()) {
+    opts.reorder = { taskId: task.id, index: index, count: count };
+  }
+  return renderTaskRow(task, opts);
 }
 
 function emptyState(emoji, message) {
@@ -4521,7 +4714,12 @@ function renderListsView() {
     const count = state.tasks.filter(t => t.listId === list.id && !t.completed).length;
     const tab = el('button', {
       class: 'list-tab' + (list.id === state.activeListId ? ' active' : ''),
-      onClick: () => { state.activeListId = list.id; saveState(); render(); }
+      onClick: () => {
+        state.activeListId = list.id;
+        taskReorderMode = false;
+        saveState();
+        render();
+      }
     });
     tab.appendChild(document.createTextNode(list.name));
     if (count > 0) {
@@ -4552,13 +4750,11 @@ function renderListsView() {
     syncListToolbar();
     return;
   }
-  const open = tasks.filter(t => !t.completed);
-  const done = tasks.filter(t => t.completed);
+  const open = sortTasksByOrder(tasks.filter(t => !t.completed));
+  const done = sortTasksByOrder(tasks.filter(t => t.completed));
   if (open.length) {
     const list = el('div', { class: 'task-list' });
-    open
-      .sort((a, b) => (b.priority - a.priority) || ((a.dueDate || '9999') < (b.dueDate || '9999') ? -1 : 1))
-      .forEach(t => list.appendChild(renderTaskRow(t)));
+    open.forEach((t, i) => list.appendChild(renderTaskRowWithReorder(t, i, open.length)));
     container.appendChild(list);
   }
   if (done.length) {
@@ -4576,9 +4772,7 @@ function renderListsView() {
     container.appendChild(summary);
     if (listsCompletedExpanded) {
       const list = el("div", { class: "task-list" });
-      done.forEach(function (t) {
-        list.appendChild(renderTaskRow(t));
-      });
+      done.forEach((t, i) => list.appendChild(renderTaskRowWithReorder(t, i, done.length)));
       container.appendChild(list);
     }
   }
@@ -4600,10 +4794,10 @@ function renderInbox() {
     container.appendChild(emptyState('🧠', msg));
     return;
   }
+  syncTaskReorderToggle();
   const list = el('div', { class: 'task-list' });
-  tasks
-    .sort((a, b) => (b.createdAt < a.createdAt ? -1 : 1))
-    .forEach(t => list.appendChild(renderTaskRow(t)));
+  const sorted = sortTasksByOrder(tasks);
+  sorted.forEach((t, i) => list.appendChild(renderTaskRowWithReorder(t, i, sorted.length)));
   container.appendChild(list);
 }
 
@@ -6541,6 +6735,22 @@ function wireSettings() {
   });
 }
 
+function toggleTaskReorderMode() {
+  if (!canReorderTasksInView()) {
+    showToast('Clear filters to reorder tasks', { error: true });
+    return;
+  }
+  taskReorderMode = !taskReorderMode;
+  render();
+}
+
+function wireTaskReorder() {
+  const listBtn = document.getElementById('listReorderToggle');
+  const inboxBtn = document.getElementById('inboxReorderToggle');
+  if (listBtn) listBtn.addEventListener('click', toggleTaskReorderMode);
+  if (inboxBtn) inboxBtn.addEventListener('click', toggleTaskReorderMode);
+}
+
 function wireBulkTag() {
   document.getElementById('bulkTagListBtn').addEventListener('click', openBulkTagModal);
   document.getElementById('bulkTagModalClose').addEventListener('click', closeBulkTagModal);
@@ -6588,6 +6798,7 @@ function init() {
   wireQuickAdds();
   wireTaskEditor();
   wireSettings();
+  wireTaskReorder();
   wireBulkTag();
   wireCalendar();
   wireQuadrantDnd();
