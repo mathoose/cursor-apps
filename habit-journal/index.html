@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-day-nav-v26 -->
+  <!-- build: hj-today-eraser-layout-v27 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -43,6 +43,12 @@
     }
     body.has-mode-bar {
       padding-bottom: calc(128px + var(--safe-bottom));
+    }
+    body.tab-today {
+      padding-top: calc(52px + var(--safe-top));
+    }
+    body.tab-today main {
+      padding: 4px 10px 8px;
     }
     body.habit-journal .app-version-footer { display: none !important; }
     .panel-version {
@@ -106,7 +112,8 @@
     }
     .nav-btn.eraser-btn svg { display: block; }
     body.eraser-mode .month-grid .cell:not(.invalid):not(:disabled),
-    body.eraser-mode .year-fs-cells .cell:not(.invalid):not(:disabled) {
+    body.eraser-mode .year-fs-cells .cell:not(.invalid):not(:disabled),
+    body.eraser-mode .today-habit-card .cell:not(.cell-blocked):not(:disabled) {
       box-shadow: inset 0 0 0 1px rgba(196, 92, 92, 0.35);
     }
     .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
@@ -1618,35 +1625,41 @@
       border-color: #fecaca;
     }
     /* Today tab */
-    .today-groups { display: flex; flex-direction: column; gap: 10px; }
-    .today-group-title {
+    body.tab-today .hint {
       font-size: 0.75rem;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+    .today-groups { display: flex; flex-direction: column; gap: 12px; }
+    .today-group-title {
+      font-size: 0.6875rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .today-habits-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
+      flex-direction: column;
+      gap: 2px;
     }
     .today-habit-card {
       display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      gap: 3px;
-      width: 44px;
-      flex-shrink: 0;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 56px;
+      padding: 2px 0;
     }
     .today-habit-card .cell {
-      width: 44px;
-      height: 44px;
-      min-width: 44px;
-      border-radius: 10px;
+      width: 56px;
+      height: 56px;
+      min-width: 56px;
+      border-radius: 12px;
       border: 1.5px solid var(--border);
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
@@ -1654,41 +1667,39 @@
       justify-content: center;
       padding: 0;
       background: #fff;
-      align-self: center;
+      flex-shrink: 0;
     }
-    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.875rem; }
+    .today-habit-card .cell.cell-yes { border-radius: 50%; font-size: 0.9375rem; }
     .today-habit-card .cell.col-today {
       box-shadow: inset 0 0 0 2px rgba(196, 92, 92, 0.45);
     }
     .today-habit-name {
-      font-size: 0.5625rem;
+      flex: 1;
+      min-width: 0;
+      font-size: 0.9375rem;
       font-weight: 600;
       color: var(--ink);
       text-align: left;
-      width: 100%;
-      overflow: visible;
-      white-space: normal;
+      line-height: 1.25;
       word-break: break-word;
-      line-height: 1.2;
-      hyphens: auto;
     }
     .today-hide-btn {
       border: none;
       background: transparent;
       color: var(--muted);
-      font-size: 0.5625rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 0;
+      padding: 6px 0 6px 8px;
       cursor: pointer;
       text-decoration: underline;
       text-underline-offset: 2px;
-      align-self: flex-start;
-      text-align: left;
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     .today-hide-btn:active { color: var(--accent); }
     .today-hidden-section {
-      margin-top: 16px;
-      padding-top: 10px;
+      margin-top: 12px;
+      padding-top: 8px;
       border-top: 1px dashed var(--border);
     }
     .today-hidden-section summary {
@@ -4160,6 +4171,7 @@
     const bar = document.getElementById("modeBar");
     if (!bar) return;
     const show =
+      activeTab === "today" ||
       activeTab === "month" ||
       (activeTab === "stats" && graphsMode === "grid");
     bar.hidden = !show;
@@ -4379,17 +4391,23 @@
       };
     });
     root.querySelectorAll(".cell[data-today]").forEach(function (btn) {
+      let holdTimer = null;
+      let held = false;
       btn.onclick = function () {
+        if (held) { held = false; return; }
+        if (btn.disabled || btn.classList.contains("cell-blocked")) return;
         const p = btn.dataset.key.split("|");
+        if (eraserMode) {
+          eraseCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+          return;
+        }
         if (isViewingActualToday()) {
           tapCellToday(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
         } else {
           tapCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
         }
       };
-      if (btn.dataset.counter) {
-        let holdTimer;
-        let held = false;
+      if (btn.dataset.counter && !eraserMode) {
         btn.addEventListener(
           "touchstart",
           function () {
@@ -4418,9 +4436,11 @@
     if (!root) return;
     const parts = getTodayDateParts();
     const viewingToday = isViewingActualToday();
-    let html = viewingToday
-      ? '<p class="hint">Yes/No: tap ◐ ongoing → ✓ → ✗ → clear · Hide when marked until tomorrow.</p>'
-      : '<p class="hint">Yes/No: tap ◐ → ✓ → ✗ → clear · Counters: tap +, hold to subtract.</p>';
+    const eraserNote = eraserMode ? " Eraser on — tap to subtract or clear." : "";
+    let hintExtra = viewingToday
+      ? " Yes/No: ◐ → ✓ → ✗ → clear · Hide when done."
+      : " Hold a counter to subtract without Eraser.";
+    let html = '<p class="hint">Mark or Eraser below.' + eraserNote + hintExtra + "</p>";
     let any = false;
     let groupsHtml = '<div class="today-groups">';
     state.categories.forEach(function (cat) {
@@ -6244,9 +6264,10 @@
     try {
       ensureHabitsReady();
       pruneTodayDismissed();
+      document.body.classList.toggle("tab-today", activeTab === "today");
       document.body.classList.toggle(
         "eraser-mode",
-        eraserMode && (activeTab === "month" || (activeTab === "stats" && graphsMode === "grid"))
+        eraserMode && (activeTab === "today" || activeTab === "month" || (activeTab === "stats" && graphsMode === "grid"))
       );
       updateModeBar();
       renderTopNav();
