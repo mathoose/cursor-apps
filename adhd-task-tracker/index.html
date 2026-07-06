@@ -451,6 +451,28 @@
     flex-shrink: 0;
     line-height: 1;
   }
+  .task-row-marks {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .task-paid-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 17px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #fef3c7, #fbbf24);
+    border: 1px solid #d97706;
+    color: #92400e;
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1;
+    flex-shrink: 0;
+  }
   .task-printer-mark .ams-badge.inline-badge {
     width: 24px;
     height: 17px;
@@ -616,6 +638,63 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
+  }
+  .quick-add-paid {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .paid-toggle {
+    position: relative;
+    display: block;
+    width: 54px;
+    height: 28px;
+  }
+  .paid-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .paid-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #fde68a, #f59e0b);
+    opacity: 0.35;
+    transition: opacity 0.2s, box-shadow 0.2s;
+    border: 1.5px solid #d97706;
+  }
+  .paid-toggle input:checked + .paid-toggle-track {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px #d97706;
+  }
+  .paid-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .paid-toggle input:checked ~ .paid-toggle-thumb {
+    transform: translateX(26px);
+  }
+  .paid-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #92400e;
+    line-height: 1;
   }
   .ams-toggle {
     position: relative;
@@ -1915,6 +1994,15 @@
             </span>
           </label>
         </div>
+        <div class="quick-add-paid" hidden>
+          <label class="paid-toggle" title="Paid model">
+            <input type="checkbox" class="quick-paid-input" aria-label="Paid model">
+            <span class="paid-toggle-track"></span>
+            <span class="paid-toggle-thumb">
+              <span class="paid-badge">$</span>
+            </span>
+          </label>
+        </div>
       </div>
       <div class="quick-add-categories" id="listQuickCategories"></div>
       <div class="quick-add-filament" id="listQuickFilament" hidden>
@@ -2036,6 +2124,21 @@
           <button type="button" class="prio-btn" data-prio="1"><span class="flag"></span><span>Low</span></button>
           <button type="button" class="prio-btn" data-prio="2"><span class="flag"></span><span>Medium</span></button>
           <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
+        </div>
+      </div>
+      <div class="field" id="taskPaidField" hidden>
+        <div class="field-ams-toggle">
+          <div>
+            <label class="field-label" style="margin-bottom: 2px;">Paid model</label>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Show $ on the task row for paid downloads</div>
+          </div>
+          <label class="paid-toggle" title="Paid model">
+            <input type="checkbox" id="taskPaidInput" aria-label="Paid model">
+            <span class="paid-toggle-track"></span>
+            <span class="paid-toggle-thumb">
+              <span class="paid-badge">$</span>
+            </span>
+          </label>
         </div>
       </div>
       <div class="field" id="taskEditorFilamentField" hidden>
@@ -2721,6 +2824,7 @@ function normalizeTask(t) {
     completed: !!t.completed,
     completedAt: t.completedAt || null,
     hasPhoto: !!t.hasPhoto,
+    paid: !!t.paid,
     ams: !!t.ams,
     filamentColorIds: filamentColorIds,
     categoryIds: normalizeCategoryIds(t.categoryIds),
@@ -3288,6 +3392,21 @@ function syncQuickAddAms() {
   if (!show && input) input.checked = false;
 }
 
+function syncQuickAddPaid() {
+  const wrap = document.querySelector('#listQuickPriority .quick-add-paid');
+  const input = wrap && wrap.querySelector('.quick-paid-input');
+  if (!wrap) return;
+  const show = isPrinterList(state.activeListId);
+  wrap.hidden = !show;
+  if (!show && input) input.checked = false;
+}
+
+function syncQuickAddPrinterControls() {
+  syncQuickAddAms();
+  syncQuickAddPaid();
+  syncQuickAddFilament();
+}
+
 function syncQuickAddFilament() {
   const wrap = document.getElementById('listQuickFilament');
   if (!wrap) return;
@@ -3436,7 +3555,7 @@ function renderFilamentColorRow(container, uiKey, getSelectedSet, onChanged) {
 }
 
 function renderQuickAddFilament() {
-  syncQuickAddFilament();
+  syncQuickAddPrinterControls();
   renderFilamentColorRow(
     document.getElementById('listFilamentColors'),
     'list',
@@ -3462,14 +3581,24 @@ function renderTaskEditorFilament() {
   );
 }
 
-function syncTaskEditorAms() {
-  const field = document.getElementById('taskAmsField');
-  const input = document.getElementById('taskAmsInput');
-  if (!field || !editingTaskDraft) return;
-  const show = shouldShowPrinterTaskFields(editingTaskDraft);
-  field.hidden = !show;
-  if (input) input.checked = !!editingTaskDraft.ams;
+function syncTaskEditorPrinterFields() {
+  const paidField = document.getElementById('taskPaidField');
+  const paidInput = document.getElementById('taskPaidInput');
+  const amsField = document.getElementById('taskAmsField');
+  const amsInput = document.getElementById('taskAmsInput');
+  if (!editingTaskDraft) return;
+  const onPrinter = isPrinterList(editingTaskDraft.listId);
+  const showPrinterExtras = shouldShowPrinterTaskFields(editingTaskDraft);
+  if (paidField) paidField.hidden = !onPrinter;
+  if (paidInput) paidInput.checked = !!editingTaskDraft.paid;
+  if (amsField) amsField.hidden = !showPrinterExtras;
+  if (amsInput) amsInput.checked = !!editingTaskDraft.ams;
   renderTaskEditorFilament();
+}
+
+/** @deprecated use syncTaskEditorPrinterFields */
+function syncTaskEditorAms() {
+  syncTaskEditorPrinterFields();
 }
 
 function onCategoriesChanged() {
@@ -3668,23 +3797,31 @@ function syncListToolbar() {
   toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
 }
 
-function appendTaskPrinterMark(parent, task) {
+function appendTaskRowMarks(parent, task) {
   const hasColors = Array.isArray(task.filamentColorIds) && task.filamentColorIds.length;
-  if (!task.ams && !hasColors) return;
-  const mark = el('span', { class: 'task-printer-mark' });
-  if (task.ams) mark.appendChild(amsBadgeEl('inline-badge'));
-  if (hasColors) {
-    const quads = el('span', { class: 'task-filament-quads', 'aria-label': 'Filament colors' });
-    task.filamentColorIds.forEach(id => {
-      const color = getFilamentColor(id);
-      if (!color) return;
-      const quad = el('span', { class: 'task-filament-quad', title: color.name || color.hex });
-      quad.style.background = color.hex;
-      quads.appendChild(quad);
-    });
-    if (quads.childNodes.length) mark.appendChild(quads);
+  const hasPrinter = task.ams || hasColors;
+  if (!task.paid && !hasPrinter) return;
+  const marks = el('span', { class: 'task-row-marks' });
+  if (task.paid) {
+    marks.appendChild(el('span', { class: 'task-paid-mark', text: '$', title: 'Paid model' }));
   }
-  if (mark.childNodes.length) parent.appendChild(mark);
+  if (hasPrinter) {
+    const printer = el('span', { class: 'task-printer-mark' });
+    if (task.ams) printer.appendChild(amsBadgeEl('inline-badge'));
+    if (hasColors) {
+      const quads = el('span', { class: 'task-filament-quads', 'aria-label': 'Filament colors' });
+      task.filamentColorIds.forEach(id => {
+        const color = getFilamentColor(id);
+        if (!color) return;
+        const quad = el('span', { class: 'task-filament-quad', title: color.name || color.hex });
+        quad.style.background = color.hex;
+        quads.appendChild(quad);
+      });
+      if (quads.childNodes.length) printer.appendChild(quads);
+    }
+    if (printer.childNodes.length) marks.appendChild(printer);
+  }
+  if (marks.childNodes.length) parent.appendChild(marks);
 }
 
 function appendTaskCategoryPills(meta, task) {
@@ -3712,7 +3849,7 @@ function taskRowPriorityClass(priority) {
   return '';
 }
 
-function taskHasMetaBeyondPrinter(task, opts) {
+function taskHasSecondaryMeta(task, opts) {
   opts = opts || {};
   if (task.dueDate) return true;
   if (opts.showList) return true;
@@ -3738,14 +3875,14 @@ function renderTaskRow(task, opts) {
   row.appendChild(check);
 
   const body = el('div', { class: 'task-body' });
-  const inlinePrinter = !taskHasMetaBeyondPrinter(task, opts);
+  const inlineMarks = !taskHasSecondaryMeta(task, opts);
   const titleRow = el('div', { class: 'task-title-row' });
   appendTaskTitle(titleRow, task, 'task-title');
-  if (inlinePrinter) appendTaskPrinterMark(titleRow, task);
+  if (inlineMarks) appendTaskRowMarks(titleRow, task);
   body.appendChild(titleRow);
 
   const meta = el('div', { class: 'task-meta' });
-  if (!inlinePrinter) appendTaskPrinterMark(meta, task);
+  if (!inlineMarks) appendTaskRowMarks(meta, task);
   if (task.dueDate) {
     const d = diffDays(task.dueDate);
     let cls = 'pill due-future';
@@ -4154,8 +4291,7 @@ function renderListsView() {
     else if (state.categoryFilter !== 'all') msg = 'No tasks with this category.';
     else if (state.amsFilter !== 'all') msg = state.amsFilter === 'ams' ? 'No AMS tasks yet.' : 'No non-AMS tasks.';
     container.appendChild(emptyState('📋', msg));
-    syncQuickAddAms();
-    syncQuickAddFilament();
+    syncQuickAddPrinterControls();
     syncListToolbar();
     return;
   }
@@ -4189,8 +4325,7 @@ function renderListsView() {
       container.appendChild(list);
     }
   }
-  syncQuickAddAms();
-  syncQuickAddFilament();
+  syncQuickAddPrinterControls();
   syncListToolbar();
 }
 
@@ -4267,9 +4402,10 @@ function openTaskEditor(taskId) {
   editingTaskDraft = task ? JSON.parse(JSON.stringify(task)) : {
     id: null, title: '', notes: '', link: '', listId: state.activeListId || 'inbox',
     dueDate: null, priority: 0, urgent: null, important: null,
-    completed: false, hasPhoto: false, ams: false, filamentColorIds: [], categoryIds: [], subtasks: []
+    completed: false, hasPhoto: false, paid: false, ams: false, filamentColorIds: [], categoryIds: [], subtasks: []
   };
   editingTaskDraft.link = normalizeTaskLink(editingTaskDraft.link);
+  if (editingTaskDraft.paid == null) editingTaskDraft.paid = false;
   if (editingTaskDraft.ams == null) editingTaskDraft.ams = false;
   if (!Array.isArray(editingTaskDraft.filamentColorIds)) editingTaskDraft.filamentColorIds = [];
   editingTaskDraft.filamentColorIds = normalizeFilamentColorIds(editingTaskDraft.filamentColorIds);
@@ -4281,11 +4417,12 @@ function openTaskEditor(taskId) {
   document.getElementById('taskNotesInput').value = editingTaskDraft.notes;
   document.getElementById('taskLinkInput').value = editingTaskDraft.link;
   document.getElementById('taskAmsInput').checked = !!editingTaskDraft.ams;
+  document.getElementById('taskPaidInput').checked = !!editingTaskDraft.paid;
   updateTaskLinkOpenButton();
   document.getElementById('taskDueInput').value = editingTaskDraft.dueDate || '';
   hideTaskCategoryNewRow();
   renderTaskCategorySelect();
-  syncTaskEditorAms();
+  syncTaskEditorPrinterFields();
   renderTaskEditorCategories();
 
   // Priority picker
@@ -5797,6 +5934,7 @@ function wireQuickAdds() {
     const prioRow = document.getElementById(prioRowId);
     const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
     const amsInput = prioRow.querySelector('.quick-ams-input');
+    const paidInput = prioRow.querySelector('.quick-paid-input');
     let selectedPrio = 0;
 
     const resetPrio = () => {
@@ -5809,6 +5947,10 @@ function wireQuickAdds() {
 
     const resetAms = () => {
       if (amsInput) amsInput.checked = false;
+    };
+
+    const resetPaid = () => {
+      if (paidInput) paidInput.checked = false;
     };
 
     const resetCategories = () => {
@@ -5848,7 +5990,8 @@ function wireQuickAdds() {
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
-      const filamentColorIds = categoryUiKey === 'list' && isPrinterList(getListId())
+      const onPrinter = isPrinterList(getListId());
+      const filamentColorIds = categoryUiKey === 'list' && onPrinter
         ? Array.from(filamentColorUi.list.selected)
         : [];
       addTask({
@@ -5856,7 +5999,8 @@ function wireQuickAdds() {
         listId: getListId(),
         link: link || '',
         priority: selectedPrio,
-        ams: !!(amsInput && amsInput.checked && isPrinterList(getListId())),
+        paid: !!(paidInput && paidInput.checked && onPrinter),
+        ams: !!(amsInput && amsInput.checked && onPrinter),
         categoryIds: Array.from(quickAddCategoryUi[categoryUiKey].selected),
         filamentColorIds
       });
@@ -5865,6 +6009,7 @@ function wireQuickAdds() {
       linkInput.value = '';
       resetPrio();
       resetAms();
+      resetPaid();
       resetCategories();
       resetFilament();
       render();
@@ -5955,6 +6100,9 @@ function wireTaskEditor() {
   document.getElementById('taskAmsInput').addEventListener('change', (e) => {
     if (editingTaskDraft) editingTaskDraft.ams = e.target.checked;
   });
+  document.getElementById('taskPaidInput').addEventListener('change', (e) => {
+    if (editingTaskDraft) editingTaskDraft.paid = e.target.checked;
+  });
   document.getElementById('taskDueInput').addEventListener('change', (e) => {
     editingTaskDraft.dueDate = e.target.value || null;
     editingTaskDraft.urgent = null;
@@ -5963,7 +6111,7 @@ function wireTaskEditor() {
   });
   document.getElementById('taskListSelect').addEventListener('change', (e) => {
     editingTaskDraft.listId = e.target.value;
-    syncTaskEditorAms();
+    syncTaskEditorPrinterFields();
   });
   document.getElementById('taskCategoryAddBtn').addEventListener('click', () => {
     const row = document.getElementById('taskCategoryNewRow');
