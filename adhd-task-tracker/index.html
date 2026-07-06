@@ -444,38 +444,35 @@
     gap: 4px;
     padding: 1px 6px 1px 4px;
   }
-  .pill.ams {
+  .task-printer-mark {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 1px 6px;
-    background: linear-gradient(90deg, #dc2626 0%, #dc2626 25%, #eab308 25%, #eab308 50%, #16a34a 50%, #16a34a 75%, #2563eb 75%, #2563eb 100%);
-    color: white;
-    font-weight: 700;
-    font-size: 0.62rem;
-    letter-spacing: 0.02em;
+    gap: 3px;
+    flex-shrink: 0;
+    line-height: 1;
   }
-  .pill-filament-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+  .task-printer-mark .ams-badge.inline-badge {
+    width: 24px;
+    height: 17px;
+    border-radius: 3px;
     flex-shrink: 0;
   }
-  .task-filament-strip {
-    display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    gap: 0;
-    margin-top: 4px;
-    min-height: 24px;
+  .task-printer-mark .ams-badge.inline-badge .ams-badge-text {
+    font-size: 0.5rem;
   }
-  .task-filament-strip .filament-pencil {
-    margin-right: -3px;
-    pointer-events: none;
+  .task-filament-quads {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    flex-shrink: 0;
   }
-  .task-filament-strip .filament-pencil-svg {
-    filter: drop-shadow(0 0.5px 1px rgba(0, 0, 0, 0.12));
+  .task-filament-quad {
+    width: 11px;
+    height: 11px;
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    flex-shrink: 0;
+    box-sizing: border-box;
   }
   .list-filter-row {
     display: flex;
@@ -737,8 +734,8 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 12px;
-    display: flex; align-items: flex-start; gap: 12px;
+    padding: 8px 10px;
+    display: flex; align-items: flex-start; gap: 8px;
     transition: background 0.15s, border-color 0.15s;
     position: relative;
   }
@@ -771,7 +768,15 @@
   .task.completed .task-check svg { opacity: 1; }
 
   .task-body { flex: 1; min-width: 0; }
-  .task-title { font-size: 0.95rem; font-weight: 500; line-height: 1.35; word-wrap: break-word; }
+  .task-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    min-width: 0;
+  }
+  .task-title-row .task-title { flex: 1 1 auto; min-width: 0; }
+  .task-title { font-size: 0.92rem; font-weight: 500; line-height: 1.25; word-wrap: break-word; }
   .task-title-link {
     display: block;
     font-size: 0.95rem;
@@ -786,9 +791,9 @@
   .task-title-link:active { opacity: 0.75; }
   .task.completed .task-title-link { color: var(--text-muted); }
   .task-meta {
-    display: flex; flex-wrap: wrap; gap: 4px 10px;
-    margin-top: 4px;
-    font-size: 0.75rem;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 3px 6px;
+    margin-top: 2px;
+    font-size: 0.72rem;
     color: var(--text-muted);
   }
   .task-meta .pill {
@@ -811,8 +816,8 @@
   .pill.link:active { opacity: 0.75; }
   .task-edit-btn {
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: none;
     background: transparent;
     color: var(--text-muted);
@@ -3663,36 +3668,23 @@ function syncListToolbar() {
   toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
 }
 
-function appendTaskAmsPill(meta, task) {
-  if (!task.ams) return;
-  meta.appendChild(el('span', { class: 'pill ams', text: 'AMS' }));
-}
-
-function appendTaskFilamentPills(meta, task) {
-  if (!Array.isArray(task.filamentColorIds) || !task.filamentColorIds.length) return;
-  task.filamentColorIds.forEach(id => {
-    const color = getFilamentColor(id);
-    if (!color) return;
-    const pill = el('span', { class: 'pill filament', title: color.name || color.hex });
-    const dot = el('span', { class: 'pill-filament-dot' });
-    dot.style.background = color.hex;
-    pill.appendChild(dot);
-    if (color.name) pill.appendChild(document.createTextNode(color.name));
-    meta.appendChild(pill);
-  });
-}
-
-function appendTaskFilamentStrip(parent, task) {
-  if (!Array.isArray(task.filamentColorIds) || !task.filamentColorIds.length) return;
-  const strip = el('div', { class: 'task-filament-strip', 'aria-label': 'Filament colors' });
-  task.filamentColorIds.forEach((id, i) => {
-    const color = getFilamentColor(id);
-    if (!color) return;
-    const pencil = filamentPencilButton(color, false, () => {}, i % 2 === 0 ? 30 : 26);
-    pencil.setAttribute('tabindex', '-1');
-    strip.appendChild(pencil);
-  });
-  if (strip.childNodes.length) parent.appendChild(strip);
+function appendTaskPrinterMark(parent, task) {
+  const hasColors = Array.isArray(task.filamentColorIds) && task.filamentColorIds.length;
+  if (!task.ams && !hasColors) return;
+  const mark = el('span', { class: 'task-printer-mark' });
+  if (task.ams) mark.appendChild(amsBadgeEl('inline-badge'));
+  if (hasColors) {
+    const quads = el('span', { class: 'task-filament-quads', 'aria-label': 'Filament colors' });
+    task.filamentColorIds.forEach(id => {
+      const color = getFilamentColor(id);
+      if (!color) return;
+      const quad = el('span', { class: 'task-filament-quad', title: color.name || color.hex });
+      quad.style.background = color.hex;
+      quads.appendChild(quad);
+    });
+    if (quads.childNodes.length) mark.appendChild(quads);
+  }
+  if (mark.childNodes.length) parent.appendChild(mark);
 }
 
 function appendTaskCategoryPills(meta, task) {
@@ -3720,6 +3712,17 @@ function taskRowPriorityClass(priority) {
   return '';
 }
 
+function taskHasMetaBeyondPrinter(task, opts) {
+  opts = opts || {};
+  if (task.dueDate) return true;
+  if (opts.showList) return true;
+  if (Array.isArray(task.categoryIds) && task.categoryIds.length) return true;
+  if (task.subtasks && task.subtasks.length) return true;
+  if (task.hasPhoto) return true;
+  if (getTaskLinkUrl(task)) return true;
+  return false;
+}
+
 function renderTaskRow(task, opts) {
   opts = opts || {};
   const overdue = task.dueDate && !task.completed && diffDays(task.dueDate) < 0;
@@ -3728,20 +3731,21 @@ function renderTaskRow(task, opts) {
     dataset: { id: task.id }
   });
   const check = el('div', {
-    class: 'task-check' + (task.ams ? ' ams' : ' ' + priorityClass(task.priority)),
+    class: 'task-check ' + priorityClass(task.priority),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
   });
-  if (task.ams) {
-    check.appendChild(amsBadgeEl('row-badge'));
-  }
   check.appendChild(taskCheckmark());
   row.appendChild(check);
 
   const body = el('div', { class: 'task-body' });
-  appendTaskTitle(body, task, 'task-title');
-  appendTaskFilamentStrip(body, task);
+  const inlinePrinter = !taskHasMetaBeyondPrinter(task, opts);
+  const titleRow = el('div', { class: 'task-title-row' });
+  appendTaskTitle(titleRow, task, 'task-title');
+  if (inlinePrinter) appendTaskPrinterMark(titleRow, task);
+  body.appendChild(titleRow);
 
   const meta = el('div', { class: 'task-meta' });
+  if (!inlinePrinter) appendTaskPrinterMark(meta, task);
   if (task.dueDate) {
     const d = diffDays(task.dueDate);
     let cls = 'pill due-future';
@@ -3754,8 +3758,6 @@ function renderTaskRow(task, opts) {
     if (list) meta.appendChild(el('span', { class: 'pill list', text: list.name }));
   }
   appendTaskCategoryPills(meta, task);
-  appendTaskAmsPill(meta, task);
-  appendTaskFilamentPills(meta, task);
   if (task.subtasks && task.subtasks.length) {
     const done = task.subtasks.filter(s => s.done).length;
     meta.appendChild(el('span', { class: 'pill subtasks', text: `${done}/${task.subtasks.length}` }));
