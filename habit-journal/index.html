@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#5c4d3c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-month-today-fix-v23 -->
+  <!-- build: hj-today-day-nav-v26 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -110,6 +110,15 @@
       box-shadow: inset 0 0 0 1px rgba(196, 92, 92, 0.35);
     }
     .nav-label { font-size: 0.9375rem; font-weight: 600; min-width: 100px; text-align: center; }
+    .nav-label-jump {
+      border: none;
+      background: transparent;
+      color: var(--accent-dark);
+      cursor: pointer;
+      padding: 4px 2px;
+      font: inherit;
+    }
+    .nav-label-jump:active { opacity: 0.7; }
     main { max-width: 520px; margin: 0 auto; padding: 12px 10px 16px; }
     .panel { display: none; }
     .panel.on { display: block; }
@@ -2132,6 +2141,7 @@
   let monthGridScrollLeft = 0;
   let yearExpandedScrollLeft = 0;
   let monthGridScrolledToToday = false;
+  let todayViewOffset = 0;
   let yearExpandedHabits = {};
   let yearExpandOrder = [];
   let yearFullscreenHabitId = null;
@@ -2516,6 +2526,28 @@
     return y + "-" + m + "-" + day;
   }
 
+  function getTodayViewDate() {
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    d.setDate(d.getDate() + todayViewOffset);
+    return d;
+  }
+
+  function isViewingActualToday() {
+    return todayViewOffset === 0;
+  }
+
+  function shiftTodayViewDate(delta) {
+    todayViewOffset += delta;
+    render();
+  }
+
+  function resetTodayViewDate() {
+    if (todayViewOffset === 0) return;
+    todayViewOffset = 0;
+    render();
+  }
+
   function pruneTodayDismissed() {
     if (!state.todayDismissed || typeof state.todayDismissed !== "object") {
       state.todayDismissed = {};
@@ -2549,7 +2581,7 @@
   }
 
   function getTodayDateParts() {
-    const d = new Date();
+    const d = getTodayViewDate();
     return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() };
   }
 
@@ -2564,7 +2596,7 @@
     const parts = getTodayDateParts();
     return state.habits.filter(function (h) {
       if (h.hidden) return false;
-      if (isTodayDismissed(h.id)) return false;
+      if (isViewingActualToday() && isTodayDismissed(h.id)) return false;
       if (h.category !== catId) return false;
       if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
       return true;
@@ -2572,11 +2604,26 @@
   }
 
   function formatTodayNavLabel() {
-    const d = new Date();
-    return (
-      "Today · " +
-      d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })
-    );
+    const d = getTodayViewDate();
+    if (todayViewOffset === 0) {
+      return (
+        "Today · " +
+        d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })
+      );
+    }
+    if (todayViewOffset === -1) {
+      return (
+        "Yesterday · " +
+        d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+      );
+    }
+    if (todayViewOffset === 1) {
+      return (
+        "Tomorrow · " +
+        d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+      );
+    }
+    return d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
   }
 
   function reorderHabitToIndex(habitId, targetIndex) {
@@ -3848,9 +3895,19 @@
     const y = parseInt(p[1], 10);
     const mo = parseInt(p[2], 10);
     const d = parseInt(p[3], 10);
-    const value = getCellValue(cellKey(habit.id, y, mo, d));
     const todayCls = isTodayColumn(y, mo, d) ? " col-today" : "";
-    if (btn.classList.contains("cell-year-shade")) {
+    const yearShade = btn.classList.contains("cell-year-shade") ? " cell-year-shade" : "";
+    if (isDayExcluded(habit, y, mo, d)) {
+      btn.className = ("cell cell-blocked" + yearShade + todayCls).trim();
+      btn.disabled = true;
+      btn.style.cssText = cellStyle(habit, null, y, mo, d);
+      btn.textContent = "";
+      btn.setAttribute("aria-label", habit.name + " blocked");
+      return;
+    }
+    btn.disabled = false;
+    const value = getCellValue(cellKey(habit.id, y, mo, d));
+    if (yearShade) {
       btn.className = ("cell cell-year-shade" + todayCls).trim();
       btn.style.cssText = cellStyle(habit, value, y, mo, d);
       btn.textContent = "";
@@ -4115,7 +4172,25 @@
     const nav = document.getElementById("topNav");
     if (!nav) return;
     if (activeTab === "today") {
-      nav.innerHTML = '<span class="nav-label">' + formatTodayNavLabel() + "</span>";
+      nav.innerHTML =
+        '<button type="button" class="nav-btn" id="todayPrev" aria-label="Previous day">‹</button>' +
+        '<button type="button" class="nav-label' +
+        (isViewingActualToday() ? "" : " nav-label-jump") +
+        '" id="todayNavLabel" aria-label="' +
+        (isViewingActualToday() ? formatTodayNavLabel() : "Jump to today") +
+        '">' +
+        formatTodayNavLabel() +
+        "</button>" +
+        '<button type="button" class="nav-btn" id="todayNext" aria-label="Next day">›</button>';
+      document.getElementById("todayPrev").onclick = function () {
+        shiftTodayViewDate(-1);
+      };
+      document.getElementById("todayNext").onclick = function () {
+        shiftTodayViewDate(1);
+      };
+      if (!isViewingActualToday()) {
+        document.getElementById("todayNavLabel").onclick = resetTodayViewDate;
+      }
       return;
     }
     if (activeTab === "habits" || activeTab === "log") {
@@ -4250,9 +4325,12 @@
 
   function renderTodayCellButton(habit, y, m, d) {
     const dataKey = habit.id + "|" + y + "|" + m + "|" + d;
+    const todayCls = isTodayColumn(y, m, d) ? " col-today" : "";
     if (isDayExcluded(habit, y, m, d)) {
       return (
-        '<button type="button" class="cell cell-blocked col-today" data-key="' +
+        '<button type="button" class="cell cell-blocked' +
+        todayCls +
+        '" data-key="' +
         dataKey +
         '" disabled style="' +
         cellStyle(habit, null, y, m, d) +
@@ -4267,7 +4345,8 @@
     return (
       '<button type="button" class="cell ' +
       disp.cls +
-      ' col-today" data-key="' +
+      todayCls +
+      '" data-key="' +
       dataKey +
       '" data-today="1"' +
       counterAttr +
@@ -4302,7 +4381,11 @@
     root.querySelectorAll(".cell[data-today]").forEach(function (btn) {
       btn.onclick = function () {
         const p = btn.dataset.key.split("|");
-        tapCellToday(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+        if (isViewingActualToday()) {
+          tapCellToday(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+        } else {
+          tapCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+        }
       };
       if (btn.dataset.counter) {
         let holdTimer;
@@ -4334,7 +4417,10 @@
     const root = document.getElementById("panelToday");
     if (!root) return;
     const parts = getTodayDateParts();
-    let html = '<p class="hint">Yes/No: tap ◐ ongoing → ✓ → ✗ → clear · Hide when marked until tomorrow.</p>';
+    const viewingToday = isViewingActualToday();
+    let html = viewingToday
+      ? '<p class="hint">Yes/No: tap ◐ ongoing → ✓ → ✗ → clear · Hide when marked until tomorrow.</p>'
+      : '<p class="hint">Yes/No: tap ◐ → ✓ → ✗ → clear · Counters: tap +, hold to subtract.</p>';
     let any = false;
     let groupsHtml = '<div class="today-groups">';
     state.categories.forEach(function (cat) {
@@ -4348,7 +4434,7 @@
         groupsHtml += '<div class="today-habit-card" data-habit-card="' + escapeHtml(habit.id) + '">';
         groupsHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
         groupsHtml += '<span class="today-habit-name">' + escapeHtml(habit.name) + "</span>";
-        if (isYesNoMarkedToday(habit)) {
+        if (viewingToday && isYesNoMarkedToday(habit)) {
           groupsHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
@@ -4361,10 +4447,12 @@
     groupsHtml += "</div>";
     if (any) {
       html += groupsHtml;
-    } else if (!getTodayDismissedHabits().length) {
+    } else if (viewingToday && !getTodayDismissedHabits().length) {
       html += '<p class="hint">No habits for today — add habits on the Habits tab or show hidden ones.</p>';
+    } else if (!any) {
+      html += '<p class="hint">No habits for this day — add habits on the Habits tab.</p>';
     }
-    html += renderTodayHiddenSectionHtml();
+    if (viewingToday) html += renderTodayHiddenSectionHtml();
     html += renderVersionFooterHtml();
     root.innerHTML = html;
     bindTodayPanel(root);
