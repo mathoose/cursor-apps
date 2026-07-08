@@ -3086,8 +3086,14 @@ function nextTaskSortOrder(listId, completed) {
 }
 
 function assignInitialTaskSortOrder(task) {
+  repositionTaskByPriority(task);
+}
+
+function repositionTaskByPriority(task) {
   const siblings = sortTasksByOrder(
-    state.tasks.filter(t => t.listId === task.listId && t.completed === task.completed)
+    state.tasks.filter(t =>
+      t.listId === task.listId && t.completed === task.completed && t.id !== task.id
+    )
   );
   let insertIdx = siblings.length;
   if (task.priority > 0) {
@@ -3857,6 +3863,7 @@ function quadrantOf(task) {
 }
 
 function applyQuadrant(task, q) {
+  const prevPriority = task.priority;
   switch (q) {
     case 1: task.priority = 3; break;
     case 2: task.priority = 2; break;
@@ -3866,6 +3873,7 @@ function applyQuadrant(task, q) {
   task.urgent = null;
   task.important = null;
   task.updatedAt = new Date().toISOString();
+  if (task.priority !== prevPriority) repositionTaskByPriority(task);
 }
 
 const QUADRANT_LABELS = {
@@ -3893,6 +3901,8 @@ function addTask(partial) {
 function updateTask(id, patch) {
   const t = state.tasks.find(t => t.id === id);
   if (!t) return null;
+  const prevPriority = t.priority;
+  const prevListId = t.listId;
   Object.assign(t, patch);
   t.updatedAt = new Date().toISOString();
   // When priority or dueDate changes via editor, clear manual override so auto-recompute kicks in
@@ -3903,6 +3913,10 @@ function updateTask(id, patch) {
     }
   }
   delete t._clearOverride;
+  if (('priority' in patch && t.priority !== prevPriority) ||
+      ('listId' in patch && t.listId !== prevListId)) {
+    repositionTaskByPriority(t);
+  }
   saveState();
   return t;
 }
@@ -5187,7 +5201,12 @@ function saveTaskEditor() {
   const normalized = normalizeTask(Object.assign({ id: editingTaskId || uid() }, editingTaskDraft));
   if (editingTaskId) {
     const t = state.tasks.find(x => x.id === editingTaskId);
+    const prevPriority = t.priority;
+    const prevListId = t.listId;
     Object.assign(t, normalized, { updatedAt: new Date().toISOString() });
+    if (t.priority !== prevPriority || t.listId !== prevListId) {
+      repositionTaskByPriority(t);
+    }
   } else {
     savedId = normalized.id;
     if (typeof normalized.sortOrder !== 'number') assignInitialTaskSortOrder(normalized);
