@@ -1767,6 +1767,7 @@
   .btn-danger { background: var(--surface); border-color: var(--q1-border); color: var(--danger); }
   .btn-danger:active { background: var(--q1-soft); }
   .btn-ghost { background: transparent; border: none; }
+  .task-move-top-btn { width: 100%; }
 
   .field { margin-bottom: 14px; }
   .field-label {
@@ -2310,6 +2311,9 @@
           <input type="text" id="taskCategoryNewInput" placeholder="New category name" autocomplete="off">
           <button type="button" class="btn btn-primary" id="taskCategoryNewSave">Add</button>
         </div>
+      </div>
+      <div class="field" id="taskMoveTopField" hidden>
+        <button type="button" class="btn task-move-top-btn" id="taskMoveTopBtn">Move to top</button>
       </div>
       <div class="field">
         <label class="field-label">Subtasks</label>
@@ -3058,6 +3062,23 @@ function nextTaskSortOrder(listId, completed) {
     if (typeof t.sortOrder === 'number' && t.sortOrder > max) max = t.sortOrder;
   });
   return max + 1;
+}
+
+function assignInitialTaskSortOrder(task) {
+  const siblings = sortTasksByOrder(
+    state.tasks.filter(t => t.listId === task.listId && t.completed === task.completed)
+  );
+  let insertIdx = siblings.length;
+  if (task.priority > 0) {
+    for (let i = 0; i < siblings.length; i++) {
+      if (siblings[i].priority < task.priority) {
+        insertIdx = i;
+        break;
+      }
+    }
+  }
+  siblings.splice(insertIdx, 0, task);
+  siblings.forEach((t, i) => { t.sortOrder = i; });
 }
 
 function assignTaskToGroupEnd(task) {
@@ -3841,7 +3862,7 @@ function addTask(partial) {
   // If urgent/important not explicit and quick-add to "today", set due
   if (partial.dueDate === undefined && partial.listId === 'today') task.dueDate = todayStr();
   if (typeof task.sortOrder !== 'number') {
-    task.sortOrder = nextTaskSortOrder(task.listId, task.completed);
+    assignInitialTaskSortOrder(task);
   }
   state.tasks.push(task);
   saveState();
@@ -4980,6 +5001,8 @@ function openTaskEditor(taskId) {
   renderTaskPhotoEditor();
 
   document.getElementById('taskDeleteBtn').style.display = task ? '' : 'none';
+  const moveTopField = document.getElementById('taskMoveTopField');
+  if (moveTopField) moveTopField.hidden = !(task && !task.completed);
   openModal('taskModal');
   setTimeout(() => document.getElementById('taskTitleInput').focus(), 100);
 }
@@ -5146,6 +5169,7 @@ function saveTaskEditor() {
     Object.assign(t, normalized, { updatedAt: new Date().toISOString() });
   } else {
     savedId = normalized.id;
+    if (typeof normalized.sortOrder !== 'number') assignInitialTaskSortOrder(normalized);
     state.tasks.push(normalized);
   }
   saveState();
@@ -6609,6 +6633,19 @@ function wireTaskEditor() {
   });
   document.getElementById('taskSaveBtn').addEventListener('click', saveTaskEditor);
   document.getElementById('taskDeleteBtn').addEventListener('click', deleteCurrentTask);
+  document.getElementById('taskMoveTopBtn').addEventListener('click', () => {
+    if (!editingTaskId) return;
+    const t = state.tasks.find(x => x.id === editingTaskId);
+    if (!t || t.completed) return;
+    const siblings = getTaskSiblings(t);
+    const idx = siblings.findIndex(x => x.id === editingTaskId);
+    if (idx <= 0) {
+      showToast('Already at top');
+      return;
+    }
+    moveTaskToIndex(editingTaskId, 0);
+    showToast('Moved to top');
+  });
 
   document.getElementById('taskTitleInput').addEventListener('input', (e) => {
     editingTaskDraft.title = e.target.value;
