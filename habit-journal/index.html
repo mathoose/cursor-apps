@@ -5225,6 +5225,17 @@
     return cellValue;
   }
 
+  function graphRangeLabel(range) {
+    if (range === "year") return String(state.year);
+    if (range === "1") return "24h";
+    if (range === "7") return "Week";
+    return range + "d";
+  }
+
+  function graphRangeOptions() {
+    return ["1", "7", "30", "90", "365", "year"];
+  }
+
   function getGraphDateBounds(range) {
     let start;
     let end;
@@ -5484,15 +5495,14 @@
     html +=
       '<p class="hint">Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.</p>';
     html += '<div class="graph-range-row">';
-    ["30", "90", "365", "year"].forEach(function (range) {
-      const label = range === "year" ? state.year : range + "d";
+    graphRangeOptions().forEach(function (range) {
       html +=
         '<button type="button" class="graph-range-btn' +
         (graphRange === range ? " on" : "") +
         '" data-graph-range="' +
         range +
         '">' +
-        label +
+        graphRangeLabel(range) +
         "</button>";
     });
     html += "</div>";
