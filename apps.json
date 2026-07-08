@@ -19,7 +19,8 @@
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" },
       "times-tables": { "storageKey": "times-tables-v1" },
-      "things-book": { "storageKey": "things-book-v1" }
+      "things-book": { "storageKey": "things-book-v1" },
+      "stride-flow": { "storageKey": "stride-flow-v1" }
     }
   },
   "apps": [
@@ -94,6 +95,12 @@
       "name": "Times Tables",
       "subtitle": "Calculator drill",
       "storageKey": "times-tables-v1"
+    },
+    {
+      "id": "stride-flow",
+      "name": "StrideFlow",
+      "subtitle": "Weekly plans & goals",
+      "storageKey": "stride-flow-v1"
     },
     {
       "id": "things-book",

@@ -24,6 +24,7 @@
     "world-cup-2026": "World Cup",
     "times-tables": "Times Tables",
     "things-book": "Things Book",
+    "stride-flow": "StrideFlow",
   };
 
   var PHOTO_DATABASES = [
@@ -795,6 +796,36 @@
           items: items,
           tagFilters: tagFilters,
         };
+      },
+    },
+    "stride-flow": {
+      storageKey: "stride-flow-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("stride-flow-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.goals)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.goals)) return false;
+        return writeKey("stride-flow-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.goals) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var goals = slice.goals ? slice.goals.length : 0;
+        var blocks = slice.blocks ? slice.blocks.length : 0;
+        return goals + " goal" + (goals === 1 ? "" : "s") + ", " + blocks + " block" + (blocks === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        return incoming || existing;
       },
     },
   };
