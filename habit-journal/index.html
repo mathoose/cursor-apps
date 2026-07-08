@@ -2249,10 +2249,12 @@
   let habitsCatPanelOpen = false;
   let pendingImport = null;
   let graphSelectedIds = {};
+  let graphHabitColorSlot = {};
+  let graphColorSlotNext = 0;
   let logGraphHabitId = null;
-  let graphRange = "90";
+  let graphRange = "30";
   let graphUserToggled = false;
-  let graphsMode = "grid";
+  let graphsMode = "plot";
   let statsSelectedHabitId = null;
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
@@ -5300,16 +5302,59 @@
     return MONTHS[date.getMonth()] + " " + date.getDate();
   }
 
+  function getDefaultPlotHabits(habits) {
+    const pushUps = habits.find(function (h) {
+      return /push[\s-]?ups?/i.test(h.name);
+    });
+    const squats = habits.find(function (h) {
+      return /squats?/i.test(h.name);
+    });
+    const out = [];
+    if (pushUps) out.push(pushUps);
+    if (squats && (!pushUps || squats.id !== pushUps.id)) out.push(squats);
+    if (!out.length) return habits.slice(0, Math.min(2, habits.length));
+    return out;
+  }
+
+  function ensureGraphHabitColor(habitId) {
+    if (graphHabitColorSlot[habitId] != null) return graphHabitColorSlot[habitId];
+    const slot = graphColorSlotNext % GRAPH_COLORS.length;
+    graphHabitColorSlot[habitId] = slot;
+    graphColorSlotNext++;
+    return slot;
+  }
+
+  function getGraphHabitColor(habitId) {
+    ensureGraphHabitColor(habitId);
+    return GRAPH_COLORS[graphHabitColorSlot[habitId] % GRAPH_COLORS.length];
+  }
+
+  function seedDefaultPlotColors(habits) {
+    getDefaultPlotHabits(habits).forEach(function (h, i) {
+      if (graphHabitColorSlot[h.id] == null) {
+        graphHabitColorSlot[h.id] = i % GRAPH_COLORS.length;
+        graphColorSlotNext = Math.max(graphColorSlotNext, i + 1);
+      }
+    });
+  }
+
+  function graphDotRadius(range) {
+    if (range === "365" || range === "year") return 1.25;
+    if (range === "90") return 2;
+    return 3;
+  }
+
   function getGraphSelectedHabits(habits) {
     const selected = habits.filter(function (h) {
       return graphSelectedIds[h.id];
     });
     if (graphUserToggled) return selected;
     if (selected.length) return selected;
-    return habits.slice(0, Math.min(2, habits.length));
+    seedDefaultPlotColors(habits);
+    return getDefaultPlotHabits(habits);
   }
 
-  function drawGraphChart(canvas, seriesList) {
+  function drawGraphChart(canvas, seriesList, range) {
     if (!canvas) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
@@ -5357,8 +5402,10 @@
       ctx.fillText(formatGraphDayLabel(p.day.date), x, h - 10);
     });
 
-    seriesList.forEach(function (series, si) {
-      const color = GRAPH_COLORS[si % GRAPH_COLORS.length];
+    const dotR = graphDotRadius(range);
+
+    seriesList.forEach(function (series) {
+      const color = getGraphHabitColor(series.habit.id);
       ctx.strokeStyle = color;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -5384,7 +5431,7 @@
         const x = pad.left + (pointCount === 1 ? plotW / 2 : (plotW * i) / (pointCount - 1));
         const y = pad.top + plotH - (p.norm / 100) * plotH;
         ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.arc(x, y, dotR, 0, Math.PI * 2);
         ctx.fillStyle = color;
         ctx.fill();
       });
@@ -5404,11 +5451,15 @@
           graphUserToggled = true;
           getGraphSelectedHabits(getFilteredHabits(true)).forEach(function (h) {
             graphSelectedIds[h.id] = true;
+            ensureGraphHabitColor(h.id);
           });
         }
         const id = btn.getAttribute("data-graph-habit");
         if (graphSelectedIds[id]) delete graphSelectedIds[id];
-        else graphSelectedIds[id] = true;
+        else {
+          graphSelectedIds[id] = true;
+          ensureGraphHabitColor(id);
+        }
         renderGraphs();
       };
     });
@@ -5479,8 +5530,8 @@
     } else {
       html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas></div>';
       html += '<div class="graph-legend">';
-      seriesList.forEach(function (series, i) {
-        const color = GRAPH_COLORS[i % GRAPH_COLORS.length];
+      seriesList.forEach(function (series) {
+        const color = getGraphHabitColor(series.habit.id);
         html +=
           '<div class="graph-legend-item"><span class="graph-legend-swatch" style="background:' +
           color +
@@ -5501,7 +5552,7 @@
 
     if (hasData && selectedHabits.length) {
       const canvas = root.querySelector("#graphCanvas");
-      drawGraphChart(canvas, seriesList);
+      drawGraphChart(canvas, seriesList, graphRange);
     }
   }
 
