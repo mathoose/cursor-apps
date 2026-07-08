@@ -1767,7 +1767,26 @@
   .btn-danger { background: var(--surface); border-color: var(--q1-border); color: var(--danger); }
   .btn-danger:active { background: var(--q1-soft); }
   .btn-ghost { background: transparent; border: none; }
-  .task-move-top-btn { width: 100%; }
+  .task-move-top-btn {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    min-height: 32px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .priority-field-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .priority-field-head .field-label { margin-bottom: 0; }
+  .task-editor-details {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
 
   .field { margin-bottom: 14px; }
   .field-label {
@@ -2221,39 +2240,15 @@
         <input type="text" id="taskTitleInput" placeholder="Task title" autocomplete="off">
       </div>
       <div class="field">
-        <label class="field-label">Description</label>
-        <textarea id="taskNotesInput" placeholder="Add a description…"></textarea>
-      </div>
-      <div class="field">
         <label class="field-label">Link</label>
         <input type="url" id="taskLinkInput" placeholder="https://instagram.com/reel/…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
         <a class="task-link-open" id="taskLinkOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open link</a>
       </div>
-      <div class="field task-photo-block">
-        <label class="field-label">Photo</label>
-        <div class="task-photo-preview" id="taskPhotoPreview"></div>
-        <div class="task-photo-actions">
-          <button type="button" class="btn" id="taskPhotoLibraryBtn">Choose from Photos</button>
-          <button type="button" class="btn" id="taskPhotoCameraBtn">Take Photo</button>
-          <button type="button" class="btn" id="taskPhotoRemoveBtn" style="display:none">Remove</button>
+      <div class="field" id="taskPriorityField">
+        <div class="priority-field-head">
+          <label class="field-label">Priority</label>
+          <button type="button" class="btn task-move-top-btn" id="taskMoveTopBtn" hidden>Move to top</button>
         </div>
-        <input type="file" id="taskPhotoLibraryFile" accept="image/*,.heic,.heif" hidden>
-        <input type="file" id="taskPhotoCameraFile" accept="image/*" capture="environment" hidden>
-        <p class="task-photo-hint">Saved on this device only.</p>
-      </div>
-      <div class="field">
-        <label class="field-label">Due date</label>
-        <input type="date" id="taskDueInput">
-        <div class="due-quick">
-          <button class="due-quick-btn" data-due="today">Today</button>
-          <button class="due-quick-btn" data-due="tomorrow">Tomorrow</button>
-          <button class="due-quick-btn" data-due="weekend">This weekend</button>
-          <button class="due-quick-btn" data-due="nextweek">Next week</button>
-          <button class="due-quick-btn" data-due="clear">No date</button>
-        </div>
-      </div>
-      <div class="field">
-        <label class="field-label">Priority</label>
         <div class="priority-picker" id="prioPicker">
           <button type="button" class="prio-btn" data-prio="0"><span class="flag"></span><span>None</span></button>
           <button type="button" class="prio-btn" data-prio="1"><span class="flag"></span><span>Low</span></button>
@@ -2312,9 +2307,6 @@
           <button type="button" class="btn btn-primary" id="taskCategoryNewSave">Add</button>
         </div>
       </div>
-      <div class="field" id="taskMoveTopField" hidden>
-        <button type="button" class="btn task-move-top-btn" id="taskMoveTopBtn">Move to top</button>
-      </div>
       <div class="field">
         <label class="field-label">Subtasks</label>
         <div class="subtasks-list" id="subtasksList"></div>
@@ -2325,6 +2317,35 @@
       <div class="field">
         <label class="field-label">Matrix</label>
         <div id="quadrantBadgeWrap"></div>
+      </div>
+      <div class="task-editor-details">
+        <div class="field">
+          <label class="field-label">Description</label>
+          <textarea id="taskNotesInput" placeholder="Add a description…"></textarea>
+        </div>
+        <div class="field task-photo-block">
+          <label class="field-label">Photo</label>
+          <div class="task-photo-preview" id="taskPhotoPreview"></div>
+          <div class="task-photo-actions">
+            <button type="button" class="btn" id="taskPhotoLibraryBtn">Choose from Photos</button>
+            <button type="button" class="btn" id="taskPhotoCameraBtn">Take Photo</button>
+            <button type="button" class="btn" id="taskPhotoRemoveBtn" style="display:none">Remove</button>
+          </div>
+          <input type="file" id="taskPhotoLibraryFile" accept="image/*,.heic,.heif" hidden>
+          <input type="file" id="taskPhotoCameraFile" accept="image/*" capture="environment" hidden>
+          <p class="task-photo-hint">Saved on this device only.</p>
+        </div>
+        <div class="field">
+          <label class="field-label">Due date</label>
+          <input type="date" id="taskDueInput">
+          <div class="due-quick">
+            <button class="due-quick-btn" data-due="today">Today</button>
+            <button class="due-quick-btn" data-due="tomorrow">Tomorrow</button>
+            <button class="due-quick-btn" data-due="weekend">This weekend</button>
+            <button class="due-quick-btn" data-due="nextweek">Next week</button>
+            <button class="due-quick-btn" data-due="clear">No date</button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -5001,8 +5022,8 @@ function openTaskEditor(taskId) {
   renderTaskPhotoEditor();
 
   document.getElementById('taskDeleteBtn').style.display = task ? '' : 'none';
-  const moveTopField = document.getElementById('taskMoveTopField');
-  if (moveTopField) moveTopField.hidden = !(task && !task.completed);
+  const moveTopBtn = document.getElementById('taskMoveTopBtn');
+  if (moveTopBtn) moveTopBtn.hidden = !(task && !task.completed);
   openModal('taskModal');
   setTimeout(() => document.getElementById('taskTitleInput').focus(), 100);
 }
