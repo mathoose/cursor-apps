@@ -5275,6 +5275,37 @@
     return days;
   }
 
+  function dayHighForHabitOnDate(habit, y, m, d) {
+    const val = getCellValue(cellKey(habit.id, y, m, d));
+    const raw = graphRawValue(habit, val);
+    if (habit.type === "yesno") return 1;
+    if (raw != null && raw > 0) return raw;
+    return null;
+  }
+
+  function buildGraph24hSeries(habit) {
+    const logSeries = buildLog24hSeries(habit.id);
+    const points = logSeries.points.map(function (p) {
+      const d = new Date(p.ts);
+      const dayHigh = dayHighForHabitOnDate(habit, d.getFullYear(), d.getMonth(), d.getDate());
+      let norm = null;
+      if (dayHigh != null && dayHigh > 0) {
+        norm = Math.min(100, (p.value / dayHigh) * 100);
+      } else if (p.value === 0) {
+        norm = 0;
+      }
+      return { ts: p.ts, raw: p.value, norm: norm };
+    });
+    const today = new Date();
+    const todayHigh = dayHighForHabitOnDate(habit, today.getFullYear(), today.getMonth(), today.getDate());
+    return {
+      habit: habit,
+      points: points,
+      maxRaw: todayHigh != null ? todayHigh : habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1),
+      is24h: true,
+    };
+  }
+
   function buildGraphSeries(habit, start, end) {
     const days = enumerateGraphDays(start, end);
     const points = days.map(function (day) {
@@ -5365,8 +5396,109 @@
     return getDefaultPlotHabits(habits);
   }
 
+  function drawGraph24hPlot(canvas, seriesList) {
+    if (!canvas || !seriesList.length) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(rect.width, 280);
+    const h = 260;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const now = Date.now();
+    const start = now - CHANGELOG_TTL_MS;
+    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+    const dotR = graphDotRadius("1");
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = "#faf8f4";
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
+    }
+
+    let mid = nextLocalMidnightAfter(start);
+    while (mid < now) {
+      const x = pad.left + ((mid - start) / (now - start)) * plotW;
+      ctx.strokeStyle = "rgba(196, 92, 92, 0.35)";
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(x, pad.top);
+      ctx.lineTo(x, pad.top + plotH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#9a8f82";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Midnight", x, pad.top - 4);
+      mid = nextLocalMidnightAfter(mid);
+    }
+
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (slot) {
+      const ts = start + (now - start) * slot;
+      const x = pad.left + plotW * slot;
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(formatLogGraphAxisTime(ts, now), x, h - 10);
+    });
+
+    seriesList.forEach(function (series) {
+      const color = getGraphHabitColor(series.habit.id);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let started = false;
+      series.points.forEach(function (p) {
+        if (p.norm == null) {
+          started = false;
+          return;
+        }
+        const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+
+      series.points.forEach(function (p) {
+        if (p.norm == null) return;
+        const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        ctx.beginPath();
+        ctx.arc(x, y, dotR, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+      });
+    });
+  }
+
   function drawGraphChart(canvas, seriesList, range) {
     if (!canvas) return;
+    if (range === "1") {
+      drawGraph24hPlot(canvas, seriesList);
+      return;
+    }
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     const w = Math.max(rect.width, 280);
@@ -5481,19 +5613,30 @@
     if (!root) return;
     const habits = getFilteredHabits(true);
     const selectedHabits = getGraphSelectedHabits(habits);
-    const bounds = getGraphDateBounds(graphRange);
     const seriesList = selectedHabits.map(function (habit) {
+      if (graphRange === "1") return buildGraph24hSeries(habit);
+      const bounds = getGraphDateBounds(graphRange);
       return buildGraphSeries(habit, bounds.start, bounds.end);
     });
-    const hasData = seriesList.some(function (series) {
-      return series.points.some(function (p) {
-        return p.raw != null;
-      });
-    });
+    const hasData = graphRange === "1"
+      ? seriesList.some(function (series) {
+          return series.points.some(function (p) {
+            return p.raw != null && p.raw > 0;
+          });
+        })
+      : seriesList.some(function (series) {
+          return series.points.some(function (p) {
+            return p.raw != null;
+          });
+        });
 
     let html = renderCategoryFiltersHtml(true);
     html +=
-      '<p class="hint">Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.</p>';
+      '<p class="hint">' +
+      (graphRange === "1"
+        ? "24h uses activity log · each line scales to that day's total · Yes/No habits use Yes as 100%."
+        : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
+      "</p>";
     html += '<div class="graph-range-row">';
     graphRangeOptions().forEach(function (range) {
       html +=
@@ -5536,7 +5679,9 @@
     if (!selectedHabits.length) {
       html += '<p class="graph-empty">Select at least one habit above.</p>';
     } else if (!hasData) {
-      html += '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
+      html += graphRange === "1"
+        ? '<p class="graph-empty">No activity in the last 24 hours — mark habits on Today or Month.</p>'
+        : '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
     } else {
       html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas></div>';
       html += '<div class="graph-legend">';
