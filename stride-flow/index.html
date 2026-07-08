@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>StrideFlow</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="StrideFlow" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#C05C3D" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-chat">
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-center" id="headerCenter">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <h1 class="header-title" id="headerTitle">StrideFlow</h1>
+      </div>
+      <div class="header-actions" id="headerActions">
+        <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="header-extra" id="headerExtra" hidden></div>
+  </header>
+
+  <main id="mainContent">
+    <!-- Chat -->
+    <section class="view active" id="viewChat" data-view="chat">
+      <div class="chat-feed" id="chatFeed"></div>
+      <div class="proposal-panel" id="proposalPanel" hidden>
+        <div class="proposal-card">
+          <p class="proposal-label">Proposal · Changes</p>
+          <div id="proposalChanges"></div>
+        </div>
+        <div class="proposal-actions">
+          <button type="button" class="btn btn-secondary" id="proposalCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-primary" id="proposalSaveBtn">Save changes</button>
+        </div>
+      </div>
+      <div class="chat-compose">
+        <input type="text" id="chatInput" placeholder="Talk to StrideFlow…" autocomplete="off" enterkeyhint="send" />
+        <button type="button" class="send-btn" id="chatSendBtn" aria-label="Send">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
+      <p class="chat-disclaimer">StrideFlow can make mistakes. Double-check important info.</p>
+    </section>
+
+    <!-- Calendar -->
+    <section class="view" id="viewCalendar" data-view="calendar">
+      <div class="period-tabs" role="tablist">
+        <button type="button" class="period-tab active" data-period="today">Today</button>
+        <button type="button" class="period-tab" data-period="week">Week</button>
+        <button type="button" class="period-tab" data-period="month">Month</button>
+      </div>
+      <div id="calendarBody"></div>
+    </section>
+
+    <!-- Plan (weekly grid) -->
+    <section class="view" id="viewPlan" data-view="plan">
+      <div class="plan-hero">
+        <h2 class="plan-title">Here's your plan</h2>
+        <p class="plan-subtitle">Balanced around your real life.</p>
+      </div>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="legend" id="legend"></div>
+      <div class="insight-box">
+        <span class="insight-icon" aria-hidden="true">✦</span>
+        <p>This plan adapts as your week changes. You stay consistent without burning out.</p>
+      </div>
+    </section>
+
+    <!-- Goals -->
+    <section class="view" id="viewGoals" data-view="goals">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Active objectives</h2>
+          <p class="section-caption">These are the ones StrideFlow plans around. Top three are active.</p>
+        </div>
+        <span class="section-count" id="activeGoalCount">0 of 3</span>
+      </div>
+      <div class="goal-list" id="activeGoals"></div>
+      <div class="section-head queued-head">
+        <div>
+          <h2 class="section-title">Queued</h2>
+          <p class="section-caption">Waiting for a slot.</p>
+        </div>
+        <span class="section-count" id="queuedGoalCount">0</span>
+      </div>
+      <div class="goal-list" id="queuedGoals"></div>
+      <button type="button" class="btn btn-secondary btn-block" id="addGoalBtn">Add goal</button>
+    </section>
+
+    <!-- Lists -->
+    <section class="view" id="viewLists" data-view="lists">
+      <div class="list-overview" id="listOverview">
+        <p class="section-caption">Checklists linked to your goals.</p>
+        <div class="list-cards" id="listCards"></div>
+        <button type="button" class="btn btn-secondary btn-block" id="addListBtn">New list</button>
+      </div>
+      <div class="list-detail" id="listDetail" hidden>
+        <div class="list-detail-head">
+          <button type="button" class="icon-btn" id="listBackBtn" aria-label="Back">
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="list-detail-title-wrap">
+            <span class="list-detail-icon" id="listDetailIcon"></span>
+            <div>
+              <h2 class="list-detail-title" id="listDetailTitle"></h2>
+              <p class="list-detail-meta" id="listDetailMeta"></p>
+            </div>
+          </div>
+        </div>
+        <div class="goal-pill" id="listGoalPill" hidden></div>
+        <div class="checklist-section">
+          <div class="checklist-head">
+            <span>To do</span>
+            <span id="checklistCount"></span>
+          </div>
+          <ul class="checklist" id="checklistItems"></ul>
+        </div>
+        <form class="add-row" id="checklistAddForm">
+          <input type="text" id="checklistAddInput" placeholder="Add item…" autocomplete="off" enterkeyhint="done" />
+          <button type="submit" class="add-btn" aria-label="Add">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="chat" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><circle cx="9" cy="10" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r="1.2" fill="currentColor" stroke="none"/></svg>
+      <span class="nav-btn-label">Chat</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="calendar" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="nav-btn-label">Calendar</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="goals" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      <span class="nav-btn-label">Goals</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="lists" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span class="nav-btn-label">Lists</span>
+    </button>
+  </nav>
+
+  <!-- Settings sheet -->
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-group">
+        <h3 class="settings-label">Data</h3>
+        <button type="button" class="settings-row" id="exportBtn">Export JSON</button>
+        <button type="button" class="settings-row" id="importBtn">Import JSON</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden />
+      </div>
+      <div class="settings-group">
+        <h3 class="settings-label">Calendar</h3>
+        <p class="settings-hint">StrideFlow v1 plans locally on your phone. Calendar sync is coming later — for now, add blocks in Chat or Calendar.</p>
+        <button type="button" class="settings-row" id="resetDemoBtn">Reset demo data</button>
+      </div>
+      <button type="button" class="btn btn-secondary btn-block" id="settingsCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Goal editor -->
+  <div class="overlay" id="goalOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet sheet-tall">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="goalSheetTitle">Add goal</h2>
+      <div class="field">
+        <label class="field-label" for="goalTitle">Title</label>
+        <input type="text" id="goalTitle" placeholder="e.g. NYC Marathon Nov 2027" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="goalDescription">Description</label>
+        <textarea id="goalDescription" rows="3" placeholder="Why this matters…"></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="goalPace">Pace</label>
+          <input type="text" id="goalPace" placeholder="balanced" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="goalFrequency">Frequency</label>
+          <input type="text" id="goalFrequency" placeholder="3-5/wk" autocomplete="off" />
+        </div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="goalCancelBtn">Cancel</button>
+        <button type="button" class="btn btn-primary" id="goalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
