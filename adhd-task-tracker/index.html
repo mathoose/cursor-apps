@@ -733,6 +733,12 @@
     align-items: center;
     flex-shrink: 0;
   }
+  .quick-add-ams[hidden],
+  .quick-add-paid[hidden],
+  .quick-add-filament[hidden],
+  #listQuickFilament[hidden] {
+    display: none !important;
+  }
   .quick-add-paid {
     display: flex;
     align-items: center;
@@ -2458,7 +2464,7 @@
       </button>
     </div>
     <div class="modal-body">
-      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px;">Drag order with arrows. Add new categories from the task creation row.</p>
+      <p id="categoriesModalHint" style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 12px;">Drag order with arrows. Categories belong to each list — add new ones from that list’s task row.</p>
       <div id="categoriesManagerList"></div>
       <div class="bulk-add-categories">
         <label class="field-label" for="bulkAddCategoriesInput">Add multiple at once</label>
@@ -2901,14 +2907,15 @@ function loadState() {
       state.lists = ensurePrinterLists(ensureSystemLists(parsed.lists));
     }
     if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
+    if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
+    ensureTaskSortOrders();
+    if (ensureCategoryListIds()) saveState();
     if (Array.isArray(parsed.filamentColors)) {
       state.filamentColors = parsed.filamentColors.map(normalizeFilamentColorDef);
     }
     if (typeof parsed.filamentColorSortAt === 'number') state.filamentColorSortAt = parsed.filamentColorSortAt;
     ensureFilamentColors();
     maybeReorderFilamentColors();
-    if (Array.isArray(parsed.tasks)) state.tasks = parsed.tasks.map(normalizeTask);
-    ensureTaskSortOrders();
     if (typeof parsed.activeListId === 'string') state.activeListId = parsed.activeListId;
     if (typeof parsed.matrixFilter === 'string') state.matrixFilter = parsed.matrixFilter;
     if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
@@ -3571,8 +3578,63 @@ function normalizeFilamentColorIds(ids, legacyId) {
 function normalizeCategoryDef(c) {
   return {
     id: c.id || ('cat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6)),
-    name: (c.name || '').trim()
+    name: (c.name || '').trim(),
+    listIds: Array.isArray(c.listIds) ? c.listIds.filter(Boolean) : []
   };
+}
+
+function categoryBelongsToList(cat, listId) {
+  if (!cat || !listId) return false;
+  if (!Array.isArray(cat.listIds) || !cat.listIds.length) return false;
+  return cat.listIds.includes(listId);
+}
+
+function getCategoriesForList(listId) {
+  if (!listId) return state.categories.slice();
+  return state.categories.filter(c => categoryBelongsToList(c, listId));
+}
+
+function ensureCategoryListIds() {
+  let changed = false;
+  state.categories.forEach(cat => {
+    if (!Array.isArray(cat.listIds)) {
+      cat.listIds = [];
+      changed = true;
+    }
+    if (!cat.listIds.length) {
+      const usedOn = new Set();
+      state.tasks.forEach(t => {
+        if (Array.isArray(t.categoryIds) && t.categoryIds.includes(cat.id)) {
+          usedOn.add(t.listId);
+        }
+      });
+      if (usedOn.size) {
+        cat.listIds = Array.from(usedOn);
+        changed = true;
+      }
+    }
+  });
+  return changed;
+}
+
+function getCategoryFilterListId() {
+  if (currentView === 'inbox') return 'inbox';
+  if (currentView === 'lists') return state.activeListId;
+  return null;
+}
+
+function resetCategoryFilterForList(listId) {
+  if (state.categoryFilter === 'all') return;
+  const cat = getCategory(state.categoryFilter);
+  if (!categoryBelongsToList(cat, listId)) state.categoryFilter = 'all';
+}
+
+function pruneQuickAddCategorySelection(uiKey, listId) {
+  const valid = new Set(getCategoriesForList(listId).map(c => c.id));
+  const sel = quickAddCategoryUi[uiKey].selected;
+  sel.forEach(id => {
+    if (!valid.has(id)) sel.delete(id);
+  });
 }
 
 function normalizeCategoryIds(ids) {
@@ -3594,17 +3656,30 @@ function addCategory(name, opts) {
   }
   const existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
   if (existing) {
-    if (!opts.silent) showToast('Category already exists', { error: true });
+    if (opts.listId && !existing.listIds.includes(opts.listId)) {
+      existing.listIds.push(opts.listId);
+      if (!opts.deferSave) saveState();
+      if (!opts.silent) showToast('Added category to this list: ' + name);
+      if (!opts.deferRefresh) onCategoriesChanged();
+      return existing.id;
+    }
+    if (!opts.silent) showToast('Category already on this list', { error: true });
     return existing.id;
   }
   const id = 'cat_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
-  state.categories.push({ id, name });
+  state.categories.push({
+    id,
+    name,
+    listIds: opts.listId ? [opts.listId] : []
+  });
   if (!opts.deferSave) saveState();
   if (!opts.silent) showToast('Added category: ' + name);
+  if (!opts.deferRefresh) onCategoriesChanged();
   return id;
 }
 
-function addCategoriesBulk(text) {
+function addCategoriesBulk(text, opts) {
+  opts = opts || {};
   const names = [];
   const seen = new Set();
   text.split(/[\n,]+/).forEach(part => {
@@ -3620,16 +3695,28 @@ function addCategoriesBulk(text) {
     return 0;
   }
   const startLen = state.categories.length;
-  names.forEach(name => addCategory(name, { silent: true, deferSave: true }));
+  let attached = 0;
+  names.forEach(name => {
+    const existing = state.categories.find(c => c.name.toLowerCase() === name.toLowerCase());
+    const hadList = existing && opts.listId && existing.listIds.includes(opts.listId);
+    addCategory(name, {
+      silent: true,
+      deferSave: true,
+      deferRefresh: true,
+      listId: opts.listId
+    });
+    if (existing && opts.listId && !hadList && existing.listIds.includes(opts.listId)) attached++;
+  });
   const added = state.categories.length - startLen;
-  if (added) {
+  const total = added + attached;
+  if (total) {
     saveState();
     onCategoriesChanged();
-    showToast(`Added ${added} categor${added === 1 ? 'y' : 'ies'}`);
+    showToast(`Added ${total} categor${total === 1 ? 'y' : 'ies'}`);
   } else {
-    showToast('All names already exist', { error: true });
+    showToast('All names already on this list', { error: true });
   }
-  return added;
+  return total;
 }
 
 function deleteCategory(id) {
@@ -3989,6 +4076,8 @@ function syncQuickAddAms() {
   const show = isPrinterList(state.activeListId);
   wrap.hidden = !show;
   if (!show && input) input.checked = false;
+  const inboxWrap = document.querySelector('#inboxQuickPriority .quick-add-ams');
+  if (inboxWrap) inboxWrap.hidden = true;
 }
 
 function syncQuickAddPaid() {
@@ -4200,13 +4289,14 @@ function onCategoriesChanged() {
   }
 }
 
-function renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate) {
+function renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate) {
   if (!container) return;
   container.innerHTML = '';
+  const categories = getCategoriesForList(listId);
   const label = el('span', { class: 'quick-add-categories-label', text: 'Categories' });
   const scroll = el('div', { class: 'category-chip-scroll' });
 
-  state.categories.forEach(cat => {
+  categories.forEach(cat => {
     const selected = getSelection().has(cat.id);
     scroll.appendChild(el('button', {
       type: 'button',
@@ -4218,7 +4308,7 @@ function renderCategoryChipRow(container, uiState, getSelection, setSelection, o
         if (sel.has(cat.id)) sel.delete(cat.id);
         else sel.add(cat.id);
         onUpdate();
-        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+        renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
       }
     }));
   });
@@ -4235,7 +4325,7 @@ function renderCategoryChipRow(container, uiState, getSelection, setSelection, o
       const name = input.value.trim();
       uiState.adding = false;
       if (name) {
-        const id = addCategory(name, { silent: true });
+        const id = addCategory(name, { silent: true, listId, deferRefresh: true });
         if (id) {
           getSelection().add(id);
           onUpdate();
@@ -4243,14 +4333,14 @@ function renderCategoryChipRow(container, uiState, getSelection, setSelection, o
           onCategoriesChanged();
         }
       }
-      renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+      renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
       renderCategoryFilters();
     };
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') finishAdd();
       if (e.key === 'Escape') {
         uiState.adding = false;
-        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+        renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
       }
     });
     input.addEventListener('blur', finishAdd);
@@ -4264,7 +4354,7 @@ function renderCategoryChipRow(container, uiState, getSelection, setSelection, o
       'aria-label': 'Add category',
       onClick: () => {
         uiState.adding = true;
-        renderCategoryChipRow(container, uiState, getSelection, setSelection, onUpdate);
+        renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
       }
     }));
   }
@@ -4277,6 +4367,7 @@ function renderQuickAddCategories() {
   renderCategoryChipRow(
     document.getElementById('listQuickCategories'),
     quickAddCategoryUi.list,
+    state.activeListId,
     () => quickAddCategoryUi.list.selected,
     (sel) => { quickAddCategoryUi.list.selected = sel; },
     () => {}
@@ -4284,6 +4375,7 @@ function renderQuickAddCategories() {
   renderCategoryChipRow(
     document.getElementById('inboxQuickCategories'),
     quickAddCategoryUi.inbox,
+    'inbox',
     () => quickAddCategoryUi.inbox.selected,
     (sel) => { quickAddCategoryUi.inbox.selected = sel; },
     () => {}
@@ -4299,12 +4391,14 @@ function renderTaskEditorCategories() {
   renderCategoryChipRow(
     container,
     quickAddCategoryUi.editor,
+    editingTaskDraft.listId,
     () => selection,
     () => {},
     () => {
       editingTaskDraft.categoryIds = Array.from(selection);
     }
   );
+  field.hidden = !getCategoriesForList(editingTaskDraft.listId).length && !selection.size;
 }
 
 function renderCategoryFilters() {
@@ -4316,12 +4410,14 @@ function renderCategoryFilters() {
     document.getElementById('listCategoryFilterRow'),
     document.getElementById('inboxCategoryFilterRow')
   ];
-  const hasCategories = state.categories.length > 0;
+  const filterListId = getCategoryFilterListId();
+  const visibleCategories = filterListId ? getCategoriesForList(filterListId) : state.categories;
+  const hasCategories = visibleCategories.length > 0;
   rows.forEach(row => { if (row) row.hidden = !hasCategories; });
   if (!hasCategories) {
     state.categoryFilter = 'all';
   }
-  if (state.categoryFilter !== 'all' && !getCategory(state.categoryFilter)) {
+  if (state.categoryFilter !== 'all' && !visibleCategories.some(c => c.id === state.categoryFilter)) {
     state.categoryFilter = 'all';
     saveState();
   }
@@ -4331,7 +4427,7 @@ function renderCategoryFilters() {
     const allOpt = el('option', { value: 'all', text: 'All categories' });
     if (state.categoryFilter === 'all') allOpt.selected = true;
     select.appendChild(allOpt);
-    state.categories.forEach(cat => {
+    visibleCategories.forEach(cat => {
       const opt = el('option', { value: cat.id, text: cat.name });
       if (state.categoryFilter === cat.id) opt.selected = true;
       select.appendChild(opt);
@@ -4381,7 +4477,7 @@ function syncListToolbar() {
   if (!toolbar) return;
   const hasTasks = state.tasks.some(t => t.listId === state.activeListId);
   const printerList = isPrinterList(state.activeListId);
-  const hasCategories = state.categories.length > 0;
+  const hasCategories = getCategoriesForList(state.activeListId).length > 0;
   toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
 }
 
@@ -4509,6 +4605,7 @@ function emptyState(emoji, message) {
 // RENDER VIEWS
 // ============================================================================
 function render() {
+  syncQuickAddPrinterControls();
   renderHeader();
   renderCategoryFilters();
   renderQuickAddCategories();
@@ -4855,6 +4952,8 @@ function renderListsView() {
       class: 'list-tab' + (list.id === state.activeListId ? ' active' : ''),
       onClick: () => {
         state.activeListId = list.id;
+        resetCategoryFilterForList(list.id);
+        pruneQuickAddCategorySelection('list', list.id);
         saveState();
         render();
       }
@@ -5446,6 +5545,13 @@ function renderFilamentManager() {
 // CATEGORIES MANAGER
 // ============================================================================
 function openCategoriesManager() {
+  const hint = document.getElementById('categoriesModalHint');
+  const list = state.lists.find(l => l.id === (getCategoryFilterListId() || state.activeListId));
+  if (hint) {
+    hint.textContent = list
+      ? `Categories for “${list.name}”. Drag order with arrows, or add new ones from that list’s task row.`
+      : 'Drag order with arrows. Categories belong to each list — add new ones from that list’s task row.';
+  }
   renderCategoriesManager();
   openModal('categoriesModal');
 }
@@ -5454,14 +5560,21 @@ function renderCategoriesManager() {
   const container = document.getElementById('categoriesManagerList');
   if (!container) return;
   container.innerHTML = '';
-  if (!state.categories.length) {
+  const listId = getCategoryFilterListId() || state.activeListId;
+  const categories = getCategoriesForList(listId);
+  if (!categories.length) {
+    const list = state.lists.find(l => l.id === listId);
     container.appendChild(el('p', {
       style: 'font-size: 0.85rem; color: var(--text-faint); font-style: italic; margin: 0;',
-      text: 'No categories yet. Tap + on the task creation row to add one.'
+      text: list
+        ? `No categories on “${list.name}” yet. Tap + on the task creation row to add one.`
+        : 'No categories yet. Tap + on the task creation row to add one.'
     }));
     return;
   }
-  state.categories.forEach((cat, index) => {
+  categories.forEach((cat) => {
+    const index = state.categories.findIndex(c => c.id === cat.id);
+    if (index < 0) return;
     const row = el('div', { class: 'list-manage-row' });
     row.appendChild(el('div', { class: 'settings-label', text: cat.name }));
 
@@ -5538,6 +5651,7 @@ function renderBulkTagCategories() {
   renderCategoryChipRow(
     document.getElementById('bulkTagCategories'),
     quickAddCategoryUi.bulkTag,
+    state.activeListId,
     () => quickAddCategoryUi.bulkTag.selected,
     () => {},
     () => {}
@@ -6506,6 +6620,10 @@ function renderCompareHeatmap() {
 // ============================================================================
 function switchView(view) {
   if (view === 'fitness' || view === 'bullet') view = 'lists';
+  if (view === 'inbox') {
+    resetCategoryFilterForList('inbox');
+    pruneQuickAddCategorySelection('inbox', 'inbox');
+  }
   currentView = view;
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
@@ -6717,7 +6835,11 @@ function wireTaskEditor() {
   });
   document.getElementById('taskListSelect').addEventListener('change', (e) => {
     editingTaskDraft.listId = e.target.value;
+    editingTaskDraft.categoryIds = normalizeCategoryIds(
+      (editingTaskDraft.categoryIds || []).filter(id => categoryBelongsToList(getCategory(id), editingTaskDraft.listId))
+    );
     syncTaskEditorPrinterFields();
+    renderTaskEditorCategories();
   });
   document.getElementById('taskCategoryAddBtn').addEventListener('click', () => {
     const row = document.getElementById('taskCategoryNewRow');
@@ -6864,7 +6986,8 @@ function wireSettings() {
   document.getElementById('bulkAddCategoriesBtn').addEventListener('click', () => {
     const input = document.getElementById('bulkAddCategoriesInput');
     if (!input) return;
-    const added = addCategoriesBulk(input.value);
+    const listId = getCategoryFilterListId() || state.activeListId;
+    const added = addCategoriesBulk(input.value, { listId });
     if (added) {
       input.value = '';
       renderCategoriesManager();
