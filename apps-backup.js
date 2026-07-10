@@ -23,6 +23,7 @@
     "shopping-list": "Our Groceries",
     "world-cup-2026": "World Cup",
     "times-tables": "Times Tables",
+    "quick-reader": "Quick Reader",
     "things-book": "Things Book",
     "stride-flow": "StrideFlow",
   };
@@ -730,6 +731,62 @@
           return new Date(a.date) - new Date(b.date);
         });
         return out;
+      },
+    },
+    "quick-reader": {
+      storageKey: "quick-reader-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("quick-reader-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p.text !== "string") return null;
+          return {
+            version: 1,
+            title: typeof p.title === "string" ? p.title : "",
+            sourceUrl: typeof p.sourceUrl === "string" ? p.sourceUrl : "",
+            text: p.text,
+            wpm: typeof p.wpm === "number" ? p.wpm : 250,
+            position: typeof p.position === "number" ? p.position : 0,
+            updatedAt: p.updatedAt || new Date().toISOString(),
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice.text !== "string") return false;
+        return writeKey(
+          "quick-reader-v1",
+          JSON.stringify({
+            version: 1,
+            title: typeof slice.title === "string" ? slice.title : "",
+            sourceUrl: typeof slice.sourceUrl === "string" ? slice.sourceUrl : "",
+            text: slice.text,
+            wpm: typeof slice.wpm === "number" ? slice.wpm : 250,
+            position: typeof slice.position === "number" ? slice.position : 0,
+            updatedAt: slice.updatedAt || new Date().toISOString(),
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && typeof obj.text === "string" && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var text = typeof slice.text === "string" ? slice.text.trim() : "";
+        var words = text ? text.split(/\s+/).length : 0;
+        return words + " reader word" + (words === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var existingDate = Date.parse(existing.updatedAt || "");
+        var incomingDate = Date.parse(incoming.updatedAt || "");
+        if (Number.isFinite(incomingDate) && (!Number.isFinite(existingDate) || incomingDate >= existingDate)) {
+          return incoming;
+        }
+        return existing;
       },
     },
     "things-book": {
