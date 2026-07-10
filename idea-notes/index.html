@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Idea Notes</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Idea Notes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#111827" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-home">
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Idea Notes</h1>
+      <p>Notes that connect with [[links]]</p>
+    </div>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <main class="main-panel">
+    <section class="view active" id="homeView" data-view="home" aria-labelledby="homeTitle">
+      <div class="hero-card">
+        <div>
+          <p class="eyebrow">Personal knowledge base</p>
+          <h2 id="homeTitle">Capture ideas and connect them later.</h2>
+          <p class="hero-copy">Type <strong>[[another note]]</strong> anywhere to link ideas together. Backlinks appear automatically.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="newNoteBtn">New note</button>
+      </div>
+
+      <div class="search-card">
+        <label class="field-label" for="searchInput">Search notes</label>
+        <input type="search" id="searchInput" placeholder="Search titles, text, tags, or links..." autocomplete="off" />
+        <div class="quick-actions">
+          <button type="button" class="btn btn-secondary" id="showAllBtn">All notes</button>
+          <button type="button" class="btn btn-secondary" id="openGraphBtn">Graph</button>
+        </div>
+      </div>
+
+      <div class="stats-row" id="statsRow" aria-live="polite"></div>
+      <p class="section-label" id="noteListLabel">Recent notes</p>
+      <div class="note-list" id="noteList"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <p>No notes yet.<br />Tap New note to start your web of ideas.</p>
+      </div>
+    </section>
+
+    <section class="view" id="editorView" data-view="editor" aria-labelledby="editorHeading">
+      <div class="editor-toolbar">
+        <button type="button" class="btn btn-secondary" id="backToHomeBtn">Notes</button>
+        <button type="button" class="btn btn-secondary" id="editorGraphBtn">Graph</button>
+      </div>
+
+      <article class="editor-card">
+        <label class="field-label" for="titleInput">Title</label>
+        <input type="text" id="titleInput" placeholder="Untitled idea" autocomplete="off" />
+        <h2 class="sr-only" id="editorHeading">Edit note</h2>
+
+        <div class="editor-meta" id="editorMeta"></div>
+
+        <label class="field-label" for="bodyInput">Note</label>
+        <textarea id="bodyInput" rows="14" placeholder="Write an idea. Link another idea with [[double brackets]] and add #tags inline."></textarea>
+
+        <div class="editor-actions">
+          <button type="button" class="btn btn-secondary" id="insertLinkBtn">Insert [[link]]</button>
+          <button type="button" class="btn btn-danger" id="deleteNoteBtn">Delete</button>
+        </div>
+      </article>
+
+      <section class="link-panel" aria-labelledby="connectionsTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Connections</p>
+            <h2 id="connectionsTitle">Linked ideas</h2>
+          </div>
+        </div>
+        <div class="connection-group">
+          <h3>Outgoing links</h3>
+          <div class="chip-list" id="outgoingLinks"></div>
+        </div>
+        <div class="connection-group">
+          <h3>Backlinks</h3>
+          <div class="chip-list" id="backlinks"></div>
+        </div>
+        <div class="connection-group">
+          <h3>Tags</h3>
+          <div class="chip-list" id="tagList"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="view" id="graphView" data-view="graph" aria-labelledby="graphTitle">
+      <div class="graph-toolbar">
+        <button type="button" class="btn btn-secondary" id="graphBackBtn">Notes</button>
+        <button type="button" class="btn btn-primary" id="graphNewBtn">New note</button>
+      </div>
+      <section class="graph-card">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Map</p>
+            <h2 id="graphTitle">Idea graph</h2>
+          </div>
+          <span class="graph-count" id="graphCount"></span>
+        </div>
+        <div class="graph-wrap">
+          <svg id="graphSvg" role="img" aria-label="Graph of linked notes"></svg>
+        </div>
+      </section>
+      <section class="link-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Readable map</p>
+            <h2>Links by note</h2>
+          </div>
+        </div>
+        <div class="graph-list" id="graphList"></div>
+      </section>
+    </section>
+  </main>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <p class="settings-note">Your notes stay on this device. Export JSON to keep a copy or move notes to another browser.</p>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
