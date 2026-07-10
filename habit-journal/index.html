@@ -5335,9 +5335,43 @@
   }
 
   function formatGraphHighLabel(habit, maxRaw) {
-    if (habit.type === "yesno") return "100% = Yes";
+    if (habit.type === "yesno") return "1 = Yes";
     if (maxRaw >= 1000) return "high: " + Math.round(maxRaw).toLocaleString("en-US");
     return "high: " + Math.round(maxRaw);
+  }
+
+  function graphPlotAxisMax(seriesList) {
+    let maxVal = 0;
+    seriesList.forEach(function (series) {
+      if (series.maxRaw != null && series.maxRaw > maxVal) maxVal = series.maxRaw;
+      series.points.forEach(function (p) {
+        if (p.raw != null && p.raw > maxVal) maxVal = p.raw;
+      });
+    });
+    if (maxVal <= 0) maxVal = 1;
+    return maxVal;
+  }
+
+  function graphPlotAllYesNo(seriesList) {
+    return seriesList.length > 0 && seriesList.every(function (s) {
+      return s.habit.type === "yesno";
+    });
+  }
+
+  function formatGraphAxisTick(val, axisMax, allYesNo) {
+    if (allYesNo && axisMax <= 1) {
+      if (val >= 0.75) return "Yes";
+      if (val >= 0.25) return "…";
+      return "No";
+    }
+    if (val >= 1000) return Math.round(val).toLocaleString("en-US");
+    if (Number.isInteger(val) || Math.abs(val - Math.round(val)) < 0.05) return String(Math.round(val));
+    return val.toFixed(1);
+  }
+
+  function graphYForRaw(raw, axisMax, plotH, padTop) {
+    if (raw == null) return null;
+    return padTop + plotH - (raw / axisMax) * plotH;
   }
 
   function formatGraphDayLabel(date) {
@@ -5421,7 +5455,9 @@
 
     const now = Date.now();
     const start = now - CHANGELOG_TTL_MS;
-    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
+    const axisMax = graphPlotAxisMax(seriesList);
+    const allYesNo = graphPlotAllYesNo(seriesList);
+    const pad = { top: 16, right: 12, bottom: 32, left: 40 };
     const plotW = w - pad.left - pad.right;
     const plotH = h - pad.top - pad.bottom;
     const dotR = graphDotRadius("1");
@@ -5438,10 +5474,11 @@
       ctx.moveTo(pad.left, gy);
       ctx.lineTo(w - pad.right, gy);
       ctx.stroke();
+      const tickVal = axisMax * (1 - g / 4);
       ctx.fillStyle = "#6b7264";
       ctx.font = "10px sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
+      ctx.fillText(formatGraphAxisTick(tickVal, axisMax, allYesNo), pad.left - 6, gy + 3);
     }
 
     let mid = nextLocalMidnightAfter(start);
@@ -5477,12 +5514,12 @@
       ctx.beginPath();
       let started = false;
       series.points.forEach(function (p) {
-        if (p.norm == null) {
+        if (p.raw == null) {
           started = false;
           return;
         }
         const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
-        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        const y = graphYForRaw(p.raw, axisMax, plotH, pad.top);
         if (!started) {
           ctx.moveTo(x, y);
           started = true;
@@ -5493,9 +5530,9 @@
       ctx.stroke();
 
       series.points.forEach(function (p) {
-        if (p.norm == null) return;
+        if (p.raw == null) return;
         const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
-        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        const y = graphYForRaw(p.raw, axisMax, plotH, pad.top);
         ctx.beginPath();
         ctx.arc(x, y, dotR, 0, Math.PI * 2);
         ctx.fillStyle = color;
@@ -5520,7 +5557,9 @@
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
+    const axisMax = graphPlotAxisMax(seriesList);
+    const allYesNo = graphPlotAllYesNo(seriesList);
+    const pad = { top: 16, right: 12, bottom: 32, left: 40 };
     const plotW = w - pad.left - pad.right;
     const plotH = h - pad.top - pad.bottom;
 
@@ -5545,10 +5584,11 @@
       ctx.moveTo(pad.left, gy);
       ctx.lineTo(w - pad.right, gy);
       ctx.stroke();
+      const tickVal = axisMax * (1 - g / 4);
       ctx.fillStyle = "#6b7264";
       ctx.font = "10px sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
+      ctx.fillText(formatGraphAxisTick(tickVal, axisMax, allYesNo), pad.left - 6, gy + 3);
     }
 
     const labelEvery = Math.max(1, Math.ceil(pointCount / 5));
@@ -5570,12 +5610,12 @@
       ctx.beginPath();
       let started = false;
       series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-        if (p.norm == null) {
+        if (p.raw == null) {
           started = false;
           return;
         }
         const x = graphXForIndex(domainStartIndex + visibleIndex);
-        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        const y = graphYForRaw(p.raw, axisMax, plotH, pad.top);
         if (!started) {
           ctx.moveTo(x, y);
           started = true;
@@ -5586,9 +5626,9 @@
       ctx.stroke();
 
       series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-        if (p.norm == null) return;
+        if (p.raw == null) return;
         const x = graphXForIndex(domainStartIndex + visibleIndex);
-        const y = pad.top + plotH - (p.norm / 100) * plotH;
+        const y = graphYForRaw(p.raw, axisMax, plotH, pad.top);
         ctx.beginPath();
         ctx.arc(x, y, dotR, 0, Math.PI * 2);
         ctx.fillStyle = color;
@@ -5650,8 +5690,8 @@
     html +=
       '<p class="hint">' +
       (graphRange === "1"
-        ? "24h uses activity log · each line scales to that day's total · Yes/No habits use Yes as 100%."
-        : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
+        ? "24h uses activity log · Y-axis shows raw counts on one shared scale."
+        : "Select habits to compare · Y-axis shows raw values on one shared scale.") +
       "</p>";
     html += '<div class="graph-range-row">';
     graphRangeOptions().forEach(function (range) {
