@@ -21,7 +21,8 @@
       "times-tables": { "storageKey": "times-tables-v1" },
       "things-book": { "storageKey": "things-book-v1" },
       "stride-flow": { "storageKey": "stride-flow-v1" },
-      "quick-reader": { "storageKey": "quick-reader-v1" }
+      "quick-reader": { "storageKey": "quick-reader-v1" },
+      "idea-notes": { "storageKey": "idea-notes-v1" }
     }
   },
   "apps": [
@@ -102,6 +103,12 @@
       "name": "Quick Reader",
       "subtitle": "Hold-to-read text",
       "storageKey": "quick-reader-v1"
+    },
+    {
+      "id": "idea-notes",
+      "name": "Idea Notes",
+      "subtitle": "Notes & linked ideas",
+      "storageKey": "idea-notes-v1"
     },
     {
       "id": "stride-flow",

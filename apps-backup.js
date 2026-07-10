@@ -24,6 +24,7 @@
     "world-cup-2026": "World Cup",
     "times-tables": "Times Tables",
     "quick-reader": "Quick Reader",
+    "idea-notes": "Idea Notes",
     "things-book": "Things Book",
     "stride-flow": "StrideFlow",
   };
@@ -787,6 +788,113 @@
           return incoming;
         }
         return existing;
+      },
+    },
+    "idea-notes": {
+      storageKey: "idea-notes-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("idea-notes-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.notes)) return null;
+          return {
+            version: 1,
+            notes: p.notes.filter(function (note) {
+              return note && note.id && typeof note.body === "string";
+            }).map(function (note) {
+              return {
+                id: note.id,
+                title: typeof note.title === "string" ? note.title : "",
+                body: note.body,
+                tags: Array.isArray(note.tags) ? note.tags : [],
+                createdAt: note.createdAt || new Date().toISOString(),
+                updatedAt: note.updatedAt || note.createdAt || new Date().toISOString(),
+              };
+            }),
+            activeNoteId: typeof p.activeNoteId === "string" ? p.activeNoteId : null,
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.notes)) return false;
+        return writeKey(
+          "idea-notes-v1",
+          JSON.stringify({
+            version: 1,
+            notes: slice.notes.filter(function (note) {
+              return note && note.id && typeof note.body === "string";
+            }).map(function (note) {
+              return {
+                id: note.id,
+                title: typeof note.title === "string" ? note.title : "",
+                body: note.body,
+                tags: Array.isArray(note.tags) ? note.tags : [],
+                createdAt: note.createdAt || new Date().toISOString(),
+                updatedAt: note.updatedAt || note.createdAt || new Date().toISOString(),
+              };
+            }),
+            activeNoteId: typeof slice.activeNoteId === "string" ? slice.activeNoteId : null,
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.notes) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var notes = slice.notes ? slice.notes.length : 0;
+        var links = 0;
+        (slice.notes || []).forEach(function (note) {
+          var matches = String(note.body || "").match(/\[\[[^\]\n]{1,120}\]\]/g);
+          links += matches ? matches.length : 0;
+        });
+        return notes + " idea note" + (notes === 1 ? "" : "s") + ", " + links + " link" + (links === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var notes = (existing.notes || []).slice();
+        var ids = {};
+        var titles = {};
+        function key(title) {
+          return String(title || "").replace(/\s+/g, " ").trim().toLowerCase();
+        }
+        notes.forEach(function (note) {
+          if (!note) return;
+          ids[note.id] = note;
+          if (key(note.title)) titles[key(note.title)] = note;
+        });
+        (incoming.notes || []).forEach(function (note) {
+          if (!note || !note.id || typeof note.body !== "string") return;
+          var existingById = ids[note.id];
+          var existingByTitle = titles[key(note.title)];
+          if (existingById) {
+            if (new Date(note.updatedAt) > new Date(existingById.updatedAt)) Object.assign(existingById, note);
+            return;
+          }
+          if (existingByTitle) {
+            if (new Date(note.updatedAt) > new Date(existingByTitle.updatedAt)) {
+              existingByTitle.body = note.body;
+              existingByTitle.tags = Array.isArray(note.tags) ? note.tags : [];
+              existingByTitle.updatedAt = note.updatedAt;
+            }
+            return;
+          }
+          notes.push(note);
+          ids[note.id] = note;
+          if (key(note.title)) titles[key(note.title)] = note;
+        });
+        notes.sort(function (a, b) {
+          return new Date(b.updatedAt) - new Date(a.updatedAt);
+        });
+        return {
+          version: 1,
+          notes: notes,
+          activeNoteId: incoming.activeNoteId || existing.activeNoteId || null,
+        };
       },
     },
     "things-book": {
