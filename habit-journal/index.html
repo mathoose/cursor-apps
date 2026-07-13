@@ -2147,9 +2147,9 @@
         <p class="hint exclude-days-hint">Hidden habits stay here in Habits — they won’t clutter your daily grid.</p>
       </div>
       <div class="habit-edit-field" id="habitEditRecentWrap">
-        <span>Last 24 hours</span>
+        <span>Last 48 hours</span>
         <ul class="habit-recent-log" id="habitEditRecentLog" hidden></ul>
-        <p class="hint exclude-days-hint" id="habitEditRecentEmpty">No activity in the last 24 hours.</p>
+        <p class="hint exclude-days-hint" id="habitEditRecentEmpty">No activity in the last 48 hours.</p>
       </div>
       <div class="habit-edit-actions">
         <button type="button" class="btn btn-primary" id="habitEditSave">Save</button>
@@ -2212,7 +2212,8 @@
   const STORAGE_LOCAL_BACKUP_KEY = "habit-journal-v2-local-backup";
   const STORAGE_META_KEY = "habit-journal-v2-meta";
   const STORAGE_CHANGELOG_KEY = "habit-journal-v2-changelog";
-  const CHANGELOG_TTL_MS = 24 * 60 * 60 * 1000;
+  const RECENT_LOG_HOURS = 48;
+  const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
   let habitJournalVersionText = "";
@@ -5227,7 +5228,7 @@
 
   function graphRangeLabel(range) {
     if (range === "year") return String(state.year);
-    if (range === "1") return "24h";
+    if (range === "1") return "48h";
     if (range === "7") return "Week";
     return range + "d";
   }
@@ -5275,14 +5276,6 @@
     return days;
   }
 
-  function dayHighForHabitOnDate(habit, y, m, d) {
-    const val = getCellValue(cellKey(habit.id, y, m, d));
-    const raw = graphRawValue(habit, val);
-    if (habit.type === "yesno") return 1;
-    if (raw != null && raw > 0) return raw;
-    return null;
-  }
-
   function graphNormPercent(habit, raw, maxRaw) {
     if (raw == null) return null;
     if (habit.type === "yesno") {
@@ -5296,28 +5289,20 @@
 
   function buildGraph24hSeries(habit) {
     const logSeries = buildLog24hSeries(habit.id);
-    const points = logSeries.points.map(function (p) {
-      const d = new Date(p.ts);
-      const dayHigh = dayHighForHabitOnDate(habit, d.getFullYear(), d.getMonth(), d.getDate());
-      let norm = null;
-      if (habit.type === "yesno") {
-        if (p.value >= 1) norm = 100;
-        else if (p.value <= 0) norm = 0;
-        else norm = 50;
-      } else if (dayHigh != null && dayHigh > 0) {
-        norm = Math.min(100, (p.value / dayHigh) * 100);
-      } else if (p.value === 0) {
-        norm = 0;
-      }
-      return { ts: p.ts, raw: p.value, norm: norm };
+    let maxRaw = 0;
+    logSeries.points.forEach(function (p) {
+      if (p.value != null && p.value > maxRaw) maxRaw = p.value;
     });
-    const today = new Date();
-    const todayHigh = dayHighForHabitOnDate(habit, today.getFullYear(), today.getMonth(), today.getDate());
+    if (maxRaw <= 0) {
+      maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
+    }
+    const points = logSeries.points.map(function (p) {
+      return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw) };
+    });
     return {
       habit: habit,
       points: points,
-      maxRaw: todayHigh != null ? todayHigh : habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1),
-      is24h: true,
+      maxRaw: maxRaw,
     };
   }
 
@@ -5670,7 +5655,7 @@
     html +=
       '<p class="hint">' +
       (graphRange === "1"
-        ? "24h uses activity log · each line scales to that day's total · Yes/No habits use Yes as 100%."
+        ? "48h uses activity log · each line scales to its own high in the full 48 hours · Yes/No habits use Yes as 100%."
         : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
       "</p>";
     html += '<div class="graph-range-row">';
@@ -5716,7 +5701,7 @@
       html += '<p class="graph-empty">Select at least one habit above.</p>';
     } else if (!hasData) {
       html += graphRange === "1"
-        ? '<p class="graph-empty">No activity in the last 24 hours — mark habits on Today or Month.</p>'
+        ? '<p class="graph-empty">No activity in the last 48 hours — mark habits on Today or Month.</p>'
         : '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
     } else {
       html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas></div>';
@@ -6200,13 +6185,13 @@
     if (!root) return;
     const entries = getAllRecentChanges();
     let html =
-      '<p class="hint">Additions and erases from the last 24 hours. Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
+      '<p class="hint">Additions and erases from the last 48 hours. Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
       '<div class="activity-log-legend">' +
       '<span><span class="swatch add" aria-hidden="true"></span> Addition</span>' +
       '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
       "</div>";
     if (!entries.length) {
-      html += '<div class="card"><p class="hint">No additions or erases in the last 24 hours.</p></div>';
+      html += '<div class="card"><p class="hint">No additions or erases in the last 48 hours.</p></div>';
       root.innerHTML = html;
       return;
     }
@@ -6239,12 +6224,12 @@
       const habit = series.habit;
       const habitName = habit ? habit.name : "Removed habit";
       html += '<div class="card log-graph-card">';
-      html += '<p class="log-graph-title">' + escapeHtml(habitName) + " · last 24 hours</p>";
+      html += '<p class="log-graph-title">' + escapeHtml(habitName) + " · last 48 hours</p>";
       if (!habit || !series.points.length) {
-        html += '<p class="hint" style="margin:0">No chart data for this habit in the last 24 hours.</p>';
+        html += '<p class="hint" style="margin:0">No chart data for this habit in the last 48 hours.</p>';
       } else {
         html += '<p class="hint" style="margin:0 0 8px">Value resets to zero at each midnight.</p>';
-        html += '<div class="log-graph-canvas-wrap"><canvas id="logGraphCanvas" aria-label="24 hour habit chart"></canvas></div>';
+        html += '<div class="log-graph-canvas-wrap"><canvas id="logGraphCanvas" aria-label="48 hour habit chart"></canvas></div>';
       }
       html += "</div>";
     }
