@@ -2212,6 +2212,7 @@
   const STORAGE_LOCAL_BACKUP_KEY = "habit-journal-v2-local-backup";
   const STORAGE_META_KEY = "habit-journal-v2-meta";
   const STORAGE_CHANGELOG_KEY = "habit-journal-v2-changelog";
+  // Activity log retention: Log tab, edit-sheet recent list, and 48h charts all use this window.
   const RECENT_LOG_HOURS = 48;
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
@@ -6185,7 +6186,7 @@
     if (!root) return;
     const entries = getAllRecentChanges();
     let html =
-      '<p class="hint">Additions and erases from the last 48 hours. Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
+      '<p class="hint">Additions and erases from the last 48 hours (timestamps kept for 48 hours). Tap an entry to see how that habit changed over time (resets at midnight).</p>' +
       '<div class="activity-log-legend">' +
       '<span><span class="swatch add" aria-hidden="true"></span> Addition</span>' +
       '<span><span class="swatch erase" aria-hidden="true"></span> Erase</span>' +
