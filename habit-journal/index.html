@@ -5229,13 +5229,18 @@
 
   function graphRangeLabel(range) {
     if (range === "year") return String(state.year);
+    if (range === "today") return "Today";
     if (range === "1") return "48h";
     if (range === "7") return "Week";
     return range + "d";
   }
 
   function graphRangeOptions() {
-    return ["1", "7", "30", "90", "365", "year"];
+    return ["today", "1", "7", "30", "90", "365", "year"];
+  }
+
+  function graphUsesActivityLog(range) {
+    return range === "today" || range === "1";
   }
 
   function getGraphDateBounds(range) {
@@ -5288,8 +5293,7 @@
     return (raw / maxRaw) * 100;
   }
 
-  function buildGraph24hSeries(habit) {
-    const logSeries = buildLog24hSeries(habit.id);
+  function buildGraphLogSeries(habit, logSeries) {
     let maxRaw = 0;
     logSeries.points.forEach(function (p) {
       if (p.value != null && p.value > maxRaw) maxRaw = p.value;
@@ -5297,14 +5301,21 @@
     if (maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
-    const points = logSeries.points.map(function (p) {
-      return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw) };
-    });
     return {
       habit: habit,
-      points: points,
+      points: logSeries.points.map(function (p) {
+        return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw) };
+      }),
       maxRaw: maxRaw,
     };
+  }
+
+  function buildGraph24hSeries(habit) {
+    return buildGraphLogSeries(habit, buildLog24hSeries(habit.id));
+  }
+
+  function buildGraphTodaySeries(habit) {
+    return buildGraphLogSeries(habit, buildLogTodaySeries(habit.id));
   }
 
   function buildGraphSeries(habit, start, end) {
@@ -5413,7 +5424,14 @@
     return getDefaultPlotHabits(habits);
   }
 
-  function drawGraph24hPlot(canvas, seriesList) {
+  function graphTimePlotBounds(range) {
+    const now = Date.now();
+    if (range === "today") return { start: localMidnightToday(), end: now };
+    if (range === "1") return { start: now - CHANGELOG_TTL_MS, end: now };
+    return null;
+  }
+
+  function drawGraphTimePlot(canvas, seriesList, start, end) {
     if (!canvas || !seriesList.length) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
@@ -5425,8 +5443,8 @@
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const now = Date.now();
-    const start = now - CHANGELOG_TTL_MS;
+    const now = end;
+    const span = Math.max(now - start, 1);
     const pad = { top: 16, right: 12, bottom: 32, left: 36 };
     const plotW = w - pad.left - pad.right;
     const plotH = h - pad.top - pad.bottom;
@@ -5452,7 +5470,7 @@
 
     let mid = nextLocalMidnightAfter(start);
     while (mid < now) {
-      const x = pad.left + ((mid - start) / (now - start)) * plotW;
+      const x = pad.left + ((mid - start) / span) * plotW;
       ctx.strokeStyle = "rgba(196, 92, 92, 0.35)";
       ctx.setLineDash([4, 4]);
       ctx.beginPath();
@@ -5468,7 +5486,7 @@
     }
 
     [0, 0.25, 0.5, 0.75, 1].forEach(function (slot) {
-      const ts = start + (now - start) * slot;
+      const ts = start + span * slot;
       const x = pad.left + plotW * slot;
       ctx.fillStyle = "#6b7264";
       ctx.font = "9px sans-serif";
@@ -5483,11 +5501,11 @@
       ctx.beginPath();
       let started = false;
       series.points.forEach(function (p) {
-        if (p.norm == null) {
+        if (p.norm == null || p.ts < start || p.ts > now) {
           started = false;
           return;
         }
-        const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+        const x = pad.left + ((p.ts - start) / span) * plotW;
         const y = graphYForNorm(p.norm, plotH, pad.top);
         if (!started) {
           ctx.moveTo(x, y);
@@ -5499,8 +5517,8 @@
       ctx.stroke();
 
       series.points.forEach(function (p) {
-        if (p.norm == null) return;
-        const x = pad.left + ((p.ts - start) / (now - start)) * plotW;
+        if (p.norm == null || p.ts < start || p.ts > now) return;
+        const x = pad.left + ((p.ts - start) / span) * plotW;
         const y = graphYForNorm(p.norm, plotH, pad.top);
         ctx.beginPath();
         ctx.arc(x, y, dotR, 0, Math.PI * 2);
@@ -5512,8 +5530,9 @@
 
   function drawGraphChart(canvas, seriesList, range) {
     if (!canvas) return;
-    if (range === "1") {
-      drawGraph24hPlot(canvas, seriesList);
+    const timeBounds = graphTimePlotBounds(range);
+    if (timeBounds) {
+      drawGraphTimePlot(canvas, seriesList, timeBounds.start, timeBounds.end);
       return;
     }
     const dpr = window.devicePixelRatio || 1;
@@ -5636,11 +5655,12 @@
     const habits = getFilteredHabits(true);
     const selectedHabits = getGraphSelectedHabits(habits);
     const seriesList = selectedHabits.map(function (habit) {
+      if (graphRange === "today") return buildGraphTodaySeries(habit);
       if (graphRange === "1") return buildGraph24hSeries(habit);
       const bounds = getGraphDateBounds(graphRange);
       return buildGraphSeries(habit, bounds.start, bounds.end);
     });
-    const hasData = graphRange === "1"
+    const hasData = graphUsesActivityLog(graphRange)
       ? seriesList.some(function (series) {
           return series.points.some(function (p) {
             return p.raw != null && p.raw > 0;
@@ -5655,7 +5675,9 @@
     let html = renderCategoryFiltersHtml(true);
     html +=
       '<p class="hint">' +
-      (graphRange === "1"
+      (graphRange === "today"
+        ? "Today uses activity log · each line scales to its own high since midnight · Yes/No habits use Yes as 100%."
+        : graphRange === "1"
         ? "48h uses activity log · each line scales to its own high in the full 48 hours · Yes/No habits use Yes as 100%."
         : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
       "</p>";
@@ -5701,7 +5723,9 @@
     if (!selectedHabits.length) {
       html += '<p class="graph-empty">Select at least one habit above.</p>';
     } else if (!hasData) {
-      html += graphRange === "1"
+      html += graphRange === "today"
+        ? '<p class="graph-empty">No activity today — mark habits on Today or Month.</p>'
+        : graphRange === "1"
         ? '<p class="graph-empty">No activity in the last 48 hours — mark habits on Today or Month.</p>'
         : '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
     } else {
@@ -6285,17 +6309,22 @@
     return logGraphNumericValue(habit, last.detail.newValue);
   }
 
+  function localMidnightToday() {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }
+
   function nextLocalMidnightAfter(ts) {
     const d = new Date(ts);
     d.setHours(24, 0, 0, 0);
     return d.getTime();
   }
 
-  function buildLog24hSeries(habitId) {
+  function buildLogWindowSeries(habitId, start, end) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return { habit: null, points: [] };
-    const now = Date.now();
-    const start = now - CHANGELOG_TTL_MS;
+    const now = end;
     const points = [];
 
     points.push({ ts: start, value: getHabitCellValueAtTime(habitId, start) });
@@ -6326,6 +6355,16 @@
       else collapsed.push({ ts: p.ts, value: p.value });
     });
     return { habit: habit, points: collapsed };
+  }
+
+  function buildLog24hSeries(habitId) {
+    const now = Date.now();
+    return buildLogWindowSeries(habitId, now - CHANGELOG_TTL_MS, now);
+  }
+
+  function buildLogTodaySeries(habitId) {
+    const now = Date.now();
+    return buildLogWindowSeries(habitId, localMidnightToday(), now);
   }
 
   function formatLogGraphAxisTime(ts, now) {
