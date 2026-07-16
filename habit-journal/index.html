@@ -1974,6 +1974,33 @@
       color: var(--accent-dark);
     }
     .stats-picker-grid { margin-bottom: 12px; }
+    .stats-compare-row {
+      display: grid;
+      grid-template-columns: 3.75rem 1fr 1fr;
+      gap: 6px 10px;
+      align-items: baseline;
+      padding: 5px 0;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+    .stats-compare-head {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 2px;
+    }
+    .stats-compare-habit {
+      font-family: Georgia, serif;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      line-height: 1.25;
+    }
+    .stats-compare-value {
+      font-variant-numeric: tabular-nums;
+    }
+    .stats-compare-period {
+      color: var(--muted);
+      font-size: 0.8125rem;
+    }
     .stats-detail {
       padding: 14px 12px;
       margin-top: 4px;
@@ -2358,7 +2385,7 @@
   let graphRange = "30";
   let graphUserToggled = false;
   let graphsMode = "plot";
-  let statsSelectedHabitId = null;
+  let statsSelectedHabitIds = [];
   const STATS_MOVING_AVG_DAYS = [7, 14, 21, 30, 60];
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
@@ -4981,12 +5008,24 @@
     return formatCounterDisplay(Math.round(value));
   }
 
-  function formatWindowMinMax(habit, min, max) {
-    if (min == null || max == null) return "—";
+  function formatWindowRangeBracket(habit, min, max) {
+    if (min == null || max == null) return "";
     if (habit.type === "yesno") {
-      return Math.round(min * 100) + "% / " + Math.round(max * 100) + "%";
+      return (
+        " [" +
+        Math.round(min * 100) +
+        "/" +
+        Math.round(max * 100) +
+        "%]"
+      );
     }
-    return formatCounterDisplay(min) + " / " + formatCounterDisplay(max);
+    return " [" + formatCounterDisplay(min) + "/" + formatCounterDisplay(max) + "]";
+  }
+
+  function formatWindowStatsLine(habit, windowStats) {
+    const avg = formatWindowAverage(habit, windowStats.average);
+    const bracket = formatWindowRangeBracket(habit, windowStats.min, windowStats.max);
+    return escapeHtml(avg + bracket);
   }
 
   function renderWindowStatsHtml(habit) {
@@ -5002,11 +5041,7 @@
         "-day</strong></p>";
       html +=
         '<p class="stats-line">Average: <strong>' +
-        escapeHtml(formatWindowAverage(habit, windowStats.average)) +
-        "</strong></p>";
-      html +=
-        '<p class="stats-line">Min / max: <strong>' +
-        escapeHtml(formatWindowMinMax(habit, windowStats.min, windowStats.max)) +
+        formatWindowStatsLine(habit, windowStats) +
         "</strong></p>";
     });
     if (!hasAny) {
@@ -5015,8 +5050,57 @@
     return html;
   }
 
+  function renderStatsCompareHtml(habitA, habitB) {
+    let html = '<div class="stats-detail card stats-compare">';
+    html += '<div class="stats-compare-row stats-compare-head">';
+    html += '<span class="stats-compare-period"></span>';
+    html +=
+      '<span class="stats-compare-habit">' + escapeHtml(habitA.name) + "</span>";
+    html +=
+      '<span class="stats-compare-habit">' + escapeHtml(habitB.name) + "</span>";
+    html += "</div>";
+    let hasAny = false;
+    STATS_MOVING_AVG_DAYS.forEach(function (days) {
+      const statsA = buildWindowStats(habitA, days);
+      const statsB = buildWindowStats(habitB, days);
+      if (!statsA && !statsB) return;
+      hasAny = true;
+      html += '<div class="stats-compare-row">';
+      html +=
+        '<span class="stats-compare-period"><strong>' + days + "-day</strong></span>";
+      html +=
+        '<span class="stats-compare-value">' +
+        (statsA ? formatWindowStatsLine(habitA, statsA) : "—") +
+        "</span>";
+      html +=
+        '<span class="stats-compare-value">' +
+        (statsB ? formatWindowStatsLine(habitB, statsB) : "—") +
+        "</span>";
+      html += "</div>";
+    });
+    if (!hasAny) {
+      html += '<p class="stats-line stats-muted">No marks in these windows yet.</p>';
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function isStatsHabitSelected(habitId) {
+    return statsSelectedHabitIds.indexOf(habitId) >= 0;
+  }
+
+  function toggleStatsHabitPick(habitId) {
+    const idx = statsSelectedHabitIds.indexOf(habitId);
+    if (idx >= 0) {
+      statsSelectedHabitIds.splice(idx, 1);
+      return;
+    }
+    if (statsSelectedHabitIds.length >= 2) statsSelectedHabitIds.shift();
+    statsSelectedHabitIds.push(habitId);
+  }
+
   function renderStatsPickerCard(habit) {
-    const selected = statsSelectedHabitId === habit.id;
+    const selected = isStatsHabitSelected(habit.id);
     let html =
       '<article class="year-grid-card is-collapsed' +
       (selected ? " is-stats-selected" : "") +
@@ -5211,7 +5295,7 @@
     root.querySelectorAll("[data-stats-pick]").forEach(function (btn) {
       btn.onclick = function () {
         const id = btn.getAttribute("data-stats-pick");
-        statsSelectedHabitId = statsSelectedHabitId === id ? null : id;
+        toggleStatsHabitPick(id);
         renderGraphs();
       };
     });
@@ -5238,17 +5322,14 @@
     const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
     const filtered = getFilteredHabits(true);
-    if (
-      statsSelectedHabitId &&
-      !filtered.some(function (h) {
-        return h.id === statsSelectedHabitId;
-      })
-    ) {
-      statsSelectedHabitId = null;
-    }
+    statsSelectedHabitIds = statsSelectedHabitIds.filter(function (id) {
+      return filtered.some(function (h) {
+        return h.id === id;
+      });
+    });
     let html = renderCategoryFiltersHtml(true);
     html +=
-      '<p class="hint">Tap a habit · or use <strong>Set all</strong> for every habit · ' +
+      '<p class="hint">Tap a habit · select up to 2 to compare · or use <strong>Set all</strong> for every habit · ' +
       state.year +
       " through today</p>";
     html += renderStatsSetAllHtml();
@@ -5265,11 +5346,19 @@
       html += renderStatsPickerCard(habit);
     });
     html += "</div>";
-    if (statsSelectedHabitId) {
+    if (statsSelectedHabitIds.length === 1) {
       const habit = filtered.find(function (h) {
-        return h.id === statsSelectedHabitId;
+        return h.id === statsSelectedHabitIds[0];
       });
       if (habit) html += renderStatsDetailHtml(habit);
+    } else if (statsSelectedHabitIds.length === 2) {
+      const habitA = filtered.find(function (h) {
+        return h.id === statsSelectedHabitIds[0];
+      });
+      const habitB = filtered.find(function (h) {
+        return h.id === statsSelectedHabitIds[1];
+      });
+      if (habitA && habitB) html += renderStatsCompareHtml(habitA, habitB);
     }
     html += renderVersionFooterHtml();
     root.innerHTML = html;
