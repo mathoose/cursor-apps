@@ -1898,6 +1898,15 @@
     }
     .stats-line.stats-muted { color: var(--muted); font-size: 0.8125rem; }
     .stats-occurrence { font-size: 0.9375rem; }
+    .stats-subheading {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
     .stats-pct {
       font-size: 1.75rem;
       font-weight: 800;
@@ -2258,6 +2267,7 @@
   let graphUserToggled = false;
   let graphsMode = "plot";
   let statsSelectedHabitId = null;
+  const STATS_MOVING_AVG_DAYS = [7, 14, 21, 30, 60];
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
 
@@ -4837,6 +4847,73 @@
     };
   }
 
+  function getStatsWindowEndDay() {
+    const end = getYearStatsRangeEnd();
+    end.setHours(0, 0, 0, 0);
+    return end;
+  }
+
+  function calcMovingAverageForHabit(habit, windowDays) {
+    const end = getStatsWindowEndDay();
+    const rangeStart = getHabitStatsRangeStart(habit);
+    const windowStart = new Date(end);
+    windowStart.setDate(windowStart.getDate() - (windowDays - 1));
+    const effectiveStart = windowStart < rangeStart ? new Date(rangeStart) : windowStart;
+    const days = enumerateEligibleDays(habit, effectiveStart, end);
+    if (!days.length) return null;
+    const calendarSpan = Math.round((end - effectiveStart) / 86400000) + 1;
+    if (calendarSpan <= 0) return null;
+
+    if (habit.type === "yesno") {
+      let done = 0;
+      days.forEach(function (p) {
+        const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
+        if (val >= 1) done++;
+      });
+      return Math.round((done / calendarSpan) * 100);
+    }
+
+    let sum = 0;
+    days.forEach(function (p) {
+      const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
+      sum += typeof val === "number" && val > 0 ? val : 0;
+    });
+    return sum / calendarSpan;
+  }
+
+  function buildMovingAverageStats(habit) {
+    const out = {};
+    STATS_MOVING_AVG_DAYS.forEach(function (days) {
+      out[days] = calcMovingAverageForHabit(habit, days);
+    });
+    return out;
+  }
+
+  function formatMovingAverageValue(habit, value) {
+    if (value == null) return "—";
+    if (habit.type === "yesno") return value + "%";
+    return formatCounterDisplay(Math.round(value));
+  }
+
+  function renderMovingAverageStatsHtml(habit) {
+    const averages = buildMovingAverageStats(habit);
+    const hasAny = STATS_MOVING_AVG_DAYS.some(function (days) {
+      return averages[days] != null;
+    });
+    if (!hasAny) return "";
+
+    let html = '<p class="stats-subheading">Moving average</p>';
+    STATS_MOVING_AVG_DAYS.forEach(function (days) {
+      html +=
+        '<p class="stats-line">' +
+        days +
+        "-day: <strong>" +
+        escapeHtml(formatMovingAverageValue(habit, averages[days])) +
+        "</strong></p>";
+    });
+    return html;
+  }
+
   function renderStatsPickerCard(habit) {
     const selected = statsSelectedHabitId === habit.id;
     let html =
@@ -4922,6 +4999,7 @@
           " not marked yet</p>";
       }
       html += '<p class="stats-pct">' + s.pct + "%</p>";
+      html += renderMovingAverageStatsHtml(habit);
     } else {
       const s = buildCounterHabitStats(habit);
       html +=
@@ -4962,6 +5040,7 @@
       } else {
         html += '<p class="stats-line stats-muted">No marks in the last 30 days.</p>';
       }
+      html += renderMovingAverageStatsHtml(habit);
     }
     html += "</div>";
     return html;
