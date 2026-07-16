@@ -593,6 +593,9 @@
       position: relative;
       width: 100%;
       overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
     #graphCanvas {
       display: block;
@@ -662,6 +665,12 @@
     .graph-chart-tooltip li strong {
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
+    }
+    #graphsBody.graph-inspecting,
+    #graphsBody.graph-inspecting * {
+      -webkit-user-select: none !important;
+      user-select: none !important;
+      -webkit-touch-callout: none;
     }
     .graph-empty {
       text-align: center;
@@ -5766,11 +5775,20 @@
     clearGraphInspectLine(overlay);
   }
 
-  function bindGraphChartInspect(canvas, overlay, tooltip) {
+  function clearTextSelection() {
+    const sel = window.getSelection ? window.getSelection() : null;
+    if (sel && sel.removeAllRanges) sel.removeAllRanges();
+  }
+
+  function bindGraphChartInspect(canvas, overlay, tooltip, inspectRoot) {
     if (!canvas || !tooltip) return;
     let holdTimer = null;
     let inspectActive = false;
     let activePointerId = null;
+
+    function setInspecting(on) {
+      if (inspectRoot) inspectRoot.classList.toggle("graph-inspecting", on);
+    }
 
     function clearHoldTimer() {
       if (holdTimer) {
@@ -5779,11 +5797,23 @@
       }
     }
 
+    function beginInspect(e) {
+      inspectActive = true;
+      setInspecting(true);
+      clearTextSelection();
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch (err) { /* ok */ }
+      showGraphChartTooltip(canvas, overlay, tooltip, e.clientX, e.clientY);
+    }
+
     function endInspect(e) {
       clearHoldTimer();
       if (!inspectActive) return;
       inspectActive = false;
+      setInspecting(false);
       hideGraphChartTooltip(tooltip, overlay);
+      clearTextSelection();
       if (activePointerId != null) {
         try {
           canvas.releasePointerCapture(activePointerId);
@@ -5796,23 +5826,48 @@
       e.preventDefault();
     });
 
-    canvas.addEventListener("pointerdown", function (e) {
-      if (!canvas._graphInspect) return;
-      clearHoldTimer();
-      activePointerId = e.pointerId;
-      holdTimer = setTimeout(function () {
-        inspectActive = true;
-        try {
-          canvas.setPointerCapture(e.pointerId);
-        } catch (err) { /* ok */ }
-        showGraphChartTooltip(canvas, overlay, tooltip, e.clientX, e.clientY);
-      }, GRAPH_INSPECT_HOLD_MS);
-    });
+    canvas.addEventListener(
+      "selectstart",
+      function (e) {
+        if (inspectActive) e.preventDefault();
+      },
+      { passive: false }
+    );
 
-    canvas.addEventListener("pointermove", function (e) {
-      if (!inspectActive) return;
-      showGraphChartTooltip(canvas, tooltip, e.clientX, e.clientY);
-    });
+    canvas.addEventListener(
+      "pointerdown",
+      function (e) {
+        if (!canvas._graphInspect) return;
+        if (e.pointerType === "mouse" && e.button !== 0) return;
+        e.preventDefault();
+        clearHoldTimer();
+        activePointerId = e.pointerId;
+        holdTimer = setTimeout(function () {
+          beginInspect(e);
+        }, GRAPH_INSPECT_HOLD_MS);
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener(
+      "pointermove",
+      function (e) {
+        if (!inspectActive) return;
+        e.preventDefault();
+        clearTextSelection();
+        showGraphChartTooltip(canvas, overlay, tooltip, e.clientX, e.clientY);
+      },
+      { passive: false }
+    );
+
+    canvas.addEventListener(
+      "touchmove",
+      function (e) {
+        if (!inspectActive) return;
+        e.preventDefault();
+      },
+      { passive: false }
+    );
 
     canvas.addEventListener("pointerup", endInspect);
     canvas.addEventListener("pointercancel", endInspect);
@@ -6170,7 +6225,7 @@
       const tooltip = root.querySelector("#graphChartTooltip");
       drawGraphChart(canvas, seriesList, graphRange);
       syncGraphChartOverlay(canvas, overlay);
-      bindGraphChartInspect(canvas, overlay, tooltip);
+      bindGraphChartInspect(canvas, overlay, tooltip, root);
     }
   }
 
