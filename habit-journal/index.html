@@ -600,6 +600,17 @@
       border-radius: 8px;
       touch-action: none;
     }
+    #graphChartOverlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: block;
+      width: 100%;
+      height: 260px;
+      pointer-events: none;
+      border-radius: 8px;
+      z-index: 2;
+    }
     .graph-chart-tooltip {
       position: absolute;
       z-index: 5;
@@ -5672,6 +5683,46 @@
     };
   }
 
+  function graphInspectLineX(meta, plotX) {
+    const pad = meta.pad;
+    return Math.min(Math.max(plotX, pad.left), pad.left + meta.plotW);
+  }
+
+  function syncGraphChartOverlay(canvas, overlay) {
+    if (!canvas || !overlay) return;
+    const rect = canvas.getBoundingClientRect();
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.style.width = rect.width + "px";
+    overlay.style.height = rect.height + "px";
+  }
+
+  function clearGraphInspectLine(overlay) {
+    if (!overlay) return;
+    const ctx = overlay.getContext("2d");
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, overlay.width, overlay.height);
+  }
+
+  function drawGraphInspectLine(canvas, overlay, clientX) {
+    const meta = canvas._graphInspect;
+    if (!meta || !overlay) return;
+    syncGraphChartOverlay(canvas, overlay);
+    const dpr = window.devicePixelRatio || 1;
+    const ctx = overlay.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, meta.w, meta.h);
+    const x = graphInspectLineX(meta, graphPlotXFromClient(canvas, clientX));
+    ctx.strokeStyle = "rgba(120, 120, 120, 0.42)";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, meta.pad.top);
+    ctx.lineTo(x, meta.pad.top + meta.plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
   function positionGraphChartTooltip(wrap, tooltip, clientX, clientY) {
     const rect = wrap.getBoundingClientRect();
     const x = clientX - rect.left;
@@ -5683,7 +5734,7 @@
     tooltip.style.top = top + "px";
   }
 
-  function showGraphChartTooltip(canvas, tooltip, clientX, clientY) {
+  function showGraphChartTooltip(canvas, overlay, tooltip, clientX, clientY) {
     const meta = canvas._graphInspect;
     if (!meta || !tooltip) return;
     const wrap = canvas.parentElement;
@@ -5704,16 +5755,18 @@
     html += "</ul>";
     tooltip.innerHTML = html;
     tooltip.hidden = false;
+    drawGraphInspectLine(canvas, overlay, clientX);
     positionGraphChartTooltip(wrap, tooltip, clientX, clientY);
   }
 
-  function hideGraphChartTooltip(tooltip) {
+  function hideGraphChartTooltip(tooltip, overlay) {
     if (!tooltip) return;
     tooltip.hidden = true;
     tooltip.innerHTML = "";
+    clearGraphInspectLine(overlay);
   }
 
-  function bindGraphChartInspect(canvas, tooltip) {
+  function bindGraphChartInspect(canvas, overlay, tooltip) {
     if (!canvas || !tooltip) return;
     let holdTimer = null;
     let inspectActive = false;
@@ -5730,7 +5783,7 @@
       clearHoldTimer();
       if (!inspectActive) return;
       inspectActive = false;
-      hideGraphChartTooltip(tooltip);
+      hideGraphChartTooltip(tooltip, overlay);
       if (activePointerId != null) {
         try {
           canvas.releasePointerCapture(activePointerId);
@@ -5752,7 +5805,7 @@
         try {
           canvas.setPointerCapture(e.pointerId);
         } catch (err) { /* ok */ }
-        showGraphChartTooltip(canvas, tooltip, e.clientX, e.clientY);
+        showGraphChartTooltip(canvas, overlay, tooltip, e.clientX, e.clientY);
       }, GRAPH_INSPECT_HOLD_MS);
     });
 
@@ -6089,7 +6142,7 @@
         ? '<p class="graph-empty">No activity in the last 48 hours — mark habits on Today or Month.</p>'
         : '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
     } else {
-      html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas><div class="graph-chart-tooltip" id="graphChartTooltip" hidden></div></div>';
+      html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas><canvas id="graphChartOverlay" aria-hidden="true"></canvas><div class="graph-chart-tooltip" id="graphChartTooltip" hidden></div></div>';
       html += '<div class="graph-legend">';
       seriesList.forEach(function (series) {
         const color = getGraphHabitColor(series.habit.id);
@@ -6113,9 +6166,11 @@
 
     if (hasData && selectedHabits.length) {
       const canvas = root.querySelector("#graphCanvas");
+      const overlay = root.querySelector("#graphChartOverlay");
       const tooltip = root.querySelector("#graphChartTooltip");
       drawGraphChart(canvas, seriesList, graphRange);
-      bindGraphChartInspect(canvas, tooltip);
+      syncGraphChartOverlay(canvas, overlay);
+      bindGraphChartInspect(canvas, overlay, tooltip);
     }
   }
 
