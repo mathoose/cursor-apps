@@ -2,7 +2,12 @@
 
 Instructions for Cloud Agents and other automated contributors working in this repo.
 
-**Cursor user skill:** [`cursor-user-skills/github-pr-edits/SKILL.md`](cursor-user-skills/github-pr-edits/SKILL.md) — install to `~/.cursor/skills/github-pr-edits/` with [`scripts/install-github-pr-edits-skill.sh`](scripts/install-github-pr-edits-skill.sh). It auto-applies when making GitHub edits (PRs, pushes, repo changes), not for local-only work.
+**Cursor user skills:** install to `~/.cursor/skills/` with the scripts below. They auto-apply in matching tasks, not for unrelated local work.
+
+| Skill | Install | When it applies |
+|-------|---------|-----------------|
+| [github-pr-edits](cursor-user-skills/github-pr-edits/SKILL.md) | [`scripts/install-github-pr-edits-skill.sh`](scripts/install-github-pr-edits-skill.sh) | PRs, pushes, repo changes on GitHub |
+| [mobile-canvas-plot-inspect](cursor-user-skills/mobile-canvas-plot-inspect/SKILL.md) | [`scripts/install-mobile-canvas-plot-inspect-skill.sh`](scripts/install-mobile-canvas-plot-inspect-skill.sh) | Canvas plot press-and-hold scrub, tooltips, crosshairs (especially Habit Journal Stats plot) |
 
 ## Pull requests
 
