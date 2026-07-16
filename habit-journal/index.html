@@ -590,6 +590,7 @@
       padding: 10px 8px 12px;
     }
     .graph-canvas-wrap {
+      position: relative;
       width: 100%;
       overflow: hidden;
     }
@@ -597,6 +598,59 @@
       display: block;
       width: 100%;
       border-radius: 8px;
+      touch-action: none;
+    }
+    .graph-chart-tooltip {
+      position: absolute;
+      z-index: 5;
+      min-width: 148px;
+      max-width: min(280px, calc(100% - 16px));
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 8px 24px rgba(44, 36, 25, 0.14);
+      pointer-events: none;
+    }
+    .graph-chart-tooltip[hidden] { display: none !important; }
+    .graph-chart-tooltip-date {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .graph-chart-tooltip ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .graph-chart-tooltip li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--ink);
+      min-width: 0;
+    }
+    .graph-chart-tooltip-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .graph-chart-tooltip-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .graph-chart-tooltip li strong {
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
     }
     .graph-empty {
       text-align: center;
@@ -5510,12 +5564,214 @@
     return null;
   }
 
+  const GRAPH_PLOT_PAD = { top: 16, right: 12, bottom: 32, left: 36 };
+  const GRAPH_PLOT_HEIGHT = 260;
+  const GRAPH_INSPECT_HOLD_MS = 400;
+
+  function graphPlotLayout(w) {
+    const width = Math.max(w, 280);
+    return {
+      w: width,
+      h: GRAPH_PLOT_HEIGHT,
+      pad: GRAPH_PLOT_PAD,
+      plotW: width - GRAPH_PLOT_PAD.left - GRAPH_PLOT_PAD.right,
+      plotH: GRAPH_PLOT_HEIGHT - GRAPH_PLOT_PAD.top - GRAPH_PLOT_PAD.bottom,
+    };
+  }
+
+  function attachGraphInspectMeta(canvas, meta) {
+    canvas._graphInspect = meta;
+  }
+
+  function graphPlotXFromClient(canvas, clientX) {
+    const meta = canvas._graphInspect;
+    if (!meta) return 0;
+    const rect = canvas.getBoundingClientRect();
+    return ((clientX - rect.left) / rect.width) * meta.w;
+  }
+
+  function formatGraphInspectTime(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const time = d.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    if (d.toDateString() === now.toDateString()) return "Today, " + time;
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return "Yesterday, " + time;
+    return (
+      d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
+      ", " +
+      time
+    );
+  }
+
+  function formatGraphInspectDay(date) {
+    return date.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  function graphInspectRawLabel(habit, raw) {
+    if (raw == null) return "—";
+    if (habit.type === "yesno") {
+      if (raw >= 1) return "Yes";
+      if (raw <= 0) return "No";
+      return "In progress";
+    }
+    return formatCounterDisplay(Math.round(raw));
+  }
+
+  function graphInspectValueAtTime(series, ts, start, end) {
+    let value = null;
+    series.points.forEach(function (p) {
+      if (p.ts < start || p.ts > end) return;
+      if (p.ts <= ts) value = p.raw;
+    });
+    return value;
+  }
+
+  function graphInspectAtPlotX(meta, plotX) {
+    const pad = meta.pad;
+    const clampedX = Math.min(Math.max(plotX, pad.left), pad.left + meta.plotW);
+    const ratio = meta.plotW > 0 ? (clampedX - pad.left) / meta.plotW : 0;
+
+    if (meta.mode === "time") {
+      const ts = meta.start + ratio * (meta.end - meta.start);
+      return {
+        label: formatGraphInspectTime(ts),
+        habits: meta.seriesList.map(function (series) {
+          return {
+            habit: series.habit,
+            color: getGraphHabitColor(series.habit.id),
+            value: graphInspectValueAtTime(series, ts, meta.start, meta.end),
+          };
+        }),
+      };
+    }
+
+    const pointCount = meta.pointCount;
+    const visibleIndex = pointCount <= 1 ? 0 : Math.round(ratio * (pointCount - 1));
+    const pointIndex = meta.domainStartIndex + visibleIndex;
+    const refPoint = meta.seriesList[0].points[pointIndex];
+    const label = refPoint && refPoint.day ? formatGraphInspectDay(refPoint.day.date) : "";
+    return {
+      label: label,
+      habits: meta.seriesList.map(function (series) {
+        const p = series.points[pointIndex];
+        return {
+          habit: series.habit,
+          color: getGraphHabitColor(series.habit.id),
+          value: p ? p.raw : null,
+        };
+      }),
+    };
+  }
+
+  function positionGraphChartTooltip(wrap, tooltip, clientX, clientY) {
+    const rect = wrap.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const maxLeft = Math.max(8, rect.width - tooltip.offsetWidth - 8);
+    const left = Math.min(Math.max(x - tooltip.offsetWidth / 2, 8), maxLeft);
+    const top = Math.max(8, Math.min(y - tooltip.offsetHeight - 14, rect.height - tooltip.offsetHeight - 8));
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+  }
+
+  function showGraphChartTooltip(canvas, tooltip, clientX, clientY) {
+    const meta = canvas._graphInspect;
+    if (!meta || !tooltip) return;
+    const wrap = canvas.parentElement;
+    if (!wrap) return;
+    const info = graphInspectAtPlotX(meta, graphPlotXFromClient(canvas, clientX));
+    let html =
+      '<div class="graph-chart-tooltip-date">' + escapeHtml(info.label) + "</div><ul>";
+    info.habits.forEach(function (row) {
+      html +=
+        "<li><span class=\"graph-chart-tooltip-swatch\" style=\"background:" +
+        row.color +
+        '"></span><span class="graph-chart-tooltip-name">' +
+        escapeHtml(row.habit.name) +
+        "</span><strong>" +
+        escapeHtml(graphInspectRawLabel(row.habit, row.value)) +
+        "</strong></li>";
+    });
+    html += "</ul>";
+    tooltip.innerHTML = html;
+    tooltip.hidden = false;
+    positionGraphChartTooltip(wrap, tooltip, clientX, clientY);
+  }
+
+  function hideGraphChartTooltip(tooltip) {
+    if (!tooltip) return;
+    tooltip.hidden = true;
+    tooltip.innerHTML = "";
+  }
+
+  function bindGraphChartInspect(canvas, tooltip) {
+    if (!canvas || !tooltip) return;
+    let holdTimer = null;
+    let inspectActive = false;
+    let activePointerId = null;
+
+    function clearHoldTimer() {
+      if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+      }
+    }
+
+    function endInspect(e) {
+      clearHoldTimer();
+      if (!inspectActive) return;
+      inspectActive = false;
+      hideGraphChartTooltip(tooltip);
+      if (activePointerId != null) {
+        try {
+          canvas.releasePointerCapture(activePointerId);
+        } catch (err) { /* ok */ }
+        activePointerId = null;
+      }
+    }
+
+    canvas.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
+
+    canvas.addEventListener("pointerdown", function (e) {
+      if (!canvas._graphInspect) return;
+      clearHoldTimer();
+      activePointerId = e.pointerId;
+      holdTimer = setTimeout(function () {
+        inspectActive = true;
+        try {
+          canvas.setPointerCapture(e.pointerId);
+        } catch (err) { /* ok */ }
+        showGraphChartTooltip(canvas, tooltip, e.clientX, e.clientY);
+      }, GRAPH_INSPECT_HOLD_MS);
+    });
+
+    canvas.addEventListener("pointermove", function (e) {
+      if (!inspectActive) return;
+      showGraphChartTooltip(canvas, tooltip, e.clientX, e.clientY);
+    });
+
+    canvas.addEventListener("pointerup", endInspect);
+    canvas.addEventListener("pointercancel", endInspect);
+  }
+
   function drawGraphTimePlot(canvas, seriesList, start, end) {
     if (!canvas || !seriesList.length) return;
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    const w = Math.max(rect.width, 280);
-    const h = 260;
+    const layout = graphPlotLayout(Math.max(rect.width, 280));
+    const w = layout.w;
+    const h = layout.h;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     canvas.style.height = h + "px";
@@ -5524,9 +5780,9 @@
 
     const now = end;
     const span = Math.max(now - start, 1);
-    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
-    const plotW = w - pad.left - pad.right;
-    const plotH = h - pad.top - pad.bottom;
+    const pad = layout.pad;
+    const plotW = layout.plotW;
+    const plotH = layout.plotH;
     const dotR = graphDotRadius("1");
 
     ctx.clearRect(0, 0, w, h);
@@ -5605,6 +5861,18 @@
         ctx.fill();
       });
     });
+
+    attachGraphInspectMeta(canvas, {
+      mode: "time",
+      seriesList: seriesList,
+      start: start,
+      end: now,
+      pad: pad,
+      plotW: plotW,
+      plotH: plotH,
+      w: w,
+      h: h,
+    });
   }
 
   function drawGraphChart(canvas, seriesList, range) {
@@ -5616,17 +5884,18 @@
     }
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    const w = Math.max(rect.width, 280);
-    const h = 260;
+    const layout = graphPlotLayout(Math.max(rect.width, 280));
+    const w = layout.w;
+    const h = layout.h;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     canvas.style.height = h + "px";
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const pad = { top: 16, right: 12, bottom: 32, left: 36 };
-    const plotW = w - pad.left - pad.right;
-    const plotH = h - pad.top - pad.bottom;
+    const pad = layout.pad;
+    const plotW = layout.plotW;
+    const plotH = layout.plotH;
 
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = "#faf8f4";
@@ -5698,6 +5967,18 @@
         ctx.fillStyle = color;
         ctx.fill();
       });
+    });
+
+    attachGraphInspectMeta(canvas, {
+      mode: "day",
+      seriesList: seriesList,
+      domainStartIndex: domainStartIndex,
+      pointCount: pointCount,
+      pad: pad,
+      plotW: plotW,
+      plotH: plotH,
+      w: w,
+      h: h,
     });
   }
 
@@ -5808,7 +6089,7 @@
         ? '<p class="graph-empty">No activity in the last 48 hours — mark habits on Today or Month.</p>'
         : '<p class="graph-empty">No marks in this range yet — start tracking on the Month tab.</p>';
     } else {
-      html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas></div>';
+      html += '<div class="graph-canvas-wrap"><canvas id="graphCanvas" aria-label="Habit progress chart"></canvas><div class="graph-chart-tooltip" id="graphChartTooltip" hidden></div></div>';
       html += '<div class="graph-legend">';
       seriesList.forEach(function (series) {
         const color = getGraphHabitColor(series.habit.id);
@@ -5832,7 +6113,9 @@
 
     if (hasData && selectedHabits.length) {
       const canvas = root.querySelector("#graphCanvas");
+      const tooltip = root.querySelector("#graphChartTooltip");
       drawGraphChart(canvas, seriesList, graphRange);
+      bindGraphChartInspect(canvas, tooltip);
     }
   }
 
