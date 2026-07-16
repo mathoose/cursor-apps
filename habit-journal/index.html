@@ -4896,113 +4896,122 @@
     };
   }
 
-  function collectCounterDailyValues(habit, last30Only) {
-    const prefix = habit.id + "-";
-    const values = [];
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - 29);
-    cutoff.setHours(0, 0, 0, 0);
-    const rangeStart = getHabitStatsRangeStart(habit);
-    const yearEnd = getYearStatsRangeEnd();
-    Object.keys(state.cells).forEach(function (k) {
-      if (k.indexOf(prefix) !== 0) return;
-      const v = state.cells[k];
-      if (typeof v !== "number" || v <= 0) return;
-      const parsed = parseCellKeyDate(k);
-      if (!parsed || parsed.y !== state.year) return;
-      const date = new Date(parsed.y, parsed.m, parsed.d);
-      date.setHours(0, 0, 0, 0);
-      if (date < rangeStart || date > yearEnd) return;
-      if (last30Only && date < cutoff) return;
-      values.push(v);
-    });
-    return values;
-  }
-
-  function calcMinMaxMean(values) {
-    if (!values.length) return { min: null, max: null, mean: null, count: 0 };
-    let sum = 0;
-    let min = values[0];
-    let max = values[0];
-    values.forEach(function (v) {
-      sum += v;
-      if (v < min) min = v;
-      if (v > max) max = v;
-    });
-    return { min: min, max: max, mean: sum / values.length, count: values.length };
-  }
-
-  function buildCounterHabitStats(habit) {
-    return {
-      year: calcMinMaxMean(collectCounterDailyValues(habit, false)),
-      last30: calcMinMaxMean(collectCounterDailyValues(habit, true)),
-    };
-  }
-
   function getStatsWindowEndDay() {
     const end = getYearStatsRangeEnd();
     end.setHours(0, 0, 0, 0);
     return end;
   }
 
-  function calcMovingAverageForHabit(habit, windowDays) {
+  function countCounterLoggedDays(habit) {
+    const start = getHabitStatsRangeStart(habit);
+    const end = getStatsWindowEndDay();
+    const days = enumerateEligibleDays(habit, start, end);
+    let count = 0;
+    days.forEach(function (p) {
+      const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
+      if (typeof val === "number" && val > 0) count++;
+    });
+    return count;
+  }
+
+  function getStatsWindowBounds(habit, windowDays) {
     const end = getStatsWindowEndDay();
     const rangeStart = getHabitStatsRangeStart(habit);
     const windowStart = new Date(end);
     windowStart.setDate(windowStart.getDate() - (windowDays - 1));
     const effectiveStart = windowStart < rangeStart ? new Date(rangeStart) : windowStart;
     const days = enumerateEligibleDays(habit, effectiveStart, end);
-    if (!days.length) return null;
-    const calendarSpan = Math.round((end - effectiveStart) / 86400000) + 1;
+    return { start: effectiveStart, end: end, days: days };
+  }
+
+  function buildWindowStats(habit, windowDays) {
+    const bounds = getStatsWindowBounds(habit, windowDays);
+    if (!bounds.days.length) return null;
+    const calendarSpan = Math.round((bounds.end - bounds.start) / 86400000) + 1;
     if (calendarSpan <= 0) return null;
 
     if (habit.type === "yesno") {
       let done = 0;
-      days.forEach(function (p) {
+      let min = null;
+      let max = null;
+      bounds.days.forEach(function (p) {
         const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
-        if (val >= 1) done++;
+        let n = null;
+        if (val >= 1) {
+          n = 1;
+          done++;
+        } else if (val === YESNO_PROGRESS) {
+          n = 0.5;
+        } else if (val === 0) {
+          n = 0;
+        }
+        if (n == null) return;
+        if (min == null || n < min) min = n;
+        if (max == null || n > max) max = n;
       });
-      return Math.round((done / calendarSpan) * 100);
+      return {
+        average: Math.round((done / calendarSpan) * 100),
+        min: min,
+        max: max,
+      };
     }
 
     let sum = 0;
-    days.forEach(function (p) {
+    let min = null;
+    let max = null;
+    bounds.days.forEach(function (p) {
       const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
-      sum += typeof val === "number" && val > 0 ? val : 0;
+      const n = typeof val === "number" && val > 0 ? val : 0;
+      sum += n;
+      if (typeof val === "number" && val > 0) {
+        if (min == null || val < min) min = val;
+        if (max == null || val > max) max = val;
+      }
     });
-    return sum / calendarSpan;
+    return {
+      average: sum / calendarSpan,
+      min: min,
+      max: max,
+    };
   }
 
-  function buildMovingAverageStats(habit) {
-    const out = {};
-    STATS_MOVING_AVG_DAYS.forEach(function (days) {
-      out[days] = calcMovingAverageForHabit(habit, days);
-    });
-    return out;
-  }
-
-  function formatMovingAverageValue(habit, value) {
+  function formatWindowAverage(habit, value) {
     if (value == null) return "—";
     if (habit.type === "yesno") return value + "%";
     return formatCounterDisplay(Math.round(value));
   }
 
-  function renderMovingAverageStatsHtml(habit) {
-    const averages = buildMovingAverageStats(habit);
-    const hasAny = STATS_MOVING_AVG_DAYS.some(function (days) {
-      return averages[days] != null;
-    });
-    if (!hasAny) return "";
+  function formatWindowMinMax(habit, min, max) {
+    if (min == null || max == null) return "—";
+    if (habit.type === "yesno") {
+      return Math.round(min * 100) + "% / " + Math.round(max * 100) + "%";
+    }
+    return formatCounterDisplay(min) + " / " + formatCounterDisplay(max);
+  }
 
-    let html = '<p class="stats-subheading">Moving average</p>';
+  function renderWindowStatsHtml(habit) {
+    let html = "";
+    let hasAny = false;
     STATS_MOVING_AVG_DAYS.forEach(function (days) {
+      const windowStats = buildWindowStats(habit, days);
+      if (!windowStats) return;
+      hasAny = true;
       html +=
-        '<p class="stats-line">' +
+        '<p class="stats-line stats-occurrence"><strong>' +
         days +
-        "-day: <strong>" +
-        escapeHtml(formatMovingAverageValue(habit, averages[days])) +
+        "-day</strong></p>";
+      html +=
+        '<p class="stats-line">Average: <strong>' +
+        escapeHtml(formatWindowAverage(habit, windowStats.average)) +
+        "</strong></p>";
+      html +=
+        '<p class="stats-line">Min / max: <strong>' +
+        escapeHtml(formatWindowMinMax(habit, windowStats.min, windowStats.max)) +
         "</strong></p>";
     });
+    if (!hasAny) {
+      html += '<p class="stats-line stats-muted">No marks in these windows yet.</p>';
+    }
     return html;
   }
 
@@ -5091,48 +5100,21 @@
           " not marked yet</p>";
       }
       html += '<p class="stats-pct">' + s.pct + "%</p>";
-      html += renderMovingAverageStatsHtml(habit);
+      html += renderWindowStatsHtml(habit);
     } else {
-      const s = buildCounterHabitStats(habit);
+      const loggedDays = countCounterLoggedDays(habit);
       html +=
         '<p class="stats-line stats-occurrence"><strong>Every day</strong> · ' +
-        s.year.count +
+        loggedDays +
         " logged day" +
-        (s.year.count === 1 ? "" : "s") +
+        (loggedDays === 1 ? "" : "s") +
         " " +
         periodLabel +
         "</p>";
-      if (s.year.count) {
-        html +=
-          '<p class="stats-line">Mean (average): <strong>' +
-          escapeHtml(formatCounterDisplay(Math.round(s.year.mean))) +
-          "</strong></p>";
-        html +=
-          '<p class="stats-line">Min / max (' +
-          periodLabel +
-          "): <strong>" +
-          escapeHtml(formatCounterDisplay(s.year.min)) +
-          "</strong> / <strong>" +
-          escapeHtml(formatCounterDisplay(s.year.max)) +
-          "</strong></p>";
-      } else {
+      if (!loggedDays) {
         html += '<p class="stats-line stats-muted">No marks ' + periodLabel + " yet.</p>";
       }
-      if (s.last30.count) {
-        html +=
-          '<p class="stats-line">Min / max (30d): <strong>' +
-          escapeHtml(formatCounterDisplay(s.last30.min)) +
-          "</strong> / <strong>" +
-          escapeHtml(formatCounterDisplay(s.last30.max)) +
-          "</strong></p>";
-        html +=
-          '<p class="stats-line">Mean (30d): <strong>' +
-          escapeHtml(formatCounterDisplay(Math.round(s.last30.mean))) +
-          "</strong></p>";
-      } else {
-        html += '<p class="stats-line stats-muted">No marks in the last 30 days.</p>';
-      }
-      html += renderMovingAverageStatsHtml(habit);
+      html += renderWindowStatsHtml(habit);
     }
     html += "</div>";
     return html;
