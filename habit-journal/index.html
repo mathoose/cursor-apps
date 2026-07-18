@@ -4472,12 +4472,24 @@
       return;
     }
     if (activeTab === "stats") {
+      const currentYear = getCurrentCalendarYear();
+      const atCurrentYear = state.year >= currentYear;
       nav.innerHTML =
         '<button type="button" class="nav-btn" id="yearPrev" aria-label="Previous year">‹</button>' +
         '<span class="nav-label">' + state.year + "</span>" +
-        '<button type="button" class="nav-btn" id="yearNext" aria-label="Next year">›</button>';
+        '<button type="button" class="nav-btn" id="yearNext" aria-label="Next year"' +
+        (atCurrentYear ? " disabled" : "") +
+        ">›</button>";
       document.getElementById("yearPrev").onclick = function () { state.year--; save(); render(); };
-      document.getElementById("yearNext").onclick = function () { state.year++; save(); render(); };
+      if (!atCurrentYear) {
+        document.getElementById("yearNext").onclick = function () {
+          if (state.year < currentYear) {
+            state.year++;
+            save();
+            render();
+          }
+        };
+      }
       return;
     }
     nav.innerHTML =
@@ -4820,8 +4832,42 @@
     today.setHours(23, 59, 59, 999);
     const end = new Date(state.year, 11, 31);
     end.setHours(23, 59, 59, 999);
-    if (state.year === today.getFullYear() && end > today) return today;
+    if (end > today) return today;
     return end;
+  }
+
+  function getCurrentCalendarYear() {
+    return new Date().getFullYear();
+  }
+
+  let statsYearWasClamped = false;
+
+  function clampStatsYearIfNeeded() {
+    const currentYear = getCurrentCalendarYear();
+    if (state.year > currentYear) {
+      state.year = currentYear;
+      save();
+      statsYearWasClamped = true;
+      return true;
+    }
+    statsYearWasClamped = false;
+    return false;
+  }
+
+  function formatStatsHintPeriod() {
+    const yearEnd = getYearStatsRangeEnd();
+    const currentYear = getCurrentCalendarYear();
+    if (state.year === currentYear) {
+      return (
+        state.year +
+        " through " +
+        yearEnd.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+      );
+    }
+    return (
+      "Jan 1 – " +
+      yearEnd.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+    );
   }
 
   function getHabitStatsRangeStart(habit) {
@@ -4944,6 +4990,7 @@
   function getStatsWindowBounds(habit, windowDays) {
     const end = getStatsWindowEndDay();
     const rangeStart = getHabitStatsRangeStart(habit);
+    if (rangeStart > end) return { start: rangeStart, end: end, days: [] };
     const windowStart = new Date(end);
     windowStart.setDate(windowStart.getDate() - (windowDays - 1));
     const effectiveStart = windowStart < rangeStart ? new Date(rangeStart) : windowStart;
@@ -4976,6 +5023,7 @@
         if (min == null || n < min) min = n;
         if (max == null || n > max) max = n;
       });
+      if (min == null) return null;
       return {
         average: Math.round((done / calendarSpan) * 100),
         min: min,
@@ -4995,6 +5043,7 @@
         if (max == null || val > max) max = val;
       }
     });
+    if (min == null) return null;
     return {
       average: sum / calendarSpan,
       min: min,
@@ -5321,6 +5370,7 @@
   function renderStats(targetRoot) {
     const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
+    const yearWasClamped = statsYearWasClamped;
     const filtered = getFilteredHabits(true);
     statsSelectedHabitIds = statsSelectedHabitIds.filter(function (id) {
       return filtered.some(function (h) {
@@ -5328,10 +5378,16 @@
       });
     });
     let html = renderCategoryFiltersHtml(true);
+    if (yearWasClamped) {
+      html +=
+        '<p class="hint stats-year-notice">Stats year was in the future — showing <strong>' +
+        state.year +
+        "</strong> instead.</p>";
+    }
     html +=
       '<p class="hint">Tap a habit · select up to 2 to compare · or use <strong>Set all</strong> for every habit · ' +
-      state.year +
-      " through today</p>";
+      formatStatsHintPeriod() +
+      "</p>";
     html += renderStatsSetAllHtml();
     if (!filtered.length) {
       html += '<p class="month-empty">No habits in this category.</p>';
@@ -7252,6 +7308,7 @@
         eraserMode && (activeTab === "today" || activeTab === "month" || (activeTab === "stats" && graphsMode === "grid"))
       );
       updateModeBar();
+      if (activeTab === "stats") clampStatsYearIfNeeded();
       renderTopNav();
       if (activeTab === "today") renderToday();
       else if (activeTab === "month") renderMonth();
