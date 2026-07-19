@@ -44,7 +44,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -54,7 +55,8 @@ button {
   touch-action: manipulation;
 }
 
-input {
+input,
+select {
   color: var(--text);
 }
 
@@ -164,7 +166,8 @@ p {
   letter-spacing: 0.01em;
 }
 
-.field input {
+.field input,
+select {
   width: 100%;
   min-height: var(--tap);
   border: 1.5px solid var(--border);
@@ -174,10 +177,15 @@ p {
   font-size: 1rem;
 }
 
-.field input:focus {
+.field input:focus,
+select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 4px rgba(177, 31, 53, 0.13);
+}
+
+.field-wide {
+  grid-column: 1 / -1;
 }
 
 .toggle-row {
@@ -207,6 +215,49 @@ p {
   overflow-x: auto;
   padding: 2px 0 10px;
   scrollbar-width: thin;
+}
+
+.save-row,
+.shape-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 2px 0 10px;
+}
+
+.mode-btn {
+  min-height: 40px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-muted);
+  font-weight: 800;
+  padding: 8px 10px;
+}
+
+.mode-btn.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(45, 42, 36, 0.16);
+}
+
+.selection-help {
+  min-height: 1.25em;
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+
+.export-name {
+  margin-bottom: 12px;
 }
 
 .swatch {
@@ -280,6 +331,11 @@ p {
 .btn-ghost {
   background: var(--accent-soft);
   color: var(--accent-dark);
+}
+
+.btn.active {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(51, 185, 79, 0.18);
 }
 
 .btn:active {
@@ -380,6 +436,16 @@ p {
   opacity: 1;
 }
 
+.cell.selected {
+  box-shadow: inset 0 0 0 3px rgba(40, 118, 215, 0.78);
+  z-index: 1;
+}
+
+.cell.paste-preview {
+  box-shadow: inset 0 0 0 3px rgba(51, 185, 79, 0.85);
+  z-index: 1;
+}
+
 .cell:active {
   background: rgba(177, 31, 53, 0.08);
 }
@@ -417,8 +483,18 @@ p {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
+  .field-wide {
+    grid-column: span 2;
+  }
+
   .toggle-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .save-row,
+  .shape-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
   }
 
   .tools-card {
