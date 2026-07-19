@@ -35,6 +35,10 @@
       </div>
 
       <div class="form-grid">
+        <label class="field field-wide">
+          <span>Design / file name</span>
+          <input type="text" id="designName" maxlength="80" placeholder="flower-panel" autocomplete="off" />
+        </label>
         <label class="field">
           <span>Width</span>
           <input type="number" id="gridWidth" min="1" max="80" step="1" inputmode="numeric" />
@@ -73,6 +77,24 @@
       </div>
     </section>
 
+    <section class="card saves-card" aria-labelledby="savesTitle">
+      <div class="card-heading">
+        <div>
+          <h2 id="savesTitle">Saved patterns</h2>
+          <p>Save named designs in this app so you can come back to them later.</p>
+        </div>
+      </div>
+
+      <div class="save-row">
+        <button type="button" class="btn btn-primary" id="saveDesignBtn">Save current design</button>
+        <select id="savedDesigns" aria-label="Saved designs"></select>
+      </div>
+      <div class="action-row">
+        <button type="button" class="btn btn-secondary" id="loadDesignBtn">Load saved</button>
+        <button type="button" class="btn btn-secondary" id="deleteDesignBtn">Delete saved</button>
+      </div>
+    </section>
+
     <section class="card tools-card" aria-labelledby="toolsTitle">
       <div class="card-heading card-heading--compact">
         <div>
@@ -83,6 +105,27 @@
       </div>
 
       <div class="palette" id="palette" aria-label="Color palette"></div>
+      <div class="mode-grid" role="radiogroup" aria-label="Drawing mode">
+        <button type="button" class="mode-btn active" data-mode="paint" role="radio" aria-checked="true">Paint</button>
+        <button type="button" class="mode-btn" data-mode="fill" role="radio" aria-checked="false">Fill</button>
+        <button type="button" class="mode-btn" data-mode="circle" role="radio" aria-checked="false">Circle</button>
+        <button type="button" class="mode-btn" data-mode="select" role="radio" aria-checked="false">Select</button>
+      </div>
+      <div class="shape-options" id="circleOptions" hidden>
+        <label class="field">
+          <span>Circle radius cells</span>
+          <input type="number" id="circleRadius" min="1" max="40" step="1" inputmode="numeric" />
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="circleFilled" />
+          <span>Filled circle</span>
+        </label>
+      </div>
+      <p class="selection-help" id="selectionMeta">Select a rectangle to copy and stamp it somewhere else.</p>
+      <div class="action-row">
+        <button type="button" class="btn btn-secondary" id="copySelectionBtn">Copy selection</button>
+        <button type="button" class="btn btn-secondary" id="pasteSelectionBtn">Paste copy</button>
+      </div>
       <div class="action-row">
         <button type="button" class="btn btn-secondary" id="undoBtn">Undo</button>
         <button type="button" class="btn btn-secondary" id="clearBtn">Clear grid</button>
@@ -103,6 +146,10 @@
         </div>
       </div>
 
+      <label class="field export-name">
+        <span>Export file name</span>
+        <input type="text" id="exportName" maxlength="80" autocomplete="off" />
+      </label>
       <div class="button-grid">
         <button type="button" class="btn btn-primary" id="exportCombinedBtn">Export combined STL</button>
         <button type="button" class="btn btn-secondary" id="exportColorBtn">Export color STLs</button>
