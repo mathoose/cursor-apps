@@ -22,7 +22,8 @@
       "things-book": { "storageKey": "things-book-v1" },
       "stride-flow": { "storageKey": "stride-flow-v1" },
       "quick-reader": { "storageKey": "quick-reader-v1" },
-      "idea-notes": { "storageKey": "idea-notes-v1" }
+      "idea-notes": { "storageKey": "idea-notes-v1" },
+      "stitch-grid": { "storageKey": "stitch-grid-v1" }
     }
   },
   "apps": [
@@ -109,6 +110,12 @@
       "name": "Idea Notes",
       "subtitle": "Notes & linked ideas",
       "storageKey": "idea-notes-v1"
+    },
+    {
+      "id": "stitch-grid",
+      "name": "Stitch Grid",
+      "subtitle": "X-stitch STL maker",
+      "storageKey": "stitch-grid-v1"
     },
     {
       "id": "stride-flow",

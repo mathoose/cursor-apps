@@ -25,6 +25,7 @@
     "times-tables": "Times Tables",
     "quick-reader": "Quick Reader",
     "idea-notes": "Idea Notes",
+    "stitch-grid": "Stitch Grid",
     "things-book": "Things Book",
     "stride-flow": "StrideFlow",
   };
@@ -778,6 +779,58 @@
         var text = typeof slice.text === "string" ? slice.text.trim() : "";
         var words = text ? text.split(/\s+/).length : 0;
         return words + " reader word" + (words === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var existingDate = Date.parse(existing.updatedAt || "");
+        var incomingDate = Date.parse(incoming.updatedAt || "");
+        if (Number.isFinite(incomingDate) && (!Number.isFinite(existingDate) || incomingDate >= existingDate)) {
+          return incoming;
+        }
+        return existing;
+      },
+    },
+    "stitch-grid": {
+      storageKey: "stitch-grid-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("stitch-grid-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !p.settings || !p.cells || typeof p.cells !== "object") return null;
+          return {
+            version: 1,
+            settings: p.settings,
+            cells: p.cells,
+            updatedAt: p.updatedAt || new Date().toISOString(),
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !slice.settings || !slice.cells || typeof slice.cells !== "object") return false;
+        return writeKey(
+          "stitch-grid-v1",
+          JSON.stringify({
+            version: 1,
+            settings: slice.settings,
+            cells: slice.cells,
+            updatedAt: slice.updatedAt || new Date().toISOString(),
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && obj.settings && obj.cells && typeof obj.cells === "object" && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var count = slice && slice.cells ? Object.keys(slice.cells).length : 0;
+        var settings = slice && slice.settings ? slice.settings : {};
+        var w = settings.width || 0;
+        var h = settings.height || 0;
+        return count + " stitch" + (count === 1 ? "" : "es") + " on " + w + " x " + h + " grid";
       },
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;
