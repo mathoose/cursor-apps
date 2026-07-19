@@ -802,8 +802,10 @@
           if (!p || !p.settings || !p.cells || typeof p.cells !== "object") return null;
           return {
             version: 1,
+            name: typeof p.name === "string" ? p.name : "stitch-grid",
             settings: p.settings,
             cells: p.cells,
+            savedDesigns: Array.isArray(p.savedDesigns) ? p.savedDesigns : [],
             updatedAt: p.updatedAt || new Date().toISOString(),
           };
         } catch (e) {
@@ -816,8 +818,10 @@
           "stitch-grid-v1",
           JSON.stringify({
             version: 1,
+            name: typeof slice.name === "string" ? slice.name : "stitch-grid",
             settings: slice.settings,
             cells: slice.cells,
+            savedDesigns: Array.isArray(slice.savedDesigns) ? slice.savedDesigns : [],
             updatedAt: slice.updatedAt || new Date().toISOString(),
           })
         );
@@ -828,9 +832,10 @@
       summarize: function (slice) {
         var count = slice && slice.cells ? Object.keys(slice.cells).length : 0;
         var settings = slice && slice.settings ? slice.settings : {};
+        var saved = slice && Array.isArray(slice.savedDesigns) ? slice.savedDesigns.length : 0;
         var w = settings.width || 0;
         var h = settings.height || 0;
-        return count + " stitch" + (count === 1 ? "" : "es") + " on " + w + " x " + h + " grid";
+        return count + " stitch" + (count === 1 ? "" : "es") + " on " + w + " x " + h + " grid, " + saved + " saved pattern" + (saved === 1 ? "" : "s");
       },
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;

@@ -28,6 +28,11 @@
 
   var state = loadData();
   var selectedTool = "red";
+  var drawMode = "paint";
+  var selection = null;
+  var selectionStart = null;
+  var copiedSelection = null;
+  var pasteMode = false;
   var lastSnapshot = null;
   var pointerDown = false;
   var activePointerId = null;
@@ -38,8 +43,10 @@
   function defaultData() {
     return {
       version: 1,
+      name: "stitch-grid",
       settings: Object.assign({}, DEFAULTS),
       cells: {},
+      savedDesigns: [],
       updatedAt: new Date().toISOString(),
     };
   }
@@ -53,6 +60,14 @@
   function roundTo(value, places) {
     var factor = Math.pow(10, places || 2);
     return Math.round(value * factor) / factor;
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
+
+  function normalizeName(value) {
+    return String(value || "stitch-grid").trim().replace(/\s+/g, "-").slice(0, 80) || "stitch-grid";
   }
 
   function normalizeSettings(raw) {
@@ -103,10 +118,26 @@
     var settings = normalizeSettings(raw && raw.settings);
     return {
       version: 1,
+      name: normalizeName(raw && raw.name),
       settings: settings,
       cells: normalizeCells(raw && raw.cells, settings),
+      savedDesigns: normalizeSavedDesigns(raw && raw.savedDesigns),
       updatedAt: raw && raw.updatedAt ? String(raw.updatedAt) : new Date().toISOString(),
     };
+  }
+
+  function normalizeSavedDesigns(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, 50).map(function (design) {
+      var settings = normalizeSettings(design && design.settings);
+      return {
+        id: design && design.id ? String(design.id) : uid(),
+        name: normalizeName(design && design.name),
+        settings: settings,
+        cells: normalizeCells(design && design.cells, settings),
+        updatedAt: design && design.updatedAt ? String(design.updatedAt) : new Date().toISOString(),
+      };
+    });
   }
 
   function loadData() {
@@ -140,6 +171,44 @@
       .replace(/^-+|-+$/g, "") || "stitch-grid";
   }
 
+  function exportBaseName() {
+    var value = els.exportName && els.exportName.value ? els.exportName.value : state.name;
+    return slug(value || "stitch-grid");
+  }
+
+  function cloneCurrentDesign(id) {
+    return {
+      id: id || uid(),
+      name: normalizeName(state.name),
+      settings: Object.assign({}, state.settings),
+      cells: Object.assign({}, state.cells),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  function setCell(x, y, colorId) {
+    if (x < 0 || y < 0 || x >= state.settings.width || y >= state.settings.height) return false;
+    var key = x + "," + y;
+    if (colorId === "erase" || !colorId) {
+      if (!state.cells[key]) return false;
+      delete state.cells[key];
+      return true;
+    }
+    if (!colorById(colorId) || state.cells[key] === colorId) return false;
+    state.cells[key] = colorId;
+    return true;
+  }
+
+  function currentPaintValue() {
+    return selectedTool === "erase" ? null : selectedTool;
+  }
+
+  function sortedSavedDesigns() {
+    return state.savedDesigns.slice().sort(function (a, b) {
+      return new Date(b.updatedAt) - new Date(a.updatedAt);
+    });
+  }
+
   function toast(message) {
     if (!els.toast) return;
     els.toast.textContent = message;
@@ -169,6 +238,8 @@
 
   function updateInputs() {
     var s = state.settings;
+    els.designName.value = state.name;
+    els.exportName.value = state.name;
     els.gridWidth.value = s.width;
     els.gridHeight.value = s.height;
     els.cellSize.value = s.cellSize;
@@ -177,6 +248,24 @@
     els.baseThickness.value = s.baseThickness;
     els.includeBase.checked = !!s.includeBase;
     els.showGridLines.checked = !!s.showGridLines;
+  }
+
+  function renderSavedDesigns() {
+    if (!els.savedDesigns) return;
+    var designs = sortedSavedDesigns();
+    if (!designs.length) {
+      els.savedDesigns.innerHTML = '<option value="">No saved patterns yet</option>';
+      els.loadDesignBtn.disabled = true;
+      els.deleteDesignBtn.disabled = true;
+      return;
+    }
+    els.savedDesigns.innerHTML = designs.map(function (design) {
+      var count = Object.keys(design.cells || {}).length;
+      return '<option value="' + escapeHtml(design.id) + '">' +
+        escapeHtml(design.name) + " - " + count + " stitches</option>";
+    }).join("");
+    els.loadDesignBtn.disabled = false;
+    els.deleteDesignBtn.disabled = false;
   }
 
   function renderPalette() {
@@ -200,6 +289,37 @@
     });
   }
 
+  function renderDrawMode() {
+    document.querySelectorAll("[data-mode]").forEach(function (btn) {
+      var active = btn.dataset.mode === drawMode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-checked", active ? "true" : "false");
+    });
+    els.circleOptions.hidden = drawMode !== "circle";
+    els.pasteSelectionBtn.classList.toggle("active", pasteMode);
+    renderSelectionMeta();
+  }
+
+  function renderSelectionMeta() {
+    if (!els.selectionMeta) return;
+    if (pasteMode && copiedSelection) {
+      els.selectionMeta.textContent = "Paste mode: tap a cell to place the copied " + copiedSelection.width + " x " + copiedSelection.height + " pattern.";
+    } else if (selection) {
+      els.selectionMeta.textContent = "Selected " + selection.width + " x " + selection.height + " cells. Copy it, then tap Paste copy.";
+    } else if (copiedSelection) {
+      els.selectionMeta.textContent = "Copied " + copiedSelection.width + " x " + copiedSelection.height + " cells. Tap Paste copy, then tap the grid.";
+    } else {
+      els.selectionMeta.textContent = "Select a rectangle to copy and stamp it somewhere else.";
+    }
+    els.copySelectionBtn.disabled = !selection;
+    els.pasteSelectionBtn.disabled = !copiedSelection;
+  }
+
+  function isInSelection(x, y) {
+    return selection && x >= selection.x && y >= selection.y &&
+      x < selection.x + selection.width && y < selection.y + selection.height;
+  }
+
   function renderGrid() {
     var s = state.settings;
     var viewportWidth = Math.max(320, Math.min(window.innerWidth || 390, 980));
@@ -216,7 +336,7 @@
       for (var x = 0; x < s.width; x++) {
         var key = x + "," + y;
         var color = colorById(state.cells[key]);
-        html += '<button type="button" class="cell' + (color ? " filled" : "") + '"' +
+        html += '<button type="button" class="cell' + (color ? " filled" : "") + (isInSelection(x, y) ? " selected" : "") + '"' +
           ' data-x="' + x + '" data-y="' + y + '"' +
           (color ? ' style="--stitch-color:' + escapeHtml(color.hex) + '"' : "") +
           ' aria-label="Cell ' + (x + 1) + ", " + (y + 1) + (color ? ", " + escapeHtml(color.name) : ", empty") + '">' +
@@ -240,12 +360,15 @@
 
   function renderAll() {
     updateInputs();
+    renderSavedDesigns();
     renderGrid();
     renderSelectedTool();
+    renderDrawMode();
   }
 
   function applySettingsFromInputs() {
     var previousCells = Object.assign({}, state.cells);
+    state.name = normalizeName(els.designName.value);
     state.settings = normalizeSettings({
       width: els.gridWidth.value,
       height: els.gridHeight.value,
@@ -257,6 +380,8 @@
       showGridLines: els.showGridLines.checked,
     });
     state.cells = normalizeCells(previousCells, state.settings);
+    selection = null;
+    pasteMode = false;
     saveData();
     renderAll();
   }
@@ -269,11 +394,7 @@
     if (key === lastPaintKey) return;
     lastPaintKey = key;
 
-    if (selectedTool === "erase") {
-      delete state.cells[key];
-    } else {
-      state.cells[key] = selectedTool;
-    }
+    setCell(x, y, selectedTool);
     saveData();
 
     var color = colorById(state.cells[key]);
@@ -286,6 +407,157 @@
       cell.setAttribute("aria-label", "Cell " + (x + 1) + ", " + (y + 1) + ", empty");
     }
     renderMeta();
+  }
+
+  function floodFillFrom(x, y) {
+    var targetKey = x + "," + y;
+    var target = state.cells[targetKey] || null;
+    var replacement = currentPaintValue();
+    if (target === replacement) return 0;
+    var stack = [[x, y]];
+    var seen = {};
+    var changed = 0;
+    while (stack.length) {
+      var pos = stack.pop();
+      var px = pos[0];
+      var py = pos[1];
+      var key = px + "," + py;
+      if (seen[key] || px < 0 || py < 0 || px >= state.settings.width || py >= state.settings.height) continue;
+      seen[key] = true;
+      if ((state.cells[key] || null) !== target) continue;
+      if (setCell(px, py, replacement || "erase")) changed++;
+      stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
+    }
+    return changed;
+  }
+
+  function drawCircleAt(cx, cy) {
+    var radius = Math.round(clampNumber(els.circleRadius.value, 1, 40, 4));
+    var filled = !!els.circleFilled.checked;
+    var replacement = currentPaintValue();
+    var changed = 0;
+    for (var y = cy - radius; y <= cy + radius; y++) {
+      for (var x = cx - radius; x <= cx + radius; x++) {
+        var dx = x - cx;
+        var dy = y - cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var inShape = filled ? dist <= radius + 0.28 : Math.abs(dist - radius) <= 0.55;
+        if (inShape && setCell(x, y, replacement || "erase")) changed++;
+      }
+    }
+    return changed;
+  }
+
+  function selectionFromPoints(a, b) {
+    var x0 = Math.max(0, Math.min(a.x, b.x));
+    var y0 = Math.max(0, Math.min(a.y, b.y));
+    var x1 = Math.min(state.settings.width - 1, Math.max(a.x, b.x));
+    var y1 = Math.min(state.settings.height - 1, Math.max(a.y, b.y));
+    return { x: x0, y: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
+  }
+
+  function copySelection() {
+    if (!selection) {
+      toast("Select an area first.");
+      return;
+    }
+    var cells = {};
+    Object.keys(state.cells).forEach(function (key) {
+      var parts = key.split(",");
+      var x = Number(parts[0]);
+      var y = Number(parts[1]);
+      if (!isInSelection(x, y)) return;
+      cells[(x - selection.x) + "," + (y - selection.y)] = state.cells[key];
+    });
+    copiedSelection = {
+      width: selection.width,
+      height: selection.height,
+      cells: cells,
+    };
+    pasteMode = true;
+    drawMode = "select";
+    renderDrawMode();
+    toast("Selection copied. Tap the grid to paste.");
+  }
+
+  function pasteSelectionAt(x, y) {
+    if (!copiedSelection) {
+      toast("Copy a selection first.");
+      return;
+    }
+    var changed = 0;
+    snapshotCells();
+    Object.keys(copiedSelection.cells).forEach(function (key) {
+      var parts = key.split(",");
+      var px = x + Number(parts[0]);
+      var py = y + Number(parts[1]);
+      if (setCell(px, py, copiedSelection.cells[key])) changed++;
+    });
+    if (!changed) {
+      lastSnapshot = null;
+      els.undoBtn.disabled = true;
+      toast("Nothing pasted inside the grid.");
+      return;
+    }
+    selection = { x: x, y: y, width: copiedSelection.width, height: copiedSelection.height };
+    pasteMode = false;
+    saveData();
+    renderGrid();
+    renderDrawMode();
+    toast("Pattern pasted.");
+  }
+
+  function saveCurrentDesign() {
+    state.name = normalizeName(els.designName.value || els.exportName.value || state.name);
+    var existing = state.savedDesigns.filter(function (design) {
+      return design.name.toLowerCase() === state.name.toLowerCase();
+    })[0];
+    var design = cloneCurrentDesign(existing && existing.id);
+    state.savedDesigns = state.savedDesigns.filter(function (item) {
+      return item.id !== design.id;
+    });
+    state.savedDesigns.unshift(design);
+    saveData();
+    renderSavedDesigns();
+    updateInputs();
+    toast("Saved " + design.name + ".");
+  }
+
+  function selectedSavedDesign() {
+    var id = els.savedDesigns.value;
+    return state.savedDesigns.filter(function (design) { return design.id === id; })[0] || null;
+  }
+
+  function loadSavedDesign() {
+    var design = selectedSavedDesign();
+    if (!design) {
+      toast("Choose a saved pattern first.");
+      return;
+    }
+    snapshotCells();
+    state.name = normalizeName(design.name);
+    state.settings = normalizeSettings(design.settings);
+    state.cells = normalizeCells(design.cells, state.settings);
+    selection = null;
+    pasteMode = false;
+    saveData();
+    renderAll();
+    toast("Loaded " + state.name + ".");
+  }
+
+  function deleteSavedDesign() {
+    var design = selectedSavedDesign();
+    if (!design) {
+      toast("Choose a saved pattern first.");
+      return;
+    }
+    if (!window.confirm("Delete saved pattern \"" + design.name + "\"?")) return;
+    state.savedDesigns = state.savedDesigns.filter(function (item) {
+      return item.id !== design.id;
+    });
+    saveData();
+    renderSavedDesigns();
+    toast("Deleted saved pattern.");
   }
 
   function cellFromPoint(clientX, clientY) {
@@ -458,8 +730,11 @@
   }
 
   function exportCombinedStl() {
-    var stl = buildStl("stitch-grid-combined", null, true);
-    downloadBlob(new Blob([stl], { type: "model/stl" }), "stitch-grid-combined.stl");
+    state.name = normalizeName(els.exportName.value || els.designName.value || state.name);
+    saveData();
+    var base = exportBaseName();
+    var stl = buildStl(base + "-combined", null, true);
+    downloadBlob(new Blob([stl], { type: "model/stl" }), base + "-combined.stl");
     toast("Combined STL exported.");
   }
 
@@ -473,26 +748,31 @@
       toast("Add stitches before exporting colors.");
       return;
     }
+    state.name = normalizeName(els.exportName.value || els.designName.value || state.name);
+    saveData();
+    var base = exportBaseName();
     if (state.settings.includeBase && state.settings.baseThickness > 0) {
-      var baseOnly = buildStl("stitch-grid-base", "__none__", true);
-      downloadBlob(new Blob([baseOnly], { type: "model/stl" }), "stitch-grid-base.stl");
+      var baseOnly = buildStl(base + "-base", "__none__", true);
+      downloadBlob(new Blob([baseOnly], { type: "model/stl" }), base + "-base.stl");
     }
     colorIds.forEach(function (id, index) {
       var color = colorById(id);
       setTimeout(function () {
-        var stl = buildStl("stitch-grid-" + id, id, false);
-        downloadBlob(new Blob([stl], { type: "model/stl" }), "stitch-grid-" + slug(color ? color.name : id) + ".stl");
+        var stl = buildStl(base + "-" + id, id, false);
+        downloadBlob(new Blob([stl], { type: "model/stl" }), base + "-" + slug(color ? color.name : id) + ".stl");
       }, 180 * (index + 1));
     });
     toast("Color STLs exported.");
   }
 
   function exportJson() {
+    state.name = normalizeName(els.exportName.value || els.designName.value || state.name);
     saveData();
+    var base = exportBaseName();
     var payload = Object.assign({ format: EXPORT_FORMAT, appId: APP_ID }, state);
     downloadBlob(
       new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }),
-      "stitch-grid.json"
+      base + ".json"
     );
     toast("JSON exported.");
   }
@@ -539,12 +819,32 @@
     settingInputs.forEach(function (input) {
       input.addEventListener("change", applySettingsFromInputs);
     });
+    els.designName.addEventListener("change", function () {
+      state.name = normalizeName(els.designName.value);
+      els.exportName.value = state.name;
+      saveData();
+      updateInputs();
+    });
+    els.exportName.addEventListener("change", function () {
+      state.name = normalizeName(els.exportName.value);
+      els.designName.value = state.name;
+      saveData();
+      updateInputs();
+    });
 
     els.palette.addEventListener("click", function (event) {
       var btn = event.target.closest("[data-tool]");
       if (!btn) return;
       selectedTool = btn.dataset.tool;
       renderSelectedTool();
+    });
+
+    document.querySelectorAll("[data-mode]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        drawMode = btn.dataset.mode;
+        pasteMode = false;
+        renderDrawMode();
+      });
     });
 
     els.stitchGrid.addEventListener("pointerdown", function (event) {
@@ -554,15 +854,61 @@
       pointerDown = true;
       activePointerId = event.pointerId;
       lastPaintKey = "";
-      snapshotCells();
       els.stitchGrid.setPointerCapture(event.pointerId);
-      paintCell(cell);
+      var x = Number(cell.dataset.x);
+      var y = Number(cell.dataset.y);
+
+      if (pasteMode && copiedSelection) {
+        pointerDown = false;
+        activePointerId = null;
+        try {
+          els.stitchGrid.releasePointerCapture(event.pointerId);
+        } catch (e) {
+          // Some browsers may release capture automatically.
+        }
+        pasteSelectionAt(x, y);
+        return;
+      }
+
+      if (drawMode === "select") {
+        selectionStart = { x: x, y: y };
+        selection = selectionFromPoints(selectionStart, selectionStart);
+        renderGrid();
+        renderDrawMode();
+        return;
+      }
+
+      snapshotCells();
+      if (drawMode === "fill") {
+        var filled = floodFillFrom(x, y);
+        saveData();
+        renderGrid();
+        toast(filled ? "Area filled." : "Nothing to fill.");
+      } else if (drawMode === "circle") {
+        var circled = drawCircleAt(x, y);
+        saveData();
+        renderGrid();
+        toast(circled ? "Circle added." : "Circle is outside the grid.");
+      } else {
+        paintCell(cell);
+      }
     });
 
     els.stitchGrid.addEventListener("pointermove", function (event) {
       if (!pointerDown || event.pointerId !== activePointerId) return;
       event.preventDefault();
-      paintCell(cellFromPoint(event.clientX, event.clientY));
+      var cell = cellFromPoint(event.clientX, event.clientY);
+      if (!cell) return;
+      if (drawMode === "select" && selectionStart) {
+        selection = selectionFromPoints(selectionStart, {
+          x: Number(cell.dataset.x),
+          y: Number(cell.dataset.y),
+        });
+        renderGrid();
+        renderDrawMode();
+        return;
+      }
+      if (drawMode === "paint") paintCell(cell);
     });
 
     function endPointer(event) {
@@ -570,6 +916,7 @@
       pointerDown = false;
       activePointerId = null;
       lastPaintKey = "";
+      selectionStart = null;
       try {
         els.stitchGrid.releasePointerCapture(event.pointerId);
       } catch (e) {
@@ -579,6 +926,20 @@
 
     els.stitchGrid.addEventListener("pointerup", endPointer);
     els.stitchGrid.addEventListener("pointercancel", endPointer);
+    els.saveDesignBtn.addEventListener("click", saveCurrentDesign);
+    els.loadDesignBtn.addEventListener("click", loadSavedDesign);
+    els.deleteDesignBtn.addEventListener("click", deleteSavedDesign);
+    els.copySelectionBtn.addEventListener("click", copySelection);
+    els.pasteSelectionBtn.addEventListener("click", function () {
+      if (!copiedSelection) {
+        toast("Copy a selection first.");
+        return;
+      }
+      pasteMode = true;
+      drawMode = "select";
+      renderDrawMode();
+      toast("Tap the grid to paste.");
+    });
     els.clearBtn.addEventListener("click", clearGrid);
     els.sampleBtn.addEventListener("click", loadSample);
     els.undoBtn.addEventListener("click", undo);
@@ -593,6 +954,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     els = {
+      designName: document.getElementById("designName"),
       gridWidth: document.getElementById("gridWidth"),
       gridHeight: document.getElementById("gridHeight"),
       cellSize: document.getElementById("cellSize"),
@@ -601,7 +963,17 @@
       baseThickness: document.getElementById("baseThickness"),
       includeBase: document.getElementById("includeBase"),
       showGridLines: document.getElementById("showGridLines"),
+      saveDesignBtn: document.getElementById("saveDesignBtn"),
+      savedDesigns: document.getElementById("savedDesigns"),
+      loadDesignBtn: document.getElementById("loadDesignBtn"),
+      deleteDesignBtn: document.getElementById("deleteDesignBtn"),
       palette: document.getElementById("palette"),
+      circleOptions: document.getElementById("circleOptions"),
+      circleRadius: document.getElementById("circleRadius"),
+      circleFilled: document.getElementById("circleFilled"),
+      selectionMeta: document.getElementById("selectionMeta"),
+      copySelectionBtn: document.getElementById("copySelectionBtn"),
+      pasteSelectionBtn: document.getElementById("pasteSelectionBtn"),
       patternMeta: document.getElementById("patternMeta"),
       stitchGrid: document.getElementById("stitchGrid"),
       clearBtn: document.getElementById("clearBtn"),
@@ -609,11 +981,14 @@
       undoBtn: document.getElementById("undoBtn"),
       exportCombinedBtn: document.getElementById("exportCombinedBtn"),
       exportColorBtn: document.getElementById("exportColorBtn"),
+      exportName: document.getElementById("exportName"),
       exportJsonBtn: document.getElementById("exportJsonBtn"),
       importJsonFile: document.getElementById("importJsonFile"),
       toast: document.getElementById("toast"),
     };
     els.undoBtn.disabled = true;
+    els.circleRadius.value = 4;
+    els.circleFilled.checked = false;
     renderPalette();
     renderAll();
     bindEvents();
