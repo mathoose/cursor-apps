@@ -29,6 +29,7 @@
   var state = loadData();
   var selectedTool = "red";
   var drawMode = "paint";
+  var activePanel = "draw";
   var selection = null;
   var selectionStart = null;
   var copiedSelection = null;
@@ -97,6 +98,48 @@
     return null;
   }
 
+  function normalizeShape(shape) {
+    shape = String(shape || "x");
+    if (shape === "square" || shape === "circle") return shape;
+    return "x";
+  }
+
+  function normalizeCellValue(value) {
+    var color = "";
+    var shape = "x";
+    if (value && typeof value === "object") {
+      color = String(value.color || "");
+      shape = normalizeShape(value.shape);
+    } else {
+      color = String(value || "");
+    }
+    if (!colorById(color)) return null;
+    return { color: color, shape: shape };
+  }
+
+  function cellColorId(value) {
+    var cell = normalizeCellValue(value);
+    return cell ? cell.color : "";
+  }
+
+  function cellShape(value) {
+    var cell = normalizeCellValue(value);
+    return cell ? cell.shape : "x";
+  }
+
+  function cellMatches(a, b) {
+    var ca = normalizeCellValue(a);
+    var cb = normalizeCellValue(b);
+    if (!ca && !cb) return true;
+    if (!ca || !cb) return false;
+    return ca.color === cb.color && ca.shape === cb.shape;
+  }
+
+  function makeCell(colorId, shape) {
+    if (!colorById(colorId)) return null;
+    return { color: colorId, shape: normalizeShape(shape) };
+  }
+
   function normalizeCells(raw, settings) {
     var out = {};
     if (!raw || typeof raw !== "object") return out;
@@ -105,11 +148,11 @@
       if (parts.length !== 2) return;
       var x = Math.floor(Number(parts[0]));
       var y = Math.floor(Number(parts[1]));
-      var color = String(raw[key] || "");
+      var cell = normalizeCellValue(raw[key]);
       if (!Number.isFinite(x) || !Number.isFinite(y)) return;
       if (x < 0 || y < 0 || x >= settings.width || y >= settings.height) return;
-      if (!colorById(color)) return;
-      out[x + "," + y] = color;
+      if (!cell) return;
+      out[x + "," + y] = cell;
     });
     return out;
   }
@@ -186,21 +229,29 @@
     };
   }
 
-  function setCell(x, y, colorId) {
+  function setCell(x, y, value) {
     if (x < 0 || y < 0 || x >= state.settings.width || y >= state.settings.height) return false;
     var key = x + "," + y;
-    if (colorId === "erase" || !colorId) {
+    var cell = normalizeCellValue(value);
+    if (value === "erase" || !cell) {
       if (!state.cells[key]) return false;
       delete state.cells[key];
       return true;
     }
-    if (!colorById(colorId) || state.cells[key] === colorId) return false;
-    state.cells[key] = colorId;
+    if (cellMatches(state.cells[key], cell)) return false;
+    state.cells[key] = cell;
     return true;
   }
 
-  function currentPaintValue() {
-    return selectedTool === "erase" ? null : selectedTool;
+  function currentCellValue(shapeOverride) {
+    if (selectedTool === "erase") return null;
+    return makeCell(selectedTool, shapeOverride || brushShapeForMode());
+  }
+
+  function brushShapeForMode() {
+    if (drawMode === "square") return "square";
+    if (drawMode === "cell-circle") return "circle";
+    return "x";
   }
 
   function sortedSavedDesigns() {
@@ -295,9 +346,28 @@
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-checked", active ? "true" : "false");
     });
-    els.circleOptions.hidden = drawMode !== "circle";
+    els.circleOptions.hidden = drawMode !== "circle-pattern";
     els.pasteSelectionBtn.classList.toggle("active", pasteMode);
     renderSelectionMeta();
+  }
+
+  function renderToolPanel() {
+    var isWave = activePanel === "wavelength";
+    els.drawPanel.hidden = isWave;
+    els.wavelengthPanel.hidden = !isWave;
+    document.querySelectorAll("[data-panel]").forEach(function (btn) {
+      var active = btn.dataset.panel === activePanel;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-selected", active ? "true" : "false");
+    });
+  }
+
+  function renderWaveValues() {
+    els.waveAmplitudeValue.textContent = els.waveAmplitude.value;
+    els.waveFrequencyValue.textContent = els.waveFrequency.value;
+    els.waveSpacingValue.textContent = els.waveSpacing.value;
+    els.wavePhaseValue.textContent = els.wavePhase.value;
+    els.waveThicknessValue.textContent = els.waveThickness.value;
   }
 
   function renderSelectionMeta() {
@@ -335,8 +405,10 @@
     for (var y = 0; y < s.height; y++) {
       for (var x = 0; x < s.width; x++) {
         var key = x + "," + y;
-        var color = colorById(state.cells[key]);
-        html += '<button type="button" class="cell' + (color ? " filled" : "") + (isInSelection(x, y) ? " selected" : "") + '"' +
+        var cell = normalizeCellValue(state.cells[key]);
+        var color = colorById(cell && cell.color);
+        var shape = cell ? cell.shape : "x";
+        html += '<button type="button" class="cell' + (color ? " filled shape-" + shape : "") + (isInSelection(x, y) ? " selected" : "") + '"' +
           ' data-x="' + x + '" data-y="' + y + '"' +
           (color ? ' style="--stitch-color:' + escapeHtml(color.hex) + '"' : "") +
           ' aria-label="Cell ' + (x + 1) + ", " + (y + 1) + (color ? ", " + escapeHtml(color.name) : ", empty") + '">' +
@@ -364,6 +436,8 @@
     renderGrid();
     renderSelectedTool();
     renderDrawMode();
+    renderToolPanel();
+    renderWaveValues();
   }
 
   function applySettingsFromInputs() {
@@ -394,12 +468,15 @@
     if (key === lastPaintKey) return;
     lastPaintKey = key;
 
-    setCell(x, y, selectedTool);
+    setCell(x, y, currentCellValue());
     saveData();
 
-    var color = colorById(state.cells[key]);
+    var cellValue = normalizeCellValue(state.cells[key]);
+    var color = colorById(cellValue && cellValue.color);
+    cell.classList.remove("shape-x", "shape-square", "shape-circle");
     cell.classList.toggle("filled", !!color);
     if (color) {
+      cell.classList.add("shape-" + cellValue.shape);
       cell.style.setProperty("--stitch-color", color.hex);
       cell.setAttribute("aria-label", "Cell " + (x + 1) + ", " + (y + 1) + ", " + color.name);
     } else {
@@ -412,8 +489,8 @@
   function floodFillFrom(x, y) {
     var targetKey = x + "," + y;
     var target = state.cells[targetKey] || null;
-    var replacement = currentPaintValue();
-    if (target === replacement) return 0;
+    var replacement = currentCellValue();
+    if (cellMatches(target, replacement)) return 0;
     var stack = [[x, y]];
     var seen = {};
     var changed = 0;
@@ -424,7 +501,7 @@
       var key = px + "," + py;
       if (seen[key] || px < 0 || py < 0 || px >= state.settings.width || py >= state.settings.height) continue;
       seen[key] = true;
-      if ((state.cells[key] || null) !== target) continue;
+      if (!cellMatches(state.cells[key] || null, target)) continue;
       if (setCell(px, py, replacement || "erase")) changed++;
       stack.push([px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]);
     }
@@ -434,7 +511,7 @@
   function drawCircleAt(cx, cy) {
     var radius = Math.round(clampNumber(els.circleRadius.value, 1, 40, 4));
     var filled = !!els.circleFilled.checked;
-    var replacement = currentPaintValue();
+    var replacement = currentCellValue("x");
     var changed = 0;
     for (var y = cy - radius; y <= cy + radius; y++) {
       for (var x = cx - radius; x <= cx + radius; x++) {
@@ -560,6 +637,67 @@
     toast("Deleted saved pattern.");
   }
 
+  function addWavePattern(clearFirst) {
+    if (selectedTool === "erase") {
+      toast("Pick a color before adding a wavelength pattern.");
+      return;
+    }
+    snapshotCells();
+    if (clearFirst) state.cells = {};
+    var pattern = els.wavePattern.value;
+    var changed = pattern === "rings" ? addRingWaveCells() : addSineWaveCells();
+    if (!changed) {
+      toast("No wavelength cells were added.");
+      return;
+    }
+    selection = null;
+    pasteMode = false;
+    saveData();
+    renderGrid();
+    renderDrawMode();
+    toast("Added " + changed + " wavelength stitches.");
+  }
+
+  function addSineWaveCells() {
+    var s = state.settings;
+    var amp = clampNumber(els.waveAmplitude.value, 1, 30, 6);
+    var freq = clampNumber(els.waveFrequency.value, 1, 12, 4);
+    var spacing = Math.round(clampNumber(els.waveSpacing.value, 1, 12, 4));
+    var phase = clampNumber(els.wavePhase.value, 0, 360, 0) * Math.PI / 180;
+    var thick = Math.round(clampNumber(els.waveThickness.value, 1, 6, 1));
+    var center = (s.height - 1) / 2;
+    var changed = 0;
+    for (var x = 0; x < s.width; x += spacing) {
+      var angle = (x / Math.max(1, s.width - 1)) * Math.PI * 2 * freq + phase;
+      var yBase = Math.round(center + Math.sin(angle) * amp);
+      for (var dy = -Math.floor((thick - 1) / 2); dy <= Math.ceil((thick - 1) / 2); dy++) {
+        if (setCell(x, yBase + dy, makeCell(selectedTool, "x"))) changed++;
+      }
+    }
+    return changed;
+  }
+
+  function addRingWaveCells() {
+    var s = state.settings;
+    var spacing = clampNumber(els.waveSpacing.value, 1, 12, 4);
+    var phase = clampNumber(els.wavePhase.value, 0, 360, 0) * Math.PI / 180;
+    var thick = clampNumber(els.waveThickness.value, 1, 6, 1);
+    var cx = (s.width - 1) / 2;
+    var cy = (s.height - 1) / 2;
+    var maxR = Math.hypot(Math.max(cx, s.width - cx), Math.max(cy, s.height - cy));
+    var changed = 0;
+    for (var y = 0; y < s.height; y++) {
+      for (var x = 0; x < s.width; x++) {
+        var dist = Math.hypot(x - cx, y - cy);
+        var ring = Math.abs(((dist + phase) % spacing) - spacing / 2);
+        if (ring <= Math.max(0.4, thick / 2) && dist <= maxR) {
+          if (setCell(x, y, makeCell(selectedTool, "x"))) changed++;
+        }
+      }
+    }
+    return changed;
+  }
+
   function cellFromPoint(clientX, clientY) {
     var node = document.elementFromPoint(clientX, clientY);
     return node && node.closest ? node.closest(".cell") : null;
@@ -683,6 +821,24 @@
     addPrism(parts, [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1);
   }
 
+  function addCylinder(parts, cx, cy, radius, z0, z1, sides) {
+    sides = sides || 24;
+    var topCenter = [cx, cy, z1];
+    var bottomCenter = [cx, cy, z0];
+    for (var i = 0; i < sides; i++) {
+      var a0 = (Math.PI * 2 * i) / sides;
+      var a1 = (Math.PI * 2 * (i + 1)) / sides;
+      var b0 = [cx + Math.cos(a0) * radius, cy + Math.sin(a0) * radius, z0];
+      var b1 = [cx + Math.cos(a1) * radius, cy + Math.sin(a1) * radius, z0];
+      var t0 = [b0[0], b0[1], z1];
+      var t1 = [b1[0], b1[1], z1];
+      addFacet(parts, topCenter, t0, t1);
+      addFacet(parts, bottomCenter, b1, b0);
+      addFacet(parts, b0, b1, t1);
+      addFacet(parts, b0, t1, t0);
+    }
+  }
+
   function addBar(parts, cx, cy, length, width, angle, z0, z1) {
     var ux = Math.cos(angle);
     var uy = Math.sin(angle);
@@ -709,6 +865,21 @@
     addBar(parts, cx, cy, length, width, -Math.PI / 4, z0, z1);
   }
 
+  function addSquareCell(parts, x, y, settings, z0, z1) {
+    var cell = settings.cellSize;
+    var margin = Math.max(0.05, cell * 0.12);
+    var x0 = x * cell + margin;
+    var y0 = (settings.height - y - 1) * cell + margin;
+    addAxisBox(parts, x0, y0, z0, (x + 1) * cell - margin, (settings.height - y) * cell - margin, z1);
+  }
+
+  function addCircleCell(parts, x, y, settings, z0, z1) {
+    var cell = settings.cellSize;
+    var cx = x * cell + cell / 2;
+    var cy = (settings.height - y - 1) * cell + cell / 2;
+    addCylinder(parts, cx, cy, Math.max(0.1, cell * 0.36), z0, z1, 28);
+  }
+
   function buildStl(name, filterColor, includeBase) {
     var s = state.settings;
     var parts = ["solid " + slug(name)];
@@ -719,10 +890,20 @@
     }
 
     Object.keys(state.cells).forEach(function (key) {
-      var colorId = state.cells[key];
+      var cell = normalizeCellValue(state.cells[key]);
+      var colorId = cell && cell.color;
       if (filterColor && colorId !== filterColor) return;
       var pieces = key.split(",");
-      addStitch(parts, Number(pieces[0]), Number(pieces[1]), s, baseTop, baseTop + s.stitchHeight);
+      var x = Number(pieces[0]);
+      var y = Number(pieces[1]);
+      if (!cell) return;
+      if (cell.shape === "square") {
+        addSquareCell(parts, x, y, s, baseTop, baseTop + s.stitchHeight);
+      } else if (cell.shape === "circle") {
+        addCircleCell(parts, x, y, s, baseTop, baseTop + s.stitchHeight);
+      } else {
+        addStitch(parts, x, y, s, baseTop, baseTop + s.stitchHeight);
+      }
     });
 
     parts.push("endsolid " + slug(name));
@@ -741,7 +922,8 @@
   function exportColorStls() {
     var used = {};
     Object.keys(state.cells).forEach(function (key) {
-      used[state.cells[key]] = true;
+      var colorId = cellColorId(state.cells[key]);
+      if (colorId) used[colorId] = true;
     });
     var colorIds = Object.keys(used);
     if (!colorIds.length) {
@@ -847,6 +1029,25 @@
       });
     });
 
+    document.querySelectorAll("[data-panel]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        activePanel = btn.dataset.panel;
+        renderToolPanel();
+      });
+    });
+
+    [
+      els.waveAmplitude,
+      els.waveFrequency,
+      els.waveSpacing,
+      els.wavePhase,
+      els.waveThickness,
+    ].forEach(function (input) {
+      input.addEventListener("input", renderWaveValues);
+    });
+    els.applyWaveBtn.addEventListener("click", function () { addWavePattern(false); });
+    els.clearWaveBtn.addEventListener("click", function () { addWavePattern(true); });
+
     els.stitchGrid.addEventListener("pointerdown", function (event) {
       var cell = event.target.closest(".cell");
       if (!cell) return;
@@ -879,12 +1080,12 @@
       }
 
       snapshotCells();
-      if (drawMode === "fill") {
+      if (drawMode === "bucket") {
         var filled = floodFillFrom(x, y);
         saveData();
         renderGrid();
-        toast(filled ? "Area filled." : "Nothing to fill.");
-      } else if (drawMode === "circle") {
+        toast(filled ? "Bucket filled area." : "Nothing to fill.");
+      } else if (drawMode === "circle-pattern") {
         var circled = drawCircleAt(x, y);
         saveData();
         renderGrid();
@@ -908,7 +1109,7 @@
         renderDrawMode();
         return;
       }
-      if (drawMode === "paint") paintCell(cell);
+      if (drawMode === "paint" || drawMode === "square" || drawMode === "cell-circle") paintCell(cell);
     });
 
     function endPointer(event) {
@@ -968,9 +1169,24 @@
       loadDesignBtn: document.getElementById("loadDesignBtn"),
       deleteDesignBtn: document.getElementById("deleteDesignBtn"),
       palette: document.getElementById("palette"),
+      drawPanel: document.getElementById("drawPanel"),
+      wavelengthPanel: document.getElementById("wavelengthPanel"),
       circleOptions: document.getElementById("circleOptions"),
       circleRadius: document.getElementById("circleRadius"),
       circleFilled: document.getElementById("circleFilled"),
+      wavePattern: document.getElementById("wavePattern"),
+      waveAmplitude: document.getElementById("waveAmplitude"),
+      waveAmplitudeValue: document.getElementById("waveAmplitudeValue"),
+      waveFrequency: document.getElementById("waveFrequency"),
+      waveFrequencyValue: document.getElementById("waveFrequencyValue"),
+      waveSpacing: document.getElementById("waveSpacing"),
+      waveSpacingValue: document.getElementById("waveSpacingValue"),
+      wavePhase: document.getElementById("wavePhase"),
+      wavePhaseValue: document.getElementById("wavePhaseValue"),
+      waveThickness: document.getElementById("waveThickness"),
+      waveThicknessValue: document.getElementById("waveThicknessValue"),
+      applyWaveBtn: document.getElementById("applyWaveBtn"),
+      clearWaveBtn: document.getElementById("clearWaveBtn"),
       selectionMeta: document.getElementById("selectionMeta"),
       copySelectionBtn: document.getElementById("copySelectionBtn"),
       pasteSelectionBtn: document.getElementById("pasteSelectionBtn"),
@@ -989,6 +1205,11 @@
     els.undoBtn.disabled = true;
     els.circleRadius.value = 4;
     els.circleFilled.checked = false;
+    els.waveAmplitude.value = 6;
+    els.waveFrequency.value = 4;
+    els.waveSpacing.value = 4;
+    els.wavePhase.value = 0;
+    els.waveThickness.value = 1;
     renderPalette();
     renderAll();
     bindEvents();

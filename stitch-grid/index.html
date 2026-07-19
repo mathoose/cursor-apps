@@ -104,11 +104,19 @@
         <button type="button" class="btn btn-ghost" id="sampleBtn">Sample</button>
       </div>
 
+      <div class="tab-row" role="tablist" aria-label="Tool panels">
+        <button type="button" class="tab-btn active" id="drawTab" data-panel="draw" role="tab" aria-selected="true">Draw</button>
+        <button type="button" class="tab-btn" id="wavelengthTab" data-panel="wavelength" role="tab" aria-selected="false">Wavelength</button>
+      </div>
+
+      <div class="tool-panel" id="drawPanel">
       <div class="palette" id="palette" aria-label="Color palette"></div>
       <div class="mode-grid" role="radiogroup" aria-label="Drawing mode">
-        <button type="button" class="mode-btn active" data-mode="paint" role="radio" aria-checked="true">Paint</button>
-        <button type="button" class="mode-btn" data-mode="fill" role="radio" aria-checked="false">Fill</button>
-        <button type="button" class="mode-btn" data-mode="circle" role="radio" aria-checked="false">Circle</button>
+        <button type="button" class="mode-btn active" data-mode="paint" role="radio" aria-checked="true">X</button>
+        <button type="button" class="mode-btn" data-mode="square" role="radio" aria-checked="false">Square</button>
+        <button type="button" class="mode-btn" data-mode="cell-circle" role="radio" aria-checked="false">Circle</button>
+        <button type="button" class="mode-btn" data-mode="bucket" role="radio" aria-checked="false">Bucket</button>
+        <button type="button" class="mode-btn" data-mode="circle-pattern" role="radio" aria-checked="false">Circle pattern</button>
         <button type="button" class="mode-btn" data-mode="select" role="radio" aria-checked="false">Select</button>
       </div>
       <div class="shape-options" id="circleOptions" hidden>
@@ -129,6 +137,44 @@
       <div class="action-row">
         <button type="button" class="btn btn-secondary" id="undoBtn">Undo</button>
         <button type="button" class="btn btn-secondary" id="clearBtn">Clear grid</button>
+      </div>
+      </div>
+
+      <div class="tool-panel" id="wavelengthPanel" hidden>
+        <div class="wavelength-grid">
+          <label class="field">
+            <span>Pattern</span>
+            <select id="wavePattern">
+              <option value="wave">Wave of Xs</option>
+              <option value="rings">Circle rings of Xs</option>
+            </select>
+          </label>
+          <label class="field range-field">
+            <span>Amplitude <output id="waveAmplitudeValue">6</output></span>
+            <input type="range" id="waveAmplitude" min="1" max="30" step="1" />
+          </label>
+          <label class="field range-field">
+            <span>Frequency <output id="waveFrequencyValue">4</output></span>
+            <input type="range" id="waveFrequency" min="1" max="12" step="1" />
+          </label>
+          <label class="field range-field">
+            <span>Spacing <output id="waveSpacingValue">4</output></span>
+            <input type="range" id="waveSpacing" min="1" max="12" step="1" />
+          </label>
+          <label class="field range-field">
+            <span>Phase <output id="wavePhaseValue">0</output></span>
+            <input type="range" id="wavePhase" min="0" max="360" step="15" />
+          </label>
+          <label class="field range-field">
+            <span>Thickness <output id="waveThicknessValue">1</output></span>
+            <input type="range" id="waveThickness" min="1" max="6" step="1" />
+          </label>
+        </div>
+        <p class="selection-help">Wavelength patterns add X stitches using the selected palette color.</p>
+        <div class="action-row">
+          <button type="button" class="btn btn-primary" id="applyWaveBtn">Add wavelength pattern</button>
+          <button type="button" class="btn btn-secondary" id="clearWaveBtn">Clear then add</button>
+        </div>
       </div>
     </section>
 

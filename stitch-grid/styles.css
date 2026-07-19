@@ -217,8 +217,39 @@ select:focus {
   scrollbar-width: thin;
 }
 
+.tab-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.tab-btn {
+  min-height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 900;
+}
+
+.tab-btn.active {
+  background: var(--text);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(45, 42, 36, 0.14);
+}
+
+.tool-panel[hidden] {
+  display: none;
+}
+
 .save-row,
-.shape-options {
+.shape-options,
+.wavelength-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 10px;
@@ -227,7 +258,7 @@ select:focus {
 
 .mode-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin: 2px 0 10px;
 }
@@ -258,6 +289,17 @@ select:focus {
 
 .export-name {
   margin-bottom: 12px;
+}
+
+.range-field output {
+  color: var(--accent-dark);
+  font-weight: 900;
+}
+
+.range-field input[type="range"] {
+  padding-left: 0;
+  padding-right: 0;
+  accent-color: var(--accent);
 }
 
 .swatch {
@@ -423,6 +465,26 @@ select:focus {
   transform-origin: center;
 }
 
+.cell.shape-square::before,
+.cell.shape-circle::before {
+  left: 50%;
+  top: 50%;
+  width: 72%;
+  height: 72%;
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 18%;
+}
+
+.cell.shape-circle::before {
+  border-radius: 999px;
+}
+
+.cell.shape-square::after,
+.cell.shape-circle::after {
+  display: none;
+}
+
 .cell::before {
   transform: translate(-50%, -50%) rotate(45deg);
 }
@@ -492,7 +554,8 @@ select:focus {
   }
 
   .save-row,
-  .shape-options {
+  .shape-options,
+  .wavelength-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: end;
   }
