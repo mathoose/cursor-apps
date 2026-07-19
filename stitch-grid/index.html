@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Stitch Grid</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stitch Grid" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#f7f1e5" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Stitch Grid</h1>
+      <p>Tap X stitches, then export STL for printing</p>
+    </div>
+  </header>
+
+  <main class="main-panel">
+    <section class="card setup-card" aria-labelledby="setupTitle">
+      <div class="card-heading">
+        <div>
+          <h2 id="setupTitle">Pattern setup</h2>
+          <p>Set your grid and print dimensions. Existing stitches are kept when resizing.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="field">
+          <span>Width</span>
+          <input type="number" id="gridWidth" min="1" max="80" step="1" inputmode="numeric" />
+        </label>
+        <label class="field">
+          <span>Height</span>
+          <input type="number" id="gridHeight" min="1" max="80" step="1" inputmode="numeric" />
+        </label>
+        <label class="field">
+          <span>Cell mm</span>
+          <input type="number" id="cellSize" min="1" max="12" step="0.5" inputmode="decimal" />
+        </label>
+        <label class="field">
+          <span>Stitch width mm</span>
+          <input type="number" id="stitchWidth" min="0.4" max="6" step="0.1" inputmode="decimal" />
+        </label>
+        <label class="field">
+          <span>Raised height mm</span>
+          <input type="number" id="stitchHeight" min="0.2" max="5" step="0.1" inputmode="decimal" />
+        </label>
+        <label class="field">
+          <span>Base thickness mm</span>
+          <input type="number" id="baseThickness" min="0" max="5" step="0.1" inputmode="decimal" />
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <label class="check-row">
+          <input type="checkbox" id="includeBase" />
+          <span>Include printable backing plate</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" id="showGridLines" />
+          <span>Show graph-paper grid</span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card tools-card" aria-labelledby="toolsTitle">
+      <div class="card-heading card-heading--compact">
+        <div>
+          <h2 id="toolsTitle">Draw stitches</h2>
+          <p id="patternMeta">0 stitches</p>
+        </div>
+        <button type="button" class="btn btn-ghost" id="sampleBtn">Sample</button>
+      </div>
+
+      <div class="palette" id="palette" aria-label="Color palette"></div>
+      <div class="action-row">
+        <button type="button" class="btn btn-secondary" id="undoBtn">Undo</button>
+        <button type="button" class="btn btn-secondary" id="clearBtn">Clear grid</button>
+      </div>
+    </section>
+
+    <section class="grid-card" aria-label="Stitch drawing grid">
+      <div class="grid-scroll">
+        <div class="stitch-grid" id="stitchGrid"></div>
+      </div>
+    </section>
+
+    <section class="card export-card" aria-labelledby="exportTitle">
+      <div class="card-heading">
+        <div>
+          <h2 id="exportTitle">Export</h2>
+          <p>STL files import into slicers. Export by color to assign different filaments.</p>
+        </div>
+      </div>
+
+      <div class="button-grid">
+        <button type="button" class="btn btn-primary" id="exportCombinedBtn">Export combined STL</button>
+        <button type="button" class="btn btn-secondary" id="exportColorBtn">Export color STLs</button>
+        <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+        <label class="btn btn-secondary import-label">
+          Import JSON
+          <input type="file" id="importJsonFile" accept=".json,application/json" />
+        </label>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
