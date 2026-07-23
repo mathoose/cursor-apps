@@ -3737,6 +3737,20 @@ function moveCategory(index, direction) {
   saveState();
 }
 
+function promoteCategoryForList(categoryId, listId) {
+  if (!categoryId || !listId) return false;
+  const cat = getCategory(categoryId);
+  if (!cat || !categoryBelongsToList(cat, listId)) return false;
+  const index = state.categories.findIndex(c => c.id === categoryId);
+  if (index < 0) return false;
+  const firstListIndex = state.categories.findIndex(c => categoryBelongsToList(c, listId));
+  if (firstListIndex < 0 || index === firstListIndex) return false;
+  const item = state.categories.splice(index, 1)[0];
+  state.categories.splice(firstListIndex, 0, item);
+  saveState();
+  return true;
+}
+
 function taskMatchesCategoryFilter(task) {
   if (state.categoryFilter === 'all') return true;
   return Array.isArray(task.categoryIds) && task.categoryIds.includes(state.categoryFilter);
@@ -4305,10 +4319,16 @@ function renderCategoryChipRow(container, uiState, listId, getSelection, setSele
       'aria-pressed': selected ? 'true' : 'false',
       onClick: () => {
         const sel = getSelection();
-        if (sel.has(cat.id)) sel.delete(cat.id);
-        else sel.add(cat.id);
-        onUpdate();
-        renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
+        if (sel.has(cat.id)) {
+          sel.delete(cat.id);
+          onUpdate();
+          renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
+        } else {
+          sel.add(cat.id);
+          onUpdate();
+          if (promoteCategoryForList(cat.id, listId)) onCategoriesChanged();
+          else renderCategoryChipRow(container, uiState, listId, getSelection, setSelection, onUpdate);
+        }
       }
     }));
   });
@@ -4328,6 +4348,7 @@ function renderCategoryChipRow(container, uiState, listId, getSelection, setSele
         const id = addCategory(name, { silent: true, listId, deferRefresh: true });
         if (id) {
           getSelection().add(id);
+          promoteCategoryForList(id, listId);
           onUpdate();
           showToast('Added category: ' + name);
           onCategoriesChanged();
