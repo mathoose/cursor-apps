@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6f1e7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Photo Calendar" />
+  <title>Photo Calendar</title>
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="brand"><p>one photo at a time</p><h1>Photo Calendar</h1></div>
+    <button class="icon-button" id="settingsButton" type="button" aria-label="Backup and settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.4A3.4 3.4 0 1 0 12 8.6a3.4 3.4 0 0 0 0 6.8Z"/><path d="m19.4 15 .1-1 .1-1-.1-1.1 1.9-1.5-1.9-3.3-2.3.8a8 8 0 0 0-1.8-1l-.4-2.4h-3.8l-.4 2.4a8 8 0 0 0-1.8 1l-2.3-.8-1.9 3.3 1.9 1.5-.1 1.1.1 1-1.9 1.5 1.9 3.3 2.3-.8a8 8 0 0 0 1.8 1l.4 2.4H15l.4-2.4a8 8 0 0 0 1.8-1l2.3.8 1.9-3.3L19.4 15Z"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="month-card" aria-label="Month calendar">
+      <div class="month-controls">
+        <button class="month-nav" id="previousMonth" type="button" aria-label="Previous month">‹</button>
+        <div><p id="monthYear">Month</p><button id="todayButton" type="button">Today</button></div>
+        <button class="month-nav" id="nextMonth" type="button" aria-label="Next month">›</button>
+      </div>
+      <div class="weekday-row" aria-hidden="true"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    <section class="day-card" id="dayCard">
+      <div class="day-heading">
+        <div><p id="dayLabel">Today</p><h2 id="dayTitle">A small moment for you</h2></div>
+        <button id="editDayButton" class="edit-button" type="button">Edit</button>
+      </div>
+      <div id="dayContent"></div>
+    </section>
+  </main>
+
+  <button id="addDayButton" class="add-button" type="button"><span>+</span> Add to this day</button>
+
+  <div class="modal" id="editorModal" role="dialog" aria-modal="true" aria-labelledby="editorHeading" hidden>
+    <div class="sheet sheet-editor">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top"><h2 id="editorHeading">Your day</h2><button class="close-button" data-close="editorModal" type="button" aria-label="Close">×</button></div>
+      <p class="editor-date" id="editorDate"></p>
+      <label>How did it feel?
+        <div class="mood-picker" id="moodPicker">
+          <button type="button" data-mood="sunny" aria-label="Sunny">☀︎</button><button type="button" data-mood="happy" aria-label="Happy">☺</button><button type="button" data-mood="calm" aria-label="Calm">◌</button><button type="button" data-mood="cloudy" aria-label="Cloudy">☁</button><button type="button" data-mood="rainy" aria-label="Rainy">☂</button>
+        </div>
+      </label>
+      <label for="captionInput">Little headline <span>optional</span></label>
+      <input id="captionInput" maxlength="90" placeholder="The best part was…" />
+      <label for="noteInput">Journal note <span>optional</span></label>
+      <textarea id="noteInput" maxlength="4000" rows="5" placeholder="Write what you want to remember."></textarea>
+      <div class="photos-label"><span>Photos</span><small>stored only on this device</small></div>
+      <div class="editor-photos" id="editorPhotos"></div>
+      <button id="addPhotosButton" class="photo-add" type="button"><span>＋</span> Add photos</button>
+      <div class="sheet-actions"><button class="button-secondary" data-close="editorModal" type="button">Cancel</button><button class="button-primary" id="saveDayButton" type="button">Save day</button></div>
+      <button id="deleteDayButton" class="delete-link" type="button" hidden>Delete this day</button>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsHeading" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top"><h2 id="settingsHeading">Your archive</h2><button class="close-button" data-close="settingsModal" type="button" aria-label="Close">×</button></div>
+      <p class="settings-copy">Your words stay in this browser. Photos are saved separately on this device, so download a photo archive to keep a full copy.</p>
+      <button class="setting-action" id="exportJsonButton" type="button"><span>Export journal</span><small>JSON, without photos</small></button>
+      <label class="setting-action import-action"><span>Import journal</span><small>JSON, without photos</small><input id="importJsonInput" type="file" accept="application/json,.json" hidden /></label>
+      <button class="setting-action" id="exportPhotosButton" type="button"><span>Export photos</span><small>ZIP archive with a journal manifest</small></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

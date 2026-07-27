@@ -4,7 +4,7 @@
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
-    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1"],
+    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1", "photo-calendar-photos-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
       "body-journal": { "storageKey": "body-journal-v1" },
@@ -23,7 +23,8 @@
       "stride-flow": { "storageKey": "stride-flow-v1" },
       "quick-reader": { "storageKey": "quick-reader-v1" },
       "idea-notes": { "storageKey": "idea-notes-v1" },
-      "stitch-grid": { "storageKey": "stitch-grid-v1" }
+      "stitch-grid": { "storageKey": "stitch-grid-v1" },
+      "photo-calendar": { "storageKey": "photo-calendar-v1" }
     }
   },
   "apps": [
@@ -38,6 +39,12 @@
       "name": "Body Journal",
       "subtitle": "Journal by topic",
       "storageKey": "body-journal-v1"
+    },
+    {
+      "id": "photo-calendar",
+      "name": "Photo Calendar",
+      "subtitle": "Daily photos & memories",
+      "storageKey": "photo-calendar-v1"
     },
     {
       "id": "aruba-packing",
