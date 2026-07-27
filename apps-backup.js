@@ -27,6 +27,7 @@
     "idea-notes": "Idea Notes",
     "stitch-grid": "Stitch Grid",
     "things-book": "Things Book",
+    "photo-calendar": "Photo Calendar",
     "stride-flow": "StrideFlow",
   };
 
@@ -38,6 +39,7 @@
     { appId: "process-guide", db: "process-guide-photos-v1", store: "photos" },
     { appId: "philly-dates", db: "philly-dates-menu-photos-v1", store: "menus" },
     { appId: "things-book", db: "things-book-photos-v1", store: "photos" },
+    { appId: "photo-calendar", db: "photo-calendar-photos-v1", store: "photos" },
   ];
 
   var EXTRA_JSON_KEYS = {
@@ -953,6 +955,45 @@
           notes: notes,
           activeNoteId: incoming.activeNoteId || existing.activeNoteId || null,
         };
+      },
+    },
+    "photo-calendar": {
+      storageKey: "photo-calendar-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("photo-calendar-v1");
+        if (!raw) return null;
+        try {
+          var slice = JSON.parse(raw);
+          return slice && slice.days && typeof slice.days === "object" ? slice : null;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        return !!(slice && slice.days && typeof slice.days === "object") &&
+          writeKey("photo-calendar-v1", JSON.stringify({ version: 1, days: slice.days }));
+      },
+      isLegacy: function (obj) {
+        return obj && obj.days && typeof obj.days === "object" && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var days = Object.keys(slice.days || {});
+        var photos = days.reduce(function (total, date) {
+          return total + (Array.isArray(slice.days[date].photoIds) ? slice.days[date].photoIds.length : 0);
+        }, 0);
+        return days.length + " journal " + (days.length === 1 ? "day" : "days") +
+          ", " + photos + " photo" + (photos === 1 ? "" : "s") + " (no photo files)";
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var days = Object.assign({}, existing.days || {});
+        Object.keys(incoming.days || {}).forEach(function (date) {
+          var current = days[date], candidate = incoming.days[date];
+          if (!current || new Date(candidate.updatedAt || 0) > new Date(current.updatedAt || 0)) days[date] = candidate;
+        });
+        return { version: 1, days: days };
       },
     },
     "things-book": {
