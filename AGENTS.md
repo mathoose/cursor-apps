@@ -7,6 +7,7 @@ Instructions for Cloud Agents and other automated contributors working in this r
 | Skill | Install | When it applies |
 |-------|---------|-----------------|
 | [github-pr-edits](cursor-user-skills/github-pr-edits/SKILL.md) | [`scripts/install-github-pr-edits-skill.sh`](scripts/install-github-pr-edits-skill.sh) | PRs, pushes, repo changes on GitHub |
+| [add-app](cursor-user-skills/add-app/SKILL.md) | [`scripts/install-add-app-skill.sh`](scripts/install-add-app-skill.sh) | Creating a new app, scaffolding app folders, home-screen icon setup |
 | [mobile-canvas-plot-inspect](cursor-user-skills/mobile-canvas-plot-inspect/SKILL.md) | [`scripts/install-mobile-canvas-plot-inspect-skill.sh`](scripts/install-mobile-canvas-plot-inspect-skill.sh) | Canvas plot press-and-hold scrub, tooltips, crosshairs (especially Habit Journal Stats plot) |
 
 ## Pull requests

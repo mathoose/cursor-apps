@@ -1,9 +1,26 @@
 # Add a new app to this home screen
 
 1. Create a folder: `your-app-name/` with `index.html` inside.
-2. Add a **180×180** icon as `your-app-name/app-icon.png` (shows on the launcher).
-3. Add an entry to **`apps.json`** (name + subtitle for the label under the icon).
-4. In `index.html` `<head>`, include the shared back button to the launcher:
+2. Add a **180×180 PNG** icon as `your-app-name/app-icon.png`. This file is used by the launcher **and** when users tap **Add to Home Screen** on iPhone — iOS does **not** use SVG for home-screen icons.
+3. Optional: keep `app-icon.svg` as design source; rasterize before shipping:
+
+```bash
+./scripts/rasterize-app-icon.sh your-app-name
+```
+
+4. In `index.html` `<head>`, link the **PNG** (never SVG alone for home screen):
+
+```html
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Your App Name" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="theme-color" content="#…" />
+<link rel="icon" href="app-icon.png" type="image/png" />
+<link rel="apple-touch-icon" href="app-icon.png" />
+```
+
+5. Add an entry to **`apps.json`** (name + subtitle for the label under the icon).
+6. In `index.html` `<head>`, include the shared back button to the launcher:
 
 ```html
 <link rel="stylesheet" href="../apps-shell.css" />
@@ -25,8 +42,8 @@ Before `</body>`:
 <script src="../apps-shell.js" defer></script>
 ```
 
-5. Add the app to **`versions.json`** under `apps` with a starting version, e.g. `"your-app-name": "1 · Jul 1, 2026"`.
-6. Push to `main` — the home page auto-discovers new folders on GitHub Pages.
+7. Add the app to **`versions.json`** under `apps` with a starting version, e.g. `"your-app-name": "1 · Jul 1, 2026"`.
+8. Push to `main` — the home page auto-discovers new folders on GitHub Pages.
 
 The launcher lists every folder that contains `index.html`. `apps.json` only customizes the display name.
 
