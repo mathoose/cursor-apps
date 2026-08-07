@@ -1729,6 +1729,24 @@
       openOverlay("addPickerOverlay");
     });
 
+    document.getElementById("consumeGrid").addEventListener("click", function (e) {
+      var emptyTile = e.target.closest("[data-consume-empty]");
+      if (emptyTile) {
+        dismissGate();
+        openOverlay("addPickerOverlay");
+        return;
+      }
+      var showTile = e.target.closest(".consume-tile[data-show-id]");
+      if (showTile) {
+        openQuickLog("show", showTile.dataset.showId);
+        return;
+      }
+      var bookTile = e.target.closest(".consume-tile[data-book-id]");
+      if (bookTile) {
+        openQuickLog("book", bookTile.dataset.bookId);
+      }
+    });
+
     document.getElementById("qlSaveBtn").addEventListener("click", saveQuickLog);
     document.getElementById("qlStartBtn").addEventListener("click", markShowInProgress);
     document.getElementById("qlCloseBtn").addEventListener("click", function () {
@@ -1869,12 +1887,6 @@
         e.preventDefault();
         e.stopPropagation();
         bumpBook(bumpBookBtn.dataset.bumpBook);
-        return;
-      }
-      var emptyTile = e.target.closest("[data-consume-empty]");
-      if (emptyTile) {
-        dismissGate();
-        openOverlay("addPickerOverlay");
         return;
       }
       var subBtn = e.target.closest("[data-subscription-id]");
