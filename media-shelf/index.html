@@ -8,14 +8,31 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Media Shelf" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#0c0c10" />
+  <meta name="theme-color" content="#0a0b0f" />
   <meta name="format-detection" content="telephone=no" />
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,450;0,9..40,600;0,9..40,700;1,9..40,450&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body class="view-home">
+  <!-- Consume gate: 3×3 recent -->
+  <section class="consume-gate" id="consumeGate" hidden>
+    <div class="consume-inner">
+      <p class="consume-kicker">What are you consuming?</p>
+      <h1 class="consume-title">Pick one to log</h1>
+      <p class="consume-sub">Your nine most recent — color by type</p>
+      <div class="consume-grid" id="consumeGrid"></div>
+      <div class="consume-actions">
+        <button type="button" class="btn btn-primary" id="consumeSkipBtn">Open shelf</button>
+        <button type="button" class="btn btn-ghost" id="consumeAddBtn">Add something new</button>
+      </div>
+    </div>
+  </section>
+
   <header class="app-header" id="appHeader">
     <div class="header-row">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
@@ -23,7 +40,7 @@
       </a>
       <div class="header-title-block">
         <h1 class="view-title" id="headerTitle">Media Shelf</h1>
-        <p class="view-subtitle" id="headerSubtitle">Reading &amp; watching</p>
+        <p class="view-subtitle" id="headerSubtitle">Everything in one place</p>
       </div>
       <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -32,49 +49,20 @@
   </header>
 
   <main>
-    <!-- Home -->
+    <!-- Unified shelf -->
     <section class="view active" id="viewHome" data-view="home">
-      <p class="section-label">Watching</p>
-      <div class="show-row-list" id="homeWatching"></div>
-      <div class="empty-state empty-state-compact" id="homeWatchingEmpty" hidden>
-        <p>Nothing on your watch list yet.</p>
-      </div>
-      <p class="section-label" id="homeRemindersLabel" hidden>Reminders</p>
-      <div class="reminder-compact-list" id="homeReminders" hidden></div>
-      <p class="section-label">Continue reading</p>
-      <div class="media-list" id="homeContinueRead"></div>
-      <div class="empty-state" id="homeReadEmpty" hidden>
-        <p>Nothing on your reading list yet.</p>
-      </div>
-    </section>
-
-    <!-- Watch -->
-    <section class="view" id="viewWatch" data-view="watch">
-      <div class="filter-row" id="watchFilters" role="tablist" aria-label="Filter shows">
+      <div class="home-filter-row" id="homeFilters" role="tablist" aria-label="Filter shelf">
         <button type="button" class="chip active" data-filter="all">All</button>
-        <button type="button" class="chip" data-filter="watching">Watching</button>
-        <button type="button" class="chip" data-filter="binge">Binge</button>
-        <button type="button" class="chip" data-filter="airing">Airing</button>
-        <button type="button" class="chip" data-filter="completed">Done</button>
-      </div>
-      <div class="media-list" id="watchList"></div>
-      <div class="empty-state" id="watchEmpty" hidden>
-        <p id="watchEmptyText">No shows yet.<br />Tap + to add one.</p>
-      </div>
-    </section>
-
-    <!-- Read -->
-    <section class="view" id="viewRead" data-view="read">
-      <div class="filter-row" id="readFilters" role="tablist" aria-label="Filter reading">
-        <button type="button" class="chip active" data-filter="all">All</button>
-        <button type="button" class="chip" data-filter="reading">Reading</button>
+        <button type="button" class="chip" data-filter="show">Shows</button>
         <button type="button" class="chip" data-filter="book">Books</button>
         <button type="button" class="chip" data-filter="manga">Manga</button>
-        <button type="button" class="chip" data-filter="completed">Done</button>
+        <button type="button" class="chip" data-filter="shelved">Shelved</button>
+        <button type="button" class="chip" data-filter="done">Done</button>
       </div>
-      <div class="media-list" id="readList"></div>
-      <div class="empty-state" id="readEmpty" hidden>
-        <p id="readEmptyText">Nothing on your shelf yet.<br />Tap + to add a book or manga.</p>
+
+      <div id="homeSections"></div>
+      <div class="empty-state" id="homeEmpty" hidden>
+        <p>Your shelf is empty.<br />Tap + to add a show, book, or manga.</p>
       </div>
     </section>
 
@@ -119,20 +107,12 @@
   <nav class="bottom-nav" role="tablist" aria-label="Main">
     <button type="button" class="nav-btn active" data-view="home" role="tab" aria-selected="true">
       <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1V9.5z"/></svg>
-      <span class="nav-btn-label">Home</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="watch" role="tab" aria-selected="false">
-      <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 3-5 3V9.5z" fill="currentColor" stroke="none"/></svg>
-      <span class="nav-btn-label">Watch</span>
+      <span class="nav-btn-label">Shelf</span>
     </button>
     <button type="button" class="nav-btn" data-view="calendar" role="tab" aria-selected="false">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       <span class="nav-btn-label">Calendar</span>
       <span class="nav-badge" id="calendarBadge" hidden>0</span>
-    </button>
-    <button type="button" class="nav-btn" data-view="read" role="tab" aria-selected="false">
-      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-      <span class="nav-btn-label">Read</span>
     </button>
     <button type="button" class="nav-btn" data-view="subscriptions" role="tab" aria-selected="false">
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>
@@ -140,27 +120,66 @@
     </button>
   </nav>
 
-  <!-- Add picker -->
+  <!-- Quick add picker -->
   <div class="overlay" id="addPickerOverlay" role="dialog" aria-modal="true" aria-labelledby="addPickerTitle">
-    <div class="sheet">
+    <div class="sheet sheet-compact">
       <div class="sheet-handle"></div>
-      <h2 class="sheet-title" id="addPickerTitle">Add to shelf</h2>
-      <p class="sheet-subtitle">What are you tracking?</p>
-      <div class="sheet-actions stacked">
-        <button type="button" class="btn btn-watch" id="addShowBtn">TV show</button>
-        <button type="button" class="btn btn-read" id="addBookBtn">Book / manga</button>
-        <button type="button" class="btn btn-secondary" id="addReminderBtn">Reminder</button>
-        <button type="button" class="btn btn-secondary" id="addPickerCancel">Cancel</button>
+      <h2 class="sheet-title" id="addPickerTitle">Add</h2>
+      <div class="add-type-grid">
+        <button type="button" class="add-type-btn type-show" id="addShowBtn">
+          <span class="add-type-label">Show</span>
+        </button>
+        <button type="button" class="add-type-btn type-book" id="addBookBtn">
+          <span class="add-type-label">Book</span>
+        </button>
+        <button type="button" class="add-type-btn type-manga" id="addMangaBtn">
+          <span class="add-type-label">Manga</span>
+        </button>
+        <button type="button" class="add-type-btn type-reminder" id="addReminderBtn">
+          <span class="add-type-label">Reminder</span>
+        </button>
       </div>
+      <button type="button" class="btn btn-ghost" id="addPickerCancel" style="width:100%;margin-top:8px">Cancel</button>
     </div>
   </div>
 
-  <!-- Show form -->
+  <!-- Quick add form (title-first) -->
+  <div class="overlay" id="quickAddOverlay" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+    <div class="sheet sheet-compact">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="quickAddTitle">New show</h2>
+      <p class="sheet-subtitle" id="quickAddSubtitle">Just a title — tweak details later</p>
+      <div class="field">
+        <label class="field-label" for="quickAddName">Title</label>
+        <input type="text" id="quickAddName" placeholder="What are you tracking?" autocomplete="off" enterkeyhint="done" />
+      </div>
+      <div class="field" id="quickAddAuthorField" hidden>
+        <label class="field-label" for="quickAddAuthor">Author (optional)</label>
+        <input type="text" id="quickAddAuthor" placeholder="Optional" autocomplete="off" />
+      </div>
+      <div class="field">
+        <span class="field-label">Put on</span>
+        <div class="shelf-chips" id="quickAddShelf">
+          <button type="button" class="shelf-chip active" data-shelf="active">Active</button>
+          <button type="button" class="shelf-chip" data-shelf="up-next">Up next</button>
+          <button type="button" class="shelf-chip" data-shelf="alone">Alone</button>
+          <button type="button" class="shelf-chip" data-shelf="shelved">Shelved</button>
+        </div>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-ghost" id="quickAddCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="quickAddSave">Add</button>
+      </div>
+      <button type="button" class="btn btn-ghost btn-linkish" id="quickAddMoreBtn">More options…</button>
+    </div>
+  </div>
+
+  <!-- Full show form -->
   <div class="overlay" id="showFormOverlay" role="dialog" aria-modal="true" aria-labelledby="showFormTitle">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <h2 class="sheet-title" id="showFormTitle">Add show</h2>
-      <p class="sheet-subtitle" id="showFormSubtitle">Track binge or weekly releases</p>
+      <h2 class="sheet-title" id="showFormTitle">Edit show</h2>
+      <p class="sheet-subtitle" id="showFormSubtitle">Schedule &amp; details</p>
 
       <div class="field">
         <label class="field-label" for="showTitle">Title</label>
@@ -179,7 +198,6 @@
       <div class="field" id="showScheduleField" hidden>
         <span class="field-label">Release days</span>
         <div class="day-picker" id="showDayPicker"></div>
-        <p class="field-hint">Tap every day a new episode drops.</p>
       </div>
 
       <div class="field" id="showTimeField" hidden>
@@ -193,7 +211,7 @@
           <input type="number" id="showSeason" min="1" value="1" inputmode="numeric" />
         </div>
         <div class="field">
-          <label class="field-label" for="showEpisode">Last finished episode</label>
+          <label class="field-label" for="showEpisode">Last finished</label>
           <input type="number" id="showEpisode" min="0" value="0" inputmode="numeric" />
         </div>
       </div>
@@ -222,83 +240,17 @@
       </div>
 
       <div class="sheet-actions">
-        <button type="button" class="btn btn-secondary" id="showFormCancel">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="showFormCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="showFormSave">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- Show detail -->
-  <div class="overlay" id="showDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="showDetailTitle">
-    <div class="sheet">
-      <div class="sheet-handle"></div>
-      <div class="detail-hero">
-        <h2 id="showDetailTitle"></h2>
-        <span class="badge" id="showDetailBadge"></span>
-      </div>
-
-      <div class="last-log" id="showWatchingNow" hidden>
-        <div class="last-log-icon watching">
-          <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-        </div>
-        <div class="last-log-text">
-          <strong id="showWatchingEpisode"></strong>
-          <span id="showWatchingHint">In progress — finish when you're done</span>
-        </div>
-      </div>
-
-      <div class="last-log" id="showLastLog" hidden>
-        <div class="last-log-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        </div>
-        <div class="last-log-text">
-          <strong id="showLastLogEpisode"></strong>
-          <span id="showLastLogWhen"></span>
-        </div>
-      </div>
-
-      <div id="showDetailSchedule" hidden>
-        <p class="section-label" style="margin-top:0">Release schedule</p>
-        <div class="schedule-pill" id="showDetailScheduleText"></div>
-        <p class="field-hint" id="showDetailNextAir" style="margin-top:10px"></p>
-      </div>
-
-      <p class="section-label" style="margin-top:0;margin-bottom:8px" id="showLogSectionLabel">Episode</p>
-
-      <div class="field-row">
-        <div class="field">
-          <label class="field-label" for="logSeason">Season</label>
-          <input type="number" id="logSeason" min="1" value="1" inputmode="numeric" />
-        </div>
-        <div class="field">
-          <label class="field-label" for="logEpisode" id="logEpisodeLabel">Episode</label>
-          <input type="number" id="logEpisode" min="0" value="1" inputmode="numeric" />
-        </div>
-      </div>
-
-      <div class="field" id="logWatchedAtField">
-        <label class="field-label" for="logWatchedAt">Finished on</label>
-        <input type="datetime-local" id="logWatchedAt" />
-      </div>
-
-      <div class="sheet-actions stacked">
-        <button type="button" class="btn btn-watch" id="startWatchingBtn">Start watching</button>
-        <button type="button" class="btn btn-secondary" id="logFinishedBtn">Log as finished</button>
-        <button type="button" class="btn btn-watch" id="finishEpisodeBtn" hidden>Finish episode</button>
-        <button type="button" class="btn btn-secondary" id="stopWatchingBtn" hidden>Stop watching</button>
-        <button type="button" class="btn btn-secondary" id="showEditBtn">Edit show</button>
-        <button type="button" class="btn btn-secondary" id="showMarkCompleteBtn">Mark completed</button>
-        <button type="button" class="btn btn-danger" id="showDeleteBtn">Delete show</button>
-        <button type="button" class="btn btn-secondary" id="showDetailClose">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Book form -->
+  <!-- Full book form -->
   <div class="overlay" id="bookFormOverlay" role="dialog" aria-modal="true" aria-labelledby="bookFormTitle">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <h2 class="sheet-title" id="bookFormTitle">Add to read</h2>
+      <h2 class="sheet-title" id="bookFormTitle">Edit</h2>
       <p class="sheet-subtitle" id="bookFormSubtitle">Books, manga, comics</p>
 
       <div class="field">
@@ -348,53 +300,70 @@
       </div>
 
       <div class="sheet-actions">
-        <button type="button" class="btn btn-secondary" id="bookFormCancel">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="bookFormCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="bookFormSave">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- Book detail -->
-  <div class="overlay" id="bookDetailOverlay" role="dialog" aria-modal="true" aria-labelledby="bookDetailTitle">
-    <div class="sheet">
+  <!-- Quick log (primary interaction) -->
+  <div class="overlay" id="quickLogOverlay" role="dialog" aria-modal="true" aria-labelledby="quickLogTitle">
+    <div class="sheet sheet-compact">
       <div class="sheet-handle"></div>
-      <div class="detail-hero">
-        <h2 id="bookDetailTitle"></h2>
-        <span class="badge" id="bookDetailBadge"></span>
-      </div>
-
-      <div class="last-log" id="bookLastLog" hidden>
-        <div class="last-log-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-        </div>
-        <div class="last-log-text">
-          <strong id="bookLastLogProgress"></strong>
-          <span id="bookLastLogWhen"></span>
+      <div class="quick-log-head">
+        <span class="type-dot" id="quickLogDot"></span>
+        <div class="quick-log-titles">
+          <h2 class="sheet-title" id="quickLogTitle"></h2>
+          <p class="sheet-subtitle" id="quickLogMeta"></p>
         </div>
       </div>
 
-      <div class="field-row">
+      <div class="field-row" id="quickLogShowFields">
         <div class="field">
-          <label class="field-label" for="logBookChapter">Chapter</label>
-          <input type="number" id="logBookChapter" min="0" inputmode="numeric" />
+          <label class="field-label" for="qlSeason">Season</label>
+          <input type="number" id="qlSeason" min="1" value="1" inputmode="numeric" />
         </div>
         <div class="field">
-          <label class="field-label" for="logBookPage">Page</label>
-          <input type="number" id="logBookPage" min="0" inputmode="numeric" />
+          <label class="field-label" for="qlEpisode">Episode</label>
+          <input type="number" id="qlEpisode" min="0" value="1" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="field-row" id="quickLogBookFields" hidden>
+        <div class="field">
+          <label class="field-label" for="qlChapter">Chapter</label>
+          <input type="number" id="qlChapter" min="0" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="qlPage">Page</label>
+          <input type="number" id="qlPage" min="0" inputmode="numeric" />
         </div>
       </div>
 
       <div class="field">
-        <label class="field-label" for="logReadAt">Read on</label>
-        <input type="datetime-local" id="logReadAt" />
+        <label class="field-label" for="qlComment">Thoughts <span class="optional">(optional)</span></label>
+        <textarea id="qlComment" rows="2" placeholder="What did you think?"></textarea>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Shelf</span>
+        <div class="shelf-chips" id="quickLogShelf">
+          <button type="button" class="shelf-chip" data-shelf="active">Active</button>
+          <button type="button" class="shelf-chip" data-shelf="up-next">Up next</button>
+          <button type="button" class="shelf-chip" data-shelf="alone">Alone</button>
+          <button type="button" class="shelf-chip" data-shelf="shelved">Shelved</button>
+          <button type="button" class="shelf-chip" data-shelf="done">Done</button>
+        </div>
       </div>
 
       <div class="sheet-actions stacked">
-        <button type="button" class="btn btn-read" id="logReadBtn">Log progress</button>
-        <button type="button" class="btn btn-secondary" id="bookEditBtn">Edit</button>
-        <button type="button" class="btn btn-secondary" id="bookMarkCompleteBtn">Mark completed</button>
-        <button type="button" class="btn btn-danger" id="bookDeleteBtn">Delete</button>
-        <button type="button" class="btn btn-secondary" id="bookDetailClose">Close</button>
+        <button type="button" class="btn btn-primary" id="qlSaveBtn">Save progress</button>
+        <button type="button" class="btn btn-secondary" id="qlStartBtn" hidden>Mark in progress</button>
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" id="qlEditBtn">Edit details</button>
+          <button type="button" class="btn btn-ghost" id="qlDeleteBtn">Delete</button>
+        </div>
+        <button type="button" class="btn btn-ghost" id="qlCloseBtn">Close</button>
       </div>
     </div>
   </div>
@@ -428,7 +397,7 @@
       </div>
 
       <div class="sheet-actions">
-        <button type="button" class="btn btn-secondary" id="reminderFormCancel">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="reminderFormCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="reminderFormSave">Save</button>
       </div>
     </div>
@@ -471,7 +440,7 @@
       </div>
 
       <div class="sheet-actions">
-        <button type="button" class="btn btn-secondary" id="subscriptionFormCancel">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="subscriptionFormCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="subscriptionFormSave">Save</button>
       </div>
       <button type="button" class="btn btn-danger" id="subscriptionDeleteBtn" hidden style="width:100%;margin-top:10px">Delete</button>
@@ -494,7 +463,7 @@
         </div>
         <p class="settings-note">Included in Export all on the Apps home screen.</p>
       </div>
-      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%">Close</button>
+      <button type="button" class="btn btn-ghost" id="settingsCloseBtn" style="width:100%">Close</button>
     </div>
   </div>
 
@@ -502,6 +471,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

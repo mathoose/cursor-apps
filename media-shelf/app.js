@@ -2,12 +2,22 @@
   "use strict";
 
   var STORAGE_KEY = "media-shelf-v1";
+  var LAST_OPEN_KEY = "media-shelf-last-open";
+  var GATE_MS = 60 * 60 * 1000;
   var DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAY_LABELS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
+  var SHELF_ORDER = ["up-next", "alone", "active", "shelved", "done"];
+  var SHELF_LABELS = {
+    "up-next": "Up next",
+    alone: "Alone",
+    active: "Active",
+    shelved: "Shelved",
+    done: "Done",
+  };
   var HOME_WINDOW_DAYS = 5;
 
   var state = {
+    version: 3,
     shows: [],
     books: [],
     reminders: [],
@@ -16,20 +26,23 @@
 
   var ui = {
     view: "home",
-    watchFilter: "all",
-    readFilter: "all",
+    homeFilter: "all",
     editingShowId: null,
     editingBookId: null,
     editingReminderId: null,
     editingSubscriptionId: null,
-    detailShowId: null,
-    detailBookId: null,
+    quickLogKind: null,
+    quickLogId: null,
+    quickLogShelf: "active",
+    quickAddKind: null,
+    quickAddShelf: "active",
     showType: "binge",
     bookType: "book",
     subscriptionKind: "streaming",
     selectedDays: [],
     calendarMonth: null,
     selectedDate: null,
+    gateVisible: false,
   };
 
   var toastTimer = null;
@@ -58,7 +71,25 @@
   }
 
   function defaultData() {
-    return { version: 2, shows: [], books: [], reminders: [], subscriptions: [] };
+    return { version: 3, shows: [], books: [], reminders: [], subscriptions: [] };
+  }
+
+  function inferShelfFromLegacy(status, kind) {
+    if (status === "completed") return "done";
+    if (status === "paused" || status === "planning") return "shelved";
+    return "active";
+  }
+
+  function normalizeShelf(raw, status, kind) {
+    var allowed = ["active", "up-next", "alone", "shelved", "done"];
+    if (raw && allowed.indexOf(raw) >= 0) return raw;
+    return inferShelfFromLegacy(status, kind);
+  }
+
+  function statusFromShelf(shelf, kind) {
+    if (shelf === "done") return kind === "show" ? "completed" : "completed";
+    if (shelf === "shelved") return kind === "show" ? "paused" : "paused";
+    return kind === "show" ? "watching" : "reading";
   }
 
   function normalizeShow(raw) {
@@ -76,6 +107,9 @@
           })
           .filter(Boolean)
       : [];
+    var status = ["watching", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "watching";
+    var shelf = normalizeShelf(raw.shelf, status, "show");
+    status = statusFromShelf(shelf, "show");
     return {
       id: raw.id || uid(),
       title: String(raw.title).trim(),
@@ -94,10 +128,12 @@
         var ep = parseInt(raw.watchingEpisode, 10);
         return ep > 0 ? ep : null;
       })(),
-      status: ["watching", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "watching",
+      status: status,
+      shelf: shelf,
       schedule: schedule,
       subscriptionId: raw.subscriptionId || null,
       notes: raw.notes ? String(raw.notes) : "",
+      lastComment: raw.lastComment ? String(raw.lastComment) : "",
       createdAt: raw.createdAt || new Date().toISOString(),
       updatedAt: raw.updatedAt || new Date().toISOString(),
     };
@@ -122,6 +158,9 @@
 
   function normalizeBook(raw) {
     if (!raw || !raw.title) return null;
+    var status = ["reading", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "reading";
+    var shelf = normalizeShelf(raw.shelf, status, "book");
+    status = statusFromShelf(shelf, "book");
     return {
       id: raw.id || uid(),
       title: String(raw.title).trim(),
@@ -132,8 +171,10 @@
       totalChapters: raw.totalChapters != null && raw.totalChapters !== "" ? Math.max(0, parseInt(raw.totalChapters, 10)) : null,
       totalPages: raw.totalPages != null && raw.totalPages !== "" ? Math.max(0, parseInt(raw.totalPages, 10)) : null,
       lastReadAt: raw.lastReadAt || null,
-      status: ["reading", "paused", "completed", "planning"].indexOf(raw.status) >= 0 ? raw.status : "reading",
+      status: status,
+      shelf: shelf,
       notes: raw.notes ? String(raw.notes) : "",
+      lastComment: raw.lastComment ? String(raw.lastComment) : "",
       createdAt: raw.createdAt || new Date().toISOString(),
       updatedAt: raw.updatedAt || new Date().toISOString(),
     };
@@ -156,7 +197,7 @@
   function normalizeData(raw) {
     if (!raw || typeof raw !== "object") return defaultData();
     return {
-      version: 2,
+      version: 3,
       shows: (raw.shows || []).map(normalizeShow).filter(Boolean),
       books: (raw.books || []).map(normalizeBook).filter(Boolean),
       reminders: (raw.reminders || []).map(normalizeReminder).filter(Boolean),
@@ -178,9 +219,25 @@
   }
 
   function save() {
-    state.version = 2;
+    state.version = 3;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     render();
+  }
+
+  function touchLastOpen() {
+    try {
+      localStorage.setItem(LAST_OPEN_KEY, String(Date.now()));
+    } catch (e) {}
+  }
+
+  function shouldShowGate() {
+    try {
+      var last = parseInt(localStorage.getItem(LAST_OPEN_KEY), 10);
+      if (!last || isNaN(last)) return true;
+      return Date.now() - last >= GATE_MS;
+    } catch (e) {
+      return true;
+    }
   }
 
   function getShow(id) {
@@ -249,7 +306,11 @@
     if (diffDays === 1) return "Yesterday";
     if (diffDays < 7) return diffDays + " days ago";
     if (diffDays < 30) return Math.floor(diffDays / 7) + " wk ago";
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: d.getFullYear() !== now.getFullYear() ? "numeric" : undefined });
+    return d.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: d.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+    });
   }
 
   function formatDateTime(dateIso) {
@@ -388,17 +449,6 @@
     return { season: show.season, episode: show.episode + 1 };
   }
 
-  function episodeLabel(show) {
-    if (!show) return "";
-    if (show.episode === 0 && !isWatchingEpisode(show)) return "Not started";
-    return epShort(show.season, show.episode);
-  }
-
-  function lastFinishedLabel(show) {
-    if (!show || show.episode === 0) return "Not started";
-    return epShort(show.season, show.episode);
-  }
-
   function progressLabel(show, compact) {
     if (!show) return "";
     if (isWatchingEpisode(show)) {
@@ -412,22 +462,12 @@
       if (compact && next.season === (show.season || 1)) startText = "E" + next.episode;
       return "→ " + startText;
     }
-    var nextText = epShort(next.season, next.episode);
     if (compact) {
+      var nextText = epShort(next.season, next.episode);
       if (next.season === show.season) nextText = "E" + next.episode;
       return "→ " + nextText;
     }
-    return epShort(show.season, show.episode) + " → " + nextText;
-  }
-
-  function progressStatusLabel(show, now) {
-    if (isWatchingEpisode(show)) return "Watching";
-    var overdueDays = getShowOverdueDays(show, now);
-    if (overdueDays > 0) {
-      var missed = getLatestDueAirDate(show, now);
-      return missed ? formatOverdueCompact(missed.toISOString()) : "Late";
-    }
-    return formatDaysSince(show.lastWatchedAt);
+    return epShort(show.season, show.episode) + " → " + epShort(next.season, next.episode);
   }
 
   function bookProgressLabel(book) {
@@ -437,21 +477,6 @@
     if (book.page > 0) parts.push("p. " + book.page);
     if (!parts.length) return "Not started";
     return parts.join(" · ");
-  }
-
-  function showProgressPercent(show) {
-    if (!show.totalEpisodes || show.totalEpisodes <= 0) return null;
-    return Math.min(100, Math.round((show.episode / show.totalEpisodes) * 100));
-  }
-
-  function bookProgressPercent(book) {
-    if (book.totalChapters && book.totalChapters > 0) {
-      return Math.min(100, Math.round((book.chapter / book.totalChapters) * 100));
-    }
-    if (book.totalPages && book.totalPages > 0) {
-      return Math.min(100, Math.round((book.page / book.totalPages) * 100));
-    }
-    return null;
   }
 
   function formatOverdueLabel(dateIso) {
@@ -464,51 +489,102 @@
     return diffDays + " days late";
   }
 
-  function formatOverdueCompact(dateIso) {
-    var d = parseDate(dateIso);
-    if (!d) return "Late";
-    var now = new Date();
-    var diffDays = Math.floor((startOfDay(now) - startOfDay(d)) / 86400000);
-    if (diffDays <= 0) return "Today";
-    if (diffDays === 1) return "1d late";
-    return diffDays + "d late";
-  }
-
   function formatDaysSince(dateIso) {
     var d = parseDate(dateIso);
     if (!d) return "Never";
     var now = new Date();
     var diffDays = Math.floor((startOfDay(now) - startOfDay(d)) / 86400000);
     if (diffDays <= 0) return "Today";
-    if (diffDays === 1) return "1d";
-    if (diffDays < 7) return diffDays + "d";
-    if (diffDays < 30) return Math.floor(diffDays / 7) + "w";
+    if (diffDays === 1) return "1d ago";
+    if (diffDays < 7) return diffDays + "d ago";
+    if (diffDays < 30) return Math.floor(diffDays / 7) + "w ago";
     return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
   }
 
   function getShowOverdueDays(show, asOf) {
     if (!show || show.type !== "airing" || !show.schedule.length) return 0;
+    if (show.shelf === "shelved" || show.shelf === "done") return 0;
     if (isCaughtUp(show, asOf)) return 0;
     var missed = getLatestDueAirDate(show, asOf);
     if (!missed) return 0;
     return Math.floor((startOfDay(asOf || new Date()) - startOfDay(missed)) / 86400000);
   }
 
-  function getWatchingShowsForHome() {
-    var now = new Date();
-    return state.shows
-      .filter(function (s) { return s.status === "watching"; })
-      .sort(function (a, b) {
-        var aWatching = isWatchingEpisode(a) ? 1 : 0;
-        var bWatching = isWatchingEpisode(b) ? 1 : 0;
-        if (aWatching !== bWatching) return bWatching - aWatching;
-        var aLate = getShowOverdueDays(a, now);
-        var bLate = getShowOverdueDays(b, now);
-        if (aLate !== bLate) return bLate - aLate;
-        var aT = a.lastWatchedAt ? new Date(a.lastWatchedAt).getTime() : 0;
-        var bT = b.lastWatchedAt ? new Date(b.lastWatchedAt).getTime() : 0;
-        return aT - bT;
-      });
+  function itemActivityAt(item) {
+    if (item.kind === "show") {
+      return item.lastWatchedAt || item.updatedAt || item.createdAt || "";
+    }
+    return item.lastReadAt || item.updatedAt || item.createdAt || "";
+  }
+
+  function toUnifiedItem(showOrBook, kind) {
+    if (kind === "show") {
+      return {
+        kind: "show",
+        mediaType: "show",
+        id: showOrBook.id,
+        title: showOrBook.title,
+        shelf: showOrBook.shelf || "active",
+        progress: progressLabel(showOrBook, true),
+        meta: formatDaysSince(showOrBook.lastWatchedAt),
+        comment: showOrBook.lastComment || "",
+        activityAt: itemActivityAt(showOrBook),
+        overdue: getShowOverdueDays(showOrBook, new Date()) > 0,
+        inProgress: isWatchingEpisode(showOrBook),
+        raw: showOrBook,
+      };
+    }
+    return {
+      kind: "book",
+      mediaType: showOrBook.type,
+      id: showOrBook.id,
+      title: showOrBook.title,
+      shelf: showOrBook.shelf || "active",
+      progress: bookProgressLabel(showOrBook),
+      meta: formatDaysSince(showOrBook.lastReadAt),
+      comment: showOrBook.lastComment || "",
+      activityAt: itemActivityAt(showOrBook),
+      overdue: false,
+      inProgress: false,
+      raw: showOrBook,
+    };
+  }
+
+  function allUnifiedItems() {
+    var items = [];
+    state.shows.forEach(function (s) {
+      items.push(toUnifiedItem(s, "show"));
+    });
+    state.books.forEach(function (b) {
+      items.push(toUnifiedItem(b, "book"));
+    });
+    return items;
+  }
+
+  function filterUnified(items) {
+    var f = ui.homeFilter;
+    return items.filter(function (item) {
+      if (f === "all") return item.shelf !== "shelved" && item.shelf !== "done";
+      if (f === "show") return item.mediaType === "show" && item.shelf !== "done";
+      if (f === "book") return item.mediaType === "book" && item.shelf !== "done";
+      if (f === "manga") return (item.mediaType === "manga" || item.mediaType === "comic") && item.shelf !== "done";
+      if (f === "shelved") return item.shelf === "shelved";
+      if (f === "done") return item.shelf === "done";
+      return true;
+    });
+  }
+
+  function sortByActivity(a, b) {
+    return new Date(b.activityAt || 0) - new Date(a.activityAt || 0);
+  }
+
+  function getRecentForGate() {
+    return allUnifiedItems()
+      .filter(function (item) {
+        return item.shelf !== "done" && item.shelf !== "shelved";
+      })
+      .sort(sortByActivity)
+      .slice(0, 9);
   }
 
   function buildEpisodeReminderItem(show, atDate, overdue) {
@@ -530,7 +606,8 @@
     var homeWindowEnd = addDays(startOfDay(now), HOME_WINDOW_DAYS + 1);
 
     state.shows.forEach(function (show) {
-      if (show.status !== "watching" || show.type !== "airing" || !show.schedule.length) return;
+      if (show.shelf === "done" || show.shelf === "shelved") return;
+      if (show.type !== "airing" || !show.schedule.length) return;
       if (!isCaughtUp(show, now)) {
         var missed = getLatestDueAirDate(show, now);
         if (missed) items.push(buildEpisodeReminderItem(show, missed, true));
@@ -562,8 +639,6 @@
     });
 
     var overdue = [];
-    var upcoming = [];
-    var todayCount = 0;
     var byDate = {};
 
     items.forEach(function (item) {
@@ -572,24 +647,19 @@
       var key = dateStr(d);
       if (!byDate[key]) byDate[key] = [];
       byDate[key].push(item);
-
       if (item.overdue) overdue.push(item);
-      else if (d < homeWindowEnd) upcoming.push(item);
-
-      if (isSameDay(d, now) || item.overdue) todayCount++;
     });
 
     return {
       all: items,
       overdue: overdue,
-      upcoming: upcoming,
-      todayCount: todayCount,
       badgeCount: overdue.length + items.filter(function (item) {
         if (item.overdue) return false;
         var d = parseDate(item.at);
         return d && isSameDay(d, now);
       }).length,
       byDate: byDate,
+      homeWindowEnd: homeWindowEnd,
     };
   }
 
@@ -597,7 +667,7 @@
     var items = [];
 
     state.shows.forEach(function (show) {
-      if (show.type !== "airing" || show.status === "completed" || !show.schedule.length) return;
+      if (show.type !== "airing" || show.shelf === "done" || !show.schedule.length) return;
       getAirDatesInRange(show, rangeStart, rangeEnd).forEach(function (d) {
         items.push(buildEpisodeReminderItem(show, d, false));
       });
@@ -637,103 +707,73 @@
     return { all: items, byDate: byDate };
   }
 
-  function renderShowRow(show) {
-    var now = new Date();
-    var overdueDays = getShowOverdueDays(show, now);
-    var isOverdue = overdueDays > 0 && !isWatchingEpisode(show);
-    var watching = isWatchingEpisode(show);
-    var sinceLabel = progressStatusLabel(show, now);
-    var rowClass = "show-row" + (isOverdue ? " overdue" : "") + (watching ? " in-progress" : "");
-    var typeClass = show.type === "airing" ? "airing" : "binge";
-    var epClass = "show-row-ep" + (watching ? " watching" : "");
-    var quickAction = watching ? "finish" : "start";
-    var quickLabel = watching ? "Finish episode" : "Start next episode";
+  function mediaTypeLabel(type) {
+    if (type === "show") return "Show";
+    if (type === "manga") return "Manga";
+    if (type === "comic") return "Comic";
+    return "Book";
+  }
+
+  function renderMediaRow(item) {
+    var typeClass = "type-" + item.mediaType;
+    var rowClass = "media-row " + typeClass;
+    if (item.overdue) rowClass += " overdue";
+    if (item.inProgress) rowClass += " in-progress";
+    var metaParts = [];
+    metaParts.push('<span class="kind-tag">' + escapeHtml(mediaTypeLabel(item.mediaType)) + "</span>");
+    if (item.overdue) metaParts.push("Behind");
+    else metaParts.push(escapeHtml(item.meta));
+    if (item.comment) {
+      metaParts.push('<span class="comment-preview">“' + escapeHtml(item.comment.length > 40 ? item.comment.slice(0, 40) + "…" : item.comment) + '”</span>');
+    }
+    var dataAttr = item.kind === "show"
+      ? 'data-show-id="' + escapeHtml(item.id) + '"'
+      : 'data-book-id="' + escapeHtml(item.id) + '"';
+    var bumpAttr = item.kind === "show"
+      ? 'data-bump-show="' + escapeHtml(item.id) + '"'
+      : 'data-bump-book="' + escapeHtml(item.id) + '"';
 
     return (
       '<div class="' + rowClass + '">' +
-      '<button type="button" class="show-row-main" data-show-id="' + escapeHtml(show.id) + '">' +
-      '<span class="show-row-type ' + typeClass + '" aria-hidden="true"></span>' +
-      '<span class="show-row-title">' + escapeHtml(show.title) + "</span>" +
-      '<span class="' + epClass + '">' + escapeHtml(progressLabel(show, true)) + "</span>" +
-      '<span class="show-row-since' + (isOverdue ? " overdue" : "") + (watching ? " watching" : "") + '">' + escapeHtml(sinceLabel) + "</span>" +
+      '<button type="button" class="media-row-main" ' + dataAttr + ">" +
+      '<span class="media-row-bar" aria-hidden="true"></span>' +
+      '<span class="media-row-title">' + escapeHtml(item.title) + "</span>" +
+      '<span class="media-row-prog">' + escapeHtml(item.progress) + "</span>" +
+      '<span class="media-row-meta">' + metaParts.join(" · ") + "</span>" +
       "</button>" +
-      '<button type="button" class="show-row-log' + (watching ? " finish" : "") + '" data-quick-log-show="' + escapeHtml(show.id) + '" data-quick-action="' + quickAction + '" aria-label="' + escapeHtml(quickLabel) + '">' + (watching ? "✓" : "+") + "</button>" +
+      '<button type="button" class="media-row-bump" ' + bumpAttr + ' aria-label="Quick bump">+</button>' +
       "</div>"
     );
   }
 
-  function renderCustomReminderCompact(item) {
-    var d = parseDate(item.at);
-    var now = new Date();
-    var whenLabel = d ? formatDateTime(item.at) : "No date";
-    if (item.overdue) whenLabel = formatOverdueCompact(item.at);
-    else if (d && isSameDay(d, now)) whenLabel = "Today";
-    else if (d && isSameDay(d, addDays(now, 1))) whenLabel = "Tomorrow";
-
+  function renderConsumeTile(item) {
+    if (!item) {
+      return '<button type="button" class="consume-tile empty" data-consume-empty="1">+</button>';
+    }
+    var typeClass = "type-" + item.mediaType;
+    var dataAttr = item.kind === "show"
+      ? 'data-show-id="' + escapeHtml(item.id) + '"'
+      : 'data-book-id="' + escapeHtml(item.id) + '"';
     return (
-      '<button type="button" class="reminder-compact" data-reminder-id="' + escapeHtml(item.id) + '">' +
-      '<span class="reminder-compact-title">' + escapeHtml(item.title) + "</span>" +
-      '<span class="reminder-compact-when' + (item.overdue ? " overdue" : "") + '">' + escapeHtml(whenLabel) + "</span>" +
+      '<button type="button" class="consume-tile ' + typeClass + '" ' + dataAttr + ">" +
+      '<span class="consume-tile-kind">' + escapeHtml(mediaTypeLabel(item.mediaType)) + "</span>" +
+      '<span class="consume-tile-title">' + escapeHtml(item.title) + "</span>" +
+      '<span class="consume-tile-prog">' + escapeHtml(item.progress) + "</span>" +
       "</button>"
     );
   }
 
-  function renderShowCard(show) {
-    var pct = showProgressPercent(show);
-    var badgeClass = show.status === "completed" ? "completed" : show.type === "airing" ? "airing" : "binge";
-    var badgeText = show.status === "completed" ? "Done" : show.type === "airing" ? "Airing" : "Binge";
-    var last = show.lastWatchedAt ? formatRelative(show.lastWatchedAt) : "Never logged";
-    var progressText = isWatchingEpisode(show)
-      ? "Watching " + epShort(show.watchingSeason, show.watchingEpisode)
-      : progressLabel(show);
-    var nextAir = "";
-    if (show.type === "airing" && show.status === "watching" && show.schedule.length) {
-      var next = getNextAirDate(show);
-      if (next) nextAir = '<div class="schedule-pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Next: ' + escapeHtml(formatDateTime(next.toISOString())) + "</div>";
-    }
-    var progress = "";
-    if (pct != null) {
-      progress =
-        '<div class="progress-wrap">' +
-        '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
-        '<div class="progress-label">' + show.episode + " / " + show.totalEpisodes + " episodes</div></div>";
-    }
-    var sub = show.subscriptionId ? getSubscription(show.subscriptionId) : null;
-    var subPill = sub
-      ? '<div class="schedule-pill sub-pill"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/></svg>' +
-        escapeHtml(sub.name) + "</div>"
-      : "";
+  function renderSubscriptionCard(sub) {
+    var badgeClass = sub.active ? "airing" : "completed";
+    var badgeText = sub.active ? "Active" : "Inactive";
+    var kindLabel = sub.kind === "channel" ? "Channel" : "Streaming";
+    var cost = sub.cost != null ? "<span>$" + sub.cost.toFixed(2) + "/mo</span>" : "";
+    var notes = sub.notes ? '<p class="sub-notes">' + escapeHtml(sub.notes) + "</p>" : "";
     return (
-      '<button type="button" class="media-card" data-show-id="' + escapeHtml(show.id) + '">' +
-      '<div class="media-card-top"><h3>' + escapeHtml(show.title) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
-      '<div class="media-meta"><span><strong>' + escapeHtml(progressText) + "</strong></span>" +
-      '<span>Last finished: ' + escapeHtml(lastFinishedLabel(show)) + (show.lastWatchedAt ? " · " + escapeHtml(last) : "") + "</span></div>" +
-      progress + nextAir + subPill +
-      "</button>"
-    );
-  }
-
-  function renderBookCard(book) {
-    var pct = bookProgressPercent(book);
-    var badgeClass = book.status === "completed" ? "completed" : book.type === "manga" ? "airing" : "binge";
-    var badgeText = book.status === "completed" ? "Done" : book.type.charAt(0).toUpperCase() + book.type.slice(1);
-    var last = book.lastReadAt ? formatRelative(book.lastReadAt) : "Never logged";
-    var progress = "";
-    if (pct != null) {
-      var denom = book.totalChapters ? book.totalChapters + " ch" : book.totalPages + " pg";
-      var num = book.totalChapters ? book.chapter : book.page;
-      progress =
-        '<div class="progress-wrap">' +
-        '<div class="progress-bar"><div class="progress-fill" style="width:' + pct + '%;background:linear-gradient(90deg,#34d399,#059669)"></div></div>' +
-        '<div class="progress-label">' + num + " / " + denom + "</div></div>";
-    }
-    var author = book.author ? '<span>' + escapeHtml(book.author) + "</span>" : "";
-    return (
-      '<button type="button" class="media-card" data-book-id="' + escapeHtml(book.id) + '">' +
-      '<div class="media-card-top"><h3>' + escapeHtml(book.title) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
-      '<div class="media-meta"><span><strong>' + escapeHtml(bookProgressLabel(book)) + "</strong></span>" +
-      author + '<span>Last: ' + escapeHtml(last) + "</span></div>" +
-      progress +
+      '<button type="button" class="media-card sub-card" data-subscription-id="' + escapeHtml(sub.id) + '">' +
+      '<div class="media-card-top"><h3>' + escapeHtml(sub.name) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
+      '<div class="media-meta"><span>' + kindLabel + "</span>" + cost + "</div>" +
+      notes +
       "</button>"
     );
   }
@@ -745,22 +785,19 @@
     var now = new Date();
     var cls = "reminder-card";
     if (item.overdue) cls += " overdue";
-    else if (d && isSameDay(d, now)) cls += " today";
-    else if (d && d < now) cls += " past";
     var iconClass = item.kind === "episode" ? "episode" : "custom";
     var iconSvg = item.kind === "episode"
       ? '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 3-5 3V9.5z" fill="currentColor" stroke="none"/></svg>'
       : '<svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>';
     var whenLabel = d ? formatDateTime(item.at) : "No date";
-    if (item.overdue) whenLabel = formatOverdueLabel(item.at) + " · " + (d ? d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) : "");
+    if (item.overdue) whenLabel = formatOverdueLabel(item.at);
     else if (d && isSameDay(d, now)) whenLabel = "Today · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-    else if (d && isSameDay(d, addDays(now, 1))) whenLabel = "Tomorrow · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
     var attrs = item.auto ? ' data-auto-reminder="1"' : ' data-reminder-id="' + escapeHtml(item.id) + '"';
     if (item.showId) attrs += ' data-show-id="' + escapeHtml(item.showId) + '"';
 
     var quickLogBtn = showQuickLog
-      ? '<button type="button" class="reminder-quick-log" data-quick-log-show="' + escapeHtml(item.showId) + '" aria-label="Mark watched">Watched</button>'
+      ? '<button type="button" class="reminder-quick-log" data-bump-show="' + escapeHtml(item.showId) + '" aria-label="Mark watched">+</button>'
       : "";
 
     return (
@@ -775,93 +812,70 @@
     );
   }
 
-  function renderSubscriptionCard(sub) {
-    var badgeClass = sub.active ? "airing" : "completed";
-    var badgeText = sub.active ? "Active" : "Inactive";
-    var kindLabel = sub.kind === "channel" ? "Channel" : "Streaming";
-    var cost = sub.cost != null ? '<span>$' + sub.cost.toFixed(2) + "/mo</span>" : "";
-    var notes = sub.notes ? '<p class="sub-notes">' + escapeHtml(sub.notes) + "</p>" : "";
-    return (
-      '<button type="button" class="media-card sub-card" data-subscription-id="' + escapeHtml(sub.id) + '">' +
-      '<div class="media-card-top"><h3>' + escapeHtml(sub.name) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
-      '<div class="media-meta"><span>' + kindLabel + "</span>" + cost + "</div>" +
-      notes +
-      "</button>"
-    );
+  function renderHome() {
+    var items = filterUnified(allUnifiedItems());
+    var wrap = document.getElementById("homeSections");
+    var empty = document.getElementById("homeEmpty");
+
+    if (!items.length) {
+      wrap.innerHTML = "";
+      empty.hidden = false;
+      return;
+    }
+    empty.hidden = true;
+
+    var byShelf = {};
+    SHELF_ORDER.forEach(function (s) { byShelf[s] = []; });
+    items.forEach(function (item) {
+      var shelf = item.shelf || "active";
+      if (!byShelf[shelf]) byShelf[shelf] = [];
+      byShelf[shelf].push(item);
+    });
+
+    var html = "";
+    SHELF_ORDER.forEach(function (shelf) {
+      var list = byShelf[shelf] || [];
+      if (!list.length) return;
+      if (ui.homeFilter === "all" && (shelf === "shelved" || shelf === "done")) return;
+      list.sort(function (a, b) {
+        if (a.inProgress !== b.inProgress) return a.inProgress ? -1 : 1;
+        if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
+        return sortByActivity(a, b);
+      });
+      html +=
+        '<div class="section-head"><p class="section-label">' + escapeHtml(SHELF_LABELS[shelf] || shelf) +
+        '</p><span class="section-count">' + list.length + "</span></div>" +
+        '<div class="shelf-list">' + list.map(renderMediaRow).join("") + "</div>";
+    });
+    wrap.innerHTML = html;
   }
 
-  function filterShows() {
-    return state.shows.filter(function (show) {
-      if (ui.watchFilter === "all") return true;
-      if (ui.watchFilter === "watching") return show.status === "watching" || show.status === "paused";
-      if (ui.watchFilter === "binge") return show.type === "binge" && show.status !== "completed";
-      if (ui.watchFilter === "airing") return show.type === "airing" && show.status !== "completed";
-      if (ui.watchFilter === "completed") return show.status === "completed";
-      return true;
-    }).sort(function (a, b) {
-      var aT = a.lastWatchedAt || a.updatedAt;
-      var bT = b.lastWatchedAt || b.updatedAt;
-      return new Date(bT) - new Date(aT);
-    });
+  function renderConsumeGate() {
+    var grid = document.getElementById("consumeGrid");
+    var recent = getRecentForGate();
+    var tiles = [];
+    for (var i = 0; i < 9; i++) {
+      tiles.push(renderConsumeTile(recent[i] || null));
+    }
+    grid.innerHTML = tiles.join("");
   }
 
-  function filterBooks() {
-    return state.books.filter(function (book) {
-      if (ui.readFilter === "all") return true;
-      if (ui.readFilter === "reading") return book.status === "reading" || book.status === "paused";
-      if (ui.readFilter === "book") return book.type === "book" && book.status !== "completed";
-      if (ui.readFilter === "manga") return (book.type === "manga" || book.type === "comic") && book.status !== "completed";
-      if (ui.readFilter === "completed") return book.status === "completed";
-      return true;
-    }).sort(function (a, b) {
-      var aT = a.lastReadAt || a.updatedAt;
-      var bT = b.lastReadAt || b.updatedAt;
-      return new Date(bT) - new Date(aT);
-    });
+  function showGate(show) {
+    ui.gateVisible = !!show;
+    var gate = document.getElementById("consumeGate");
+    gate.hidden = !show;
+    document.body.classList.toggle("gate-open", !!show);
+    if (show) renderConsumeGate();
+  }
+
+  function dismissGate() {
+    showGate(false);
+    touchLastOpen();
   }
 
   function render() {
     var reminders = collectReminders();
-
-    var watching = getWatchingShowsForHome();
-    document.getElementById("homeWatching").innerHTML = watching.map(renderShowRow).join("");
-    document.getElementById("homeWatchingEmpty").hidden = watching.length > 0;
-
-    var now = new Date();
-    var homeWindowEnd = addDays(startOfDay(now), HOME_WINDOW_DAYS + 1);
-    var homeCustom = reminders.all.filter(function (item) {
-      if (item.kind !== "custom") return false;
-      if (item.overdue) return true;
-      var d = parseDate(item.at);
-      return d && d < homeWindowEnd;
-    });
-    var remindersLabel = document.getElementById("homeRemindersLabel");
-    var remindersEl = document.getElementById("homeReminders");
-    if (homeCustom.length > 0) {
-      remindersLabel.hidden = false;
-      remindersEl.hidden = false;
-      remindersEl.innerHTML = homeCustom.map(renderCustomReminderCompact).join("");
-    } else {
-      remindersLabel.hidden = true;
-      remindersEl.hidden = true;
-      remindersEl.innerHTML = "";
-    }
-
-    var continueRead = state.books
-      .filter(function (b) { return b.status === "reading"; })
-      .sort(function (a, b) { return new Date(b.lastReadAt || 0) - new Date(a.lastReadAt || 0); })
-      .slice(0, 4);
-    document.getElementById("homeContinueRead").innerHTML = continueRead.map(renderBookCard).join("");
-    document.getElementById("homeReadEmpty").hidden = continueRead.length > 0;
-
-    var shows = filterShows();
-    document.getElementById("watchList").innerHTML = shows.map(renderShowCard).join("");
-    document.getElementById("watchEmpty").hidden = shows.length > 0;
-
-    var books = filterBooks();
-    document.getElementById("readList").innerHTML = books.map(renderBookCard).join("");
-    document.getElementById("readEmpty").hidden = books.length > 0;
-
+    renderHome();
     renderCalendar();
 
     var streaming = state.subscriptions.filter(function (s) { return s.kind === "streaming"; });
@@ -882,6 +896,7 @@
     updateFabVisibility();
     populateReminderShowSelect();
     populateSubscriptionSelect();
+    if (ui.gateVisible) renderConsumeGate();
   }
 
   function renderCalendar() {
@@ -936,7 +951,6 @@
       html += makeCalDayHtml(nds, i, calData.byDate[nds], true);
     }
     grid.innerHTML = html;
-
     renderCalAgenda(calData);
   }
 
@@ -986,19 +1000,12 @@
 
   function updateFabVisibility() {
     var fab = document.getElementById("fabBtn");
-    fab.style.display =
-      ui.view === "home" ||
-      ui.view === "watch" ||
-      ui.view === "read" ||
-      ui.view === "calendar" ||
-      ui.view === "subscriptions"
-        ? "flex"
-        : "none";
+    fab.style.display = ui.gateVisible ? "none" : "flex";
   }
 
   function setView(view) {
     ui.view = view;
-    document.body.className = "view-" + view;
+    document.body.className = (ui.gateVisible ? "gate-open " : "") + "view-" + view;
     document.querySelectorAll(".view").forEach(function (el) {
       el.classList.toggle("active", el.dataset.view === view);
     });
@@ -1009,9 +1016,7 @@
     });
 
     var titles = {
-      home: ["Media Shelf", "Your watch list"],
-      watch: ["Watching", "Shows & episodes"],
-      read: ["Reading", "Books & manga"],
+      home: ["Media Shelf", "Shows, books & manga"],
       calendar: ["Calendar", "Episodes & reminders"],
       subscriptions: ["Subscriptions", "Streaming & channels"],
     };
@@ -1029,16 +1034,248 @@
 
   function closeOverlay(id) {
     document.getElementById(id).classList.remove("open");
-    if (!document.querySelector(".overlay.open")) {
+    if (!document.querySelector(".overlay.open") && !ui.gateVisible) {
       document.body.style.overflow = "";
     }
   }
 
-  function closeAllOverlays() {
-    document.querySelectorAll(".overlay.open").forEach(function (el) {
-      el.classList.remove("open");
+  function setShelfChips(containerId, shelf) {
+    document.querySelectorAll("#" + containerId + " .shelf-chip").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.shelf === shelf);
     });
-    document.body.style.overflow = "";
+  }
+
+  function openQuickLog(kind, id) {
+    ui.quickLogKind = kind;
+    ui.quickLogId = id;
+    var titleEl = document.getElementById("quickLogTitle");
+    var metaEl = document.getElementById("quickLogMeta");
+    var dot = document.getElementById("quickLogDot");
+    var showFields = document.getElementById("quickLogShowFields");
+    var bookFields = document.getElementById("quickLogBookFields");
+    var startBtn = document.getElementById("qlStartBtn");
+
+    if (kind === "show") {
+      var show = getShow(id);
+      if (!show) return;
+      ui.quickLogShelf = show.shelf || "active";
+      titleEl.textContent = show.title;
+      var metaBits = [show.type === "airing" ? "Airing" : "Binge"];
+      if (show.lastWatchedAt) metaBits.push("Last " + formatRelative(show.lastWatchedAt));
+      metaEl.textContent = metaBits.join(" · ");
+      dot.className = "type-dot type-show";
+      showFields.hidden = false;
+      bookFields.hidden = true;
+      var next = getNextEpisode(show);
+      document.getElementById("qlSeason").value = String(next.season);
+      document.getElementById("qlEpisode").value = String(next.episode);
+      document.getElementById("qlComment").value = "";
+      startBtn.hidden = isWatchingEpisode(show) || show.shelf === "done";
+      startBtn.textContent = "Mark in progress";
+    } else {
+      var book = getBook(id);
+      if (!book) return;
+      ui.quickLogShelf = book.shelf || "active";
+      titleEl.textContent = book.title;
+      var bMeta = [mediaTypeLabel(book.type)];
+      if (book.author) bMeta.push(book.author);
+      if (book.lastReadAt) bMeta.push(formatRelative(book.lastReadAt));
+      metaEl.textContent = bMeta.join(" · ");
+      dot.className = "type-dot type-" + book.type;
+      showFields.hidden = true;
+      bookFields.hidden = false;
+      document.getElementById("qlChapter").value = String(book.chapter > 0 ? book.chapter + 1 : 1);
+      document.getElementById("qlPage").value = String(book.page || 0);
+      document.getElementById("qlComment").value = "";
+      startBtn.hidden = true;
+    }
+    setShelfChips("quickLogShelf", ui.quickLogShelf);
+    openOverlay("quickLogOverlay");
+  }
+
+  function applyShelfToItem(item, shelf, kind) {
+    item.shelf = shelf;
+    item.status = statusFromShelf(shelf, kind);
+    if (shelf === "done") {
+      if (kind === "show") {
+        item.watchingSeason = null;
+        item.watchingEpisode = null;
+      }
+    }
+  }
+
+  function saveQuickLog() {
+    var comment = document.getElementById("qlComment").value.trim();
+    var shelf = ui.quickLogShelf || "active";
+
+    if (ui.quickLogKind === "show") {
+      var show = getShow(ui.quickLogId);
+      if (!show) return;
+      var season = parseInt(document.getElementById("qlSeason").value, 10) || 1;
+      var episode = parseInt(document.getElementById("qlEpisode").value, 10) || 0;
+      if (episode < 1 && shelf !== "shelved" && shelf !== "done") {
+        showToast("Enter an episode");
+        return;
+      }
+      if (episode >= 1) {
+        show.season = season;
+        show.episode = episode;
+        show.lastWatchedAt = new Date().toISOString();
+        show.watchingSeason = null;
+        show.watchingEpisode = null;
+      }
+      if (comment) show.lastComment = comment;
+      applyShelfToItem(show, shelf, "show");
+      if (show.totalEpisodes && episode >= show.totalEpisodes) {
+        applyShelfToItem(show, "done", "show");
+      }
+      show.updatedAt = new Date().toISOString();
+      closeOverlay("quickLogOverlay");
+      dismissGate();
+      save();
+      showToast(episode >= 1 ? "Logged " + epShort(season, episode) : "Updated");
+      return;
+    }
+
+    var book = getBook(ui.quickLogId);
+    if (!book) return;
+    var chapter = parseInt(document.getElementById("qlChapter").value, 10) || 0;
+    var page = parseInt(document.getElementById("qlPage").value, 10) || 0;
+    book.chapter = chapter;
+    book.page = page;
+    book.lastReadAt = new Date().toISOString();
+    if (comment) book.lastComment = comment;
+    applyShelfToItem(book, shelf, "book");
+    if ((book.totalChapters && chapter >= book.totalChapters) || (book.totalPages && page >= book.totalPages)) {
+      applyShelfToItem(book, "done", "book");
+    }
+    book.updatedAt = new Date().toISOString();
+    closeOverlay("quickLogOverlay");
+    dismissGate();
+    save();
+    showToast("Progress saved");
+  }
+
+  function markShowInProgress() {
+    var show = getShow(ui.quickLogId);
+    if (!show) return;
+    var season = parseInt(document.getElementById("qlSeason").value, 10) || 1;
+    var episode = parseInt(document.getElementById("qlEpisode").value, 10) || 1;
+    show.watchingSeason = season;
+    show.watchingEpisode = episode;
+    applyShelfToItem(show, ui.quickLogShelf === "done" ? "active" : ui.quickLogShelf || "active", "show");
+    show.updatedAt = new Date().toISOString();
+    closeOverlay("quickLogOverlay");
+    dismissGate();
+    save();
+    showToast("Watching " + epShort(season, episode));
+  }
+
+  function bumpShow(id) {
+    var show = getShow(id);
+    if (!show) return;
+    if (isWatchingEpisode(show)) {
+      show.season = show.watchingSeason;
+      show.episode = show.watchingEpisode;
+      show.lastWatchedAt = new Date().toISOString();
+      show.watchingSeason = null;
+      show.watchingEpisode = null;
+      applyShelfToItem(show, show.shelf === "done" ? "active" : show.shelf || "active", "show");
+      if (show.totalEpisodes && show.episode >= show.totalEpisodes) {
+        applyShelfToItem(show, "done", "show");
+        save();
+        showToast("Finished · completed!");
+        return;
+      }
+      save();
+      showToast("Finished " + epShort(show.season, show.episode));
+      return;
+    }
+    var next = getNextEpisode(show);
+    show.watchingSeason = next.season;
+    show.watchingEpisode = next.episode;
+    applyShelfToItem(show, show.shelf === "done" || show.shelf === "shelved" ? "active" : show.shelf || "active", "show");
+    show.updatedAt = new Date().toISOString();
+    save();
+    showToast("Watching " + epShort(next.season, next.episode));
+  }
+
+  function bumpBook(id) {
+    openQuickLog("book", id);
+  }
+
+  function openQuickAdd(kind) {
+    ui.quickAddKind = kind;
+    ui.quickAddShelf = "active";
+    var titles = {
+      show: ["New show", "Just a title — tweak details later"],
+      book: ["New book", "Add it in one tap"],
+      manga: ["New manga", "Add it in one tap"],
+      comic: ["New comic", "Add it in one tap"],
+    };
+    var t = titles[kind] || titles.book;
+    document.getElementById("quickAddTitle").textContent = t[0];
+    document.getElementById("quickAddSubtitle").textContent = t[1];
+    document.getElementById("quickAddName").value = "";
+    document.getElementById("quickAddAuthor").value = "";
+    document.getElementById("quickAddAuthorField").hidden = kind === "show";
+    document.getElementById("quickAddMoreBtn").hidden = false;
+    setShelfChips("quickAddShelf", "active");
+    openOverlay("quickAddOverlay");
+    setTimeout(function () {
+      document.getElementById("quickAddName").focus();
+    }, 280);
+  }
+
+  function saveQuickAdd() {
+    var title = document.getElementById("quickAddName").value.trim();
+    if (!title) {
+      showToast("Enter a title");
+      return;
+    }
+    var shelf = ui.quickAddShelf || "active";
+    var now = new Date().toISOString();
+
+    if (ui.quickAddKind === "show") {
+      var show = normalizeShow({
+        id: uid(),
+        title: title,
+        type: "binge",
+        season: 1,
+        episode: 0,
+        shelf: shelf,
+        status: statusFromShelf(shelf, "show"),
+        createdAt: now,
+        updatedAt: now,
+      });
+      state.shows.unshift(show);
+      closeOverlay("quickAddOverlay");
+      dismissGate();
+      save();
+      showToast("Added");
+      openQuickLog("show", show.id);
+      return;
+    }
+
+    var bookType = ui.quickAddKind === "manga" ? "manga" : ui.quickAddKind === "comic" ? "comic" : "book";
+    var book = normalizeBook({
+      id: uid(),
+      title: title,
+      author: document.getElementById("quickAddAuthor").value.trim(),
+      type: bookType,
+      chapter: 0,
+      page: 0,
+      shelf: shelf,
+      status: statusFromShelf(shelf, "book"),
+      createdAt: now,
+      updatedAt: now,
+    });
+    state.books.unshift(book);
+    closeOverlay("quickAddOverlay");
+    dismissGate();
+    save();
+    showToast("Added");
+    openQuickLog("book", book.id);
   }
 
   function buildDayPicker() {
@@ -1112,6 +1349,7 @@
 
     var totalEp = document.getElementById("showTotalEpisodes").value;
     var totalSeas = document.getElementById("showTotalSeasons").value;
+    var existing = ui.editingShowId ? getShow(ui.editingShowId) : null;
     var payload = {
       id: ui.editingShowId || uid(),
       title: title,
@@ -1123,30 +1361,26 @@
       schedule: schedule,
       subscriptionId: document.getElementById("showSubscription").value || null,
       notes: document.getElementById("showNotes").value.trim(),
-      status: "watching",
-      createdAt: new Date().toISOString(),
+      shelf: existing ? existing.shelf : "active",
+      status: existing ? existing.status : "watching",
+      lastComment: existing ? existing.lastComment : "",
+      lastWatchedAt: existing ? existing.lastWatchedAt : null,
+      watchingSeason: existing ? existing.watchingSeason : null,
+      watchingEpisode: existing ? existing.watchingEpisode : null,
+      createdAt: existing ? existing.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     if (ui.editingShowId) {
-      var existing = getShow(ui.editingShowId);
-      if (existing) {
-        payload.lastWatchedAt = existing.lastWatchedAt;
-        payload.watchingSeason = existing.watchingSeason;
-        payload.watchingEpisode = existing.watchingEpisode;
-        payload.status = existing.status;
-        payload.createdAt = existing.createdAt;
-        payload.subscriptionId = document.getElementById("showSubscription").value || existing.subscriptionId || null;
+      if (existing && existing.watchingEpisode > 0) {
         var editedEpisode = payload.episode;
         var editedSeason = payload.season;
-        if (existing.watchingEpisode > 0) {
-          var watchingAhead =
-            editedSeason > existing.watchingSeason ||
-            (editedSeason === existing.watchingSeason && editedEpisode >= existing.watchingEpisode);
-          if (watchingAhead) {
-            payload.watchingSeason = null;
-            payload.watchingEpisode = null;
-          }
+        var watchingAhead =
+          editedSeason > existing.watchingSeason ||
+          (editedSeason === existing.watchingSeason && editedEpisode >= existing.watchingEpisode);
+        if (watchingAhead) {
+          payload.watchingSeason = null;
+          payload.watchingEpisode = null;
         }
       }
       state.shows = state.shows.map(function (s) {
@@ -1161,164 +1395,68 @@
     save();
   }
 
-  function syncShowDetailActions(show) {
-    var watching = isWatchingEpisode(show);
-    var next = getNextEpisode(show);
-    document.getElementById("showWatchingNow").hidden = !watching;
-    if (watching) {
-      document.getElementById("showWatchingEpisode").textContent =
-        "Currently watching: " + epShort(show.watchingSeason, show.watchingEpisode);
-    }
+  function resetBookForm(book) {
+    ui.editingBookId = book ? book.id : null;
+    ui.bookType = book ? book.type : "book";
+    document.getElementById("bookFormTitle").textContent = book ? "Edit" : "Add to read";
+    document.getElementById("bookTitle").value = book ? book.title : "";
+    document.getElementById("bookAuthor").value = book ? book.author : "";
+    document.getElementById("bookChapter").value = book ? String(book.chapter) : "0";
+    document.getElementById("bookPage").value = book ? String(book.page) : "0";
+    document.getElementById("bookTotalChapters").value = book && book.totalChapters != null ? String(book.totalChapters) : "";
+    document.getElementById("bookTotalPages").value = book && book.totalPages != null ? String(book.totalPages) : "";
+    document.getElementById("bookNotes").value = book ? book.notes : "";
+    document.querySelectorAll("#bookTypeSeg button").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.type === ui.bookType);
+    });
+  }
 
-    var lastLog = document.getElementById("showLastLog");
-    if (show.episode > 0) {
-      lastLog.hidden = false;
-      document.getElementById("showLastLogEpisode").textContent = "Last finished: " + lastFinishedLabel(show);
-      document.getElementById("showLastLogWhen").textContent = show.lastWatchedAt
-        ? formatDateTime(show.lastWatchedAt) + " · " + formatRelative(show.lastWatchedAt)
-        : "Not logged yet";
+  function openBookForm(book) {
+    resetBookForm(book || null);
+    openOverlay("bookFormOverlay");
+    setTimeout(function () {
+      document.getElementById("bookTitle").focus();
+    }, 280);
+  }
+
+  function saveBookForm() {
+    var title = document.getElementById("bookTitle").value.trim();
+    if (!title) {
+      showToast("Enter a title");
+      return;
+    }
+    var totalCh = document.getElementById("bookTotalChapters").value;
+    var totalPg = document.getElementById("bookTotalPages").value;
+    var existing = ui.editingBookId ? getBook(ui.editingBookId) : null;
+    var payload = {
+      id: ui.editingBookId || uid(),
+      title: title,
+      author: document.getElementById("bookAuthor").value.trim(),
+      type: ui.bookType,
+      chapter: parseInt(document.getElementById("bookChapter").value, 10) || 0,
+      page: parseInt(document.getElementById("bookPage").value, 10) || 0,
+      totalChapters: totalCh === "" ? null : parseInt(totalCh, 10),
+      totalPages: totalPg === "" ? null : parseInt(totalPg, 10),
+      notes: document.getElementById("bookNotes").value.trim(),
+      shelf: existing ? existing.shelf : "active",
+      status: existing ? existing.status : "reading",
+      lastComment: existing ? existing.lastComment : "",
+      lastReadAt: existing ? existing.lastReadAt : null,
+      createdAt: existing ? existing.createdAt : new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    if (ui.editingBookId) {
+      state.books = state.books.map(function (b) {
+        return b.id === ui.editingBookId ? normalizeBook(payload) : b;
+      });
+      showToast("Updated");
     } else {
-      lastLog.hidden = true;
+      state.books.unshift(normalizeBook(payload));
+      showToast("Added to shelf");
     }
-
-    document.getElementById("logSeason").value = String(watching ? show.watchingSeason : next.season);
-    document.getElementById("logEpisode").value = String(watching ? show.watchingEpisode : next.episode);
-    document.getElementById("logWatchedAt").value = toDatetimeLocalValue(new Date());
-
-    document.getElementById("showLogSectionLabel").textContent = watching
-      ? "Finish this episode"
-      : "Start or finish an episode";
-    document.getElementById("logEpisodeLabel").textContent = watching ? "Episode to finish" : "Episode";
-    document.getElementById("logWatchedAtField").hidden = false;
-    document.getElementById("startWatchingBtn").hidden = watching || show.status === "completed";
-    document.getElementById("logFinishedBtn").hidden = watching || show.status === "completed";
-    document.getElementById("finishEpisodeBtn").hidden = !watching || show.status === "completed";
-    document.getElementById("stopWatchingBtn").hidden = !watching || show.status === "completed";
-  }
-
-  function openShowDetail(id) {
-    var show = getShow(id);
-    if (!show) return;
-    ui.detailShowId = id;
-    document.getElementById("showDetailTitle").textContent = show.title;
-    var badge = document.getElementById("showDetailBadge");
-    badge.textContent = show.status === "completed" ? "Done" : show.type === "airing" ? "Airing" : "Binge";
-    badge.className = "badge " + (show.status === "completed" ? "completed" : show.type === "airing" ? "airing" : "binge");
-
-    syncShowDetailActions(show);
-
-    var schedBlock = document.getElementById("showDetailSchedule");
-    if (show.type === "airing") {
-      schedBlock.hidden = false;
-      document.getElementById("showDetailScheduleText").innerHTML =
-        '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>' +
-        escapeHtml(formatSchedule(show));
-      var next = getNextAirDate(show);
-      var catchUpHint = "";
-      if (!isCaughtUp(show) && !isWatchingEpisode(show)) {
-        catchUpHint = " Behind schedule — start the next episode when you're ready to catch up.";
-      } else if (isWatchingEpisode(show)) {
-        catchUpHint = " You're catching up — finish when this episode is done.";
-      }
-      document.getElementById("showDetailNextAir").textContent = next
-        ? "Next episode airs: " + formatDateTime(next.toISOString()) + catchUpHint
-        : show.schedule.length ? "No upcoming slot in the next 3 weeks" + catchUpHint : "Set release days in Edit";
-    } else {
-      schedBlock.hidden = true;
-    }
-
-    document.getElementById("showMarkCompleteBtn").hidden = show.status === "completed";
-    openOverlay("showDetailOverlay");
-  }
-
-  function startWatchingEpisode() {
-    var show = getShow(ui.detailShowId);
-    if (!show) return;
-    var season = parseInt(document.getElementById("logSeason").value, 10) || 1;
-    var episode = parseInt(document.getElementById("logEpisode").value, 10) || 1;
-    if (episode < 1) {
-      showToast("Enter an episode number");
-      return;
-    }
-    show.watchingSeason = season;
-    show.watchingEpisode = episode;
-    show.status = "watching";
-    show.updatedAt = new Date().toISOString();
-    syncShowDetailActions(show);
+    closeOverlay("bookFormOverlay");
     save();
-    showToast("Watching " + epShort(season, episode));
-  }
-
-  function finishEpisode() {
-    var show = getShow(ui.detailShowId);
-    if (!show) return;
-    var season = parseInt(document.getElementById("logSeason").value, 10) || 1;
-    var episode = parseInt(document.getElementById("logEpisode").value, 10) || 0;
-    if (episode < 1) {
-      showToast("Enter an episode number");
-      return;
-    }
-    var watchedAt = fromDatetimeLocalValue(document.getElementById("logWatchedAt").value) || new Date().toISOString();
-
-    show.season = season;
-    show.episode = episode;
-    show.lastWatchedAt = watchedAt;
-    show.watchingSeason = null;
-    show.watchingEpisode = null;
-    show.status = "watching";
-    show.updatedAt = new Date().toISOString();
-
-    if (show.totalEpisodes && episode >= show.totalEpisodes) {
-      show.status = "completed";
-      closeOverlay("showDetailOverlay");
-      save();
-      showToast("Finished · show completed!");
-      return;
-    }
-    syncShowDetailActions(show);
-    save();
-    showToast("Finished " + epShort(season, episode));
-  }
-
-  function stopWatchingEpisode() {
-    var show = getShow(ui.detailShowId);
-    if (!show || !isWatchingEpisode(show)) return;
-    show.watchingSeason = null;
-    show.watchingEpisode = null;
-    show.updatedAt = new Date().toISOString();
-    syncShowDetailActions(show);
-    save();
-    showToast("Stopped watching");
-  }
-
-  function quickLogEpisode(showId) {
-    var show = getShow(showId);
-    if (!show) return;
-    if (isWatchingEpisode(show)) {
-      show.season = show.watchingSeason;
-      show.episode = show.watchingEpisode;
-      show.lastWatchedAt = new Date().toISOString();
-      show.watchingSeason = null;
-      show.watchingEpisode = null;
-      show.status = "watching";
-      show.updatedAt = new Date().toISOString();
-      if (show.totalEpisodes && show.episode >= show.totalEpisodes) {
-        show.status = "completed";
-        save();
-        showToast("Finished · show completed!");
-        return;
-      }
-      save();
-      showToast("Finished " + epShort(show.season, show.episode));
-      return;
-    }
-    var next = getNextEpisode(show);
-    show.watchingSeason = next.season;
-    show.watchingEpisode = next.episode;
-    show.status = "watching";
-    show.updatedAt = new Date().toISOString();
-    save();
-    showToast("Watching " + epShort(next.season, next.episode));
   }
 
   function populateSubscriptionSelect(selectedId) {
@@ -1402,125 +1540,9 @@
     showToast("Deleted");
   }
 
-  function resetBookForm(book) {
-    ui.editingBookId = book ? book.id : null;
-    ui.bookType = book ? book.type : "book";
-    document.getElementById("bookFormTitle").textContent = book ? "Edit" : "Add to read";
-    document.getElementById("bookTitle").value = book ? book.title : "";
-    document.getElementById("bookAuthor").value = book ? book.author : "";
-    document.getElementById("bookChapter").value = book ? String(book.chapter) : "0";
-    document.getElementById("bookPage").value = book ? String(book.page) : "0";
-    document.getElementById("bookTotalChapters").value = book && book.totalChapters != null ? String(book.totalChapters) : "";
-    document.getElementById("bookTotalPages").value = book && book.totalPages != null ? String(book.totalPages) : "";
-    document.getElementById("bookNotes").value = book ? book.notes : "";
-    document.querySelectorAll("#bookTypeSeg button").forEach(function (btn) {
-      btn.classList.toggle("active", btn.dataset.type === ui.bookType);
-    });
-  }
-
-  function openBookForm(book) {
-    resetBookForm(book || null);
-    openOverlay("bookFormOverlay");
-    setTimeout(function () {
-      document.getElementById("bookTitle").focus();
-    }, 280);
-  }
-
-  function saveBookForm() {
-    var title = document.getElementById("bookTitle").value.trim();
-    if (!title) {
-      showToast("Enter a title");
-      return;
-    }
-    var totalCh = document.getElementById("bookTotalChapters").value;
-    var totalPg = document.getElementById("bookTotalPages").value;
-    var payload = {
-      id: ui.editingBookId || uid(),
-      title: title,
-      author: document.getElementById("bookAuthor").value.trim(),
-      type: ui.bookType,
-      chapter: parseInt(document.getElementById("bookChapter").value, 10) || 0,
-      page: parseInt(document.getElementById("bookPage").value, 10) || 0,
-      totalChapters: totalCh === "" ? null : parseInt(totalCh, 10),
-      totalPages: totalPg === "" ? null : parseInt(totalPg, 10),
-      notes: document.getElementById("bookNotes").value.trim(),
-      status: "reading",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    if (ui.editingBookId) {
-      var existing = getBook(ui.editingBookId);
-      if (existing) {
-        payload.lastReadAt = existing.lastReadAt;
-        payload.status = existing.status;
-        payload.createdAt = existing.createdAt;
-      }
-      state.books = state.books.map(function (b) {
-        return b.id === ui.editingBookId ? normalizeBook(payload) : b;
-      });
-      showToast("Updated");
-    } else {
-      state.books.unshift(normalizeBook(payload));
-      showToast("Added to shelf");
-    }
-    closeOverlay("bookFormOverlay");
-    save();
-  }
-
-  function openBookDetail(id) {
-    var book = getBook(id);
-    if (!book) return;
-    ui.detailBookId = id;
-    document.getElementById("bookDetailTitle").textContent = book.title;
-    var badge = document.getElementById("bookDetailBadge");
-    badge.textContent = book.status === "completed" ? "Done" : book.type.charAt(0).toUpperCase() + book.type.slice(1);
-    badge.className = "badge " + (book.status === "completed" ? "completed" : "binge");
-
-    var lastLog = document.getElementById("bookLastLog");
-    if (book.lastReadAt && (book.chapter > 0 || book.page > 0)) {
-      lastLog.hidden = false;
-      document.getElementById("bookLastLogProgress").textContent = "Last: " + bookProgressLabel(book);
-      document.getElementById("bookLastLogWhen").textContent = formatDateTime(book.lastReadAt) + " · " + formatRelative(book.lastReadAt);
-    } else {
-      lastLog.hidden = true;
-    }
-
-    document.getElementById("logBookChapter").value = String(book.chapter > 0 ? book.chapter + 1 : 1);
-    document.getElementById("logBookPage").value = String(book.page);
-    document.getElementById("logReadAt").value = toDatetimeLocalValue(new Date());
-    document.getElementById("bookMarkCompleteBtn").hidden = book.status === "completed";
-    openOverlay("bookDetailOverlay");
-  }
-
-  function logRead() {
-    var book = getBook(ui.detailBookId);
-    if (!book) return;
-    var chapter = parseInt(document.getElementById("logBookChapter").value, 10) || 0;
-    var page = parseInt(document.getElementById("logBookPage").value, 10) || 0;
-    var readAt = fromDatetimeLocalValue(document.getElementById("logReadAt").value) || new Date().toISOString();
-
-    book.chapter = chapter;
-    book.page = page;
-    book.lastReadAt = readAt;
-    book.status = "reading";
-    book.updatedAt = new Date().toISOString();
-
-    var done = false;
-    if (book.totalChapters && chapter >= book.totalChapters) done = true;
-    if (book.totalPages && page >= book.totalPages) done = true;
-    if (done) {
-      book.status = "completed";
-      showToast("Logged · finished!");
-    } else {
-      showToast("Progress saved");
-    }
-    closeOverlay("bookDetailOverlay");
-    save();
-  }
-
   function populateReminderShowSelect() {
     var sel = document.getElementById("reminderLinkShow");
+    if (!sel) return;
     var val = sel.value;
     sel.innerHTML = '<option value="">None</option>' +
       state.shows.map(function (s) {
@@ -1588,14 +1610,6 @@
       openSubscriptionForm(null);
       return;
     }
-    if (ui.view === "read") {
-      openBookForm(null);
-      return;
-    }
-    if (ui.view === "watch") {
-      openShowForm(null);
-      return;
-    }
     openOverlay("addPickerOverlay");
   }
 
@@ -1648,11 +1662,15 @@
 
     document.getElementById("addShowBtn").addEventListener("click", function () {
       closeOverlay("addPickerOverlay");
-      openShowForm(null);
+      openQuickAdd("show");
     });
     document.getElementById("addBookBtn").addEventListener("click", function () {
       closeOverlay("addPickerOverlay");
-      openBookForm(null);
+      openQuickAdd("book");
+    });
+    document.getElementById("addMangaBtn").addEventListener("click", function () {
+      closeOverlay("addPickerOverlay");
+      openQuickAdd("manga");
     });
     document.getElementById("addReminderBtn").addEventListener("click", function () {
       closeOverlay("addPickerOverlay");
@@ -1662,24 +1680,87 @@
       closeOverlay("addPickerOverlay");
     });
 
-    document.querySelectorAll("#watchFilters .chip").forEach(function (chip) {
+    document.getElementById("quickAddCancel").addEventListener("click", function () {
+      closeOverlay("quickAddOverlay");
+    });
+    document.getElementById("quickAddSave").addEventListener("click", saveQuickAdd);
+    document.getElementById("quickAddName").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        saveQuickAdd();
+      }
+    });
+    document.getElementById("quickAddMoreBtn").addEventListener("click", function () {
+      var title = document.getElementById("quickAddName").value.trim();
+      var author = document.getElementById("quickAddAuthor").value.trim();
+      closeOverlay("quickAddOverlay");
+      if (ui.quickAddKind === "show") {
+        openShowForm(title ? { title: title, type: "binge", season: 1, episode: 0, shelf: ui.quickAddShelf } : null);
+        if (title) document.getElementById("showTitle").value = title;
+      } else {
+        var type = ui.quickAddKind === "manga" ? "manga" : ui.quickAddKind === "comic" ? "comic" : "book";
+        openBookForm(title ? { title: title, author: author, type: type, chapter: 0, page: 0, shelf: ui.quickAddShelf } : null);
+        ui.bookType = type;
+        document.querySelectorAll("#bookTypeSeg button").forEach(function (btn) {
+          btn.classList.toggle("active", btn.dataset.type === type);
+        });
+      }
+    });
+    document.getElementById("quickAddShelf").addEventListener("click", function (e) {
+      var chip = e.target.closest(".shelf-chip");
+      if (!chip) return;
+      ui.quickAddShelf = chip.dataset.shelf;
+      setShelfChips("quickAddShelf", ui.quickAddShelf);
+    });
+
+    document.querySelectorAll("#homeFilters .chip").forEach(function (chip) {
       chip.addEventListener("click", function () {
-        ui.watchFilter = chip.dataset.filter;
-        document.querySelectorAll("#watchFilters .chip").forEach(function (c) {
+        ui.homeFilter = chip.dataset.filter;
+        document.querySelectorAll("#homeFilters .chip").forEach(function (c) {
           c.classList.toggle("active", c === chip);
         });
-        render();
+        renderHome();
       });
     });
 
-    document.querySelectorAll("#readFilters .chip").forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        ui.readFilter = chip.dataset.filter;
-        document.querySelectorAll("#readFilters .chip").forEach(function (c) {
-          c.classList.toggle("active", c === chip);
-        });
-        render();
-      });
+    document.getElementById("consumeSkipBtn").addEventListener("click", dismissGate);
+    document.getElementById("consumeAddBtn").addEventListener("click", function () {
+      dismissGate();
+      openOverlay("addPickerOverlay");
+    });
+
+    document.getElementById("qlSaveBtn").addEventListener("click", saveQuickLog);
+    document.getElementById("qlStartBtn").addEventListener("click", markShowInProgress);
+    document.getElementById("qlCloseBtn").addEventListener("click", function () {
+      closeOverlay("quickLogOverlay");
+    });
+    document.getElementById("qlEditBtn").addEventListener("click", function () {
+      closeOverlay("quickLogOverlay");
+      if (ui.quickLogKind === "show") {
+        var show = getShow(ui.quickLogId);
+        if (show) openShowForm(show);
+      } else {
+        var book = getBook(ui.quickLogId);
+        if (book) openBookForm(book);
+      }
+    });
+    document.getElementById("qlDeleteBtn").addEventListener("click", function () {
+      if (ui.quickLogKind === "show") {
+        if (!confirm("Delete this show?")) return;
+        state.shows = state.shows.filter(function (s) { return s.id !== ui.quickLogId; });
+      } else {
+        if (!confirm("Delete this item?")) return;
+        state.books = state.books.filter(function (b) { return b.id !== ui.quickLogId; });
+      }
+      closeOverlay("quickLogOverlay");
+      save();
+      showToast("Deleted");
+    });
+    document.getElementById("quickLogShelf").addEventListener("click", function (e) {
+      var chip = e.target.closest(".shelf-chip");
+      if (!chip) return;
+      ui.quickLogShelf = chip.dataset.shelf;
+      setShelfChips("quickLogShelf", ui.quickLogShelf);
     });
 
     document.getElementById("showTypeSeg").addEventListener("click", function (e) {
@@ -1713,70 +1794,10 @@
     });
     document.getElementById("showFormSave").addEventListener("click", saveShowForm);
 
-    document.getElementById("showDetailClose").addEventListener("click", function () {
-      closeOverlay("showDetailOverlay");
-    });
-    document.getElementById("startWatchingBtn").addEventListener("click", startWatchingEpisode);
-    document.getElementById("logFinishedBtn").addEventListener("click", function () {
-      finishEpisode();
-      closeOverlay("showDetailOverlay");
-    });
-    document.getElementById("finishEpisodeBtn").addEventListener("click", finishEpisode);
-    document.getElementById("stopWatchingBtn").addEventListener("click", stopWatchingEpisode);
-    document.getElementById("showEditBtn").addEventListener("click", function () {
-      var show = getShow(ui.detailShowId);
-      closeOverlay("showDetailOverlay");
-      if (show) openShowForm(show);
-    });
-    document.getElementById("showMarkCompleteBtn").addEventListener("click", function () {
-      var show = getShow(ui.detailShowId);
-      if (!show) return;
-      show.status = "completed";
-      show.watchingSeason = null;
-      show.watchingEpisode = null;
-      show.updatedAt = new Date().toISOString();
-      closeOverlay("showDetailOverlay");
-      save();
-      showToast("Marked completed");
-    });
-    document.getElementById("showDeleteBtn").addEventListener("click", function () {
-      if (!confirm("Delete this show?")) return;
-      state.shows = state.shows.filter(function (s) { return s.id !== ui.detailShowId; });
-      closeOverlay("showDetailOverlay");
-      save();
-      showToast("Deleted");
-    });
-
     document.getElementById("bookFormCancel").addEventListener("click", function () {
       closeOverlay("bookFormOverlay");
     });
     document.getElementById("bookFormSave").addEventListener("click", saveBookForm);
-
-    document.getElementById("bookDetailClose").addEventListener("click", function () {
-      closeOverlay("bookDetailOverlay");
-    });
-    document.getElementById("logReadBtn").addEventListener("click", logRead);
-    document.getElementById("bookEditBtn").addEventListener("click", function () {
-      var book = getBook(ui.detailBookId);
-      closeOverlay("bookDetailOverlay");
-      if (book) openBookForm(book);
-    });
-    document.getElementById("bookMarkCompleteBtn").addEventListener("click", function () {
-      var book = getBook(ui.detailBookId);
-      if (!book) return;
-      book.status = "completed";
-      book.updatedAt = new Date().toISOString();
-      closeOverlay("bookDetailOverlay");
-      save();
-      showToast("Marked completed");
-    });
-    document.getElementById("bookDeleteBtn").addEventListener("click", function () {
-      if (!confirm("Delete this item?")) return;
-      state.books = state.books.filter(function (b) { return b.id !== ui.detailBookId; });
-      closeOverlay("bookDetailOverlay");
-      save();
-      showToast("Deleted");
-    });
 
     document.getElementById("reminderFormCancel").addEventListener("click", function () {
       closeOverlay("reminderFormOverlay");
@@ -1836,11 +1857,24 @@
     });
 
     document.addEventListener("click", function (e) {
-      var quickLog = e.target.closest("[data-quick-log-show]");
-      if (quickLog) {
+      var bumpShowBtn = e.target.closest("[data-bump-show]");
+      if (bumpShowBtn) {
         e.preventDefault();
         e.stopPropagation();
-        quickLogEpisode(quickLog.dataset.quickLogShow);
+        bumpShow(bumpShowBtn.dataset.bumpShow);
+        return;
+      }
+      var bumpBookBtn = e.target.closest("[data-bump-book]");
+      if (bumpBookBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        bumpBook(bumpBookBtn.dataset.bumpBook);
+        return;
+      }
+      var emptyTile = e.target.closest("[data-consume-empty]");
+      if (emptyTile) {
+        dismissGate();
+        openOverlay("addPickerOverlay");
         return;
       }
       var subBtn = e.target.closest("[data-subscription-id]");
@@ -1850,18 +1884,18 @@
         return;
       }
       var showBtn = e.target.closest("[data-show-id]");
-      if (showBtn && !showBtn.closest(".overlay") && !e.target.closest(".reminder-row")) {
-        openShowDetail(showBtn.dataset.showId);
+      if (showBtn && !e.target.closest(".reminder-row")) {
+        openQuickLog("show", showBtn.dataset.showId);
         return;
       }
       var showBtnInReminder = e.target.closest(".reminder-card[data-show-id]");
       if (showBtnInReminder) {
-        openShowDetail(showBtnInReminder.dataset.showId);
+        openQuickLog("show", showBtnInReminder.dataset.showId);
         return;
       }
       var bookBtn = e.target.closest("[data-book-id]");
-      if (bookBtn && !bookBtn.closest(".overlay")) {
-        openBookDetail(bookBtn.dataset.bookId);
+      if (bookBtn) {
+        openQuickLog("book", bookBtn.dataset.bookId);
         return;
       }
       var remBtn = e.target.closest("[data-reminder-id]");
@@ -1880,4 +1914,10 @@
   load();
   bindEvents();
   render();
+
+  if (shouldShowGate() && getRecentForGate().length > 0) {
+    showGate(true);
+  } else {
+    touchLastOpen();
+  }
 })();
