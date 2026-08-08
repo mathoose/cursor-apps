@@ -24,7 +24,8 @@
       "quick-reader": { "storageKey": "quick-reader-v1" },
       "idea-notes": { "storageKey": "idea-notes-v1" },
       "stitch-grid": { "storageKey": "stitch-grid-v1" },
-      "photo-calendar": { "storageKey": "photo-calendar-v1" }
+      "photo-calendar": { "storageKey": "photo-calendar-v1" },
+      "3d-print": { "storageKey": "3d-print-v1" }
     }
   },
   "apps": [
@@ -123,6 +124,12 @@
       "name": "Stitch Grid",
       "subtitle": "X-stitch STL maker",
       "storageKey": "stitch-grid-v1"
+    },
+    {
+      "id": "3d-print",
+      "name": "3D Print",
+      "subtitle": "Queue, plates & printers",
+      "storageKey": "3d-print-v1"
     },
     {
       "id": "stride-flow",
