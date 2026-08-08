@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>3D Print</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="3D Print" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1 id="headerTitle">To Print</h1>
+      <p id="headerSubtitle">Queue, plates &amp; filament</p>
+    </div>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <!-- To Print -->
+    <section class="view active" id="view-queue" data-view="queue">
+      <div class="list-toolbar" id="queueToolbar">
+        <div class="list-filter-row">
+          <span class="list-filter-label">Status</span>
+          <select id="statusFilter" class="list-filter-select" aria-label="Filter by status">
+            <option value="all">All open</option>
+            <option value="queued">To print</option>
+            <option value="waitlisted">Waitlisted</option>
+            <option value="ready">Ready</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="list-filter-row" id="categoryFilterRow" hidden>
+          <span class="list-filter-label">Category</span>
+          <select id="categoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+        </div>
+      </div>
+
+      <div class="quick-add-card">
+        <div class="quick-add">
+          <input id="quickTitle" type="text" placeholder="Add something to print…" autocomplete="off" enterkeyhint="done" />
+          <button type="button" class="quick-add-btn" id="quickAddBtn" aria-label="Add">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="quick-add-link">
+          <input id="quickLink" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        </div>
+        <div class="quick-add-priority" id="quickPriority">
+          <span class="quick-add-priority-label">Priority</span>
+          <button type="button" class="quick-prio-btn" data-prio="3" aria-label="High priority" aria-pressed="false">H</button>
+          <button type="button" class="quick-prio-btn" data-prio="2" aria-label="Medium priority" aria-pressed="false">M</button>
+          <button type="button" class="quick-prio-btn" data-prio="1" aria-label="Low priority" aria-pressed="false">L</button>
+          <div class="quick-add-ams">
+            <label class="ams-toggle" title="AMS multicolor">
+              <input type="checkbox" id="quickAms" aria-label="AMS multicolor" />
+              <span class="ams-toggle-track"></span>
+              <span class="ams-toggle-thumb">
+                <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+              </span>
+            </label>
+          </div>
+          <div class="quick-add-paid">
+            <label class="paid-toggle" title="Paid model">
+              <input type="checkbox" id="quickPaid" aria-label="Paid model" />
+              <span class="paid-toggle-track"></span>
+              <span class="paid-toggle-thumb">
+                <span class="paid-badge">$</span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="quick-add-plates">
+          <span class="quick-add-priority-label">Plates</span>
+          <div class="plate-stepper">
+            <button type="button" class="counter-btn minus" id="quickPlateMinus" aria-label="Fewer plates">−</button>
+            <input type="number" id="quickPlateCount" class="plate-count-input" min="1" max="99" value="1" inputmode="numeric" aria-label="Number of plates" />
+            <button type="button" class="counter-btn" id="quickPlatePlus" aria-label="More plates">+</button>
+          </div>
+        </div>
+        <div class="quick-add-categories" id="quickCategories"></div>
+        <div class="quick-add-filament">
+          <span class="quick-add-categories-label">Filament</span>
+          <div class="filament-color-scroll" id="quickFilamentColors"></div>
+        </div>
+      </div>
+
+      <div id="queueList"></div>
+    </section>
+
+    <!-- Printers -->
+    <section class="view" id="view-printers" data-view="printers">
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Fleet</p>
+            <h2>Your printers</h2>
+          </div>
+          <button type="button" class="btn btn-primary" id="addPrinterBtn">Add printer</button>
+        </div>
+        <div id="printerList"></div>
+        <div class="empty-state" id="printerEmpty" hidden>
+          <p>No printers yet.<br />Add one to track timers and history.</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Active</p>
+            <h2>Print timers</h2>
+          </div>
+        </div>
+        <div id="timerList"></div>
+        <div class="empty-state" id="timerEmpty" hidden>
+          <p>No running timers.<br />Start one from a ready item or a printer.</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Log</p>
+            <h2>Print history</h2>
+          </div>
+          <button type="button" class="btn" id="clearHistoryBtn">Clear</button>
+        </div>
+        <div id="historyList"></div>
+        <div class="empty-state" id="historyEmpty" hidden>
+          <p>Finished prints will show up here.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="queue" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span class="nav-btn-label">To Print</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="printers" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="4" rx="1"/><path d="M6 7v12M18 7v12M8 19h8M10 11h4"/></svg>
+      <span class="nav-btn-label">Printers</span>
+    </button>
+  </nav>
+
+  <!-- Item editor -->
+  <div class="modal-backdrop" id="itemModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="itemModalTitle">Edit item</div>
+        <button type="button" class="icon-btn" id="itemModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <input type="text" id="itemTitle" placeholder="Print title" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label">Link</label>
+          <input type="url" id="itemLink" placeholder="https://…" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        </div>
+        <div class="field">
+          <div class="priority-field-head">
+            <label class="field-label">Priority</label>
+            <button type="button" class="btn task-move-top-btn" id="itemMoveTopBtn">Move to top</button>
+          </div>
+          <div class="priority-picker" id="itemPrioPicker">
+            <button type="button" class="prio-btn" data-prio="0"><span class="flag"></span><span>None</span></button>
+            <button type="button" class="prio-btn" data-prio="1"><span class="flag"></span><span>Low</span></button>
+            <button type="button" class="prio-btn" data-prio="2"><span class="flag"></span><span>Medium</span></button>
+            <button type="button" class="prio-btn" data-prio="3"><span class="flag"></span><span>High</span></button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Status</label>
+          <div class="status-picker" id="itemStatusPicker">
+            <button type="button" class="status-btn" data-status="queued">To print</button>
+            <button type="button" class="status-btn" data-status="waitlisted">Waitlisted</button>
+            <button type="button" class="status-btn" data-status="ready">Ready</button>
+            <button type="button" class="status-btn" data-status="done">Done</button>
+          </div>
+        </div>
+        <div class="field" id="waitlistReasonField" hidden>
+          <label class="field-label">Waitlist reason <span class="optional">(optional)</span></label>
+          <textarea id="itemWaitlistReason" placeholder="Why is this waitlisted?"></textarea>
+        </div>
+        <div class="field">
+          <div class="field-ams-toggle">
+            <div>
+              <label class="field-label" style="margin-bottom:2px">Paid model</label>
+              <div class="field-hint">Show $ on the row</div>
+            </div>
+            <label class="paid-toggle" title="Paid model">
+              <input type="checkbox" id="itemPaid" aria-label="Paid model" />
+              <span class="paid-toggle-track"></span>
+              <span class="paid-toggle-thumb"><span class="paid-badge">$</span></span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-ams-toggle">
+            <div>
+              <label class="field-label" style="margin-bottom:2px">AMS</label>
+              <div class="field-hint">Rainbow AMS badge</div>
+            </div>
+            <label class="ams-toggle" title="AMS multicolor">
+              <input type="checkbox" id="itemAms" aria-label="AMS multicolor" />
+              <span class="ams-toggle-track"></span>
+              <span class="ams-toggle-thumb">
+                <span class="ams-badge"><span class="ams-badge-text">AMS</span></span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Filament color</label>
+          <div class="quick-add-filament" style="padding:0;border:none">
+            <div class="filament-color-scroll" id="itemFilamentColors"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Categories</label>
+          <div class="quick-add-categories" id="itemCategories" style="padding:0;border:none"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Plates needed</label>
+          <div class="plate-stepper plate-stepper-lg">
+            <button type="button" class="counter-btn minus" id="itemPlateMinus" aria-label="Fewer plates">−</button>
+            <input type="number" id="itemPlateCount" class="plate-count-input" min="1" max="99" value="1" inputmode="numeric" aria-label="Number of plates" />
+            <button type="button" class="counter-btn" id="itemPlatePlus" aria-label="More plates">+</button>
+          </div>
+          <p class="field-hint" style="margin-top:8px">Generate or name each plate, then categorize them.</p>
+          <div class="plate-actions">
+            <button type="button" class="btn" id="generatePlatesBtn">Generate plates</button>
+            <button type="button" class="btn" id="bulkPlatesBtn">Bulk add names</button>
+          </div>
+          <div id="itemPlatesList" class="plates-list"></div>
+        </div>
+        <div class="field">
+          <label class="field-label">Notes</label>
+          <textarea id="itemNotes" placeholder="Slice notes, supports, etc."></textarea>
+        </div>
+        <div class="field" id="itemReadyActions">
+          <label class="field-label">Ready to print</label>
+          <button type="button" class="btn btn-primary" id="markReadyBtn" style="width:100%">Sliced &amp; sent to printer…</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="itemDeleteBtn">Delete</button>
+        <button type="button" class="btn btn-primary" id="itemSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk plates -->
+  <div class="modal-backdrop" id="bulkPlatesModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Add plates</div>
+        <button type="button" class="icon-btn" id="bulkPlatesClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label" for="bulkPlatesInput">One plate name per line</label>
+          <textarea id="bulkPlatesInput" placeholder="Body&#10;Lid&#10;Hinges ×2" rows="6"></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label">Apply category to all (optional)</label>
+          <div class="quick-add-categories" id="bulkPlateCategories" style="padding:0;border:none"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="bulkPlatesCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="bulkPlatesApply">Add plates</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send to printer / start timer -->
+  <div class="modal-backdrop" id="sendModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Sliced &amp; sent</div>
+        <button type="button" class="icon-btn" id="sendModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="sendModalLead">Mark this item ready and optionally start a timer.</p>
+        <div class="field">
+          <label class="field-label" for="sendPrinterSelect">Printer</label>
+          <select id="sendPrinterSelect"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="sendDuration">Print time (minutes)</label>
+          <input type="number" id="sendDuration" min="1" max="10080" inputmode="numeric" placeholder="e.g. 180" />
+        </div>
+        <label class="check-row">
+          <input type="checkbox" id="sendStartTimer" checked />
+          <span>Start timer now</span>
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="sendCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="sendConfirm">Mark ready</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printer editor -->
+  <div class="modal-backdrop" id="printerModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="printerModalTitle">Add printer</div>
+        <button type="button" class="icon-btn" id="printerModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label" for="printerName">Name</label>
+          <input type="text" id="printerName" placeholder="e.g. Bambu P1S" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="printerModel">Model <span class="optional">(optional)</span></label>
+          <input type="text" id="printerModel" placeholder="e.g. P1S, A1 mini" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="printerNotes">Notes</label>
+          <textarea id="printerNotes" placeholder="AMS, nozzle size, location…"></textarea>
+        </div>
+        <div class="field" id="printerTimerField">
+          <label class="field-label">Quick timer</label>
+          <div class="timer-quick-row">
+            <input type="number" id="printerTimerMinutes" min="1" max="10080" inputmode="numeric" placeholder="Minutes" />
+            <button type="button" class="btn btn-primary" id="printerStartTimerBtn">Start</button>
+          </div>
+          <p class="field-hint">Starts a timer on this printer without linking a queue item.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" id="printerDeleteBtn" hidden>Delete</button>
+        <button type="button" class="btn btn-primary" id="printerSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filament manager -->
+  <div class="modal-backdrop" id="filamentModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Filament colors</div>
+        <button type="button" class="icon-btn" id="filamentModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="field-hint" style="margin-bottom:8px">Tap a color to edit. Use Add color for the picker.</p>
+        <div id="filamentManagerList"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="filamentAddColorBtn">Add color</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filament color picker -->
+  <div class="modal-backdrop fcp-layer" id="filamentColorPickerModal" role="dialog" aria-modal="true">
+    <div class="modal filament-color-picker-modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title" id="fcpTitle">Pick color</div>
+        <button type="button" class="icon-btn" id="fcpClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="fcp-preview-row">
+          <div class="fcp-preview-swatch" id="fcpPreview"></div>
+          <div class="fcp-preview-hex" id="fcpHex">#FFFFFF</div>
+        </div>
+        <div class="fcp-sv" id="fcpSv" role="slider" aria-label="Saturation and brightness">
+          <div class="fcp-sv-white"></div>
+          <div class="fcp-sv-black"></div>
+          <div class="fcp-thumb" id="fcpSvThumb"></div>
+        </div>
+        <div class="fcp-slider-wrap">
+          <span class="fcp-slider-label">Hue</span>
+          <div class="fcp-hue" id="fcpHue" role="slider" aria-label="Hue">
+            <div class="fcp-slider-thumb" id="fcpHueThumb"></div>
+          </div>
+        </div>
+        <div class="fcp-slider-wrap">
+          <span class="fcp-slider-label">Brightness</span>
+          <div class="fcp-brightness" id="fcpBrightness" role="slider" aria-label="Brightness">
+            <div class="fcp-slider-thumb" id="fcpBrightnessThumb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="fcpCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="fcpConfirm">Add color</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Settings &amp; backup</div>
+        <button type="button" class="icon-btn" id="settingsModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Export backup</div>
+            <div class="settings-sub">Download JSON (also works with Apps home Export all).</div>
+          </div>
+          <button type="button" class="btn btn-primary" id="exportBtn">Export</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Import backup</div>
+            <div class="settings-sub">Restore from a JSON file.</div>
+          </div>
+          <button type="button" class="btn" id="importBtn">Import</button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden />
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Import from Focus</div>
+            <div class="settings-sub">Copy items from your Focus “3d printer” list.</div>
+          </div>
+          <button type="button" class="btn" id="importFocusBtn">Import</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Manage categories</div>
+            <div class="settings-sub">Reorder or delete categories.</div>
+          </div>
+          <button type="button" class="btn" id="manageCategoriesBtn">Categories</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Filament colors</div>
+            <div class="settings-sub">Edit the colored pencil palette.</div>
+          </div>
+          <button type="button" class="btn" id="manageFilamentBtn">Colors</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Clear completed</div>
+            <div class="settings-sub">Remove done items from the queue.</div>
+          </div>
+          <button type="button" class="btn" id="clearDoneBtn">Clear</button>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Reset all data</div>
+            <div class="settings-sub">Delete everything (irreversible).</div>
+          </div>
+          <button type="button" class="btn btn-danger" id="resetBtn">Reset</button>
+        </div>
+        <p class="settings-footer-note">Data stays on this device. Nothing leaves your phone.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories manager -->
+  <div class="modal-backdrop" id="categoriesModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Categories</div>
+        <button type="button" class="icon-btn" id="categoriesModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="categoriesManagerList"></div>
+        <div class="bulk-add-categories">
+          <label class="field-label" for="bulkAddCategoriesInput">Add multiple at once</label>
+          <textarea id="bulkAddCategoriesInput" placeholder="One per line or comma-separated&#10;e.g. Cosplay, Functional, Gifts" autocomplete="off"></textarea>
+          <button type="button" class="btn btn-primary" id="bulkAddCategoriesBtn">Add all</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import confirm -->
+  <div class="modal-backdrop" id="importModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Import backup</div>
+        <button type="button" class="icon-btn" id="importModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="importSummary" class="field-hint"></p>
+        <p class="field-hint">Choose how to apply this backup:</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="importMergeBtn">Merge</button>
+        <button type="button" class="btn btn-danger" id="importReplaceBtn">Replace all</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <span id="toastMsg"></span>
+  </div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

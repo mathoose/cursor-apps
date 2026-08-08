@@ -29,6 +29,7 @@
     "things-book": "Things Book",
     "photo-calendar": "Photo Calendar",
     "stride-flow": "StrideFlow",
+    "3d-print": "3D Print",
   };
 
   var PHOTO_DATABASES = [
@@ -1090,6 +1091,110 @@
       },
       mergeSlice: function (existing, incoming) {
         return incoming || existing;
+      },
+    },
+    "3d-print": {
+      storageKey: "3d-print-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("3d-print-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.items)) return null;
+          return {
+            version: p.version || 1,
+            items: p.items,
+            printers: Array.isArray(p.printers) ? p.printers : [],
+            timers: Array.isArray(p.timers) ? p.timers : [],
+            history: Array.isArray(p.history) ? p.history : [],
+            categories: Array.isArray(p.categories) ? p.categories : [],
+            filamentColors: Array.isArray(p.filamentColors) ? p.filamentColors : [],
+            filamentColorSortAt: typeof p.filamentColorSortAt === "number" ? p.filamentColorSortAt : 0,
+            statusFilter: typeof p.statusFilter === "string" ? p.statusFilter : "all",
+            categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.items)) return false;
+        return writeKey(
+          "3d-print-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            items: slice.items,
+            printers: Array.isArray(slice.printers) ? slice.printers : [],
+            timers: Array.isArray(slice.timers) ? slice.timers : [],
+            history: Array.isArray(slice.history) ? slice.history : [],
+            categories: Array.isArray(slice.categories) ? slice.categories : [],
+            filamentColors: Array.isArray(slice.filamentColors) ? slice.filamentColors : [],
+            filamentColorSortAt: typeof slice.filamentColorSortAt === "number" ? slice.filamentColorSortAt : 0,
+            statusFilter: typeof slice.statusFilter === "string" ? slice.statusFilter : "all",
+            categoryFilter: typeof slice.categoryFilter === "string" ? slice.categoryFilter : "all",
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.items) && Array.isArray(obj.printers) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.items ? slice.items.length : 0;
+        var p = slice.printers ? slice.printers.length : 0;
+        return n + " print item" + (n === 1 ? "" : "s") + ", " + p + " printer" + (p === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          items: (existing.items || []).slice(),
+          printers: (existing.printers || []).slice(),
+          timers: (existing.timers || []).slice(),
+          history: (existing.history || []).slice(),
+          categories: (existing.categories || []).slice(),
+          filamentColors: (existing.filamentColors || []).slice(),
+          filamentColorSortAt: existing.filamentColorSortAt || 0,
+          statusFilter: existing.statusFilter || "all",
+          categoryFilter: existing.categoryFilter || "all",
+        };
+        var itemIds = {};
+        out.items.forEach(function (it) { itemIds[it.id] = true; });
+        (incoming.items || []).forEach(function (it) {
+          if (!it || !it.id || itemIds[it.id]) return;
+          out.items.push(it);
+          itemIds[it.id] = true;
+        });
+        var printerIds = {};
+        out.printers.forEach(function (pr) { printerIds[pr.id] = true; });
+        (incoming.printers || []).forEach(function (pr) {
+          if (!pr || !pr.id || printerIds[pr.id]) return;
+          out.printers.push(pr);
+          printerIds[pr.id] = true;
+        });
+        var histIds = {};
+        out.history.forEach(function (h) { histIds[h.id] = true; });
+        (incoming.history || []).forEach(function (h) {
+          if (!h || !h.id || histIds[h.id]) return;
+          out.history.push(h);
+          histIds[h.id] = true;
+        });
+        var catNames = {};
+        out.categories.forEach(function (c) { catNames[(c.name || "").toLowerCase()] = true; });
+        (incoming.categories || []).forEach(function (c) {
+          if (!c || !c.name || catNames[c.name.toLowerCase()]) return;
+          out.categories.push(c);
+          catNames[c.name.toLowerCase()] = true;
+        });
+        var colorHex = {};
+        out.filamentColors.forEach(function (c) { colorHex[(c.hex || "").toUpperCase()] = true; });
+        (incoming.filamentColors || []).forEach(function (c) {
+          if (!c || !c.hex || colorHex[String(c.hex).toUpperCase()]) return;
+          out.filamentColors.push(c);
+          colorHex[String(c.hex).toUpperCase()] = true;
+        });
+        return out;
       },
     },
   };
