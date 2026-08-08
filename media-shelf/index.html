@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,450;0,9..40,600;0,9..40,700;1,9..40,450&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body class="view-home">
   <!-- Consume gate: 3×3 recent -->
@@ -51,13 +51,17 @@
   <main>
     <!-- Unified shelf -->
     <section class="view active" id="viewHome" data-view="home">
-      <div class="home-filter-row" id="homeFilters" role="tablist" aria-label="Filter shelf">
-        <button type="button" class="chip active" data-filter="all">All</button>
-        <button type="button" class="chip" data-filter="show">Shows</button>
-        <button type="button" class="chip" data-filter="book">Books</button>
-        <button type="button" class="chip" data-filter="manga">Manga</button>
-        <button type="button" class="chip" data-filter="shelved">Shelved</button>
-        <button type="button" class="chip" data-filter="done">Done</button>
+      <div class="home-filter-row" id="homeShelfFilters" aria-label="Shelf filters">
+        <button type="button" class="chip active" data-shelf="active" aria-pressed="true">Active</button>
+        <button type="button" class="chip active" data-shelf="up-next" aria-pressed="true">Up next</button>
+        <button type="button" class="chip active" data-shelf="alone" aria-pressed="true">Alone</button>
+        <button type="button" class="chip" data-shelf="shelved" aria-pressed="false">Shelved</button>
+        <button type="button" class="chip" data-shelf="done" aria-pressed="false">Done</button>
+      </div>
+      <div class="home-filter-row home-filter-row-types" id="homeTypeFilters" aria-label="Type filters">
+        <button type="button" class="chip active" data-type="show" aria-pressed="true">Shows</button>
+        <button type="button" class="chip active" data-type="book" aria-pressed="true">Books</button>
+        <button type="button" class="chip active" data-type="manga" aria-pressed="true">Manga</button>
       </div>
 
       <div id="homeSections"></div>
@@ -331,12 +335,12 @@
 
       <div class="field-row" id="quickLogBookFields" hidden>
         <div class="field">
-          <label class="field-label" for="qlChapter">Chapter</label>
-          <input type="number" id="qlChapter" min="0" inputmode="numeric" />
+          <label class="field-label" for="qlChapter">Chapter <span class="optional">(optional)</span></label>
+          <input type="number" id="qlChapter" min="0" placeholder="e.g. 12" inputmode="numeric" />
         </div>
         <div class="field">
-          <label class="field-label" for="qlPage">Page</label>
-          <input type="number" id="qlPage" min="0" inputmode="numeric" />
+          <label class="field-label" for="qlPage">Page <span class="optional">(optional)</span></label>
+          <input type="number" id="qlPage" min="0" placeholder="e.g. 140" inputmode="numeric" />
         </div>
       </div>
 
@@ -471,6 +475,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
