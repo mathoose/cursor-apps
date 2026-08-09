@@ -1894,19 +1894,133 @@
     showToast(mode === 'replace' ? 'Replaced from backup' : 'Merged backup');
   }
 
+  function isFocusBackup(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    if (Array.isArray(obj.items) && !Array.isArray(obj.tasks)) return false;
+    return Array.isArray(obj.tasks);
+  }
+
+  function isPrinterListName(name) {
+    var n = (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!n) return false;
+    if (n === '3d printer' || n.includes('3d printer')) return true;
+    if (n.includes('3d print')) return true;
+    if (n === 'printer' || n.includes('printer')) return true;
+    if (n.includes('filament') || n.includes('bambu')) return true;
+    return false;
+  }
+
+  function getFocusPrinterTasks(parsed) {
+    var lists = Array.isArray(parsed.lists) ? parsed.lists : [];
+    var printerLists = lists.filter(function (l) {
+      return l.printer || isPrinterListName(l.name);
+    });
+    var listIds = {};
+    printerLists.forEach(function (l) { listIds[l.id] = true; });
+    var tasks = (parsed.tasks || []).filter(function (t) {
+      if (listIds[t.listId]) return true;
+      // Fallback: tasks that already look like printer items (AMS / filament)
+      if (!printerLists.length) {
+        return !!t.ams || (Array.isArray(t.filamentColorIds) && t.filamentColorIds.length) || !!t.filamentColorId;
+      }
+      return false;
+    });
+    return { printerLists: printerLists, tasks: tasks };
+  }
+
+  function importFocusData(parsed) {
+    if (!parsed || !Array.isArray(parsed.tasks)) {
+      showToast('Not a Focus / ADHD tracker export', { error: true });
+      return 0;
+    }
+    var extracted = getFocusPrinterTasks(parsed);
+    if (!extracted.printerLists.length && !extracted.tasks.length) {
+      showToast('No 3D printer list found in that export', { error: true });
+      return 0;
+    }
+    if (!extracted.tasks.length) {
+      showToast('Printer list is empty in that export', { error: true });
+      return 0;
+    }
+
+    var colorMap = {};
+    (parsed.filamentColors || []).forEach(function (c) {
+      colorMap[c.id] = addFilamentColor(c.hex, { name: c.name });
+    });
+
+    var catMap = {};
+    (parsed.categories || []).forEach(function (c) {
+      var existing = state.categories.find(function (x) {
+        return x.name.toLowerCase() === (c.name || '').toLowerCase();
+      });
+      if (existing) catMap[c.id] = existing.id;
+      else catMap[c.id] = addCategory(c.name, { silent: true, deferSave: true });
+    });
+
+    var added = 0;
+    extracted.tasks.forEach(function (t) {
+      var title = (t.title || '').trim();
+      if (!title) return;
+      var wantDone = !!t.completed;
+      var already = state.items.some(function (x) {
+        return x.title.toLowerCase() === title.toLowerCase() &&
+          ((x.status === 'done') === wantDone);
+      });
+      if (already) return;
+      addItem({
+        title: title,
+        notes: t.notes || '',
+        link: t.link || '',
+        priority: t.priority || 0,
+        status: wantDone ? 'done' : 'queued',
+        paid: !!t.paid,
+        ams: !!t.ams,
+        filamentColorIds: normalizeFilamentColorIds(t.filamentColorIds, t.filamentColorId)
+          .map(function (id) { return colorMap[id] || id; }),
+        categoryIds: (t.categoryIds || []).map(function (id) { return catMap[id] || id; }),
+        plateCount: 1
+      });
+      added++;
+    });
+    saveState();
+    render();
+    return added;
+  }
+
   function handleImportFile(file) {
     var reader = new FileReader();
     reader.onload = function () {
       try {
         var parsed = JSON.parse(reader.result);
         var slice = parsed;
+
         if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
-          slice = AppsBackup.getAppSlice(parsed, '3d-print');
+          var focusSlice = AppsBackup.getAppSlice(parsed, 'adhd-task-tracker');
+          var printSlice = AppsBackup.getAppSlice(parsed, '3d-print');
+          if (focusSlice && Array.isArray(focusSlice.tasks) && !printSlice) {
+            var nUnified = importFocusData(focusSlice);
+            closeModal('settingsModal');
+            showToast(nUnified
+              ? ('Imported ' + nUnified + ' item' + (nUnified === 1 ? '' : 's') + ' from Focus')
+              : 'Nothing new to import');
+            return;
+          }
+          slice = printSlice;
           if (!slice) {
-            showToast('No 3D Print data in this backup', { error: true });
+            showToast('No 3D Print or Focus data in this backup', { error: true });
             return;
           }
         }
+
+        if (isFocusBackup(slice)) {
+          var nFocus = importFocusData(slice);
+          closeModal('settingsModal');
+          showToast(nFocus
+            ? ('Imported ' + nFocus + ' item' + (nFocus === 1 ? '' : 's') + ' from Focus')
+            : 'Nothing new to import');
+          return;
+        }
+
         if (!slice || !Array.isArray(slice.items)) {
           showToast('Invalid backup file', { error: true });
           return;
@@ -1924,79 +2038,33 @@
     reader.readAsText(file);
   }
 
-  function isPrinterListName(name) {
-    var n = (name || '').trim().toLowerCase().replace(/\s+/g, ' ');
-    if (!n) return false;
-    if (n === '3d printer' || n.includes('3d printer')) return true;
-    if (n.includes('3d print')) return true;
-    if (n === 'printer' || n.includes('printer')) return true;
-    if (n.includes('filament') || n.includes('bambu')) return true;
-    return false;
-  }
-
-  function importFromFocus() {
-    try {
-      var raw = localStorage.getItem('adhd-tracker-v1');
-      if (!raw) {
-        showToast('No Focus data found on this device', { error: true });
-        return;
+  function handleFocusExportFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var parsed = JSON.parse(reader.result);
+        if (typeof AppsBackup !== 'undefined' && AppsBackup.isUnifiedBackup(parsed)) {
+          parsed = AppsBackup.getAppSlice(parsed, 'adhd-task-tracker');
+          if (!parsed) {
+            showToast('No Focus data in this file', { error: true });
+            return;
+          }
+        }
+        if (!isFocusBackup(parsed)) {
+          showToast('Pick a Focus / ADHD tracker export JSON', { error: true });
+          return;
+        }
+        var added = importFocusData(parsed);
+        closeModal('settingsModal');
+        showToast(added
+          ? ('Imported ' + added + ' item' + (added === 1 ? '' : 's') + ' from Focus')
+          : 'Nothing new to import');
+      } catch (e) {
+        console.error(e);
+        showToast('Could not read Focus export', { error: true });
       }
-      var parsed = JSON.parse(raw);
-      var lists = Array.isArray(parsed.lists) ? parsed.lists : [];
-      var printerLists = lists.filter(function (l) {
-        return l.printer || isPrinterListName(l.name);
-      });
-      if (!printerLists.length) {
-        showToast('No 3D printer list found in Focus', { error: true });
-        return;
-      }
-      var listIds = {};
-      printerLists.forEach(function (l) { listIds[l.id] = true; });
-      var tasks = (parsed.tasks || []).filter(function (t) { return listIds[t.listId]; });
-      if (!tasks.length) {
-        showToast('Printer list is empty in Focus', { error: true });
-        return;
-      }
-      var colorMap = {};
-      (parsed.filamentColors || []).forEach(function (c) {
-        colorMap[c.id] = addFilamentColor(c.hex, { name: c.name });
-      });
-      var catMap = {};
-      (parsed.categories || []).forEach(function (c) {
-        var existing = state.categories.find(function (x) {
-          return x.name.toLowerCase() === (c.name || '').toLowerCase();
-        });
-        if (existing) catMap[c.id] = existing.id;
-        else catMap[c.id] = addCategory(c.name, { silent: true, deferSave: true });
-      });
-      var added = 0;
-      tasks.forEach(function (t) {
-        if (t.completed) return;
-        var title = (t.title || '').trim();
-        if (!title) return;
-        if (state.items.some(function (x) {
-          return x.title.toLowerCase() === title.toLowerCase() && x.status !== 'done';
-        })) return;
-        addItem({
-          title: title,
-          notes: t.notes || '',
-          link: t.link || '',
-          priority: t.priority || 0,
-          paid: !!t.paid,
-          ams: !!t.ams,
-          filamentColorIds: (t.filamentColorIds || []).map(function (id) { return colorMap[id] || id; }),
-          categoryIds: (t.categoryIds || []).map(function (id) { return catMap[id] || id; }),
-          plateCount: 1
-        });
-        added++;
-      });
-      saveState();
-      render();
-      showToast(added ? ('Imported ' + added + ' item' + (added === 1 ? '' : 's')) : 'Nothing new to import');
-    } catch (e) {
-      console.error(e);
-      showToast('Focus import failed', { error: true });
-    }
+    };
+    reader.readAsText(file);
   }
 
   function wireQuickAdd() {
@@ -2126,8 +2194,12 @@
       if (file) handleImportFile(file);
     });
     document.getElementById('importFocusBtn').addEventListener('click', function () {
-      importFromFocus();
-      closeModal('settingsModal');
+      document.getElementById('importFocusFile').click();
+    });
+    document.getElementById('importFocusFile').addEventListener('change', function () {
+      var file = this.files && this.files[0];
+      this.value = '';
+      if (file) handleFocusExportFile(file);
     });
     document.getElementById('manageCategoriesBtn').addEventListener('click', function () {
       renderCategoriesManager();
