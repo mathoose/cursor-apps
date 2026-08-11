@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v51 -->
+  <!-- build: hj-today-version-v52 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -560,6 +560,22 @@
       background: #fdeaea;
       color: var(--accent-dark);
     }
+    .graph-ma-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 10px;
+    }
+    .graph-ma-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-right: 2px;
+    }
+    body.layout-modern .graph-ma-label {
+      color: #b7bfd4;
+    }
     .graph-habit-chips {
       display: flex;
       flex-wrap: wrap;
@@ -1014,6 +1030,8 @@
     }
     .year-grid-card .year-grid-heatmap { pointer-events: none; }
     .habits-cat-bar { margin-bottom: 12px; }
+    .habits-color-bar { margin-bottom: 12px; }
+    .habits-color-toggle,
     .habits-cat-toggle {
       display: flex;
       align-items: center;
@@ -1030,6 +1048,7 @@
       cursor: pointer;
       color: var(--ink);
     }
+    .habits-color-toggle .habits-caret,
     .habits-cat-toggle .habits-caret,
     .year-caret {
       font-size: 0.6875rem;
@@ -1037,8 +1056,10 @@
       transition: transform 0.15s ease;
       flex-shrink: 0;
     }
+    .habits-color-bar.is-open .habits-color-toggle .habits-caret,
     .habits-cat-bar.is-open .habits-cat-toggle .habits-caret,
     .habits-cat-bar.is-open .habits-cat-toggle .year-caret { transform: rotate(90deg); }
+    .habits-color-panel,
     .habits-cat-panel {
       display: none;
       margin-top: 10px;
@@ -1047,7 +1068,47 @@
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.92);
     }
+    .habits-color-bar.is-open + .habits-color-panel,
     .habits-cat-bar.is-open + .habits-cat-panel { display: block; }
+    .color-scheme-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .color-scheme-row:last-child { margin-bottom: 0; }
+    .color-scheme-row label {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .color-scheme-row input[type="color"] {
+      width: 44px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      cursor: pointer;
+    }
+    .color-scheme-row .btn {
+      min-height: 36px;
+      padding: 0 10px;
+      font-size: 0.75rem;
+    }
+    .plot-color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+      flex-wrap: wrap;
+    }
+    .plot-color-row span {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
     .habit-meta-row {
       display: flex;
       flex-wrap: wrap;
@@ -2460,8 +2521,10 @@
       color: #fff;
     }
     body.layout-modern .habits-cat-toggle,
+    body.layout-modern .habits-color-toggle,
     body.layout-modern .habits-danger-toggle,
     body.layout-modern .habits-cat-panel,
+    body.layout-modern .habits-color-panel,
     body.layout-modern .graph-habit-chip,
     body.layout-modern .graph-range-btn,
     body.layout-modern .month-grid .habit-label,
@@ -2483,11 +2546,13 @@
       font-family: inherit;
     }
     body.layout-modern .habits-cat-toggle,
+    body.layout-modern .habits-color-toggle,
     body.layout-modern .habits-danger-toggle {
       background: #2a2f40 !important;
       color: #f4f5f8 !important;
     }
     body.layout-modern .habits-cat-toggle .habits-caret,
+    body.layout-modern .habits-color-toggle .habits-caret,
     body.layout-modern .habits-danger-toggle {
       color: #c5cbe0 !important;
     }
@@ -2898,6 +2963,7 @@
     food: "#fb923c",
   };
   const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
+  const GRAPH_MA_KEY = "habit-journal-graph-ma";
   let timeAddContext = null;
 
   function isStepsHabitName(name) {
@@ -2964,15 +3030,64 @@
     return Math.abs(h);
   }
 
+  function normalizeHexColor(value, fallback) {
+    const raw = String(value || "").trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(raw)) return raw.toLowerCase();
+    if (/^[0-9a-fA-F]{6}$/.test(raw)) return "#" + raw.toLowerCase();
+    return fallback || null;
+  }
+
+  function ensureCategoryColors() {
+    if (!state.categoryColors || typeof state.categoryColors !== "object") {
+      state.categoryColors = {};
+    }
+  }
+
   function categoryAccentColor(categoryId) {
+    ensureCategoryColors();
     const id = normalizeCategory(categoryId);
+    const custom = normalizeHexColor(state.categoryColors[id]);
+    if (custom) return custom;
     if (CATEGORY_ACCENTS[id]) return CATEGORY_ACCENTS[id];
     return CUSTOM_CATEGORY_ACCENTS[hashCategoryId(id) % CUSTOM_CATEGORY_ACCENTS.length];
+  }
+
+  function setCategoryAccentColor(categoryId, hex) {
+    ensureCategoryColors();
+    const id = normalizeCategory(categoryId);
+    const next = normalizeHexColor(hex);
+    if (!next) {
+      delete state.categoryColors[id];
+    } else if (CATEGORY_ACCENTS[id] && CATEGORY_ACCENTS[id].toLowerCase() === next) {
+      delete state.categoryColors[id];
+    } else {
+      state.categoryColors[id] = next;
+    }
+    return save();
   }
 
   function habitAccentColor(habit) {
     if (!habit) return CATEGORY_ACCENTS.general;
     return categoryAccentColor(habit.category);
+  }
+
+  function loadGraphMaPrefs() {
+    try {
+      const raw = localStorage.getItem(GRAPH_MA_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      graphMa15 = !!parsed.ma15;
+      graphMa30 = !!parsed.ma30;
+    } catch (e) { /* ok */ }
+  }
+
+  function persistGraphMaPrefs() {
+    try {
+      localStorage.setItem(
+        GRAPH_MA_KEY,
+        JSON.stringify({ ma15: !!graphMa15, ma30: !!graphMa30 })
+      );
+    } catch (e) { /* ok */ }
   }
 
   function loadLayoutMode() {
@@ -3046,10 +3161,26 @@
   const STATS_MOVING_AVG_DAYS = [7, 14, 21, 30, 60];
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
+  let habitsColorPanelOpen = false;
+  let graphMa15 = false;
+  let graphMa30 = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
-  const GRAPH_COLORS = ["#7a1f45", "#2563eb", "#3d7a3d", "#b45309", "#6b21a8", "#c94d78", "#0d9488", "#dc2626"];
+  const GRAPH_COLORS = [
+    "#ff8a3d",
+    "#4da3ff",
+    "#34d399",
+    "#a78bfa",
+    "#f472b6",
+    "#fbbf24",
+    "#22d3ee",
+    "#fb7185",
+    "#a3e635",
+    "#818cf8",
+    "#fb923c",
+    "#2dd4bf",
+  ];
 
   function defaultState() {
     return {
@@ -3057,6 +3188,7 @@
       year: new Date().getFullYear(),
       month: new Date().getMonth(),
       categoryFilter: "all",
+      categoryColors: {},
       categories: DEFAULT_CATEGORIES.map(function (c) {
         return { id: c.id, label: c.label };
       }),
@@ -3303,10 +3435,15 @@
       pinned: !!h.pinned,
       hidden: !!h.hidden,
     };
+    const color = normalizeHexColor(h.color);
     const name = String(h.name || "Habit").slice(0, 40);
+    function withColor(out) {
+      if (color) out.color = color;
+      return out;
+    }
     if (isStepsHabitName(name)) {
       const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || STEPS_BASELINE));
-      return {
+      return withColor({
         id: h.id || uid(),
         name: STEPS_BASELINE_NAME,
         type: "counter",
@@ -3314,7 +3451,7 @@
         category: base.category,
         pinned: base.pinned,
         hidden: base.hidden,
-      };
+      });
     }
     if (h.type === "yesno" || h.type === "counter" || h.type === "time") {
       const type = h.type;
@@ -3324,7 +3461,7 @@
       } else if (type === "time") {
         step = clampTimeStepSeconds(h.step);
       }
-      const out = {
+      const out = withColor({
         id: h.id || uid(),
         name: name,
         type: type,
@@ -3332,7 +3469,7 @@
         category: base.category,
         pinned: base.pinned,
         hidden: base.hidden,
-      };
+      });
       if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
       if (h.statsStart) {
         const sd = parseIsoDateParts(h.statsStart);
@@ -3347,7 +3484,7 @@
       if (/yes|no|done|skip|miss|✓|✗/.test(blob)) type = "yesno";
     }
     if (/meditat|stretch|read|journal|floss|vitamin/i.test(name)) type = "yesno";
-    const out = {
+    const out = withColor({
       id: h.id || uid(),
       name: name,
       type: type,
@@ -3355,7 +3492,7 @@
       category: base.category,
       pinned: base.pinned,
       hidden: base.hidden,
-    };
+    });
     if (type === "yesno") out.excludeDays = normalizeExcludeDays(h.excludeDays);
     if (h.statsStart) {
       const sd = parseIsoDateParts(h.statsStart);
@@ -4327,6 +4464,13 @@
         s.categories = cloneDefaultCategories();
       }
       s.categoryFilter = typeof p.categoryFilter === "string" ? p.categoryFilter : "all";
+      s.categoryColors = {};
+      if (p.categoryColors && typeof p.categoryColors === "object") {
+        Object.keys(p.categoryColors).forEach(function (id) {
+          const hex = normalizeHexColor(p.categoryColors[id]);
+          if (hex) s.categoryColors[String(id).toLowerCase()] = hex;
+        });
+      }
       s.migratedStepsDefault = !!p.migratedStepsDefault;
       const legacyHabits = p.habits.slice();
       s.habits = legacyHabits.map(function (h) {
@@ -4632,6 +4776,7 @@
 
   function ensureHabitsReady() {
     ensureCategories();
+    ensureCategoryColors();
     if (!Array.isArray(state.habits) || !state.habits.length) {
       state.habits = defaultState().habits;
       save();
@@ -6637,9 +6782,68 @@
     const habit = state.habits.find(function (h) {
       return h.id === habitId;
     });
-    if (habit) return habitAccentColor(habit);
+    if (habit) {
+      const custom = normalizeHexColor(habit.color);
+      if (custom) return custom;
+    }
     ensureGraphHabitColor(habitId);
     return GRAPH_COLORS[graphHabitColorSlot[habitId] % GRAPH_COLORS.length];
+  }
+
+  function setHabitPlotColor(habitId, hex) {
+    const habit = state.habits.find(function (h) {
+      return h.id === habitId;
+    });
+    if (!habit) return false;
+    const next = normalizeHexColor(hex);
+    if (!next) delete habit.color;
+    else habit.color = next;
+    return save();
+  }
+
+  function movingAverageNorms(points, windowSize) {
+    const out = [];
+    for (let i = 0; i < points.length; i++) {
+      let sum = 0;
+      let n = 0;
+      const from = Math.max(0, i - windowSize + 1);
+      for (let j = from; j <= i; j++) {
+        if (points[j].norm == null) continue;
+        sum += points[j].norm;
+        n++;
+      }
+      out.push(n ? sum / n : null);
+    }
+    return out;
+  }
+
+  function strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, padTop, color, opts) {
+    const dashed = opts && opts.dashed;
+    const lineWidth = (opts && opts.lineWidth) || 2;
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    if (dashed) ctx.setLineDash([6, 5]);
+    else ctx.setLineDash([]);
+    ctx.beginPath();
+    let started = false;
+    for (let i = domainStartIndex; i < norms.length; i++) {
+      const norm = norms[i];
+      if (norm == null) {
+        started = false;
+        continue;
+      }
+      const x = graphXForIndex(i);
+      const y = graphYForNorm(norm, plotH, padTop);
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
   }
 
   function seedDefaultPlotColors(habits) {
@@ -7170,25 +7374,12 @@
 
     seriesList.forEach(function (series) {
       const color = getGraphHabitColor(series.habit.id);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      let started = false;
-      series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-        if (p.norm == null) {
-          started = false;
-          return;
-        }
-        const x = graphXForIndex(domainStartIndex + visibleIndex);
-        const y = graphYForNorm(p.norm, plotH, pad.top);
-        if (!started) {
-          ctx.moveTo(x, y);
-          started = true;
-        } else {
-          ctx.lineTo(x, y);
-        }
+      const norms = series.points.map(function (p) {
+        return p.norm;
       });
-      ctx.stroke();
+      strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, pad.top, color, {
+        lineWidth: 2,
+      });
 
       series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
         if (p.norm == null) return;
@@ -7199,6 +7390,33 @@
         ctx.fillStyle = color;
         ctx.fill();
       });
+
+      if (graphSupportsMovingAvg(range)) {
+        if (graphMa15) {
+          strokeNormSeries(
+            ctx,
+            movingAverageNorms(series.points, 15),
+            domainStartIndex,
+            graphXForIndex,
+            plotH,
+            pad.top,
+            color,
+            { dashed: true, lineWidth: 2.25 }
+          );
+        }
+        if (graphMa30) {
+          strokeNormSeries(
+            ctx,
+            movingAverageNorms(series.points, 30),
+            domainStartIndex,
+            graphXForIndex,
+            plotH,
+            pad.top,
+            color,
+            { dashed: true, lineWidth: 2.75 }
+          );
+        }
+      }
     });
 
     attachGraphInspectMeta(canvas, {
@@ -7214,10 +7432,23 @@
     });
   }
 
+  function graphSupportsMovingAvg(range) {
+    return range !== "today" && range !== "1";
+  }
+
   function bindGraphControls(root) {
     root.querySelectorAll("[data-graph-range]").forEach(function (btn) {
       btn.onclick = function () {
         graphRange = btn.getAttribute("data-graph-range");
+        renderGraphs();
+      };
+    });
+    root.querySelectorAll("[data-graph-ma]").forEach(function (btn) {
+      btn.onclick = function () {
+        const days = btn.getAttribute("data-graph-ma");
+        if (days === "15") graphMa15 = !graphMa15;
+        if (days === "30") graphMa30 = !graphMa30;
+        persistGraphMaPrefs();
         renderGraphs();
       };
     });
@@ -7286,6 +7517,24 @@
     });
     html += "</div>";
 
+    if (graphSupportsMovingAvg(graphRange)) {
+      html += '<div class="graph-ma-row" role="group" aria-label="Moving averages">';
+      html += '<span class="graph-ma-label">Moving avg</span>';
+      html +=
+        '<button type="button" class="graph-range-btn graph-ma-btn' +
+        (graphMa15 ? " on" : "") +
+        '" data-graph-ma="15" aria-pressed="' +
+        graphMa15 +
+        '">15-day</button>';
+      html +=
+        '<button type="button" class="graph-range-btn graph-ma-btn' +
+        (graphMa30 ? " on" : "") +
+        '" data-graph-ma="30" aria-pressed="' +
+        graphMa30 +
+        '">30-day</button>';
+      html += "</div>";
+    }
+
     if (!habits.length) {
       html += '<p class="month-empty">No habits in this category.</p>';
       html += renderVersionFooterHtml();
@@ -7300,8 +7549,10 @@
       selectedIdSet[h.id] = true;
     });
     habits.forEach(function (habit) {
-      const accent = habitAccentColor(habit);
+      const catAccent = habitAccentColor(habit);
+      const plotColor = getGraphHabitColor(habit.id);
       const on = selectedIdSet[habit.id];
+      const accent = on ? plotColor : catAccent;
       html +=
         '<button type="button" class="graph-habit-chip' +
         (on ? " on" : "") +
@@ -7341,6 +7592,14 @@
           escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw)) +
           "</span></div>";
       });
+      if (graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)) {
+        html +=
+          '<p class="graph-ma-legend hint" style="margin:8px 0 0">Dashed lines: ' +
+          (graphMa15 ? "15-day" : "") +
+          (graphMa15 && graphMa30 ? " · " : "") +
+          (graphMa30 ? "30-day" : "") +
+          " moving average</p>";
+      }
       html += "</div>";
     }
     html += "</div>";
@@ -7442,6 +7701,35 @@
       '<div class="habits-danger-panel" id="habitsDangerPanel"' +
       (habitsDangerOpen ? "" : " hidden") +
       '><button type="button" class="btn btn-secondary btn-block" id="btnReset" style="color:#b91c1c;border-color:#fecaca">Reset all data</button></div></div>';
+    html +=
+      '<div class="habits-color-bar' +
+      (habitsColorPanelOpen ? " is-open" : "") +
+      '"><button type="button" class="habits-color-toggle" id="habitsColorToggle" aria-expanded="' +
+      habitsColorPanelOpen +
+      '"><span class="habits-caret" aria-hidden="true">▶</span>Color schemes</button></div>';
+    html += '<div class="habits-color-panel" id="habitsColorPanel">';
+    html +=
+      '<p class="hint">Category colors tint Month cells and filters. Plot lines use unique colors unless you set a habit’s plot color below.</p>';
+    state.categories.forEach(function (cat) {
+      const accent = categoryAccentColor(cat.id);
+      html +=
+        '<div class="color-scheme-row" data-color-cat="' +
+        escapeHtml(cat.id) +
+        '">' +
+        "<label>" +
+        escapeHtml(cat.label) +
+        '</label><input type="color" value="' +
+        accent +
+        '" data-cat-color="' +
+        escapeHtml(cat.id) +
+        '" aria-label="' +
+        escapeHtml(cat.label) +
+        ' color" />' +
+        '<button type="button" class="btn btn-secondary" data-cat-color-reset="' +
+        escapeHtml(cat.id) +
+        '">Reset</button></div>';
+    });
+    html += "</div>";
     html +=
       '<div class="habits-cat-bar' +
       (habitsCatPanelOpen ? " is-open" : "") +
@@ -7574,6 +7862,16 @@
         (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
         "</button>";
       row += "</div>";
+      row +=
+        '<div class="plot-color-row"><span>Plot color</span><input type="color" value="' +
+        getGraphHabitColor(habit.id) +
+        '" data-plot-color="' +
+        habit.id +
+        '" aria-label="Plot color for ' +
+        escapeHtml(habit.name) +
+        '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
+        habit.id +
+        '">Auto</button></div>';
       row += '<div class="habit-settings">';
       row += '<div class="type-row">';
       row +=
@@ -7693,6 +7991,47 @@
       habitsCatPanelOpen = !habitsCatPanelOpen;
       renderHabits();
     };
+
+    const colorToggle = document.getElementById("habitsColorToggle");
+    if (colorToggle) {
+      colorToggle.onclick = function () {
+        habitsColorPanelOpen = !habitsColorPanelOpen;
+        renderHabits();
+      };
+    }
+
+    root.querySelectorAll("[data-cat-color]").forEach(function (inp) {
+      inp.onchange = function () {
+        const id = inp.getAttribute("data-cat-color");
+        if (!setCategoryAccentColor(id, inp.value)) return;
+        render();
+      };
+    });
+    root.querySelectorAll("[data-cat-color-reset]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-cat-color-reset");
+        ensureCategoryColors();
+        delete state.categoryColors[id];
+        if (!save()) return;
+        toast("Reset " + categoryLabel(id) + " color");
+        render();
+      };
+    });
+    root.querySelectorAll("[data-plot-color]").forEach(function (inp) {
+      inp.onchange = function () {
+        const id = inp.getAttribute("data-plot-color");
+        if (!setHabitPlotColor(id, inp.value)) return;
+        render();
+      };
+    });
+    root.querySelectorAll("[data-plot-color-reset]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-plot-color-reset");
+        if (!setHabitPlotColor(id, null)) return;
+        toast("Plot color set to auto");
+        render();
+      };
+    });
 
     document.getElementById("addCategory").onclick = function () {
       const inp = document.getElementById("newCategoryName");
@@ -8402,6 +8741,7 @@
   }
 
   loadLayoutMode();
+  loadGraphMaPrefs();
   storageOk = storageAvailable();
   if (!storageOk) {
     showStorageBanner("Data won't save in Private Browsing. Use Safari normal mode and always open the same URL (mathoose.github.io).");
