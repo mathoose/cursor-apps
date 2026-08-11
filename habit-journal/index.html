@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v50 -->
+  <!-- build: hj-today-version-v51 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -2182,6 +2182,16 @@
       padding: 6px 0;
       cursor: pointer;
     }
+    .habit-compact-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+    }
+    body:not(.layout-modern) .habit-compact-swatch {
+      box-shadow: 0 0 0 2px rgba(44, 36, 25, 0.08);
+    }
     .habit-compact-name {
       flex: 1;
       min-width: 0;
@@ -2442,12 +2452,116 @@
     body.layout-modern .chip {
       background: var(--card-2);
       border-color: var(--border);
-      color: var(--muted);
+      color: #e8ecf4;
     }
     body.layout-modern .chip.on {
-      background: rgba(139, 124, 247, 0.22);
-      border-color: rgba(139, 124, 247, 0.55);
-      color: #e7e3ff;
+      background: rgba(139, 124, 247, 0.28);
+      border-color: rgba(139, 124, 247, 0.65);
+      color: #fff;
+    }
+    body.layout-modern .habits-cat-toggle,
+    body.layout-modern .habits-danger-toggle,
+    body.layout-modern .habits-cat-panel,
+    body.layout-modern .graph-habit-chip,
+    body.layout-modern .graph-range-btn,
+    body.layout-modern .month-grid .habit-label,
+    body.layout-modern .month-hidden-chip,
+    body.layout-modern .habit-sort-btn,
+    body.layout-modern .habit-pin-btn,
+    body.layout-modern .habit-hide-btn,
+    body.layout-modern .exclude-day-chip,
+    body.layout-modern .category-manage-row input,
+    body.layout-modern .add-cat-row input,
+    body.layout-modern .stats-start-label input,
+    body.layout-modern select,
+    body.layout-modern input[type="text"],
+    body.layout-modern input[type="number"],
+    body.layout-modern input[type="date"] {
+      background: var(--card-2) !important;
+      border-color: var(--border) !important;
+      color: #f4f5f8 !important;
+      font-family: inherit;
+    }
+    body.layout-modern .habits-cat-toggle,
+    body.layout-modern .habits-danger-toggle {
+      background: #2a2f40 !important;
+      color: #f4f5f8 !important;
+    }
+    body.layout-modern .habits-cat-toggle .habits-caret,
+    body.layout-modern .habits-danger-toggle {
+      color: #c5cbe0 !important;
+    }
+    body.layout-modern .graph-habit-chip {
+      background: #252a3a !important;
+      border-width: 1.5px !important;
+      border-style: solid !important;
+      color: #f4f5f8 !important;
+    }
+    body.layout-modern .graph-habit-chip.on {
+      color: #111827 !important;
+    }
+    body.layout-modern .graph-range-btn.on {
+      background: rgba(139, 124, 247, 0.32) !important;
+      border-color: rgba(139, 124, 247, 0.7) !important;
+      color: #fff !important;
+    }
+    body.layout-modern .graphs-mode-btn {
+      background: #252a3a !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      color: #f4f5f8 !important;
+    }
+    body.layout-modern .graphs-mode-btn.on {
+      background: rgba(139, 124, 247, 0.35) !important;
+      border-color: rgba(183, 174, 255, 0.85) !important;
+      color: #fff !important;
+    }
+    body.layout-modern .month-grid .corner {
+      background: #1a1d29 !important;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    body.layout-modern .month-grid .habit-label,
+    body.layout-modern .month-grid .habit-label.dragging,
+    body.layout-modern .month-scroll .habit-label {
+      background: #1a1d29 !important;
+      background-color: #1a1d29 !important;
+      box-shadow: 4px 0 10px rgba(0, 0, 0, 0.35);
+      color: #f4f5f8 !important;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    body.layout-modern .card.month-scroll,
+    body.layout-modern .card.scroll-x {
+      background: #1c1f2b !important;
+    }
+    body.layout-modern .month-grid .day-head.is-today {
+      background: rgba(139, 124, 247, 0.18);
+    }
+    body.layout-modern .month-grid .day-head.is-today .day-num,
+    body.layout-modern .month-grid .day-head.is-today .day-dow {
+      color: #c4b5fd;
+    }
+    body.layout-modern .habit-label-hide-btn {
+      background: #2a2f40;
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #d7dbeb;
+    }
+    body.layout-modern .habit-compact-row {
+      border-left: 4px solid var(--habit-accent, #8b7cf7);
+    }
+    body.layout-modern .habit-compact-meta {
+      color: #b7bfd4 !important;
+    }
+    body.layout-modern .add-habit-row input::placeholder,
+    body.layout-modern input::placeholder {
+      color: #8b93a8;
+      opacity: 1;
+    }
+    body.layout-modern .graph-chart-card,
+    body.layout-modern .graph-canvas-wrap {
+      background: var(--card);
+    }
+    body.layout-modern #graphCanvas {
+      background: #151822;
+      border-radius: 12px;
     }
     body.layout-modern .add-habit-row input,
     body.layout-modern .add-habit-row select,
@@ -2469,6 +2583,11 @@
     body.layout-modern .time-add-panel {
       background: #1a1d29;
     }
+    body.layout-modern .time-add-inputs input {
+      background: #252a3a !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      color: #fff !important;
+    }
     body.layout-modern .btn-secondary {
       background: var(--card-2);
       border-color: var(--border);
@@ -2477,6 +2596,11 @@
     body.layout-modern .btn-primary {
       background: var(--accent);
       color: #fff;
+    }
+    body.layout-modern .btn-danger {
+      background: #2a1c24;
+      border-color: #7f1d1d;
+      color: #fda4a4;
     }
     body.layout-modern .bottom-dock {
       background: transparent;
@@ -2541,13 +2665,17 @@
     body.layout-modern .habit-label-meta,
     body.layout-modern .habit-compact-meta,
     body.layout-modern .hint,
-    body.layout-modern .panel-version {
-      color: var(--muted);
+    body.layout-modern .panel-version,
+    body.layout-modern .habits-data-meta {
+      color: #b7bfd4;
     }
     body.layout-modern .habit-label-edit,
     body.layout-modern .habit-compact-name,
     body.layout-modern .today-tile-label {
-      color: var(--ink);
+      color: #f4f5f8;
+    }
+    body.layout-modern .habit-label-step {
+      color: #9aa3b8;
     }
     body.layout-modern .habit-label-streak {
       color: #ffb15e;
@@ -2555,7 +2683,7 @@
     body.layout-modern .type-pill {
       background: var(--card);
       border-color: var(--border);
-      color: var(--muted);
+      color: #c5cbe0;
     }
     body.layout-modern .type-pill.on {
       background: rgba(139, 124, 247, 0.28);
@@ -2759,6 +2887,17 @@
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
   const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
+  const CATEGORY_ACCENTS = {
+    general: "#94a3b8",
+    health: "#2dd4a8",
+    fitness: "#ff8a3d",
+    mind: "#a78bfa",
+    work: "#60a5fa",
+    home: "#fbbf24",
+    media: "#f472b6",
+    food: "#fb923c",
+  };
+  const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
   let timeAddContext = null;
 
   function isStepsHabitName(name) {
@@ -2816,15 +2955,24 @@
     return parts.m + ":" + String(parts.s).padStart(2, "0");
   }
 
-  function habitAccentColor(habit) {
-    let idx = 0;
-    for (let i = 0; i < state.habits.length; i++) {
-      if (state.habits[i].id === habit.id) {
-        idx = i;
-        break;
-      }
+  function hashCategoryId(id) {
+    const s = String(id || "general");
+    let h = 0;
+    for (let i = 0; i < s.length; i++) {
+      h = (h * 31 + s.charCodeAt(i)) | 0;
     }
-    return MODERN_ACCENTS[idx % MODERN_ACCENTS.length];
+    return Math.abs(h);
+  }
+
+  function categoryAccentColor(categoryId) {
+    const id = normalizeCategory(categoryId);
+    if (CATEGORY_ACCENTS[id]) return CATEGORY_ACCENTS[id];
+    return CUSTOM_CATEGORY_ACCENTS[hashCategoryId(id) % CUSTOM_CATEGORY_ACCENTS.length];
+  }
+
+  function habitAccentColor(habit) {
+    if (!habit) return CATEGORY_ACCENTS.general;
+    return categoryAccentColor(habit.category);
   }
 
   function loadLayoutMode() {
@@ -3536,7 +3684,19 @@
 
   function renderMonthHabitLabelHtml(habit, index, total) {
     const streak = habitStreak(habit);
-    let html = '<div class="habit-label" data-habit-row="' + escapeHtml(habit.id) + '">';
+    const accent = habitAccentColor(habit);
+    const labelStyle =
+      layoutMode === "modern"
+        ? "background:#1a1d29;color:#f4f5f8;box-shadow:inset 3px 0 0 " +
+          accent +
+          ", 4px 0 12px rgba(0,0,0,0.4)"
+        : "box-shadow:inset 3px 0 0 " + accent;
+    let html =
+      '<div class="habit-label" data-habit-row="' +
+      escapeHtml(habit.id) +
+      '" style="' +
+      labelStyle +
+      '">';
     html += '<div class="habit-label-row">';
     html +=
       '<div class="habit-drag-handle" data-drag-handle="' +
@@ -3909,11 +4069,16 @@
         return h.category === cat.id;
       }).length;
       if (count === 0 && state.categoryFilter !== cat.id) return;
+      const accent = categoryAccentColor(cat.id);
+      const on = state.categoryFilter === cat.id;
       html +=
         '<button type="button" class="chip' +
-        (state.categoryFilter === cat.id ? " on" : "") +
+        (on ? " on" : "") +
         '" data-cat-filter="' +
         escapeHtml(cat.id) +
+        '" style="border-color:' +
+        accent +
+        (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
         '">' +
         escapeHtml(cat.label) +
         (count ? " (" + count + ")" : "") +
@@ -6469,6 +6634,10 @@
   }
 
   function getGraphHabitColor(habitId) {
+    const habit = state.habits.find(function (h) {
+      return h.id === habitId;
+    });
+    if (habit) return habitAccentColor(habit);
     ensureGraphHabitColor(habitId);
     return GRAPH_COLORS[graphHabitColorSlot[habitId] % GRAPH_COLORS.length];
   }
@@ -7131,11 +7300,18 @@
       selectedIdSet[h.id] = true;
     });
     habits.forEach(function (habit) {
+      const accent = habitAccentColor(habit);
+      const on = selectedIdSet[habit.id];
       html +=
         '<button type="button" class="graph-habit-chip' +
-        (selectedIdSet[habit.id] ? " on" : "") +
+        (on ? " on" : "") +
         '" data-graph-habit="' +
         escapeHtml(habit.id) +
+        '" style="border-color:' +
+        accent +
+        (on
+          ? ";background:" + accent + ";color:#111827"
+          : ";box-shadow:inset 3px 0 0 " + accent) +
         '">' +
         escapeHtml(habit.name) +
         "</button>";
@@ -7332,13 +7508,20 @@
 
     function renderHabitCompactRow(habit, isHiddenSection) {
       const expanded = habitsExpandedId === habit.id;
+      const accent = habitAccentColor(habit);
       let row =
         '<div class="habit-compact-row' +
         (habit.hidden ? " is-hidden-row" : "") +
         '" data-habit="' +
         habit.id +
+        '" style="--habit-accent:' +
+        accent +
         '">';
       row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
+      row +=
+        '<span class="habit-compact-swatch" aria-hidden="true" style="background:' +
+        accent +
+        '"></span>';
       row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
       row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
       row +=
