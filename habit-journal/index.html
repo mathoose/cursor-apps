@@ -3233,19 +3233,33 @@
   }
 
   function pruneUnmarkedMeditation() {
+    // One-time cleanup of the old factory Meditation habit. Must not keep
+    // deleting user-created habits named Meditation on every render.
+    if (state.prunedFactoryMeditation) return;
     const habits = state.habits || [];
     const meditation = habits.find(function (h) {
       return /^meditation$/i.test(String(h.name || "").trim());
     });
-    if (!meditation) return;
+    if (!meditation) {
+      state.prunedFactoryMeditation = true;
+      return;
+    }
     const medPrefix = meditation.id + "-";
     const medMarks = Object.keys(state.cells || {}).filter(function (k) {
       return k.indexOf(medPrefix) === 0;
     }).length;
-    if (medMarks > 0) return;
-    state.habits = habits.filter(function (h) {
-      return h.id !== meditation.id;
-    });
+    if (medMarks > 0) {
+      state.prunedFactoryMeditation = true;
+      return;
+    }
+    // Only strip the legacy unmarked Meditation when migrating old defaults
+    // (Running/Steps + Meditation with no marks), not later user adds.
+    if (!state.migratedStepsDefault && habits.length <= 2) {
+      state.habits = habits.filter(function (h) {
+        return h.id !== meditation.id;
+      });
+    }
+    state.prunedFactoryMeditation = true;
     save();
   }
 
