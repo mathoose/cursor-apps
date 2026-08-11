@@ -7,9 +7,9 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Habit Journal" />
   <meta name="format-detection" content="telephone=no" />
-  <meta name="theme-color" content="#5c4d3c" />
+  <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v32 -->
+  <!-- build: hj-today-version-v50 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -2214,6 +2214,365 @@
       border-top: 1px dashed var(--border);
     }
     .habit-compact-body[hidden] { display: none !important; }
+    .layout-toggle-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+    }
+    .layout-toggle-copy strong {
+      display: block;
+      font-size: 0.9375rem;
+      margin-bottom: 2px;
+    }
+    .layout-toggle-copy span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .layout-switch {
+      position: relative;
+      width: 52px;
+      height: 30px;
+      flex-shrink: 0;
+      border: none;
+      border-radius: 999px;
+      background: #cfc6b8;
+      cursor: pointer;
+      padding: 0;
+    }
+    .layout-switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      transition: transform 0.18s ease;
+    }
+    .layout-switch.on {
+      background: #7c6af5;
+    }
+    .layout-switch.on::after {
+      transform: translateX(22px);
+    }
+    .layout-switch-mini {
+      min-width: 36px;
+      min-height: 32px;
+      padding: 0 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--muted);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
+    .layout-switch-mini.on {
+      background: #7c6af5;
+      border-color: #6b59e8;
+      color: #fff;
+    }
+    .add-habit-type-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .add-habit-type-row select {
+      min-width: 110px;
+    }
+    .add-habit-step-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .add-habit-step-fields[hidden] { display: none !important; }
+    .time-step-fields {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .time-step-fields input[type="number"] {
+      width: 64px;
+      text-align: center;
+    }
+    .time-step-fields .time-unit {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .month-grid .cell.cell-time {
+      font-size: 0.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      padding: 0 1px;
+      line-height: 1.05;
+    }
+    #panelToday .today-tile .cell.cell-time {
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .time-add-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .time-add-sheet[hidden] { display: none !important; }
+    .time-add-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(20, 18, 28, 0.45);
+    }
+    .time-add-panel {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 18px 18px 0 0;
+      padding: 18px 16px calc(16px + var(--safe-bottom));
+      box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+    }
+    .time-add-panel h2 {
+      font-size: 1.0625rem;
+      margin-bottom: 4px;
+    }
+    .time-add-sub {
+      font-size: 0.8125rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .time-add-inputs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .time-add-inputs label {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .time-add-inputs input {
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .time-add-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .time-add-actions .btn { flex: 1; min-height: 44px; }
+
+    /* —— Modern dark layout (toggle) —— */
+    body.layout-modern {
+      --paper: #12141c;
+      --dot: rgba(255, 255, 255, 0.04);
+      --ink: #f4f5f8;
+      --muted: #9aa3b5;
+      --accent: #8b7cf7;
+      --accent-dark: #6f5ef0;
+      --border: rgba(255, 255, 255, 0.1);
+      --card: #1c1f2b;
+      --card-2: #242837;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124, 106, 245, 0.28), transparent 55%),
+        radial-gradient(ellipse 70% 40% at 90% 0%, rgba(61, 205, 192, 0.12), transparent 50%),
+        radial-gradient(circle, var(--dot) 1px, transparent 1px);
+      background-size: auto, auto, 22px 22px;
+      color: var(--ink);
+    }
+    body.layout-modern .topbar {
+      background: rgba(18, 20, 28, 0.88);
+      border-bottom-color: var(--border);
+    }
+    body.layout-modern .topbar h1 {
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+      font-weight: 750;
+      letter-spacing: -0.02em;
+    }
+    body.layout-modern .habit-journal .apps-home-back,
+    body.layout-modern .nav-btn,
+    body.layout-modern .layout-switch-mini {
+      background: var(--card-2);
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    body.layout-modern .nav-btn.eraser-btn.on,
+    body.layout-modern .layout-switch-mini.on {
+      background: var(--accent);
+      border-color: var(--accent-dark);
+      color: #fff;
+    }
+    body.layout-modern .card,
+    body.layout-modern .layout-toggle-card,
+    body.layout-modern .habit-compact-row,
+    body.layout-modern .today-tile,
+    body.layout-modern .year-grid-card,
+    body.layout-modern .habits-backup-row,
+    body.layout-modern .month-hidden-section,
+    body.layout-modern .habits-hidden-section {
+      background: var(--card);
+      border-color: var(--border);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      border-radius: 18px;
+    }
+    body.layout-modern .chip {
+      background: var(--card-2);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    body.layout-modern .chip.on {
+      background: rgba(139, 124, 247, 0.22);
+      border-color: rgba(139, 124, 247, 0.55);
+      color: #e7e3ff;
+    }
+    body.layout-modern .add-habit-row input,
+    body.layout-modern .add-habit-row select,
+    body.layout-modern .add-habit-row input[type="number"],
+    body.layout-modern .habit-row input[type="text"],
+    body.layout-modern .habit-cat-select,
+    body.layout-modern .habit-compact-body input,
+    body.layout-modern .habit-compact-body select,
+    body.layout-modern .habit-edit-panel,
+    body.layout-modern .import-panel,
+    body.layout-modern .time-add-panel,
+    body.layout-modern .year-fullscreen {
+      background: var(--card-2);
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    body.layout-modern .habit-edit-panel,
+    body.layout-modern .import-panel,
+    body.layout-modern .time-add-panel {
+      background: #1a1d29;
+    }
+    body.layout-modern .btn-secondary {
+      background: var(--card-2);
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    body.layout-modern .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    body.layout-modern .bottom-dock {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+    body.layout-modern .tabbar {
+      margin: 0 12px calc(8px + var(--safe-bottom));
+      padding: 8px 6px !important;
+      border-radius: 22px;
+      background: rgba(28, 31, 43, 0.92);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+    body.layout-modern .bottom-dock .mode-bar {
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+    body.layout-modern .tab {
+      color: var(--muted);
+    }
+    body.layout-modern .tab.on {
+      color: #fff;
+      text-shadow: 0 0 18px rgba(139, 124, 247, 0.85);
+    }
+    body.layout-modern .tab.on svg {
+      filter: drop-shadow(0 0 6px rgba(139, 124, 247, 0.9));
+      color: #b7aeff;
+    }
+    body.layout-modern .mode-bar {
+      margin: 0 12px 8px;
+      border-radius: 16px;
+      background: rgba(28, 31, 43, 0.92);
+      border: 1px solid var(--border);
+    }
+    body.layout-modern .mode-btn {
+      background: transparent;
+      color: var(--muted);
+      border-color: transparent;
+    }
+    body.layout-modern .mode-btn.on {
+      background: rgba(139, 124, 247, 0.25);
+      color: #fff;
+      border-color: rgba(139, 124, 247, 0.4);
+    }
+    body.layout-modern .month-grid .cell,
+    body.layout-modern .year-grid .cell,
+    body.layout-modern .year-fs-cells .cell,
+    body.layout-modern #panelToday .today-tile .cell {
+      background: #151822;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-radius: 8px;
+    }
+    body.layout-modern .month-grid .cell.cell-dot,
+    body.layout-modern #panelToday .today-tile .cell.cell-dot {
+      background: #151822;
+    }
+    body.layout-modern .day-head,
+    body.layout-modern .habit-label-name-row,
+    body.layout-modern .habit-label-meta,
+    body.layout-modern .habit-compact-meta,
+    body.layout-modern .hint,
+    body.layout-modern .panel-version {
+      color: var(--muted);
+    }
+    body.layout-modern .habit-label-edit,
+    body.layout-modern .habit-compact-name,
+    body.layout-modern .today-tile-label {
+      color: var(--ink);
+    }
+    body.layout-modern .habit-label-streak {
+      color: #ffb15e;
+    }
+    body.layout-modern .type-pill {
+      background: var(--card);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+    body.layout-modern .type-pill.on {
+      background: rgba(139, 124, 247, 0.28);
+      border-color: rgba(139, 124, 247, 0.55);
+      color: #fff;
+    }
+    body.layout-modern .layout-toggle-card {
+      background: linear-gradient(135deg, rgba(139, 124, 247, 0.18), rgba(61, 205, 192, 0.08));
+    }
+    body.layout-modern .toast {
+      background: #2a2f42;
+      color: #fff;
+    }
+    body.layout-modern .storage-banner {
+      background: #3b2a14;
+      color: #ffd9a8;
+    }
   </style>
 </head>
 <body class="habit-journal">
@@ -2264,6 +2623,15 @@
         <span>+ per tap</span>
         <input type="number" id="habitEditStep" min="1" max="5000" />
       </label>
+      <div class="habit-edit-field" id="habitEditTimeStepWrap" hidden>
+        <span>+ per tap (minutes &amp; seconds)</span>
+        <div class="time-step-fields">
+          <input type="number" id="habitEditStepMin" min="0" max="999" inputmode="numeric" aria-label="Minutes" />
+          <span class="time-unit">m</span>
+          <input type="number" id="habitEditStepSec" min="0" max="59" inputmode="numeric" aria-label="Seconds" />
+          <span class="time-unit">s</span>
+        </div>
+      </div>
       <div class="habit-edit-field" id="habitEditExcludeWrap" hidden>
         <span>Skip days</span>
         <div class="exclude-day-chips" id="habitEditExcludeDays"></div>
@@ -2329,6 +2697,28 @@
     </div>
   </div>
 
+  <div class="time-add-sheet" id="timeAddSheet" hidden role="dialog" aria-modal="true" aria-labelledby="timeAddTitle">
+    <div class="time-add-backdrop" id="timeAddBackdrop"></div>
+    <div class="time-add-panel">
+      <h2 id="timeAddTitle">Add time</h2>
+      <p class="time-add-sub" id="timeAddSub">Enter minutes and seconds to add.</p>
+      <div class="time-add-inputs">
+        <label>
+          Minutes
+          <input type="number" id="timeAddMinutes" min="0" max="999" inputmode="numeric" value="1" />
+        </label>
+        <label>
+          Seconds
+          <input type="number" id="timeAddSeconds" min="0" max="59" inputmode="numeric" value="0" />
+        </label>
+      </div>
+      <div class="time-add-actions">
+        <button type="button" class="btn btn-secondary" id="timeAddCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="timeAddConfirm">Add time</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 
   <script>
@@ -2340,12 +2730,14 @@
   const STORAGE_LOCAL_BACKUP_KEY = "habit-journal-v2-local-backup";
   const STORAGE_META_KEY = "habit-journal-v2-meta";
   const STORAGE_CHANGELOG_KEY = "habit-journal-v2-changelog";
+  const LAYOUT_KEY = "habit-journal-layout";
   // Activity log retention: Log tab, edit-sheet recent list, and 48h charts all use this window.
   const RECENT_LOG_HOURS = 48;
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
   let habitJournalVersionText = "";
+  let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -2362,12 +2754,129 @@
   ];
   const MAX_CATEGORIES = 20;
   const MAX_STEP = 5000;
+  const MAX_TIME_STEP_SEC = 24 * 60 * 60;
+  const DEFAULT_TIME_STEP_SEC = 60;
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
+  const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
+  let timeAddContext = null;
 
   function isStepsHabitName(name) {
     return /^steps$/i.test(String(name || "").trim());
   }
+
+  function isStepHabit(habit) {
+    return !!habit && (habit.type === "counter" || habit.type === "time");
+  }
+
+  function clampTimeStepSeconds(sec) {
+    const n = parseInt(sec, 10);
+    if (!isFinite(n) || n < 1) return DEFAULT_TIME_STEP_SEC;
+    return Math.min(MAX_TIME_STEP_SEC, n);
+  }
+
+  function splitSeconds(totalSeconds) {
+    const s = Math.max(0, Math.round(Number(totalSeconds) || 0));
+    return {
+      h: Math.floor(s / 3600),
+      m: Math.floor((s % 3600) / 60),
+      s: s % 60,
+      total: s,
+    };
+  }
+
+  function combineMinutesSeconds(minutes, seconds) {
+    const m = Math.max(0, Math.min(999, parseInt(minutes, 10) || 0));
+    const s = Math.max(0, Math.min(59, parseInt(seconds, 10) || 0));
+    return clampTimeStepSeconds(m * 60 + s);
+  }
+
+  function formatDuration(totalSeconds, opts) {
+    const parts = splitSeconds(totalSeconds);
+    const compact = opts && opts.compact;
+    const alwaysMs = opts && opts.alwaysMinutesSeconds;
+    const out = [];
+    if (parts.h) out.push(parts.h + "h");
+    if (parts.m || parts.h || alwaysMs) out.push(parts.m + "m");
+    if (parts.s || !out.length || alwaysMs) out.push(parts.s + "s");
+    return out.join(compact ? "" : " ");
+  }
+
+  function formatDurationCell(totalSeconds) {
+    const parts = splitSeconds(totalSeconds);
+    if (parts.h > 0) {
+      return (
+        parts.h +
+        ":" +
+        String(parts.m).padStart(2, "0") +
+        ":" +
+        String(parts.s).padStart(2, "0")
+      );
+    }
+    return parts.m + ":" + String(parts.s).padStart(2, "0");
+  }
+
+  function habitAccentColor(habit) {
+    let idx = 0;
+    for (let i = 0; i < state.habits.length; i++) {
+      if (state.habits[i].id === habit.id) {
+        idx = i;
+        break;
+      }
+    }
+    return MODERN_ACCENTS[idx % MODERN_ACCENTS.length];
+  }
+
+  function loadLayoutMode() {
+    try {
+      const v = localStorage.getItem(LAYOUT_KEY);
+      if (v === "modern" || v === "original") layoutMode = v;
+    } catch (e) { /* ok */ }
+    applyLayoutMode();
+  }
+
+  function applyLayoutMode() {
+    document.body.classList.toggle("layout-modern", layoutMode === "modern");
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", layoutMode === "modern" ? "#12141c" : "#5c4d3c");
+  }
+
+  function setLayoutMode(mode) {
+    layoutMode = mode === "original" ? "original" : "modern";
+    try {
+      localStorage.setItem(LAYOUT_KEY, layoutMode);
+    } catch (e) { /* ok */ }
+    applyLayoutMode();
+    render();
+  }
+
+  function toggleLayoutMode() {
+    setLayoutMode(layoutMode === "modern" ? "original" : "modern");
+  }
+
+  function renderLayoutToggleHtml() {
+    const on = layoutMode === "modern";
+    return (
+      '<div class="layout-toggle-card">' +
+      '<div class="layout-toggle-copy">' +
+      "<strong>" +
+      (on ? "Modern layout" : "Original layout") +
+      "</strong>" +
+      "<span>" +
+      (on
+        ? "Dark cards & accents. Switch off for the original paper look."
+        : "Classic paper grid. Switch on for the modern dark look.") +
+      "</span></div>" +
+      '<button type="button" class="layout-switch' +
+      (on ? " on" : "") +
+      '" id="layoutToggle" aria-pressed="' +
+      on +
+      '" aria-label="' +
+      (on ? "Switch to original layout" : "Switch to modern layout") +
+      '"></button></div>'
+    );
+  }
+
   let monthGridScrollLeft = 0;
   let yearExpandedScrollLeft = 0;
   let monthGridScrolledToToday = false;
@@ -2659,14 +3168,19 @@
         hidden: base.hidden,
       };
     }
-    if (h.type === "yesno" || h.type === "counter") {
+    if (h.type === "yesno" || h.type === "counter" || h.type === "time") {
       const type = h.type;
-      const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+      let step = 1;
+      if (type === "counter") {
+        step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+      } else if (type === "time") {
+        step = clampTimeStepSeconds(h.step);
+      }
       const out = {
         id: h.id || uid(),
         name: name,
         type: type,
-        step: type === "counter" ? step : 1,
+        step: type === "yesno" ? 1 : step,
         category: base.category,
         pinned: base.pinned,
         hidden: base.hidden,
@@ -2719,19 +3233,33 @@
   }
 
   function pruneUnmarkedMeditation() {
+    // One-time cleanup of the old factory Meditation habit. Must not keep
+    // deleting user-created habits named Meditation on every render.
+    if (state.prunedFactoryMeditation) return;
     const habits = state.habits || [];
     const meditation = habits.find(function (h) {
       return /^meditation$/i.test(String(h.name || "").trim());
     });
-    if (!meditation) return;
+    if (!meditation) {
+      state.prunedFactoryMeditation = true;
+      return;
+    }
     const medPrefix = meditation.id + "-";
     const medMarks = Object.keys(state.cells || {}).filter(function (k) {
       return k.indexOf(medPrefix) === 0;
     }).length;
-    if (medMarks > 0) return;
-    state.habits = habits.filter(function (h) {
-      return h.id !== meditation.id;
-    });
+    if (medMarks > 0) {
+      state.prunedFactoryMeditation = true;
+      return;
+    }
+    // Only strip the legacy unmarked Meditation when migrating old defaults
+    // (Running/Steps + Meditation with no marks), not later user adds.
+    if (!state.migratedStepsDefault && habits.length <= 2) {
+      state.habits = habits.filter(function (h) {
+        return h.id !== meditation.id;
+      });
+    }
+    state.prunedFactoryMeditation = true;
     save();
   }
 
@@ -2886,26 +3414,93 @@
     return save();
   }
 
-  function addHabitToState(name, category, step) {
+  function addHabitToState(name, category, step, type) {
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
-    const stepVal = Math.min(MAX_STEP, Math.max(1, parseInt(step, 10) || 1));
+    let habitType = type === "yesno" || type === "time" ? type : "counter";
+    if (isStepsHabitName(habitName)) habitType = "counter";
+    let stepVal = 1;
+    if (habitType === "counter") {
+      stepVal = Math.min(
+        MAX_STEP,
+        Math.max(1, parseInt(step, 10) || (isStepsHabitName(habitName) ? STEPS_BASELINE : 1))
+      );
+    } else if (habitType === "time") {
+      stepVal = clampTimeStepSeconds(step);
+    }
     const habit = {
       id: uid(),
       name: habitName,
-      type: "counter",
+      type: habitType,
       step: stepVal,
       category: cat,
       pinned: false,
       hidden: false,
     };
+    if (habitType === "yesno") habit.excludeDays = [];
     state.habits.push(habit);
     logHabitChange(habit.id, "create");
     return save();
   }
 
+  function renderHabitTypeSelectHtml(id, selected) {
+    const cur = selected || "counter";
+    return (
+      '<select id="' +
+      id +
+      '" aria-label="Habit type">' +
+      '<option value="counter"' +
+      (cur === "counter" ? " selected" : "") +
+      ">Counter</option>" +
+      '<option value="yesno"' +
+      (cur === "yesno" ? " selected" : "") +
+      ">Yes / No</option>" +
+      '<option value="time"' +
+      (cur === "time" ? " selected" : "") +
+      ">Time</option>" +
+      "</select>"
+    );
+  }
+
+  function renderTimeStepFieldsHtml(minId, secId, stepSeconds) {
+    const parts = splitSeconds(clampTimeStepSeconds(stepSeconds || DEFAULT_TIME_STEP_SEC));
+    return (
+      '<div class="time-step-fields">' +
+      '<input type="number" id="' +
+      minId +
+      '" min="0" max="999" value="' +
+      parts.m +
+      '" aria-label="Minutes" title="Minutes" />' +
+      '<span class="time-unit">m</span>' +
+      '<input type="number" id="' +
+      secId +
+      '" min="0" max="59" value="' +
+      parts.s +
+      '" aria-label="Seconds" title="Seconds" />' +
+      '<span class="time-unit">s</span></div>'
+    );
+  }
+
+  function bindHabitTypeStepFields(typeSel, counterWrap, timeWrap) {
+    if (!typeSel) return;
+    function sync() {
+      const t = typeSel.value;
+      if (counterWrap) counterWrap.hidden = t !== "counter";
+      if (timeWrap) timeWrap.hidden = t !== "time";
+    }
+    typeSel.onchange = sync;
+    sync();
+  }
+
+  function readTimeStepFromFields(minEl, secEl) {
+    const minutes = minEl ? minEl.value : 1;
+    const seconds = secEl ? secEl.value : 0;
+    const total = (parseInt(minutes, 10) || 0) * 60 + (parseInt(seconds, 10) || 0);
+    return clampTimeStepSeconds(total || DEFAULT_TIME_STEP_SEC);
+  }
+
   function renderMonthAddBarHtml() {
-    let html = '<div class="month-add-bar add-habit-row add-habit-row-top">';
+    let html = '<div class="month-add-bar add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="monthNewHabitName" placeholder="New habit name" maxlength="40" />';
     html += '<select id="monthNewHabitCategory" aria-label="Category">';
     state.categories.forEach(function (cat) {
@@ -2923,10 +3518,16 @@
         "</option>";
     });
     html += "</select>";
+    html += renderHabitTypeSelectHtml("monthNewHabitType", "counter");
     html +=
+      '<span class="add-habit-step-fields" id="monthCounterStepWrap">' +
       '<input type="number" id="monthNewHabitStep" min="1" max="' +
       MAX_STEP +
-      '" value="1" aria-label="+ per tap" title="+ per tap" />';
+      '" value="1" aria-label="+ per tap" title="+ per tap" /></span>';
+    html +=
+      '<span class="add-habit-step-fields" id="monthTimeStepWrap" hidden>' +
+      renderTimeStepFieldsHtml("monthNewHabitStepMin", "monthNewHabitStepSec", DEFAULT_TIME_STEP_SEC) +
+      "</span>";
     html +=
       '<button type="button" class="btn btn-primary month-add-plus-btn" id="monthAddHabit" aria-label="Add habit">+</button>';
     html += "</div>";
@@ -3015,14 +3616,27 @@
     if (!btn) return;
     const inp = root.querySelector("#monthNewHabitName");
     const catEl = root.querySelector("#monthNewHabitCategory");
+    const typeEl = root.querySelector("#monthNewHabitType");
     const stepEl = root.querySelector("#monthNewHabitStep");
+    const stepMinEl = root.querySelector("#monthNewHabitStepMin");
+    const stepSecEl = root.querySelector("#monthNewHabitStepSec");
+    bindHabitTypeStepFields(
+      typeEl,
+      root.querySelector("#monthCounterStepWrap"),
+      root.querySelector("#monthTimeStepWrap")
+    );
     function addMonthHabit() {
       const cat = catEl ? normalizeCategory(catEl.value) : "general";
       const name = (inp && inp.value.trim()) || "New " + categoryLabel(cat) + " habit";
-      const step = stepEl ? stepEl.value : 1;
-      if (!addHabitToState(name, cat, step)) return;
+      const type = typeEl ? typeEl.value : "counter";
+      let step = 1;
+      if (type === "time") step = readTimeStepFromFields(stepMinEl, stepSecEl);
+      else if (type === "counter") step = stepEl ? stepEl.value : 1;
+      if (!addHabitToState(name, cat, step, type)) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
+      if (stepMinEl) stepMinEl.value = "1";
+      if (stepSecEl) stepSecEl.value = "0";
       toast("Added " + name);
       render();
     }
@@ -3212,11 +3826,22 @@
     });
     const stepWrap = document.getElementById("habitEditStepWrap");
     const stepInp = document.getElementById("habitEditStep");
+    const timeStepWrap = document.getElementById("habitEditTimeStepWrap");
+    const stepMinInp = document.getElementById("habitEditStepMin");
+    const stepSecInp = document.getElementById("habitEditStepSec");
     if (habit.type === "counter") {
       stepWrap.hidden = false;
+      if (timeStepWrap) timeStepWrap.hidden = true;
       stepInp.value = habit.step || 1;
+    } else if (habit.type === "time") {
+      stepWrap.hidden = true;
+      if (timeStepWrap) timeStepWrap.hidden = false;
+      const parts = splitSeconds(clampTimeStepSeconds(habit.step));
+      if (stepMinInp) stepMinInp.value = String(parts.m + parts.h * 60);
+      if (stepSecInp) stepSecInp.value = String(parts.s);
     } else {
       stepWrap.hidden = true;
+      if (timeStepWrap) timeStepWrap.hidden = true;
     }
     renderHabitEditExcludeDays(habit);
     const hideBtn = document.getElementById("habitEditHide");
@@ -3252,6 +3877,12 @@
       habit.step = Math.min(
         MAX_STEP,
         Math.max(1, parseInt(document.getElementById("habitEditStep").value, 10) || 1)
+      );
+    }
+    if (habit.type === "time") {
+      habit.step = readTimeStepFromFields(
+        document.getElementById("habitEditStepMin"),
+        document.getElementById("habitEditStepSec")
       );
     }
     if (habit.type === "yesno") {
@@ -3338,6 +3969,8 @@
     let title = habit.name;
     if (habit.type === "counter") {
       title += " (" + formatStepBracket(habit.step) + ")";
+    } else if (habit.type === "time") {
+      title += " (+" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC) + ")";
     }
     return title;
   }
@@ -3690,7 +4323,7 @@
     const detail = entry.detail || {};
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
-    if (habit.type === "counter") {
+    if (isStepHabit(habit)) {
       const delta = (newValue || 0) - (oldValue || 0);
       if (delta > 0) return "add";
       return "erase";
@@ -3709,11 +4342,15 @@
     const whenLabel = clockLabel ? dateLabel + ", " + clockLabel : dateLabel;
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
-    if (habit.type === "counter") {
+    if (isStepHabit(habit)) {
       const delta = (newValue || 0) - (oldValue || 0);
-      if (delta > 0) return whenLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+      const deltaLabel =
+        habit.type === "time"
+          ? (delta > 0 ? "+" : "") + formatDuration(Math.abs(delta))
+          : String(delta > 0 ? "+" + delta : delta);
+      if (delta > 0) return whenLabel + ": " + deltaLabel + " (now " + cellValueLabel(habit, newValue) + ")";
       if (delta < 0) {
-        return whenLabel + ": " + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+        return whenLabel + ": " + deltaLabel + " (now " + cellValueLabel(habit, newValue) + ")";
       }
       return whenLabel + ": cleared";
     }
@@ -3732,6 +4369,7 @@
       if (value >= 1) return "Yes";
       return "No";
     }
+    if (habit.type === "time") return formatDuration(value);
     return String(value);
   }
 
@@ -3755,16 +4393,20 @@
       const dateLabel = formatChangeLogDate(detail.date);
       const oldValue = detail.oldValue != null ? detail.oldValue : null;
       const newValue = detail.newValue != null ? detail.newValue : null;
-      if (habit.type === "counter") {
+      if (isStepHabit(habit)) {
         const delta = (newValue || 0) - (oldValue || 0);
+        const deltaLabel =
+          habit.type === "time"
+            ? (delta > 0 ? "+" : "-") + formatDuration(Math.abs(delta))
+            : String(delta > 0 ? "+" + delta : delta);
         if (delta > 0) {
-          return dateLabel + ": +" + delta + " (now " + cellValueLabel(habit, newValue) + ")";
+          return dateLabel + ": " + deltaLabel + " (now " + cellValueLabel(habit, newValue) + ")";
         }
         if (delta < 0) {
           return (
             dateLabel +
             ": " +
-            delta +
+            deltaLabel +
             " (now " +
             cellValueLabel(habit, newValue) +
             ")"
@@ -3832,6 +4474,7 @@
     state.habits = state.habits.map(function (h) {
       var n = normalizeHabit(h || {}, state.categories);
       if (n.type === "counter" && !n.step) n.step = 1;
+      if (n.type === "time") n.step = clampTimeStepSeconds(n.step);
       return n;
     });
     migrateLegacyFactoryHabits();
@@ -3952,25 +4595,59 @@
   }
 
   function bucketThresholdLabel(habit, bucket, high) {
-    if (bucket === 0) return "0";
+    if (bucket === 0) return habit.type === "time" ? "0s" : "0";
     if (habit.type === "yesno") {
       if (bucket >= 5) return "Yes";
       if (bucket === 3) return "In progress";
       return "No";
     }
     if (!high) return String(bucket);
-    return String(Math.round((high * bucket) / 5));
+    const raw = Math.round((high * bucket) / 5);
+    return habit.type === "time" ? formatDuration(raw) : String(raw);
   }
 
   function cellStyle(habit, value, y, m, d) {
+    const modern = layoutMode === "modern";
+    const accent = habitAccentColor(habit);
     if (habit.type === "yesno" && y != null && isDayExcluded(habit, y, m, d)) {
-      return "background:#d8d4cc;border-color:#c8c4bc;color:#a89e94";
+      return modern
+        ? "background:#2a2f3d;border-color:#3a4154;color:#6b7285"
+        : "background:#d8d4cc;border-color:#c8c4bc;color:#a89e94";
     }
     if (habit.type === "yesno") {
-      if (value === YESNO_PROGRESS) return "background:#f5d76e;border-color:#e6c65c;color:#6b5a18";
-      if (value >= 1) return "background:" + GRADIENT[5] + ";border-color:transparent;color:#fff";
-      if (value === 0) return "background:" + GRADIENT[2] + ";border-color:transparent;color:var(--accent-dark)";
-      return "background:#fff;border-color:var(--border)";
+      if (value === YESNO_PROGRESS) {
+        return modern
+          ? "background:#c9a227;border-color:transparent;color:#1a1408"
+          : "background:#f5d76e;border-color:#e6c65c;color:#6b5a18";
+      }
+      if (value >= 1) {
+        return modern
+          ? "background:" + accent + ";border-color:transparent;color:#fff"
+          : "background:" + GRADIENT[5] + ";border-color:transparent;color:#fff";
+      }
+      if (value === 0) {
+        return modern
+          ? "background:rgba(251,113,133,0.28);border-color:transparent;color:#fecdd3"
+          : "background:" + GRADIENT[2] + ";border-color:transparent;color:var(--accent-dark)";
+      }
+      return modern
+        ? "background:#151822;border-color:rgba(255,255,255,0.08)"
+        : "background:#fff;border-color:var(--border)";
+    }
+    if (modern) {
+      if (value == null || value <= 0) {
+        return "background:#151822;border-color:rgba(255,255,255,0.08);color:#fff";
+      }
+      const high = Math.max(getAllTimeHigh(habit.id), habit.step || 1, 1);
+      const ratio = Math.min(1, value / high);
+      const alpha = 0.35 + ratio * 0.65;
+      return (
+        "background:" +
+        accent +
+        ";opacity:1;border-color:transparent;color:#fff;box-shadow:inset 0 0 0 999px rgba(18,20,28," +
+        (1 - alpha).toFixed(2) +
+        ")"
+      );
     }
     const high = getAllTimeHigh(habit.id);
     const b = valueToBucket(habit, value, high);
@@ -3992,6 +4669,9 @@
   }
 
   function todayHabitUnitParen(habit) {
+    if (habit.type === "time") {
+      return "+" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC);
+    }
     if (habit.type !== "counter") return "";
     const step = Math.round(habit.step || 1);
     if (isStepsHabitName(habit.name)) {
@@ -4016,6 +4696,11 @@
     let html = (habit.pinned ? "★ " : "") + escapeHtml(habit.name);
     if (habit.type === "counter") {
       html += '<span class="habit-label-step">(' + escapeHtml(formatStepBracket(habit.step)) + ")</span>";
+    } else if (habit.type === "time") {
+      html +=
+        '<span class="habit-label-step">(' +
+        escapeHtml(formatDuration(habit.step || DEFAULT_TIME_STEP_SEC)) +
+        ")</span>";
     }
     return html;
   }
@@ -4078,6 +4763,10 @@
       if (value === YESNO_PROGRESS) return { text: "◐", cls: "cell-progress" };
       if (value >= 1) return { text: "✓", cls: "cell-yes" };
       if (value === 0) return { text: "✗", cls: "cell-no" };
+    }
+    if (habit.type === "time") {
+      if (value > 0) return { text: formatDurationCell(value), cls: "cell-time cell-count" };
+      return { text: "", cls: "" };
     }
     if (value > 0) return { text: formatCounterDisplay(value), cls: "cell-count" };
     return { text: "", cls: "" };
@@ -4211,7 +4900,8 @@
       );
     }
     const value = getCellValue(cellKey(habit.id, y, m, d));
-    const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     return (
       '<button type="button" class="cell cell-year-shade' +
       todayCls +
@@ -4219,12 +4909,13 @@
       dataKey +
       '"' +
       counterAttr +
+      timeAttr +
       ' style="' +
       cellStyle(habit, value, y, m, d) +
       '" aria-label="' +
       escapeHtml(habit.name) +
       " " +
-      (value != null ? value : "empty") +
+      (value != null ? cellValueLabel(habit, value) : "empty") +
       '"></button>'
     );
   }
@@ -4338,10 +5029,75 @@
     document.body.classList.remove("year-fs-open");
   }
 
+  function openTimeAddSheet(habitId, y, m, d) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "time") return;
+    timeAddContext = { habitId: habitId, y: y, m: m, d: d };
+    const parts = splitSeconds(clampTimeStepSeconds(habit.step));
+    const minInp = document.getElementById("timeAddMinutes");
+    const secInp = document.getElementById("timeAddSeconds");
+    if (minInp) minInp.value = String(parts.m + parts.h * 60);
+    if (secInp) secInp.value = String(parts.s);
+    const title = document.getElementById("timeAddTitle");
+    const sub = document.getElementById("timeAddSub");
+    if (title) title.textContent = "Add time · " + habit.name;
+    if (sub) {
+      const current = getCellValue(cellKey(habitId, y, m, d));
+      sub.textContent =
+        MONTHS[m] +
+        " " +
+        d +
+        (current ? " · current " + formatDuration(current) : " · enter minutes & seconds");
+    }
+    document.getElementById("timeAddSheet").hidden = false;
+    document.body.classList.add("time-add-open");
+    if (minInp) minInp.focus();
+  }
+
+  function closeTimeAddSheet() {
+    timeAddContext = null;
+    const sheet = document.getElementById("timeAddSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("time-add-open");
+  }
+
+  function confirmTimeAdd() {
+    if (!timeAddContext) return;
+    const habitId = timeAddContext.habitId;
+    const y = timeAddContext.y;
+    const m = timeAddContext.m;
+    const d = timeAddContext.d;
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "time") {
+      closeTimeAddSheet();
+      return;
+    }
+    const addSec = readTimeStepFromFields(
+      document.getElementById("timeAddMinutes"),
+      document.getElementById("timeAddSeconds")
+    );
+    const key = cellKey(habitId, y, m, d);
+    const oldValue = getCellValue(key);
+    state.cells[key] = (oldValue || 0) + addSec;
+    const newValue = getCellValue(key);
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: newValue,
+    });
+    closeTimeAddSheet();
+    afterCellChange(habitId, y, m, d);
+    toast("+" + formatDuration(addSec));
+  }
+
   function tapCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
+    if (habit.type === "time") {
+      openTimeAddSheet(habitId, y, m, d);
+      return;
+    }
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
     if (habit.type === "yesno") {
@@ -4367,7 +5123,7 @@
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
-    if (habit.type === "yesno") {
+    if (habit.type === "yesno" || habit.type === "time") {
       tapCell(habitId, y, m, d);
       return;
     }
@@ -4468,7 +5224,26 @@
       return;
     }
     if (activeTab === "habits" || activeTab === "log") {
-      nav.innerHTML = '<span class="nav-label">' + state.year + "</span>";
+      const modernOn = layoutMode === "modern";
+      nav.innerHTML =
+        '<span class="nav-label">' +
+        state.year +
+        "</span>" +
+        '<button type="button" class="layout-switch-mini' +
+        (modernOn ? " on" : "") +
+        '" id="layoutToggleNav" aria-pressed="' +
+        modernOn +
+        '" title="' +
+        (modernOn ? "Switch to original layout" : "Switch to modern layout") +
+        '">' +
+        (modernOn ? "Modern" : "Original") +
+        "</button>";
+      const mini = document.getElementById("layoutToggleNav");
+      if (mini) {
+        mini.onclick = function () {
+          toggleLayoutMode();
+        };
+      }
       return;
     }
     if (activeTab === "stats") {
@@ -4513,7 +5288,7 @@
   }
 
   function renderLegendCompact(habit) {
-    const high = Math.max(getAllTimeHigh(habit.id), habit.type === "counter" ? (habit.step || 1) : 1);
+    const high = Math.max(getAllTimeHigh(habit.id), isStepHabit(habit) ? (habit.step || 1) : 1);
     let html = '<div class="legend-scale legend-compact">';
     if (habit.type === "yesno") {
       html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:#d8d4cc"></span><span>Skip</span></div>';
@@ -4530,10 +5305,10 @@
       html += "<span>" + escapeHtml(bucketThresholdLabel(habit, b, high)) + "</span></div>";
     });
     html += "</div>";
-    if (habit.type === "counter") {
+    if (isStepHabit(habit)) {
       html +=
         '<p class="legend-high-note">High: <strong>' +
-        escapeHtml(formatCounterDisplay(high)) +
+        escapeHtml(habit.type === "time" ? formatDuration(high) : formatCounterDisplay(high)) +
         "</strong></p>";
     }
     return html;
@@ -4543,6 +5318,11 @@
     let html = renderLegendCompact(habit);
     if (habit.type === "counter") {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Mark: tap +step. Eraser or hold: -step</p>";
+    } else if (habit.type === "time") {
+      html +=
+        "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to add minutes &amp; seconds. Eraser or hold: −" +
+        escapeHtml(formatDuration(habit.step || DEFAULT_TIME_STEP_SEC)) +
+        "</p>";
     } else {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap: empty → In progress → Yes → No → clear. Eraser steps back.</p>";
     }
@@ -4570,10 +5350,11 @@
     const value = getCellValue(key);
     const disp = cellDisplay(habit, value);
     const cls = "cell " + disp.cls + todayCls + (extraClass || "");
-    const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     return (
-      '<button type="button" class="' + cls.trim() + '" data-key="' + dataKey + '"' + counterAttr + ' style="' + cellStyle(habit, value, y, m, d) + '" aria-label="' +
-      escapeHtml(habit.name) + " " + (value != null ? value : "empty") + '">' + escapeHtml(disp.text) + "</button>"
+      '<button type="button" class="' + cls.trim() + '" data-key="' + dataKey + '"' + counterAttr + timeAttr + ' style="' + cellStyle(habit, value, y, m, d) + '" aria-label="' +
+      escapeHtml(habit.name) + " " + (value != null ? cellValueLabel(habit, value) : "empty") + '">' + escapeHtml(disp.text) + "</button>"
     );
   }
 
@@ -4627,7 +5408,8 @@
     }
     const value = getCellValue(cellKey(habit.id, y, m, d));
     const disp = cellDisplay(habit, value);
-    const counterAttr = habit.type === "counter" ? ' data-counter="1"' : "";
+    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     const emptyYesNo =
       habit.type === "yesno" && (value === null || value === undefined);
     const dotCls = emptyYesNo ? " cell-dot" : "";
@@ -4640,14 +5422,15 @@
       dataKey +
       '" data-today="1"' +
       counterAttr +
+      timeAttr +
       ' style="' +
       cellStyle(habit, value, y, m, d) +
       '" aria-label="' +
       escapeHtml(habit.name) +
       " " +
-      (value != null ? value : "empty") +
+      (value != null ? cellValueLabel(habit, value) : "empty") +
       '">' +
-      disp.text +
+      escapeHtml(disp.text) +
       "</button>"
     );
   }
@@ -4765,9 +5548,9 @@
     const hiddenHabits = getHiddenHabitsFiltered();
     let html = renderCategoryFiltersHtml(true);
     html +=
-      '<p class="hint">Tap a name to edit · Hide on each row · hidden habits below.' +
+      '<p class="hint">Tap a name to edit · Hide on each row · pick type when adding · hidden habits below.' +
       eraserNote +
-      " Hold a counter cell to subtract. Hold ≡ to drag habits.</p>";
+      " Hold a counter/time cell to subtract. Tap time cells to add minutes &amp; seconds. Hold ≡ to drag habits.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -5054,6 +5837,7 @@
   function formatWindowAverage(habit, value) {
     if (value == null) return "—";
     if (habit.type === "yesno") return value + "%";
+    if (habit.type === "time") return formatDuration(Math.round(value));
     return formatCounterDisplay(Math.round(value));
   }
 
@@ -5067,6 +5851,9 @@
         Math.round(max * 100) +
         "%]"
       );
+    }
+    if (habit.type === "time") {
+      return " [" + formatDuration(min) + "/" + formatDuration(max) + "]";
     }
     return " [" + formatCounterDisplay(min) + "/" + formatCounterDisplay(max) + "]";
   }
@@ -5788,6 +6575,7 @@
       if (raw <= 0) return "No";
       return "In progress";
     }
+    if (habit.type === "time") return formatDuration(Math.round(raw));
     return formatCounterDisplay(Math.round(raw));
   }
 
@@ -6399,10 +7187,9 @@
   }
 
   function habitCompactMeta(habit) {
-    const type =
-      habit.type === "counter"
-        ? "Counter +" + formatStepBracket(habit.step)
-        : "Yes/No";
+    let type = "Yes/No";
+    if (habit.type === "counter") type = "Counter +" + formatStepBracket(habit.step);
+    else if (habit.type === "time") type = "Time +" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC);
     return categoryLabel(habit.category) + " · " + type + (habit.pinned ? " · ★" : "");
   }
 
@@ -6453,7 +7240,8 @@
     const root = document.getElementById("panelHabits");
     const meta = readMeta() || {};
     const marks = Object.keys(state.cells).length;
-    let html = '<div class="habits-backup-row">';
+    let html = renderLayoutToggleHtml();
+    html += '<div class="habits-backup-row">';
     html +=
       '<button type="button" class="btn btn-primary" id="btnExport">Export backup</button>';
     html +=
@@ -6511,7 +7299,7 @@
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
     html += '<p class="hint">Reorder on the Month tab (hold ≡). Hide habits you don’t track daily.</p>';
 
-    html += '<div class="add-habit-row add-habit-row-top">';
+    html += '<div class="add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
     html += '<select id="newHabitCategory" aria-label="Category">';
     state.categories.forEach(function (cat) {
@@ -6528,10 +7316,17 @@
         escapeHtml(cat.label) +
         "</option>";
     });
+    html += "</select>";
+    html += renderHabitTypeSelectHtml("newHabitType", "counter");
     html +=
-      '</select><input type="number" id="newHabitStep" min="1" max="' +
+      '<span class="add-habit-step-fields" id="habitsCounterStepWrap">' +
+      '<input type="number" id="newHabitStep" min="1" max="' +
       MAX_STEP +
-      '" value="1" aria-label="+ per tap" title="+ per tap" />';
+      '" value="1" aria-label="+ per tap" title="+ per tap" /></span>';
+    html +=
+      '<span class="add-habit-step-fields" id="habitsTimeStepWrap" hidden>' +
+      renderTimeStepFieldsHtml("newHabitStepMin", "newHabitStepSec", DEFAULT_TIME_STEP_SEC) +
+      "</span>";
     html +=
       '<button type="button" class="btn btn-primary add-habit-plus-btn" id="addHabit" aria-label="Add habit">+</button></div>';
 
@@ -6610,6 +7405,12 @@
         '" data-type="yesno" data-hid="' +
         habit.id +
         '">Yes / No</button>';
+      row +=
+        '<button type="button" class="type-pill' +
+        (habit.type === "time" ? " on" : "") +
+        '" data-type="time" data-hid="' +
+        habit.id +
+        '">Time</button>';
       row += "</div>";
       if (habit.type === "counter") {
         row +=
@@ -6626,6 +7427,22 @@
           row +=
             '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
         }
+      } else if (habit.type === "time") {
+        const tp = splitSeconds(clampTimeStepSeconds(habit.step));
+        row +=
+          '<div class="step-row"><span>+ minutes &amp; seconds</span>' +
+          '<input type="number" min="0" max="999" value="' +
+          (tp.m + tp.h * 60) +
+          '" data-step-min="' +
+          habit.id +
+          '" aria-label="Minutes" />' +
+          '<span class="time-unit">m</span>' +
+          '<input type="number" min="0" max="59" value="' +
+          tp.s +
+          '" data-step-sec="' +
+          habit.id +
+          '" aria-label="Seconds" />' +
+          '<span class="time-unit">s</span></div>';
       } else {
         row += renderExcludeDaysHtml(habit);
       }
@@ -6658,6 +7475,19 @@
 
     bindDataActions(root);
     bindExcludeDays(root);
+
+    const layoutToggle = document.getElementById("layoutToggle");
+    if (layoutToggle) {
+      layoutToggle.onclick = function () {
+        toggleLayoutMode();
+      };
+    }
+
+    bindHabitTypeStepFields(
+      document.getElementById("newHabitType"),
+      document.getElementById("habitsCounterStepWrap"),
+      document.getElementById("habitsTimeStepWrap")
+    );
 
     const dangerToggle = document.getElementById("habitsDangerToggle");
     if (dangerToggle) {
@@ -6752,12 +7582,20 @@
       const inp = document.getElementById("newHabitName");
       const name = (inp && inp.value.trim()) || "New habit";
       const catEl = document.getElementById("newHabitCategory");
+      const typeEl = document.getElementById("newHabitType");
       const stepEl = document.getElementById("newHabitStep");
+      const stepMinEl = document.getElementById("newHabitStepMin");
+      const stepSecEl = document.getElementById("newHabitStepSec");
       const cat = catEl ? normalizeCategory(catEl.value) : "general";
-      const step = stepEl ? stepEl.value : 1;
-      if (!addHabitToState(name, cat, step)) return;
+      const type = typeEl ? typeEl.value : "counter";
+      let step = 1;
+      if (type === "time") step = readTimeStepFromFields(stepMinEl, stepSecEl);
+      else if (type === "counter") step = stepEl ? stepEl.value : 1;
+      if (!addHabitToState(name, cat, step, type)) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
+      if (stepMinEl) stepMinEl.value = "1";
+      if (stepSecEl) stepSecEl.value = "0";
       toast("Added " + name);
       render();
     }
@@ -6797,9 +7635,16 @@
       btn.onclick = function () {
         const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
         if (!h) return;
+        const prevType = h.type;
         h.type = btn.dataset.type;
         if (h.type === "counter") {
-          if (!h.step) h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
+          if (prevType === "time" || !h.step) {
+            h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
+          }
+          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+          delete h.excludeDays;
+        } else if (h.type === "time") {
+          h.step = prevType === "time" ? clampTimeStepSeconds(h.step) : DEFAULT_TIME_STEP_SEC;
           delete h.excludeDays;
         } else if (h.type === "yesno") {
           if (!h.excludeDays) h.excludeDays = [];
@@ -6815,6 +7660,27 @@
         h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
         save();
         render();
+      };
+    });
+
+    function syncTimeStepInputs(habitId) {
+      const h = state.habits.find(function (x) { return x.id === habitId; });
+      if (!h || h.type !== "time") return;
+      const minInp = root.querySelector('[data-step-min="' + habitId + '"]');
+      const secInp = root.querySelector('[data-step-sec="' + habitId + '"]');
+      h.step = readTimeStepFromFields(minInp, secInp);
+      save();
+      render();
+    }
+
+    root.querySelectorAll("[data-step-min]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-min"));
+      };
+    });
+    root.querySelectorAll("[data-step-sec]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-sec"));
       };
     });
 
@@ -7070,6 +7936,8 @@
         if (tickVal >= 0.75) label = "Yes";
         else if (tickVal >= 0.25) label = "…";
         else label = "No";
+      } else if (habit.type === "time") {
+        label = formatDuration(Math.round(tickVal), { compact: true });
       } else {
         label = Number.isInteger(tickVal) ? String(Math.round(tickVal)) : tickVal.toFixed(1);
       }
@@ -7290,6 +8158,7 @@
     tab.onclick = function () {
       if (tab.dataset.tab !== "stats") closeYearFullscreen();
       closeHabitEdit();
+      closeTimeAddSheet();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
       document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
@@ -7298,10 +8167,33 @@
     };
   });
 
+  (function bindTimeAddSheet() {
+    const confirmBtn = document.getElementById("timeAddConfirm");
+    const cancelBtn = document.getElementById("timeAddCancel");
+    const backdrop = document.getElementById("timeAddBackdrop");
+    if (confirmBtn) confirmBtn.onclick = confirmTimeAdd;
+    if (cancelBtn) cancelBtn.onclick = closeTimeAddSheet;
+    if (backdrop) backdrop.onclick = closeTimeAddSheet;
+    ["timeAddMinutes", "timeAddSeconds"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          confirmTimeAdd();
+        } else if (e.key === "Escape") {
+          e.preventDefault();
+          closeTimeAddSheet();
+        }
+      });
+    });
+  })();
+
   function render() {
     try {
       ensureHabitsReady();
       pruneTodayDismissed();
+      applyLayoutMode();
       document.body.classList.toggle("tab-today", activeTab === "today");
       document.body.classList.toggle(
         "eraser-mode",
@@ -7326,6 +8218,7 @@
     }
   }
 
+  loadLayoutMode();
   storageOk = storageAvailable();
   if (!storageOk) {
     showStorageBanner("Data won't save in Private Browsing. Use Safari normal mode and always open the same URL (mathoose.github.io).");
