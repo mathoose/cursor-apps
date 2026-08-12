@@ -7102,9 +7102,7 @@
     if (raw == null) return "—";
     if (habit.type === "yesno") return Math.round(raw * 100) + "%";
     if (habit.type === "time") return formatDuration(Math.round(raw));
-    const rounded = Math.round(raw * 10) / 10;
-    if (rounded === Math.round(rounded)) return formatCounterDisplay(Math.round(rounded));
-    return String(rounded);
+    return formatCounterDisplay(Math.round(raw));
   }
 
   function graphInspectValueAtTime(series, ts, start, end) {
