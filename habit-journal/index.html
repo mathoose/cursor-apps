@@ -6950,14 +6950,6 @@
     return out;
   }
 
-  function movingAverageRaws(points, windowSize) {
-    const out = [];
-    for (let i = 0; i < points.length; i++) {
-      out.push(movingAverageRawAt(points, windowSize, i));
-    }
-    return out;
-  }
-
   function movingAverageRawAt(points, windowSize, index) {
     if (index < 0 || index >= points.length) return null;
     let sum = 0;
