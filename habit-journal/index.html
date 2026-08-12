@@ -2247,7 +2247,12 @@
       margin-bottom: 12px;
       line-height: 1.4;
     }
-    .habits-danger-bar { margin-bottom: 12px; }
+    .habits-danger-bar {
+      margin-top: 28px;
+      margin-bottom: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
     .habits-danger-toggle {
       border: none;
       background: transparent;
@@ -7920,17 +7925,6 @@
       " marked days · last saved " +
       escapeHtml(formatSavedWhen(meta.lastSavedAt)) +
       "</p>";
-    html += '<div class="habits-danger-bar">';
-    html +=
-      '<button type="button" class="habits-danger-toggle" id="habitsDangerToggle" aria-expanded="' +
-      habitsDangerOpen +
-      '">' +
-      (habitsDangerOpen ? "▼" : "▶") +
-      " Danger zone</button>";
-    html +=
-      '<div class="habits-danger-panel" id="habitsDangerPanel"' +
-      (habitsDangerOpen ? "" : " hidden") +
-      '><button type="button" class="btn btn-secondary btn-block" id="btnReset" style="color:#b91c1c;border-color:#fecaca">Reset all data</button></div></div>';
     html +=
       '<div class="habits-color-bar' +
       (habitsColorPanelOpen ? " is-open" : "") +
@@ -8180,6 +8174,18 @@
       });
       html += "</div>";
     }
+
+    html += '<div class="habits-danger-bar">';
+    html +=
+      '<button type="button" class="habits-danger-toggle" id="habitsDangerToggle" aria-expanded="' +
+      habitsDangerOpen +
+      '">' +
+      (habitsDangerOpen ? "▼" : "▶") +
+      " Danger zone</button>";
+    html +=
+      '<div class="habits-danger-panel" id="habitsDangerPanel"' +
+      (habitsDangerOpen ? "" : " hidden") +
+      '><button type="button" class="btn btn-secondary btn-block" id="btnReset" style="color:#b91c1c;border-color:#fecaca">Reset all data</button></div></div>';
 
     html += renderVersionFooterHtml();
     root.innerHTML = html;
