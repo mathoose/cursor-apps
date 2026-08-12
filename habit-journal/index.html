@@ -700,6 +700,34 @@
       font-variant-numeric: tabular-nums;
       flex-shrink: 0;
     }
+    .graph-chart-tooltip-habit {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+      flex: 1;
+    }
+    .graph-chart-tooltip-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .graph-chart-tooltip-metric {
+      font-size: 0.7rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .graph-chart-tooltip-metric b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    body.layout-modern .graph-chart-tooltip-metric {
+      color: #8b93a8;
+    }
+    body.layout-modern .graph-chart-tooltip-metric b {
+      color: #1a1f2e;
+    }
     #graphsBody.graph-inspecting,
     #graphsBody.graph-inspecting * {
       -webkit-user-select: none !important;
@@ -3078,6 +3106,8 @@
       const parsed = JSON.parse(raw);
       graphMa15 = !!parsed.ma15;
       graphMa30 = !!parsed.ma30;
+      graphHideDaily = !!parsed.hideDaily;
+      if (!graphMa15 && !graphMa30) graphHideDaily = false;
     } catch (e) { /* ok */ }
   }
 
@@ -3085,7 +3115,11 @@
     try {
       localStorage.setItem(
         GRAPH_MA_KEY,
-        JSON.stringify({ ma15: !!graphMa15, ma30: !!graphMa30 })
+        JSON.stringify({
+          ma15: !!graphMa15,
+          ma30: !!graphMa30,
+          hideDaily: !!(graphHideDaily && (graphMa15 || graphMa30)),
+        })
       );
     } catch (e) { /* ok */ }
   }
@@ -3164,6 +3198,7 @@
   let habitsColorPanelOpen = false;
   let graphMa15 = false;
   let graphMa30 = false;
+  let graphHideDaily = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -6915,6 +6950,19 @@
     return out;
   }
 
+  function movingAverageRawAt(points, windowSize, index) {
+    if (index < 0 || index >= points.length) return null;
+    let sum = 0;
+    let n = 0;
+    const from = Math.max(0, index - windowSize + 1);
+    for (let j = from; j <= index; j++) {
+      if (points[j].raw == null) continue;
+      sum += points[j].raw;
+      n++;
+    }
+    return n ? sum / n : null;
+  }
+
   function strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, padTop, color, opts) {
     const dashed = opts && opts.dashed;
     const lineWidth = (opts && opts.lineWidth) || 2;
@@ -7050,6 +7098,15 @@
     return formatCounterDisplay(Math.round(raw));
   }
 
+  function graphInspectMaLabel(habit, raw) {
+    if (raw == null) return "—";
+    if (habit.type === "yesno") return Math.round(raw * 100) + "%";
+    if (habit.type === "time") return formatDuration(Math.round(raw));
+    const rounded = Math.round(raw * 10) / 10;
+    if (rounded === Math.round(rounded)) return formatCounterDisplay(Math.round(rounded));
+    return String(rounded);
+  }
+
   function graphInspectValueAtTime(series, ts, start, end) {
     let value = null;
     series.points.forEach(function (p) {
@@ -7083,15 +7140,25 @@
     const pointIndex = meta.domainStartIndex + visibleIndex;
     const refPoint = meta.seriesList[0].points[pointIndex];
     const label = refPoint && refPoint.day ? formatGraphInspectDay(refPoint.day.date) : "";
+    const includeMa = !!(meta.showMa15 || meta.showMa30);
     return {
       label: label,
       habits: meta.seriesList.map(function (series) {
         const p = series.points[pointIndex];
-        return {
+        const row = {
           habit: series.habit,
           color: plotColorFromMap(series.habit.id, meta.colorMap),
           value: p ? p.raw : null,
         };
+        if (includeMa) {
+          if (meta.showMa15) {
+            row.ma15 = movingAverageRawAt(series.points, 15, pointIndex);
+          }
+          if (meta.showMa30) {
+            row.ma30 = movingAverageRawAt(series.points, 30, pointIndex);
+          }
+        }
+        return row;
       }),
     };
   }
@@ -7153,17 +7220,45 @@
     const wrap = canvas.parentElement;
     if (!wrap) return;
     const info = graphInspectAtPlotX(meta, graphPlotXFromClient(canvas, clientX));
+    const showMaMetrics = !!(meta.showMa15 || meta.showMa30);
     let html =
       '<div class="graph-chart-tooltip-date">' + escapeHtml(info.label) + "</div><ul>";
     info.habits.forEach(function (row) {
+      const dayLabel = graphInspectRawLabel(row.habit, row.value);
       html +=
-        "<li><span class=\"graph-chart-tooltip-swatch\" style=\"background:" +
+        '<li><span class="graph-chart-tooltip-swatch" style="background:' +
         row.color +
-        '"></span><span class="graph-chart-tooltip-name">' +
-        escapeHtml(row.habit.name) +
-        "</span><strong>" +
-        escapeHtml(graphInspectRawLabel(row.habit, row.value)) +
-        "</strong></li>";
+        '"></span>';
+      if (showMaMetrics) {
+        html +=
+          '<div class="graph-chart-tooltip-habit"><span class="graph-chart-tooltip-name">' +
+          escapeHtml(row.habit.name) +
+          '</span><span class="graph-chart-tooltip-metrics">' +
+          '<span class="graph-chart-tooltip-metric">Day <b>' +
+          escapeHtml(dayLabel) +
+          "</b></span>";
+        if (meta.showMa15) {
+          html +=
+            '<span class="graph-chart-tooltip-metric">15d <b>' +
+            escapeHtml(graphInspectMaLabel(row.habit, row.ma15)) +
+            "</b></span>";
+        }
+        if (meta.showMa30) {
+          html +=
+            '<span class="graph-chart-tooltip-metric">30d <b>' +
+            escapeHtml(graphInspectMaLabel(row.habit, row.ma30)) +
+            "</b></span>";
+        }
+        html += "</span></div>";
+      } else {
+        html +=
+          '<span class="graph-chart-tooltip-name">' +
+          escapeHtml(row.habit.name) +
+          "</span><strong>" +
+          escapeHtml(dayLabel) +
+          "</strong>";
+      }
+      html += "</li>";
     });
     html += "</ul>";
     tooltip.innerHTML = html;
@@ -7487,19 +7582,23 @@
       const norms = series.points.map(function (p) {
         return p.norm;
       });
-      strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, pad.top, color, {
-        lineWidth: 2,
-      });
+      const hideDaily =
+        graphHideDaily && graphSupportsMovingAvg(range) && (graphMa15 || graphMa30);
+      if (!hideDaily) {
+        strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, pad.top, color, {
+          lineWidth: 2,
+        });
 
-      series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-        if (p.norm == null) return;
-        const x = graphXForIndex(domainStartIndex + visibleIndex);
-        const y = graphYForNorm(p.norm, plotH, pad.top);
-        ctx.beginPath();
-        ctx.arc(x, y, dotR, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-      });
+        series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
+          if (p.norm == null) return;
+          const x = graphXForIndex(domainStartIndex + visibleIndex);
+          const y = graphYForNorm(p.norm, plotH, pad.top);
+          ctx.beginPath();
+          ctx.arc(x, y, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = color;
+          ctx.fill();
+        });
+      }
 
       if (graphSupportsMovingAvg(range)) {
         if (graphMa15) {
@@ -7540,6 +7639,8 @@
       plotH: plotH,
       w: w,
       h: h,
+      showMa15: !!(graphSupportsMovingAvg(range) && graphMa15),
+      showMa30: !!(graphSupportsMovingAvg(range) && graphMa30),
     });
   }
 
@@ -7559,6 +7660,15 @@
         const days = btn.getAttribute("data-graph-ma");
         if (days === "15") graphMa15 = !graphMa15;
         if (days === "30") graphMa30 = !graphMa30;
+        if (!graphMa15 && !graphMa30) graphHideDaily = false;
+        persistGraphMaPrefs();
+        renderGraphs();
+      };
+    });
+    root.querySelectorAll("[data-graph-hide-daily]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (!graphMa15 && !graphMa30) return;
+        graphHideDaily = !graphHideDaily;
         persistGraphMaPrefs();
         renderGraphs();
       };
@@ -7643,6 +7753,14 @@
         '" data-graph-ma="30" aria-pressed="' +
         graphMa30 +
         '">30-day</button>';
+      if (graphMa15 || graphMa30) {
+        html +=
+          '<button type="button" class="graph-range-btn graph-ma-btn' +
+          (graphHideDaily ? " on" : "") +
+          '" data-graph-hide-daily="1" aria-pressed="' +
+          graphHideDaily +
+          '">Hide daily</button>';
+      }
       html += "</div>";
     }
 
@@ -7710,7 +7828,9 @@
           (graphMa15 ? "15-day" : "") +
           (graphMa15 && graphMa30 ? " · " : "") +
           (graphMa30 ? "30-day" : "") +
-          " moving average</p>";
+          " moving average" +
+          (graphHideDaily ? " · daily hidden" : "") +
+          "</p>";
       }
       html += "</div>";
     }
