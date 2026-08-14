@@ -6770,17 +6770,40 @@
     return buildGraphLogSeries(habit, buildLogTodaySeries(habit.id));
   }
 
-  function buildGraphSeries(habit, start, end) {
-    const days = enumerateGraphDays(start, end);
+  function graphMaLookbackDays() {
+    let days = 0;
+    if (graphMa15) days = Math.max(days, 15);
+    if (graphMa30) days = Math.max(days, 30);
+    return days;
+  }
+
+  function buildGraphSeries(habit, start, end, lookbackDays) {
+    const padDays = Math.max(0, lookbackDays || 0);
+    const dataStart = new Date(start);
+    dataStart.setHours(0, 0, 0, 0);
+    if (padDays > 0) {
+      dataStart.setDate(dataStart.getDate() - padDays);
+    }
+    const days = enumerateGraphDays(dataStart, end);
+    const visibleStart = new Date(start);
+    visibleStart.setHours(0, 0, 0, 0);
+    let visibleStartIndex = 0;
+    for (let i = 0; i < days.length; i++) {
+      if (days[i].date.getTime() >= visibleStart.getTime()) {
+        visibleStartIndex = i;
+        break;
+      }
+      if (i === days.length - 1) visibleStartIndex = days.length;
+    }
     const points = days.map(function (day) {
       const val = getCellValue(cellKey(habit.id, day.y, day.m, day.d));
       const raw = graphRawValue(habit, val);
       return { day: day, raw: raw, val: val };
     });
     let maxRaw = 0;
-    points.forEach(function (p) {
-      if (p.raw != null && p.raw > maxRaw) maxRaw = p.raw;
-    });
+    for (let i = visibleStartIndex; i < points.length; i++) {
+      if (points[i].raw != null && points[i].raw > maxRaw) maxRaw = points[i].raw;
+    }
     if (maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
@@ -6795,6 +6818,7 @@
         };
       }),
       maxRaw: maxRaw,
+      visibleStartIndex: visibleStartIndex,
     };
   }
 
@@ -7558,7 +7582,11 @@
 
     if (!seriesList.length || !seriesList[0].points.length) return;
 
-    const domainStartIndex = range === "365" || range === "year" ? graphFirstDataIndex(seriesList) : 0;
+    const lookbackStart = Math.max(0, seriesList[0].visibleStartIndex || 0);
+    let domainStartIndex = lookbackStart;
+    if (range === "365" || range === "year") {
+      domainStartIndex = Math.max(lookbackStart, graphFirstDataIndex(seriesList));
+    }
     const pointCount = Math.max(1, seriesList[0].points.length - domainStartIndex);
     function graphXForIndex(i) {
       const domainIndex = i - domainStartIndex;
@@ -7721,7 +7749,11 @@
       if (graphRange === "today") return buildGraphTodaySeries(habit);
       if (graphRange === "1") return buildGraph24hSeries(habit);
       const bounds = getGraphDateBounds(graphRange);
-      return buildGraphSeries(habit, bounds.start, bounds.end);
+      const lookback =
+        graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)
+          ? graphMaLookbackDays()
+          : 0;
+      return buildGraphSeries(habit, bounds.start, bounds.end, lookback);
     });
     const hasData = graphUsesActivityLog(graphRange)
       ? seriesList.some(function (series) {
@@ -7730,9 +7762,11 @@
           });
         })
       : seriesList.some(function (series) {
-          return series.points.some(function (p) {
-            return p.raw != null;
-          });
+          const from = series.visibleStartIndex || 0;
+          for (let i = from; i < series.points.length; i++) {
+            if (series.points[i].raw != null) return true;
+          }
+          return false;
         });
 
     let html = renderCategoryFiltersHtml(true);
