@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -57,6 +57,7 @@
         </div>
         <div class="quick-add-link">
           <input id="quickLink" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" />
+          <button type="button" class="quick-link-paste" id="quickLinkPaste">From clipboard</button>
         </div>
         <div class="quick-add-priority" id="quickPriority">
           <span class="quick-add-priority-label">Priority</span>
@@ -459,6 +460,17 @@
           <button type="button" class="btn" id="importFocusBtn">Choose file</button>
           <input type="file" id="importFocusFile" accept="application/json,.json" hidden />
         </div>
+        <div class="settings-help">
+          <div class="settings-label">Share from Instagram</div>
+          <p class="settings-sub">This site can’t appear next to Messages. Add an iPhone Shortcut named <strong>3D Print</strong> so it shows in the share sheet.</p>
+          <ol class="settings-steps">
+            <li>Open Shortcuts → New Shortcut. In Shortcut Details, turn on <strong>Show in Share Sheet</strong> and accept URLs.</li>
+            <li>Add <strong>Open URLs</strong>: <code id="shareUrlTemplate">https://mathoose.github.io/cursor-apps/3d-print/?url=</code> plus Shortcut Input.</li>
+            <li>Instagram → Share → Edit → add <strong>3D Print</strong> to favorites.</li>
+          </ol>
+          <p class="settings-sub">The Shortcut opens Safari. Keep using that Safari page for shared items, or Copy in Instagram then open the home-screen app and tap <strong>From clipboard</strong>. Safari and the home-screen icon do not share the same list.</p>
+          <button type="button" class="btn" id="copyShareUrlBtn" style="margin-top:10px">Copy share URL</button>
+        </div>
         <div class="settings-row">
           <div>
             <div class="settings-label">Manage categories</div>
@@ -541,6 +553,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
