@@ -7256,14 +7256,27 @@
     return n ? sum / n : null;
   }
 
+  /** Darken (factor &lt; 1) or lighten (factor &gt; 1) a #rrggbb color toward black/white. */
+  function shadeHexColor(hex, factor) {
+    const h = normalizeHexColor(hex);
+    if (!h) return hex;
+    const f = Math.max(0, factor);
+    function ch(i) {
+      const v = parseInt(h.slice(i, i + 2), 16);
+      const next = f <= 1 ? Math.round(v * f) : Math.round(v + (255 - v) * Math.min(1, f - 1));
+      return Math.max(0, Math.min(255, next)).toString(16).padStart(2, "0");
+    }
+    return "#" + ch(1) + ch(3) + ch(5);
+  }
+
   function strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, padTop, color, opts) {
     const dashed = opts && opts.dashed;
     const lineWidth = (opts && opts.lineWidth) || 2;
+    const dash = (opts && opts.dash) || (dashed ? [6, 5] : []);
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
-    if (dashed) ctx.setLineDash([6, 5]);
-    else ctx.setLineDash([]);
+    ctx.setLineDash(dashed || (dash && dash.length) ? dash : []);
     ctx.beginPath();
     let started = false;
     for (let i = domainStartIndex; i < norms.length; i++) {
@@ -7905,7 +7918,7 @@
             plotH,
             pad.top,
             color,
-            { dashed: true, lineWidth: 2.25 }
+            { dashed: true, dash: [4, 4], lineWidth: 2.1 }
           );
         }
         if (graphMa30) {
@@ -7916,8 +7929,8 @@
             graphXForIndex,
             plotH,
             pad.top,
-            color,
-            { dashed: true, lineWidth: 2.75 }
+            shadeHexColor(color, 0.62),
+            { dashed: true, dash: [11, 5], lineWidth: 2.7 }
           );
         }
       }
@@ -8124,14 +8137,17 @@
           "</span></div>";
       });
       if (graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)) {
-        html +=
-          '<p class="graph-ma-legend hint" style="margin:8px 0 0">Dashed lines: ' +
-          (graphMa15 ? "15-day" : "") +
-          (graphMa15 && graphMa30 ? " · " : "") +
-          (graphMa30 ? "30-day" : "") +
-          " moving average" +
-          (graphHideDaily ? " · daily hidden" : "") +
-          "</p>";
+        html += '<p class="graph-ma-legend hint" style="margin:8px 0 0">';
+        if (graphMa15 && graphMa30) {
+          html +=
+            "15-day: short dashes · 30-day: longer, darker dashes";
+        } else if (graphMa15) {
+          html += "Short dashes: 15-day moving average";
+        } else {
+          html += "Longer darker dashes: 30-day moving average";
+        }
+        if (graphHideDaily) html += " · daily hidden";
+        html += "</p>";
       }
       html += "</div>";
     }
