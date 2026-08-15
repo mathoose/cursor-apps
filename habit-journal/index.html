@@ -936,8 +936,14 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       padding: 2px 0;
+      -webkit-user-select: none;
+      user-select: none;
     }
     .category-filters::-webkit-scrollbar { display: none; }
+    .category-filters.cat-reordering {
+      overflow-x: hidden;
+      touch-action: none;
+    }
     .category-filters .chip {
       flex-shrink: 0;
       display: inline-flex;
@@ -951,6 +957,37 @@
       font-weight: 600;
       color: var(--ink);
       cursor: pointer;
+      touch-action: manipulation;
+      position: relative;
+    }
+    .category-filters .chip[data-cat-filter]:not([data-cat-filter="all"]) {
+      cursor: grab;
+    }
+    .category-filters.cat-reordering .chip[data-cat-filter]:not([data-cat-filter="all"]) {
+      cursor: grabbing;
+    }
+    .category-filters .chip.cat-dragging {
+      opacity: 0.45;
+    }
+    .category-filters .chip.cat-drop-before::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+    .category-filters .chip.cat-drop-after::after {
+      content: "";
+      position: absolute;
+      right: -5px;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      border-radius: 2px;
+      background: var(--accent);
     }
     .category-filters .chip.on {
       border-color: var(--accent);
@@ -1567,6 +1604,28 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
+    }
+    .category-manage-row .cat-sort-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .category-manage-row .cat-sort-btn {
+      width: 28px;
+      height: 18px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      font-size: 0.5625rem;
+      line-height: 1;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .category-manage-row .cat-sort-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
     }
     .category-manage-row input {
       flex: 1;
@@ -2579,6 +2638,7 @@
     body.layout-modern .month-grid .habit-label,
     body.layout-modern .month-hidden-chip,
     body.layout-modern .habit-sort-btn,
+    body.layout-modern .cat-sort-btn,
     body.layout-modern .habit-pin-btn,
     body.layout-modern .habit-hide-btn,
     body.layout-modern .exclude-day-chip,
@@ -3756,6 +3816,49 @@
     return save();
   }
 
+  /** Move category before another (beforeCatId null = end). Persists filter-row order app-wide. */
+  function reorderCategoryBefore(catId, beforeCatId) {
+    if (!catId || catId === "all") return false;
+    if (beforeCatId && beforeCatId === catId) return false;
+    const list = (state.categories || []).slice();
+    const fromIdx = list.findIndex(function (c) {
+      return c.id === catId;
+    });
+    if (fromIdx < 0) return false;
+    const moved = list.splice(fromIdx, 1)[0];
+    let toIdx = list.length;
+    if (beforeCatId) {
+      const beforeIdx = list.findIndex(function (c) {
+        return c.id === beforeCatId;
+      });
+      if (beforeIdx >= 0) toIdx = beforeIdx;
+    }
+    list.splice(toIdx, 0, moved);
+    const same =
+      list.length === state.categories.length &&
+      list.every(function (c, i) {
+        return c.id === state.categories[i].id;
+      });
+    if (same) return false;
+    state.categories = list;
+    return save();
+  }
+
+  function moveCategoryBy(catId, delta) {
+    const list = state.categories || [];
+    const fromIdx = list.findIndex(function (c) {
+      return c.id === catId;
+    });
+    if (fromIdx < 0) return false;
+    const toIdx = fromIdx + delta;
+    if (toIdx < 0 || toIdx >= list.length) return false;
+    const next = list.slice();
+    const moved = next.splice(fromIdx, 1)[0];
+    next.splice(toIdx, 0, moved);
+    state.categories = next;
+    return save();
+  }
+
   function addHabitToState(name, category, step, type) {
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
@@ -4252,7 +4355,7 @@
   }
 
   function renderCategoryFiltersHtml(onlyVisible) {
-    let html = '<div class="category-filters">';
+    let html = '<div class="category-filters" aria-label="Category filters. Hold a category to reorder.">';
     html +=
       '<button type="button" class="chip' +
       (state.categoryFilter === "all" ? " on" : "") +
@@ -4270,7 +4373,7 @@
         (on ? " on" : "") +
         '" data-cat-filter="' +
         escapeHtml(cat.id) +
-        '" style="border-color:' +
+        '" title="Hold to reorder" style="border-color:' +
         accent +
         (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
         '">' +
@@ -4284,12 +4387,149 @@
 
   function bindCategoryFilters(root) {
     if (!root) return;
-    root.querySelectorAll("[data-cat-filter]").forEach(function (btn) {
-      btn.onclick = function () {
+    const row = root.querySelector(".category-filters");
+    if (!row) return;
+
+    let suppressClick = false;
+    let holdTimer = null;
+    let dragging = false;
+    let dragId = null;
+    let dropBeforeId = undefined;
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+
+    function categoryChips() {
+      return Array.prototype.slice.call(row.querySelectorAll('[data-cat-filter]:not([data-cat-filter="all"])'));
+    }
+
+    function clearDropUi() {
+      row.querySelectorAll(".cat-drop-before, .cat-drop-after, .cat-dragging").forEach(function (el) {
+        el.classList.remove("cat-drop-before", "cat-drop-after", "cat-dragging");
+      });
+    }
+
+    function endDragUi() {
+      if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+      }
+      dragging = false;
+      dragId = null;
+      dropBeforeId = undefined;
+      pointerId = null;
+      row.classList.remove("cat-reordering");
+      clearDropUi();
+    }
+
+    function updateDropFromX(clientX) {
+      const chips = categoryChips().filter(function (el) {
+        return el.getAttribute("data-cat-filter") !== dragId;
+      });
+      dropBeforeId = null;
+      clearDropUi();
+      const dragEl = row.querySelector('[data-cat-filter="' + dragId + '"]');
+      if (dragEl) dragEl.classList.add("cat-dragging");
+      if (!chips.length) return;
+      for (let i = 0; i < chips.length; i++) {
+        const rect = chips[i].getBoundingClientRect();
+        const mid = rect.left + rect.width / 2;
+        if (clientX < mid) {
+          dropBeforeId = chips[i].getAttribute("data-cat-filter");
+          chips[i].classList.add("cat-drop-before");
+          return;
+        }
+      }
+      dropBeforeId = null;
+      chips[chips.length - 1].classList.add("cat-drop-after");
+    }
+
+    function startDrag(id) {
+      dragging = true;
+      dragId = id;
+      row.classList.add("cat-reordering");
+      const dragEl = row.querySelector('[data-cat-filter="' + id + '"]');
+      if (dragEl) dragEl.classList.add("cat-dragging");
+    }
+
+    row.querySelectorAll("[data-cat-filter]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        if (suppressClick) {
+          e.preventDefault();
+          suppressClick = false;
+          return;
+        }
         state.categoryFilter = btn.getAttribute("data-cat-filter");
         save();
         render();
       };
+
+      const catId = btn.getAttribute("data-cat-filter");
+      if (catId === "all") return;
+
+      btn.addEventListener(
+        "pointerdown",
+        function (e) {
+          if (e.button != null && e.button !== 0) return;
+          startX = e.clientX;
+          startY = e.clientY;
+          pointerId = e.pointerId;
+          if (holdTimer) clearTimeout(holdTimer);
+          holdTimer = setTimeout(function () {
+            holdTimer = null;
+            try {
+              btn.setPointerCapture(pointerId);
+            } catch (err) { /* ok */ }
+            startDrag(catId);
+            updateDropFromX(startX);
+          }, 280);
+        },
+        { passive: true }
+      );
+
+      btn.addEventListener(
+        "pointermove",
+        function (e) {
+          if (!dragging) {
+            if (!holdTimer) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (dx * dx + dy * dy > 36) {
+              clearTimeout(holdTimer);
+              holdTimer = null;
+            }
+            return;
+          }
+          e.preventDefault();
+          updateDropFromX(e.clientX);
+        },
+        { passive: false }
+      );
+
+      function finishPointer(e) {
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+        if (!dragging) return;
+        if (e && e.pointerId != null && pointerId != null && e.pointerId !== pointerId) return;
+        const id = dragId;
+        const before = dropBeforeId;
+        endDragUi();
+        suppressClick = true;
+        setTimeout(function () {
+          suppressClick = false;
+        }, 0);
+        if (id && reorderCategoryBefore(id, before)) {
+          render();
+          toast("Category order saved");
+        }
+      }
+
+      btn.addEventListener("pointerup", finishPointer);
+      btn.addEventListener("pointercancel", function () {
+        endDragUi();
+      });
     });
   }
 
@@ -5917,7 +6157,7 @@
     html +=
       '<p class="hint">Tap a name to edit · Hide on each row · pick type when adding · hidden habits below.' +
       eraserNote +
-      " Hold a counter/time cell to subtract. Tap time cells to add minutes &amp; seconds. Hold ≡ to drag habits.</p>";
+      " Hold a counter/time cell to subtract. Tap time cells to add minutes &amp; seconds. Hold ≡ to drag habits. Hold a category chip to reorder filters.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -8011,12 +8251,28 @@
       habitsCatPanelOpen +
       '"><span class="habits-caret" aria-hidden="true">▶</span>Categories</button></div>';
     html += '<div class="habits-cat-panel" id="habitsCatPanel">';
-    state.categories.forEach(function (cat) {
+    state.categories.forEach(function (cat, catIdx) {
       const count = state.habits.filter(function (h) { return h.category === cat.id; }).length;
       html +=
         '<div class="category-manage-row" data-cat-row="' +
         escapeHtml(cat.id) +
         '">' +
+        '<div class="cat-sort-btns">' +
+        '<button type="button" class="cat-sort-btn" data-cat-move="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="-1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' up"' +
+        (catIdx === 0 ? " disabled" : "") +
+        ">▲</button>" +
+        '<button type="button" class="cat-sort-btn" data-cat-move="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' down"' +
+        (catIdx === state.categories.length - 1 ? " disabled" : "") +
+        ">▼</button>" +
+        "</div>" +
         '<input type="text" value="' +
         escapeHtml(cat.label) +
         '" data-cat-label="' +
@@ -8035,7 +8291,8 @@
     html +=
       '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
-    html += '<p class="hint">Reorder on the Month tab (hold ≡). Hide habits you don’t track daily.</p>';
+    html +=
+      '<p class="hint">Hold a category chip on Month/Stats to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
 
     html += '<div class="add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
@@ -8350,6 +8607,19 @@
         }
       };
     }
+
+    root.querySelectorAll("[data-cat-move]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-cat-move");
+        const dir = parseInt(btn.getAttribute("data-cat-dir"), 10);
+        if (!id || !dir) return;
+        if (moveCategoryBy(id, dir)) {
+          habitsCatPanelOpen = true;
+          renderHabits();
+          toast("Category order saved");
+        }
+      };
+    });
 
     root.querySelectorAll("[data-cat-label]").forEach(function (inp) {
       if (inp.readOnly) return;
