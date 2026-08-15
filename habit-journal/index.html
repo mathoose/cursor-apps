@@ -3150,7 +3150,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "";
+  let habitJournalVersionText = "v63 · Aug 15, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -5333,13 +5333,14 @@
   }
 
   function habitFilledDayCount(habit, year) {
+    const y = year == null ? state.year : year;
     let n = 0;
-    const prefix = habit.id + "-";
-    const yearPrefix = year != null ? habit.id + "-" + year + "-" : prefix;
-    Object.keys(state.cells).forEach(function (key) {
-      if (key.indexOf(yearPrefix) !== 0) return;
-      if (isCellFilled(habit, state.cells[key])) n++;
-    });
+    for (let m = 0; m < 12; m++) {
+      const dim = daysInMonth(y, m);
+      for (let d = 1; d <= dim; d++) {
+        if (isCellFilled(habit, getCellValue(cellKey(habit.id, y, m, d)))) n++;
+      }
+    }
     return n;
   }
 
@@ -5571,9 +5572,6 @@
   }
 
   function getAppVersionDisplayText() {
-    const el = document.querySelector(".app-version");
-    const fromDom = el && el.textContent ? el.textContent.trim() : "";
-    if (fromDom) return fromDom;
     return habitJournalVersionText;
   }
 
@@ -5583,18 +5581,7 @@
     return '<p class="panel-version" aria-label="App version">' + escapeHtml(text) + "</p>";
   }
 
-  function loadHabitJournalVersion() {
-    fetch("../versions.json?" + Date.now())
-      .then(function (r) {
-        return r.ok ? r.json() : null;
-      })
-      .then(function (v) {
-        if (!v || !v.apps || !v.apps["habit-journal"]) return;
-        habitJournalVersionText = "v" + v.apps["habit-journal"];
-        if (activeTab === "today") renderToday();
-      })
-      .catch(function () {});
-  }
+  function loadHabitJournalVersion() {}
 
   function getTodayDismissedHabits() {
     pruneTodayDismissed();
