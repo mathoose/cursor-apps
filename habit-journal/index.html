@@ -1620,7 +1620,8 @@
       min-height: 0 !important;
       aspect-ratio: unset;
       border-radius: 2px !important;
-      border: 1px solid rgba(44, 36, 25, 0.35) !important;
+      border-width: 1px;
+      border-style: solid;
       padding: 0 !important;
       font-size: 0 !important;
       line-height: 0 !important;
@@ -2864,6 +2865,23 @@
       border-color: var(--border);
       color: var(--ink);
     }
+    body.layout-modern .year-fs-body {
+      background: #1c1f2b;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+    body.layout-modern .year-fs-close {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.12);
+      color: #f4f5f8;
+    }
+    body.layout-modern .year-fs-cells .cell.cell-pad {
+      background: #12141c !important;
+      border-color: rgba(255, 255, 255, 0.04) !important;
+      opacity: 0.55;
+    }
+    body.layout-modern .year-fs-legend .legend-compact .legend-item-compact {
+      color: #b7bfd4;
+    }
     body.layout-modern .habit-edit-panel,
     body.layout-modern .import-panel,
     body.layout-modern .time-add-panel {
@@ -2935,7 +2953,6 @@
     }
     body.layout-modern .month-grid .cell,
     body.layout-modern .year-grid .cell,
-    body.layout-modern .year-fs-cells .cell,
     body.layout-modern #panelToday .today-tile .cell {
       background: #151822;
       border-color: rgba(255, 255, 255, 0.08);
@@ -3150,7 +3167,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v63 · Aug 15, 2026";
+  let habitJournalVersionText = "v64 · Aug 15, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -6136,18 +6153,35 @@
     const high = Math.max(getAllTimeHigh(habit.id), isStepHabit(habit) ? (habit.step || 1) : 1);
     let html = '<div class="legend-scale legend-compact">';
     if (habit.type === "yesno") {
-      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:#d8d4cc"></span><span>Skip</span></div>';
-      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:#f5d76e"></span><span>In progress</span></div>';
-      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:' + GRADIENT[5] + '"></span><span>Yes</span></div>';
-      html += '<div class="legend-item-compact"><span class="legend-swatch" style="background:' + GRADIENT[2] + '"></span><span>No</span></div>';
+      const skipStyle =
+        layoutMode === "modern"
+          ? "background:#2a2f3d;border-color:#3a4154"
+          : "background:#d8d4cc;border-color:#c8c4bc";
+      html +=
+        '<div class="legend-item-compact"><span class="legend-swatch" style="' +
+        skipStyle +
+        '"></span><span>Skip</span></div>';
+      html +=
+        '<div class="legend-item-compact"><span class="legend-swatch" style="' +
+        cellStyle(habit, YESNO_PROGRESS) +
+        '"></span><span>In progress</span></div>';
+      html +=
+        '<div class="legend-item-compact"><span class="legend-swatch" style="' +
+        cellStyle(habit, 1) +
+        '"></span><span>Yes</span></div>';
+      html +=
+        '<div class="legend-item-compact"><span class="legend-swatch" style="' +
+        cellStyle(habit, 0) +
+        '"></span><span>No</span></div>';
       html += "</div>";
       return html;
     }
-    const buckets = [0, 3, 5];
-    buckets.forEach(function (b) {
+    const samples = [null, high * 0.6, high];
+    const labels = ["Empty", bucketThresholdLabel(habit, 3, high), bucketThresholdLabel(habit, 5, high)];
+    samples.forEach(function (val, i) {
       html += '<div class="legend-item-compact">';
-      html += '<span class="legend-swatch" style="background:' + GRADIENT[b] + '"></span>';
-      html += "<span>" + escapeHtml(bucketThresholdLabel(habit, b, high)) + "</span></div>";
+      html += '<span class="legend-swatch" style="' + cellStyle(habit, val) + '"></span>';
+      html += "<span>" + escapeHtml(labels[i]) + "</span></div>";
     });
     html += "</div>";
     if (isStepHabit(habit)) {
