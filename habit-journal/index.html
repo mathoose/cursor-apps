@@ -4815,6 +4815,25 @@
     });
   }
 
+  function scrollYearHeatmapsToToday(root) {
+    if (!root) return;
+    function align() {
+      root.querySelectorAll(".year-habit-heatmap-scroll").forEach(function (scroller) {
+        const cell = scroller.querySelector(".year-week-cell.is-today");
+        if (!cell) return;
+        const scrollerRect = scroller.getBoundingClientRect();
+        const cellRect = cell.getBoundingClientRect();
+        if (!scrollerRect.width) return;
+        const pad = 12;
+        scroller.scrollLeft += cellRect.right - scrollerRect.right + pad;
+      });
+    }
+    align();
+    requestAnimationFrame(function () {
+      align();
+    });
+  }
+
   function parseLevelLabelValue(label) {
     const m = String(label || "").match(/(\d+(?:\.\d+)?)/);
     return m ? parseFloat(m[1]) : NaN;
@@ -7093,6 +7112,7 @@
     root.innerHTML = html;
     bindCategoryFilters(root);
     bindYearGrid(root);
+    scrollYearHeatmapsToToday(root);
   }
 
   function graphRawValue(habit, cellValue) {
