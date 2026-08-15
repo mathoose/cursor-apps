@@ -4531,6 +4531,14 @@
         endDragUi();
       });
     });
+
+    row.addEventListener(
+      "touchmove",
+      function (e) {
+        if (dragging) e.preventDefault();
+      },
+      { passive: false }
+    );
   }
 
   function isYearHabitExpanded(habitId) {
