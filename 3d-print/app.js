@@ -146,6 +146,79 @@
     }
   }
 
+  function extractShareUrl(raw) {
+    var s = (raw || '').trim();
+    if (!s) return '';
+    var m = s.match(/https?:\/\/[^\s<>"']+/i);
+    if (m) {
+      var fromText = normalizeLink(m[0].replace(/[.,;:!?)]+$/, ''));
+      return isValidLink(fromText) ? fromText : '';
+    }
+    if (!/\s/.test(s) && /^(www\.)?[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(s)) {
+      var bare = normalizeLink(s);
+      return isValidLink(bare) ? bare : '';
+    }
+    return '';
+  }
+
+  var SHARE_PAGE_URL = 'https://mathoose.github.io/cursor-apps/3d-print/?url=';
+
+  function applyIncomingLink(raw, opts) {
+    opts = opts || {};
+    var url = extractShareUrl(raw);
+    if (!url) return false;
+    var linkInput = document.getElementById('quickLink');
+    var titleInput = document.getElementById('quickTitle');
+    if (!linkInput) return false;
+    if (typeof setView === 'function') setView('queue');
+    else {
+      currentView = 'queue';
+      document.querySelectorAll('.view').forEach(function (v) {
+        v.classList.toggle('active', v.getAttribute('data-view') === 'queue');
+      });
+    }
+    linkInput.value = url;
+    if (titleInput) {
+      titleInput.focus();
+      if (titleInput.scrollIntoView) {
+        titleInput.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    }
+    if (!opts.silent) showToast('Link ready — add a title');
+    return true;
+  }
+
+  function consumeShareQuery() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var raw = params.get('url') || params.get('link') || params.get('text') || '';
+      if (!raw) return;
+      applyIncomingLink(raw);
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function pasteLinkFromClipboard() {
+    function applyText(text) {
+      if (!extractShareUrl(text)) {
+        showToast('No link on the clipboard', { error: true });
+        return;
+      }
+      applyIncomingLink(text);
+    }
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      navigator.clipboard.readText().then(applyText).catch(function () {
+        showToast('Allow paste, or paste into the link field', { error: true });
+      });
+      return;
+    }
+    showToast('Paste into the link field', { error: true });
+  }
+
   function linkLabel(url) {
     try {
       var u = new URL(url);
@@ -2154,6 +2227,7 @@
     document.getElementById('quickLink').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') submit();
     });
+    document.getElementById('quickLinkPaste').addEventListener('click', pasteLinkFromClipboard);
   }
 
   function wireUi() {
@@ -2176,6 +2250,17 @@
 
     document.getElementById('settingsBtn').addEventListener('click', function () {
       openModal('settingsModal');
+    });
+    document.getElementById('copyShareUrlBtn').addEventListener('click', function () {
+      var url = SHARE_PAGE_URL;
+      function done() { showToast('Copied share URL'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(function () {
+          window.prompt('Copy this URL into the Shortcut Open URLs action', url);
+        });
+      } else {
+        window.prompt('Copy this URL into the Shortcut Open URLs action', url);
+      }
     });
     document.getElementById('settingsModalClose').addEventListener('click', function () {
       closeModal('settingsModal');
@@ -2525,4 +2610,5 @@
   wireUi();
   render();
   startTicker();
+  consumeShareQuery();
 })();
