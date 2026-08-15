@@ -7256,7 +7256,7 @@
     return n ? sum / n : null;
   }
 
-  /** Darken (factor &lt; 1) or lighten (factor &gt; 1) a #rrggbb color toward black/white. */
+  /** Darken (factor < 1) or lighten (factor > 1) a #rrggbb color toward black/white. */
   function shadeHexColor(hex, factor) {
     const h = normalizeHexColor(hex);
     if (!h) return hex;
