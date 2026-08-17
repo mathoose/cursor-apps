@@ -26,7 +26,8 @@
 
   var ui = {
     view: "home",
-    homeFilter: "all",
+    homeShelves: { active: true, "up-next": true, alone: true, shelved: false, done: false },
+    homeTypes: { show: true, book: true, manga: true },
     editingShowId: null,
     editingBookId: null,
     editingReminderId: null,
@@ -562,14 +563,17 @@
   }
 
   function filterUnified(items) {
-    var f = ui.homeFilter;
+    var shelves = ui.homeShelves;
+    var types = ui.homeTypes;
+    var anyShelf = shelves.active || shelves["up-next"] || shelves.alone || shelves.shelved || shelves.done;
+    var anyType = types.show || types.book || types.manga;
     return items.filter(function (item) {
-      if (f === "all") return item.shelf !== "shelved" && item.shelf !== "done";
-      if (f === "show") return item.mediaType === "show" && item.shelf !== "done";
-      if (f === "book") return item.mediaType === "book" && item.shelf !== "done";
-      if (f === "manga") return (item.mediaType === "manga" || item.mediaType === "comic") && item.shelf !== "done";
-      if (f === "shelved") return item.shelf === "shelved";
-      if (f === "done") return item.shelf === "done";
+      if (anyShelf && !shelves[item.shelf || "active"]) return false;
+      if (!anyShelf) return false;
+      if (!anyType) return false;
+      if (item.mediaType === "show") return !!types.show;
+      if (item.mediaType === "book") return !!types.book;
+      if (item.mediaType === "manga" || item.mediaType === "comic") return !!types.manga;
       return true;
     });
   }
@@ -836,7 +840,7 @@
     SHELF_ORDER.forEach(function (shelf) {
       var list = byShelf[shelf] || [];
       if (!list.length) return;
-      if (ui.homeFilter === "all" && (shelf === "shelved" || shelf === "done")) return;
+      if (!ui.homeShelves[shelf]) return;
       list.sort(function (a, b) {
         if (a.inProgress !== b.inProgress) return a.inProgress ? -1 : 1;
         if (a.overdue !== b.overdue) return a.overdue ? -1 : 1;
@@ -1082,10 +1086,13 @@
       if (book.lastReadAt) bMeta.push(formatRelative(book.lastReadAt));
       metaEl.textContent = bMeta.join(" · ");
       dot.className = "type-dot type-" + book.type;
+      // Books & manga: chapter + page only (never seasons)
       showFields.hidden = true;
       bookFields.hidden = false;
-      document.getElementById("qlChapter").value = String(book.chapter > 0 ? book.chapter + 1 : 1);
-      document.getElementById("qlPage").value = String(book.page || 0);
+      document.getElementById("qlSeason").value = "";
+      document.getElementById("qlEpisode").value = "";
+      document.getElementById("qlChapter").value = book.chapter > 0 ? String(book.chapter) : "";
+      document.getElementById("qlPage").value = book.page > 0 ? String(book.page) : "";
       document.getElementById("qlComment").value = "";
       startBtn.hidden = true;
     }
@@ -1139,21 +1146,25 @@
 
     var book = getBook(ui.quickLogId);
     if (!book) return;
-    var chapter = parseInt(document.getElementById("qlChapter").value, 10) || 0;
-    var page = parseInt(document.getElementById("qlPage").value, 10) || 0;
-    book.chapter = chapter;
-    book.page = page;
-    book.lastReadAt = new Date().toISOString();
+    var chapterRaw = document.getElementById("qlChapter").value.trim();
+    var pageRaw = document.getElementById("qlPage").value.trim();
+    var chapter = chapterRaw === "" ? book.chapter : Math.max(0, parseInt(chapterRaw, 10) || 0);
+    var page = pageRaw === "" ? book.page : Math.max(0, parseInt(pageRaw, 10) || 0);
+    if (chapterRaw !== "") book.chapter = chapter;
+    if (pageRaw !== "") book.page = page;
+    if (chapterRaw !== "" || pageRaw !== "" || comment) {
+      book.lastReadAt = new Date().toISOString();
+    }
     if (comment) book.lastComment = comment;
     applyShelfToItem(book, shelf, "book");
-    if ((book.totalChapters && chapter >= book.totalChapters) || (book.totalPages && page >= book.totalPages)) {
+    if ((book.totalChapters && book.chapter >= book.totalChapters) || (book.totalPages && book.page >= book.totalPages)) {
       applyShelfToItem(book, "done", "book");
     }
     book.updatedAt = new Date().toISOString();
     closeOverlay("quickLogOverlay");
     dismissGate();
     save();
-    showToast("Progress saved");
+    showToast("Saved");
   }
 
   function markShowInProgress() {
@@ -1713,12 +1724,22 @@
       setShelfChips("quickAddShelf", ui.quickAddShelf);
     });
 
-    document.querySelectorAll("#homeFilters .chip").forEach(function (chip) {
+    document.querySelectorAll("#homeShelfFilters .chip").forEach(function (chip) {
       chip.addEventListener("click", function () {
-        ui.homeFilter = chip.dataset.filter;
-        document.querySelectorAll("#homeFilters .chip").forEach(function (c) {
-          c.classList.toggle("active", c === chip);
-        });
+        var key = chip.dataset.shelf;
+        ui.homeShelves[key] = !ui.homeShelves[key];
+        chip.classList.toggle("active", ui.homeShelves[key]);
+        chip.setAttribute("aria-pressed", ui.homeShelves[key] ? "true" : "false");
+        renderHome();
+      });
+    });
+
+    document.querySelectorAll("#homeTypeFilters .chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var key = chip.dataset.type;
+        ui.homeTypes[key] = !ui.homeTypes[key];
+        chip.classList.toggle("active", ui.homeTypes[key]);
+        chip.setAttribute("aria-pressed", ui.homeTypes[key] ? "true" : "false");
         renderHome();
       });
     });
