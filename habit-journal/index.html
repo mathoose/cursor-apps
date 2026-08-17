@@ -807,11 +807,13 @@
     .habit-settings { margin-top: 10px; }
     .type-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 10px;
     }
     .type-pill {
-      flex: 1;
+      flex: 1 1 calc(50% - 8px);
+      min-width: 0;
       height: 40px;
       border: 1.5px solid var(--border);
       border-radius: 10px;
@@ -2652,6 +2654,47 @@
       gap: 8px;
     }
     .time-add-actions .btn { flex: 1; min-height: 44px; }
+    .number-pad-display {
+      min-height: 56px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 1.75rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .number-pad-display.is-empty {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .number-pad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .number-pad-key {
+      height: 48px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 1.25rem;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .number-pad-key-action {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
 
     /* —— Modern dark layout (toggle) —— */
     body.layout-modern {
@@ -2891,6 +2934,22 @@
       background: #252a3a !important;
       border-color: rgba(255, 255, 255, 0.16) !important;
       color: #fff !important;
+    }
+    body.layout-modern .number-pad-display {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    body.layout-modern .number-pad-display.is-empty {
+      color: #9aa3b5;
+    }
+    body.layout-modern .number-pad-key {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    body.layout-modern .number-pad-key:active {
+      background: #32384c;
     }
     body.layout-modern .btn-secondary {
       background: var(--card-2);
@@ -3150,6 +3209,33 @@
     </div>
   </div>
 
+  <div class="time-add-sheet" id="numberPadSheet" hidden role="dialog" aria-modal="true" aria-labelledby="numberPadTitle">
+    <div class="time-add-backdrop" id="numberPadBackdrop"></div>
+    <div class="time-add-panel number-pad-panel">
+      <h2 id="numberPadTitle">Number</h2>
+      <p class="time-add-sub" id="numberPadSub"></p>
+      <div class="number-pad-display is-empty" id="numberPadDisplay" aria-live="polite">—</div>
+      <div class="number-pad-grid" id="numberPadGrid">
+        <button type="button" class="number-pad-key" data-num="1">1</button>
+        <button type="button" class="number-pad-key" data-num="2">2</button>
+        <button type="button" class="number-pad-key" data-num="3">3</button>
+        <button type="button" class="number-pad-key" data-num="4">4</button>
+        <button type="button" class="number-pad-key" data-num="5">5</button>
+        <button type="button" class="number-pad-key" data-num="6">6</button>
+        <button type="button" class="number-pad-key" data-num="7">7</button>
+        <button type="button" class="number-pad-key" data-num="8">8</button>
+        <button type="button" class="number-pad-key" data-num="9">9</button>
+        <button type="button" class="number-pad-key number-pad-key-action" data-num-clear="1">Clear</button>
+        <button type="button" class="number-pad-key" data-num="0">0</button>
+        <button type="button" class="number-pad-key number-pad-key-action" data-num-back="1" aria-label="Backspace">⌫</button>
+      </div>
+      <div class="time-add-actions">
+        <button type="button" class="btn btn-secondary" id="numberPadCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="numberPadSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 
   <script>
@@ -3167,7 +3253,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v64 · Aug 15, 2026";
+  let habitJournalVersionText = "v65 · Aug 16, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3189,6 +3275,7 @@
   const DEFAULT_TIME_STEP_SEC = 60;
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
+  const MAX_NUMBER_VALUE = 999999;
   const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
   const CATEGORY_ACCENTS = {
     general: "#94a3b8",
@@ -3203,13 +3290,25 @@
   const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
   const GRAPH_MA_KEY = "habit-journal-graph-ma";
   let timeAddContext = null;
+  let numberPadContext = null;
+  let numberPadDigits = "";
 
   function isStepsHabitName(name) {
     return /^steps$/i.test(String(name || "").trim());
   }
 
   function isStepHabit(habit) {
+    return !!habit && (habit.type === "counter" || habit.type === "time" || habit.type === "number");
+  }
+
+  function usesTapStep(habit) {
     return !!habit && (habit.type === "counter" || habit.type === "time");
+  }
+
+  function clampNumberValue(n) {
+    const v = parseInt(n, 10);
+    if (!isFinite(v) || v < 0) return 0;
+    return Math.min(MAX_NUMBER_VALUE, v);
   }
 
   function clampTimeStepSeconds(sec) {
@@ -3439,8 +3538,8 @@
         {
           id: uid(),
           name: STEPS_BASELINE_NAME,
-          type: "counter",
-          step: STEPS_BASELINE,
+          type: "number",
+          step: 1,
           category: "fitness",
           pinned: false,
           hidden: false,
@@ -3685,18 +3784,22 @@
       return out;
     }
     if (isStepsHabitName(name)) {
-      const step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || STEPS_BASELINE));
-      return withColor({
+      const out = withColor({
         id: h.id || uid(),
         name: STEPS_BASELINE_NAME,
-        type: "counter",
-        step: step,
+        type: "number",
+        step: 1,
         category: base.category,
         pinned: base.pinned,
         hidden: base.hidden,
       });
+      if (h.statsStart) {
+        const sd = parseIsoDateParts(h.statsStart);
+        if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
+      }
+      return out;
     }
-    if (h.type === "yesno" || h.type === "counter" || h.type === "time") {
+    if (h.type === "yesno" || h.type === "counter" || h.type === "time" || h.type === "number") {
       const type = h.type;
       let step = 1;
       if (type === "counter") {
@@ -3988,14 +4091,11 @@
   function addHabitToState(name, category, step, type) {
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
-    let habitType = type === "yesno" || type === "time" ? type : "counter";
-    if (isStepsHabitName(habitName)) habitType = "counter";
+    let habitType = type === "yesno" || type === "time" || type === "number" ? type : "counter";
+    if (isStepsHabitName(habitName)) habitType = "number";
     let stepVal = 1;
     if (habitType === "counter") {
-      stepVal = Math.min(
-        MAX_STEP,
-        Math.max(1, parseInt(step, 10) || (isStepsHabitName(habitName) ? STEPS_BASELINE : 1))
-      );
+      stepVal = Math.min(MAX_STEP, Math.max(1, parseInt(step, 10) || 1));
     } else if (habitType === "time") {
       stepVal = clampTimeStepSeconds(step);
     }
@@ -4023,6 +4123,9 @@
       '<option value="counter"' +
       (cur === "counter" ? " selected" : "") +
       ">Counter</option>" +
+      '<option value="number"' +
+      (cur === "number" ? " selected" : "") +
+      ">Number</option>" +
       '<option value="yesno"' +
       (cur === "yesno" ? " selected" : "") +
       ">Yes / No</option>" +
@@ -4696,7 +4799,7 @@
     const value = getCellValue(cellKey(habit.id, y, m, d));
     const disp = cellDisplay(habit, value);
     const filled = isCellFilled(habit, value);
-    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const counterAttr = usesTapStep(habit) ? ' data-counter="1"' : "";
     const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     let text = disp.text;
     if (!text) text = "+";
@@ -5105,6 +5208,10 @@
     const detail = entry.detail || {};
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "number") {
+      if (newValue === null || newValue === undefined) return "erase";
+      return "add";
+    }
     if (isStepHabit(habit)) {
       const delta = (newValue || 0) - (oldValue || 0);
       if (delta > 0) return "add";
@@ -5124,6 +5231,10 @@
     const whenLabel = clockLabel ? dateLabel + ", " + clockLabel : dateLabel;
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
+    if (habit.type === "number") {
+      if (newValue === null || newValue === undefined) return whenLabel + ": cleared";
+      return whenLabel + ": " + cellValueLabel(habit, newValue);
+    }
     if (isStepHabit(habit)) {
       const delta = (newValue || 0) - (oldValue || 0);
       const deltaLabel =
@@ -5152,6 +5263,7 @@
       return "No";
     }
     if (habit.type === "time") return formatDuration(value);
+    if (habit.type === "number" && typeof value === "number") return formatCounterDisplay(value);
     return String(value);
   }
 
@@ -5175,6 +5287,10 @@
       const dateLabel = formatChangeLogDate(detail.date);
       const oldValue = detail.oldValue != null ? detail.oldValue : null;
       const newValue = detail.newValue != null ? detail.newValue : null;
+      if (habit.type === "number") {
+        if (newValue === null || newValue === undefined) return dateLabel + ": cleared";
+        return dateLabel + ": " + cellValueLabel(habit, newValue);
+      }
       if (isStepHabit(habit)) {
         const delta = (newValue || 0) - (oldValue || 0);
         const deltaLabel =
@@ -5258,6 +5374,7 @@
       var n = normalizeHabit(h || {}, state.categories);
       if (n.type === "counter" && !n.step) n.step = 1;
       if (n.type === "time") n.step = clampTimeStepSeconds(n.step);
+      if (n.type === "number") n.step = 1;
       return n;
     });
     migrateLegacyFactoryHabits();
@@ -5326,6 +5443,7 @@
   function isCellFilled(habit, value) {
     if (value === null || value === undefined) return false;
     if (habit.type === "yesno") return value >= 1;
+    if (habit.type === "number") return typeof value === "number" && value >= 0;
     return value > 0;
   }
 
@@ -5365,6 +5483,9 @@
     if (type === "time") {
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>';
     }
+    if (type === "number") {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M7 8h10M7 12h10M7 16h10"/><path d="M10 6v12M14 6v12"/></svg>';
+    }
     if (type === "yesno") {
       return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>';
     }
@@ -5397,7 +5518,7 @@
       if (value === 0) return 2;
       return 0;
     }
-    if (value <= 0) return 0;
+    if (value <= 0) return habit.type === "number" && value === 0 ? 1 : 0;
     high = Math.max(high, habit.step || 1, 1);
     const bucket = Math.round((value / high) * 5);
     return Math.min(5, Math.max(1, bucket));
@@ -5444,7 +5565,7 @@
         : "background:#fff;border-color:var(--border)";
     }
     if (modern) {
-      if (value == null || value <= 0) {
+      if (value == null || (value <= 0 && habit.type !== "number")) {
         return "background:#151822;border-color:rgba(255,255,255,0.08);color:#fff";
       }
       const high = Math.max(getAllTimeHigh(habit.id), habit.step || 1, 1);
@@ -5541,13 +5662,9 @@
       return;
     }
     if (running && (!meditation || habits.length <= 2)) {
-      const prevStep = parseInt(running.step, 10);
       running.name = STEPS_BASELINE_NAME;
-      running.type = "counter";
-      running.step = Math.min(
-        MAX_STEP,
-        Math.max(1, prevStep > 1 ? prevStep : STEPS_BASELINE)
-      );
+      running.type = "number";
+      running.step = 1;
       running.category = running.category || "fitness";
       delete running.stepLocked;
       if (meditation) {
@@ -5576,6 +5693,10 @@
     if (habit.type === "time") {
       if (value > 0) return { text: formatDurationCell(value), cls: "cell-time cell-count" };
       return { text: "", cls: "" };
+    }
+    if (habit.type === "number") {
+      if (value === null || value === undefined) return { text: "", cls: "" };
+      return { text: formatCounterDisplay(value), cls: "cell-count" };
     }
     if (value > 0) return { text: formatCounterDisplay(value), cls: "cell-count" };
     return { text: "", cls: "" };
@@ -5695,7 +5816,7 @@
       );
     }
     const value = getCellValue(cellKey(habit.id, y, m, d));
-    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const counterAttr = usesTapStep(habit) ? ' data-counter="1"' : "";
     const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     return (
       '<button type="button" class="cell cell-year-shade' +
@@ -5894,6 +6015,7 @@
   function openTimeAddSheet(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit || habit.type !== "time") return;
+    closeNumberPad();
     timeAddContext = { habitId: habitId, y: y, m: m, d: d };
     const parts = splitSeconds(clampTimeStepSeconds(habit.step));
     const minInp = document.getElementById("timeAddMinutes");
@@ -5952,12 +6074,125 @@
     toast("+" + formatDuration(addSec));
   }
 
+  function updateNumberPadDisplay() {
+    const el = document.getElementById("numberPadDisplay");
+    if (!el) return;
+    if (!numberPadDigits) {
+      el.textContent = "—";
+      el.classList.add("is-empty");
+      return;
+    }
+    el.textContent = numberPadDigits;
+    el.classList.remove("is-empty");
+  }
+
+  function openNumberPad(habitId, y, m, d) {
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "number") return;
+    closeTimeAddSheet();
+    numberPadContext = { habitId: habitId, y: y, m: m, d: d };
+    const current = getCellValue(cellKey(habitId, y, m, d));
+    numberPadDigits = current !== null ? String(clampNumberValue(current)) : "";
+    const title = document.getElementById("numberPadTitle");
+    const sub = document.getElementById("numberPadSub");
+    if (title) title.textContent = habit.name;
+    if (sub) sub.textContent = MONTHS[m] + " " + d;
+    updateNumberPadDisplay();
+    document.getElementById("numberPadSheet").hidden = false;
+    document.body.classList.add("number-pad-open");
+  }
+
+  function closeNumberPad() {
+    numberPadContext = null;
+    numberPadDigits = "";
+    const sheet = document.getElementById("numberPadSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("number-pad-open");
+  }
+
+  function appendNumberPadDigit(digit) {
+    const d = String(digit);
+    if (!/^[0-9]$/.test(d)) return;
+    let next = numberPadDigits;
+    if (next === "0") next = "";
+    if (next.length >= String(MAX_NUMBER_VALUE).length) return;
+    next += d;
+    const n = parseInt(next, 10);
+    if (!isFinite(n) || n > MAX_NUMBER_VALUE) return;
+    numberPadDigits = next;
+    updateNumberPadDisplay();
+  }
+
+  function backspaceNumberPad() {
+    numberPadDigits = numberPadDigits.slice(0, -1);
+    updateNumberPadDisplay();
+  }
+
+  function confirmNumberPad() {
+    if (!numberPadContext) return;
+    const habitId = numberPadContext.habitId;
+    const y = numberPadContext.y;
+    const m = numberPadContext.m;
+    const d = numberPadContext.d;
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "number") {
+      closeNumberPad();
+      return;
+    }
+    if (!numberPadDigits) {
+      toast("Enter a number");
+      return;
+    }
+    const n = clampNumberValue(numberPadDigits);
+    const key = cellKey(habitId, y, m, d);
+    const oldValue = getCellValue(key);
+    state.cells[key] = n;
+    const newValue = getCellValue(key);
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: newValue,
+    });
+    closeNumberPad();
+    afterCellChange(habitId, y, m, d);
+    toast(formatCounterDisplay(n));
+  }
+
+  function clearNumberPadDay() {
+    if (!numberPadContext) return;
+    const habitId = numberPadContext.habitId;
+    const y = numberPadContext.y;
+    const m = numberPadContext.m;
+    const d = numberPadContext.d;
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "number") {
+      closeNumberPad();
+      return;
+    }
+    const key = cellKey(habitId, y, m, d);
+    const oldValue = getCellValue(key);
+    closeNumberPad();
+    if (oldValue === null) return;
+    delete state.cells[key];
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: getCellValue(key),
+    });
+    afterCellChange(habitId, y, m, d);
+    toast("Cleared");
+  }
+
   function tapCell(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
     if (habit.type === "time") {
       openTimeAddSheet(habitId, y, m, d);
+      return;
+    }
+    if (habit.type === "number") {
+      openNumberPad(habitId, y, m, d);
       return;
     }
     const key = cellKey(habitId, y, m, d);
@@ -5985,7 +6220,7 @@
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit) return;
     if (isDayExcluded(habit, y, m, d)) return;
-    if (habit.type === "yesno" || habit.type === "time") {
+    if (habit.type === "yesno" || habit.type === "time" || habit.type === "number") {
       tapCell(habitId, y, m, d);
       return;
     }
@@ -6013,6 +6248,8 @@
       if (oldValue === 0) state.cells[key] = 1;
       else if (oldValue === 1) state.cells[key] = YESNO_PROGRESS;
       else delete state.cells[key];
+    } else if (habit.type === "number") {
+      delete state.cells[key];
     } else {
       const step = habit.step || 1;
       const next = oldValue - step;
@@ -6197,6 +6434,9 @@
     let html = renderLegendCompact(habit);
     if (habit.type === "counter") {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Mark: tap +step. Eraser or hold: -step</p>";
+    } else if (habit.type === "number") {
+      html +=
+        "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to type that day’s number. Save sets it (does not add). Eraser clears.</p>";
     } else if (habit.type === "time") {
       html +=
         "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to add minutes &amp; seconds. Eraser or hold: −" +
@@ -6229,7 +6469,7 @@
     const value = getCellValue(key);
     const disp = cellDisplay(habit, value);
     const cls = "cell " + disp.cls + todayCls + (extraClass || "");
-    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const counterAttr = usesTapStep(habit) ? ' data-counter="1"' : "";
     const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     return (
       '<button type="button" class="' + cls.trim() + '" data-key="' + dataKey + '"' + counterAttr + timeAttr + ' style="' + cellStyle(habit, value, y, m, d) + '" aria-label="' +
@@ -6287,7 +6527,7 @@
     }
     const value = getCellValue(cellKey(habit.id, y, m, d));
     const disp = cellDisplay(habit, value);
-    const counterAttr = isStepHabit(habit) ? ' data-counter="1"' : "";
+    const counterAttr = usesTapStep(habit) ? ' data-counter="1"' : "";
     const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
     const emptyYesNo =
       habit.type === "yesno" && (value === null || value === undefined);
@@ -6698,9 +6938,13 @@
     let max = null;
     bounds.days.forEach(function (p) {
       const val = getCellValue(cellKey(habit.id, p.y, p.m, p.d));
-      const n = typeof val === "number" && val > 0 ? val : 0;
+      const counted =
+        habit.type === "number"
+          ? typeof val === "number" && val >= 0
+          : typeof val === "number" && val > 0;
+      const n = counted ? val : 0;
       sum += n;
-      if (typeof val === "number" && val > 0) {
+      if (counted) {
         if (min == null || val < min) min = val;
         if (max == null || val > max) max = val;
       }
@@ -8400,6 +8644,7 @@
   function habitCompactMeta(habit) {
     let type = "Yes/No";
     if (habit.type === "counter") type = "Counter +" + formatStepBracket(habit.step);
+    else if (habit.type === "number") type = "Number";
     else if (habit.type === "time") type = "Time +" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC);
     return categoryLabel(habit.category) + " · " + type + (habit.pinned ? " · ★" : "");
   }
@@ -8664,6 +8909,12 @@
         '">Counter</button>';
       row +=
         '<button type="button" class="type-pill' +
+        (habit.type === "number" ? " on" : "") +
+        '" data-type="number" data-hid="' +
+        habit.id +
+        '">Number</button>';
+      row +=
+        '<button type="button" class="type-pill' +
         (habit.type === "yesno" ? " on" : "") +
         '" data-type="yesno" data-hid="' +
         habit.id +
@@ -8706,7 +8957,7 @@
           habit.id +
           '" aria-label="Seconds" />' +
           '<span class="time-unit">s</span></div>';
-      } else {
+      } else if (habit.type === "yesno") {
         row += renderExcludeDaysHtml(habit);
       }
       row += '<div class="legend">' + renderLegend(habit) + "</div>";
@@ -8967,10 +9218,13 @@
         const prevType = h.type;
         h.type = btn.dataset.type;
         if (h.type === "counter") {
-          if (prevType === "time" || !h.step) {
-            h.step = isStepsHabitName(h.name) ? STEPS_BASELINE : 1;
+          if (prevType === "time" || prevType === "number" || !h.step) {
+            h.step = 1;
           }
           h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+          delete h.excludeDays;
+        } else if (h.type === "number") {
+          h.step = 1;
           delete h.excludeDays;
         } else if (h.type === "time") {
           h.step = prevType === "time" ? clampTimeStepSeconds(h.step) : DEFAULT_TIME_STEP_SEC;
@@ -9488,6 +9742,7 @@
       if (tab.dataset.tab !== "stats") closeYearFullscreen();
       closeHabitEdit();
       closeTimeAddSheet();
+      closeNumberPad();
       activeTab = tab.dataset.tab;
       document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t === tab); });
       document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
@@ -9515,6 +9770,48 @@
           closeTimeAddSheet();
         }
       });
+    });
+  })();
+
+  (function bindNumberPadSheet() {
+    const saveBtn = document.getElementById("numberPadSave");
+    const cancelBtn = document.getElementById("numberPadCancel");
+    const backdrop = document.getElementById("numberPadBackdrop");
+    const grid = document.getElementById("numberPadGrid");
+    if (saveBtn) saveBtn.onclick = confirmNumberPad;
+    if (cancelBtn) cancelBtn.onclick = closeNumberPad;
+    if (backdrop) backdrop.onclick = closeNumberPad;
+    if (grid) {
+      grid.addEventListener("click", function (e) {
+        const el = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+        const btn = el && el.closest("[data-num], [data-num-back], [data-num-clear]");
+        if (!btn || !grid.contains(btn)) return;
+        if (btn.hasAttribute("data-num-clear")) {
+          clearNumberPadDay();
+          return;
+        }
+        if (btn.hasAttribute("data-num-back")) {
+          backspaceNumberPad();
+          return;
+        }
+        appendNumberPadDigit(btn.getAttribute("data-num"));
+      });
+    }
+    document.addEventListener("keydown", function (e) {
+      if (!numberPadContext) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        confirmNumberPad();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        closeNumberPad();
+      } else if (e.key === "Backspace") {
+        e.preventDefault();
+        backspaceNumberPad();
+      } else if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        appendNumberPadDigit(e.key);
+      }
     });
   })();
 
