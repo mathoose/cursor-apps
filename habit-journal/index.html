@@ -2695,6 +2695,46 @@
       font-weight: 700;
       letter-spacing: 0.02em;
     }
+    .time-pad-display {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .time-pad-field {
+      flex: 1;
+      min-height: 64px;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .time-pad-field.on {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(196, 92, 92, 0.18);
+    }
+    .time-pad-value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+    }
+    .time-pad-field.is-empty .time-pad-value {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .time-pad-unit {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
 
     /* —— Modern dark layout (toggle) —— */
     body.layout-modern {
@@ -2951,6 +2991,21 @@
     body.layout-modern .number-pad-key:active {
       background: #32384c;
     }
+    body.layout-modern .time-pad-field {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    body.layout-modern .time-pad-field.on {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(139, 124, 247, 0.28);
+    }
+    body.layout-modern .time-pad-field.is-empty .time-pad-value {
+      color: #9aa3b5;
+    }
+    body.layout-modern .time-pad-unit {
+      color: #9aa3b5;
+    }
     body.layout-modern .btn-secondary {
       background: var(--card-2);
       border-color: var(--border);
@@ -3190,21 +3245,35 @@
   <div class="time-add-sheet" id="timeAddSheet" hidden role="dialog" aria-modal="true" aria-labelledby="timeAddTitle">
     <div class="time-add-backdrop" id="timeAddBackdrop"></div>
     <div class="time-add-panel">
-      <h2 id="timeAddTitle">Add time</h2>
-      <p class="time-add-sub" id="timeAddSub">Enter minutes and seconds to add.</p>
-      <div class="time-add-inputs">
-        <label>
-          Minutes
-          <input type="number" id="timeAddMinutes" min="0" max="999" inputmode="numeric" value="1" />
-        </label>
-        <label>
-          Seconds
-          <input type="number" id="timeAddSeconds" min="0" max="59" inputmode="numeric" value="0" />
-        </label>
+      <h2 id="timeAddTitle">Time</h2>
+      <p class="time-add-sub" id="timeAddSub"></p>
+      <div class="time-pad-display">
+        <button type="button" class="time-pad-field on is-empty" id="timePadHoursBtn" data-time-field="h" aria-label="Hours">
+          <span class="time-pad-value" id="timePadHours">—</span>
+          <span class="time-pad-unit">h</span>
+        </button>
+        <button type="button" class="time-pad-field is-empty" id="timePadMinutesBtn" data-time-field="m" aria-label="Minutes">
+          <span class="time-pad-value" id="timePadMinutes">—</span>
+          <span class="time-pad-unit">m</span>
+        </button>
+      </div>
+      <div class="number-pad-grid" id="timePadGrid">
+        <button type="button" class="number-pad-key" data-time-num="1">1</button>
+        <button type="button" class="number-pad-key" data-time-num="2">2</button>
+        <button type="button" class="number-pad-key" data-time-num="3">3</button>
+        <button type="button" class="number-pad-key" data-time-num="4">4</button>
+        <button type="button" class="number-pad-key" data-time-num="5">5</button>
+        <button type="button" class="number-pad-key" data-time-num="6">6</button>
+        <button type="button" class="number-pad-key" data-time-num="7">7</button>
+        <button type="button" class="number-pad-key" data-time-num="8">8</button>
+        <button type="button" class="number-pad-key" data-time-num="9">9</button>
+        <button type="button" class="number-pad-key number-pad-key-action" data-time-clear="1">Clear</button>
+        <button type="button" class="number-pad-key" data-time-num="0">0</button>
+        <button type="button" class="number-pad-key number-pad-key-action" data-time-back="1" aria-label="Backspace">⌫</button>
       </div>
       <div class="time-add-actions">
         <button type="button" class="btn btn-secondary" id="timeAddCancel">Cancel</button>
-        <button type="button" class="btn btn-primary" id="timeAddConfirm">Add time</button>
+        <button type="button" class="btn btn-primary" id="timeAddConfirm">Save</button>
       </div>
     </div>
   </div>
@@ -3253,7 +3322,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v65 · Aug 16, 2026";
+  let habitJournalVersionText = "v66 · Aug 17, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3276,6 +3345,8 @@
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
   const MAX_NUMBER_VALUE = 999999;
+  const MAX_TIME_HOURS = 99;
+  const MAX_TIME_MINUTES = 59;
   const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
   const CATEGORY_ACCENTS = {
     general: "#94a3b8",
@@ -3290,6 +3361,9 @@
   const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
   const GRAPH_MA_KEY = "habit-journal-graph-ma";
   let timeAddContext = null;
+  let timePadField = "h";
+  let timePadHours = "";
+  let timePadMinutes = "";
   let numberPadContext = null;
   let numberPadDigits = "";
 
@@ -3302,7 +3376,7 @@
   }
 
   function usesTapStep(habit) {
-    return !!habit && (habit.type === "counter" || habit.type === "time");
+    return !!habit && habit.type === "counter";
   }
 
   function clampNumberValue(n) {
@@ -3347,15 +3421,19 @@
   function formatDurationCell(totalSeconds) {
     const parts = splitSeconds(totalSeconds);
     if (parts.h > 0) {
-      return (
-        parts.h +
-        ":" +
-        String(parts.m).padStart(2, "0") +
-        ":" +
-        String(parts.s).padStart(2, "0")
-      );
+      if (parts.s) {
+        return (
+          parts.h +
+          ":" +
+          String(parts.m).padStart(2, "0") +
+          ":" +
+          String(parts.s).padStart(2, "0")
+        );
+      }
+      return parts.h + ":" + String(parts.m).padStart(2, "0");
     }
-    return parts.m + ":" + String(parts.s).padStart(2, "0");
+    if (parts.s) return parts.m + ":" + String(parts.s).padStart(2, "0");
+    return parts.m + "m";
   }
 
   function hashCategoryId(id) {
@@ -4096,8 +4174,6 @@
     let stepVal = 1;
     if (habitType === "counter") {
       stepVal = Math.min(MAX_STEP, Math.max(1, parseInt(step, 10) || 1));
-    } else if (habitType === "time") {
-      stepVal = clampTimeStepSeconds(step);
     }
     const habit = {
       id: uid(),
@@ -4160,7 +4236,7 @@
     function sync() {
       const t = typeSel.value;
       if (counterWrap) counterWrap.hidden = t !== "counter";
-      if (timeWrap) timeWrap.hidden = t !== "time";
+      if (timeWrap) timeWrap.hidden = true;
     }
     typeSel.onchange = sync;
     sync();
@@ -4316,8 +4392,7 @@
       const name = (inp && inp.value.trim()) || "New " + categoryLabel(cat) + " habit";
       const type = typeEl ? typeEl.value : "counter";
       let step = 1;
-      if (type === "time") step = readTimeStepFromFields(stepMinEl, stepSecEl);
-      else if (type === "counter") step = stepEl ? stepEl.value : 1;
+      if (type === "counter") step = stepEl ? stepEl.value : 1;
       if (!addHabitToState(name, cat, step, type)) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
@@ -4513,18 +4588,10 @@
     const stepWrap = document.getElementById("habitEditStepWrap");
     const stepInp = document.getElementById("habitEditStep");
     const timeStepWrap = document.getElementById("habitEditTimeStepWrap");
-    const stepMinInp = document.getElementById("habitEditStepMin");
-    const stepSecInp = document.getElementById("habitEditStepSec");
     if (habit.type === "counter") {
       stepWrap.hidden = false;
       if (timeStepWrap) timeStepWrap.hidden = true;
       stepInp.value = habit.step || 1;
-    } else if (habit.type === "time") {
-      stepWrap.hidden = true;
-      if (timeStepWrap) timeStepWrap.hidden = false;
-      const parts = splitSeconds(clampTimeStepSeconds(habit.step));
-      if (stepMinInp) stepMinInp.value = String(parts.m + parts.h * 60);
-      if (stepSecInp) stepSecInp.value = String(parts.s);
     } else {
       stepWrap.hidden = true;
       if (timeStepWrap) timeStepWrap.hidden = true;
@@ -4563,12 +4630,6 @@
       habit.step = Math.min(
         MAX_STEP,
         Math.max(1, parseInt(document.getElementById("habitEditStep").value, 10) || 1)
-      );
-    }
-    if (habit.type === "time") {
-      habit.step = readTimeStepFromFields(
-        document.getElementById("habitEditStepMin"),
-        document.getElementById("habitEditStepSec")
       );
     }
     if (habit.type === "yesno") {
@@ -4774,8 +4835,6 @@
     let title = habit.name;
     if (habit.type === "counter") {
       title += " (" + formatStepBracket(habit.step) + ")";
-    } else if (habit.type === "time") {
-      title += " (+" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC) + ")";
     }
     return title;
   }
@@ -5208,7 +5267,7 @@
     const detail = entry.detail || {};
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
-    if (habit.type === "number") {
+    if (habit.type === "number" || habit.type === "time") {
       if (newValue === null || newValue === undefined) return "erase";
       return "add";
     }
@@ -5231,7 +5290,7 @@
     const whenLabel = clockLabel ? dateLabel + ", " + clockLabel : dateLabel;
     const oldValue = detail.oldValue != null ? detail.oldValue : null;
     const newValue = detail.newValue != null ? detail.newValue : null;
-    if (habit.type === "number") {
+    if (habit.type === "number" || habit.type === "time") {
       if (newValue === null || newValue === undefined) return whenLabel + ": cleared";
       return whenLabel + ": " + cellValueLabel(habit, newValue);
     }
@@ -5287,7 +5346,7 @@
       const dateLabel = formatChangeLogDate(detail.date);
       const oldValue = detail.oldValue != null ? detail.oldValue : null;
       const newValue = detail.newValue != null ? detail.newValue : null;
-      if (habit.type === "number") {
+      if (habit.type === "number" || habit.type === "time") {
         if (newValue === null || newValue === undefined) return dateLabel + ": cleared";
         return dateLabel + ": " + cellValueLabel(habit, newValue);
       }
@@ -5599,9 +5658,6 @@
   }
 
   function todayHabitUnitParen(habit) {
-    if (habit.type === "time") {
-      return "+" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC);
-    }
     if (habit.type !== "counter") return "";
     const step = Math.round(habit.step || 1);
     if (isStepsHabitName(habit.name)) {
@@ -5626,11 +5682,6 @@
     let html = (habit.pinned ? "★ " : "") + escapeHtml(habit.name);
     if (habit.type === "counter") {
       html += '<span class="habit-label-step">(' + escapeHtml(formatStepBracket(habit.step)) + ")</span>";
-    } else if (habit.type === "time") {
-      html +=
-        '<span class="habit-label-step">(' +
-        escapeHtml(formatDuration(habit.step || DEFAULT_TIME_STEP_SEC)) +
-        ")</span>";
     }
     return html;
   }
@@ -6012,37 +6063,118 @@
     document.body.classList.remove("year-fs-open");
   }
 
+  function timePadTotalSeconds() {
+    const h = timePadHours === "" ? 0 : parseInt(timePadHours, 10);
+    const m = timePadMinutes === "" ? 0 : parseInt(timePadMinutes, 10);
+    if (!isFinite(h) || !isFinite(m)) return 0;
+    return Math.max(0, h) * 3600 + Math.max(0, m) * 60;
+  }
+
+  function updateTimePadDisplay() {
+    const hoursEl = document.getElementById("timePadHours");
+    const minutesEl = document.getElementById("timePadMinutes");
+    const hoursBtn = document.getElementById("timePadHoursBtn");
+    const minutesBtn = document.getElementById("timePadMinutesBtn");
+    const hoursEmpty = timePadHours === "";
+    const minutesEmpty = timePadMinutes === "";
+    if (hoursEl) hoursEl.textContent = hoursEmpty ? (minutesEmpty ? "—" : "0") : timePadHours;
+    if (minutesEl) {
+      minutesEl.textContent = minutesEmpty
+        ? hoursEmpty
+          ? "—"
+          : "00"
+        : timePadMinutes.length >= 2
+          ? String(parseInt(timePadMinutes, 10) || 0).padStart(2, "0")
+          : timePadMinutes;
+    }
+    if (hoursBtn) {
+      hoursBtn.classList.toggle("on", timePadField === "h");
+      hoursBtn.classList.toggle("is-empty", hoursEmpty && minutesEmpty);
+    }
+    if (minutesBtn) {
+      minutesBtn.classList.toggle("on", timePadField === "m");
+      minutesBtn.classList.toggle("is-empty", hoursEmpty && minutesEmpty);
+    }
+  }
+
+  function setTimePadField(field) {
+    timePadField = field === "m" ? "m" : "h";
+    updateTimePadDisplay();
+  }
+
   function openTimeAddSheet(habitId, y, m, d) {
     const habit = state.habits.find(function (h) { return h.id === habitId; });
     if (!habit || habit.type !== "time") return;
     closeNumberPad();
     timeAddContext = { habitId: habitId, y: y, m: m, d: d };
-    const parts = splitSeconds(clampTimeStepSeconds(habit.step));
-    const minInp = document.getElementById("timeAddMinutes");
-    const secInp = document.getElementById("timeAddSeconds");
-    if (minInp) minInp.value = String(parts.m + parts.h * 60);
-    if (secInp) secInp.value = String(parts.s);
+    const current = getCellValue(cellKey(habitId, y, m, d));
+    if (current == null || current <= 0) {
+      timePadHours = "";
+      timePadMinutes = "";
+    } else {
+      const totalMin = Math.round(current / 60);
+      let hours = Math.floor(totalMin / 60);
+      let minutes = totalMin % 60;
+      if (hours > MAX_TIME_HOURS) {
+        hours = MAX_TIME_HOURS;
+        minutes = MAX_TIME_MINUTES;
+      }
+      timePadHours = String(hours);
+      timePadMinutes = String(minutes);
+    }
+    timePadField = "h";
     const title = document.getElementById("timeAddTitle");
     const sub = document.getElementById("timeAddSub");
-    if (title) title.textContent = "Add time · " + habit.name;
-    if (sub) {
-      const current = getCellValue(cellKey(habitId, y, m, d));
-      sub.textContent =
-        MONTHS[m] +
-        " " +
-        d +
-        (current ? " · current " + formatDuration(current) : " · enter minutes & seconds");
-    }
+    if (title) title.textContent = habit.name;
+    if (sub) sub.textContent = MONTHS[m] + " " + d;
+    updateTimePadDisplay();
     document.getElementById("timeAddSheet").hidden = false;
     document.body.classList.add("time-add-open");
-    if (minInp) minInp.focus();
   }
 
   function closeTimeAddSheet() {
     timeAddContext = null;
+    timePadHours = "";
+    timePadMinutes = "";
+    timePadField = "h";
     const sheet = document.getElementById("timeAddSheet");
     if (sheet) sheet.hidden = true;
     document.body.classList.remove("time-add-open");
+  }
+
+  function appendTimePadDigit(digit) {
+    const d = String(digit);
+    if (!/^[0-9]$/.test(d)) return;
+    if (timePadField === "h") {
+      let next = timePadHours === "0" ? "" : timePadHours;
+      if (next.length >= 2) return;
+      next += d;
+      const n = parseInt(next, 10);
+      if (!isFinite(n) || n > MAX_TIME_HOURS) return;
+      timePadHours = next;
+      if (timePadHours.length >= 2) timePadField = "m";
+    } else {
+      let next = timePadMinutes === "0" ? "" : timePadMinutes;
+      if (next.length >= 2) return;
+      next += d;
+      const n = parseInt(next, 10);
+      if (!isFinite(n) || n > MAX_TIME_MINUTES) return;
+      timePadMinutes = next;
+    }
+    updateTimePadDisplay();
+  }
+
+  function backspaceTimePad() {
+    if (timePadField === "m") {
+      if (timePadMinutes) {
+        timePadMinutes = timePadMinutes.slice(0, -1);
+      } else {
+        timePadField = "h";
+      }
+    } else {
+      timePadHours = timePadHours.slice(0, -1);
+    }
+    updateTimePadDisplay();
   }
 
   function confirmTimeAdd() {
@@ -6056,13 +6188,27 @@
       closeTimeAddSheet();
       return;
     }
-    const addSec = readTimeStepFromFields(
-      document.getElementById("timeAddMinutes"),
-      document.getElementById("timeAddSeconds")
-    );
+    if (timePadHours === "" && timePadMinutes === "") {
+      toast("Enter hours and minutes");
+      return;
+    }
+    const sec = timePadTotalSeconds();
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
-    state.cells[key] = (oldValue || 0) + addSec;
+    if (sec <= 0) {
+      closeTimeAddSheet();
+      if (oldValue === null) return;
+      delete state.cells[key];
+      logHabitChange(habitId, "cell", {
+        date: key.slice(habitId.length + 1),
+        oldValue: oldValue,
+        newValue: getCellValue(key),
+      });
+      afterCellChange(habitId, y, m, d);
+      toast("Cleared");
+      return;
+    }
+    state.cells[key] = sec;
     const newValue = getCellValue(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
@@ -6071,7 +6217,32 @@
     });
     closeTimeAddSheet();
     afterCellChange(habitId, y, m, d);
-    toast("+" + formatDuration(addSec));
+    toast(formatDuration(sec));
+  }
+
+  function clearTimePadDay() {
+    if (!timeAddContext) return;
+    const habitId = timeAddContext.habitId;
+    const y = timeAddContext.y;
+    const m = timeAddContext.m;
+    const d = timeAddContext.d;
+    const habit = state.habits.find(function (h) { return h.id === habitId; });
+    if (!habit || habit.type !== "time") {
+      closeTimeAddSheet();
+      return;
+    }
+    const key = cellKey(habitId, y, m, d);
+    const oldValue = getCellValue(key);
+    closeTimeAddSheet();
+    if (oldValue === null) return;
+    delete state.cells[key];
+    logHabitChange(habitId, "cell", {
+      date: key.slice(habitId.length + 1),
+      oldValue: oldValue,
+      newValue: getCellValue(key),
+    });
+    afterCellChange(habitId, y, m, d);
+    toast("Cleared");
   }
 
   function updateNumberPadDisplay() {
@@ -6248,7 +6419,7 @@
       if (oldValue === 0) state.cells[key] = 1;
       else if (oldValue === 1) state.cells[key] = YESNO_PROGRESS;
       else delete state.cells[key];
-    } else if (habit.type === "number") {
+    } else if (habit.type === "number" || habit.type === "time") {
       delete state.cells[key];
     } else {
       const step = habit.step || 1;
@@ -6434,14 +6605,11 @@
     let html = renderLegendCompact(habit);
     if (habit.type === "counter") {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Mark: tap +step. Eraser or hold: -step</p>";
-    } else if (habit.type === "number") {
+    } else if (habit.type === "number" || habit.type === "time") {
       html +=
-        "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to type that day’s number. Save sets it (does not add). Eraser clears.</p>";
-    } else if (habit.type === "time") {
-      html +=
-        "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to add minutes &amp; seconds. Eraser or hold: −" +
-        escapeHtml(formatDuration(habit.step || DEFAULT_TIME_STEP_SEC)) +
-        "</p>";
+        "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap to type that day’s " +
+        (habit.type === "time" ? "hours and minutes" : "number") +
+        ". Save sets it (does not add). Eraser clears.</p>";
     } else {
       html += "<p style=\"font-size:0.6875rem;color:var(--muted);margin-top:6px\">Tap: empty → In progress → Yes → No → clear. Eraser steps back.</p>";
     }
@@ -6669,7 +6837,7 @@
     html +=
       '<p class="hint">Tap a name to edit · Hide on each row · pick type when adding · hidden habits below.' +
       eraserNote +
-      " Hold a counter/time cell to subtract. Tap time cells to add minutes &amp; seconds. Hold ≡ to drag habits. Hold a category chip to reorder filters.</p>";
+      " Hold a counter cell to subtract. Tap Number or Time cells to type that day’s value. Hold ≡ to drag habits. Hold a category chip to reorder filters.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -8645,7 +8813,7 @@
     let type = "Yes/No";
     if (habit.type === "counter") type = "Counter +" + formatStepBracket(habit.step);
     else if (habit.type === "number") type = "Number";
-    else if (habit.type === "time") type = "Time +" + formatDuration(habit.step || DEFAULT_TIME_STEP_SEC);
+    else if (habit.type === "time") type = "Time";
     return categoryLabel(habit.category) + " · " + type + (habit.pinned ? " · ★" : "");
   }
 
@@ -8941,22 +9109,6 @@
           row +=
             '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
         }
-      } else if (habit.type === "time") {
-        const tp = splitSeconds(clampTimeStepSeconds(habit.step));
-        row +=
-          '<div class="step-row"><span>+ minutes &amp; seconds</span>' +
-          '<input type="number" min="0" max="999" value="' +
-          (tp.m + tp.h * 60) +
-          '" data-step-min="' +
-          habit.id +
-          '" aria-label="Minutes" />' +
-          '<span class="time-unit">m</span>' +
-          '<input type="number" min="0" max="59" value="' +
-          tp.s +
-          '" data-step-sec="' +
-          habit.id +
-          '" aria-label="Seconds" />' +
-          '<span class="time-unit">s</span></div>';
       } else if (habit.type === "yesno") {
         row += renderExcludeDaysHtml(habit);
       }
@@ -9169,8 +9321,7 @@
       const cat = catEl ? normalizeCategory(catEl.value) : "general";
       const type = typeEl ? typeEl.value : "counter";
       let step = 1;
-      if (type === "time") step = readTimeStepFromFields(stepMinEl, stepSecEl);
-      else if (type === "counter") step = stepEl ? stepEl.value : 1;
+      if (type === "counter") step = stepEl ? stepEl.value : 1;
       if (!addHabitToState(name, cat, step, type)) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
@@ -9227,7 +9378,7 @@
           h.step = 1;
           delete h.excludeDays;
         } else if (h.type === "time") {
-          h.step = prevType === "time" ? clampTimeStepSeconds(h.step) : DEFAULT_TIME_STEP_SEC;
+          h.step = 1;
           delete h.excludeDays;
         } else if (h.type === "yesno") {
           if (!h.excludeDays) h.excludeDays = [];
@@ -9755,21 +9906,52 @@
     const confirmBtn = document.getElementById("timeAddConfirm");
     const cancelBtn = document.getElementById("timeAddCancel");
     const backdrop = document.getElementById("timeAddBackdrop");
+    const grid = document.getElementById("timePadGrid");
     if (confirmBtn) confirmBtn.onclick = confirmTimeAdd;
     if (cancelBtn) cancelBtn.onclick = closeTimeAddSheet;
     if (backdrop) backdrop.onclick = closeTimeAddSheet;
-    ["timeAddMinutes", "timeAddSeconds"].forEach(function (id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          confirmTimeAdd();
-        } else if (e.key === "Escape") {
-          e.preventDefault();
-          closeTimeAddSheet();
+    document.querySelectorAll("[data-time-field]").forEach(function (btn) {
+      btn.onclick = function () {
+        setTimePadField(btn.getAttribute("data-time-field"));
+      };
+    });
+    if (grid) {
+      grid.addEventListener("click", function (e) {
+        const el = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+        const btn = el && el.closest("[data-time-num], [data-time-back], [data-time-clear]");
+        if (!btn || !grid.contains(btn)) return;
+        if (btn.hasAttribute("data-time-clear")) {
+          clearTimePadDay();
+          return;
         }
+        if (btn.hasAttribute("data-time-back")) {
+          backspaceTimePad();
+          return;
+        }
+        appendTimePadDigit(btn.getAttribute("data-time-num"));
       });
+    }
+    document.addEventListener("keydown", function (e) {
+      if (!timeAddContext) return;
+      if (e.key === "Enter") {
+        e.preventDefault();
+        confirmTimeAdd();
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        closeTimeAddSheet();
+      } else if (e.key === "Backspace") {
+        e.preventDefault();
+        backspaceTimePad();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setTimePadField("h");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setTimePadField("m");
+      } else if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        appendTimePadDigit(e.key);
+      }
     });
   })();
 
