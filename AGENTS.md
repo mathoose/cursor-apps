@@ -14,6 +14,8 @@ Instructions for Cloud Agents and other automated contributors working in this r
 
 **Create a new PR for each round of changes** (do not reuse a branch after its PR has been merged).
 
+**User merges only:** never merge a PR and never push to `main`. Agent-side merge/push does not update the live apps. Push the feature branch, open a PR, and leave it for the user to merge. Do not use `gh pr merge`, `git push origin main`, or any merge/land action.
+
 At the **end of every turn** where code changed, include a **PR summary table** like this:
 
 | PR | Summary | Versions |
@@ -30,8 +32,8 @@ At the **end of every turn** where code changed, include a **PR summary table** 
 
 - Bump matching entries in **`versions.json`** (`"N · Mon D, YYYY"`).
 - End commit messages with `Versions: …` listing what changed.
-- Push the branch and create/update the PR before finishing the turn.
-- Tell the user they must **merge to `main`** for changes to appear on `mathoose.github.io`.
+- Push the **feature branch** (not `main`) and create/update the PR before finishing the turn. Leave the PR open.
+- Tell the user they must **merge the PR themselves** for changes to appear on `mathoose.github.io`. Never merge it for them.
 
 ## Version numbers
 
