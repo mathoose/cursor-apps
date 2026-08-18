@@ -677,7 +677,7 @@
     }
     .graph-chart-tooltip li {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       font-size: 0.75rem;
       color: var(--ink);
@@ -722,6 +722,16 @@
       color: var(--ink);
       font-weight: 700;
     }
+    .graph-chart-tooltip-note {
+      display: block;
+      width: 100%;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.35;
+      white-space: normal;
+      margin-top: 2px;
+    }
     body.layout-modern .graph-chart-tooltip {
       background: #161a26;
       border-color: rgba(255, 255, 255, 0.2);
@@ -743,6 +753,9 @@
     }
     body.layout-modern .graph-chart-tooltip-metric b {
       color: #ffffff;
+    }
+    body.layout-modern .graph-chart-tooltip-note {
+      color: #c5cbe0;
     }
     #graphsBody.graph-inspecting,
     #graphsBody.graph-inspecting * {
@@ -2695,6 +2708,22 @@
       font-weight: 700;
       letter-spacing: 0.02em;
     }
+    .number-pad-note {
+      width: 100%;
+      min-height: 52px;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.9375rem;
+      line-height: 1.35;
+      resize: none;
+    }
+    .number-pad-note::placeholder {
+      color: var(--muted);
+    }
     .time-pad-display {
       display: flex;
       gap: 10px;
@@ -2990,6 +3019,11 @@
     }
     body.layout-modern .number-pad-key:active {
       background: #32384c;
+    }
+    body.layout-modern .number-pad-note {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
     }
     body.layout-modern .time-pad-field {
       background: #252a3a;
@@ -3298,6 +3332,7 @@
         <button type="button" class="number-pad-key" data-num="0">0</button>
         <button type="button" class="number-pad-key number-pad-key-action" data-num-back="1" aria-label="Backspace">⌫</button>
       </div>
+      <textarea id="numberPadNote" class="number-pad-note" rows="2" maxlength="160" placeholder="Optional note for this day" autocomplete="off"></textarea>
       <div class="time-add-actions">
         <button type="button" class="btn btn-secondary" id="numberPadCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="numberPadSave">Save</button>
@@ -3322,7 +3357,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v66 · Aug 17, 2026";
+  let habitJournalVersionText = "v67 · Aug 18, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3345,6 +3380,7 @@
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
   const MAX_NUMBER_VALUE = 999999;
+  const MAX_CELL_NOTE = 160;
   const MAX_TIME_HOURS = 99;
   const MAX_TIME_MINUTES = 59;
   const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
@@ -3624,6 +3660,7 @@
         },
       ],
       cells: {},
+      cellNotes: {},
       todayDismissed: {},
     };
   }
@@ -4060,6 +4097,16 @@
     const parts = getTodayDateParts();
     const val = getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d));
     return val !== null && val !== undefined;
+  }
+
+  function isNumberMarkedToday(habit) {
+    if (habit.type !== "number") return false;
+    const parts = getTodayDateParts();
+    return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
+  }
+
+  function canHideFromToday(habit) {
+    return habit.type === "yesno" || isNumberMarkedToday(habit);
   }
 
   function getTodayHabitsForCategory(catId) {
@@ -5115,6 +5162,15 @@
       if (p.todayDismissed && typeof p.todayDismissed === "object") {
         s.todayDismissed = p.todayDismissed;
       }
+      s.cellNotes = {};
+      if (p.cellNotes && typeof p.cellNotes === "object") {
+        Object.keys(p.cellNotes).forEach(function (k) {
+          const n = p.cellNotes[k];
+          if (typeof n === "string" && n.trim()) {
+            s.cellNotes[k] = n.trim().slice(0, MAX_CELL_NOTE);
+          }
+        });
+      }
       const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h && h.levels; });
       if (isLegacy) {
         try {
@@ -5497,6 +5553,45 @@
   function getCellValue(key) {
     const v = state.cells[key];
     return typeof v === "number" ? v : null;
+  }
+
+  function ensureCellNotes() {
+    if (!state.cellNotes || typeof state.cellNotes !== "object") state.cellNotes = {};
+  }
+
+  function getCellNote(key) {
+    ensureCellNotes();
+    const n = state.cellNotes[key];
+    return typeof n === "string" && n.trim() ? n.trim() : "";
+  }
+
+  function setCellNote(key, text) {
+    ensureCellNotes();
+    const t = String(text || "").replace(/\s+/g, " ").trim().slice(0, MAX_CELL_NOTE);
+    if (t) state.cellNotes[key] = t;
+    else delete state.cellNotes[key];
+  }
+
+  function clearCellNote(key) {
+    ensureCellNotes();
+    delete state.cellNotes[key];
+  }
+
+  function deleteCellNotesForHabit(habitId) {
+    ensureCellNotes();
+    Object.keys(state.cellNotes).forEach(function (k) {
+      if (k.indexOf(habitId + "-") === 0) delete state.cellNotes[k];
+    });
+  }
+
+  function readNumberPadNote() {
+    const el = document.getElementById("numberPadNote");
+    return el ? el.value : "";
+  }
+
+  function writeNumberPadNote(text) {
+    const el = document.getElementById("numberPadNote");
+    if (el) el.value = text || "";
   }
 
   function isCellFilled(habit, value) {
@@ -6264,6 +6359,7 @@
     numberPadContext = { habitId: habitId, y: y, m: m, d: d };
     const current = getCellValue(cellKey(habitId, y, m, d));
     numberPadDigits = current !== null ? String(clampNumberValue(current)) : "";
+    writeNumberPadNote(getCellNote(cellKey(habitId, y, m, d)));
     const title = document.getElementById("numberPadTitle");
     const sub = document.getElementById("numberPadSub");
     if (title) title.textContent = habit.name;
@@ -6276,6 +6372,7 @@
   function closeNumberPad() {
     numberPadContext = null;
     numberPadDigits = "";
+    writeNumberPadNote("");
     const sheet = document.getElementById("numberPadSheet");
     if (sheet) sheet.hidden = true;
     document.body.classList.remove("number-pad-open");
@@ -6318,12 +6415,14 @@
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
     state.cells[key] = n;
+    setCellNote(key, readNumberPadNote());
     const newValue = getCellValue(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
       oldValue: oldValue,
       newValue: newValue,
     });
+    if (isTodayColumn(y, m, d)) setTodayDismissed(habitId, true);
     closeNumberPad();
     afterCellChange(habitId, y, m, d);
     toast(formatCounterDisplay(n));
@@ -6342,9 +6441,11 @@
     }
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
+    const hadNote = !!getCellNote(key);
     closeNumberPad();
-    if (oldValue === null) return;
+    if (oldValue === null && !hadNote) return;
     delete state.cells[key];
+    clearCellNote(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
       oldValue: oldValue,
@@ -6421,6 +6522,7 @@
       else delete state.cells[key];
     } else if (habit.type === "number" || habit.type === "time") {
       delete state.cells[key];
+      if (habit.type === "number") clearCellNote(key);
     } else {
       const step = habit.step || 1;
       const next = oldValue - step;
@@ -6796,7 +6898,7 @@
         gridHtml += '<div class="today-tile" data-habit-card="' + escapeHtml(habit.id) + '">';
         gridHtml += '<div class="today-cell-wrap">';
         gridHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
-        if (viewingToday && habit.type === "yesno") {
+        if (viewingToday && canHideFromToday(habit)) {
           gridHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
@@ -8069,10 +8171,12 @@
       return {
         label: formatGraphInspectTime(ts),
         habits: meta.seriesList.map(function (series) {
+          const d = new Date(ts);
           return {
             habit: series.habit,
             color: plotColorFromMap(series.habit.id, meta.colorMap),
             value: graphInspectValueAtTime(series, ts, meta.start, meta.end),
+            day: { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() },
           };
         }),
       };
@@ -8092,6 +8196,7 @@
           habit: series.habit,
           color: plotColorFromMap(series.habit.id, meta.colorMap),
           value: p ? p.raw : null,
+          day: p && p.day ? p.day : null,
         };
         if (includeMa) {
           if (meta.showMa15) {
@@ -8157,6 +8262,13 @@
     tooltip.style.top = top + "px";
   }
 
+  function graphInspectNoteHtml(row) {
+    if (!row || !row.habit || row.habit.type !== "number" || !row.day) return "";
+    const note = getCellNote(cellKey(row.habit.id, row.day.y, row.day.m, row.day.d));
+    if (!note) return "";
+    return '<div class="graph-chart-tooltip-note">' + escapeHtml(note) + "</div>";
+  }
+
   function showGraphChartTooltip(canvas, overlay, tooltip, clientX, clientY) {
     const meta = canvas._graphInspect;
     if (!meta || !tooltip) return;
@@ -8192,14 +8304,16 @@
             escapeHtml(graphInspectMaLabel(row.habit, row.ma30)) +
             "</b></span>";
         }
-        html += "</span></div>";
+        html += "</span>" + graphInspectNoteHtml(row) + "</div>";
       } else {
         html +=
-          '<span class="graph-chart-tooltip-name">' +
+          '<div class="graph-chart-tooltip-habit"><span class="graph-chart-tooltip-name">' +
           escapeHtml(row.habit.name) +
           "</span><strong>" +
           escapeHtml(dayLabel) +
-          "</strong>";
+          "</strong>" +
+          graphInspectNoteHtml(row) +
+          "</div>";
       }
       html += "</li>";
     });
@@ -9349,6 +9463,7 @@
         Object.keys(state.cells).forEach(function (k) {
           if (k.indexOf(id + "-") === 0) delete state.cells[k];
         });
+        deleteCellNotesForHabit(id);
         save(); render();
       };
     });
@@ -9758,6 +9873,7 @@
         month: typeof p.month === "number" ? p.month : new Date().getMonth(),
         habits: p.habits,
         cells: p.cells || {},
+        cellNotes: p.cellNotes || {},
         categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
         categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
         migratedStepsDefault: !!p.migratedStepsDefault,
@@ -9774,6 +9890,7 @@
         month: state.month,
         habits: state.habits.slice(),
         cells: Object.assign({}, state.cells),
+        cellNotes: Object.assign({}, state.cellNotes || {}),
         categories: state.categories.slice(),
         categoryFilter: state.categoryFilter,
         migratedStepsDefault: state.migratedStepsDefault,
@@ -9783,6 +9900,10 @@
       });
       Object.keys(p.cells || {}).forEach(function (k) {
         if (!merged.cells[k]) merged.cells[k] = p.cells[k];
+      });
+      Object.keys(p.cellNotes || {}).forEach(function (k) {
+        if (!merged.cellNotes) merged.cellNotes = {};
+        if (!merged.cellNotes[k]) merged.cellNotes[k] = p.cellNotes[k];
       });
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
@@ -9981,12 +10102,16 @@
     }
     document.addEventListener("keydown", function (e) {
       if (!numberPadContext) return;
+      const inNote = e.target && e.target.id === "numberPadNote";
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeNumberPad();
+        return;
+      }
+      if (inNote) return;
       if (e.key === "Enter") {
         e.preventDefault();
         confirmNumberPad();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        closeNumberPad();
       } else if (e.key === "Backspace") {
         e.preventDefault();
         backspaceNumberPad();
