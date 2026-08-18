@@ -64,6 +64,7 @@
             month: p.month,
             habits: p.habits,
             cells: p.cells || {},
+            cellNotes: p.cellNotes || {},
             categories: Array.isArray(p.categories) ? p.categories : undefined,
             categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : undefined,
           };
@@ -79,6 +80,7 @@
           month: typeof slice.month === "number" ? slice.month : new Date().getMonth(),
           habits: slice.habits,
           cells: slice.cells || {},
+          cellNotes: slice.cellNotes || {},
         };
         if (Array.isArray(slice.categories) && slice.categories.length) {
           out.categories = slice.categories;
@@ -104,6 +106,7 @@
           month: typeof existing.month === "number" ? existing.month : new Date().getMonth(),
           habits: (existing.habits || []).slice(),
           cells: Object.assign({}, existing.cells || {}),
+          cellNotes: Object.assign({}, existing.cellNotes || {}),
           categories: (existing.categories || []).slice(),
           categoryFilter: existing.categoryFilter || "all",
         };
@@ -117,6 +120,9 @@
         });
         Object.keys(incoming.cells || {}).forEach(function (k) {
           if (!out.cells[k]) out.cells[k] = incoming.cells[k];
+        });
+        Object.keys(incoming.cellNotes || {}).forEach(function (k) {
+          if (!out.cellNotes[k]) out.cellNotes[k] = incoming.cellNotes[k];
         });
         var catIds = {};
         out.categories.forEach(function (c) { catIds[c.id] = true; });
