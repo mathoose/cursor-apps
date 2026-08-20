@@ -2708,6 +2708,11 @@
       font-weight: 700;
       letter-spacing: 0.02em;
     }
+    .number-pad-key-dot {
+      grid-column: 2;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
     .number-pad-note {
       width: 100%;
       min-height: 52px;
@@ -3331,6 +3336,7 @@
         <button type="button" class="number-pad-key number-pad-key-action" data-num-clear="1">Clear</button>
         <button type="button" class="number-pad-key" data-num="0">0</button>
         <button type="button" class="number-pad-key number-pad-key-action" data-num-back="1" aria-label="Backspace">⌫</button>
+        <button type="button" class="number-pad-key number-pad-key-dot" data-num="." aria-label="Decimal point">.</button>
       </div>
       <textarea id="numberPadNote" class="number-pad-note" rows="2" maxlength="160" placeholder="Optional note for this day" autocomplete="off"></textarea>
       <div class="time-add-actions">
@@ -3357,7 +3363,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v67 · Aug 18, 2026";
+  let habitJournalVersionText = "v68 · Aug 20, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3380,6 +3386,7 @@
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
   const MAX_NUMBER_VALUE = 999999;
+  const MAX_NUMBER_DECIMALS = 2;
   const MAX_CELL_NOTE = 160;
   const MAX_TIME_HOURS = 99;
   const MAX_TIME_MINUTES = 59;
@@ -3416,9 +3423,11 @@
   }
 
   function clampNumberValue(n) {
-    const v = parseInt(n, 10);
+    const v = parseFloat(n);
     if (!isFinite(v) || v < 0) return 0;
-    return Math.min(MAX_NUMBER_VALUE, v);
+    const factor = Math.pow(10, MAX_NUMBER_DECIMALS);
+    const rounded = Math.round(v * factor) / factor;
+    return Math.min(MAX_NUMBER_VALUE, rounded);
   }
 
   function clampTimeStepSeconds(sec) {
@@ -4105,8 +4114,14 @@
     return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
   }
 
+  function isTimeMarkedToday(habit) {
+    if (habit.type !== "time") return false;
+    const parts = getTodayDateParts();
+    return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
+  }
+
   function canHideFromToday(habit) {
-    return habit.type === "yesno" || isNumberMarkedToday(habit);
+    return habit.type === "yesno" || isNumberMarkedToday(habit) || isTimeMarkedToday(habit);
   }
 
   function getTodayHabitsForCategory(catId) {
@@ -5741,9 +5756,13 @@
   }
 
   function formatCounterDisplay(value) {
-    const v = Math.round(value);
-    if (v >= 1000) return String(Math.round(v / 1000)) + "k";
-    return String(v);
+    const n = Number(value);
+    if (!isFinite(n)) return "0";
+    if (n >= 1000) return String(Math.round(n / 1000)) + "k";
+    const factor = Math.pow(10, MAX_NUMBER_DECIMALS);
+    const rounded = Math.round(n * factor) / factor;
+    if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
+    return String(rounded);
   }
 
   function formatStepBracket(step) {
@@ -6380,12 +6399,23 @@
 
   function appendNumberPadDigit(digit) {
     const d = String(digit);
+    if (d === ".") {
+      if (numberPadDigits.indexOf(".") !== -1) return;
+      numberPadDigits = numberPadDigits ? numberPadDigits + "." : "0.";
+      updateNumberPadDisplay();
+      return;
+    }
     if (!/^[0-9]$/.test(d)) return;
     let next = numberPadDigits;
     if (next === "0") next = "";
-    if (next.length >= String(MAX_NUMBER_VALUE).length) return;
+    const dot = next.indexOf(".");
+    if (dot === -1) {
+      if (next.length >= String(MAX_NUMBER_VALUE).length) return;
+    } else if (next.slice(dot + 1).length >= MAX_NUMBER_DECIMALS) {
+      return;
+    }
     next += d;
-    const n = parseInt(next, 10);
+    const n = parseFloat(next);
     if (!isFinite(n) || n > MAX_NUMBER_VALUE) return;
     numberPadDigits = next;
     updateNumberPadDisplay();
@@ -6407,7 +6437,7 @@
       closeNumberPad();
       return;
     }
-    if (!numberPadDigits) {
+    if (!numberPadDigits || numberPadDigits === ".") {
       toast("Enter a number");
       return;
     }
@@ -6422,7 +6452,6 @@
       oldValue: oldValue,
       newValue: newValue,
     });
-    if (isTodayColumn(y, m, d)) setTodayDismissed(habitId, true);
     closeNumberPad();
     afterCellChange(habitId, y, m, d);
     toast(formatCounterDisplay(n));
@@ -7231,7 +7260,7 @@
     if (value == null) return "—";
     if (habit.type === "yesno") return value + "%";
     if (habit.type === "time") return formatDuration(Math.round(value));
-    return formatCounterDisplay(Math.round(value));
+    return formatCounterDisplay(value);
   }
 
   function formatWindowRangeBracket(habit, min, max) {
@@ -8142,14 +8171,14 @@
       return "In progress";
     }
     if (habit.type === "time") return formatDuration(Math.round(raw));
-    return formatCounterDisplay(Math.round(raw));
+    return formatCounterDisplay(raw);
   }
 
   function graphInspectMaLabel(habit, raw) {
     if (raw == null) return "—";
     if (habit.type === "yesno") return Math.round(raw * 100) + "%";
     if (habit.type === "time") return formatDuration(Math.round(raw));
-    return formatCounterDisplay(Math.round(raw));
+    return formatCounterDisplay(raw);
   }
 
   function graphInspectValueAtTime(series, ts, start, end) {
@@ -10115,7 +10144,7 @@
       } else if (e.key === "Backspace") {
         e.preventDefault();
         backspaceNumberPad();
-      } else if (/^[0-9]$/.test(e.key)) {
+      } else if (/^[0-9]$/.test(e.key) || e.key === ".") {
         e.preventDefault();
         appendNumberPadDigit(e.key);
       }
