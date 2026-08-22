@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v52 -->
+  <!-- build: hj-today-version-v69 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3363,7 +3363,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v68 · Aug 20, 2026";
+  let habitJournalVersionText = "v69 · Aug 22, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -7260,7 +7260,7 @@
     if (value == null) return "—";
     if (habit.type === "yesno") return value + "%";
     if (habit.type === "time") return formatDuration(Math.round(value));
-    return formatCounterDisplay(value);
+    return formatCounterDisplay(Math.round(value));
   }
 
   function formatWindowRangeBracket(habit, min, max) {
@@ -8178,7 +8178,7 @@
     if (raw == null) return "—";
     if (habit.type === "yesno") return Math.round(raw * 100) + "%";
     if (habit.type === "time") return formatDuration(Math.round(raw));
-    return formatCounterDisplay(raw);
+    return formatCounterDisplay(Math.round(raw));
   }
 
   function graphInspectValueAtTime(series, ts, start, end) {
