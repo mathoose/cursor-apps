@@ -60,7 +60,7 @@ body {
   bottom: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
   padding: 8px 12px calc(8px + var(--safe-bottom));
   background: rgba(11, 31, 20, 0.94);
@@ -232,3 +232,71 @@ h3 { margin: 0 0 8px; font-size: 1rem; }
 .note strong { color: var(--gold); font-weight: 700; }
 .player.open .more { display: block; }
 .more { display: none; }
+
+.field-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.select {
+  width: 100%;
+  appearance: none;
+  border: 1px solid var(--line);
+  background: #0d2418;
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.roster-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.roster-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.roster-grid input {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: #0d2418;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+.btn-primary {
+  width: 100%;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--gold);
+  color: #14532d;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+.btn-link {
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0;
+  text-decoration: underline;
+}

@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="app-header">
@@ -21,64 +21,44 @@
     </a>
     <div class="header-titles">
       <h1>Draft Board</h1>
-      <p>14-team · 1.01 snake · BDGE notes</p>
+      <p id="headerSub">Loading…</p>
     </div>
   </header>
 
   <nav class="tabbar" role="tablist">
     <button type="button" class="tab active" data-tab="plan">Plan</button>
     <button type="button" class="tab" data-tab="board">Board</button>
+    <button type="button" class="tab" data-tab="settings">Settings</button>
   </nav>
 
   <main>
     <section class="view active" id="viewPlan" data-view="plan">
       <div class="card hero">
         <p class="eyebrow">Your league</p>
-        <h2>1 QB · 2 RB · 2 WR · FLEX · TE · K · DST</h2>
-        <p class="muted">Newest BDGE video wins when takes conflict. ADP is Fantasy Football Calculator 14-team PPR (Aug 17–24, 2026) with ESPN overlay.</p>
+        <h2 id="rosterLine">1 QB · 2 RB · 2 WR · FLEX · TE · K · DST</h2>
+        <p class="muted" id="adpNote">Newest BDGE video wins when takes conflict. ADP is Fantasy Football Calculator PPR with ESPN overlay.</p>
+        <button type="button" class="btn-link" data-goto="settings">Edit draft settings</button>
       </div>
 
       <div class="card">
         <h3>Your snake picks</h3>
-        <p class="muted tight">You pick twice in a row at every even/odd turn after round 1.</p>
+        <p class="muted tight" id="pickHint">You pick twice in a row at every turn after round 1 when you’re on an edge.</p>
         <div class="pick-grid" id="pickGrid"></div>
       </div>
 
       <div class="card do-card">
         <h3>Do</h3>
-        <ul class="rules">
-          <li><strong>1.01: Jahmyr Gibbs.</strong> Nick’s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>
-          <li><strong>28 &amp; 29: double-tap WR.</strong> That’s your 2–3 turn. Nabers, AJ Brown, Nico, Olave, DeVonta, Pickens, Rice, Tet. Hitting a WR1 here beats the leftover RBs (Jacobs / Kyren / Javonte).</li>
-          <li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live in rounds 6–10. Don’t spend 28 on Allen or Lamar.</li>
-          <li><strong>Wait on elite TE.</strong> Skip Bowers/McBride at 28–29. Warren or Loveland at 56–57; LaPorta / Kraft at 84–85; Chig as a punt around 140.</li>
-          <li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs (~80), Stribling (8th/9th), Keaton Mitchell last round if you have Hampton.</li>
-          <li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>
-        </ul>
+        <ul class="rules" id="doRules"></ul>
       </div>
 
       <div class="card dont-card">
         <h3>Don’t</h3>
-        <ul class="rules">
-          <li><strong>Don’t take WR at 1.01</strong> in this format. You’ll be RB-starved by pick 28.</li>
-          <li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at 28–29 (camp, OL, possible suspension).</li>
-          <li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>
-          <li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>
-          <li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering — he slid from 2–3 turn to 3–4.</li>
-          <li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff — they don’t want that Raiders offense without Jeanty.</li>
-          <li><strong>K / DST last two picks</strong> (196–197). Never earlier.</li>
-        </ul>
+        <ul class="rules" id="dontRules"></ul>
       </div>
 
       <div class="card">
         <h3>Round-by-round cheat sheet</h3>
-        <ol class="rounds">
-          <li><strong>Pick 1:</strong> Gibbs (Bijan only if Gibbs is somehow gone).</li>
-          <li><strong>28–29:</strong> Two WRs from the Nabers / Nico / AJB / Olave / DeVonta / Pickens / Rice / Tet pile. If a true RB2 falls (KW3, Hampton, Henry), you can mix one in.</li>
-          <li><strong>56–57:</strong> Best available flex + TE if Warren/Loveland are there. Etienne is a smash if he lasts. Evans only at a discount (quad). Burden if the groin dropped him.</li>
-          <li><strong>84–85:</strong> Downs, Daniels/Hurts/Purdy, LaPorta/Kraft, Skattebo if he slid. Still no kicker.</li>
-          <li><strong>112–113:</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>
-          <li><strong>140+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>
-        </ol>
+        <ol class="rounds" id="roundSheet"></ol>
       </div>
 
       <div class="card">
@@ -108,11 +88,44 @@
       <p class="count" id="count"></p>
       <div id="playerList" class="player-list"></div>
     </section>
+
+    <section class="view" id="viewSettings" data-view="settings">
+      <div class="card">
+        <h3>Draft size</h3>
+        <p class="muted tight">Changes your pick numbers and board window badges. Saved on this phone.</p>
+        <label class="field-label" for="teamsSelect">Teams</label>
+        <div class="chips" id="teamsChips"></div>
+        <label class="field-label" for="pickSelect">Your draft slot</label>
+        <select id="pickSelect" class="select"></select>
+        <label class="field-label" for="roundsSelect">Rounds</label>
+        <select id="roundsSelect" class="select"></select>
+      </div>
+
+      <div class="card">
+        <h3>Roster (display)</h3>
+        <p class="muted tight">Used on the Plan tab label. Doesn’t change ADP.</p>
+        <div class="roster-grid">
+          <label>QB <input type="number" id="setQb" min="0" max="3" inputmode="numeric" /></label>
+          <label>RB <input type="number" id="setRb" min="0" max="4" inputmode="numeric" /></label>
+          <label>WR <input type="number" id="setWr" min="0" max="5" inputmode="numeric" /></label>
+          <label>FLEX <input type="number" id="setFlex" min="0" max="3" inputmode="numeric" /></label>
+          <label>TE <input type="number" id="setTe" min="0" max="2" inputmode="numeric" /></label>
+          <label>K <input type="number" id="setK" min="0" max="1" inputmode="numeric" /></label>
+          <label>DST <input type="number" id="setDst" min="0" max="1" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Preview</h3>
+        <p class="muted" id="settingsPreview"></p>
+        <button type="button" class="btn-primary" id="resetSettings">Reset to 14-team · 1.01</button>
+      </div>
+    </section>
   </main>
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
