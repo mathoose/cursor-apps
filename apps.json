@@ -25,7 +25,8 @@
       "idea-notes": { "storageKey": "idea-notes-v1" },
       "stitch-grid": { "storageKey": "stitch-grid-v1" },
       "photo-calendar": { "storageKey": "photo-calendar-v1" },
-      "3d-print": { "storageKey": "3d-print-v1" }
+      "3d-print": { "storageKey": "3d-print-v1" },
+      "draft-board": { "storageKey": "draft-board-v1" }
     }
   },
   "apps": [
@@ -130,6 +131,12 @@
       "name": "3D Print",
       "subtitle": "Queue, plates & printers",
       "storageKey": "3d-print-v1"
+    },
+    {
+      "id": "draft-board",
+      "name": "Draft Board",
+      "subtitle": "14-team 1.01 notes",
+      "storageKey": "draft-board-v1"
     },
     {
       "id": "stride-flow",
