@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Draft Board</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Draft Board" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1f14" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Draft Board</h1>
+      <p>14-team · 1.01 snake · BDGE notes</p>
+    </div>
+  </header>
+
+  <nav class="tabbar" role="tablist">
+    <button type="button" class="tab active" data-tab="plan">Plan</button>
+    <button type="button" class="tab" data-tab="board">Board</button>
+  </nav>
+
+  <main>
+    <section class="view active" id="viewPlan" data-view="plan">
+      <div class="card hero">
+        <p class="eyebrow">Your league</p>
+        <h2>1 QB · 2 RB · 2 WR · FLEX · TE · K · DST</h2>
+        <p class="muted">Newest BDGE video wins when takes conflict. ADP is Fantasy Football Calculator 14-team PPR (Aug 17–24, 2026) with ESPN overlay.</p>
+      </div>
+
+      <div class="card">
+        <h3>Your snake picks</h3>
+        <p class="muted tight">You pick twice in a row at every even/odd turn after round 1.</p>
+        <div class="pick-grid" id="pickGrid"></div>
+      </div>
+
+      <div class="card do-card">
+        <h3>Do</h3>
+        <ul class="rules">
+          <li><strong>1.01: Jahmyr Gibbs.</strong> Nick’s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>
+          <li><strong>28 &amp; 29: double-tap WR.</strong> That’s your 2–3 turn. Nabers, AJ Brown, Nico, Olave, DeVonta, Pickens, Rice, Tet. Hitting a WR1 here beats the leftover RBs (Jacobs / Kyren / Javonte).</li>
+          <li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live in rounds 6–10. Don’t spend 28 on Allen or Lamar.</li>
+          <li><strong>Wait on elite TE.</strong> Skip Bowers/McBride at 28–29. Warren or Loveland at 56–57; LaPorta / Kraft at 84–85; Chig as a punt around 140.</li>
+          <li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs (~80), Stribling (8th/9th), Keaton Mitchell last round if you have Hampton.</li>
+          <li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>
+        </ul>
+      </div>
+
+      <div class="card dont-card">
+        <h3>Don’t</h3>
+        <ul class="rules">
+          <li><strong>Don’t take WR at 1.01</strong> in this format. You’ll be RB-starved by pick 28.</li>
+          <li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at 28–29 (camp, OL, possible suspension).</li>
+          <li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>
+          <li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>
+          <li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering — he slid from 2–3 turn to 3–4.</li>
+          <li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff — they don’t want that Raiders offense without Jeanty.</li>
+          <li><strong>K / DST last two picks</strong> (196–197). Never earlier.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Round-by-round cheat sheet</h3>
+        <ol class="rounds">
+          <li><strong>Pick 1:</strong> Gibbs (Bijan only if Gibbs is somehow gone).</li>
+          <li><strong>28–29:</strong> Two WRs from the Nabers / Nico / AJB / Olave / DeVonta / Pickens / Rice / Tet pile. If a true RB2 falls (KW3, Hampton, Henry), you can mix one in.</li>
+          <li><strong>56–57:</strong> Best available flex + TE if Warren/Loveland are there. Etienne is a smash if he lasts. Evans only at a discount (quad). Burden if the groin dropped him.</li>
+          <li><strong>84–85:</strong> Downs, Daniels/Hurts/Purdy, LaPorta/Kraft, Skattebo if he slid. Still no kicker.</li>
+          <li><strong>112–113:</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>
+          <li><strong>140+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Videos (newest first)</h3>
+        <ol class="videos" id="videoList"></ol>
+      </div>
+    </section>
+
+    <section class="view" id="viewBoard" data-view="board">
+      <div class="filters">
+        <input type="search" id="search" placeholder="Search player, team…" autocomplete="off" />
+        <div class="chips" id="posChips"></div>
+        <div class="chips" id="verdictChips"></div>
+        <label class="toggle">
+          <input type="checkbox" id="windowOnly" />
+          My pick windows only
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="notesOnly" checked />
+          Has BDGE note
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="starredOnly" />
+          Starred
+        </label>
+      </div>
+      <p class="count" id="count"></p>
+      <div id="playerList" class="player-list"></div>
+    </section>
+  </main>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

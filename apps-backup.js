@@ -30,6 +30,7 @@
     "photo-calendar": "Photo Calendar",
     "stride-flow": "StrideFlow",
     "3d-print": "3D Print",
+    "draft-board": "Draft Board",
   };
 
   var PHOTO_DATABASES = [
@@ -1097,6 +1098,55 @@
       },
       mergeSlice: function (existing, incoming) {
         return incoming || existing;
+      },
+    },
+    "draft-board": {
+      storageKey: "draft-board-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("draft-board-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.starred)) return null;
+          return {
+            version: 1,
+            starred: p.starred.filter(function (id) { return typeof id === "string"; }),
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.starred)) return false;
+        return writeKey(
+          "draft-board-v1",
+          JSON.stringify({
+            version: 1,
+            starred: slice.starred.filter(function (id) { return typeof id === "string"; }),
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.starred) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.starred ? slice.starred.length : 0;
+        return n + " starred player" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        var ids = {};
+        var out = [];
+        function add(list) {
+          (list || []).forEach(function (id) {
+            if (!id || ids[id]) return;
+            ids[id] = true;
+            out.push(id);
+          });
+        }
+        add(existing && existing.starred);
+        add(incoming && incoming.starred);
+        return { version: 1, starred: out };
       },
     },
     "3d-print": {
