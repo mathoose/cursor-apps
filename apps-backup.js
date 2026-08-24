@@ -1108,31 +1108,37 @@
         if (!raw) return null;
         try {
           var p = JSON.parse(raw);
-          if (!p || !Array.isArray(p.starred)) return null;
+          if (!p || (!Array.isArray(p.starred) && !p.settings)) return null;
           return {
-            version: 1,
-            starred: p.starred.filter(function (id) { return typeof id === "string"; }),
+            version: p.version || 2,
+            starred: Array.isArray(p.starred)
+              ? p.starred.filter(function (id) { return typeof id === "string"; })
+              : [],
+            settings: p.settings && typeof p.settings === "object" ? p.settings : undefined,
           };
         } catch (e) {
           return null;
         }
       },
       writeSlice: function (slice) {
-        if (!slice || !Array.isArray(slice.starred)) return false;
-        return writeKey(
-          "draft-board-v1",
-          JSON.stringify({
-            version: 1,
-            starred: slice.starred.filter(function (id) { return typeof id === "string"; }),
-          })
-        );
+        if (!slice || (!Array.isArray(slice.starred) && !slice.settings)) return false;
+        var out = {
+          version: 2,
+          starred: Array.isArray(slice.starred)
+            ? slice.starred.filter(function (id) { return typeof id === "string"; })
+            : [],
+        };
+        if (slice.settings && typeof slice.settings === "object") out.settings = slice.settings;
+        return writeKey("draft-board-v1", JSON.stringify(out));
       },
       isLegacy: function (obj) {
-        return obj && Array.isArray(obj.starred) && obj.format !== FORMAT;
+        return obj && (Array.isArray(obj.starred) || obj.settings) && obj.format !== FORMAT;
       },
       summarize: function (slice) {
         var n = slice.starred ? slice.starred.length : 0;
-        return n + " starred player" + (n === 1 ? "" : "s");
+        var s = slice.settings;
+        var league = s && s.teams ? s.teams + "-team · pick " + (s.pick || "?") : "";
+        return (league ? league + "; " : "") + n + " starred";
       },
       mergeSlice: function (existing, incoming) {
         var ids = {};
@@ -1146,7 +1152,11 @@
         }
         add(existing && existing.starred);
         add(incoming && incoming.starred);
-        return { version: 1, starred: out };
+        return {
+          version: 2,
+          starred: out,
+          settings: (incoming && incoming.settings) || (existing && existing.settings) || undefined,
+        };
       },
     },
     "3d-print": {
