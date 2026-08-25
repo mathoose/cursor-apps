@@ -39,7 +39,9 @@
     settings: Object.assign({}, DEFAULT_SETTINGS),
     data: null,
     picks: [],
-    windows: []
+    windows: [],
+    playerMap: {},
+    activeTurn: null
   };
 
   function clamp(n, lo, hi) {
@@ -72,15 +74,20 @@
         p.starred.forEach(function (id) { state.starred[id] = true; });
       }
       if (p && p.settings) state.settings = normalizeSettings(p.settings);
+      if (p && p.activeTurn != null && p.activeTurn !== "") {
+        state.activeTurn = p.activeTurn === "all" ? null : Number(p.activeTurn);
+        if (!isFinite(state.activeTurn)) state.activeTurn = null;
+      }
     } catch (e) {}
   }
 
   function saveStore() {
     var ids = Object.keys(state.starred).filter(function (id) { return state.starred[id]; });
     var slice = {
-      version: 2,
+      version: 3,
       starred: ids,
-      settings: normalizeSettings(state.settings)
+      settings: normalizeSettings(state.settings),
+      activeTurn: state.activeTurn == null ? "all" : state.activeTurn
     };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(slice)); } catch (e) {}
   }
@@ -279,6 +286,90 @@
     document.getElementById("roundSheet").innerHTML = rounds.join("");
   }
 
+  function buildPlayerMap() {
+    state.playerMap = {};
+    if (!state.data || !state.data.players) return;
+    state.data.players.forEach(function (p) {
+      state.playerMap[p.id] = p;
+    });
+  }
+
+  function playerById(id) {
+    return state.playerMap[id] || null;
+  }
+
+  function renderTargetPlayer(p) {
+    var badges = "";
+    if (p.verdict && p.verdict !== "none") {
+      badges = '<span class="badge ' + p.verdict + '">' + verdictLabel(p.verdict) + "</span>";
+    }
+    return (
+      '<div class="target-row">' +
+        '<div class="adp">' + (p.adp != null ? p.adp : "—") + "</div>" +
+        '<div class="target-main">' +
+          '<span class="target-name">' + p.name + "</span>" +
+          '<span class="target-meta">' + p.pos + " · " + (p.team || "?") +
+            (p.adpSlot ? " · " + p.adpSlot : "") + "</span>" +
+        "</div>" +
+        badges +
+      "</div>"
+    );
+  }
+
+  function renderTargets() {
+    var profileEl = document.getElementById("targetsProfile");
+    var chipsEl = document.getElementById("turnChips");
+    var listEl = document.getElementById("targetTurns");
+    if (!profileEl || !chipsEl || !listEl || !state.data) return;
+
+    var targets = state.data.targets;
+    var turns = (targets && targets.turns) || [];
+    var tuned = targets && targets.profile ? targets.profile : "14-team · 1.01 · hero RB + 2 WR";
+    profileEl.textContent =
+      tuned + " · your slot: " + state.settings.teams + "-team " + slotName() +
+      ". Tap a turn for 4–6 click names.";
+
+    var chips = '<button type="button" class="chip' + (state.activeTurn == null ? " active" : "") + '" data-turn="all">All</button>';
+    state.windows.forEach(function (w, i) {
+      var on = state.activeTurn === i ? " active" : "";
+      chips += '<button type="button" class="chip' + on + '" data-turn="' + i + '">R' + w.round + "</button>";
+    });
+    chipsEl.innerHTML = chips;
+
+    var html = "";
+    state.windows.forEach(function (w, i) {
+      if (state.activeTurn != null && state.activeTurn !== i) return;
+      var t = turns[i];
+      if (!t) return;
+      var focus = state.activeTurn === i ? " focus" : "";
+      var pickNums = w.picks.join(" · ");
+      html += '<article class="turn-card' + focus + '" id="turn-' + i + '">';
+      html += '<div class="turn-head"><h4>' + w.label + "</h4><span>Picks " + pickNums + "</span></div>";
+      html += '<p class="turn-summary">' + t.summary + "</p>";
+      if (t.note && (!t.playerIds || !t.playerIds.length)) {
+        html += '<p class="muted tight">' + t.note + "</p>";
+      } else {
+        html += '<div class="target-list">';
+        (t.playerIds || []).forEach(function (id) {
+          var p = playerById(id);
+          if (p) html += renderTargetPlayer(p);
+        });
+        html += "</div>";
+        if (t.note) html += '<p class="muted tight">' + t.note + "</p>";
+      }
+      if (t.passIds && t.passIds.length) {
+        html += '<div class="pass-block"><p>Pass here</p><div class="pass-tags">';
+        t.passIds.forEach(function (id) {
+          var p = playerById(id);
+          if (p) html += '<span class="pass-tag">' + p.name + "</span>";
+        });
+        html += "</div></div>";
+      }
+      html += "</article>";
+    });
+    listEl.innerHTML = html || '<p class="muted">No targets loaded for this turn.</p>';
+  }
+
   function renderVideos(videos) {
     document.getElementById("videoList").innerHTML = videos.map(function (v) {
       return "<li><a href=\"https://youtu.be/" + v.id + "\">" + v.title + "</a> — " + v.when + "</li>";
@@ -397,9 +488,11 @@
 
   function refreshAll() {
     recompute();
+    buildPlayerMap();
     renderHeader();
     renderPicks();
     renderPlanCopy();
+    renderTargets();
     renderSettingsForm();
     renderPlayers();
   }
@@ -427,6 +520,18 @@
     });
     document.querySelectorAll("[data-goto]").forEach(function (el) {
       el.addEventListener("click", function () { showTab(el.getAttribute("data-goto")); });
+    });
+    document.getElementById("turnChips").addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-turn]");
+      if (!btn) return;
+      var val = btn.getAttribute("data-turn");
+      state.activeTurn = val === "all" ? null : Number(val);
+      saveStore();
+      renderTargets();
+      if (state.activeTurn != null) {
+        var card = document.getElementById("turn-" + state.activeTurn);
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
     });
     document.getElementById("posChips").addEventListener("click", function (e) {
       var btn = e.target.closest("[data-pos]");

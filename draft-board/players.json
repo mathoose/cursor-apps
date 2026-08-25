@@ -8221,5 +8221,112 @@
       },
       "hasNotes": false
     }
-  ]
+  ],
+  "targets": {
+    "profile": "14-team \u00b7 1.01 \u00b7 hero RB + 2 WR",
+    "turns": [
+      {
+        "summary": "Hero RB. Nick\u2019s 1.01 is Gibbs \u2014 not Chase/Puka in a 2-WR league.",
+        "playerIds": [
+          "jahmyrgibbs-RB",
+          "bijanrobinson-RB",
+          "christianmccaffrey-RB",
+          "jonathantaylor-RB"
+        ],
+        "passIds": [],
+        "note": null
+      },
+      {
+        "summary": "Two WRs (or one WR + falling RB2). WR firepower turn.",
+        "playerIds": [
+          "maliknabers-WR",
+          "chrisolave-WR",
+          "nicocollins-WR",
+          "ajbrown-WR",
+          "devontasmith-WR",
+          "georgepickens-WR"
+        ],
+        "passIds": [
+          "joshjacobs-RB"
+        ],
+        "note": null
+      },
+      {
+        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 \u2014 LaPorta is the next TE up.",
+        "playerIds": [
+          "samlaporta-TE",
+          "tuckerkraft-TE",
+          "travisetiennejr-RB",
+          "camskattebo-RB",
+          "tylerwarren-TE",
+          "colstonloveland-TE"
+        ],
+        "passIds": [
+          "terrymclaurin-WR",
+          "djmoore-WR",
+          "jamesonwilliams-WR",
+          "jalenhurts-QB"
+        ],
+        "note": null
+      },
+      {
+        "summary": "Flex depth, value QB, TE if you waited, Skattebo if he slid.",
+        "playerIds": [
+          "joshdowns-WR",
+          "samlaporta-TE",
+          "tuckerkraft-TE",
+          "jaydendaniels-QB",
+          "jalenhurts-QB",
+          "brockpurdy-QB"
+        ],
+        "passIds": [],
+        "note": null
+      },
+      {
+        "summary": "Mid-round value WRs and streamers.",
+        "playerIds": [
+          "dezhaunstribling-WR",
+          "parkerwashington-WR",
+          "tetairoamcmillan-WR",
+          "breecehall-RB",
+          "matthewstafford-QB",
+          "camskattebo-RB"
+        ],
+        "passIds": [],
+        "note": null
+      },
+      {
+        "summary": "Bench upside and TE/QB depth.",
+        "playerIds": [
+          "daltonkincaid-TE",
+          "chigokonkwo-TE",
+          "jalencoker-WR",
+          "keatonmitchell-RB",
+          "tankbigsby-RB",
+          "marshawnlloyd-RB"
+        ],
+        "passIds": [],
+        "note": null
+      },
+      {
+        "summary": "Handcuffs and late rookie darts.",
+        "playerIds": [
+          "jonathonbrooks-RB",
+          "keatonmitchell-RB",
+          "tankbigsby-RB",
+          "marshawnlloyd-RB",
+          "chigokonkwo-TE",
+          "jalencoker-WR"
+        ],
+        "passIds": [],
+        "note": null
+      },
+      {
+        "summary": "Kicker and DST only \u2014 never earlier.",
+        "playerIds": [],
+        "passIds": [],
+        "note": "Only K and DST in your last two picks."
+      }
+    ]
+  }
 }
