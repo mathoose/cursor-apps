@@ -135,7 +135,7 @@
     {
       "id": "draft-board",
       "name": "Draft Board",
-      "subtitle": "ADP + draft settings",
+      "subtitle": "Live 4/5 turn tips",
       "storageKey": "draft-board-v1"
     },
     {

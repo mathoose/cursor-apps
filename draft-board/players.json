@@ -1281,7 +1281,7 @@
           "order": 2,
           "video": "hIQIkhGlrww",
           "stance": "dont",
-          "text": "Don\u2019t take him at the 2\u20133 turn from an early pick. TE heat map is perfect later: Warren/Loveland 4\u20135, LaPorta/Kraft 6\u20137, Kincaid even later."
+          "text": "Don\u2019t take him at the 2\u20133 turn from an early pick. TE heat map is later: Warren/Loveland ideal at 4\u20135; if they\u2019re gone, LaPorta/Kraft at 4\u20135 in 14-team; Kincaid even later."
         },
         {
           "src": "top50",
@@ -1999,6 +1999,14 @@
       "stdev": 4.6,
       "timesDrafted": 955,
       "notes": [
+        {
+          "src": "strategy",
+          "srcLabel": "Picks 1\u20134 strategy",
+          "order": 2,
+          "video": "hIQIkhGlrww",
+          "stance": "dont",
+          "text": "At the 4/5 turn after Gibbs + two WRs, pass him for LaPorta or an RB2 \u2014 you don\u2019t need a 3rd WR yet."
+        },
         {
           "src": "camp",
           "srcLabel": "Camp ranking changes",
@@ -3059,6 +3067,14 @@
       "timesDrafted": 758,
       "notes": [
         {
+          "src": "strategy",
+          "srcLabel": "Picks 1\u20134 strategy",
+          "order": 2,
+          "video": "hIQIkhGlrww",
+          "stance": "watch",
+          "text": "Still too early at the 4/5 turn in 1QB when you need RB2/TE. Wait for Purdy/Stafford/Daniels later unless you\u2019re already set at both."
+        },
+        {
           "src": "camp",
           "srcLabel": "Camp ranking changes",
           "order": 5,
@@ -3067,7 +3083,7 @@
           "text": "Could finish QB1 overall and is sitting 6th/7th next to Daniels \u2014 too cheap. Take-your-pick in that cluster."
         }
       ],
-      "verdict": "do",
+      "verdict": "watch",
       "window": {
         "round": 6,
         "pick": 84,
@@ -3692,7 +3708,7 @@
           "order": 2,
           "video": "hIQIkhGlrww",
           "stance": "do",
-          "text": "6\u20137 turn if Warren/Loveland are gone. Set-and-forget."
+          "text": "Set-and-forget TE1. BDGE originally framed him for the 6\u20137 turn if Warren/Loveland are gone \u2014 in 14-team mocks Warren often goes ~4.10\u20134.12, so LaPorta is frequently the TE at your 4/5 turn (56\u201357). Take him there; don\u2019t wait."
         },
         {
           "src": "week1",
@@ -3704,7 +3720,11 @@
         }
       ],
       "verdict": "do",
-      "window": null,
+      "window": {
+        "round": 4,
+        "pick": 56,
+        "label": "R4 (pick 56)"
+      },
       "hasNotes": true
     },
     {
@@ -3729,7 +3749,7 @@
           "order": 2,
           "video": "hIQIkhGlrww",
           "stance": "do",
-          "text": "Nick took him 6.11 and felt great. 4\u20137 is a great TE1 range."
+          "text": "Nick took him 6.11 and felt great. 4\u20137 is a great TE1 range. If LaPorta is gone at 4/5, Kraft is the next click."
         },
         {
           "src": "week1",
@@ -3741,7 +3761,11 @@
         }
       ],
       "verdict": "do",
-      "window": null,
+      "window": {
+        "round": 4,
+        "pick": 56,
+        "label": "R4 (pick 56)"
+      },
       "hasNotes": true
     },
     {

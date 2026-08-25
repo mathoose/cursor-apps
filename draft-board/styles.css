@@ -117,6 +117,11 @@ h3 { margin: 0 0 8px; font-size: 1rem; }
 
 .do-card { border-color: rgba(74, 222, 128, 0.35); }
 .dont-card { border-color: rgba(251, 113, 133, 0.4); }
+.live-card {
+  border-color: rgba(125, 211, 252, 0.45);
+  background: linear-gradient(165deg, #163a2a 0%, #143322 100%);
+}
+.live-card h3 { color: var(--blue); }
 .rules { margin: 0; padding-left: 18px; }
 .rules li { margin: 0 0 8px; font-size: 0.9rem; line-height: 1.4; }
 .rounds { margin: 0; padding-left: 18px; }

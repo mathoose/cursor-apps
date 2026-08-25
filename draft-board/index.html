@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -44,6 +44,12 @@
         <h3>Your snake picks</h3>
         <p class="muted tight" id="pickHint">You pick twice in a row at every turn after round 1 when you’re on an edge.</p>
         <div class="pick-grid" id="pickGrid"></div>
+      </div>
+
+      <div class="card live-card" id="liveTurnCard">
+        <p class="eyebrow">Right now</p>
+        <h3 id="liveTurnTitle">4/5 turn</h3>
+        <div id="liveTurnBody"></div>
       </div>
 
       <div class="card do-card">
@@ -126,6 +132,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

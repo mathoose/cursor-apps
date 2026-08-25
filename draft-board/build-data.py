@@ -321,6 +321,7 @@ NOTES = [
     ("Terry McLaurin", ["mclaurin", "mclaren"], [
         ("camp", "dont", "Hard fade. Tunsil torn tricep; McLaurin lives on long-developing deep routes that need pocket time."),
         ("top50", "watch", "Just outside the top 50 at 51."),
+        ("strategy", "dont", "At the 4/5 turn after Gibbs + two WRs, pass him for LaPorta or an RB2 — you don’t need a 3rd WR yet."),
     ]),
     ("Stefon Diggs", ["diggs"], [
         ("camp", "watch", "~pick 100. Chain-mover, capped by Daniels rushing and Chig underneath. Prefer second-year darts at that price."),
@@ -424,7 +425,7 @@ NOTES = [
         ("top50", "take", "Tier-3 WR1. The breakout comp they want for Egbuka/DeVonta."),
     ]),
     ("Trey McBride", ["mcbride"], [
-        ("strategy", "dont", "Don’t take him at the 2–3 turn from an early pick. TE heat map is perfect later: Warren/Loveland 4–5, LaPorta/Kraft 6–7, Kincaid even later."),
+        ("strategy", "dont", "Don’t take him at the 2–3 turn from an early pick. TE heat map is later: Warren/Loveland ideal at 4–5; if they’re gone, LaPorta/Kraft at 4–5 in 14-team; Kincaid even later."),
         ("top50", "take", "Closes tier 6. Elite TE — just not at your 28–29."),
     ]),
     ("Brock Bowers", ["bowers"], [
@@ -442,12 +443,12 @@ NOTES = [
         ("camp", "do", "Sun the Bears offense orbits around. TE1 in range of outcomes."),
         ("top50", "take", "His TE3 at 43."),
     ]),
-    ("Sam LaPorta", ["laporta"], [
-        ("strategy", "do", "6–7 turn if Warren/Loveland are gone. Set-and-forget."),
+    ("Sam LaPorta", ["laporta", "la porta"], [
+        ("strategy", "do", "Set-and-forget TE1. BDGE originally framed him for the 6–7 turn if Warren/Loveland are gone — in 14-team mocks Warren often goes ~4.10–4.12, so LaPorta is frequently the TE at your 4/5 turn (56–57). Take him there; don’t wait."),
         ("week1", "do", "Better use of Pollard capital."),
     ]),
     ("Tucker Kraft", ["kraft"], [
-        ("strategy", "do", "Nick took him 6.11 and felt great. 4–7 is a great TE1 range."),
+        ("strategy", "do", "Nick took him 6.11 and felt great. 4–7 is a great TE1 range. If LaPorta is gone at 4/5, Kraft is the next click."),
         ("week1", "do", "Full 11-on-11s four weeks out; maybe ~90% snaps out of the gate."),
     ]),
     ("Harold Fannin Jr.", ["fannin", "fanning", "harold fannin"], [

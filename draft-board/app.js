@@ -250,33 +250,67 @@
     } else {
       doHtml.push("<li><strong>Pick " + p1 + " (" + slotName() + "):</strong> Best player available in that tier — don’t force a reach just because the cheat sheet was written for 1.01.</li>");
     }
-    doHtml.push("<li><strong>" + fmtPair(t23) + ": lean WR firepower</strong> (Nabers, AJ Brown, Nico, Olave, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>");
-    doHtml.push("<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don’t spend your " + fmtPair(t23) + " on Allen or Lamar.</li>");
-    doHtml.push("<li><strong>Wait on elite TE.</strong> Skip Bowers/McBride early. Warren or Loveland around " + fmtPair(t45) + "; LaPorta / Kraft around " + fmtPair(t67) + "; Chig as a punt later.</li>");
+    doHtml.push("<li><strong>" + fmtPair(t23) + ": lean WR firepower</strong> (Nabers, Olave, AJ Brown, Nico, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>");
+    doHtml.push("<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don’t spend " + fmtPair(t23) + " or " + fmtPair(t45) + " on Allen, Lamar, Burrow, or Hurts.</li>");
+    doHtml.push("<li><strong>TE ladder (updated for 14-team):</strong> Skip Bowers/McBride early. Ideal is Warren or Loveland at " + fmtPair(t45) + ". In real 14-team drafts Warren often goes ~4.10–4.12 — then <strong>LaPorta is your TE at " + fmtPair(t45) + "</strong>, with Kraft right behind. Don’t wait until " + fmtPair(t67) + " hoping they last.</li>");
+    doHtml.push("<li><strong>After Gibbs + 2 WRs:</strong> at " + fmtPair(t45) + " take <strong>TE + RB2</strong> (not a 3rd WR). Fill flex later.</li>");
     doHtml.push("<li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs, Stribling mid/late, Keaton Mitchell last rounds if you have Hampton.</li>");
     doHtml.push("<li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>");
     document.getElementById("doRules").innerHTML = doHtml.join("");
 
     var dontHtml = [
-      "<li><strong>Don’t leave RB1 empty early</strong> in a 2-WR format if you’re in the top few picks — you’ll be thin by " + fmtPair(t23) + ".</li>",
+      "<li><strong>Don’t leave RB2 empty at " + fmtPair(t45) + "</strong> if you already have Gibbs + two WRs — you still need a second starter.</li>",
+      "<li><strong>Don’t take McLaurin / DJ Moore / Jameson Williams</strong> over LaPorta or an RB2 when Nabers + Olave are already rostered.</li>",
       "<li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at " + fmtPair(t23) + " (camp, OL, possible suspension).</li>",
       "<li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>",
-      "<li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>",
-      "<li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering — he slid from the 2–3 turn into the next tier.</li>",
-      "<li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff — they don’t want that Raiders offense without Jeanty.</li>",
+      "<li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, or Jordyn Tyson.</strong></li>",
+      "<li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering.</li>",
+      "<li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff.</li>",
       "<li><strong>K / DST last</strong> (around " + fmtPair(lastTwo) + "). Never earlier.</li>"
     ];
     document.getElementById("dontRules").innerHTML = dontHtml.join("");
 
     var rounds = [
       "<li><strong>Pick " + p1 + ":</strong> " + (s.pick === 1 ? "Gibbs (Bijan only if Gibbs is somehow gone)." : "Best available in your tier — still prefer elite RB if you’re early.") + "</li>",
-      "<li><strong>" + fmtPair(t23) + ":</strong> Two WRs from the Nabers / Nico / AJB / Olave / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
-      "<li><strong>" + fmtPair(t45) + ":</strong> Best available flex + TE if Warren/Loveland are there. Etienne is a smash if he lasts. Evans only at a discount (quad).</li>",
-      "<li><strong>" + fmtPair(t67) + ":</strong> Downs, Daniels/Hurts/Purdy, LaPorta/Kraft, Skattebo if he slid. Still no kicker.</li>",
+      "<li><strong>" + fmtPair(t23) + ":</strong> Two WRs from the Nabers / Olave / Nico / AJB / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
+      "<li><strong>" + fmtPair(t45) + ":</strong> <strong>TE + RB2.</strong> Prefer LaPorta (or Kraft) when Warren/Loveland are gone — common in 14-team. Pair with best remaining RB2 (Etienne / Skattebo / similar). Evans only if you’re already set at TE/RB2 and he’s discounted. Pass McLaurin here.</li>",
+      "<li><strong>" + fmtPair(t67) + ":</strong> Downs, Daniels/Hurts/Purdy, depth RB/WR, Skattebo if he slid. Still no kicker. Don’t panic if you already locked TE at " + fmtPair(t45) + ".</li>",
       "<li><strong>" + fmtPair(t89) + ":</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>",
       "<li><strong>" + (late[0] || "Late") + "+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>"
     ];
     document.getElementById("roundSheet").innerHTML = rounds.join("");
+
+    renderLiveTurn(t45);
+  }
+
+  function renderLiveTurn(t45) {
+    var title = document.getElementById("liveTurnTitle");
+    var body = document.getElementById("liveTurnBody");
+    if (!title || !body) return;
+    var s = state.settings;
+    var edge = s.pick === 1 || s.pick === s.teams;
+    title.textContent = "Your " + fmtPair(t45) + " turn";
+
+    if (s.teams === 14 && s.pick === 1) {
+      body.innerHTML =
+        '<p class="muted tight">Mock board check (Gibbs → Nabers → Olave). Needs: <strong>RB2 + TE</strong>. Warren often goes just ahead of you (~4.12).</p>' +
+        "<ul class=\"rules\">" +
+        "<li><strong>Click LaPorta</strong> (or Kraft if he’s gone) — he’s the next TE up, not a 6/7 afterthought in 14-team.</li>" +
+        "<li><strong>Other pick = best RB2 left</strong> (Etienne, Skattebo, etc.). Don’t leave the second RB empty.</li>" +
+        "<li><strong>Pass:</strong> McLaurin, DJ Moore, Jameson Williams (3rd WR when you need RB/TE), and Hurts (still wait on QB).</li>" +
+        "<li><strong>Evans</strong> only if TE + RB2 are already covered and you want the Shanahan discount (quad = watch).</li>" +
+        "<li>Ideal pair: <strong>LaPorta + RB2</strong> (either order).</li>" +
+        "</ul>";
+      return;
+    }
+
+    if (edge) {
+      body.innerHTML =
+        '<p class="muted tight">Back-to-back picks at ' + fmtPair(t45) + ". If you already have an elite RB + two WRs, prioritize <strong>TE + RB2</strong>. In " + s.teams + "-team, Warren/Loveland can vanish mid-4th — take <strong>LaPorta/Kraft</strong> here.</p>";
+    } else {
+      body.innerHTML =
+        '<p class="muted tight">Around ' + fmtPair(t45) + ": best available flex/TE. If Warren and Loveland are gone, <strong>LaPorta or Kraft</strong> is the move — don’t wait another full turn.</p>";
+    }
   }
 
   function renderVideos(videos) {
