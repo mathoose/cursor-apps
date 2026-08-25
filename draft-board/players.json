@@ -8222,111 +8222,388 @@
       "hasNotes": false
     }
   ],
-  "targets": {
-    "profile": "14-team \u00b7 1.01 \u00b7 hero RB + 2 WR",
-    "turns": [
-      {
-        "summary": "Hero RB. Nick\u2019s 1.01 is Gibbs \u2014 not Chase/Puka in a 2-WR league.",
-        "playerIds": [
-          "jahmyrgibbs-RB",
-          "bijanrobinson-RB",
-          "christianmccaffrey-RB",
-          "jonathantaylor-RB"
+  "strategies": {
+    "14-1": {
+      "profile": "14-team \u00b7 1.01 \u00b7 hero RB + 2 WR",
+      "tagline": "Hero RB (Gibbs), then two WRs, then TE + RB2 at the 4/5 turn.",
+      "plan": {
+        "do": [
+          "<li><strong>Pick {{r1}} ({{slot}}): Jahmyr Gibbs.</strong> Nick\u2019s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>",
+          "<li><strong>{{r2}}\u2013{{r3}}: lean WR firepower</strong> (Nabers, Olave, AJ Brown, Nico, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>",
+          "<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don\u2019t spend {{r2}}\u2013{{r3}} or {{r4}}\u2013{{r5}} on Allen, Lamar, Burrow, or Hurts.</li>",
+          "<li><strong>TE ladder:</strong> Skip Bowers/McBride early. Warren or Loveland around {{r4}}\u2013{{r5}}; LaPorta / Kraft around {{r6}}\u2013{{r7}}; Chig as a punt later.</li>",
+          "<li><strong>After Gibbs + 2 WRs:</strong> at {{r4}}\u2013{{r5}} take <strong>TE + RB2</strong> (not a 3rd WR). Fill flex later.</li>",
+          "<li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs, Stribling mid/late, Keaton Mitchell last rounds if you have Hampton.</li>",
+          "<li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>"
         ],
-        "passIds": [],
-        "note": null
+        "dont": [
+          "<li><strong>Don\u2019t leave RB2 empty at {{r4}}\u2013{{r5}}</strong> if you already have Gibbs + two WRs \u2014 you still need a second starter.</li>",
+          "<li><strong>Don\u2019t take Jacobs as your RB1</strong> over a WR1 at {{r2}}\u2013{{r3}} (camp, OL, possible suspension).</li>",
+          "<li><strong>Don\u2019t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>",
+          "<li><strong>Don\u2019t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>",
+          "<li><strong>Don\u2019t reach Jeremiyah Love</strong> if the high ankle is still lingering.</li>",
+          "<li><strong>Don\u2019t smash Mike Washington</strong> as a Jeanty cuff.</li>",
+          "<li><strong>K / DST last</strong> (around {{r14}}\u2013{{r15}}). Never earlier.</li>"
+        ],
+        "rounds": [
+          "<li><strong>Pick {{r1}}:</strong> Gibbs (Bijan only if Gibbs is somehow gone).</li>",
+          "<li><strong>{{r2}}\u2013{{r3}}:</strong> Two WRs from the Nabers / Olave / Nico / AJB / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
+          "<li><strong>{{r4}}\u2013{{r5}}:</strong> <strong>TE + RB2.</strong> Warren/Loveland ideal; LaPorta/Kraft if gone. Pair with Etienne / Skattebo. Pass McLaurin / 3rd WR.</li>",
+          "<li><strong>{{r6}}\u2013{{r7}}:</strong> Downs, Daniels/Hurts/Purdy, depth RB/WR, Skattebo if he slid. Still no kicker.</li>",
+          "<li><strong>{{r8}}\u2013{{r9}}:</strong> Stribling if he hasn\u2019t gone; Lemon; JCM; Parker Washington if ADP hasn\u2019t exploded.</li>",
+          "<li><strong>{{r10}}+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>"
+        ]
       },
-      {
-        "summary": "Two WRs (or one WR + falling RB2). WR firepower turn.",
-        "playerIds": [
-          "maliknabers-WR",
-          "chrisolave-WR",
-          "nicocollins-WR",
-          "ajbrown-WR",
-          "devontasmith-WR",
-          "georgepickens-WR"
+      "turns": [
+        {
+          "summary": "Hero RB. Nick\u2019s 1.01 is Gibbs \u2014 not Chase/Puka in a 2-WR league.",
+          "playerIds": [
+            "jahmyrgibbs-RB",
+            "bijanrobinson-RB",
+            "christianmccaffrey-RB",
+            "jonathantaylor-RB"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Two WRs (or one WR + falling RB2). WR firepower turn.",
+          "playerIds": [
+            "maliknabers-WR",
+            "chrisolave-WR",
+            "nicocollins-WR",
+            "ajbrown-WR",
+            "devontasmith-WR",
+            "georgepickens-WR"
+          ],
+          "passIds": [
+            "joshjacobs-RB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 \u2014 LaPorta is the next TE up.",
+          "playerIds": [
+            "samlaporta-TE",
+            "tuckerkraft-TE",
+            "travisetiennejr-RB",
+            "camskattebo-RB",
+            "tylerwarren-TE",
+            "colstonloveland-TE"
+          ],
+          "passIds": [
+            "terrymclaurin-WR",
+            "djmoore-WR",
+            "jamesonwilliams-WR",
+            "jalenhurts-QB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Flex depth, value QB, TE if you waited, Skattebo if he slid.",
+          "playerIds": [
+            "joshdowns-WR",
+            "samlaporta-TE",
+            "tuckerkraft-TE",
+            "jaydendaniels-QB",
+            "jalenhurts-QB",
+            "brockpurdy-QB"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Mid-round value WRs and streamers.",
+          "playerIds": [
+            "dezhaunstribling-WR",
+            "parkerwashington-WR",
+            "tetairoamcmillan-WR",
+            "breecehall-RB",
+            "matthewstafford-QB",
+            "camskattebo-RB"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Bench upside and TE/QB depth.",
+          "playerIds": [
+            "daltonkincaid-TE",
+            "chigokonkwo-TE",
+            "jalencoker-WR",
+            "keatonmitchell-RB",
+            "tankbigsby-RB",
+            "marshawnlloyd-RB"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Handcuffs and late rookie darts.",
+          "playerIds": [
+            "jonathonbrooks-RB",
+            "keatonmitchell-RB",
+            "tankbigsby-RB",
+            "marshawnlloyd-RB",
+            "chigokonkwo-TE",
+            "jalencoker-WR"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Kicker and DST only \u2014 never earlier.",
+          "playerIds": [],
+          "passIds": [],
+          "note": "Only K and DST in your last two picks."
+        }
+      ]
+    },
+    "10-9": {
+      "profile": "10-team \u00b7 1.09 \u00b7 anchor + hammer 12",
+      "tagline": "Elite RB or WR at 9, smash Hampton/Nabers/Nico at 12, TE at 32\u201349, QB after.",
+      "plan": {
+        "do": [
+          "<li><strong>Pick {{r1}} ({{slot}}): anchor tier-1.</strong> Nick ranks <strong>KW3 12th overall</strong> \u2014 he\u2019s the BDGE RB call in your range. Also CMC, JT, Cook, Chase, or Puka. One pick per round in 10-team \u2014 no back-to-back.</li>",
+          "<li><strong>Pick {{r2}}: hammer the value.</strong> This is Hampton (~16), Nabers (camp WR10), Nico (Higgins ACL bump), Breece, Henry, Kendre Miller (18). <strong>If you went WR at 9, RB here is mandatory</strong> \u2014 Chase/Puka builds get ugly RB rooms if you wait.</li>",
+          "<li><strong>Pick {{r3}}: finish your starting core.</strong> WR2 or RB2 as needed. Etienne is the week-2 riser (Kamara out). Olave/AJB/DeVonta/Pickens/Rice cluster.</li>",
+          "<li><strong>Pick {{r4}}\u2013{{r5}}: TE + RB2 window.</strong> Warren/Loveland ideal at {{r4}}; LaPorta/Kraft at {{r5}} if they slide. Etienne smash. Evans only at a discount (quad).</li>",
+          "<li><strong>Wait on QB</strong> until {{r6}}+. Daniels / Hurts / Purdy / Stafford cluster \u2014 too cheap to reach Allen/Lamar at {{r3}}\u2013{{r4}}.</li>",
+          "<li><strong>Smash week-2 risers:</strong> Etienne, Nico, Breece (groin = precautionary), Downs, Stribling ~{{r8}}, Keaton Mitchell ~{{r10}} if you have Hampton.</li>",
+          "<li><strong>Handcuffs:</strong> Keaton Mitchell (Hampton stack), Tank Bigsby, Lloyd (Jacobs sat), Brooks (Chuba), Emmett Johnson (KW3), 49ers RB2 if CMC.</li>"
         ],
-        "passIds": [
-          "joshjacobs-RB"
+        "dont": [
+          "<li><strong>Don\u2019t take Achane at ADP</strong> over KW3/CMC/JT/Cook at {{r1}} \u2014 explosive but Nick won\u2019t pay (mobile QB, TD scarcity).</li>",
+          "<li><strong>Don\u2019t go WR-WR at {{r1}}/{{r2}}</strong> without a clear RB2 path by {{r3}} \u2014 Jacobs is a fade as your RB1 anyway.</li>",
+          "<li><strong>Don\u2019t take McBride/Bowers at {{r3}}</strong> \u2014 TE heat map is {{r4}}\u2013{{r7}} (Warren \u2192 LaPorta/Kraft \u2192 Kincaid).</li>",
+          "<li><strong>Don\u2019t jump Allen/Lamar/Burrow at {{r3}}\u2013{{r4}}</strong> in 1QB. If you take elite QB early, don\u2019t also burn {{r5}} on TE.</li>",
+          "<li><strong>Don\u2019t pay ADP for Kyren, Flowers, Garrett Wilson, McLaurin, Kamara, Tracy, or Jordyn Tyson.</strong></li>",
+          "<li><strong>Don\u2019t spend {{r4}} on TreVeyon Henderson</strong> \u2014 Nick wants Harvey as an {{r8}}/{{r9}} dart at similar rookie upside.</li>",
+          "<li><strong>Don\u2019t draft Tate, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, or anyone behind Skattebo.</strong></li>",
+          "<li><strong>K / DST last</strong> ({{r14}}\u2013{{r15}}). Never earlier.</li>"
         ],
-        "note": null
+        "rounds": [
+          "<li><strong>Pick {{r1}}:</strong> KW3, CMC, JT, Cook, Chase, or Puka \u2014 best tier-1 left. Nabers only if he somehow falls.</li>",
+          "<li><strong>Pick {{r2}}:</strong> Hampton, Nabers, Nico, Breece, Henry, or Kendre Miller. Complement your {{r1}} pick \u2014 don\u2019t leave RB empty after two rounds if you started WR.</li>",
+          "<li><strong>Pick {{r3}}:</strong> WR/RB to fill starters. Etienne if value. Pass Jacobs-over-WR1 and elite TE/QB.</li>",
+          "<li><strong>Pick {{r4}}:</strong> Warren, Loveland, Etienne, Evans (discount), Skattebo, Egbuka. Start TE here if the board allows.</li>",
+          "<li><strong>Pick {{r5}}:</strong> LaPorta/Kraft if no TE; Downs, Burden, Parker Washington, Tet. No Henderson at price.</li>",
+          "<li><strong>Pick {{r6}}:</strong> Daniels, Hurts, Purdy \u2014 or finish TE/RB2 if still open.</li>",
+          "<li><strong>Pick {{r7}}\u2013{{r8}}:</strong> Waddle/Ladd value, Stribling, Wan\u2019Dale, Lemon, Stafford. Kincaid/Chig if TE whiff.</li>",
+          "<li><strong>Pick {{r9}}\u2013{{r11}}:</strong> JCM, Coker, Mitchell, Bigsby, Lloyd, Brooks, Noel/Concepcion darts.</li>",
+          "<li><strong>Pick {{r12}}\u2013{{r13}}:</strong> Emmett Johnson, 49ers RB2 (CMC), Branch, Douglas, deep stashes.</li>",
+          "<li><strong>Pick {{r14}}\u2013{{r15}}:</strong> K, then DST. Never before.</li>"
+        ]
       },
-      {
-        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 \u2014 LaPorta is the next TE up.",
-        "playerIds": [
-          "samlaporta-TE",
-          "tuckerkraft-TE",
-          "travisetiennejr-RB",
-          "camskattebo-RB",
-          "tylerwarren-TE",
-          "colstonloveland-TE"
-        ],
-        "passIds": [
-          "terrymclaurin-WR",
-          "djmoore-WR",
-          "jamesonwilliams-WR",
-          "jalenhurts-QB"
-        ],
-        "note": null
-      },
-      {
-        "summary": "Flex depth, value QB, TE if you waited, Skattebo if he slid.",
-        "playerIds": [
-          "joshdowns-WR",
-          "samlaporta-TE",
-          "tuckerkraft-TE",
-          "jaydendaniels-QB",
-          "jalenhurts-QB",
-          "brockpurdy-QB"
-        ],
-        "passIds": [],
-        "note": null
-      },
-      {
-        "summary": "Mid-round value WRs and streamers.",
-        "playerIds": [
-          "dezhaunstribling-WR",
-          "parkerwashington-WR",
-          "tetairoamcmillan-WR",
-          "breecehall-RB",
-          "matthewstafford-QB",
-          "camskattebo-RB"
-        ],
-        "passIds": [],
-        "note": null
-      },
-      {
-        "summary": "Bench upside and TE/QB depth.",
-        "playerIds": [
-          "daltonkincaid-TE",
-          "chigokonkwo-TE",
-          "jalencoker-WR",
-          "keatonmitchell-RB",
-          "tankbigsby-RB",
-          "marshawnlloyd-RB"
-        ],
-        "passIds": [],
-        "note": null
-      },
-      {
-        "summary": "Handcuffs and late rookie darts.",
-        "playerIds": [
-          "jonathonbrooks-RB",
-          "keatonmitchell-RB",
-          "tankbigsby-RB",
-          "marshawnlloyd-RB",
-          "chigokonkwo-TE",
-          "jalencoker-WR"
-        ],
-        "passIds": [],
-        "note": null
-      },
-      {
-        "summary": "Kicker and DST only \u2014 never earlier.",
-        "playerIds": [],
-        "passIds": [],
-        "note": "Only K and DST in your last two picks."
-      }
-    ]
+      "turns": [
+        {
+          "summary": "Anchor tier-1. Nick has KW3 12th overall \u2014 he lives here. RB or elite WR; don\u2019t reach Achane.",
+          "playerIds": [
+            "kennethwalker-RB",
+            "christianmccaffrey-RB",
+            "jonathantaylor-RB",
+            "jamescookiii-RB",
+            "jamarrchase-WR",
+            "pukanacua-WR"
+          ],
+          "passIds": [
+            "devonachane-RB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Hammer pick 12 \u2014 Hampton (~16), Nabers post-camp, Nico (Higgins ACL), Breece, Henry, Kendre Miller (18). If WR at 9, RB is mandatory.",
+          "playerIds": [
+            "omarionhampton-RB",
+            "maliknabers-WR",
+            "nicocollins-WR",
+            "breecehall-RB",
+            "derrickhenry-RB",
+            "kendremiller-RB"
+          ],
+          "passIds": [
+            "joshjacobs-RB",
+            "kyrenwilliams-RB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Finish starting core. WR2 or RB2 as needed \u2014 Etienne riser (Kamara out). Don\u2019t force Love\u2019s ankle.",
+          "playerIds": [
+            "chrisolave-WR",
+            "ajbrown-WR",
+            "travisetiennejr-RB",
+            "devontasmith-WR",
+            "georgepickens-WR",
+            "rasheerice-WR"
+          ],
+          "passIds": [
+            "joshjacobs-RB",
+            "treymcbride-TE",
+            "brockbowers-TE"
+          ],
+          "note": null
+        },
+        {
+          "summary": "TE window opens (Warren/Loveland). Etienne smash. Evans discount (quad = watch). Fill RB2 if thin.",
+          "playerIds": [
+            "tylerwarren-TE",
+            "colstonloveland-TE",
+            "travisetiennejr-RB",
+            "mikeevans-WR",
+            "camskattebo-RB",
+            "emekaegbuka-WR"
+          ],
+          "passIds": [
+            "zayflowers-WR",
+            "garrettwilson-WR",
+            "joshallen-QB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "TE if Warren gone (LaPorta/Kraft). Downs value. Parker Washington > Tate. Burden scoop if groin dropped him.",
+          "playerIds": [
+            "samlaporta-TE",
+            "tuckerkraft-TE",
+            "joshdowns-WR",
+            "lutherburdeniii-WR",
+            "parkerwashington-WR",
+            "tetairoamcmillan-WR"
+          ],
+          "passIds": [
+            "treveyonhenderson-RB",
+            "terrymclaurin-WR",
+            "carnelltate-WR"
+          ],
+          "note": null
+        },
+        {
+          "summary": "QB cluster (Daniels/Hurts/Purdy). TE if still open. Still wait on Allen/Lamar.",
+          "playerIds": [
+            "jaydendaniels-QB",
+            "jalenhurts-QB",
+            "brockpurdy-QB",
+            "samlaporta-TE",
+            "tuckerkraft-TE",
+            "camskattebo-RB"
+          ],
+          "passIds": [
+            "joshallen-QB",
+            "lamarjackson-QB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Mid-round WR/QB/TE depth. Waddle/Ladd 4th-round value pile. Kincaid if you whiffed TE.",
+          "playerIds": [
+            "jaylenwaddle-WR",
+            "laddmcconkey-WR",
+            "joshdowns-WR",
+            "daltonkincaid-TE",
+            "matthewstafford-QB",
+            "breecehall-RB"
+          ],
+          "passIds": [
+            "garrettwilson-WR"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Stribling territory (~96). Wan\u2019Dale PPR dart. Lemon scoop ~100. Stafford/Purdy if QB wait.",
+          "playerIds": [
+            "dezhaunstribling-WR",
+            "wandalerobinson-WR",
+            "makailemon-WR",
+            "matthewstafford-QB",
+            "haroldfanninjr-TE",
+            "brockpurdy-QB"
+          ],
+          "passIds": [
+            "jordyntyson-WR"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Punt TE (Chig ~140) or FLEX dart. JCM cheap upside. Coker with Tet stack.",
+          "playerIds": [
+            "chigokonkwo-TE",
+            "jacorycroskey-merritt-RB",
+            "parkerwashington-WR",
+            "jalencoker-WR",
+            "wandalerobinson-WR",
+            "daltonkincaid-TE"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Handcuff zone. Keaton Mitchell free with Hampton. Lloyd/Bigsby locked jobs.",
+          "playerIds": [
+            "keatonmitchell-RB",
+            "tankbigsby-RB",
+            "marshawnlloyd-RB",
+            "jonathonbrooks-RB",
+            "jalencoker-WR",
+            "chigokonkwo-TE"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "More cuff/dart depth. Brooks if Chuba out. Noel Texans dart. Concepcion PPR.",
+          "playerIds": [
+            "keatonmitchell-RB",
+            "jonathonbrooks-RB",
+            "tankbigsby-RB",
+            "marshawnlloyd-RB",
+            "jaylinnoel-WR",
+            "kcconcepcion-WR"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Late rookie shots. Emmett Johnson (KW3 cuff). 49ers RB2 if you took CMC. Branch/London dart.",
+          "playerIds": [
+            "emmettjohnson-RB",
+            "jordanjames-RB",
+            "calebdouglas-WR",
+            "zachariahbranch-WR",
+            "jaylinnoel-WR",
+            "nicksingleton-RB"
+          ],
+          "passIds": [
+            "mikewashingtonjr-RB"
+          ],
+          "note": null
+        },
+        {
+          "summary": "Deep dart round. Boston/Concepcion if you want Browns pass-catcher lottery tickets.",
+          "playerIds": [
+            "jaylinnoel-WR",
+            "kcconcepcion-WR",
+            "denzelboston-WR",
+            "calebdouglas-WR",
+            "nicksingleton-RB",
+            "emmettjohnson-RB"
+          ],
+          "passIds": [],
+          "note": null
+        },
+        {
+          "summary": "Kicker only.",
+          "playerIds": [],
+          "passIds": [],
+          "note": "K now. DST with your final pick \u2014 never earlier."
+        },
+        {
+          "summary": "DST only.",
+          "playerIds": [],
+          "passIds": [],
+          "note": "Close with DST. Never draft K/DST before these last two picks."
+        }
+      ]
+    }
   }
 }

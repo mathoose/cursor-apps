@@ -14,8 +14,8 @@
   ];
 
   var DEFAULT_SETTINGS = {
-    teams: 14,
-    pick: 1,
+    teams: 10,
+    pick: 9,
     rounds: 15,
     qb: 1,
     rb: 2,
@@ -239,51 +239,59 @@
     }).join("");
   }
 
+  function strategyKey() {
+    return state.settings.teams + "-" + state.settings.pick;
+  }
+
+  function activeStrategy() {
+    var strategies = state.data && state.data.strategies;
+    if (!strategies) return null;
+    if (strategies[strategyKey()]) return strategies[strategyKey()];
+    return strategies["14-1"] || null;
+  }
+
+  function hasExactStrategy() {
+    var strategies = state.data && state.data.strategies;
+    return !!(strategies && strategies[strategyKey()]);
+  }
+
+  function fillPlan(text) {
+    if (!text) return "";
+    var picks = state.picks;
+    return text
+      .replace(/\{\{slot\}\}/g, slotName())
+      .replace(/\{\{r(\d+)\}\}/g, function (_, r) {
+        var idx = Number(r) - 1;
+        return picks[idx] != null ? String(picks[idx]) : "—";
+      });
+  }
+
   function renderPlanCopy() {
-    var s = state.settings;
-    var p1 = state.picks[0];
-    var t23 = turnPicks(2);
-    var t45 = turnPicks(4);
-    var t67 = turnPicks(6);
-    var t89 = turnPicks(8);
-    var late = state.picks.filter(function (p) { return p >= s.teams * 9; });
-    var lastTwo = state.picks.slice(-2);
-
-    var doHtml = [];
-    if (earlySlot() && s.pick === 1) {
-      doHtml.push("<li><strong>Pick " + p1 + " (" + slotName() + "): Jahmyr Gibbs.</strong> Nick’s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>");
-    } else if (earlySlot()) {
-      doHtml.push("<li><strong>Early pick (" + slotName() + "):</strong> Prefer an elite RB (Gibbs/Bijan/CMC/JT tier) before locking into WR-WR if your format starts only 2 WRs.</li>");
-    } else {
-      doHtml.push("<li><strong>Pick " + p1 + " (" + slotName() + "):</strong> Best player available in that tier — don’t force a reach just because the cheat sheet was written for 1.01.</li>");
+    var strat = activeStrategy();
+    var profEl = document.getElementById("strategyProfile");
+    if (profEl) {
+      if (hasExactStrategy() && strat) {
+        profEl.textContent = strat.profile + " — " + (strat.tagline || "");
+      } else if (strat) {
+        profEl.textContent =
+          "No tuned BDGE build for " + state.settings.teams + "-team · " + slotName() +
+          ". Closest: " + strat.profile + ".";
+      } else {
+        profEl.textContent = "";
+      }
     }
-    doHtml.push("<li><strong>" + fmtPair(t23) + ": lean WR firepower</strong> (Nabers, AJ Brown, Nico, Olave, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>");
-    doHtml.push("<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don’t spend your " + fmtPair(t23) + " on Allen or Lamar.</li>");
-    doHtml.push("<li><strong>Wait on elite TE.</strong> Skip Bowers/McBride early. Warren or Loveland around " + fmtPair(t45) + "; LaPorta / Kraft around " + fmtPair(t67) + "; Chig as a punt later.</li>");
-    doHtml.push("<li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs, Stribling mid/late, Keaton Mitchell last rounds if you have Hampton.</li>");
-    doHtml.push("<li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>");
-    document.getElementById("doRules").innerHTML = doHtml.join("");
 
-    var dontHtml = [
-      "<li><strong>Don’t leave RB1 empty early</strong> in a 2-WR format if you’re in the top few picks — you’ll be thin by " + fmtPair(t23) + ".</li>",
-      "<li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at " + fmtPair(t23) + " (camp, OL, possible suspension).</li>",
-      "<li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>",
-      "<li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>",
-      "<li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering — he slid from the 2–3 turn into the next tier.</li>",
-      "<li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff — they don’t want that Raiders offense without Jeanty.</li>",
-      "<li><strong>K / DST last</strong> (around " + fmtPair(lastTwo) + "). Never earlier.</li>"
-    ];
-    document.getElementById("dontRules").innerHTML = dontHtml.join("");
+    if (!strat || !strat.plan) {
+      document.getElementById("doRules").innerHTML = "<li>Load the player board to see strategy notes.</li>";
+      document.getElementById("dontRules").innerHTML = "";
+      document.getElementById("roundSheet").innerHTML = "";
+      return;
+    }
 
-    var rounds = [
-      "<li><strong>Pick " + p1 + ":</strong> " + (s.pick === 1 ? "Gibbs (Bijan only if Gibbs is somehow gone)." : "Best available in your tier — still prefer elite RB if you’re early.") + "</li>",
-      "<li><strong>" + fmtPair(t23) + ":</strong> Two WRs from the Nabers / Nico / AJB / Olave / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
-      "<li><strong>" + fmtPair(t45) + ":</strong> Best available flex + TE if Warren/Loveland are there. Etienne is a smash if he lasts. Evans only at a discount (quad).</li>",
-      "<li><strong>" + fmtPair(t67) + ":</strong> Downs, Daniels/Hurts/Purdy, LaPorta/Kraft, Skattebo if he slid. Still no kicker.</li>",
-      "<li><strong>" + fmtPair(t89) + ":</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>",
-      "<li><strong>" + (late[0] || "Late") + "+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>"
-    ];
-    document.getElementById("roundSheet").innerHTML = rounds.join("");
+    var plan = strat.plan;
+    document.getElementById("doRules").innerHTML = (plan.do || []).map(fillPlan).join("");
+    document.getElementById("dontRules").innerHTML = (plan.dont || []).map(fillPlan).join("");
+    document.getElementById("roundSheet").innerHTML = (plan.rounds || []).map(fillPlan).join("");
   }
 
   function buildPlayerMap() {
@@ -322,9 +330,12 @@
     var listEl = document.getElementById("targetTurns");
     if (!profileEl || !chipsEl || !listEl || !state.data) return;
 
-    var targets = state.data.targets;
-    var turns = (targets && targets.turns) || [];
-    var tuned = targets && targets.profile ? targets.profile : "14-team · 1.01 · hero RB + 2 WR";
+    var strat = activeStrategy();
+    var turns = (strat && strat.turns) || [];
+    var tuned = strat && strat.profile ? strat.profile : "14-team · 1.01 · hero RB + 2 WR";
+    if (!hasExactStrategy() && strat) {
+      tuned = "Closest: " + tuned;
+    }
     profileEl.textContent =
       tuned + " · your slot: " + state.settings.teams + "-team " + slotName() +
       ". Tap a turn for 4–6 click names.";
