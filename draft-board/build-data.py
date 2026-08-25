@@ -776,9 +776,8 @@ players.sort(key=lambda p: (p["adp"] if p["adp"] is not None else 999, p["name"]
 unmatched = [n[0] for n in NOTES if n[0] not in seen]
 print("unmatched notes", unmatched)
 
-# Per-turn click lists for 14-team · 1.01 hero-RB build (4–6 names each).
-# Situational notes (e.g. mock-board TE timing) live here — not in the Plan cheat sheet.
-TURN_TARGETS = [
+# Per-turn click lists (4–6 names). Situational notes live here — not in the Plan cheat sheet.
+TURN_TARGETS_14_1 = [
     {
         "summary": "Hero RB. Nick’s 1.01 is Gibbs — not Chase/Puka in a 2-WR league.",
         "players": ["Jahmyr Gibbs", "Bijan Robinson", "Christian McCaffrey", "Jonathan Taylor"],
@@ -790,8 +789,8 @@ TURN_TARGETS = [
         "pass": ["Josh Jacobs"],
     },
     {
-        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 — LaPorta is the next TE up.",
-        "players": ["Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo", "Tyler Warren", "Colston Loveland"],
+        "summary": "TE + RB2 after Gibbs + 2 WRs. Warren/Loveland ideal; LaPorta/Kraft if they’re gone in 14-team.",
+        "players": ["Tyler Warren", "Colston Loveland", "Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo"],
         "pass": ["Terry McLaurin", "DJ Moore", "Jameson Williams", "Jalen Hurts"],
     },
     {
@@ -822,6 +821,159 @@ TURN_TARGETS = [
     },
 ]
 
+# 10-team · pick 9 — one pick per round (no back-to-back). Late-early anchor + hammer pick 12.
+TURN_TARGETS_10_9 = [
+    {
+        "summary": "Anchor tier-1. Nick has KW3 12th overall — he lives here. RB or elite WR; don’t reach Achane.",
+        "players": ["Kenneth Walker", "Christian McCaffrey", "Jonathan Taylor", "James Cook III", "Ja'Marr Chase", "Puka Nacua"],
+        "pass": ["De'Von Achane"],
+    },
+    {
+        "summary": "Hammer pick 12 — Hampton (~16), Nabers post-camp, Nico (Higgins ACL), Breece, Henry, Kendre Miller (18). If WR at 9, RB is mandatory.",
+        "players": ["Omarion Hampton", "Malik Nabers", "Nico Collins", "Breece Hall", "Derrick Henry", "Kendre Miller"],
+        "pass": ["Josh Jacobs", "Kyren Williams"],
+    },
+    {
+        "summary": "Finish starting core. WR2 or RB2 as needed — Etienne riser (Kamara out). Don’t force Love’s ankle.",
+        "players": ["Chris Olave", "A.J. Brown", "Travis Etienne Jr.", "DeVonta Smith", "George Pickens", "Rashee Rice"],
+        "pass": ["Josh Jacobs", "Trey McBride", "Brock Bowers"],
+    },
+    {
+        "summary": "TE window opens (Warren/Loveland). Etienne smash. Evans discount (quad = watch). Fill RB2 if thin.",
+        "players": ["Tyler Warren", "Colston Loveland", "Travis Etienne Jr.", "Mike Evans", "Cam Skattebo", "Emeka Egbuka"],
+        "pass": ["Zay Flowers", "Garrett Wilson", "Josh Allen"],
+    },
+    {
+        "summary": "TE if Warren gone (LaPorta/Kraft). Downs value. Parker Washington > Tate. Burden scoop if groin dropped him.",
+        "players": ["Sam LaPorta", "Tucker Kraft", "Josh Downs", "Luther Burden III", "Parker Washington", "Tetairoa McMillan"],
+        "pass": ["TreVeyon Henderson", "Terry McLaurin", "Carnell Tate"],
+    },
+    {
+        "summary": "QB cluster (Daniels/Hurts/Purdy). TE if still open. Still wait on Allen/Lamar.",
+        "players": ["Jayden Daniels", "Jalen Hurts", "Brock Purdy", "Sam LaPorta", "Tucker Kraft", "Cam Skattebo"],
+        "pass": ["Josh Allen", "Lamar Jackson"],
+    },
+    {
+        "summary": "Mid-round WR/QB/TE depth. Waddle/Ladd 4th-round value pile. Kincaid if you whiffed TE.",
+        "players": ["Jaylen Waddle", "Ladd McConkey", "Josh Downs", "Dalton Kincaid", "Matthew Stafford", "Breece Hall"],
+        "pass": ["Garrett Wilson"],
+    },
+    {
+        "summary": "Stribling territory (~96). Wan’Dale PPR dart. Lemon scoop ~100. Stafford/Purdy if QB wait.",
+        "players": ["De'Zhaun Stribling", "Wan'Dale Robinson", "Makai Lemon", "Matthew Stafford", "Harold Fannin Jr.", "Brock Purdy"],
+        "pass": ["Jordyn Tyson"],
+    },
+    {
+        "summary": "Punt TE (Chig ~140) or FLEX dart. JCM cheap upside. Coker with Tet stack.",
+        "players": ["Chig Okonkwo", "Jacory Croskey-Merritt", "Parker Washington", "Jalen Coker", "Wan'Dale Robinson", "Dalton Kincaid"],
+        "pass": [],
+    },
+    {
+        "summary": "Handcuff zone. Keaton Mitchell free with Hampton. Lloyd/Bigsby locked jobs.",
+        "players": ["Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd", "Jonathon Brooks", "Jalen Coker", "Chig Okonkwo"],
+        "pass": [],
+    },
+    {
+        "summary": "More cuff/dart depth. Brooks if Chuba out. Noel Texans dart. Concepcion PPR.",
+        "players": ["Keaton Mitchell", "Jonathon Brooks", "Tank Bigsby", "MarShawn Lloyd", "Jaylin Noel", "KC Concepcion"],
+        "pass": [],
+    },
+    {
+        "summary": "Late rookie shots. Emmett Johnson (KW3 cuff). 49ers RB2 if you took CMC. Branch/London dart.",
+        "players": ["Emmett Johnson", "Jordan James", "Caleb Douglas", "Zachariah Branch", "Jaylin Noel", "Nick Singleton"],
+        "pass": ["Mike Washington Jr."],
+    },
+    {
+        "summary": "Deep dart round. Boston/Concepcion if you want Browns pass-catcher lottery tickets.",
+        "players": ["Jaylin Noel", "KC Concepcion", "Denzel Boston", "Caleb Douglas", "Nick Singleton", "Emmett Johnson"],
+        "pass": [],
+    },
+    {
+        "summary": "Kicker only.",
+        "players": [],
+        "pass": [],
+        "note": "K now. DST with your final pick — never earlier.",
+    },
+    {
+        "summary": "DST only.",
+        "players": [],
+        "pass": [],
+        "note": "Close with DST. Never draft K/DST before these last two picks.",
+    },
+]
+
+PLAN_14_1 = {
+    "profile": "14-team · 1.01 · hero RB + 2 WR",
+    "tagline": "Hero RB (Gibbs), then two WRs, then TE + RB2 at the 4/5 turn.",
+    "do": [
+        "<li><strong>Pick {{r1}} ({{slot}}): Jahmyr Gibbs.</strong> Nick’s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>",
+        "<li><strong>{{r2}}–{{r3}}: lean WR firepower</strong> (Nabers, Olave, AJ Brown, Nico, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>",
+        "<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don’t spend {{r2}}–{{r3}} or {{r4}}–{{r5}} on Allen, Lamar, Burrow, or Hurts.</li>",
+        "<li><strong>TE ladder:</strong> Skip Bowers/McBride early. Warren or Loveland around {{r4}}–{{r5}}; LaPorta / Kraft around {{r6}}–{{r7}}; Chig as a punt later.</li>",
+        "<li><strong>After Gibbs + 2 WRs:</strong> at {{r4}}–{{r5}} take <strong>TE + RB2</strong> (not a 3rd WR). Fill flex later.</li>",
+        "<li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs, Stribling mid/late, Keaton Mitchell last rounds if you have Hampton.</li>",
+        "<li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>",
+    ],
+    "dont": [
+        "<li><strong>Don’t leave RB2 empty at {{r4}}–{{r5}}</strong> if you already have Gibbs + two WRs — you still need a second starter.</li>",
+        "<li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at {{r2}}–{{r3}} (camp, OL, possible suspension).</li>",
+        "<li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>",
+        "<li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>",
+        "<li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering.</li>",
+        "<li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff.</li>",
+        "<li><strong>K / DST last</strong> (around {{r14}}–{{r15}}). Never earlier.</li>",
+    ],
+    "rounds": [
+        "<li><strong>Pick {{r1}}:</strong> Gibbs (Bijan only if Gibbs is somehow gone).</li>",
+        "<li><strong>{{r2}}–{{r3}}:</strong> Two WRs from the Nabers / Olave / Nico / AJB / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
+        "<li><strong>{{r4}}–{{r5}}:</strong> <strong>TE + RB2.</strong> Warren/Loveland ideal; LaPorta/Kraft if gone. Pair with Etienne / Skattebo. Pass McLaurin / 3rd WR.</li>",
+        "<li><strong>{{r6}}–{{r7}}:</strong> Downs, Daniels/Hurts/Purdy, depth RB/WR, Skattebo if he slid. Still no kicker.</li>",
+        "<li><strong>{{r8}}–{{r9}}:</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>",
+        "<li><strong>{{r10}}+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>",
+    ],
+}
+
+PLAN_10_9 = {
+    "profile": "10-team · 1.09 · anchor + hammer 12",
+    "tagline": "Elite RB or WR at 9, smash Hampton/Nabers/Nico at 12, TE at 32–49, QB after.",
+    "do": [
+        "<li><strong>Pick {{r1}} ({{slot}}): anchor tier-1.</strong> Nick ranks <strong>KW3 12th overall</strong> — he’s the BDGE RB call in your range. Also CMC, JT, Cook, Chase, or Puka. One pick per round in 10-team — no back-to-back.</li>",
+        "<li><strong>Pick {{r2}}: hammer the value.</strong> This is Hampton (~16), Nabers (camp WR10), Nico (Higgins ACL bump), Breece, Henry, Kendre Miller (18). <strong>If you went WR at 9, RB here is mandatory</strong> — Chase/Puka builds get ugly RB rooms if you wait.</li>",
+        "<li><strong>Pick {{r3}}: finish your starting core.</strong> WR2 or RB2 as needed. Etienne is the week-2 riser (Kamara out). Olave/AJB/DeVonta/Pickens/Rice cluster.</li>",
+        "<li><strong>Pick {{r4}}–{{r5}}: TE + RB2 window.</strong> Warren/Loveland ideal at {{r4}}; LaPorta/Kraft at {{r5}} if they slide. Etienne smash. Evans only at a discount (quad).</li>",
+        "<li><strong>Wait on QB</strong> until {{r6}}+. Daniels / Hurts / Purdy / Stafford cluster — too cheap to reach Allen/Lamar at {{r3}}–{{r4}}.</li>",
+        "<li><strong>Smash week-2 risers:</strong> Etienne, Nico, Breece (groin = precautionary), Downs, Stribling ~{{r8}}, Keaton Mitchell ~{{r10}} if you have Hampton.</li>",
+        "<li><strong>Handcuffs:</strong> Keaton Mitchell (Hampton stack), Tank Bigsby, Lloyd (Jacobs sat), Brooks (Chuba), Emmett Johnson (KW3), 49ers RB2 if CMC.</li>",
+    ],
+    "dont": [
+        "<li><strong>Don’t take Achane at ADP</strong> over KW3/CMC/JT/Cook at {{r1}} — explosive but Nick won’t pay (mobile QB, TD scarcity).</li>",
+        "<li><strong>Don’t go WR-WR at {{r1}}/{{r2}}</strong> without a clear RB2 path by {{r3}} — Jacobs is a fade as your RB1 anyway.</li>",
+        "<li><strong>Don’t take McBride/Bowers at {{r3}}</strong> — TE heat map is {{r4}}–{{r7}} (Warren → LaPorta/Kraft → Kincaid).</li>",
+        "<li><strong>Don’t jump Allen/Lamar/Burrow at {{r3}}–{{r4}}</strong> in 1QB. If you take elite QB early, don’t also burn {{r5}} on TE.</li>",
+        "<li><strong>Don’t pay ADP for Kyren, Flowers, Garrett Wilson, McLaurin, Kamara, Tracy, or Jordyn Tyson.</strong></li>",
+        "<li><strong>Don’t spend {{r4}} on TreVeyon Henderson</strong> — Nick wants Harvey as an {{r8}}/{{r9}} dart at similar rookie upside.</li>",
+        "<li><strong>Don’t draft Tate, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, or anyone behind Skattebo.</strong></li>",
+        "<li><strong>K / DST last</strong> ({{r14}}–{{r15}}). Never earlier.</li>",
+    ],
+    "rounds": [
+        "<li><strong>Pick {{r1}}:</strong> KW3, CMC, JT, Cook, Chase, or Puka — best tier-1 left. Nabers only if he somehow falls.</li>",
+        "<li><strong>Pick {{r2}}:</strong> Hampton, Nabers, Nico, Breece, Henry, or Kendre Miller. Complement your {{r1}} pick — don’t leave RB empty after two rounds if you started WR.</li>",
+        "<li><strong>Pick {{r3}}:</strong> WR/RB to fill starters. Etienne if value. Pass Jacobs-over-WR1 and elite TE/QB.</li>",
+        "<li><strong>Pick {{r4}}:</strong> Warren, Loveland, Etienne, Evans (discount), Skattebo, Egbuka. Start TE here if the board allows.</li>",
+        "<li><strong>Pick {{r5}}:</strong> LaPorta/Kraft if no TE; Downs, Burden, Parker Washington, Tet. No Henderson at price.</li>",
+        "<li><strong>Pick {{r6}}:</strong> Daniels, Hurts, Purdy — or finish TE/RB2 if still open.</li>",
+        "<li><strong>Pick {{r7}}–{{r8}}:</strong> Waddle/Ladd value, Stribling, Wan’Dale, Lemon, Stafford. Kincaid/Chig if TE whiff.</li>",
+        "<li><strong>Pick {{r9}}–{{r11}}:</strong> JCM, Coker, Mitchell, Bigsby, Lloyd, Brooks, Noel/Concepcion darts.</li>",
+        "<li><strong>Pick {{r12}}–{{r13}}:</strong> Emmett Johnson, 49ers RB2 (CMC), Branch, Douglas, deep stashes.</li>",
+        "<li><strong>Pick {{r14}}–{{r15}}:</strong> K, then DST. Never before.</li>",
+    ],
+}
+
+STRATEGIES = {
+    "14-1": {"plan": PLAN_14_1, "turns": TURN_TARGETS_14_1},
+    "10-9": {"plan": PLAN_10_9, "turns": TURN_TARGETS_10_9},
+}
+
 
 def _player_lookup(players):
     by_name = {}
@@ -841,15 +993,31 @@ def _resolve_target_names(names, lookup):
     return out
 
 
+def _resolve_strategy_turns(turn_defs, lookup):
+    out = []
+    for t in turn_defs:
+        out.append({
+            "summary": t["summary"],
+            "playerIds": _resolve_target_names(t["players"], lookup),
+            "passIds": _resolve_target_names(t.get("pass", []), lookup),
+            "note": t.get("note"),
+        })
+    return out
+
+
 player_lookup = _player_lookup(players)
-target_turns = []
-for t in TURN_TARGETS:
-    target_turns.append({
-        "summary": t["summary"],
-        "playerIds": _resolve_target_names(t["players"], player_lookup),
-        "passIds": _resolve_target_names(t.get("pass", []), player_lookup),
-        "note": t.get("note"),
-    })
+strategies_out = {}
+for key, strat in STRATEGIES.items():
+    strategies_out[key] = {
+        "profile": strat["plan"]["profile"],
+        "tagline": strat["plan"]["tagline"],
+        "plan": {
+            "do": strat["plan"]["do"],
+            "dont": strat["plan"]["dont"],
+            "rounds": strat["plan"]["rounds"],
+        },
+        "turns": _resolve_strategy_turns(strat["turns"], player_lookup),
+    }
 
 out = {
     "league": {
@@ -885,10 +1053,7 @@ out = {
         {"id": "LL6cuiAP8lc", "title": "My Official Top 50 Rankings & Tiers", "key": "top50", "when": "Oldest of this set — top 50"},
     ],
     "players": players,
-    "targets": {
-        "profile": "14-team · 1.01 · hero RB + 2 WR",
-        "turns": target_turns,
-    },
+    "strategies": strategies_out,
 }
 
 Path(ROOT / "players.json").write_text(json.dumps(out, indent=2))
