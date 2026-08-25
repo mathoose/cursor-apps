@@ -789,8 +789,8 @@ TURN_TARGETS_14_1 = [
         "pass": ["Josh Jacobs"],
     },
     {
-        "summary": "TE + RB2 after Gibbs + 2 WRs. Warren/Loveland ideal; LaPorta/Kraft if they’re gone in 14-team.",
-        "players": ["Tyler Warren", "Colston Loveland", "Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo"],
+        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 — LaPorta is the next TE up.",
+        "players": ["Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo", "Tyler Warren", "Colston Loveland"],
         "pass": ["Terry McLaurin", "DJ Moore", "Jameson Williams", "Jalen Hurts"],
     },
     {
@@ -973,7 +973,6 @@ STRATEGIES = {
     "14-1": {"plan": PLAN_14_1, "turns": TURN_TARGETS_14_1},
     "10-9": {"plan": PLAN_10_9, "turns": TURN_TARGETS_10_9},
 }
-
 
 def _player_lookup(players):
     by_name = {}

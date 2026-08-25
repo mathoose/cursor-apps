@@ -8282,14 +8282,14 @@
           "note": null
         },
         {
-          "summary": "TE + RB2 after Gibbs + 2 WRs. Warren/Loveland ideal; LaPorta/Kraft if they\u2019re gone in 14-team.",
+          "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 \u2014 LaPorta is the next TE up.",
           "playerIds": [
-            "tylerwarren-TE",
-            "colstonloveland-TE",
             "samlaporta-TE",
             "tuckerkraft-TE",
             "travisetiennejr-RB",
-            "camskattebo-RB"
+            "camskattebo-RB",
+            "tylerwarren-TE",
+            "colstonloveland-TE"
           ],
           "passIds": [
             "terrymclaurin-WR",
