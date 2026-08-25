@@ -776,6 +776,81 @@ players.sort(key=lambda p: (p["adp"] if p["adp"] is not None else 999, p["name"]
 unmatched = [n[0] for n in NOTES if n[0] not in seen]
 print("unmatched notes", unmatched)
 
+# Per-turn click lists for 14-team · 1.01 hero-RB build (4–6 names each).
+# Situational notes (e.g. mock-board TE timing) live here — not in the Plan cheat sheet.
+TURN_TARGETS = [
+    {
+        "summary": "Hero RB. Nick’s 1.01 is Gibbs — not Chase/Puka in a 2-WR league.",
+        "players": ["Jahmyr Gibbs", "Bijan Robinson", "Christian McCaffrey", "Jonathan Taylor"],
+        "pass": [],
+    },
+    {
+        "summary": "Two WRs (or one WR + falling RB2). WR firepower turn.",
+        "players": ["Malik Nabers", "Chris Olave", "Nico Collins", "A.J. Brown", "DeVonta Smith", "George Pickens"],
+        "pass": ["Josh Jacobs"],
+    },
+    {
+        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 — LaPorta is the next TE up.",
+        "players": ["Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo", "Tyler Warren", "Colston Loveland"],
+        "pass": ["Terry McLaurin", "DJ Moore", "Jameson Williams", "Jalen Hurts"],
+    },
+    {
+        "summary": "Flex depth, value QB, TE if you waited, Skattebo if he slid.",
+        "players": ["Josh Downs", "Sam LaPorta", "Tucker Kraft", "Jayden Daniels", "Jalen Hurts", "Brock Purdy"],
+        "pass": [],
+    },
+    {
+        "summary": "Mid-round value WRs and streamers.",
+        "players": ["De'Zhaun Stribling", "Parker Washington", "Tetairoa McMillan", "Breece Hall", "Matthew Stafford", "Cam Skattebo"],
+        "pass": [],
+    },
+    {
+        "summary": "Bench upside and TE/QB depth.",
+        "players": ["Dalton Kincaid", "Chig Okonkwo", "Jalen Coker", "Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd"],
+        "pass": [],
+    },
+    {
+        "summary": "Handcuffs and late rookie darts.",
+        "players": ["Jonathon Brooks", "Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd", "Chig Okonkwo", "Jalen Coker"],
+        "pass": [],
+    },
+    {
+        "summary": "Kicker and DST only — never earlier.",
+        "players": [],
+        "pass": [],
+        "note": "Only K and DST in your last two picks.",
+    },
+]
+
+
+def _player_lookup(players):
+    by_name = {}
+    for p in players:
+        by_name[p["name"].lower()] = p
+    return by_name
+
+
+def _resolve_target_names(names, lookup):
+    out = []
+    for name in names:
+        p = lookup.get(name.lower())
+        if p:
+            out.append(p["id"])
+        else:
+            print("target player not found:", name)
+    return out
+
+
+player_lookup = _player_lookup(players)
+target_turns = []
+for t in TURN_TARGETS:
+    target_turns.append({
+        "summary": t["summary"],
+        "playerIds": _resolve_target_names(t["players"], player_lookup),
+        "passIds": _resolve_target_names(t.get("pass", []), player_lookup),
+        "note": t.get("note"),
+    })
+
 out = {
     "league": {
         "teams": 14,
@@ -810,6 +885,10 @@ out = {
         {"id": "LL6cuiAP8lc", "title": "My Official Top 50 Rankings & Tiers", "key": "top50", "when": "Oldest of this set — top 50"},
     ],
     "players": players,
+    "targets": {
+        "profile": "14-team · 1.01 · hero RB + 2 WR",
+        "turns": target_turns,
+    },
 }
 
 Path(ROOT / "players.json").write_text(json.dumps(out, indent=2))
