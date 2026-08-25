@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v69 -->
+  <!-- build: hj-today-version-v70 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -2146,67 +2146,89 @@
     }
     #panelToday .today-hide-btn:active { color: var(--accent); }
     #panelToday .today-hidden-section {
-      margin-top: 6px;
-      padding-top: 4px;
-      border-top: 1px dashed var(--border);
+      margin-top: 12px;
+      padding: 10px 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+    #panelToday .today-hidden-section[open] {
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(44, 36, 25, 0.08);
     }
     .today-hidden-section summary {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      color: var(--muted);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--ink);
       cursor: pointer;
       list-style: none;
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 2px 0 4px;
+      gap: 6px;
+      padding: 4px 0 6px;
     }
     .today-hidden-section summary::-webkit-details-marker { display: none; }
     .today-hidden-section summary::before {
       content: "▶";
-      font-size: 0.625rem;
+      font-size: 0.7rem;
       color: var(--muted);
       transition: transform 0.15s ease;
     }
     .today-hidden-section[open] summary::before { transform: rotate(90deg); }
+    .today-hidden-section[open] summary {
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
     .today-hidden-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+    .today-hidden-cat {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 2px 2px;
+    }
+    .today-hidden-cat:first-child { padding-top: 2px; }
     .today-hidden-restore {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
-      min-height: 36px;
-      padding: 6px 10px;
+      min-height: 44px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.92);
+      border-radius: 10px;
+      background: #fff;
       font: inherit;
       color: var(--ink);
       cursor: pointer;
       text-align: left;
+      box-shadow: 0 1px 4px rgba(44, 36, 25, 0.06);
     }
     .today-hidden-restore:active { background: #f5f0e8; }
     .today-hidden-restore-plus {
       flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
       background: var(--accent);
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.125rem;
       font-weight: 700;
-      line-height: 22px;
+      line-height: 26px;
       text-align: center;
     }
     .today-hidden-restore-name {
       flex: 1;
       min-width: 0;
-      font-size: 0.8125rem;
-      font-weight: 600;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--ink);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -2819,11 +2841,38 @@
     body.layout-modern .year-habit-card,
     body.layout-modern .habits-backup-row,
     body.layout-modern .month-hidden-section,
-    body.layout-modern .habits-hidden-section {
+    body.layout-modern .habits-hidden-section,
+    body.layout-modern #panelToday .today-hidden-section {
       background: var(--card);
       border-color: var(--border);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       border-radius: 18px;
+    }
+    body.layout-modern #panelToday .today-hidden-section[open] {
+      background: #222636;
+      border-color: rgba(139, 124, 247, 0.45);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+    }
+    body.layout-modern .today-hidden-section summary {
+      color: #f4f5f8;
+    }
+    body.layout-modern .today-hidden-section[open] summary {
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+    }
+    body.layout-modern .today-hidden-cat {
+      color: #c5cbe0;
+    }
+    body.layout-modern .today-hidden-restore {
+      background: #2a2f40;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #f4f5f8;
+      box-shadow: none;
+    }
+    body.layout-modern .today-hidden-restore:active {
+      background: #32384c;
+    }
+    body.layout-modern .today-hidden-restore-name {
+      color: #f4f5f8;
     }
     body.layout-modern .chip {
       background: var(--card-2);
@@ -3363,7 +3412,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v69 · Aug 22, 2026";
+  let habitJournalVersionText = "v70 · Aug 25, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -5888,39 +5937,58 @@
 
   function getTodayDismissedHabits() {
     pruneTodayDismissed();
-    const list = state.todayDismissed[todayDateKey()] || [];
+    const parts = getTodayDateParts();
+    const dismissed = state.todayDismissed[todayDateKey()] || [];
     return state.habits.filter(function (h) {
-      if (h.hidden) return false;
-      if (list.indexOf(h.id) < 0) return false;
-      if (state.categoryFilter && state.categoryFilter !== "all" && h.category !== state.categoryFilter) {
-        return false;
-      }
-      const parts = getTodayDateParts();
       if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
-      return true;
+      if (dismissed.indexOf(h.id) >= 0) return true;
+      if (h.hidden) return true;
+      return false;
     });
   }
 
   function renderTodayHiddenSectionHtml() {
-    const dismissed = getTodayDismissedHabits();
-    if (!dismissed.length) return "";
-    let html = '<details class="today-hidden-section">';
+    const hiddenHabits = getTodayDismissedHabits();
+    if (!hiddenHabits.length) return "";
+    let html = '<details class="today-hidden-section" open>';
     html +=
       "<summary>Hidden for today (" +
-      dismissed.length +
+      hiddenHabits.length +
       ")</summary>";
     html += '<div class="today-hidden-list">';
-    dismissed.forEach(function (habit) {
-      html +=
-        '<button type="button" class="today-hidden-restore" data-today-show="' +
-        escapeHtml(habit.id) +
-        '" aria-label="Show ' +
-        escapeHtml(habit.name) +
-        ' on Today">';
-      html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
-      html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
-      html += "</button>";
+    state.categories.forEach(function (cat) {
+      const inCat = hiddenHabits.filter(function (h) { return h.category === cat.id; });
+      if (!inCat.length) return;
+      html += '<div class="today-hidden-cat">' + escapeHtml(cat.label) + "</div>";
+      inCat.forEach(function (habit) {
+        html +=
+          '<button type="button" class="today-hidden-restore" data-today-show="' +
+          escapeHtml(habit.id) +
+          '" aria-label="Show ' +
+          escapeHtml(habit.name) +
+          ' on Today">';
+        html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
+        html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
+        html += "</button>";
+      });
     });
+    const knownCat = {};
+    state.categories.forEach(function (cat) { knownCat[cat.id] = true; });
+    const uncategorized = hiddenHabits.filter(function (h) { return !knownCat[h.category]; });
+    if (uncategorized.length) {
+      html += '<div class="today-hidden-cat">Other</div>';
+      uncategorized.forEach(function (habit) {
+        html +=
+          '<button type="button" class="today-hidden-restore" data-today-show="' +
+          escapeHtml(habit.id) +
+          '" aria-label="Show ' +
+          escapeHtml(habit.name) +
+          ' on Today">';
+        html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
+        html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
+        html += "</button>";
+      });
+    }
     html += "</div></details>";
     return html;
   }
@@ -6864,7 +6932,13 @@
     });
     root.querySelectorAll("[data-today-show]").forEach(function (btn) {
       btn.onclick = function () {
-        setTodayDismissed(btn.getAttribute("data-today-show"), false);
+        const habitId = btn.getAttribute("data-today-show");
+        const habit = state.habits.find(function (h) { return h.id === habitId; });
+        setTodayDismissed(habitId, false);
+        if (habit && habit.hidden) {
+          habit.hidden = false;
+          save();
+        }
         renderToday();
         toast("Showing on Today");
       };
