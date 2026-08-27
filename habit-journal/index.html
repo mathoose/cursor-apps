@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v70 -->
+  <!-- build: hj-today-version-v71 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3412,7 +3412,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v70 · Aug 25, 2026";
+  let habitJournalVersionText = "v71 · Aug 27, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3658,6 +3658,7 @@
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
   let todayViewOffset = 0;
+  let todayHiddenSectionOpen = false;
   let yearFullscreenHabitId = null;
   let habitEditId = null;
   let habitsCatPanelOpen = false;
@@ -5950,7 +5951,7 @@
   function renderTodayHiddenSectionHtml() {
     const hiddenHabits = getTodayDismissedHabits();
     if (!hiddenHabits.length) return "";
-    let html = '<details class="today-hidden-section" open>';
+    let html = '<details class="today-hidden-section"' + (todayHiddenSectionOpen ? " open" : "") + ">";
     html +=
       "<summary>Hidden for today (" +
       hiddenHabits.length +
@@ -6922,6 +6923,12 @@
   }
 
   function bindTodayPanel(root) {
+    const hiddenSection = root.querySelector(".today-hidden-section");
+    if (hiddenSection) {
+      hiddenSection.addEventListener("toggle", function () {
+        todayHiddenSectionOpen = hiddenSection.open;
+      });
+    }
     root.querySelectorAll(".today-hide-btn").forEach(function (btn) {
       btn.onclick = function (e) {
         e.stopPropagation();
