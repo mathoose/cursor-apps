@@ -567,7 +567,7 @@
   }
 
   function exportedLabel(snap) {
-    var when = snap && (snap.exportedAt || snap.cachedAt);
+    var when = snap && snap.exportedAt;
     return when ? formatDateTime(when) : "unknown date";
   }
 
@@ -815,7 +815,13 @@
     if (els.searchInput.value !== (searches[currentTab] || "")) {
       els.searchInput.value = searches[currentTab] || "";
     }
-    els.backToList.textContent = "← All " + (TAB_LABELS[currentTab] || "items").toLowerCase();
+    var backLabels = {
+      processes: "← All processes",
+      projects: "← All projects",
+      batches: "← All batches",
+      drb: "← All DRB",
+    };
+    els.backToList.textContent = backLabels[currentTab] || "← All items";
   }
 
   function renderList() {
