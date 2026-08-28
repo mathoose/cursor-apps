@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "2 · Aug 28, 2026";
+  var APP_VERSION = "3 · Aug 28, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
   var BACKUP_KEYS = [
     "tanks",
@@ -170,6 +170,173 @@
       if (note) return note;
     }
     return "";
+  }
+
+  function humanizeKey(key) {
+    var known = {
+      type: "Type",
+      kind: "Kind",
+      note: "Note",
+      commentBefore: "Comment before",
+      commentAfter: "Comment after",
+      createdAt: "When",
+      updatedAt: "Updated",
+      imageName: "Photo file",
+      material: "Material",
+      materialCode: "Material code",
+      materialDescription: "Material",
+      product: "Product",
+      amount: "Amount",
+      amountKg: "Amount (kg)",
+      addedKg: "Added (kg)",
+      weightKg: "Weight (kg)",
+      kg: "kg",
+      quantity: "Quantity",
+      qty: "Qty",
+      solidsPct: "Solids %",
+      solidsBefore: "Solids before %",
+      solidsAfter: "Solids after %",
+      targetSolids: "Target solids %",
+      startingSolidsPct: "Starting solids %",
+      finalSolidsPct: "Final solids %",
+      weightBefore: "Weight before",
+      weightAfter: "Weight after",
+      startingWeightKg: "Starting weight (kg)",
+      finalWeightKg: "Final weight (kg)",
+      reason: "Reason",
+      description: "Description",
+    };
+    if (known[key]) return known[key];
+    return String(key)
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[_-]+/g, " ")
+      .replace(/\bKg\b/g, "kg")
+      .replace(/\bPct\b/gi, "%")
+      .replace(/^./, function (c) {
+        return c.toUpperCase();
+      });
+  }
+
+  function isImageishKey(key) {
+    var k = String(key || "");
+    return k === "imageData" || k === "imageRef" || k === "linkedImageId" || k === "image";
+  }
+
+  function orderedObjectKeys(obj, preferred) {
+    var keys = Object.keys(obj || {});
+    var seen = {};
+    var out = [];
+    (preferred || []).forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(obj, k) && !seen[k]) {
+        seen[k] = true;
+        out.push(k);
+      }
+    });
+    keys.forEach(function (k) {
+      if (!seen[k]) out.push(k);
+    });
+    return out;
+  }
+
+  function formatFieldDisplay(key, value) {
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (typeof value === "number") return String(value);
+    if (/(^createdAt$|^updatedAt$|At$|Date$|Time$)/.test(key) || key === "when") {
+      return formatDateTime(value) || formatDate(value) || String(value);
+    }
+    return value;
+  }
+
+  function recordFieldsHtml(obj, skip) {
+    skip = skip || {};
+    if (!obj || typeof obj !== "object") return "";
+    var html = '<div class="fields">';
+    var preferred = [
+      "type",
+      "kind",
+      "title",
+      "createdAt",
+      "updatedAt",
+      "note",
+      "reason",
+      "description",
+      "material",
+      "materialCode",
+      "materialDescription",
+      "product",
+      "amount",
+      "amountKg",
+      "addedKg",
+      "weightKg",
+      "kg",
+      "quantity",
+      "qty",
+      "solidsPct",
+      "solidsBefore",
+      "solidsAfter",
+      "targetSolids",
+      "startingSolidsPct",
+      "finalSolidsPct",
+      "weightBefore",
+      "weightAfter",
+      "startingWeightKg",
+      "finalWeightKg",
+      "commentBefore",
+      "commentAfter",
+    ];
+    orderedObjectKeys(obj, preferred).forEach(function (key) {
+      if (skip[key] || isImageishKey(key) || key === "id") return;
+      var v = obj[key];
+      if (Array.isArray(v)) {
+        if (!v.length) return;
+        html += '<div class="field"><div class="k">' + esc(humanizeKey(key)) + "</div>";
+        if (v.every(function (item) { return item && typeof item === "object"; })) {
+          v.forEach(function (item) {
+            html += '<div class="nested-record">' + recordFieldsHtml(item, skip) + "</div>";
+          });
+        } else {
+          html += '<div class="v">' + esc(v.map(function (item) { return text(item) || String(item); }).filter(Boolean).join(", ")) + "</div>";
+        }
+        html += "</div>";
+        return;
+      }
+      if (v && typeof v === "object") {
+        html +=
+          '<div class="field"><div class="k">' +
+          esc(humanizeKey(key)) +
+          "</div>" +
+          recordFieldsHtml(v, skip) +
+          "</div>";
+        return;
+      }
+      if (!populated(v) && v !== 0 && v !== false) return;
+      html +=
+        '<div class="field"><div class="k">' +
+        esc(humanizeKey(key)) +
+        '</div><div class="v">' +
+        nl(formatFieldDisplay(key, v)) +
+        "</div></div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function collectRecordText(value, parts) {
+    if (value == null) return;
+    if (Array.isArray(value)) {
+      value.forEach(function (item) {
+        collectRecordText(item, parts);
+      });
+      return;
+    }
+    if (typeof value === "object") {
+      Object.keys(value).forEach(function (k) {
+        if (isImageishKey(k) || k === "id") return;
+        collectRecordText(value[k], parts);
+      });
+      return;
+    }
+    parts.push(value);
   }
 
   function usawLabel(tank) {
@@ -508,7 +675,7 @@
       if (c) parts.push(c.text);
     });
     asArray(tank.adjustments).forEach(function (a) {
-      if (a) parts.push(a.type, a.note, a.commentBefore, a.commentAfter);
+      collectRecordText(a, parts);
     });
     return blob(parts);
   }
@@ -1459,12 +1626,10 @@
     else {
       adjs.forEach(function (a) {
         html += '<div class="adjust">';
-        html += "<strong>" + esc(a.type || "Adjustment") + "</strong>";
-        html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
-        if (text(a.note)) html += "<div>" + nl(a.note) + "</div>";
-        if (text(a.commentBefore)) html += '<div class="muted">Before: ' + nl(a.commentBefore) + "</div>";
-        if (text(a.commentAfter)) html += '<div class="muted">After: ' + nl(a.commentAfter) + "</div>";
-        html += photoHtml(a.imageData, a.imageName, "Photo — adjustment");
+        html += "<strong>" + esc(firstText(a, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
+        if (a.createdAt) html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
+        html += recordFieldsHtml(a, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
+        html += photoHtml(a.imageData, a.imageName, a.imageName ? "Photo — " + a.imageName : "Photo — adjustment");
         html += "</div>";
       });
     }

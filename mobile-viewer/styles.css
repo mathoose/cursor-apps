@@ -479,7 +479,17 @@ main {
   border-bottom: 1px solid var(--border);
 }
 
-.entry:last-child, .log-item:last-child, .comment:last-child, .adjust:last-child { border-bottom: none; }
+.nested-record {
+  margin: 8px 0;
+  padding: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.adjust .fields {
+  margin-top: 8px;
+}
 
 .entry-time, .log-time {
   font-size: 0.75rem;
