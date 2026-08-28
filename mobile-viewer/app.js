@@ -212,6 +212,48 @@
     return tags.length ? text(tags[0]) : "";
   }
 
+  function processDistinguisher(proc) {
+    var label = processProductLabel(proc);
+    if (label) return label;
+    var title = text(proc.title) || "Untitled process";
+    var siblings = asArray(lists().processes).filter(function (p) {
+      return (text(p.title) || "Untitled process") === title;
+    });
+    if (siblings.length < 2) return text(proc.summary);
+    var skip = {
+      id: 1,
+      title: 1,
+      status: 1,
+      version: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      type: 1,
+      steps: 1,
+      journal: 1,
+      tags: 1,
+      imageData: 1,
+    };
+    var keys = Object.keys(proc || {});
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (skip[k] || typeof proc[k] !== "string") continue;
+      var mine = text(proc[k]);
+      if (!mine) continue;
+      var allSame = siblings.every(function (p) {
+        return text(p[k]) === mine;
+      });
+      if (!allSame) return mine;
+    }
+    var myTags = asArray(proc.tags).map(text).filter(Boolean);
+    var uniqueTags = myTags.filter(function (t) {
+      return !siblings.every(function (p) {
+        return asArray(p.tags).map(text).indexOf(t) !== -1;
+      });
+    });
+    if (uniqueTags.length) return uniqueTags.join(", ");
+    return text(proc.summary);
+  }
+
   function processTitleCounts() {
     var counts = {};
     asArray(lists().processes).forEach(function (p) {
@@ -1132,12 +1174,13 @@
   }
 
   function todoRowHtml(item) {
+    var kindLabel = item.kind === "drb" ? "DRB" : item.kind || "to-do";
     return (
       '<div class="title">' +
       esc(item.title) +
       "</div>" +
       '<div class="meta"><span class="badge">' +
-      esc(item.kind || "to-do") +
+      esc(kindLabel) +
       "</span><span>" +
       esc(item.source) +
       "</span>" +
@@ -1151,8 +1194,7 @@
       var titleCounts = processTitleCounts();
       var rawTitle = text(item.title) || "Untitled process";
       var duplicate = (titleCounts[rawTitle] || 0) > 1;
-      var product = processProductLabel(item);
-      var distinguisher = product || text(item.summary);
+      var distinguisher = processDistinguisher(item);
       var headline = duplicate && distinguisher && distinguisher !== rawTitle ? distinguisher : rawTitle;
       var sub = "";
       if (headline === rawTitle) {
@@ -1173,7 +1215,8 @@
         (item.version != null ? "<span>v" + esc(item.version) + "</span>" : "") +
         "<span>" +
         countSteps(item.steps) +
-        " steps</span><span>" +
+        (countSteps(item.steps) === 1 ? " step" : " steps") +
+        "</span><span>" +
         esc(formatDate(item.updatedAt)) +
         "</span></div>" +
         chipsHtml(item.tags)
