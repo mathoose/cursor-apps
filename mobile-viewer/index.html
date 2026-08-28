@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- build: mobile-viewer-v1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Tracker Viewer</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tracker Viewer" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f1419" />
+  <meta name="description" content="Read-only mobile viewer for daily tank tracker exports" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="mobile-viewer">
+  <section id="loadScreen" class="load-screen">
+    <div class="load-brand">
+      <img src="app-icon.png" width="56" height="56" alt="" />
+      <div>
+        <h1>Tracker Viewer</h1>
+        <p>Read-only snapshot on your phone</p>
+      </div>
+    </div>
+    <p class="load-copy">Pick the Export ZIP from the desktop tracker, or a bare <code>full-backup.json</code>. Nothing is uploaded — parsing stays on this device.</p>
+    <label class="file-pick">
+      Choose tracker export (.zip or full-backup.json)
+      <input id="fileInput" type="file" accept=".zip,.json,application/zip,application/json,application/x-zip-compressed" />
+    </label>
+    <div id="progress" class="progress" hidden></div>
+    <p id="loadError" class="error" hidden></p>
+    <div id="summaryCard" class="summary-card" hidden></div>
+    <p class="load-note">Large exports with photos can take 10–30 seconds to open on a phone.</p>
+    <div class="load-home">
+      <a href="https://mathoose.github.io/cursor-apps/" data-apps-home>Back to Apps</a>
+      <p class="app-version" style="margin-top:12px">Tracker Viewer v1 · Aug 28, 2026</p>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell" hidden>
+    <header class="app-header">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-titles">
+        <h1 id="headerTitle">Tracker Viewer</h1>
+        <p id="headerSub">Read-only</p>
+      </div>
+      <button type="button" class="icon-btn" id="menuBtn" aria-label="Snapshot options">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></svg>
+      </button>
+    </header>
+
+    <p id="banner" class="banner">Read-only snapshot</p>
+
+    <div id="searchWrap" class="search-wrap">
+      <input id="searchInput" type="search" placeholder="Search" autocomplete="off" enterkeyhint="search" />
+    </div>
+    <div id="backRow" class="back-row" hidden>
+      <button type="button" id="backToList">← All items</button>
+    </div>
+
+    <main id="main"></main>
+
+    <nav class="bottom-nav" role="tablist">
+      <button type="button" class="nav-btn active" data-tab="processes" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        Processes
+        <span class="tab-count" data-count="processes"></span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="projects" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+        Projects
+        <span class="tab-count" data-count="projects"></span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="batches" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 8h4M10 12h4M9 20h6"/></svg>
+        Batches
+        <span class="tab-count" data-count="batches"></span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="drb" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+        DRB
+        <span class="tab-count" data-count="drb"></span>
+      </button>
+    </nav>
+  </div>
+
+  <footer class="app-version-footer">
+    <p class="app-version" id="appVersion">Tracker Viewer v1 · Aug 28, 2026</p>
+  </footer>
+
+  <div id="sheet" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-labelledby="sheetTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="sheetTitle">This snapshot</h2>
+      <p id="sheetBody"></p>
+      <button type="button" class="btn-primary" id="btnLoadNew">Load new export</button>
+      <button type="button" class="btn-danger" id="btnClearCache">Clear cached data</button>
+      <button type="button" class="btn-ghost" id="sheetClose">Close</button>
+    </div>
+  </div>
+
+  <div id="oversize" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-labelledby="oversizeTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="oversizeTitle">Large export</h2>
+      <p id="oversizeBody">This export is large. Caching photos on iPhone may fail.</p>
+      <button type="button" class="btn-primary" id="btnLoadPhotos">Load with photos</button>
+      <button type="button" class="btn-ghost" id="btnLoadText">Text-only (no photos)</button>
+      <button type="button" class="btn-ghost" id="btnLoadCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div id="lightbox" hidden>
+    <img id="lightboxImg" alt="" />
+    <div class="lightbox-hint">Pinch to zoom · tap or swipe down to close</div>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="jszip.min.js"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

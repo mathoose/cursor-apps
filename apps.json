@@ -139,6 +139,11 @@
       "storageKey": "draft-board-v1"
     },
     {
+      "id": "mobile-viewer",
+      "name": "Tracker Viewer",
+      "subtitle": "Read-only tank exports"
+    },
+    {
       "id": "stride-flow",
       "name": "StrideFlow",
       "subtitle": "Weekly plans & goals",
