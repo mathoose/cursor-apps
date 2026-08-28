@@ -1,1 +1,7 @@
 node_modules/
+
+# Tracker exports — never commit snapshot data (this repo is public)
+*.zip
+full-backup.json
+tracker-export*
+*-share-*.zip
