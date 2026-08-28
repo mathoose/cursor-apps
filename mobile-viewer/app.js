@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "1 · Aug 28, 2026";
+  var APP_VERSION = "3 · Aug 28, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
   var BACKUP_KEYS = [
     "tanks",
@@ -20,16 +20,18 @@
   var IDB_KEY = "current";
   var UI_KEY = "trackerViewer_ui";
   var TAB_LABELS = {
+    todo: "To-do",
+    batches: "Batches",
     processes: "Processes",
     projects: "Projects",
-    batches: "Batches",
     drb: "DRB",
   };
 
   var snapshot = null;
-  var currentTab = "processes";
+  var currentTab = "todo";
   var detailId = null;
-  var searches = { processes: "", projects: "", batches: "", drb: "" };
+  var returnTab = null;
+  var searches = { todo: "", processes: "", projects: "", batches: "", drb: "" };
   var pendingFile = null;
   var toastTimer = null;
 
@@ -113,6 +115,367 @@
   function itemId(item, fallback) {
     if (item && item.id != null && String(item.id) !== "") return String(item.id);
     return fallback;
+  }
+
+  function clip(value, max) {
+    var s = text(value);
+    if (!s) return "";
+    if (s.length <= max) return s;
+    return s.slice(0, max - 1) + "…";
+  }
+
+  function firstText(obj, keys) {
+    if (!obj) return "";
+    for (var i = 0; i < keys.length; i++) {
+      var v = text(obj[keys[i]]);
+      if (v) return v;
+    }
+    return "";
+  }
+
+  function sortByCreatedDesc(arr) {
+    return asArray(arr).slice().sort(function (a, b) {
+      return new Date(b && b.createdAt ? b.createdAt : 0) - new Date(a && a.createdAt ? a.createdAt : 0);
+    });
+  }
+
+  function isOpenItem(item) {
+    if (!item) return false;
+    if (item.done === true || item.completed === true) return false;
+    var s = text(item.status).toLowerCase();
+    if (s === "done" || s === "complete" || s === "completed" || s === "closed") return false;
+    return true;
+  }
+
+  function normalizeLot(value) {
+    return text(value).replace(/^lot\s+/i, "").replace(/\s+/g, "").toUpperCase();
+  }
+
+  function batchProduct(tank) {
+    return firstText(tank, ["materialDescription", "product", "materialCode", "materialName"]);
+  }
+
+  function batchStage(tank) {
+    return firstText(tank, ["stage", "status"]);
+  }
+
+  function lastCommentText(tank) {
+    var comments = sortByCreatedDesc(tank && tank.comments);
+    for (var i = 0; i < comments.length; i++) {
+      if (text(comments[i] && comments[i].text)) return text(comments[i].text);
+    }
+    var adjs = sortByCreatedDesc(tank && tank.adjustments);
+    for (var j = 0; j < adjs.length; j++) {
+      var note = firstText(adjs[j], ["note", "commentAfter", "commentBefore"]);
+      if (note) return note;
+    }
+    return "";
+  }
+
+  function humanizeKey(key) {
+    var known = {
+      type: "Type",
+      kind: "Kind",
+      note: "Note",
+      commentBefore: "Comment before",
+      commentAfter: "Comment after",
+      createdAt: "When",
+      updatedAt: "Updated",
+      imageName: "Photo file",
+      material: "Material",
+      materialCode: "Material code",
+      materialDescription: "Material",
+      product: "Product",
+      amount: "Amount",
+      amountKg: "Amount (kg)",
+      addedKg: "Added (kg)",
+      weightKg: "Weight (kg)",
+      kg: "kg",
+      quantity: "Quantity",
+      qty: "Qty",
+      solidsPct: "Solids %",
+      solidsBefore: "Solids before %",
+      solidsAfter: "Solids after %",
+      targetSolids: "Target solids %",
+      startingSolidsPct: "Starting solids %",
+      finalSolidsPct: "Final solids %",
+      weightBefore: "Weight before",
+      weightAfter: "Weight after",
+      startingWeightKg: "Starting weight (kg)",
+      finalWeightKg: "Final weight (kg)",
+      reason: "Reason",
+      description: "Description",
+    };
+    if (known[key]) return known[key];
+    return String(key)
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[_-]+/g, " ")
+      .replace(/\bKg\b/g, "kg")
+      .replace(/\bPct\b/gi, "%")
+      .replace(/^./, function (c) {
+        return c.toUpperCase();
+      });
+  }
+
+  function isImageishKey(key) {
+    var k = String(key || "");
+    return k === "imageData" || k === "imageRef" || k === "linkedImageId" || k === "image";
+  }
+
+  function orderedObjectKeys(obj, preferred) {
+    var keys = Object.keys(obj || {});
+    var seen = {};
+    var out = [];
+    (preferred || []).forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(obj, k) && !seen[k]) {
+        seen[k] = true;
+        out.push(k);
+      }
+    });
+    keys.forEach(function (k) {
+      if (!seen[k]) out.push(k);
+    });
+    return out;
+  }
+
+  function formatFieldDisplay(key, value) {
+    if (typeof value === "boolean") return value ? "Yes" : "No";
+    if (typeof value === "number") return String(value);
+    if (/(^createdAt$|^updatedAt$|At$|Date$|Time$)/.test(key) || key === "when") {
+      return formatDateTime(value) || formatDate(value) || String(value);
+    }
+    return value;
+  }
+
+  function recordFieldsHtml(obj, skip) {
+    skip = skip || {};
+    if (!obj || typeof obj !== "object") return "";
+    var html = '<div class="fields">';
+    var preferred = [
+      "type",
+      "kind",
+      "title",
+      "createdAt",
+      "updatedAt",
+      "note",
+      "reason",
+      "description",
+      "material",
+      "materialCode",
+      "materialDescription",
+      "product",
+      "amount",
+      "amountKg",
+      "addedKg",
+      "weightKg",
+      "kg",
+      "quantity",
+      "qty",
+      "solidsPct",
+      "solidsBefore",
+      "solidsAfter",
+      "targetSolids",
+      "startingSolidsPct",
+      "finalSolidsPct",
+      "weightBefore",
+      "weightAfter",
+      "startingWeightKg",
+      "finalWeightKg",
+      "commentBefore",
+      "commentAfter",
+    ];
+    orderedObjectKeys(obj, preferred).forEach(function (key) {
+      if (skip[key] || isImageishKey(key) || key === "id") return;
+      var v = obj[key];
+      if (Array.isArray(v)) {
+        if (!v.length) return;
+        html += '<div class="field"><div class="k">' + esc(humanizeKey(key)) + "</div>";
+        if (v.every(function (item) { return item && typeof item === "object"; })) {
+          v.forEach(function (item) {
+            html += '<div class="nested-record">' + recordFieldsHtml(item, skip) + "</div>";
+          });
+        } else {
+          html += '<div class="v">' + esc(v.map(function (item) { return text(item) || String(item); }).filter(Boolean).join(", ")) + "</div>";
+        }
+        html += "</div>";
+        return;
+      }
+      if (v && typeof v === "object") {
+        html +=
+          '<div class="field"><div class="k">' +
+          esc(humanizeKey(key)) +
+          "</div>" +
+          recordFieldsHtml(v, skip) +
+          "</div>";
+        return;
+      }
+      if (!populated(v) && v !== 0 && v !== false) return;
+      html +=
+        '<div class="field"><div class="k">' +
+        esc(humanizeKey(key)) +
+        '</div><div class="v">' +
+        nl(formatFieldDisplay(key, v)) +
+        "</div></div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function collectRecordText(value, parts) {
+    if (value == null) return;
+    if (Array.isArray(value)) {
+      value.forEach(function (item) {
+        collectRecordText(item, parts);
+      });
+      return;
+    }
+    if (typeof value === "object") {
+      Object.keys(value).forEach(function (k) {
+        if (isImageishKey(k) || k === "id") return;
+        collectRecordText(value[k], parts);
+      });
+      return;
+    }
+    parts.push(value);
+  }
+
+  function usawLabel(tank) {
+    var lot = text(tank && tank.usawLot);
+    if (!lot) return "";
+    return /^usaw/i.test(lot) ? lot : "USAW " + lot;
+  }
+
+  function profileLabel(id) {
+    if (id == null || id === "") return "";
+    var sid = String(id);
+    var pools = asArray(dataOf().productProfiles).concat(asArray(dataOf().seriesProfiles));
+    for (var i = 0; i < pools.length; i++) {
+      var p = pools[i];
+      if (itemId(p, "") === sid) {
+        return firstText(p, ["name", "title", "code", "materialCode", "description"]);
+      }
+    }
+    return "";
+  }
+
+  function processProductLabel(proc) {
+    var direct = firstText(proc, [
+      "product",
+      "productName",
+      "materialDescription",
+      "materialName",
+      "materialCode",
+      "productCode",
+      "series",
+      "materialSeries",
+      "subtitle",
+    ]);
+    if (direct) return direct;
+    var fromProfile = profileLabel(proc.productId || proc.productProfileId || proc.seriesId);
+    if (fromProfile) return fromProfile;
+    var tags = asArray(proc.tags).filter(function (t) {
+      return text(t);
+    });
+    return tags.length ? text(tags[0]) : "";
+  }
+
+  function processDistinguisher(proc) {
+    var label = processProductLabel(proc);
+    if (label) return label;
+    var title = text(proc.title) || "Untitled process";
+    var siblings = asArray(lists().processes).filter(function (p) {
+      return (text(p.title) || "Untitled process") === title;
+    });
+    if (siblings.length < 2) return text(proc.summary);
+    var skip = {
+      id: 1,
+      title: 1,
+      status: 1,
+      version: 1,
+      createdAt: 1,
+      updatedAt: 1,
+      type: 1,
+      steps: 1,
+      journal: 1,
+      tags: 1,
+      imageData: 1,
+    };
+    var keys = Object.keys(proc || {});
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (skip[k] || typeof proc[k] !== "string") continue;
+      var mine = text(proc[k]);
+      if (!mine) continue;
+      var allSame = siblings.every(function (p) {
+        return text(p[k]) === mine;
+      });
+      if (!allSame) return mine;
+    }
+    var myTags = asArray(proc.tags).map(text).filter(Boolean);
+    var uniqueTags = myTags.filter(function (t) {
+      return !siblings.every(function (p) {
+        return asArray(p.tags).map(text).indexOf(t) !== -1;
+      });
+    });
+    if (uniqueTags.length) return uniqueTags.join(", ");
+    return text(proc.summary);
+  }
+
+  function processTitleCounts() {
+    var counts = {};
+    asArray(lists().processes).forEach(function (p) {
+      var t = text(p.title) || "Untitled process";
+      counts[t] = (counts[t] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function drbMaterialTitle(entry) {
+    return firstText(entry, ["materialName", "material", "product", "lotNumber"]) || "DRB";
+  }
+
+  function lotsMatch(a, b) {
+    var na = normalizeLot(a);
+    var nb = normalizeLot(b);
+    if (!na || !nb) return false;
+    return na === nb || na.indexOf(nb) !== -1 || nb.indexOf(na) !== -1;
+  }
+
+  function tanksLinkedToDrb(entry) {
+    var out = [];
+    var seen = {};
+    function add(tank) {
+      if (!tank) return;
+      var key = itemId(tank, "t" + originalIndex(lists().batches, tank));
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(tank);
+    }
+    asArray(lists().batches).forEach(function (tank) {
+      if (lotsMatch(tank.usawLot, entry.lotNumber)) add(tank);
+      else if (entry.tankNumber != null && String(entry.tankNumber) === String(tank.tankNumber)) add(tank);
+      else if (entry.tankId && String(entry.tankId) === String(tank.id)) add(tank);
+    });
+    var extras = [].concat(
+      asArray(entry.linkedTanks),
+      asArray(entry.tanks),
+      asArray(entry.batches),
+      asArray(entry.tankIds)
+    );
+    extras.forEach(function (ref) {
+      if (ref && typeof ref === "object") {
+        asArray(lists().batches).forEach(function (tank) {
+          if (tank.id && ref.id && String(tank.id) === String(ref.id)) add(tank);
+          else if (lotsMatch(tank.usawLot, ref.usawLot || ref.lot || ref.lotNumber)) add(tank);
+          else if (ref.tankNumber != null && String(tank.tankNumber) === String(ref.tankNumber)) add(tank);
+        });
+      } else if (ref != null && String(ref) !== "") {
+        asArray(lists().batches).forEach(function (tank) {
+          if (String(tank.id) === String(ref) || String(tank.tankNumber) === String(ref) || lotsMatch(tank.usawLot, ref)) add(tank);
+        });
+      }
+    });
+    return out;
   }
 
   function nl(value) {
@@ -276,6 +639,7 @@
     asArray(proc.journal).forEach(function (j) {
       if (j) parts.push(j.text, j.contextStepLabel, j.imageName);
     });
+    parts.push(processProductLabel(proc));
     return blob(parts);
   }
 
@@ -304,12 +668,14 @@
       tank.materialDescription,
       tank.materialSeries,
       tank.status,
+      tank.stage,
+      lastCommentText(tank),
     ];
     asArray(tank.comments).forEach(function (c) {
       if (c) parts.push(c.text);
     });
     asArray(tank.adjustments).forEach(function (a) {
-      if (a) parts.push(a.type, a.note, a.commentBefore, a.commentAfter);
+      collectRecordText(a, parts);
     });
     return blob(parts);
   }
@@ -321,6 +687,7 @@
       entry.classification,
       entry.product,
       entry.materialName,
+      entry.product,
       entry.lotNumber,
       entry.supplier,
       entry.assignedQe,
@@ -350,6 +717,7 @@
       batches: asArray(d.tanks),
       drb: asArray(d.drbEntries),
       drbNotes: asArray(d.drbNotes),
+      tasks: asArray(d.tasks),
     };
   }
 
@@ -367,13 +735,86 @@
   }
 
   function rowKey(tab, item, list) {
-    var prefix = { processes: "p", projects: "j", batches: "t", drb: "d" }[tab] || "x";
+    var prefix = { processes: "p", projects: "j", batches: "t", drb: "d", todo: "w" }[tab] || "x";
     return itemId(item, prefix + originalIndex(list, item));
+  }
+
+  function collectTodos() {
+    var items = [];
+    asArray(lists().projects).forEach(function (proj, pi) {
+      var projKey = itemId(proj, "j" + pi);
+      asArray(proj.followUps).forEach(function (f) {
+        if (!isOpenItem(f)) return;
+        var kind = text(f.kind).toLowerCase() || "followup";
+        items.push({
+          section: kind === "waiting" ? "waiting" : "todo",
+          title: text(f.text) || "Follow-up",
+          source: proj.title || "Project",
+          kind: kind,
+          when: f.reminderDate,
+          tab: "projects",
+          id: projKey,
+        });
+      });
+    });
+    asArray(lists().drb).forEach(function (entry, di) {
+      var drbKey = itemId(entry, "d" + di);
+      asArray(entry.todos).forEach(function (t) {
+        if (!isOpenItem(t)) return;
+        items.push({
+          section: "todo",
+          title: text(t.text) || "DRB to-do",
+          source: drbMaterialTitle(entry),
+          kind: "drb",
+          when: entry.date,
+          tab: "drb",
+          id: drbKey,
+        });
+      });
+    });
+    asArray(lists().tasks).forEach(function (task, ti) {
+      if (!isOpenItem(task)) return;
+      var kind = text(task.kind || task.type).toLowerCase();
+      var waiting = kind === "waiting" || task.waiting || text(task.waitingFor);
+      var tab = "todo";
+      var id = itemId(task, "k" + ti);
+      if (task.projectId) {
+        tab = "projects";
+        id = String(task.projectId);
+      } else if (task.tankId || task.tankNumber) {
+        tab = "batches";
+        var tanks = lists().batches;
+        var match = tanks.filter(function (tn) {
+          return String(tn.id) === String(task.tankId) || String(tn.tankNumber) === String(task.tankNumber);
+        })[0];
+        if (match) id = itemId(match, "t" + originalIndex(tanks, match));
+      } else if (task.drbId) {
+        tab = "drb";
+        id = String(task.drbId);
+      }
+      items.push({
+        section: waiting ? "waiting" : "todo",
+        title: firstText(task, ["title", "text", "name", "waitingFor"]) || "Task",
+        source: firstText(task, ["projectTitle", "source", "tankNumber"]) || "Task",
+        kind: waiting ? "waiting" : "task",
+        when: task.dueDate || task.reminderDate || task.createdAt,
+        tab: tab,
+        id: id,
+      });
+    });
+    return items;
   }
 
   function filtered(tab) {
     var all = lists();
     var q = (searches[tab] || "").trim().toLowerCase();
+    if (tab === "todo") {
+      return collectTodos().filter(function (item) {
+        return matchesQuery(blob([item.title, item.source, item.kind, item.when]), q);
+      }).map(function (item, i) {
+        return { item: item, key: "todo:" + i };
+      });
+    }
     var source =
       tab === "processes"
         ? sortByDateDesc(all.processes, "updatedAt")
@@ -518,13 +959,13 @@
       var raw = localStorage.getItem(UI_KEY);
       if (!raw) return;
       var parsed = JSON.parse(raw);
-      if (parsed && TAB_LABELS[parsed.tab]) currentTab = parsed.tab;
+      if (parsed && parsed.uiVersion >= 2 && TAB_LABELS[parsed.tab]) currentTab = parsed.tab;
     } catch (e) {}
   }
 
   function writeUi() {
     try {
-      localStorage.setItem(UI_KEY, JSON.stringify({ tab: currentTab }));
+      localStorage.setItem(UI_KEY, JSON.stringify({ tab: currentTab, uiVersion: 2 }));
     } catch (e) {}
   }
 
@@ -780,7 +1221,8 @@
 
   function headerForTab() {
     els.headerTitle.textContent = TAB_LABELS[currentTab] || "Tracker Viewer";
-    els.headerSub.textContent = snapshot && snapshot.textOnly ? "Text-only snapshot" : "Read-only snapshot";
+    if (currentTab === "todo") els.headerSub.textContent = "Waiting & open items";
+    else els.headerSub.textContent = snapshot && snapshot.textOnly ? "Text-only snapshot" : "Read-only snapshot";
   }
 
   function renderBanner() {
@@ -790,6 +1232,7 @@
 
   function renderTabCounts() {
     var c = snapshot ? countsFrom(snapshot.data) : { processes: 0, projects: 0, batches: 0, drb: 0 };
+    c.todo = snapshot ? collectTodos().length : 0;
     document.querySelectorAll("[data-count]").forEach(function (node) {
       var key = node.getAttribute("data-count");
       node.textContent = c[key] != null ? String(c[key]) : "";
@@ -806,6 +1249,7 @@
     els.searchWrap.hidden = inDetail;
     els.backRow.hidden = !inDetail;
     var placeholders = {
+      todo: "Search waiting & to-dos…",
       processes: "Search title, tags, steps…",
       projects: "Search title, tags, notes…",
       batches: "Search tank, lot, product…",
@@ -816,6 +1260,7 @@
       els.searchInput.value = searches[currentTab] || "";
     }
     var backLabels = {
+      todo: "← To-do",
       processes: "← All processes",
       projects: "← All projects",
       batches: "← All batches",
@@ -825,6 +1270,10 @@
   }
 
   function renderList() {
+    if (currentTab === "todo") {
+      renderTodoList();
+      return;
+    }
     var items = filtered(currentTab);
     if (!items.length) {
       var q = (searches[currentTab] || "").trim();
@@ -850,21 +1299,94 @@
     els.main.innerHTML = html;
   }
 
+  function renderTodoList() {
+    var q = (searches.todo || "").trim().toLowerCase();
+    var items = collectTodos().filter(function (item) {
+      return matchesQuery(blob([item.title, item.source, item.kind, item.when]), q);
+    });
+    if (!items.length) {
+      els.main.innerHTML =
+        '<p class="empty">' +
+        (q ? "No matches." : "Nothing waiting and no open to-dos in this snapshot.") +
+        "</p>";
+      return;
+    }
+    var waiting = items.filter(function (i) {
+      return i.section === "waiting";
+    });
+    var todos = items.filter(function (i) {
+      return i.section !== "waiting";
+    });
+    var html = "";
+    function section(title, rows) {
+      if (!rows.length) return;
+      html += '<section class="detail-section"><h3>' + esc(title) + "</h3><div class='list'>";
+      rows.forEach(function (item) {
+        var canOpen = item.tab && item.tab !== "todo" && item.id;
+        html += canOpen
+          ? '<button type="button" class="list-item" data-open-tab="' +
+            esc(item.tab) +
+            '" data-open="' +
+            esc(item.id) +
+            '">'
+          : '<div class="list-item">';
+        html += todoRowHtml(item);
+        html += canOpen ? "</button>" : "</div>";
+      });
+      html += "</div></section>";
+    }
+    section("Waiting for", waiting);
+    section("To-do", todos);
+    els.main.innerHTML = html;
+  }
+
+  function todoRowHtml(item) {
+    var kindLabel = item.kind === "drb" ? "DRB" : item.kind || "to-do";
+    return (
+      '<div class="title">' +
+      esc(item.title) +
+      "</div>" +
+      '<div class="meta"><span class="badge">' +
+      esc(kindLabel) +
+      "</span><span>" +
+      esc(item.source) +
+      "</span>" +
+      (item.when ? "<span>" + esc(formatDate(item.when) || item.when) + "</span>" : "") +
+      "</div>"
+    );
+  }
+
   function listRowHtml(tab, item) {
     if (tab === "processes") {
+      var titleCounts = processTitleCounts();
+      var rawTitle = text(item.title) || "Untitled process";
+      var duplicate = (titleCounts[rawTitle] || 0) > 1;
+      var distinguisher = processDistinguisher(item);
+      var headline = duplicate && distinguisher && distinguisher !== rawTitle ? distinguisher : rawTitle;
+      var sub = "";
+      if (headline === rawTitle) {
+        sub = distinguisher && distinguisher !== rawTitle ? distinguisher : "";
+      } else {
+        sub = rawTitle;
+      }
       return (
         '<div class="title">' +
-        esc(item.title || "Untitled process") +
+        esc(headline) +
         "</div>" +
+        (sub ? '<div class="sub">' + esc(sub) + "</div>" : "") +
         '<div class="meta"><span class="badge ' +
         badgeClass(item.status) +
         '">' +
         esc(item.status || "draft") +
-        "</span><span>" +
+        "</span>" +
+        (item.version != null ? "<span>v" + esc(item.version) + "</span>" : "") +
+        "<span>" +
         countSteps(item.steps) +
-        " steps</span><span>" +
+        (countSteps(item.steps) === 1 ? " step" : " steps") +
+        "</span><span>" +
         esc(formatDate(item.updatedAt)) +
-        "</span></div>"
+        "</span></div>" +
+        chipsHtml(item.tags)
       );
     }
     if (tab === "projects") {
@@ -883,32 +1405,47 @@
       );
     }
     if (tab === "batches") {
+      var lot = usawLabel(item) || "No USAW";
+      var product = batchProduct(item) || "Unknown product";
+      var comment = lastCommentText(item);
       return (
-        '<div class="title">Tank ' +
-        esc(item.tankNumber || "—") +
+        '<div class="title">' +
+        esc(lot) +
+        " · " +
+        esc(product) +
         "</div>" +
-        '<div class="meta"><span>Lot ' +
-        esc(item.usawLot || "—") +
-        "</span><span>" +
-        esc(item.materialDescription || item.materialCode || "") +
+        '<div class="meta"><span>Tank ' +
+        esc(item.tankNumber || "—") +
         '</span><span class="badge ' +
-        badgeClass(item.status) +
+        badgeClass(batchStage(item)) +
         '">' +
-        esc(item.status || "") +
-        "</span></div>"
+        esc(batchStage(item) || "") +
+        "</span></div>" +
+        (comment ? '<div class="sub comment-line">' + esc(clip(comment, 110)) + "</div>" : "")
       );
     }
     var released = item.materialReleased ? "Released" : "Hold";
+    var linked = tanksLinkedToDrb(item);
+    var bubble = [];
+    var productChip = text(item.product);
+    var material = drbMaterialTitle(item);
+    if (productChip && productChip !== material) bubble.push(productChip);
+    linked.forEach(function (tank) {
+      var label = "Tank " + (tank.tankNumber || "—");
+      var prod = batchProduct(tank);
+      if (prod) label += " · " + prod;
+      bubble.push(label);
+    });
+    if (!bubble.length && text(item.lotNumber)) bubble.push(item.lotNumber);
     return (
       '<div class="title">' +
-      esc(item.type || "DRB") +
-      " · " +
-      esc(formatDate(item.date) || "No date") +
+      esc(material) +
       "</div>" +
+      chipsHtml(bubble) +
       '<div class="meta"><span>' +
-      esc(item.lotNumber || "") +
+      esc(formatDate(item.date) || "") +
       "</span><span>" +
-      esc(item.classification || "") +
+      esc(item.classification || item.issue || "") +
       '</span><span class="badge ' +
       (item.materialReleased ? "ok" : "draft") +
       '">' +
@@ -926,7 +1463,10 @@
           ? all.projects
           : tab === "batches"
             ? all.batches
-            : all.drb;
+            : tab === "drb"
+              ? all.drb
+              : null;
+    if (!list) return null;
     for (var i = 0; i < list.length; i++) {
       if (rowKey(tab, list[i], list) === id) return list[i];
     }
@@ -961,6 +1501,10 @@
       (proc.version != null ? "<span class='muted'> v" + esc(proc.version) + "</span>" : "") +
       "</div>";
     html += chipsHtml(proc.tags);
+    var product = processProductLabel(proc);
+    if (product && product !== text(proc.title)) {
+      html += '<p class="sub" style="margin:0 0 10px">' + esc(product) + "</p>";
+    }
     if (text(proc.summary)) {
       html += '<section class="detail-section"><h3>Summary</h3><div class="v">' + nl(proc.summary) + "</div></section>";
     }
@@ -1055,13 +1599,16 @@
   }
 
   function batchDetail(tank) {
-    var html = '<article class="detail"><h2>Tank ' + esc(tank.tankNumber || "—") + "</h2>";
+    var html = '<article class="detail"><h2>' + esc(usawLabel(tank) || "Tank " + (tank.tankNumber || "—"));
+    if (batchProduct(tank)) html += " · " + esc(batchProduct(tank));
+    html += "</h2>";
     html += '<section class="detail-section"><h3>Identity</h3>';
     html += fieldsHtml([
-      ["Tank number", tank.tankNumber],
       ["USAW lot", tank.usawLot],
+      ["Product", batchProduct(tank)],
+      ["Tank number", tank.tankNumber],
+      ["Stage", batchStage(tank)],
       ["Material code", tank.materialCode],
-      ["Product", tank.materialDescription],
       ["Series", tank.materialSeries],
       ["Status", tank.status],
       ["Starting weight (kg)", tank.startingWeightKg],
@@ -1079,12 +1626,10 @@
     else {
       adjs.forEach(function (a) {
         html += '<div class="adjust">';
-        html += "<strong>" + esc(a.type || "Adjustment") + "</strong>";
-        html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
-        if (text(a.note)) html += "<div>" + nl(a.note) + "</div>";
-        if (text(a.commentBefore)) html += '<div class="muted">Before: ' + nl(a.commentBefore) + "</div>";
-        if (text(a.commentAfter)) html += '<div class="muted">After: ' + nl(a.commentAfter) + "</div>";
-        html += photoHtml(a.imageData, a.imageName, "Photo — adjustment");
+        html += "<strong>" + esc(firstText(a, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
+        if (a.createdAt) html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
+        html += recordFieldsHtml(a, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
+        html += photoHtml(a.imageData, a.imageName, a.imageName ? "Photo — " + a.imageName : "Photo — adjustment");
         html += "</div>";
       });
     }
@@ -1108,7 +1653,7 @@
   }
 
   function drbDetail(entry) {
-    var html = '<article class="detail"><h2>' + esc(entry.type || "DRB") + " · " + esc(formatDate(entry.date) || "") + "</h2>";
+    var html = '<article class="detail"><h2>' + esc(drbMaterialTitle(entry)) + "</h2>";
     html += '<section class="detail-section"><h3>Record</h3>';
     html += fieldsHtml([
       ["Date", formatDate(entry.date) || entry.date],
@@ -1125,6 +1670,17 @@
       ["Recommended decision", entry.recommendedDecision],
       ["Material released", !!entry.materialReleased],
     ]);
+    var linked = tanksLinkedToDrb(entry);
+    if (linked.length) {
+      html +=
+        '<div class="field" style="margin-top:10px"><div class="k">Linked batches</div>' +
+        chipsHtml(
+          linked.map(function (tank) {
+            return "Tank " + (tank.tankNumber || "—") + (batchProduct(tank) ? " · " + batchProduct(tank) : "");
+          })
+        ) +
+        "</div>";
+    }
     html += "</section>";
     var todos = asArray(entry.todos);
     html += '<section class="detail-section"><h3>To-dos</h3>';
@@ -1168,7 +1724,7 @@
     renderBanner();
     renderTabCounts();
     renderSearch();
-    if (detailId) renderDetail();
+    if (detailId && currentTab !== "todo") renderDetail();
     else renderList();
   }
 
@@ -1326,6 +1882,12 @@
   function onMainClick(e) {
     var openBtn = e.target.closest("[data-open]");
     if (openBtn) {
+      var tab = openBtn.getAttribute("data-open-tab");
+      if (tab && TAB_LABELS[tab] && tab !== currentTab) {
+        returnTab = currentTab === "todo" ? "todo" : null;
+        currentTab = tab;
+        writeUi();
+      }
       detailId = openBtn.getAttribute("data-open");
       renderAll();
       window.scrollTo(0, 0);
@@ -1341,6 +1903,7 @@
     if (!TAB_LABELS[tab]) return;
     currentTab = tab;
     detailId = null;
+    returnTab = null;
     writeUi();
     renderAll();
     window.scrollTo(0, 0);
@@ -1419,6 +1982,11 @@
       if (!detailId) renderList();
     });
     els.backToList.addEventListener("click", function () {
+      if (returnTab) {
+        currentTab = returnTab;
+        returnTab = null;
+        writeUi();
+      }
       detailId = null;
       renderAll();
     });

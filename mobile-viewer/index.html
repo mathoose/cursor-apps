@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- build: mobile-viewer-v1 -->
+  <!-- build: mobile-viewer-v3 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Tracker Viewer</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,7 +14,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body class="mobile-viewer">
   <section id="loadScreen" class="load-screen">
@@ -36,7 +36,7 @@
     <p class="load-note">Large exports with photos can take 10–30 seconds to open on a phone.</p>
     <div class="load-home">
       <a href="https://mathoose.github.io/cursor-apps/" data-apps-home>Back to Apps</a>
-      <p class="app-version" style="margin-top:12px">Tracker Viewer v1 · Aug 28, 2026</p>
+      <p class="app-version" style="margin-top:12px">Tracker Viewer v3 · Aug 28, 2026</p>
     </div>
   </section>
 
@@ -66,8 +66,18 @@
     <main id="main"></main>
 
     <nav class="bottom-nav" role="tablist">
-      <button type="button" class="nav-btn active" data-tab="processes" role="tab" aria-selected="true">
+      <button type="button" class="nav-btn active" data-tab="todo" role="tab" aria-selected="true">
         <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        To-do
+        <span class="tab-count" data-count="todo"></span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="batches" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 8h4M10 12h4M9 20h6"/></svg>
+        Batches
+        <span class="tab-count" data-count="batches"></span>
+      </button>
+      <button type="button" class="nav-btn" data-tab="processes" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2"/></svg>
         Processes
         <span class="tab-count" data-count="processes"></span>
       </button>
@@ -75,11 +85,6 @@
         <svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
         Projects
         <span class="tab-count" data-count="projects"></span>
-      </button>
-      <button type="button" class="nav-btn" data-tab="batches" role="tab" aria-selected="false">
-        <svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 8h4M10 12h4M9 20h6"/></svg>
-        Batches
-        <span class="tab-count" data-count="batches"></span>
       </button>
       <button type="button" class="nav-btn" data-tab="drb" role="tab" aria-selected="false">
         <svg viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
@@ -90,7 +95,7 @@
   </div>
 
   <footer class="app-version-footer">
-    <p class="app-version" id="appVersion">Tracker Viewer v1 · Aug 28, 2026</p>
+    <p class="app-version" id="appVersion">Tracker Viewer v3 · Aug 28, 2026</p>
   </footer>
 
   <div id="sheet" class="overlay" hidden>
@@ -123,6 +128,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="jszip.min.js"></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
