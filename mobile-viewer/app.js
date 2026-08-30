@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "3 · Aug 28, 2026";
+  var APP_VERSION = "4 · Aug 30, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
   var BACKUP_KEYS = [
     "tanks",
@@ -291,9 +291,13 @@
         if (!v.length) return;
         html += '<div class="field"><div class="k">' + esc(humanizeKey(key)) + "</div>";
         if (v.every(function (item) { return item && typeof item === "object"; })) {
-          v.forEach(function (item) {
-            html += '<div class="nested-record">' + recordFieldsHtml(item, skip) + "</div>";
-          });
+          if (v.every(looksLikeLineItem)) {
+            html += lineItemsTableHtml(v);
+          } else {
+            v.forEach(function (item) {
+              html += '<div class="nested-record">' + recordFieldsHtml(item, skip) + "</div>";
+            });
+          }
         } else {
           html += '<div class="v">' + esc(v.map(function (item) { return text(item) || String(item); }).filter(Boolean).join(", ")) + "</div>";
         }
@@ -316,6 +320,93 @@
         '</div><div class="v">' +
         nl(formatFieldDisplay(key, v)) +
         "</div></div>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function normalizeFieldKey(key) {
+    return String(key || "")
+      .toLowerCase()
+      .replace(/[_-\s]/g, "");
+  }
+
+  function valueFromKeyMatch(obj, matchFn) {
+    if (!obj) return "";
+    var keys = Object.keys(obj);
+    for (var i = 0; i < keys.length; i++) {
+      if (!matchFn(normalizeFieldKey(keys[i]))) continue;
+      var s = text(obj[keys[i]]);
+      if (s) return s;
+    }
+    return "";
+  }
+
+  function lineItemFields(item) {
+    var name = valueFromKeyMatch(item, function (n) {
+      return (
+        n === "chemicalname" ||
+        n === "chemical" ||
+        n === "materialdescription" ||
+        n === "productname" ||
+        n === "product"
+      );
+    });
+    if (!name) {
+      name = valueFromKeyMatch(item, function (n) {
+        return n === "name" || n === "materialname" || n === "description";
+      });
+    }
+    var material = valueFromKeyMatch(item, function (n) {
+      return (
+        n === "materialnumber" ||
+        n === "materialno" ||
+        n === "materialcode" ||
+        n === "sapmaterial" ||
+        n === "sapcode"
+      );
+    });
+    var lot = valueFromKeyMatch(item, function (n) {
+      return n === "lotnumber" || n === "lot" || n === "usawlot" || n === "batchlot";
+    });
+    var qty = valueFromKeyMatch(item, function (n) {
+      return (
+        n === "quantitykg" ||
+        n === "quantity" ||
+        n === "qtykg" ||
+        n === "qty" ||
+        n === "amountkg" ||
+        n === "addedkg" ||
+        n === "weightkg" ||
+        n === "kg"
+      );
+    });
+    return { name: name, material: material, lot: lot, qty: qty };
+  }
+
+  function looksLikeLineItem(item) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return false;
+    var f = lineItemFields(item);
+    var hits = [f.name, f.material, f.lot, f.qty].filter(Boolean).length;
+    return hits >= 2 && !!(f.name || f.material);
+  }
+
+  function lineItemsTableHtml(items) {
+    var html = '<div class="line-table" role="table">';
+    html += '<div class="line-row head" role="row">';
+    html += '<div class="line-cell name">Name</div>';
+    html += '<div class="line-cell mat">Mat #</div>';
+    html += '<div class="line-cell qty">Qty kg</div>';
+    html += '<div class="line-cell lot">Lot</div>';
+    html += "</div>";
+    items.forEach(function (item) {
+      var f = lineItemFields(item);
+      html += '<div class="line-row" role="row">';
+      html += '<div class="line-cell name">' + esc(f.name || "—") + "</div>";
+      html += '<div class="line-cell mat">' + esc(f.material || "—") + "</div>";
+      html += '<div class="line-cell qty">' + esc(f.qty || "—") + "</div>";
+      html += '<div class="line-cell lot">' + esc(f.lot || "—") + "</div>";
+      html += "</div>";
     });
     html += "</div>";
     return html;
