@@ -8,27 +8,32 @@ ROOT = Path(__file__).resolve().parent
 ADP = json.loads(Path("/tmp/adp/players_base.json").read_text())
 
 SOURCES = {
-    "week2": {"label": "Preseason week 2", "order": 1, "id": "3PL4i_fy3NU"},
-    "strategy": {"label": "Picks 1–4 strategy", "order": 2, "id": "hIQIkhGlrww"},
-    "rookies": {"label": "Rookies", "order": 3, "id": "n9kJSeO4naM"},
-    "week1": {"label": "Preseason week 1", "order": 4, "id": "JDNJJO6ituM"},
-    "camp": {"label": "Camp ranking changes", "order": 5, "id": "ciw9TnF4vWM"},
-    "top50": {"label": "Top 50 & tiers", "order": 6, "id": "LL6cuiAP8lc"},
+    "steelman": {"label": "Why I might be wrong", "order": 1, "id": "QMeJ9yAdDOo"},
+    "favorites": {"label": "Favorite every round", "order": 2, "id": "LMvbtEF0Eew"},
+    "week2": {"label": "Preseason week 2", "order": 3, "id": "3PL4i_fy3NU"},
+    "strategy": {"label": "Picks 1–4 strategy", "order": 4, "id": "hIQIkhGlrww"},
+    "rookies": {"label": "Rookies", "order": 5, "id": "n9kJSeO4naM"},
+    "week1": {"label": "Preseason week 1", "order": 6, "id": "JDNJJO6ituM"},
+    "camp": {"label": "Camp ranking changes", "order": 7, "id": "ciw9TnF4vWM"},
+    "top50": {"label": "Top 50 & tiers", "order": 8, "id": "LL6cuiAP8lc"},
 }
 
 # Newest-first notes. stance: do | dont | watch | split | take
 # "take" = click at ADP / your window; "do" = target vs ADP; "dont" = fade/avoid
 NOTES = [
     ("Jahmyr Gibbs", ["gibbs"], [
+        ("favorites", "take", "Still the 1.01. Taking Bijan (or anyone) over Gibbs is a huge mistake — bellcow Detroit setup, all-time RB season range."),
         ("week2", "take", "Still the clean 1.01. Nick’s mocks from pick 1 start Gibbs, then two WRs at the 2–3 turn."),
         ("strategy", "take", "Gibbs or Bijan open almost every draft. From 1.01 this is the free pick. Hero RB: take the elite back, then load receivers."),
         ("top50", "take", "Official 1.01 in full PPR 1QB. Bellcow in Detroit with continuity; expects an explosion."),
     ]),
     ("Bijan Robinson", ["bijan"], [
+        ("favorites", "dont", "Don’t take him over Gibbs at 1.01. Atlanta QB situation is ‘spooky hours’ — Gibbs setup is cleaner."),
         ("strategy", "take", "The other 1.01-quality RB. If Gibbs is gone he’s the pick; Nick’s 1.02 mock was Bijan then London/Nabers."),
         ("top50", "take", "Tier 1 but behind Gibbs and Puka on Nick’s board. Elite, slightly less trusted situation than Puka."),
     ]),
     ("Puka Nacua", ["puka"], [
+        ("favorites", "do", "His WR1 in the first-round WR clump (even with a possible one-game suspension). Cooper Kupp–ish upside again."),
         ("strategy", "watch", "Elite, but taking Chase/Puka at 1.01 in a 2-WR league leaves you thin at RB by the 2–3 turn. Better as a 3/4 pick or if you specifically want Zero-RB."),
         ("top50", "do", "Nick’s 1.02. Biggest board-vs-field gap at the top. Trusts Rams more than Bijan’s situation."),
     ]),
@@ -37,6 +42,7 @@ NOTES = [
         ("top50", "take", "Tier-2 elite WR with CeeDee after the top three."),
     ]),
     ("Christian McCaffrey", ["cmc", "mccaffrey"], [
+        ("favorites", "do", "Round-1 giddy pick. Camp rest isn’t serious. 100+ targets, goal-line, early downs — miss him and you can lose the league."),
         ("week2", "watch", "Age + injury history. Shanahan RB2s become studs — grab Kalin Black or Jordan James last round if you take him."),
         ("strategy", "do", "If you’re 3/4, he argued reaching CMC over going WR-WR so you don’t end up with Swift/Rhamondre as your RBs. You are 1.01 so this is a later-board issue."),
     ]),
@@ -45,11 +51,13 @@ NOTES = [
         ("top50", "take", "Small tier with James Cook around 9–10."),
     ]),
     ("James Cook", ["james cook iii", "james cook"], [
+        ("favorites", "do", "End-of-round-1 RB he wants if the early tier is gone. Bills scoring, Carmichael dump-offs, and Ty Johnson mystery injury = receiving ceiling spike."),
         ("week2", "do", "Ty Johnson mystery lower-body injury is sneaky huge. Johnson played 70%+ of 3rd downs last year and capped Cook’s receiving. If Johnson misses time / PUP, Cook’s ceiling jumps to true bellcow. Monitor, then smash."),
         ("strategy", "do", "Fine to start Cook at 1.04 in mocks. Workhorse tier at the 1–2 turn."),
         ("top50", "do", "RB9, three spots above consensus. Wants ~48–50 catches with Carmichael/Brady. Bills scoring environment."),
     ]),
     ("De'Von Achane", ["achane", "devon achane"], [
+        ("steelman", "watch", "Industry may have overcorrected from ~10 overall to mid/late 2nd. Fat new contract, elite explosives — don’t assume the worst on Miami."),
         ("top50", "dont", "Eleven spots below consensus. Loves the player, will not roster at ADP: mobile QB, bad team, TD scarcity, needs 90th-percentile explosives."),
         ("strategy", "watch", "Lives in the 1–2 turn RB heap. Don’t take him over Gibbs/Bijan and don’t reach at 28."),
     ]),
@@ -66,16 +74,18 @@ NOTES = [
         ("top50", "do", "Starts tier 5 at 11. Prefers trusted-offense RBs like Saquon/Walker."),
     ]),
     ("Kenneth Walker", ["kenneth walker iii", "kenneth walker", "k dubs"], [
+        ("favorites", "do", "Mid-round-2 favorite. Foot scare not serious. Big money workhorse for Reid — early downs, screens, goal line."),
         ("week2", "do", "Still trying to get him end of 1–2 turn. Week 2 Chiefs rotation got messier (DeMarcato then Emmett). Still the lead back."),
         ("week1", "do", "One play-action snap then off. Target at the 1–2 turn."),
         ("top50", "do", "Nick’s stamp guy: 12th overall, five above ADP. Chiefs bellcow, $43M deal. Same energy as last year’s Achane call."),
     ]),
+    ("Chase Brown", ["chase brown"], [
+        ("favorites", "do", "Top of round 2 — easiest pick. Elite offense, no competition, pass-catch third option. TD upside if Bengals lean run inside the 5."),
+        ("top50", "take", "In the mid-tier 5 RB cluster. No fade."),
+    ]),
     ("Omarion Hampton", ["hampton", "omari hampton"], [
         ("week2", "take", "Still early 2nd / ~16 overall behind KW3 and Chase Brown. Chargers interior OL lost their Washington signing to ACL; line dropped ~top 6–7 to ~10. McDaniel can scheme around it. Fine to stack Keaton Mitchell last round."),
         ("week1", "take", "The Chargers skill player (with Ladd) they will still spend capital on."),
-    ]),
-    ("Chase Brown", ["chase brown"], [
-        ("top50", "take", "In the mid-tier 5 RB cluster. No fade."),
     ]),
     ("Jeremiyah Love", ["jeremiah love", "jeremiyah love"], [
         ("strategy", "watch", "Was a great 2–3 turn pick; now a high-ankle sprain. Don’t force him at 28–29."),
@@ -103,10 +113,12 @@ NOTES = [
         ("top50", "do", "Rank 39. Expects Giants bellcow: goal-line ram + pass catcher. Hang-up is Nagy/Greg Roman ‘too many chefs.’"),
     ]),
     ("Javonte Williams", ["javonte"], [
+        ("favorites", "do", "End of round 3 — boring but right place/right time in a buzzing Dallas offense. 12–15 rush TD range; Blue doesn’t steal early downs."),
         ("strategy", "watch", "Available 2–3 turn. Fine player, not the upside of the WR cluster there."),
         ("top50", "take", "Boring high-floor around 32."),
     ]),
     ("Travis Etienne", ["etienne", "etn", "travis etienne jr", "travis etienne"], [
+        ("favorites", "do", "Round-4 RB smash with Kamara out ≥ a month. Bellcow early, Saints tempo + OL bounce-back."),
         ("week2", "do", "Biggest riser. Kamara MCL, out ~a month+. Nick 36 overall / top-15 RB / late 3rd; Michael early 4th. ~70% snaps (Nick thinks ~80% to start). Saints OL + Kellen Moore. Committee likely later when Kamara returns."),
         ("strategy", "do", "Incredible value when he fell to 5.02 in a mock. 4–5 turn RBs got more appealing after injuries."),
         ("top50", "take", "Closes the top 50 at 50 — that was before the Kamara news. Treat week 2 as the update."),
@@ -139,22 +151,31 @@ NOTES = [
         ("week1", "dont", "Hamstring, week-to-week. Michael wasn’t drafting him anyway. Nick thinks he’s entrenched and returns to a 1A/1B rather than losing the job."),
     ]),
     ("RJ Harvey", ["r.j. harvey", "harvey"], [
+        ("steelman", "watch", "Steelman: explosive PPR dart behind #1 OL + Payton; Dobbins health is the path. Still more rising-tide / limited-touch than a workhorse smash."),
         ("week2", "split", "Michael: 8th/9th bench dart, Payton loves throwing to RBs, designed screen + 21-yard wheel TD. Nick: limited early-down trust, Dobbins + Jonah Coleman cap the ceiling. Prefer the discount vs TreVeyon at 4/5, but Nick may never click him."),
     ]),
     ("Jonah Coleman", ["coleman"], [
         ("week2", "watch", "Gets the 2nd drive; early-down heir if Dobbins sits. Caps Harvey’s workhorse path."),
         ("rookies", "watch", "4th-round bowling ball. If Dobbins goes down, Coleman takes early downs so they don’t have to use Harvey there."),
     ]),
-    ("JK Dobbins", ["dobbins", "j.k. dobbins"], [
+    ("J.K. Dobbins", ["dobbins", "j.k. dobbins"], [
+        ("favorites", "do", "Round 8–9 RB2 dart — right place/right time behind #1 OL. Prefer him to Harvey as the early-down starter they re-signed."),
         ("week2", "watch", "Favored as early-down grinder. Injury-prone; that’s the Harvey/Coleman dart."),
+    ]),
+    ("Quinshon Judkins", ["judkins", "quinshon"], [
+        ("favorites", "take", "Mock-board RB2 at the 4/5 turn when Etienne/Skattebo are gone — fine click to finish the Gibbs build."),
+    ]),
+    ("Jordan Mason", ["jordan mason"], [
+        ("favorites", "do", "Round-9 RB dart. Minnesota restructuring the run game around him (SF scheme). Aaron Jones old/injured — take the job and run."),
+    ]),
+    ("Jacory Croskey-Merritt", ["jcm", "croskey", "merritt"], [
+        ("favorites", "do", "Round-9 value if healthy (watch lower-body mystery). Early-down juice; Daniels doesn’t dump to RBs — prefer JCM over Rachaad White."),
+        ("camp", "do", "Prefer him over Rachaad White. Early-down/goal-line lean, cheap upside. Expect a split."),
+        ("week1", "watch", "Messy Washington committee — don’t overthink ‘the guy.’"),
     ]),
     ("Keaton Mitchell", ["heaton mitchell", "katon"], [
         ("week2", "do", "Clear Chargers RB2 after Hampton’s 3-play drive. Real receiving usage (wheel + dump-offs). McDaniel wanted him. Stone-cold free, ~15th round. Fine to stack with Hampton."),
         ("week1", "watch", "Rested next to Hampton — they have plans. Specialized explosive role possible."),
-    ]),
-    ("Jacory Croskey-Merritt", ["jcm", "croskey", "merritt"], [
-        ("camp", "do", "Prefer him over Rachaad White. Early-down/goal-line lean, cheap upside. Expect a split."),
-        ("week1", "watch", "Messy Washington committee — don’t overthink ‘the guy.’"),
     ]),
     ("Rachaad White", ["rashad white", "rachaad"], [
         ("camp", "dont", "Inefficient, unexplosive. Daniels doesn’t check down a ton. Cheap enough to roster either, but take JCM if you pick one."),
@@ -214,6 +235,7 @@ NOTES = [
         ("strategy", "watch", "Was his RB2 in a Gibbs mock and he wished he’d attacked RB2 harder. Waiver replacement is clearer at RB than WR."),
     ]),
     ("Nico Collins", ["nico"], [
+        ("favorites", "do", "End of round 2 smash. Higgins ACL + Dell noise = absurd target share. Possible JSN-type ceiling."),
         ("week2", "do", "Higgins ACL for the year. Only real WR competition gone. Bump; end of 2nd as WR1 if you went RB-RB. Condensed targets, maybe more 2-TE. Don’t draft the other Texans WRs except a late Noel dart."),
         ("strategy", "do", "Last guy in the WR tier at the 3.03 decision vs Jacobs — he took Nico."),
         ("top50", "take", "Alpha WR cluster."),
@@ -231,6 +253,7 @@ NOTES = [
         ("week2", "dont", "Torn ACL, out for 2026. Don’t draft."),
     ]),
     ("Malik Nabers", ["nabers", "neighbors"], [
+        ("favorites", "do", "Round-3 freebie at the 2–3 turn — top-3 talent this late. Week-1 ready buzz; ideal Gibbs → Nico/Nabers start."),
         ("strategy", "do", "Prototype 2–3 turn WR. In the 1.01 Gibbs build you want this cluster at 28–29."),
         ("camp", "do", "Biggest camp move: ~42–44 overall → 22 (WR10). Week 1 now in play. Historic target hog. Take him over Rice/Pickens in that range."),
         ("top50", "do", "Camp reports 180 from a month prior. If healthy, WR2 or even WR1 after two RBs in the 3rd."),
@@ -240,6 +263,7 @@ NOTES = [
         ("top50", "take", "Alpha WR group."),
     ]),
     ("Chris Olave", ["olave"], [
+        ("favorites", "take", "Mock-validated 3.01 after Gibbs + Rice — ascending Saints offense, keep him in the WR pile."),
         ("strategy", "do", "Fine to move up at the turn after Jordyn Tyson’s injury. Ascending Saints offense."),
         ("top50", "do", "Very good player in an ascending offense ~33."),
     ]),
@@ -248,6 +272,7 @@ NOTES = [
         ("top50", "take", "Tier 5."),
     ]),
     ("Rashee Rice", ["rice"], [
+        ("favorites", "take", "Fine 2–3 turn WR if Nabers/Nico are gone — still in the firepower pile (mock: Rice at 2.14 after Nabers)."),
         ("strategy", "do", "In the 2–3 turn WR cluster. Don’t pass Nabers for him if both are there."),
         ("camp", "watch", "Caps KC rookies. More fantasy than real life."),
         ("top50", "do", "Five spots above ADP; fair late-2nd price. Some screens may shift to Walker."),
@@ -257,6 +282,7 @@ NOTES = [
         ("camp", "watch", "Don’t pass Nabers in the Rice/Pickens range."),
     ]),
     ("DeVonta Smith", ["devonta", "devonte smith"], [
+        ("favorites", "do", "Mid-round-3 favorite. AJB gone → alpha; competing with Wicks as WR2. Elite separator, ~40% target-share path."),
         ("strategy", "do", "2–3 turn WR. Stack with London/Nico/Nabers after an elite RB."),
         ("top50", "do", "Could be this year’s JSN with AJ Brown gone."),
         ("camp", "watch", "Early-season Eagles will run through Smith + Lemon."),
@@ -269,6 +295,7 @@ NOTES = [
         ("week2", "do", "On the field every snap with Tet. Easy late-round WR."),
     ]),
     ("Emeka Egbuka", ["egbuka", "ebuka"], [
+        ("favorites", "do", "Round-4 breakout smash — #30 overall, ADP ~4.01. Evans gone; toe not a Week-1 concern yet. Fantasy-friendly routes."),
         ("strategy", "watch", "Toe injury may let him fall mid/late 4th. Don’t see a huge drop-off from 3rd-round RBs to these WRs."),
         ("week1", "watch", "Toe sprain, no surgery. 51–49 Week 1 full go. Stay in the late-3rd/early-4th WR cluster."),
         ("top50", "do", "Top candidate to be this year’s JSN as Tampa WR1 if Zac Robinson moves him around."),
@@ -279,6 +306,7 @@ NOTES = [
         ("top50", "do", "23 spots above consensus. ADP slow to adjust to Pearsall out."),
     ]),
     ("De'Zhaun Stribling", ["stribling", "stribbling", "deshawn stribling", "deon"], [
+        ("favorites", "do", "Round-10 Shri Club — sharp leagues take him as early as the 8th. SF WR room barren. Call your shot."),
         ("week2", "do", "5 targets on 7 routes, contested catch, near-TD. Nick ~96 overall, OK 8th/9th. Don’t go earlier than 8th. If he sits with starters in week 3, ADP explodes. Bet: better than Deebo, ramps to ~80% including slot."),
         ("rookies", "do", "The shot they want. Jennings reincarnated but more explosive. ~50% snaps early, 70–75% routes by week 6."),
         ("week1", "do", "15 of 16 routes, 8 targets with backups. Michael ahead of Deebo, still a 10th-round pick."),
@@ -312,6 +340,7 @@ NOTES = [
         ("camp", "dont", "Ankle, still not practicing. Not a true target-hog WR1. Only clickable if he falls to the 8/9 or 9/10 turn."),
     ]),
     ("Josh Downs", ["downs", "josh ds"], [
+        ("favorites", "watch", "Round-8 shot but spooked: calf report + Keenan + Warren. Fine dart, not a lock every-down."),
         ("week2", "do", "Keenan Allen muddies targets ~1–2 slots, not a fade. Still ~78–81 overall / WR30. Price is wrong. Grab a ton."),
         ("camp", "do", "Very in. If Pierce misses time he’s every-down. ADP multiple rounds too cheap vs Underdog."),
     ]),
@@ -323,20 +352,24 @@ NOTES = [
         ("top50", "watch", "Just outside the top 50 at 51."),
     ]),
     ("Stefon Diggs", ["diggs"], [
+        ("favorites", "watch", "Daniels weapons bump. Fine mid-round if already set at TE/RB — not over Stribling/Pittman."),
         ("camp", "watch", "~pick 100. Chain-mover, capped by Daniels rushing and Chig underneath. Prefer second-year darts at that price."),
     ]),
     ("Parker Washington", ["parker wash"], [
+        ("favorites", "do", "Round-6 favorite — emerged as JAX WR1 all summer; plays every personnel grouping."),
         ("camp", "do", "Buying the camp hype. Liam Cohen told him he’ll play 11/12/13 and line up everywhere. Last year ~25% TPRR. Preseason snaps are the tell. Host has had him over BTJ since spring."),
         ("week1", "do", "Better use of Pollard money than a capped Titans RB2."),
         ("rookies", "do", "Example of ‘spend 5–6 turn capital on better offenses’ vs Carnell Tate."),
     ]),
     ("Brian Thomas Jr.", ["btj", "brian thomas"], [
+        ("steelman", "watch", "Steelman: clear boundary/deep role now; ~5–6 valuable targets. Fine ~7th if Lawrence heats up — not a ceiling smash."),
         ("camp", "dont", "Guest fully flipped to Parker Washington. Still plays a lot, but the four-WR room cannibalizes. Downgrade vs last year’s process."),
     ]),
     ("Rome Odunze", ["odunze", "rome"], [
         ("camp", "watch", "Forgotten talented piece. Spike weeks yes, full-year WR1 no. Loveland + Burden change the room. ADP too high in home leagues."),
     ]),
     ("Matthew Golden", ["golden"], [
+        ("favorites", "do", "Round-10 another chance — first-rounder, full-time X, condensed GB targets."),
         ("week2", "watch", "Stribling lives in the Golden / Worthy / Lemon / Godwin cluster late 90s."),
         ("week1", "watch", "Outside/two-WR-set guy with Watson. Looked awful as a rookie; won’t fully fade the opportunity. Reed still ranked ahead by Michael."),
         ("camp", "do", "The type of 2nd-year dart they’d rather shoot on around pick 100 than Diggs."),
@@ -364,6 +397,7 @@ NOTES = [
         ("rookies", "dont", "4th overall, Titans. 5–6 turn is too steep. Systemic passing-offense risk. Wan'Dale may lead targets. Prefer Parker Washington / DJ Moore / QBs in that range."),
     ]),
     ("Makai Lemon", ["lemon", "mai lemon"], [
+        ("favorites", "do", "Round-9 first-round talent dart. Post-bye rookie bump in Manion’s Eagles offense."),
         ("camp", "watch", "Hamstring has cost a ton of camp; may not start Week 1. Scoop ~pick 100 if ADP dips. Second-half play, not an early smash."),
         ("rookies", "do", "First-round capital, ~10th-round ADP. Bet the talent next to Golden types."),
     ]),
@@ -380,6 +414,7 @@ NOTES = [
         ("rookies", "watch", "Less PPR-fun than Concepcion."),
     ]),
     ("KC Concepcion", ["concepcion", "casey"], [
+        ("favorites", "do", "Round-10 first-round separator dart — Monken Zay-Flowers role. Wait on real QB for weekly impact."),
         ("week1", "do", "Entire first half with starters, schemed touches, TD. Monken will force-feed. Higher PPR floor than Boston. Overlaps Fannin."),
         ("rookies", "do", "Prefers him to Boston in full PPR. Dart; room lights up when they get a real QB."),
         ("camp", "watch", "Could be a featured WR, which is why neither Browns rookie is a reliable WR2 behind Fannin."),
@@ -405,6 +440,7 @@ NOTES = [
         ("rookies", "do", "Falcons 3rd-rounder. London then a bunch of nobodies. If he’s any good he should pass Dotson/Zaccheaus. Late upside shot."),
     ]),
     ("Wan'Dale Robinson", ["wandale", "wan dale"], [
+        ("favorites", "do", "Round-9 discount Pittman — likely Titans targets/receptions leader; Daboll paid him $70M."),
         ("week2", "do", "PPR guy at the 8–9 turn in the strategy video."),
         ("rookies", "watch", "Nick thinks Daboll may feed him first in Tennessee — part of the Tate fade."),
     ]),
@@ -412,6 +448,7 @@ NOTES = [
         ("top50", "watch", "Rank 44. Fading slightly as Puka’s running mate (age, weaker finish) is part of the Puka 1.02 case."),
     ]),
     ("Justin Jefferson", ["jefferson", "jj"], [
+        ("steelman", "watch", "Steelman: less queasy on JJ — WR6. Wentz pace was elite; Kyler TD luck can swing. Still spookier than Chase/Puka/ARSB."),
         ("top50", "take", "Core elite WR in the mid-tier cluster. No fade."),
     ]),
     ("CeeDee Lamb", ["ceedee", "lamb"], [
@@ -432,21 +469,25 @@ NOTES = [
         ("top50", "take", "Closes the Saquon tier. Elite, wrong pick window for 1.01."),
     ]),
     ("Tyler Warren", ["tyler warren"], [
+        ("favorites", "do", "Round-5 set-and-forget — most confident mid-round TE. Vegas 74.5 rec; Colts weapons thin (Pittman out, Pierce ankle, Downs calf)."),
         ("week2", "watch", "Something will keep him out a couple weeks / rest of preseason. Downs still the WR target."),
         ("strategy", "do", "Love him at the 4–5 turn. Set-and-forget TE1. In 1QB, if you take Warren in the 4th, wait on QB."),
         ("camp", "take", "Chain-mover with Downs if Pierce is limited."),
         ("top50", "do", "Could see ~130 targets with Pierce/Downs/Pittman noise. Vegas 74.5 rec. Drafting him in the 5th shouldn’t be a regret."),
     ]),
     ("Colston Loveland", ["loveland", "coulson"], [
+        ("favorites", "do", "Round-4 TE he loves — Ben Johnson handpicked; late-2025 PPR spike was needle-moving."),
         ("strategy", "do", "4–5 turn with Warren in casual leagues; best ball rooms push him up. Year-2 breakout."),
         ("camp", "do", "Sun the Bears offense orbits around. TE1 in range of outcomes."),
         ("top50", "take", "His TE3 at 43."),
     ]),
     ("Sam LaPorta", ["laporta"], [
+        ("favorites", "do", "Round-7 TE if you miss Warren/Kraft — but in 14-team mocks he often lands at your 4/5 (LaPorta at 4.14). Take him there; don’t wait."),
         ("strategy", "do", "6–7 turn if Warren/Loveland are gone. Set-and-forget."),
         ("week1", "do", "Better use of Pollard capital."),
     ]),
     ("Tucker Kraft", ["kraft"], [
+        ("favorites", "do", "Round-6 set-and-forget TE with Warren. Condensed GB pass game; ACL recovery not a worry."),
         ("strategy", "do", "Nick took him 6.11 and felt great. 4–7 is a great TE1 range."),
         ("week1", "do", "Full 11-on-11s four weeks out; maybe ~90% snaps out of the gate."),
     ]),
@@ -459,10 +500,12 @@ NOTES = [
         ("camp", "do", "Really high; legitimate threat to Diggs’ underneath targets."),
     ]),
     ("George Kittle", ["kittle"], [
+        ("steelman", "watch", "Steelman: off PUP, positive Achilles reports, barren SF WR room — TE9 and climbing. Pair with Juwan; still age/Achilles profile."),
         ("camp", "dont", "Too old, Achilles too serious. Bank on Evans in the red zone instead."),
         ("top50", "watch", "Old / coming off serious injury — part of the Evans bump."),
     ]),
     ("Dalton Kincaid", ["kincaid"], [
+        ("favorites", "do", "Round-10 TE upside — snap share bump, elite per-route metrics, Josh Allen TD gravity."),
         ("strategy", "watch", "If you miss Warren/Loveland/LaPorta/Kraft, stock Kincaid later. Don’t panic-reach TE."),
     ]),
     ("Oronde Gadsden II", ["gadsden", "gadson"], [
@@ -477,6 +520,7 @@ NOTES = [
         ("top50", "watch", "ADP ‘broken’ after a down (hamstring) year. Expects healthy Lamar. Baltimore still run-heavy for Flowers."),
     ]),
     ("Jayden Daniels", ["jaden daniels", "daniels"], [
+        ("favorites", "do", "Round-6 favorite QB — OROY rushing floor; Diggs + McLaurin + Chig weapons bump."),
         ("camp", "do", "Still targeting him in the post-Lamar QB tier / 8th round. Legs thesis survives Tunsil’s torn tricep."),
     ]),
     ("Jalen Hurts", ["hurts", "herz"], [
@@ -490,6 +534,30 @@ NOTES = [
     ]),
     ("Daniel Jones", ["daniel jones"], [
         ("camp", "watch", "Coming off Achilles. Don’t center Colts passing bets (Downs/Warren/Pierce) on him being great."),
+    ]),
+    ("Christian Watson", ["christian watson", "c watson"], [
+        ("favorites", "do", "Round-6 riser — condensed GB room, every-down role, more pass-heavy look. Golden as pure X helps Watson move."),
+    ]),
+    ("Michael Pittman Jr.", ["pittman", "michael pittman"], [
+        ("favorites", "do", "Round-8 PPR smash — ranks him over DK. Rogers chain-mover fit in Pittsburgh; expect ~6 catches/game."),
+    ]),
+    ("Jakobi Meyers", ["jacobi meyers", "jakobi myers", "jacoby myers"], [
+        ("favorites", "do", "Round-10 boring smash — buy JAX middle-of-field volume with Trevor. High-floor chain mover."),
+    ]),
+    ("Marvin Harrison Jr.", ["marvin harrison", "mhj"], [
+        ("steelman", "watch", "Steelman: new Flo scheme, playoff slate, still the alpha leash. Pass volume stays high on a bad team."),
+    ]),
+    ("Caleb Williams", ["caleb williams"], [
+        ("steelman", "watch", "Steelman moved him up after arguing himself into it — ~QB9–10. Year-2 Ben Johnson + Burden/Loveland/Rome; rushing floor."),
+    ]),
+    ("Trevor Lawrence", ["trevor lawrence", "t-law", "tlaw"], [
+        ("favorites", "do", "Round-7 QB smash — his QB6. Cohen + Parker/Meyers/BTJ/Strange. Rush TDs sticky."),
+    ]),
+    ("Jaxson Dart", ["jaxson dart", "jackson dart"], [
+        ("favorites", "take", "Mock wait-QB at 6.14 — fine streamer after locking TE/RB2; still prefer Daniels/Hurts/Purdy/TLaw first."),
+    ]),
+    ("Juwan Johnson", ["juwan johnson", "joan johnson", "jawan johnson"], [
+        ("steelman", "do", "Pair with Kittle ~TE16 while Tyson out — high early-season Saints TE share, then see how KD ramps."),
     ]),
 ]
 
@@ -779,39 +847,39 @@ print("unmatched notes", unmatched)
 # Per-turn click lists (4–6 names). Situational notes live here — not in the Plan cheat sheet.
 TURN_TARGETS_14_1 = [
     {
-        "summary": "Hero RB. Nick’s 1.01 is Gibbs — not Chase/Puka in a 2-WR league.",
-        "players": ["Jahmyr Gibbs", "Bijan Robinson", "Christian McCaffrey", "Jonathan Taylor"],
+        "summary": "Hero RB. Favorites video: Gibbs is the only clean 1.01 — Bijan is a mistake over him. CMC/Cook also giddy R1 backs; Puka is his WR1 if you go Zero-RB.",
+        "players": ["Jahmyr Gibbs", "Christian McCaffrey", "James Cook III", "Puka Nacua", "Ja'Marr Chase", "Jaxon Smith-Njigba"],
+        "pass": ["Bijan Robinson"],
+    },
+    {
+        "summary": "WR firepower (or Chase Brown/KW3/Nico if they fall). Ideal: Gibbs → Nico/Nabers. Mock: Nabers gone → Rice + Olave still works.",
+        "players": ["Malik Nabers", "Nico Collins", "DeVonta Smith", "Chris Olave", "Rashee Rice", "Chase Brown"],
+        "pass": ["Josh Jacobs", "Trey McBride", "Brock Bowers"],
+    },
+    {
+        "summary": "TE + RB2. Favorites: Warren R5 / Loveland R4 / Kraft R6 / LaPorta R7 — but 14-team mocks often put LaPorta at 4.14. Judkins fine if ETN/Skattebo gone.",
+        "players": ["Sam LaPorta", "Tyler Warren", "Colston Loveland", "Tucker Kraft", "Travis Etienne Jr.", "Quinshon Judkins"],
+        "pass": ["Terry McLaurin", "Josh Allen", "Lamar Jackson", "Jalen Hurts"],
+    },
+    {
+        "summary": "Wait-QB + flex. Daniels is the R6 favorite; TLaw R7. Mock: Dart at 6.14 is fine after TE/RB2. Pittman is the R8 PPR smash.",
+        "players": ["Jayden Daniels", "Trevor Lawrence", "Jalen Hurts", "Michael Pittman Jr.", "Parker Washington", "Christian Watson"],
+        "pass": ["Josh Allen", "Lamar Jackson"],
+    },
+    {
+        "summary": "Pittman / Stribling territory. Stribling can go 8th in sharp rooms — don’t wait until 10. JCM if healthy; Wan’Dale/Lemon/Mason.",
+        "players": ["Michael Pittman Jr.", "De'Zhaun Stribling", "Wan'Dale Robinson", "Jacory Croskey-Merritt", "Makai Lemon", "Jordan Mason"],
         "pass": [],
     },
     {
-        "summary": "Two WRs (or one WR + falling RB2). WR firepower turn.",
-        "players": ["Malik Nabers", "Chris Olave", "Nico Collins", "A.J. Brown", "DeVonta Smith", "George Pickens"],
-        "pass": ["Josh Jacobs"],
-    },
-    {
-        "summary": "TE + RB2 after Gibbs + 2 WRs. Mock check: Warren often gone ~4.12 — LaPorta is the next TE up.",
-        "players": ["Sam LaPorta", "Tucker Kraft", "Travis Etienne Jr.", "Cam Skattebo", "Tyler Warren", "Colston Loveland"],
-        "pass": ["Terry McLaurin", "DJ Moore", "Jameson Williams", "Jalen Hurts"],
-    },
-    {
-        "summary": "Flex depth, value QB, TE if you waited, Skattebo if he slid.",
-        "players": ["Josh Downs", "Sam LaPorta", "Tucker Kraft", "Jayden Daniels", "Jalen Hurts", "Brock Purdy"],
+        "summary": "Round-10 favorites club: Stribling (if left), Kincaid, Meyers, Golden, Concepcion. Handcuffs if you stacked early RBs.",
+        "players": ["De'Zhaun Stribling", "Dalton Kincaid", "Jakobi Meyers", "Matthew Golden", "KC Concepcion", "J.K. Dobbins"],
         "pass": [],
     },
     {
-        "summary": "Mid-round value WRs and streamers.",
-        "players": ["De'Zhaun Stribling", "Parker Washington", "Tetairoa McMillan", "Breece Hall", "Matthew Stafford", "Cam Skattebo"],
-        "pass": [],
-    },
-    {
-        "summary": "Bench upside and TE/QB depth.",
-        "players": ["Dalton Kincaid", "Chig Okonkwo", "Jalen Coker", "Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd"],
-        "pass": [],
-    },
-    {
-        "summary": "Handcuffs and late rookie darts.",
-        "players": ["Jonathon Brooks", "Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd", "Chig Okonkwo", "Jalen Coker"],
-        "pass": [],
+        "summary": "Handcuffs and late darts. Keaton with Hampton; Bigsby/Lloyd/Brooks; Juwan if you took Kittle.",
+        "players": ["Keaton Mitchell", "Tank Bigsby", "MarShawn Lloyd", "Jonathon Brooks", "Juwan Johnson", "Tyjae Spears"],
+        "pass": ["Mike Washington Jr."],
     },
     {
         "summary": "Kicker and DST only — never earlier.",
@@ -904,32 +972,33 @@ TURN_TARGETS_10_9 = [
 
 PLAN_14_1 = {
     "profile": "14-team · 1.01 · hero RB + 2 WR",
-    "tagline": "Hero RB (Gibbs), then two WRs, then TE + RB2 at the 4/5 turn.",
+    "tagline": "Gibbs, then two WRs, TE+RB2 at 4/5 (LaPorta often there), wait on QB. Updated from Favorites + Steelman videos + your mock.",
     "do": [
-        "<li><strong>Pick {{r1}} ({{slot}}): Jahmyr Gibbs.</strong> Nick’s official 1.01. In a 2-WR league he wants hero RB, not Chase/Puka first. Bijan is the only other 1.01-quality back.</li>",
-        "<li><strong>{{r2}}–{{r3}}: lean WR firepower</strong> (Nabers, Olave, AJ Brown, Nico, DeVonta, Pickens, Rice, Tet) unless a true RB2 falls (KW3, Hampton, Henry).</li>",
-        "<li><strong>Wait on QB</strong> in 1QB. Purdy / Stafford / Daniels / Hurts live mid/late. Don’t spend {{r2}}–{{r3}} or {{r4}}–{{r5}} on Allen, Lamar, Burrow, or Hurts.</li>",
-        "<li><strong>TE ladder:</strong> Skip Bowers/McBride early. Warren or Loveland around {{r4}}–{{r5}}; LaPorta / Kraft around {{r6}}–{{r7}}; Chig as a punt later.</li>",
-        "<li><strong>After Gibbs + 2 WRs:</strong> at {{r4}}–{{r5}} take <strong>TE + RB2</strong> (not a 3rd WR). Fill flex later.</li>",
-        "<li><strong>Smash week-2 risers at value:</strong> Etienne (Kamara out), Nico (Higgins ACL), Breece (ignore the groin), Downs, Stribling mid/late, Keaton Mitchell last rounds if you have Hampton.</li>",
-        "<li><strong>Handcuffs with a locked job:</strong> Tank Bigsby, MarShawn Lloyd, Jonathan Brooks (if Chuba is out). 49ers RB2 (Black / James) is free if you drafted CMC.</li>",
+        "<li><strong>Pick {{r1}} ({{slot}}): Jahmyr Gibbs.</strong> Favorites video: taking Bijan over Gibbs is a huge mistake. CMC/Cook are the other R1 backs he gets giddy about.</li>",
+        "<li><strong>{{r2}}–{{r3}}: WR firepower</strong> — Nabers (free at 2–3), Nico (end of 2nd smash), DeVonta, Olave, Rice. Ideal build: Gibbs → Nico/Nabers. Your mock (Rice + Olave) is on-plan if Nabers is gone.</li>",
+        "<li><strong>{{r4}}–{{r5}}: TE + RB2.</strong> Favorites ladder is Warren (R5) / Loveland (R4) / Kraft (R6) / LaPorta (R7) — but in 14-team LaPorta often lands at {{r4}}. Pair with Etienne or Judkins. Pass early QB.</li>",
+        "<li><strong>Wait on QB</strong> until {{r6}}+. Daniels is the R6 favorite; TLaw R7; Hurts/Purdy still fine. Dart at {{r6}} is an acceptable streamer after TE/RB2.</li>",
+        "<li><strong>Mid rounds:</strong> Pittman (R8 over DK), Parker Washington / Christian Watson (R6), Stribling (call your shot by {{r8}}–{{r10}}), JCM/Wan’Dale/Lemon/Mason (R9).</li>",
+        "<li><strong>Smash risers:</strong> Etienne (Kamara out), Nico (Higgins ACL), Nabers (camp flip), Stribling (SF WR vacuum), Keaton Mitchell if you have Hampton.</li>",
+        "<li><strong>Handcuffs:</strong> Tank Bigsby, Lloyd, Brooks, Emmett Johnson (KW3), 49ers RB2 if CMC. Juwan Johnson pairs with a Kittle dart.</li>",
     ],
     "dont": [
-        "<li><strong>Don’t leave RB2 empty at {{r4}}–{{r5}}</strong> if you already have Gibbs + two WRs — you still need a second starter.</li>",
-        "<li><strong>Don’t take Jacobs as your RB1</strong> over a WR1 at {{r2}}–{{r3}} (camp, OL, possible suspension).</li>",
-        "<li><strong>Don’t draft Kamara, Tracy, Hutchinson, Tank Dell, Ja'Kobi Lane, Trey Harris, Gadsden, Cyrus Allen, or anyone behind Skattebo</strong> (Tracy / Singletary / Najee).</li>",
-        "<li><strong>Don’t pay ADP for Achane, Kyren, Zay Flowers, Garrett Wilson, Alec Pierce, McLaurin, or Jordyn Tyson.</strong></li>",
-        "<li><strong>Don’t reach Jeremiyah Love</strong> if the high ankle is still lingering.</li>",
+        "<li><strong>Don’t take Bijan over Gibbs at {{r1}}</strong> — Atlanta QB situation is spooky; Gibbs is the clean 1.01.</li>",
+        "<li><strong>Don’t leave RB2 empty at {{r4}}–{{r5}}</strong> after Gibbs + two WRs — Judkins/Etienne/Skattebo finish the build.</li>",
+        "<li><strong>Don’t take McBride/Bowers at {{r2}}–{{r3}}</strong> — TE heat map is {{r4}}–{{r7}}.</li>",
+        "<li><strong>Don’t jump Allen/Lamar at {{r3}}–{{r5}}</strong> in 1QB. Daniels/TLaw/Hurts come cheaper.</li>",
+        "<li><strong>Don’t pay ADP for Kyren, Flowers, Garrett Wilson, McLaurin, Kamara, Tracy, or Jordyn Tyson.</strong></li>",
+        "<li><strong>Don’t wait forever on Stribling</strong> — sharp leagues take him in the 8th; your mock at 10.14 is the casual-league version.</li>",
         "<li><strong>Don’t smash Mike Washington</strong> as a Jeanty cuff.</li>",
         "<li><strong>K / DST last</strong> (around {{r14}}–{{r15}}). Never earlier.</li>",
     ],
     "rounds": [
-        "<li><strong>Pick {{r1}}:</strong> Gibbs (Bijan only if Gibbs is somehow gone).</li>",
-        "<li><strong>{{r2}}–{{r3}}:</strong> Two WRs from the Nabers / Olave / Nico / AJB / DeVonta / Pickens / Rice / Tet pile, or one WR + falling RB2.</li>",
-        "<li><strong>{{r4}}–{{r5}}:</strong> <strong>TE + RB2.</strong> Warren/Loveland ideal; LaPorta/Kraft if gone. Pair with Etienne / Skattebo. Pass McLaurin / 3rd WR.</li>",
-        "<li><strong>{{r6}}–{{r7}}:</strong> Downs, Daniels/Hurts/Purdy, depth RB/WR, Skattebo if he slid. Still no kicker.</li>",
-        "<li><strong>{{r8}}–{{r9}}:</strong> Stribling if he hasn’t gone; Lemon; JCM; Parker Washington if ADP hasn’t exploded.</li>",
-        "<li><strong>{{r10}}+:</strong> Chig, Coker, Noel, Keaton Mitchell, Brooks, Bigsby, Lloyd, 49ers RB2. Stream QB if you waited.</li>",
+        "<li><strong>Pick {{r1}}:</strong> Gibbs. (CMC/Cook/Puka only if Gibbs is somehow gone — not Bijan first.)</li>",
+        "<li><strong>{{r2}}–{{r3}}:</strong> Nabers / Nico / DeVonta / Olave / Rice (or Chase Brown/KW3 if a true RB2 falls). Pass Jacobs and elite TE/QB.</li>",
+        "<li><strong>{{r4}}–{{r5}}:</strong> <strong>LaPorta (or Warren/Loveland/Kraft) + RB2</strong> (Etienne / Judkins / Skattebo). Mock blueprint: LaPorta + Judkins.</li>",
+        "<li><strong>{{r6}}–{{r7}}:</strong> Daniels / TLaw / Hurts / Purdy, or Pittman/Parker/Watson if QB wait continues. Dart OK as streamer.</li>",
+        "<li><strong>{{r8}}–{{r9}}:</strong> Pittman, Stribling (don’t sleep), Wan’Dale, JCM, Lemon, Mason, Diggs only if set elsewhere.</li>",
+        "<li><strong>{{r10}}+:</strong> Kincaid, Meyers, Golden, Concepcion, Chig, Keaton/Bigsby/Lloyd/Brooks. K/DST last.</li>",
     ],
 }
 
@@ -1044,7 +1113,9 @@ out = {
         "note": "Players marked approxAdp are BDGE rank/ADP mentions, not FFC.",
     },
     "videos": [
-        {"id": "3PL4i_fy3NU", "title": "Preseason Games Changed Our Draft Rankings, Once Again.", "key": "week2", "when": "Newest — week 2 recap"},
+        {"id": "QMeJ9yAdDOo", "title": "Why I Might Be Wrong on These Players", "key": "steelman", "when": "Newest — steelman fades"},
+        {"id": "LMvbtEF0Eew", "title": "My Favorite Players in Every Round", "key": "favorites", "when": "Favorite every round 1–10"},
+        {"id": "3PL4i_fy3NU", "title": "Preseason Games Changed Our Draft Rankings, Once Again.", "key": "week2", "when": "Week 2 recap"},
         {"id": "hIQIkhGlrww", "title": "The #1 Draft Strategy in Fantasy Football", "key": "strategy", "when": "Early picks 1–4"},
         {"id": "n9kJSeO4naM", "title": "Look Like a Genius by Drafting These Rookies", "key": "rookies", "when": "Rookies"},
         {"id": "JDNJJO6ituM", "title": "Preseason Games Changed Our Draft Rankings, Again.", "key": "week1", "when": "Week 1 recap"},
