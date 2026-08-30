@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "3 · Aug 28, 2026";
+  var APP_VERSION = "4 · Aug 30, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
   var BACKUP_KEYS = [
     "tanks",
@@ -358,36 +358,211 @@
     return "";
   }
 
-  function processProductLabel(proc) {
-    var direct = firstText(proc, [
-      "product",
-      "productName",
-      "materialDescription",
-      "materialName",
-      "materialCode",
-      "productCode",
-      "series",
-      "materialSeries",
-      "subtitle",
-    ]);
-    if (direct) return direct;
-    var fromProfile = profileLabel(proc.productId || proc.productProfileId || proc.seriesId);
-    if (fromProfile) return fromProfile;
-    var tags = asArray(proc.tags).filter(function (t) {
-      return text(t);
-    });
-    return tags.length ? text(tags[0]) : "";
+  var PROCESS_NAME_KEYS = [
+    "name",
+    "displayName",
+    "processName",
+    "instanceName",
+    "shortTitle",
+    "headline",
+    "subtitle",
+    "label",
+    "planName",
+    "inspectionPlanName",
+    "ipName",
+    "documentName",
+    "documentTitle",
+    "documentNumber",
+    "processTitle",
+    "ipTitle",
+    "planTitle",
+    "customTitle",
+    "itemName",
+    "recordName",
+    "alias",
+    "nickname",
+  ];
+
+  var PROCESS_PRODUCT_KEYS = [
+    "product",
+    "productName",
+    "materialDescription",
+    "materialName",
+    "materialCode",
+    "productCode",
+    "series",
+    "materialSeries",
+  ];
+
+  var GENERIC_PROCESS_LABELS = {
+    sap: 1,
+    "inspection plan": 1,
+    "(ip)": 1,
+    ip: 1,
+    qm: 1,
+    published: 1,
+    draft: 1,
+    archived: 1,
+    process: 1,
+    "process excellence": 1,
+    quality: 1,
+    untitled: 1,
+    "untitled process": 1,
+  };
+
+  function isGenericProcessLabel(value) {
+    var n = text(value).toLowerCase().replace(/\s+/g, " ");
+    return !n || !!GENERIC_PROCESS_LABELS[n];
   }
 
-  function processDistinguisher(proc) {
-    var label = processProductLabel(proc);
-    if (label) return label;
-    var title = text(proc.title) || "Untitled process";
-    var siblings = asArray(lists().processes).filter(function (p) {
+  function usableProcessName(value, title) {
+    var s = text(value);
+    if (!s || s.length > 180) return "";
+    if (isGenericProcessLabel(s)) return "";
+    if (title && s === title) return "";
+    if (/^data:/i.test(s)) return "";
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return "";
+    return s;
+  }
+
+  function collectNameFieldValues(proc) {
+    var out = [];
+    var seen = {};
+    function add(value) {
+      var s = text(value);
+      if (!s || seen[s]) return;
+      seen[s] = 1;
+      out.push(s);
+    }
+    function fromObject(obj, depth) {
+      if (!obj || typeof obj !== "object" || Array.isArray(obj) || depth > 2) return;
+      var i;
+      for (i = 0; i < PROCESS_NAME_KEYS.length; i++) add(obj[PROCESS_NAME_KEYS[i]]);
+      Object.keys(obj).forEach(function (k) {
+        if (k === "steps" || k === "journal" || k === "tags" || k === "imageData" || k === "title") return;
+        var v = obj[k];
+        var nameLike = /name$/i.test(k) && PROCESS_PRODUCT_KEYS.indexOf(k) === -1;
+        if (nameLike && (typeof v === "string" || typeof v === "number")) add(v);
+        if (v && typeof v === "object" && !Array.isArray(v)) fromObject(v, depth + 1);
+      });
+    }
+    fromObject(proc, 0);
+    return out;
+  }
+
+  function processSiblings(proc) {
+    var title = text(proc && proc.title) || "Untitled process";
+    return asArray(lists().processes).filter(function (p) {
       return (text(p.title) || "Untitled process") === title;
     });
-    if (siblings.length < 2) return text(proc.summary);
-    var skip = {
+  }
+
+  function notSharedByAll(siblings, mine, getter) {
+    if (!mine) return false;
+    if (!siblings || siblings.length < 2) return true;
+    return siblings.some(function (p) {
+      return getter(p) !== mine;
+    });
+  }
+
+  function processProductLabel(proc) {
+    var direct = firstText(proc, PROCESS_PRODUCT_KEYS);
+    if (direct && !isGenericProcessLabel(direct)) return direct;
+    var fromProfile = profileLabel(proc.productId || proc.productProfileId || proc.seriesId);
+    if (fromProfile && !isGenericProcessLabel(fromProfile)) return fromProfile;
+    return "";
+  }
+
+  function firstStepTitle(proc) {
+    var steps = asArray(proc && proc.steps);
+    if (!steps.length) return "";
+    return text(steps[0] && steps[0].title);
+  }
+
+  function uniqueSiblingString(proc, siblings, skip) {
+    var keys = Object.keys(proc || {});
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (skip[k] || typeof proc[k] !== "string") continue;
+      var mine = usableProcessName(proc[k], text(proc.title));
+      if (!mine) continue;
+      if (notSharedByAll(siblings, mine, function (p) {
+        return text(p[k]);
+      })) {
+        return mine;
+      }
+    }
+    return "";
+  }
+
+  function uniqueSiblingTag(proc, siblings) {
+    var myTags = asArray(proc.tags).map(text).filter(Boolean);
+    var unique = myTags.filter(function (t) {
+      if (isGenericProcessLabel(t)) return false;
+      return !siblings.every(function (p) {
+        return asArray(p.tags).map(text).indexOf(t) !== -1;
+      });
+    });
+    return unique.length ? unique[0] : "";
+  }
+
+  function humanizeProcessId(id) {
+    var s = text(id);
+    if (!s || s.length < 4) return "";
+    if (/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(s)) return "";
+    if (/^[0-9a-f]{16,}$/i.test(s)) return "";
+    if (!/[-_\s]/.test(s) && !/[a-z][A-Z]/.test(s)) return "";
+    var spaced = s
+      .replace(/[_-]+/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!spaced || isGenericProcessLabel(spaced)) return "";
+    return spaced.replace(/\b[a-z]/g, function (c) {
+      return c.toUpperCase();
+    });
+  }
+
+  function processInstanceName(proc) {
+    var title = text(proc && proc.title) || "Untitled process";
+    var siblings = processSiblings(proc);
+    var names = collectNameFieldValues(proc);
+    var i;
+    for (i = 0; i < names.length; i++) {
+      var n = usableProcessName(names[i], title);
+      if (!n) continue;
+      var allHaveSame =
+        siblings.length >= 2 &&
+        siblings.every(function (p) {
+          return collectNameFieldValues(p).indexOf(n) !== -1;
+        });
+      if (!allHaveSame) return n;
+    }
+
+    var product = usableProcessName(processProductLabel(proc), title);
+    if (
+      product &&
+      notSharedByAll(siblings, product, function (p) {
+        return text(processProductLabel(p));
+      })
+    ) {
+      return product;
+    }
+
+    var summary = usableProcessName(proc && proc.summary, title);
+    if (
+      summary &&
+      notSharedByAll(siblings, summary, function (p) {
+        return text(p.summary);
+      })
+    ) {
+      return clip(summary, 80);
+    }
+
+    var tag = uniqueSiblingTag(proc, siblings);
+    if (tag) return tag;
+
+    var other = uniqueSiblingString(proc, siblings, {
       id: 1,
       title: 1,
       status: 1,
@@ -399,35 +574,35 @@
       journal: 1,
       tags: 1,
       imageData: 1,
-    };
-    var keys = Object.keys(proc || {});
-    for (var i = 0; i < keys.length; i++) {
-      var k = keys[i];
-      if (skip[k] || typeof proc[k] !== "string") continue;
-      var mine = text(proc[k]);
-      if (!mine) continue;
-      var allSame = siblings.every(function (p) {
-        return text(p[k]) === mine;
-      });
-      if (!allSame) return mine;
-    }
-    var myTags = asArray(proc.tags).map(text).filter(Boolean);
-    var uniqueTags = myTags.filter(function (t) {
-      return !siblings.every(function (p) {
-        return asArray(p.tags).map(text).indexOf(t) !== -1;
-      });
+      summary: 1,
     });
-    if (uniqueTags.length) return uniqueTags.join(", ");
-    return text(proc.summary);
+    if (other) return other;
+
+    var step = usableProcessName(firstStepTitle(proc), title);
+    if (
+      step &&
+      notSharedByAll(siblings, step, function (p) {
+        return firstStepTitle(p);
+      })
+    ) {
+      return step;
+    }
+
+    var hid = humanizeProcessId(proc && proc.id);
+    if (
+      hid &&
+      hid !== title &&
+      notSharedByAll(siblings, text(proc.id), function (p) {
+        return text(p.id);
+      })
+    ) {
+      return hid;
+    }
+    return "";
   }
 
-  function processTitleCounts() {
-    var counts = {};
-    asArray(lists().processes).forEach(function (p) {
-      var t = text(p.title) || "Untitled process";
-      counts[t] = (counts[t] || 0) + 1;
-    });
-    return counts;
+  function processHeadline(proc) {
+    return processInstanceName(proc) || text(proc && proc.title) || "Untitled process";
   }
 
   function drbMaterialTitle(entry) {
@@ -639,6 +814,8 @@
     asArray(proc.journal).forEach(function (j) {
       if (j) parts.push(j.text, j.contextStepLabel, j.imageName);
     });
+    parts.push(processInstanceName(proc));
+    parts.push.apply(parts, collectNameFieldValues(proc));
     parts.push(processProductLabel(proc));
     return blob(parts);
   }
@@ -1358,17 +1535,10 @@
 
   function listRowHtml(tab, item) {
     if (tab === "processes") {
-      var titleCounts = processTitleCounts();
       var rawTitle = text(item.title) || "Untitled process";
-      var duplicate = (titleCounts[rawTitle] || 0) > 1;
-      var distinguisher = processDistinguisher(item);
-      var headline = duplicate && distinguisher && distinguisher !== rawTitle ? distinguisher : rawTitle;
-      var sub = "";
-      if (headline === rawTitle) {
-        sub = distinguisher && distinguisher !== rawTitle ? distinguisher : "";
-      } else {
-        sub = rawTitle;
-      }
+      var instanceName = processInstanceName(item);
+      var headline = instanceName || rawTitle;
+      var sub = instanceName && instanceName !== rawTitle ? rawTitle : "";
       return (
         '<div class="title">' +
         esc(headline) +
@@ -1491,7 +1661,12 @@
       return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
     });
     var html = '<article class="detail">';
-    html += "<h2>" + esc(proc.title || "Untitled process") + "</h2>";
+    var headline = processHeadline(proc);
+    var templateTitle = text(proc.title);
+    html += "<h2>" + esc(headline) + "</h2>";
+    if (templateTitle && templateTitle !== headline) {
+      html += '<p class="sub" style="margin:0 0 10px">' + esc(templateTitle) + "</p>";
+    }
     html +=
       '<div class="meta" style="margin-bottom:12px"><span class="badge ' +
       badgeClass(proc.status) +
@@ -1502,7 +1677,7 @@
       "</div>";
     html += chipsHtml(proc.tags);
     var product = processProductLabel(proc);
-    if (product && product !== text(proc.title)) {
+    if (product && product !== headline && product !== templateTitle) {
       html += '<p class="sub" style="margin:0 0 10px">' + esc(product) + "</p>";
     }
     if (text(proc.summary)) {
