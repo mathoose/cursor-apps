@@ -539,6 +539,8 @@
       if (!allHaveSame) return n;
     }
 
+    if (siblings.length < 2) return "";
+
     var product = usableProcessName(processProductLabel(proc), title);
     if (
       product &&
