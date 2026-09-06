@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="app-header">
@@ -21,22 +21,23 @@
     </a>
     <div class="header-titles">
       <h1>Dynasty Board</h1>
-      <p id="headerSub">Superflex ranks · 5 sources</p>
+      <p id="headerSub">Superflex dynasty · 5 sources</p>
     </div>
   </header>
 
   <section class="filters" aria-label="Filters">
     <div class="chips" id="posChips"></div>
+    <div class="chips scroll" id="rosterChips" aria-label="Roster filter"></div>
     <label class="toggle">
-      <input type="checkbox" id="top14" checked />
+      <input type="checkbox" id="top14" />
       Top 14 any source
     </label>
     <div class="sliders">
       <label class="slider-block">
-        <span>Age <strong id="ageLabel">21–34</strong></span>
+        <span>Age <strong id="ageLabel">20–44</strong></span>
         <div class="dual">
-          <input type="range" id="ageMin" min="20" max="35" step="0.5" value="20" />
-          <input type="range" id="ageMax" min="20" max="35" step="0.5" value="35" />
+          <input type="range" id="ageMin" min="20" max="44" step="0.5" value="20" />
+          <input type="range" id="ageMax" min="20" max="44" step="0.5" value="44" />
         </div>
       </label>
       <label class="slider-block">
@@ -65,6 +66,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
