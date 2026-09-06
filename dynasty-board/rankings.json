@@ -2,16 +2,60 @@
   "updated": "2026-09-06",
   "format": "superflex",
   "valueScale": "RotoWire Superflex JTV (Jagger May, Sep 3 2026)",
+  "owners": [
+    {
+      "id": "mathoose",
+      "name": "mathoose",
+      "you": true
+    },
+    {
+      "id": "silenthei",
+      "name": "Silenthei"
+    },
+    {
+      "id": "cvbrazil",
+      "name": "cvbrazil"
+    },
+    {
+      "id": "kaylama",
+      "name": "kaylama"
+    },
+    {
+      "id": "qadams",
+      "name": "qadams"
+    },
+    {
+      "id": "cbrennan",
+      "name": "cbrennan"
+    },
+    {
+      "id": "miketo",
+      "name": "miketo"
+    },
+    {
+      "id": "nricciarelli",
+      "name": "nricciarelli"
+    },
+    {
+      "id": "bturner",
+      "name": "bturner99"
+    },
+    {
+      "id": "thehulka",
+      "name": "thehulka"
+    }
+  ],
+  "rosterNote": "League rosters reconstructed from Sleeper trade-partner screenshots (skill players). Benches may be incomplete.",
   "sources": [
     {
       "id": "bdge",
       "label": "BDGE",
-      "note": "Nick Ercolano Superflex / positional, FantasyPros expert page"
+      "note": "Nick Ercolano Superflex dynasty positional ranks"
     },
     {
       "id": "rotowire",
       "label": "RW",
-      "note": "RotoWire Superflex trade chart, Jagger May, Sep 3 2026"
+      "note": "RotoWire Superflex dynasty chart, Jagger May, Sep 3 2026"
     },
     {
       "id": "ktc",
@@ -21,58 +65,45 @@
     {
       "id": "fantasycalc",
       "label": "FC",
-      "note": "FantasyCalc Superflex API, 10-team 0.5 PPR, Sep 6 2026"
+      "note": "FantasyCalc Superflex dynasty API (2QB / 0.5 PPR), Sep 6 2026"
     },
     {
       "id": "fantasypros",
       "label": "FP",
-      "note": "FantasyPros 3-expert dynasty consensus Aug 31 2026; ranks 13\u201314 from adjacent ECR"
+      "note": "FantasyPros Superflex dynasty (QB from SF ECR; RB/WR/TE dynasty positional)"
     }
   ],
   "players": [
     {
-      "name": "A.J. Brown",
-      "pos": "WR",
-      "team": "NE",
-      "age": 29.2,
-      "value": 5152,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": 14,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Amon-Ra St. Brown",
-      "pos": "WR",
-      "team": "DET",
-      "age": 26.8,
-      "value": 7300,
-      "you": false,
-      "ranks": {
-        "bdge": 5,
-        "rotowire": 6,
-        "ktc": 4,
-        "fantasycalc": 4,
-        "fantasypros": 4
-      }
-    },
-    {
-      "name": "Ashton Jeanty",
+      "name": "Jahmyr Gibbs",
       "pos": "RB",
-      "team": "LV",
-      "age": 22.7,
-      "value": 7374,
+      "team": "DET",
+      "age": 24.5,
+      "value": 9999,
+      "owner": "bturner",
       "you": false,
       "ranks": {
-        "bdge": 3,
-        "rotowire": 3,
-        "ktc": 3,
-        "fantasycalc": 4,
-        "fantasypros": 3
+        "bdge": 2,
+        "rotowire": 1,
+        "ktc": 2,
+        "fantasycalc": 1,
+        "fantasypros": 1
+      }
+    },
+    {
+      "name": "Josh Allen",
+      "pos": "QB",
+      "team": "BUF",
+      "age": 30.3,
+      "value": 9189,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 1,
+        "rotowire": 1,
+        "ktc": 1,
+        "fantasycalc": 1,
+        "fantasypros": 2
       }
     },
     {
@@ -81,6 +112,7 @@
       "team": "ATL",
       "age": 24.6,
       "value": 9998,
+      "owner": "bturner",
       "you": false,
       "ranks": {
         "bdge": 1,
@@ -91,333 +123,51 @@
       }
     },
     {
-      "name": "Bo Nix",
-      "pos": "QB",
-      "team": "DEN",
+      "name": "Ja'Marr Chase",
+      "pos": "WR",
+      "team": "CIN",
       "age": 26.5,
-      "value": 5953,
-      "you": true,
-      "ranks": {
-        "bdge": 11,
-        "rotowire": 9,
-        "ktc": 12,
-        "fantasycalc": 12,
-        "fantasypros": 13
-      }
-    },
-    {
-      "name": "Breece Hall",
-      "pos": "RB",
-      "team": "NYJ",
-      "age": 25.2,
-      "value": 5262,
-      "you": false,
-      "ranks": {
-        "bdge": 12,
-        "rotowire": 13,
-        "ktc": 13,
-        "fantasycalc": 13,
-        "fantasypros": 9
-      }
-    },
-    {
-      "name": "Brenton Strange",
-      "pos": "TE",
-      "team": "JAX",
-      "age": 25.7,
-      "value": 3036,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 13,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Brock Bowers",
-      "pos": "TE",
-      "team": "LV",
-      "age": 23.7,
-      "value": 8175,
+      "value": 9986,
+      "owner": "silenthei",
       "you": false,
       "ranks": {
         "bdge": 2,
-        "rotowire": 1,
+        "rotowire": 2,
         "ktc": 1,
         "fantasycalc": 1,
         "fantasypros": 1
       }
     },
     {
-      "name": "Brock Purdy",
-      "pos": "QB",
-      "team": "SF",
-      "age": 26.7,
-      "value": 5544,
-      "you": false,
-      "ranks": {
-        "bdge": 13,
-        "rotowire": 13,
-        "ktc": 13,
-        "fantasycalc": 14,
-        "fantasypros": 12
-      }
-    },
-    {
-      "name": "Bucky Irving",
-      "pos": "RB",
-      "team": "TB",
-      "age": 24.0,
-      "value": 4408,
-      "you": false,
-      "ranks": {
-        "bdge": 13,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Caleb Douglas",
+      "name": "Jaxon Smith-Njigba",
       "pos": "WR",
-      "team": "MIA",
-      "age": 23.0,
-      "value": 2645,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Caleb Williams",
-      "pos": "QB",
-      "team": "CHI",
-      "age": 24.8,
-      "value": 8283,
-      "you": false,
-      "ranks": {
-        "bdge": 7,
-        "rotowire": 3,
-        "ktc": 3,
-        "fantasycalc": 4,
-        "fantasypros": 9
-      }
-    },
-    {
-      "name": "Carnell Tate",
-      "pos": "WR",
-      "team": "TEN",
-      "age": 21.6,
-      "value": 5286,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": 12,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Carson Beck",
-      "pos": "QB",
-      "team": "ARI",
-      "age": 23.8,
-      "value": 2719,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "CeeDee Lamb",
-      "pos": "WR",
-      "team": "DAL",
-      "age": 25.4,
-      "value": 7278,
-      "you": false,
-      "ranks": {
-        "bdge": 6,
-        "rotowire": 7,
-        "ktc": 7,
-        "fantasycalc": 7,
-        "fantasypros": 8
-      }
-    },
-    {
-      "name": "Chase Brown",
-      "pos": "RB",
-      "team": "CIN",
-      "age": 26.4,
-      "value": 6510,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 7,
-        "ktc": 12,
-        "fantasycalc": 11,
-        "fantasypros": 11
-      }
-    },
-    {
-      "name": "Chris Olave",
-      "pos": "WR",
-      "team": "NO",
-      "age": 24.2,
-      "value": 6222,
-      "you": false,
-      "ranks": {
-        "bdge": 14,
-        "rotowire": 10,
-        "ktc": null,
-        "fantasycalc": 12,
-        "fantasypros": 14
-      }
-    },
-    {
-      "name": "Christian McCaffrey",
-      "pos": "RB",
-      "team": "SF",
-      "age": 30.2,
-      "value": 5065,
-      "you": true,
-      "ranks": {
-        "bdge": 9,
-        "rotowire": null,
-        "ktc": 14,
-        "fantasycalc": 9,
-        "fantasypros": 13
-      }
-    },
-    {
-      "name": "Colston Loveland",
-      "pos": "TE",
-      "team": "CHI",
-      "age": 20.3,
-      "value": 5989,
+      "team": "SEA",
+      "age": 24.6,
+      "value": 8547,
+      "owner": "silenthei",
       "you": false,
       "ranks": {
         "bdge": 3,
         "rotowire": 3,
-        "ktc": 3,
-        "fantasycalc": 3,
+        "ktc": 2,
+        "fantasycalc": 2,
         "fantasypros": 2
       }
     },
     {
-      "name": "Courtland Sutton",
+      "name": "Puka Nacua",
       "pos": "WR",
-      "team": "DEN",
-      "age": 30.9,
-      "value": 2762,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "DK Metcalf",
-      "pos": "WR",
-      "team": "PIT",
-      "age": 28.7,
-      "value": 3498,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Dak Prescott",
-      "pos": "QB",
-      "team": "DAL",
-      "age": 33.1,
-      "value": 5326,
+      "team": "LAR",
+      "age": 25.3,
+      "value": 9989,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
-        "bdge": 14,
-        "rotowire": 14,
-        "ktc": null,
-        "fantasycalc": 13,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Dalton Kincaid",
-      "pos": "TE",
-      "team": "BUF",
-      "age": 26.9,
-      "value": 2870,
-      "you": false,
-      "ranks": {
-        "bdge": 10,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": 11,
-        "fantasypros": 12
-      }
-    },
-    {
-      "name": "David Njoku",
-      "pos": "TE",
-      "team": "LAC",
-      "age": 30.0,
-      "value": null,
-      "you": false,
-      "ranks": {
-        "bdge": 14,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "De'Von Achane",
-      "pos": "RB",
-      "team": "MIA",
-      "age": 24.9,
-      "value": 6799,
-      "you": false,
-      "ranks": {
-        "bdge": 5,
-        "rotowire": 6,
-        "ktc": 6,
-        "fantasycalc": 5,
-        "fantasypros": 6
-      }
-    },
-    {
-      "name": "Drake London",
-      "pos": "WR",
-      "team": "ATL",
-      "age": 25.1,
-      "value": 6420,
-      "you": false,
-      "ranks": {
-        "bdge": 8,
-        "rotowire": 9,
-        "ktc": 8,
-        "fantasycalc": 8,
-        "fantasypros": 6
+        "bdge": 1,
+        "rotowire": 1,
+        "ktc": 3,
+        "fantasycalc": 3,
+        "fantasypros": 3
       }
     },
     {
@@ -426,6 +176,7 @@
       "team": "NE",
       "age": 24.0,
       "value": 8906,
+      "owner": "miketo",
       "you": false,
       "ranks": {
         "bdge": 2,
@@ -436,33 +187,515 @@
       }
     },
     {
-      "name": "Dylan Sampson",
-      "pos": "RB",
-      "team": "CLE",
-      "age": 21.9,
-      "value": 2342,
-      "you": true,
+      "name": "Amon-Ra St. Brown",
+      "pos": "WR",
+      "team": "DET",
+      "age": 26.9,
+      "value": 7300,
+      "owner": "qadams",
+      "you": false,
       "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
+        "bdge": 5,
+        "rotowire": 6,
+        "ktc": 4,
+        "fantasycalc": 4,
+        "fantasypros": 4
       }
     },
     {
-      "name": "Eli Stowers",
+      "name": "Brock Bowers",
       "pos": "TE",
-      "team": "PHI",
-      "age": 23.4,
-      "value": 3030,
+      "team": "LV",
+      "age": 23.7,
+      "value": 8175,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 2,
+        "rotowire": 1,
+        "ktc": 1,
+        "fantasycalc": 1,
+        "fantasypros": 1
+      }
+    },
+    {
+      "name": "Lamar Jackson",
+      "pos": "QB",
+      "team": "BAL",
+      "age": 29.7,
+      "value": 7340,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 3,
+        "rotowire": 5,
+        "ktc": 4,
+        "fantasycalc": 3,
+        "fantasypros": 4
+      }
+    },
+    {
+      "name": "Caleb Williams",
+      "pos": "QB",
+      "team": "CHI",
+      "age": 24.8,
+      "value": 8283,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 7,
+        "rotowire": 3,
+        "ktc": 3,
+        "fantasycalc": 4,
+        "fantasypros": 9
+      }
+    },
+    {
+      "name": "Joe Burrow",
+      "pos": "QB",
+      "team": "CIN",
+      "age": 29.7,
+      "value": 7159,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 6,
+        "rotowire": 6,
+        "ktc": 6,
+        "fantasycalc": 5,
+        "fantasypros": 6
+      }
+    },
+    {
+      "name": "Justin Jefferson",
+      "pos": "WR",
+      "team": "MIN",
+      "age": 27.2,
+      "value": 7550,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 7,
+        "rotowire": 4,
+        "ktc": 5,
+        "fantasycalc": 5,
+        "fantasypros": 7
+      }
+    },
+    {
+      "name": "Malik Nabers",
+      "pos": "WR",
+      "team": "NYG",
+      "age": 23.1,
+      "value": 7335,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 4,
+        "rotowire": 5,
+        "ktc": 6,
+        "fantasycalc": 6,
+        "fantasypros": 5
+      }
+    },
+    {
+      "name": "Jeremiyah Love",
+      "pos": "RB",
+      "team": "ARI",
+      "age": 21.3,
+      "value": 7363,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
         "bdge": null,
+        "rotowire": 4,
+        "ktc": 4,
+        "fantasycalc": 3,
+        "fantasypros": 4
+      }
+    },
+    {
+      "name": "Ashton Jeanty",
+      "pos": "RB",
+      "team": "LV",
+      "age": 22.8,
+      "value": 7374,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 3,
+        "rotowire": 3,
+        "ktc": 3,
+        "fantasycalc": 4,
+        "fantasypros": 3
+      }
+    },
+    {
+      "name": "Jayden Daniels",
+      "pos": "QB",
+      "team": "WAS",
+      "age": 25.7,
+      "value": 7773,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 4,
+        "rotowire": 4,
+        "ktc": 5,
+        "fantasycalc": 6,
+        "fantasypros": 3
+      }
+    },
+    {
+      "name": "Trey McBride",
+      "pos": "TE",
+      "team": "ARI",
+      "age": 26.8,
+      "value": 7256,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 1,
+        "rotowire": 2,
+        "ktc": 2,
+        "fantasycalc": 2,
+        "fantasypros": 3
+      }
+    },
+    {
+      "name": "CeeDee Lamb",
+      "pos": "WR",
+      "team": "DAL",
+      "age": 27.4,
+      "value": 7278,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 6,
+        "rotowire": 7,
+        "ktc": 7,
+        "fantasycalc": 7,
+        "fantasypros": 8
+      }
+    },
+    {
+      "name": "De'Von Achane",
+      "pos": "RB",
+      "team": "MIA",
+      "age": 24.9,
+      "value": 6799,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 5,
+        "rotowire": 6,
+        "ktc": 6,
+        "fantasycalc": 5,
+        "fantasypros": 6
+      }
+    },
+    {
+      "name": "Omarion Hampton",
+      "pos": "RB",
+      "team": "LAC",
+      "age": 23.5,
+      "value": 6920,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 4,
+        "rotowire": 5,
+        "ktc": 5,
+        "fantasycalc": 6,
+        "fantasypros": 5
+      }
+    },
+    {
+      "name": "James Cook",
+      "pos": "RB",
+      "team": "BUF",
+      "age": 27.0,
+      "value": 6311,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 7,
+        "rotowire": 8,
+        "ktc": 8,
+        "fantasycalc": 7,
+        "fantasypros": 7
+      }
+    },
+    {
+      "name": "Justin Herbert",
+      "pos": "QB",
+      "team": "LAC",
+      "age": 28.5,
+      "value": 6957,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 9,
+        "rotowire": 7,
+        "ktc": 7,
+        "fantasycalc": 7,
+        "fantasypros": 5
+      }
+    },
+    {
+      "name": "Jonathan Taylor",
+      "pos": "RB",
+      "team": "IND",
+      "age": 27.6,
+      "value": 6296,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 6,
+        "rotowire": 9,
+        "ktc": 7,
+        "fantasycalc": 8,
+        "fantasypros": 10
+      }
+    },
+    {
+      "name": "Drake London",
+      "pos": "WR",
+      "team": "ATL",
+      "age": 25.1,
+      "value": 6420,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 8,
+        "rotowire": 9,
+        "ktc": 8,
+        "fantasycalc": 8,
+        "fantasypros": 6
+      }
+    },
+    {
+      "name": "Jalen Hurts",
+      "pos": "QB",
+      "team": "PHI",
+      "age": 28.1,
+      "value": 6273,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 5,
+        "rotowire": 8,
+        "ktc": 11,
+        "fantasycalc": 8,
+        "fantasypros": 7
+      }
+    },
+    {
+      "name": "Colston Loveland",
+      "pos": "TE",
+      "team": "CHI",
+      "age": 22.4,
+      "value": 5989,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 3,
+        "rotowire": 3,
+        "ktc": 3,
+        "fantasycalc": 3,
+        "fantasypros": 2
+      }
+    },
+    {
+      "name": "Trevor Lawrence",
+      "pos": "QB",
+      "team": "JAX",
+      "age": 26.9,
+      "value": 5757,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 15,
+        "rotowire": 10,
+        "ktc": 10,
+        "fantasycalc": 9,
+        "fantasypros": 10
+      }
+    },
+    {
+      "name": "George Pickens",
+      "pos": "WR",
+      "team": "DAL",
+      "age": 25.5,
+      "value": 5748,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 11,
+        "rotowire": 17,
+        "ktc": 11,
+        "fantasycalc": 9,
+        "fantasypros": 12
+      }
+    },
+    {
+      "name": "Jaxson Dart",
+      "pos": "QB",
+      "team": "NYG",
+      "age": 23.3,
+      "value": 5752,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 12,
+        "rotowire": 11,
+        "ktc": 9,
+        "fantasycalc": 10,
+        "fantasypros": 11
+      }
+    },
+    {
+      "name": "Patrick Mahomes",
+      "pos": "QB",
+      "team": "KC",
+      "age": 31.0,
+      "value": 5545,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 8,
+        "rotowire": 12,
+        "ktc": 8,
+        "fantasycalc": 11,
+        "fantasypros": 8
+      }
+    },
+    {
+      "name": "Christian McCaffrey",
+      "pos": "RB",
+      "team": "SF",
+      "age": 30.3,
+      "value": 5065,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 9,
+        "rotowire": 15,
+        "ktc": 14,
+        "fantasycalc": 9,
+        "fantasypros": 13
+      }
+    },
+    {
+      "name": "Bo Nix",
+      "pos": "QB",
+      "team": "DEN",
+      "age": 26.5,
+      "value": 5953,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 11,
+        "rotowire": 9,
+        "ktc": 12,
+        "fantasycalc": 12,
+        "fantasypros": 13
+      }
+    },
+    {
+      "name": "Saquon Barkley",
+      "pos": "RB",
+      "team": "PHI",
+      "age": 29.6,
+      "value": 5107,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 11,
         "rotowire": 14,
-        "ktc": null,
-        "fantasycalc": 14,
+        "ktc": 15,
+        "fantasycalc": 10,
+        "fantasypros": 12
+      }
+    },
+    {
+      "name": "Nico Collins",
+      "pos": "WR",
+      "team": "HOU",
+      "age": 27.5,
+      "value": 6058,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 10,
+        "rotowire": 12,
+        "ktc": 14,
+        "fantasycalc": 10,
+        "fantasypros": 10
+      }
+    },
+    {
+      "name": "Chase Brown",
+      "pos": "RB",
+      "team": "CIN",
+      "age": 26.5,
+      "value": 6510,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 16,
+        "rotowire": 7,
+        "ktc": 12,
+        "fantasycalc": 11,
+        "fantasypros": 11
+      }
+    },
+    {
+      "name": "Kenneth Walker",
+      "pos": "RB",
+      "team": "KC",
+      "age": 25.9,
+      "value": 5646,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 21,
+        "rotowire": 10,
+        "ktc": 9,
+        "fantasycalc": 12,
+        "fantasypros": 8
+      }
+    },
+    {
+      "name": "Tetairoa McMillan",
+      "pos": "WR",
+      "team": "CAR",
+      "age": 23.4,
+      "value": 5749,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 9,
+        "rotowire": 16,
+        "ktc": 9,
+        "fantasycalc": 11,
         "fantasypros": 9
+      }
+    },
+    {
+      "name": "Chris Olave",
+      "pos": "WR",
+      "team": "NO",
+      "age": 26.2,
+      "value": 6222,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 14,
+        "rotowire": 10,
+        "ktc": 16,
+        "fantasycalc": 12,
+        "fantasypros": 14
       }
     },
     {
@@ -471,6 +704,7 @@
       "team": "TB",
       "age": 23.9,
       "value": 6913,
+      "owner": "mathoose",
       "you": true,
       "ranks": {
         "bdge": 12,
@@ -481,18 +715,99 @@
       }
     },
     {
-      "name": "Fernando Mendoza",
-      "pos": "QB",
-      "team": "LV",
-      "age": 22.9,
-      "value": 5235,
+      "name": "Tyler Warren",
+      "pos": "TE",
+      "team": "IND",
+      "age": 24.3,
+      "value": 5669,
+      "owner": "thehulka",
       "you": false,
       "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": 14,
-        "fantasycalc": null,
-        "fantasypros": null
+        "bdge": 4,
+        "rotowire": 4,
+        "ktc": 4,
+        "fantasycalc": 4,
+        "fantasypros": 4
+      }
+    },
+    {
+      "name": "Dak Prescott",
+      "pos": "QB",
+      "team": "DAL",
+      "age": 33.1,
+      "value": 5326,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 14,
+        "rotowire": 14,
+        "ktc": 17,
+        "fantasycalc": 13,
+        "fantasypros": 15
+      }
+    },
+    {
+      "name": "Brock Purdy",
+      "pos": "QB",
+      "team": "SF",
+      "age": 26.7,
+      "value": 5544,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 13,
+        "rotowire": 13,
+        "ktc": 13,
+        "fantasycalc": 14,
+        "fantasypros": 12
+      }
+    },
+    {
+      "name": "A.J. Brown",
+      "pos": "WR",
+      "team": "NE",
+      "age": 29.2,
+      "value": 5152,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 20,
+        "rotowire": 22,
+        "ktc": 21,
+        "fantasycalc": 14,
+        "fantasypros": 15
+      }
+    },
+    {
+      "name": "Ladd McConkey",
+      "pos": "WR",
+      "team": "LAC",
+      "age": 24.8,
+      "value": 5921,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 21,
+        "rotowire": 13,
+        "ktc": 13,
+        "fantasycalc": 15,
+        "fantasypros": 17
+      }
+    },
+    {
+      "name": "Zay Flowers",
+      "pos": "WR",
+      "team": "BAL",
+      "age": 26.0,
+      "value": 6221,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 19,
+        "rotowire": 11,
+        "ktc": 22,
+        "fantasycalc": 16,
+        "fantasypros": 11
       }
     },
     {
@@ -501,12 +816,861 @@
       "team": "NYJ",
       "age": 26.1,
       "value": 5765,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
         "bdge": 13,
-        "rotowire": null,
+        "rotowire": 15,
+        "ktc": 15,
+        "fantasycalc": 17,
+        "fantasypros": 18
+      }
+    },
+    {
+      "name": "Luther Burden",
+      "pos": "WR",
+      "team": "CHI",
+      "age": 22.7,
+      "value": 5508,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 30,
+        "rotowire": 18,
+        "ktc": 17,
+        "fantasycalc": 18,
+        "fantasypros": 21
+      }
+    },
+    {
+      "name": "Jordan Love",
+      "pos": "QB",
+      "team": "GB",
+      "age": 27.9,
+      "value": 5316,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 10,
+        "rotowire": 15,
+        "ktc": 15,
+        "fantasycalc": 15,
+        "fantasypros": 14
+      }
+    },
+    {
+      "name": "DeVonta Smith",
+      "pos": "WR",
+      "team": "PHI",
+      "age": 27.8,
+      "value": 5353,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 24,
+        "rotowire": 19,
+        "ktc": 18,
+        "fantasycalc": 19,
+        "fantasypros": 24
+      }
+    },
+    {
+      "name": "Carnell Tate",
+      "pos": "WR",
+      "team": "TEN",
+      "age": 21.6,
+      "value": 5286,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 86,
+        "rotowire": 20,
+        "ktc": 12,
+        "fantasycalc": 20,
+        "fantasypros": 26
+      }
+    },
+    {
+      "name": "Breece Hall",
+      "pos": "RB",
+      "team": "NYJ",
+      "age": 25.3,
+      "value": 5262,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 12,
+        "rotowire": 13,
+        "ktc": 13,
+        "fantasycalc": 13,
+        "fantasypros": 9
+      }
+    },
+    {
+      "name": "Fernando Mendoza",
+      "pos": "QB",
+      "team": "LV",
+      "age": 22.9,
+      "value": 5235,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 16,
+        "ktc": 14,
+        "fantasycalc": 16,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Rashee Rice",
+      "pos": "WR",
+      "team": "KC",
+      "age": 26.4,
+      "value": 3742,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 16,
+        "rotowire": 37,
+        "ktc": 24,
+        "fantasycalc": 21,
+        "fantasypros": 25
+      }
+    },
+    {
+      "name": "Jadarian Price",
+      "pos": "RB",
+      "team": "SEA",
+      "age": 22.9,
+      "value": 4963,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 16,
+        "ktc": 17,
+        "fantasycalc": 14,
+        "fantasypros": 28
+      }
+    },
+    {
+      "name": "Quinshon Judkins",
+      "pos": "RB",
+      "team": "CLE",
+      "age": 22.9,
+      "value": 5304,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 15,
+        "rotowire": 11,
+        "ktc": 10,
+        "fantasycalc": 15,
+        "fantasypros": 17
+      }
+    },
+    {
+      "name": "Jared Goff",
+      "pos": "QB",
+      "team": "DET",
+      "age": 31.9,
+      "value": 4703,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 19,
+        "rotowire": 19,
+        "ktc": 19,
+        "fantasycalc": 17,
+        "fantasypros": 19
+      }
+    },
+    {
+      "name": "Jaylen Waddle",
+      "pos": "WR",
+      "team": "DEN",
+      "age": 27.8,
+      "value": 5840,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 23,
+        "rotowire": 14,
+        "ktc": 26,
+        "fantasycalc": 22,
+        "fantasypros": 19
+      }
+    },
+    {
+      "name": "Javonte Williams",
+      "pos": "RB",
+      "team": "DAL",
+      "age": 26.4,
+      "value": 4763,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 18,
+        "rotowire": 19,
+        "ktc": 20,
+        "fantasycalc": 16,
+        "fantasypros": 18
+      }
+    },
+    {
+      "name": "Kyren Williams",
+      "pos": "RB",
+      "team": "LAR",
+      "age": 26.0,
+      "value": 4929,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 10,
+        "rotowire": 17,
+        "ktc": 16,
+        "fantasycalc": 17,
+        "fantasypros": 15
+      }
+    },
+    {
+      "name": "TreVeyon Henderson",
+      "pos": "RB",
+      "team": "NE",
+      "age": 23.9,
+      "value": 5297,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 8,
+        "rotowire": 12,
+        "ktc": 11,
+        "fantasycalc": 18,
+        "fantasypros": 14
+      }
+    },
+    {
+      "name": "Jordyn Tyson",
+      "pos": "WR",
+      "team": "NO",
+      "age": 22.1,
+      "value": 4622,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 87,
+        "rotowire": 28,
+        "ktc": 19,
+        "fantasycalc": 23,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tee Higgins",
+      "pos": "WR",
+      "team": "CIN",
+      "age": 27.6,
+      "value": 5015,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 15,
+        "rotowire": 23,
+        "ktc": 25,
+        "fantasycalc": 24,
+        "fantasypros": 16
+      }
+    },
+    {
+      "name": "Rome Odunze",
+      "pos": "WR",
+      "team": "CHI",
+      "age": 24.3,
+      "value": 5203,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 17,
+        "rotowire": 21,
+        "ktc": 20,
+        "fantasycalc": 25,
+        "fantasypros": 20
+      }
+    },
+    {
+      "name": "Derrick Henry",
+      "pos": "RB",
+      "team": "BAL",
+      "age": 32.7,
+      "value": 3741,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 17,
+        "rotowire": 26,
+        "ktc": 23,
+        "fantasycalc": 19,
+        "fantasypros": 20
+      }
+    },
+    {
+      "name": "Cam Skattebo",
+      "pos": "RB",
+      "team": "NYG",
+      "age": 24.6,
+      "value": 4824,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 24,
+        "rotowire": 18,
+        "ktc": 18,
+        "fantasycalc": 20,
+        "fantasypros": 19
+      }
+    },
+    {
+      "name": "Bucky Irving",
+      "pos": "RB",
+      "team": "TB",
+      "age": 24.1,
+      "value": 4408,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 13,
+        "rotowire": 21,
+        "ktc": 19,
+        "fantasycalc": 21,
+        "fantasypros": 16
+      }
+    },
+    {
+      "name": "Baker Mayfield",
+      "pos": "QB",
+      "team": "TB",
+      "age": 31.4,
+      "value": 4643,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 17,
+        "rotowire": 21,
+        "ktc": 20,
+        "fantasycalc": 18,
+        "fantasypros": 17
+      }
+    },
+    {
+      "name": "Tyler Shough",
+      "pos": "QB",
+      "team": "NO",
+      "age": 26.9,
+      "value": 4803,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 31,
+        "rotowire": 18,
+        "ktc": 18,
+        "fantasycalc": 19,
+        "fantasypros": 21
+      }
+    },
+    {
+      "name": "Tucker Kraft",
+      "pos": "TE",
+      "team": "GB",
+      "age": 25.8,
+      "value": 4819,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 7,
+        "rotowire": 5,
+        "ktc": 5,
+        "fantasycalc": 5,
+        "fantasypros": 5
+      }
+    },
+    {
+      "name": "Marvin Harrison",
+      "pos": "WR",
+      "team": "ARI",
+      "age": 24.1,
+      "value": 4578,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 18,
+        "rotowire": 30,
+        "ktc": 28,
+        "fantasycalc": 26,
+        "fantasypros": 23
+      }
+    },
+    {
+      "name": "C.J. Stroud",
+      "pos": "QB",
+      "team": "HOU",
+      "age": 24.9,
+      "value": 4644,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 16,
+        "rotowire": 20,
+        "ktc": 21,
+        "fantasycalc": 20,
+        "fantasypros": 16
+      }
+    },
+    {
+      "name": "Cam Ward",
+      "pos": "QB",
+      "team": "TEN",
+      "age": 24.3,
+      "value": 5230,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 20,
+        "rotowire": 17,
+        "ktc": 16,
+        "fantasycalc": 21,
+        "fantasypros": 18
+      }
+    },
+    {
+      "name": "Travis Etienne",
+      "pos": "RB",
+      "team": "NO",
+      "age": 27.6,
+      "value": 3968,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 19,
+        "rotowire": 23,
+        "ktc": 21,
+        "fantasycalc": 22,
+        "fantasypros": 22
+      }
+    },
+    {
+      "name": "Jameson Williams",
+      "pos": "WR",
+      "team": "DET",
+      "age": 25.5,
+      "value": 4602,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 27,
+        "rotowire": 29,
+        "ktc": 29,
+        "fantasycalc": 27,
+        "fantasypros": 27
+      }
+    },
+    {
+      "name": "Sam LaPorta",
+      "pos": "TE",
+      "team": "DET",
+      "age": 25.7,
+      "value": 4566,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 9,
+        "rotowire": 6,
+        "ktc": 7,
+        "fantasycalc": 6,
+        "fantasypros": 7
+      }
+    },
+    {
+      "name": "Kyler Murray",
+      "pos": "QB",
+      "team": "MIN",
+      "age": 29.1,
+      "value": 4565,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 22,
+        "rotowire": 22,
+        "ktc": 23,
+        "fantasycalc": 22,
+        "fantasypros": 20
+      }
+    },
+    {
+      "name": "Harold Fannin",
+      "pos": "TE",
+      "team": "CLE",
+      "age": 22.1,
+      "value": 4366,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 5,
+        "rotowire": 7,
+        "ktc": 6,
+        "fantasycalc": 7,
+        "fantasypros": 8
+      }
+    },
+    {
+      "name": "Makai Lemon",
+      "pos": "WR",
+      "team": "PHI",
+      "age": 22.3,
+      "value": 4674,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 89,
+        "rotowire": 27,
+        "ktc": 23,
+        "fantasycalc": 28,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Parker Washington",
+      "pos": "WR",
+      "team": "JAX",
+      "age": 24.5,
+      "value": 4895,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 74,
+        "rotowire": 24,
+        "ktc": 34,
+        "fantasycalc": 29,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Matthew Stafford",
+      "pos": "QB",
+      "team": "LAR",
+      "age": 38.6,
+      "value": 3734,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 21,
+        "rotowire": 24,
+        "ktc": 26,
+        "fantasycalc": 23,
+        "fantasypros": 23
+      }
+    },
+    {
+      "name": "D'Andre Swift",
+      "pos": "RB",
+      "team": "CHI",
+      "age": 27.7,
+      "value": 4470,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 25,
+        "rotowire": 20,
+        "ktc": 25,
+        "fantasycalc": 23,
+        "fantasypros": 23
+      }
+    },
+    {
+      "name": "Brian Thomas",
+      "pos": "WR",
+      "team": "JAX",
+      "age": 23.9,
+      "value": 4826,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 26,
+        "rotowire": 25,
+        "ktc": 27,
+        "fantasycalc": 30,
+        "fantasypros": 22
+      }
+    },
+    {
+      "name": "Sam Darnold",
+      "pos": "QB",
+      "team": "SEA",
+      "age": 29.3,
+      "value": 4562,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 18,
+        "rotowire": 23,
+        "ktc": 22,
+        "fantasycalc": 24,
+        "fantasypros": 22
+      }
+    },
+    {
+      "name": "Kyle Pitts",
+      "pos": "TE",
+      "team": "ATL",
+      "age": 25.9,
+      "value": 4281,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 6,
+        "rotowire": 8,
+        "ktc": 8,
+        "fantasycalc": 8,
+        "fantasypros": 6
+      }
+    },
+    {
+      "name": "Bhayshul Tuten",
+      "pos": "RB",
+      "team": "JAX",
+      "age": 23.6,
+      "value": 4249,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 30,
+        "rotowire": 22,
+        "ktc": 22,
+        "fantasycalc": 24,
+        "fantasypros": 24
+      }
+    },
+    {
+      "name": "KC Concepcion",
+      "pos": "WR",
+      "team": "CLE",
+      "age": 22.0,
+      "value": 4686,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 88,
+        "rotowire": 26,
+        "ktc": 30,
+        "fantasycalc": 31,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "DJ Moore",
+      "pos": "WR",
+      "team": "BUF",
+      "age": 29.4,
+      "value": 3999,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 39,
+        "rotowire": 32,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 32,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Bryce Young",
+      "pos": "QB",
+      "team": "CAR",
+      "age": 25.1,
+      "value": 3712,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 23,
+        "rotowire": 25,
+        "ktc": 24,
+        "fantasycalc": 25,
+        "fantasypros": 24
+      }
+    },
+    {
+      "name": "Christian Watson",
+      "pos": "WR",
+      "team": "GB",
+      "age": 27.3,
+      "value": 3752,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 75,
+        "rotowire": 35,
+        "ktc": 31,
+        "fantasycalc": 33,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Daniel Jones",
+      "pos": "QB",
+      "team": "IND",
+      "age": 29.3,
+      "value": 3470,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 26,
+        "rotowire": 27,
+        "ktc": 25,
+        "fantasycalc": 26,
+        "fantasypros": 25
+      }
+    },
+    {
+      "name": "Ty Simpson",
+      "pos": "QB",
+      "team": "LAR",
+      "age": 23.7,
+      "value": 3458,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 28,
+        "ktc": null,
+        "fantasycalc": 27,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Malik Willis",
+      "pos": "QB",
+      "team": "MIA",
+      "age": 27.3,
+      "value": 3711,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 39,
+        "rotowire": 26,
+        "ktc": 27,
+        "fantasycalc": 28,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "David Montgomery",
+      "pos": "RB",
+      "team": "HOU",
+      "age": 29.3,
+      "value": 3660,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 22,
+        "rotowire": 27,
+        "ktc": null,
+        "fantasycalc": 25,
+        "fantasypros": 25
+      }
+    },
+    {
+      "name": "Davante Adams",
+      "pos": "WR",
+      "team": "LAR",
+      "age": 33.7,
+      "value": 3838,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 32,
+        "rotowire": 34,
+        "ktc": null,
+        "fantasycalc": 34,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kenyon Sadiq",
+      "pos": "TE",
+      "team": "NYJ",
+      "age": 21.5,
+      "value": 3308,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 48,
+        "rotowire": 10,
+        "ktc": 9,
+        "fantasycalc": 9,
+        "fantasypros": 10
+      }
+    },
+    {
+      "name": "Michael Wilson",
+      "pos": "WR",
+      "team": "ARI",
+      "age": 26.5,
+      "value": 3733,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 83,
+        "rotowire": 38,
+        "ktc": 35,
+        "fantasycalc": 35,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Josh Jacobs",
+      "pos": "RB",
+      "team": "GB",
+      "age": 28.6,
+      "value": 3839,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 20,
+        "rotowire": 24,
+        "ktc": 24,
+        "fantasycalc": 26,
+        "fantasypros": 21
+      }
+    },
+    {
+      "name": "Terry McLaurin",
+      "pos": "WR",
+      "team": "WAS",
+      "age": 31.0,
+      "value": 3747,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 29,
+        "rotowire": 36,
+        "ktc": 37,
+        "fantasycalc": 36,
+        "fantasypros": 29
+      }
+    },
+    {
+      "name": "De'Zhaun Stribling",
+      "pos": "WR",
+      "team": "SF",
+      "age": 23.7,
+      "value": 4367,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 31,
+        "ktc": null,
+        "fantasycalc": 37,
         "fantasypros": null
       }
     },
@@ -516,6 +1680,7 @@
       "team": "SF",
       "age": 32.9,
       "value": 3189,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
         "bdge": 8,
@@ -526,33 +1691,51 @@
       }
     },
     {
-      "name": "George Pickens",
+      "name": "Quentin Johnston",
       "pos": "WR",
-      "team": "DAL",
-      "age": 25.5,
-      "value": 5748,
-      "you": true,
+      "team": "LAC",
+      "age": 25.0,
+      "value": 3258,
+      "owner": "nricciarelli",
+      "you": false,
       "ranks": {
-        "bdge": 11,
-        "rotowire": null,
-        "ktc": 11,
-        "fantasycalc": 9,
+        "bdge": 38,
+        "rotowire": 46,
+        "ktc": null,
+        "fantasycalc": 38,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dalton Kincaid",
+      "pos": "TE",
+      "team": "BUF",
+      "age": 26.9,
+      "value": 2870,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 10,
+        "rotowire": 17,
+        "ktc": null,
+        "fantasycalc": 11,
         "fantasypros": 12
       }
     },
     {
-      "name": "Harold Fannin",
-      "pos": "TE",
-      "team": "CLE",
-      "age": 22.1,
-      "value": 4366,
+      "name": "Jaylen Warren",
+      "pos": "RB",
+      "team": "PIT",
+      "age": 27.9,
+      "value": 3633,
+      "owner": "bturner",
       "you": false,
       "ranks": {
-        "bdge": 5,
-        "rotowire": 7,
-        "ktc": 6,
-        "fantasycalc": 7,
-        "fantasypros": 8
+        "bdge": 31,
+        "rotowire": 28,
+        "ktc": null,
+        "fantasycalc": 27,
+        "fantasypros": 26
       }
     },
     {
@@ -561,6 +1744,7 @@
       "team": "NYG",
       "age": 26.4,
       "value": 3215,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
         "bdge": 13,
@@ -571,557 +1755,114 @@
       }
     },
     {
-      "name": "Isiah Pacheco",
-      "pos": "RB",
-      "team": "DET",
-      "age": 27.5,
-      "value": 2285,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Ja'Marr Chase",
+      "name": "Matthew Golden",
       "pos": "WR",
-      "team": "CIN",
-      "age": 26.5,
-      "value": 9986,
-      "you": false,
-      "ranks": {
-        "bdge": 2,
-        "rotowire": 2,
-        "ktc": 1,
-        "fantasycalc": 1,
-        "fantasypros": 1
-      }
-    },
-    {
-      "name": "Jacoby Brissett",
-      "pos": "QB",
-      "team": "ARI",
-      "age": 33.7,
-      "value": 3270,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Jadarian Price",
-      "pos": "RB",
-      "team": "SEA",
-      "age": 22.9,
-      "value": 4963,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": 14,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Jahmyr Gibbs",
-      "pos": "RB",
-      "team": "DET",
-      "age": 24.4,
-      "value": 9999,
-      "you": false,
-      "ranks": {
-        "bdge": 2,
-        "rotowire": 1,
-        "ktc": 2,
-        "fantasycalc": 1,
-        "fantasypros": 1
-      }
-    },
-    {
-      "name": "Jake Ferguson",
-      "pos": "TE",
-      "team": "DAL",
-      "age": 27.6,
-      "value": 3023,
-      "you": true,
-      "ranks": {
-        "bdge": 11,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": 13,
-        "fantasypros": 14
-      }
-    },
-    {
-      "name": "Jalen Coker",
-      "pos": "WR",
-      "team": "CAR",
-      "age": 23.3,
-      "value": 3199,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Jalen Hurts",
-      "pos": "QB",
-      "team": "PHI",
-      "age": 28.0,
-      "value": 6273,
-      "you": false,
-      "ranks": {
-        "bdge": 5,
-        "rotowire": 8,
-        "ktc": 11,
-        "fantasycalc": 8,
-        "fantasypros": 7
-      }
-    },
-    {
-      "name": "James Cook",
-      "pos": "RB",
-      "team": "BUF",
-      "age": 26.9,
-      "value": 6311,
-      "you": false,
-      "ranks": {
-        "bdge": 7,
-        "rotowire": 8,
-        "ktc": 8,
-        "fantasycalc": 7,
-        "fantasypros": 7
-      }
-    },
-    {
-      "name": "Jaxon Smith-Njigba",
-      "pos": "WR",
-      "team": "SEA",
-      "age": 24.5,
-      "value": 8547,
-      "you": false,
-      "ranks": {
-        "bdge": 3,
-        "rotowire": 3,
-        "ktc": 2,
-        "fantasycalc": 2,
-        "fantasypros": 2
-      }
-    },
-    {
-      "name": "Jaxson Dart",
-      "pos": "QB",
-      "team": "NYG",
-      "age": 23.3,
-      "value": 5752,
-      "you": false,
-      "ranks": {
-        "bdge": 12,
-        "rotowire": 11,
-        "ktc": 9,
-        "fantasycalc": 10,
-        "fantasypros": 11
-      }
-    },
-    {
-      "name": "Jayden Daniels",
-      "pos": "QB",
-      "team": "WAS",
-      "age": 25.7,
-      "value": 7773,
-      "you": false,
-      "ranks": {
-        "bdge": 4,
-        "rotowire": 4,
-        "ktc": 5,
-        "fantasycalc": 6,
-        "fantasypros": 3
-      }
-    },
-    {
-      "name": "Jaylen Waddle",
-      "pos": "WR",
-      "team": "DEN",
-      "age": 27.2,
-      "value": 5840,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 14,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Jeremiyah Love",
-      "pos": "RB",
-      "team": "ARI",
-      "age": 21.3,
-      "value": 7363,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 4,
-        "ktc": 4,
-        "fantasycalc": 3,
-        "fantasypros": 4
-      }
-    },
-    {
-      "name": "Joe Burrow",
-      "pos": "QB",
-      "team": "CIN",
-      "age": 29.7,
-      "value": 7159,
-      "you": false,
-      "ranks": {
-        "bdge": 6,
-        "rotowire": 6,
-        "ktc": 6,
-        "fantasycalc": 5,
-        "fantasypros": 6
-      }
-    },
-    {
-      "name": "Jonathan Taylor",
-      "pos": "RB",
-      "team": "IND",
-      "age": 27.6,
-      "value": 6296,
-      "you": true,
-      "ranks": {
-        "bdge": 6,
-        "rotowire": 9,
-        "ktc": 7,
-        "fantasycalc": 8,
-        "fantasypros": 10
-      }
-    },
-    {
-      "name": "Jordan Love",
-      "pos": "QB",
       "team": "GB",
-      "age": 27.8,
-      "value": 5316,
+      "age": 23.1,
+      "value": 3264,
+      "owner": "nricciarelli",
       "you": false,
       "ranks": {
-        "bdge": 10,
-        "rotowire": null,
+        "bdge": 53,
+        "rotowire": 45,
         "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": 14
+        "fantasycalc": 39,
+        "fantasypros": null
       }
     },
     {
-      "name": "Josh Allen",
-      "pos": "QB",
-      "team": "BUF",
-      "age": 30.3,
-      "value": 9189,
+      "name": "Jordan Addison",
+      "pos": "WR",
+      "team": "MIN",
+      "age": 24.6,
+      "value": 3346,
+      "owner": "silenthei",
       "you": false,
       "ranks": {
-        "bdge": 1,
-        "rotowire": 1,
-        "ktc": 1,
-        "fantasycalc": 1,
-        "fantasypros": 2
+        "bdge": 22,
+        "rotowire": 43,
+        "ktc": 32,
+        "fantasycalc": 40,
+        "fantasypros": 30
       }
     },
     {
-      "name": "Justin Herbert",
-      "pos": "QB",
-      "team": "LAC",
+      "name": "Jonathon Brooks",
+      "pos": "RB",
+      "team": "CAR",
+      "age": 23.1,
+      "value": 3802,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 66,
+        "rotowire": 25,
+        "ktc": 27,
+        "fantasycalc": 28,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Rhamondre Stevenson",
+      "pos": "RB",
+      "team": "NE",
       "age": 28.5,
-      "value": 6957,
+      "value": 3272,
+      "owner": "bturner",
       "you": false,
       "ranks": {
-        "bdge": 9,
-        "rotowire": 7,
-        "ktc": 7,
-        "fantasycalc": 7,
-        "fantasypros": 5
+        "bdge": 42,
+        "rotowire": 31,
+        "ktc": null,
+        "fantasycalc": 29,
+        "fantasypros": null
       }
     },
     {
-      "name": "Justin Jefferson",
-      "pos": "WR",
-      "team": "MIN",
-      "age": 27.2,
-      "value": 7550,
-      "you": false,
-      "ranks": {
-        "bdge": 7,
-        "rotowire": 4,
-        "ktc": 5,
-        "fantasycalc": 5,
-        "fantasypros": 7
-      }
-    },
-    {
-      "name": "Kenneth Walker",
+      "name": "Blake Corum",
       "pos": "RB",
-      "team": "KC",
+      "team": "LAR",
       "age": 25.8,
-      "value": 5646,
+      "value": 3494,
+      "owner": "qadams",
       "you": false,
       "ranks": {
-        "bdge": null,
-        "rotowire": 10,
-        "ktc": 9,
-        "fantasycalc": 12,
-        "fantasypros": 8
-      }
-    },
-    {
-      "name": "Kenyon Sadiq",
-      "pos": "TE",
-      "team": "NYJ",
-      "age": 21.5,
-      "value": 3308,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 10,
-        "ktc": 9,
-        "fantasycalc": 9,
-        "fantasypros": 10
-      }
-    },
-    {
-      "name": "Kyle Pitts",
-      "pos": "TE",
-      "team": "ATL",
-      "age": 25.9,
-      "value": 4281,
-      "you": false,
-      "ranks": {
-        "bdge": 6,
-        "rotowire": 8,
-        "ktc": 8,
-        "fantasycalc": 8,
-        "fantasypros": 6
-      }
-    },
-    {
-      "name": "Kyler Murray",
-      "pos": "QB",
-      "team": "MIN",
-      "age": 29.0,
-      "value": 4565,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
+        "bdge": 53,
+        "rotowire": 30,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 30,
         "fantasypros": null
       }
     },
     {
-      "name": "Kyren Williams",
+      "name": "Jonah Coleman",
       "pos": "RB",
-      "team": "LAR",
-      "age": 26.0,
-      "value": 4929,
-      "you": false,
-      "ranks": {
-        "bdge": 10,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Ladd McConkey",
-      "pos": "WR",
-      "team": "LAC",
-      "age": 24.8,
-      "value": 5921,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 13,
-        "ktc": 13,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Lamar Jackson",
-      "pos": "QB",
-      "team": "BAL",
-      "age": 29.6,
-      "value": 7340,
-      "you": true,
-      "ranks": {
-        "bdge": 3,
-        "rotowire": 5,
-        "ktc": 4,
-        "fantasycalc": 3,
-        "fantasypros": 4
-      }
-    },
-    {
-      "name": "Malachi Fields",
-      "pos": "WR",
-      "team": "NYG",
-      "age": 23.0,
-      "value": 2898,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Malik Nabers",
-      "pos": "WR",
-      "team": "NYG",
+      "team": "DEN",
       "age": 23.1,
-      "value": 7335,
+      "value": 3246,
+      "owner": "miketo",
       "you": false,
       "ranks": {
-        "bdge": 4,
-        "rotowire": 5,
-        "ktc": 6,
-        "fantasycalc": 6,
-        "fantasypros": 5
-      }
-    },
-    {
-      "name": "Mark Andrews",
-      "pos": "TE",
-      "team": "BAL",
-      "age": 31.0,
-      "value": 2848,
-      "you": true,
-      "ranks": {
-        "bdge": 12,
-        "rotowire": null,
+        "bdge": 80,
+        "rotowire": 32,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 31,
         "fantasypros": null
       }
     },
     {
-      "name": "Michael Wilson",
+      "name": "Alec Pierce",
       "pos": "WR",
-      "team": "ARI",
-      "age": 26.5,
-      "value": 3733,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Mike Washington",
-      "pos": "RB",
-      "team": "LV",
-      "age": 23.1,
-      "value": 2983,
-      "you": true,
-      "ranks": {
-        "bdge": null,
-        "rotowire": null,
-        "ktc": null,
-        "fantasycalc": null,
-        "fantasypros": null
-      }
-    },
-    {
-      "name": "Nico Collins",
-      "pos": "WR",
-      "team": "HOU",
-      "age": 25.4,
-      "value": 6058,
+      "team": "IND",
+      "age": 26.4,
+      "value": 3332,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
-        "bdge": 10,
-        "rotowire": 12,
-        "ktc": 14,
-        "fantasycalc": 10,
-        "fantasypros": 10
-      }
-    },
-    {
-      "name": "Omarion Hampton",
-      "pos": "RB",
-      "team": "LAC",
-      "age": 23.4,
-      "value": 6920,
-      "you": false,
-      "ranks": {
-        "bdge": 4,
-        "rotowire": 5,
-        "ktc": 5,
-        "fantasycalc": 6,
-        "fantasypros": 5
-      }
-    },
-    {
-      "name": "Patrick Mahomes",
-      "pos": "QB",
-      "team": "KC",
-      "age": 29.6,
-      "value": 5545,
-      "you": false,
-      "ranks": {
-        "bdge": 8,
-        "rotowire": 12,
-        "ktc": 8,
-        "fantasycalc": 11,
-        "fantasypros": 8
-      }
-    },
-    {
-      "name": "Puka Nacua",
-      "pos": "WR",
-      "team": "LAR",
-      "age": 25.2,
-      "value": 9989,
-      "you": false,
-      "ranks": {
-        "bdge": 1,
-        "rotowire": 1,
-        "ktc": 3,
-        "fantasycalc": 3,
-        "fantasypros": 3
-      }
-    },
-    {
-      "name": "Quinshon Judkins",
-      "pos": "RB",
-      "team": "CLE",
-      "age": 22.8,
-      "value": 5304,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 11,
-        "ktc": 10,
-        "fantasycalc": null,
+        "bdge": 82,
+        "rotowire": 44,
+        "ktc": 33,
+        "fantasycalc": 41,
         "fantasypros": null
       }
     },
@@ -1131,43 +1872,462 @@
       "team": "DEN",
       "age": 25.6,
       "value": 3051,
+      "owner": "miketo",
       "you": false,
       "ranks": {
         "bdge": 14,
-        "rotowire": null,
+        "rotowire": 36,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 32,
+        "fantasypros": 27
+      }
+    },
+    {
+      "name": "DK Metcalf",
+      "pos": "WR",
+      "team": "PIT",
+      "age": 28.7,
+      "value": 3498,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 25,
+        "rotowire": 41,
+        "ktc": null,
+        "fantasycalc": 42,
+        "fantasypros": 28
+      }
+    },
+    {
+      "name": "Jayden Reed",
+      "pos": "WR",
+      "team": "GB",
+      "age": 26.4,
+      "value": 3692,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 41,
+        "rotowire": 40,
+        "ktc": null,
+        "fantasycalc": 43,
         "fantasypros": null
       }
     },
     {
-      "name": "Sam LaPorta",
-      "pos": "TE",
-      "team": "DET",
-      "age": 25.6,
-      "value": 4566,
+      "name": "Denzel Boston",
+      "pos": "WR",
+      "team": "CLE",
+      "age": 22.8,
+      "value": 3703,
+      "owner": "kaylama",
       "you": false,
       "ranks": {
-        "bdge": 9,
-        "rotowire": 6,
-        "ktc": 7,
-        "fantasycalc": 6,
-        "fantasypros": 7
+        "bdge": 90,
+        "rotowire": 39,
+        "ktc": null,
+        "fantasycalc": 44,
+        "fantasypros": null
       }
     },
     {
-      "name": "Saquon Barkley",
+      "name": "Zach Charbonnet",
       "pos": "RB",
-      "team": "PHI",
-      "age": 29.5,
-      "value": 5107,
+      "team": "SEA",
+      "age": 25.7,
+      "value": 3000,
+      "owner": "cvbrazil",
       "you": false,
       "ranks": {
+        "bdge": 26,
+        "rotowire": 40,
+        "ktc": null,
+        "fantasycalc": 33,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Mike Washington",
+      "pos": "RB",
+      "team": "LV",
+      "age": 23.2,
+      "value": 2983,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 78,
+        "rotowire": 42,
+        "ktc": null,
+        "fantasycalc": 34,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jake Ferguson",
+      "pos": "TE",
+      "team": "DAL",
+      "age": 27.6,
+      "value": 3023,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
         "bdge": 11,
+        "rotowire": 15,
+        "ktc": null,
+        "fantasycalc": 13,
+        "fantasypros": 14
+      }
+    },
+    {
+      "name": "Chris Godwin",
+      "pos": "WR",
+      "team": "TB",
+      "age": 30.5,
+      "value": 3131,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 52,
+        "rotowire": 50,
+        "ktc": null,
+        "fantasycalc": 45,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Mike Evans",
+      "pos": "WR",
+      "team": "SF",
+      "age": 33.1,
+      "value": 3490,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 45,
+        "rotowire": 42,
+        "ktc": null,
+        "fantasycalc": 46,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Josh Downs",
+      "pos": "WR",
+      "team": "IND",
+      "age": 25.1,
+      "value": 3885,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 44,
+        "rotowire": 33,
+        "ktc": 36,
+        "fantasycalc": 47,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Omar Cooper",
+      "pos": "WR",
+      "team": "NYJ",
+      "age": 22.7,
+      "value": 3064,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 91,
+        "rotowire": 51,
+        "ktc": null,
+        "fantasycalc": 48,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Wan'Dale Robinson",
+      "pos": "WR",
+      "team": "TEN",
+      "age": 25.7,
+      "value": 2784,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 59,
+        "rotowire": 61,
+        "ktc": null,
+        "fantasycalc": 49,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jordan Mason",
+      "pos": "RB",
+      "team": "MIN",
+      "age": 27.3,
+      "value": 3192,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 33,
+        "rotowire": 34,
+        "ktc": null,
+        "fantasycalc": 35,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Michael Pittman",
+      "pos": "WR",
+      "team": "PIT",
+      "age": 28.9,
+      "value": 3145,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 34,
+        "rotowire": 49,
+        "ktc": null,
+        "fantasycalc": 50,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ja'Kobi Lane",
+      "pos": "WR",
+      "team": "BAL",
+      "age": 22.3,
+      "value": 2596,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 92,
+        "rotowire": 67,
+        "ktc": null,
+        "fantasycalc": 51,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Rico Dowdle",
+      "pos": "RB",
+      "team": "PIT",
+      "age": 28.2,
+      "value": 3548,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 23,
+        "rotowire": 29,
+        "ktc": null,
+        "fantasycalc": 36,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Michael Penix",
+      "pos": "QB",
+      "team": "ATL",
+      "age": 26.3,
+      "value": 3291,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 25,
+        "rotowire": 32,
+        "ktc": null,
+        "fantasycalc": 29,
+        "fantasypros": 26
+      }
+    },
+    {
+      "name": "Courtland Sutton",
+      "pos": "WR",
+      "team": "DEN",
+      "age": 30.9,
+      "value": 2762,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 31,
+        "rotowire": 63,
+        "ktc": null,
+        "fantasycalc": 52,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chris Bell",
+      "pos": "WR",
+      "team": "MIA",
+      "age": 22.3,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 53,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chuba Hubbard",
+      "pos": "RB",
+      "team": "CAR",
+      "age": 27.2,
+      "value": 3042,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 36,
+        "rotowire": 39,
+        "ktc": null,
+        "fantasycalc": 37,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kyle Monangai",
+      "pos": "RB",
+      "team": "CHI",
+      "age": 24.3,
+      "value": 3218,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 51,
+        "rotowire": 33,
+        "ktc": 26,
+        "fantasycalc": 38,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Travis Hunter",
+      "pos": "WR",
+      "team": "JAX",
+      "age": 23.3,
+      "value": 2787,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 28,
+        "rotowire": 60,
+        "ktc": null,
+        "fantasycalc": 54,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "MarShawn Lloyd",
+      "pos": "RB",
+      "team": "GB",
+      "age": 25.7,
+      "value": 2999,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 62,
+        "rotowire": 41,
+        "ktc": null,
+        "fantasycalc": 39,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "J.K. Dobbins",
+      "pos": "RB",
+      "team": "DEN",
+      "age": 27.7,
+      "value": 2639,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 56,
+        "rotowire": 45,
+        "ktc": null,
+        "fantasycalc": 40,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jalen Coker",
+      "pos": "WR",
+      "team": "CAR",
+      "age": 24.9,
+      "value": 3199,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 77,
+        "rotowire": 48,
+        "ktc": null,
+        "fantasycalc": 55,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Eli Stowers",
+      "pos": "TE",
+      "team": "PHI",
+      "age": 23.4,
+      "value": 3030,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 47,
         "rotowire": 14,
         "ktc": null,
-        "fantasycalc": 10,
-        "fantasypros": 12
+        "fantasycalc": 14,
+        "fantasypros": 9
+      }
+    },
+    {
+      "name": "Jayden Higgins",
+      "pos": "WR",
+      "team": "HOU",
+      "age": 23.7,
+      "value": 3247,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 49,
+        "rotowire": 47,
+        "ktc": null,
+        "fantasycalc": 56,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Xavier Worthy",
+      "pos": "WR",
+      "team": "KC",
+      "age": 23.4,
+      "value": 2902,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 36,
+        "rotowire": 54,
+        "ktc": null,
+        "fantasycalc": 57,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tony Pollard",
+      "pos": "RB",
+      "team": "TEN",
+      "age": 29.4,
+      "value": 2786,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 35,
+        "rotowire": 43,
+        "ktc": null,
+        "fantasycalc": 41,
+        "fantasypros": null
       }
     },
     {
@@ -1176,103 +2336,446 @@
       "team": "LAR",
       "age": 23.5,
       "value": 3310,
+      "owner": "cbrennan",
       "you": false,
       "ranks": {
-        "bdge": null,
+        "bdge": 28,
         "rotowire": 9,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 15,
         "fantasypros": null
       }
     },
     {
-      "name": "Terry McLaurin",
+      "name": "Jacory Croskey-Merritt",
+      "pos": "RB",
+      "team": "WAS",
+      "age": 25.4,
+      "value": 3050,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 34,
+        "rotowire": 37,
+        "ktc": null,
+        "fantasycalc": 42,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Romeo Doubs",
+      "pos": "WR",
+      "team": "NE",
+      "age": 26.4,
+      "value": 2847,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 68,
+        "rotowire": 57,
+        "ktc": null,
+        "fantasycalc": 58,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kenny Gainwell",
+      "pos": "RB",
+      "team": "TB",
+      "age": 27.5,
+      "value": 2635,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 76,
+        "rotowire": 48,
+        "ktc": null,
+        "fantasycalc": 43,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Emmett Johnson",
+      "pos": "RB",
+      "team": "KC",
+      "age": 22.9,
+      "value": 2528,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 79,
+        "rotowire": 53,
+        "ktc": null,
+        "fantasycalc": 44,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dallas Goedert",
+      "pos": "TE",
+      "team": "PHI",
+      "age": 31.7,
+      "value": 2615,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 17,
+        "rotowire": 23,
+        "ktc": null,
+        "fantasycalc": 16,
+        "fantasypros": 17
+      }
+    },
+    {
+      "name": "Malachi Fields",
+      "pos": "WR",
+      "team": "NYG",
+      "age": 23.0,
+      "value": 2898,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 85,
+        "rotowire": 55,
+        "ktc": null,
+        "fantasycalc": 59,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chig Okonkwo",
+      "pos": "TE",
+      "team": "WAS",
+      "age": 27.0,
+      "value": 2624,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 24,
+        "rotowire": 21,
+        "ktc": null,
+        "fantasycalc": 17,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Travis Kelce",
+      "pos": "TE",
+      "team": "KC",
+      "age": 36.9,
+      "value": 2618,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 27,
+        "rotowire": 22,
+        "ktc": null,
+        "fantasycalc": 18,
+        "fantasypros": 19
+      }
+    },
+    {
+      "name": "Mark Andrews",
+      "pos": "TE",
+      "team": "BAL",
+      "age": 31.0,
+      "value": 2848,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 12,
+        "rotowire": 18,
+        "ktc": null,
+        "fantasycalc": 19,
+        "fantasypros": 15
+      }
+    },
+    {
+      "name": "Oronde Gadsden",
+      "pos": "TE",
+      "team": "LAC",
+      "age": 23.2,
+      "value": 2460,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 45,
+        "rotowire": 28,
+        "ktc": null,
+        "fantasycalc": 20,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jacoby Brissett",
+      "pos": "QB",
+      "team": "ARI",
+      "age": 33.7,
+      "value": 3270,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 32,
+        "rotowire": 33,
+        "ktc": null,
+        "fantasycalc": 30,
+        "fantasypros": 30
+      }
+    },
+    {
+      "name": "AJ Barner",
+      "pos": "TE",
+      "team": "SEA",
+      "age": 24.4,
+      "value": 2878,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 18,
+        "rotowire": 16,
+        "ktc": null,
+        "fantasycalc": 21,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Juwan Johnson",
+      "pos": "TE",
+      "team": "NO",
+      "age": 30.0,
+      "value": 2512,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 42,
+        "rotowire": 27,
+        "ktc": null,
+        "fantasycalc": 22,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Nicholas Singleton",
+      "pos": "RB",
+      "team": "TEN",
+      "age": 22.7,
+      "value": 2304,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 82,
+        "rotowire": 62,
+        "ktc": null,
+        "fantasycalc": 45,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Geno Smith",
+      "pos": "QB",
+      "team": "NYJ",
+      "age": 35.9,
+      "value": 3412,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 29,
+        "rotowire": 29,
+        "ktc": null,
+        "fantasycalc": 31,
+        "fantasypros": 28
+      }
+    },
+    {
+      "name": "Woody Marks",
+      "pos": "RB",
+      "team": "HOU",
+      "age": 25.7,
+      "value": 2684,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 27,
+        "rotowire": 44,
+        "ktc": null,
+        "fantasycalc": 46,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tyler Allgeier",
+      "pos": "RB",
+      "team": "ARI",
+      "age": 26.4,
+      "value": 3045,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 73,
+        "rotowire": 38,
+        "ktc": null,
+        "fantasycalc": 47,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Germie Bernard",
+      "pos": "WR",
+      "team": "PIT",
+      "age": 22.8,
+      "value": 2882,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 56,
+        "ktc": null,
+        "fantasycalc": 60,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Stefon Diggs",
       "pos": "WR",
       "team": "WAS",
-      "age": 30.9,
-      "value": 3747,
-      "you": true,
+      "age": 32.8,
+      "value": 2961,
+      "owner": "bturner",
+      "you": false,
       "ranks": {
-        "bdge": null,
-        "rotowire": null,
+        "bdge": 70,
+        "rotowire": 52,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 61,
         "fantasypros": null
       }
     },
     {
-      "name": "Tetairoa McMillan",
-      "pos": "WR",
-      "team": "CAR",
-      "age": 23.4,
-      "value": 5749,
-      "you": false,
-      "ranks": {
-        "bdge": 9,
-        "rotowire": null,
-        "ktc": 9,
-        "fantasycalc": 11,
-        "fantasypros": 9
-      }
-    },
-    {
-      "name": "Travis Etienne",
+      "name": "Kaelon Black",
       "pos": "RB",
-      "team": "NO",
-      "age": 27.6,
-      "value": 3968,
-      "you": true,
+      "team": "SF",
+      "age": 24.9,
+      "value": null,
+      "owner": null,
+      "you": false,
       "ranks": {
         "bdge": null,
         "rotowire": null,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 48,
         "fantasypros": null
       }
     },
     {
-      "name": "TreVeyon Henderson",
-      "pos": "RB",
-      "team": "NE",
-      "age": 23.8,
-      "value": 5297,
-      "you": false,
-      "ranks": {
-        "bdge": 8,
-        "rotowire": 12,
-        "ktc": 11,
-        "fantasycalc": null,
-        "fantasypros": 14
-      }
-    },
-    {
-      "name": "Trevor Lawrence",
-      "pos": "QB",
-      "team": "JAX",
-      "age": 26.9,
-      "value": 5757,
-      "you": false,
-      "ranks": {
-        "bdge": null,
-        "rotowire": 10,
-        "ktc": 10,
-        "fantasycalc": 9,
-        "fantasypros": 10
-      }
-    },
-    {
-      "name": "Trey McBride",
+      "name": "Brenton Strange",
       "pos": "TE",
-      "team": "ARI",
-      "age": 26.8,
-      "value": 7256,
+      "team": "JAX",
+      "age": 25.7,
+      "value": 3036,
+      "owner": "thehulka",
       "you": false,
       "ranks": {
-        "bdge": 1,
-        "rotowire": 2,
-        "ktc": 2,
-        "fantasycalc": 2,
-        "fantasypros": 3
+        "bdge": 16,
+        "rotowire": 13,
+        "ktc": null,
+        "fantasycalc": 23,
+        "fantasypros": 16
+      }
+    },
+    {
+      "name": "Rachaad White",
+      "pos": "RB",
+      "team": "WAS",
+      "age": 27.7,
+      "value": 3119,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 45,
+        "rotowire": 35,
+        "ktc": null,
+        "fantasycalc": 49,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Khalil Shakir",
+      "pos": "WR",
+      "team": "BUF",
+      "age": 26.6,
+      "value": 2532,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 35,
+        "rotowire": 71,
+        "ktc": null,
+        "fantasycalc": 62,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Caleb Douglas",
+      "pos": "WR",
+      "team": "MIA",
+      "age": 23.0,
+      "value": 2645,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 66,
+        "rotowire": 65,
+        "ktc": null,
+        "fantasycalc": 63,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chris Rodriguez",
+      "pos": "RB",
+      "team": "JAX",
+      "age": 27.0,
+      "value": 2491,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 55,
+        "rotowire": 54,
+        "ktc": null,
+        "fantasycalc": 50,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Pat Bryant",
+      "pos": "WR",
+      "team": "DEN",
+      "age": 23.7,
+      "value": 2793,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 59,
+        "ktc": null,
+        "fantasycalc": 64,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jakobi Meyers",
+      "pos": "WR",
+      "team": "JAX",
+      "age": 29.8,
+      "value": 2543,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 40,
+        "rotowire": 70,
+        "ktc": null,
+        "fantasycalc": 65,
+        "fantasypros": null
       }
     },
     {
@@ -1281,73 +2784,2062 @@
       "team": "ATL",
       "age": 28.5,
       "value": 3292,
+      "owner": "mathoose",
       "you": true,
       "ranks": {
-        "bdge": null,
-        "rotowire": null,
+        "bdge": 27,
+        "rotowire": 31,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 32,
+        "fantasypros": 27
+      }
+    },
+    {
+      "name": "Antonio Williams",
+      "pos": "WR",
+      "team": "WAS",
+      "age": 22.2,
+      "value": 2640,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 66,
+        "ktc": null,
+        "fantasycalc": 66,
         "fantasypros": null
       }
     },
     {
-      "name": "Tucker Kraft",
-      "pos": "TE",
-      "team": "GB",
-      "age": 25.8,
-      "value": 4819,
-      "you": true,
+      "name": "Rashid Shaheed",
+      "pos": "WR",
+      "team": "SEA",
+      "age": 28.0,
+      "value": 2315,
+      "owner": "nricciarelli",
+      "you": false,
       "ranks": {
-        "bdge": 7,
-        "rotowire": 5,
-        "ktc": 5,
-        "fantasycalc": 5,
-        "fantasypros": 5
+        "bdge": 64,
+        "rotowire": 77,
+        "ktc": null,
+        "fantasycalc": 67,
+        "fantasypros": null
       }
     },
     {
-      "name": "Tyler Shough",
+      "name": "Drew Allar",
       "pos": "QB",
-      "team": "NO",
-      "age": 26.9,
-      "value": 4803,
-      "you": true,
+      "team": "PIT",
+      "age": 22.5,
+      "value": 2735,
+      "owner": "miketo",
+      "you": false,
       "ranks": {
         "bdge": null,
-        "rotowire": null,
+        "rotowire": 34,
         "ktc": null,
-        "fantasycalc": null,
+        "fantasycalc": 33,
         "fantasypros": null
       }
     },
     {
-      "name": "Tyler Warren",
+      "name": "Cyrus Allen",
+      "pos": "WR",
+      "team": "KC",
+      "age": 23.6,
+      "value": 2953,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 53,
+        "ktc": null,
+        "fantasycalc": 68,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Hunter Henry",
       "pos": "TE",
+      "team": "NE",
+      "age": 31.8,
+      "value": 2406,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 22,
+        "rotowire": 30,
+        "ktc": null,
+        "fantasycalc": 24,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dylan Sampson",
+      "pos": "RB",
+      "team": "CLE",
+      "age": 22.0,
+      "value": 2342,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 39,
+        "rotowire": 61,
+        "ktc": null,
+        "fantasycalc": 51,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Deebo Samuel",
+      "pos": "WR",
+      "team": "SF",
+      "age": 30.7,
+      "value": 2316,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 43,
+        "rotowire": 76,
+        "ktc": null,
+        "fantasycalc": 69,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kaleb Johnson",
+      "pos": "RB",
+      "team": "PIT",
+      "age": 23.1,
+      "value": 2239,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 50,
+        "rotowire": 68,
+        "ktc": null,
+        "fantasycalc": 52,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Aaron Rodgers",
+      "pos": "QB",
+      "team": "PIT",
+      "age": 42.8,
+      "value": 3293,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 30,
+        "rotowire": 30,
+        "ktc": null,
+        "fantasycalc": 34,
+        "fantasypros": 29
+      }
+    },
+    {
+      "name": "Ricky Pearsall",
+      "pos": "WR",
+      "team": "SF",
+      "age": 26.0,
+      "value": null,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 33,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 70,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tre' Harris",
+      "pos": "WR",
+      "team": "LAC",
+      "age": 24.5,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 47,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 71,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tank Bigsby",
+      "pos": "RB",
+      "team": "PHI",
+      "age": 24.0,
+      "value": 2614,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 46,
+        "rotowire": 49,
+        "ktc": null,
+        "fantasycalc": 53,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kirk Cousins",
+      "pos": "QB",
+      "team": "LV",
+      "age": 38.1,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 55,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 35,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Gunnar Helm",
+      "pos": "TE",
+      "team": "TEN",
+      "age": 24.0,
+      "value": 2433,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 44,
+        "rotowire": 29,
+        "ktc": null,
+        "fantasycalc": 25,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "T.J. Hockenson",
+      "pos": "TE",
+      "team": "MIN",
+      "age": 29.2,
+      "value": 2632,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 21,
+        "rotowire": 20,
+        "ktc": null,
+        "fantasycalc": 26,
+        "fantasypros": 18
+      }
+    },
+    {
+      "name": "Braelon Allen",
+      "pos": "RB",
+      "team": "NYJ",
+      "age": 22.6,
+      "value": 2390,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 38,
+        "rotowire": 59,
+        "ktc": null,
+        "fantasycalc": 54,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Deshaun Watson",
+      "pos": "QB",
+      "team": "CLE",
+      "age": 31.0,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 52,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 36,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tre Tucker",
+      "pos": "WR",
+      "team": "LV",
+      "age": 25.5,
+      "value": 2586,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 46,
+        "rotowire": 68,
+        "ktc": null,
+        "fantasycalc": 72,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Shedeur Sanders",
+      "pos": "QB",
+      "team": "CLE",
+      "age": 24.6,
+      "value": null,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 33,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 37,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Keaton Mitchell",
+      "pos": "RB",
+      "team": "LAC",
+      "age": 24.6,
+      "value": 2580,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 74,
+        "rotowire": 50,
+        "ktc": null,
+        "fantasycalc": 55,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Brian Robinson",
+      "pos": "RB",
+      "team": "ATL",
+      "age": 27.5,
+      "value": 2251,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 40,
+        "rotowire": 67,
+        "ktc": null,
+        "fantasycalc": 56,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dalton Schultz",
+      "pos": "TE",
+      "team": "HOU",
+      "age": 30.2,
+      "value": 2591,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 29,
+        "rotowire": 24,
+        "ktc": null,
+        "fantasycalc": 27,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Zachariah Branch",
+      "pos": "WR",
+      "team": "ATL",
+      "age": 22.4,
+      "value": 2498,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 75,
+        "ktc": null,
+        "fantasycalc": 73,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jalen McMillan",
+      "pos": "WR",
+      "team": "TB",
+      "age": 24.8,
+      "value": 2502,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 80,
+        "rotowire": 74,
+        "ktc": null,
+        "fantasycalc": 74,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tyjae Spears",
+      "pos": "RB",
+      "team": "TEN",
+      "age": 25.2,
+      "value": 2637,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 52,
+        "rotowire": 47,
+        "ktc": null,
+        "fantasycalc": 57,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dontayvion Wicks",
+      "pos": "WR",
+      "team": "PHI",
+      "age": 25.2,
+      "value": null,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 71,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 75,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tyrone Tracy",
+      "pos": "RB",
+      "team": "NYG",
+      "age": 26.8,
+      "value": 2266,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 28,
+        "rotowire": 65,
+        "ktc": null,
+        "fantasycalc": 58,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kayshon Boutte",
+      "pos": "WR",
+      "team": "NE",
+      "age": 24.3,
+      "value": 2801,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": 58,
+        "rotowire": 58,
+        "ktc": null,
+        "fantasycalc": 76,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "J.J. McCarthy",
+      "pos": "QB",
+      "team": "MIN",
+      "age": 23.6,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 24,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 38,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jalen Nailor",
+      "pos": "WR",
+      "team": "LV",
+      "age": 27.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 77,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Carson Beck",
+      "pos": "QB",
+      "team": "ARI",
+      "age": 23.8,
+      "value": 2719,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 35,
+        "ktc": null,
+        "fantasycalc": 39,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Malik Washington",
+      "pos": "WR",
+      "team": "MIA",
+      "age": 25.7,
+      "value": 2507,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 84,
+        "rotowire": 73,
+        "ktc": null,
+        "fantasycalc": 78,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tank Dell",
+      "pos": "WR",
+      "team": "HOU",
+      "age": 26.9,
+      "value": null,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 79,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Aaron Jones",
+      "pos": "RB",
+      "team": "MIN",
+      "age": 31.8,
+      "value": 2638,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 44,
+        "rotowire": 46,
+        "ktc": null,
+        "fantasycalc": 59,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ted Hurst",
+      "pos": "WR",
+      "team": "TB",
+      "age": 22.2,
+      "value": 2755,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 64,
+        "ktc": null,
+        "fantasycalc": 80,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Adonai Mitchell",
+      "pos": "WR",
+      "team": "NYJ",
+      "age": 23.9,
+      "value": 2766,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 57,
+        "rotowire": 62,
+        "ktc": null,
+        "fantasycalc": 81,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Alvin Kamara",
+      "pos": "RB",
+      "team": "NO",
+      "age": 31.1,
+      "value": 2574,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 32,
+        "rotowire": 51,
+        "ktc": null,
+        "fantasycalc": 60,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Isaac TeSlaa",
+      "pos": "WR",
+      "team": "DET",
+      "age": 24.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 54,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 82,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jerry Jeudy",
+      "pos": "WR",
+      "team": "CLE",
+      "age": 27.4,
+      "value": 2523,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 76,
+        "rotowire": 72,
+        "ktc": null,
+        "fantasycalc": 83,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Greg Dulcich",
+      "pos": "TE",
+      "team": "MIA",
+      "age": 26.5,
+      "value": 2277,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 43,
+        "rotowire": 36,
+        "ktc": null,
+        "fantasycalc": 28,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Keenan Allen",
+      "pos": "WR",
+      "team": "IND",
+      "age": 34.4,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 55,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 84,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Skyler Bell",
+      "pos": "WR",
+      "team": "BUF",
+      "age": 24.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 85,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Malik Davis",
+      "pos": "RB",
+      "team": "DAL",
+      "age": 27.8,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 61,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Najee Harris",
+      "pos": "RB",
+      "team": "NYG",
+      "age": 28.5,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 41,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 62,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Zavion Thomas",
+      "pos": "WR",
+      "team": "CHI",
+      "age": 22.6,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 86,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tory Horton",
+      "pos": "WR",
+      "team": "SEA",
+      "age": 23.8,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 87,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Eli Raridon",
+      "pos": "TE",
+      "team": "NE",
+      "age": 22.6,
+      "value": 2761,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 49,
+        "rotowire": 19,
+        "ktc": null,
+        "fantasycalc": 29,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Pat Freiermuth",
+      "pos": "TE",
+      "team": "PIT",
+      "age": 27.9,
+      "value": null,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 26,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 30,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Isiah Pacheco",
+      "pos": "RB",
+      "team": "DET",
+      "age": 27.5,
+      "value": 2285,
+      "owner": "mathoose",
+      "you": true,
+      "ranks": {
+        "bdge": 37,
+        "rotowire": 64,
+        "ktc": null,
+        "fantasycalc": 63,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Demond Claiborne",
+      "pos": "RB",
+      "team": "MIN",
+      "age": 22.9,
+      "value": 2468,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 57,
+        "ktc": null,
+        "fantasycalc": 64,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Keon Coleman",
+      "pos": "WR",
+      "team": "BUF",
+      "age": 23.3,
+      "value": null,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 37,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 88,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jaylin Noel",
+      "pos": "WR",
+      "team": "HOU",
+      "age": 24.0,
+      "value": null,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 79,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 89,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Devaughn Vele",
+      "pos": "WR",
+      "team": "NO",
+      "age": 28.7,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 90,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jauan Jennings",
+      "pos": "WR",
+      "team": "MIN",
+      "age": 29.2,
+      "value": 2552,
+      "owner": "kaylama",
+      "you": false,
+      "ranks": {
+        "bdge": 50,
+        "rotowire": 69,
+        "ktc": null,
+        "fantasycalc": 91,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jack Bech",
+      "pos": "WR",
+      "team": "LV",
+      "age": 23.7,
+      "value": null,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 72,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 92,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Anthony Richardson",
+      "pos": "QB",
       "team": "IND",
       "age": 24.3,
-      "value": 5669,
+      "value": null,
+      "owner": "cbrennan",
       "you": false,
       "ranks": {
-        "bdge": 4,
-        "rotowire": 4,
-        "ktc": 4,
-        "fantasycalc": 4,
-        "fantasypros": 4
+        "bdge": 34,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 40,
+        "fantasypros": null
       }
     },
     {
-      "name": "Zay Flowers",
+      "name": "Mac Jones",
+      "pos": "QB",
+      "team": "SF",
+      "age": 28.0,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 36,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 41,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kaytron Allen",
+      "pos": "RB",
+      "team": "WAS",
+      "age": 23.7,
+      "value": 2292,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 81,
+        "rotowire": 63,
+        "ktc": null,
+        "fantasycalc": 65,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Cade Otton",
+      "pos": "TE",
+      "team": "TB",
+      "age": 27.4,
+      "value": 2588,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 20,
+        "rotowire": 25,
+        "ktc": null,
+        "fantasycalc": 31,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "David Njoku",
+      "pos": "TE",
+      "team": "LAC",
+      "age": 30.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 14,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 32,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Cooper Kupp",
       "pos": "WR",
-      "team": "BAL",
-      "age": 24.0,
-      "value": 6221,
+      "team": "SEA",
+      "age": 33.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 56,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 93,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jaylen Wright",
+      "pos": "RB",
+      "team": "MIA",
+      "age": 23.4,
+      "value": null,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 70,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 66,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Troy Franklin",
+      "pos": "WR",
+      "team": "DEN",
+      "age": 23.6,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 42,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 94,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kyle Williams",
+      "pos": "WR",
+      "team": "NE",
+      "age": 23.8,
+      "value": null,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 51,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 95,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Mason Taylor",
+      "pos": "TE",
+      "team": "NYJ",
+      "age": 22.3,
+      "value": 2314,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 15,
+        "rotowire": 34,
+        "ktc": null,
+        "fantasycalc": 33,
+        "fantasypros": 20
+      }
+    },
+    {
+      "name": "Darren Waller",
+      "pos": "TE",
+      "team": "CAR",
+      "age": 34.0,
+      "value": null,
+      "owner": null,
       "you": false,
       "ranks": {
         "bdge": null,
-        "rotowire": 11,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 34,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Seth McGowan",
+      "pos": "RB",
+      "team": "IND",
+      "age": 24.9,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 67,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Elijah Sarratt",
+      "pos": "WR",
+      "team": "BAL",
+      "age": 23.3,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 96,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kimani Vidal",
+      "pos": "RB",
+      "team": "LAC",
+      "age": 25.0,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 75,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 68,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jacob Saylors",
+      "pos": "RB",
+      "team": "DET",
+      "age": 25.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 69,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ray Davis",
+      "pos": "RB",
+      "team": "BUF",
+      "age": 26.8,
+      "value": 2567,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 47,
+        "rotowire": 52,
+        "ktc": null,
+        "fantasycalc": 70,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Calvin Ridley",
+      "pos": "WR",
+      "team": "TEN",
+      "age": 31.7,
+      "value": null,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": 65,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 97,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jalen Milroe",
+      "pos": "QB",
+      "team": "SEA",
+      "age": 23.7,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 37,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 42,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Adam Randall",
+      "pos": "RB",
+      "team": "BAL",
+      "age": 22.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 71,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Michael Mayer",
+      "pos": "TE",
+      "team": "LV",
+      "age": 25.2,
+      "value": 2323,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 36,
+        "rotowire": 33,
+        "ktc": null,
+        "fantasycalc": 35,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "George Holani",
+      "pos": "RB",
+      "team": "SEA",
+      "age": 26.7,
+      "value": 2475,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 56,
+        "ktc": null,
+        "fantasycalc": 72,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ryan Flournoy",
+      "pos": "WR",
+      "team": "DAL",
+      "age": 26.9,
+      "value": 2273,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 78,
+        "ktc": null,
+        "fantasycalc": 98,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Max Klare",
+      "pos": "TE",
+      "team": "LAR",
+      "age": 23.2,
+      "value": 2312,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 35,
+        "ktc": null,
+        "fantasycalc": 36,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Elijah Arroyo",
+      "pos": "TE",
+      "team": "SEA",
+      "age": 23.4,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 37,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 37,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ollie Gordon",
+      "pos": "RB",
+      "team": "MIA",
+      "age": 22.6,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 69,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 73,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Tyreek Hill",
+      "pos": "WR",
+      "team": "",
+      "age": 32.5,
+      "value": null,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 99,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Sean Tucker",
+      "pos": "RB",
+      "team": "TB",
+      "age": 24.9,
+      "value": 2387,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 65,
+        "rotowire": 60,
+        "ktc": null,
+        "fantasycalc": 74,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Cade Klubnik",
+      "pos": "QB",
+      "team": "NYJ",
+      "age": 22.9,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 43,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Oscar Delp",
+      "pos": "TE",
+      "team": "NO",
+      "age": 23.1,
+      "value": 2331,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 32,
+        "ktc": null,
+        "fantasycalc": 38,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jordan James",
+      "pos": "RB",
+      "team": "SF",
+      "age": 22.4,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 59,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 75,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Justin Fields",
+      "pos": "QB",
+      "team": "KC",
+      "age": 27.5,
+      "value": null,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": 28,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 44,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Evan Engram",
+      "pos": "TE",
+      "team": "DEN",
+      "age": 32.0,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 23,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 39,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chimere Dike",
+      "pos": "WR",
+      "team": "TEN",
+      "age": 24.7,
+      "value": null,
+      "owner": "cvbrazil",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 100,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Elic Ayomanor",
+      "pos": "WR",
+      "team": "TEN",
+      "age": 23.3,
+      "value": null,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 48,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 101,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chris Brazzell",
+      "pos": "WR",
+      "team": "CAR",
+      "age": 23.0,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 102,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Brandon Aiyuk",
+      "pos": "WR",
+      "team": "SF",
+      "age": 28.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 73,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 103,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Barion Brown",
+      "pos": "WR",
+      "team": "NO",
+      "age": 22.7,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 104,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Justin Joly",
+      "pos": "TE",
+      "team": "DEN",
+      "age": 22.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 40,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Bryce Lance",
+      "pos": "WR",
+      "team": "NO",
+      "age": 24.1,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 105,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Chris Brooks",
+      "pos": "RB",
+      "team": "GB",
+      "age": 26.7,
+      "value": 2479,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 55,
+        "ktc": null,
+        "fantasycalc": 76,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jack Strand",
+      "pos": "QB",
+      "team": "ATL",
+      "age": 22.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 45,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "James Conner",
+      "pos": "RB",
+      "team": "ARI",
+      "age": 31.4,
+      "value": 2444,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 68,
+        "rotowire": 58,
+        "ktc": null,
+        "fantasycalc": 77,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Rashod Bateman",
+      "pos": "WR",
+      "team": "BAL",
+      "age": 26.8,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 69,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 106,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Darnell Mooney",
+      "pos": "WR",
+      "team": "NYG",
+      "age": 28.9,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 61,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 107,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Xavier Legette",
+      "pos": "WR",
+      "team": "CAR",
+      "age": 25.6,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 67,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 108,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jalon Daniels",
+      "pos": "QB",
+      "team": "TB",
+      "age": 23.9,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 46,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jaydon Blue",
+      "pos": "RB",
+      "team": "DAL",
+      "age": 22.7,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 72,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 78,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jake Tonges",
+      "pos": "TE",
+      "team": "SF",
+      "age": 27.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 41,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Marvin Mims",
+      "pos": "WR",
+      "team": "DEN",
+      "age": 24.5,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 63,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 109,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Justice Hill",
+      "pos": "RB",
+      "team": "BAL",
+      "age": 28.8,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 79,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Eli Heidenreich",
+      "pos": "RB",
+      "team": "PIT",
+      "age": 23.2,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 80,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Theo Johnson",
+      "pos": "TE",
+      "team": "NYG",
+      "age": 25.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": 19,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 42,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Matt Hibner",
+      "pos": "TE",
+      "team": "BAL",
+      "age": 24.5,
+      "value": null,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 43,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Isaiah Davis",
+      "pos": "RB",
+      "team": "NYJ",
+      "age": 24.5,
+      "value": 2252,
+      "owner": null,
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": 66,
+        "ktc": null,
+        "fantasycalc": 81,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Trey Benson",
+      "pos": "RB",
+      "team": "ARI",
+      "age": 24.1,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 29,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 82,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Mike Gesicki",
+      "pos": "TE",
+      "team": "CIN",
+      "age": 30.9,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 40,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 44,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Roschon Johnson",
+      "pos": "RB",
+      "team": "CHI",
+      "age": 25.6,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 67,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 85,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Joe Flacco",
+      "pos": "QB",
+      "team": "CIN",
+      "age": 41.7,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 35,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 49,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Quinn Ewers",
+      "pos": "QB",
+      "team": "MIA",
+      "age": 23.5,
+      "value": null,
+      "owner": "silenthei",
+      "you": false,
+      "ranks": {
+        "bdge": 56,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 50,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jahan Dotson",
+      "pos": "WR",
+      "team": "ATL",
+      "age": 26.5,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 117,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Emanuel Wilson",
+      "pos": "RB",
+      "team": "SEA",
+      "age": 27.3,
+      "value": null,
+      "owner": "bturner",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 87,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Cole Kmet",
+      "pos": "TE",
+      "team": "CHI",
+      "age": 27.5,
+      "value": null,
+      "owner": "cbrennan",
+      "you": false,
+      "ranks": {
+        "bdge": 38,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 47,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Ja'Tavion Sanders",
+      "pos": "TE",
+      "team": "CAR",
+      "age": 23.5,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 25,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 52,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Marcus Mariota",
+      "pos": "QB",
+      "team": "WAS",
+      "age": 32.9,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 60,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 58,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Christian Kirk",
+      "pos": "WR",
+      "team": "SF",
+      "age": 29.8,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 81,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 135,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Trey Lance",
+      "pos": "QB",
+      "team": "LAC",
+      "age": 26.3,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": 58,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 63,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Noah Fant",
+      "pos": "TE",
+      "team": "NO",
+      "age": 28.8,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 46,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 64,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Kareem Hunt",
+      "pos": "RB",
+      "team": "",
+      "age": 31.1,
+      "value": null,
+      "owner": "thehulka",
+      "you": false,
+      "ranks": {
+        "bdge": 61,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 100,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jordan Whittington",
+      "pos": "WR",
+      "team": "LAR",
+      "age": 25.9,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": 152,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Jerome Ford",
+      "pos": "RB",
+      "team": "CLE",
+      "age": 27.4,
+      "value": null,
+      "owner": "qadams",
+      "you": false,
+      "ranks": {
+        "bdge": 77,
+        "rotowire": null,
         "ktc": null,
         "fantasycalc": null,
-        "fantasypros": 11
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Elijah Mitchell",
+      "pos": "RB",
+      "team": "KC",
+      "age": 28.3,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": null,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Dameon Pierce",
+      "pos": "RB",
+      "team": "HOU",
+      "age": 26.5,
+      "value": null,
+      "owner": "miketo",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": null,
+        "fantasypros": null
+      }
+    },
+    {
+      "name": "Calvin Austin",
+      "pos": "WR",
+      "team": "PIT",
+      "age": 27.6,
+      "value": null,
+      "owner": "nricciarelli",
+      "you": false,
+      "ranks": {
+        "bdge": null,
+        "rotowire": null,
+        "ktc": null,
+        "fantasycalc": null,
+        "fantasypros": null
       }
     }
   ]
