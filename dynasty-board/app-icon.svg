@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Dynasty Board icon">
+  <defs>
+    <linearGradient id="bg" x1="16" y1="8" x2="164" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e3a5f"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="#0b1220"/>
+  <rect x="16" y="16" width="148" height="148" rx="30" fill="url(#bg)"/>
+  <rect x="36" y="40" width="108" height="14" rx="4" fill="#38bdf8" opacity=".95"/>
+  <rect x="36" y="62" width="86" height="10" rx="3" fill="#94a3b8" opacity=".55"/>
+  <rect x="36" y="80" width="98" height="10" rx="3" fill="#fbbf24" opacity=".85"/>
+  <rect x="36" y="98" width="72" height="10" rx="3" fill="#94a3b8" opacity=".45"/>
+  <rect x="36" y="116" width="90" height="10" rx="3" fill="#34d399" opacity=".8"/>
+  <text x="90" y="152" text-anchor="middle" font-family="ui-rounded, -apple-system, sans-serif" font-size="15" font-weight="800" fill="#e2e8f0" letter-spacing="1.4">DYNASTY</text>
+</svg>

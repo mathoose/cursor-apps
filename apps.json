@@ -139,6 +139,11 @@
       "storageKey": "draft-board-v1"
     },
     {
+      "id": "dynasty-board",
+      "name": "Dynasty Board",
+      "subtitle": "SF ranks · 5 sources"
+    },
+    {
       "id": "mobile-viewer",
       "name": "Tracker Viewer",
       "subtitle": "Read-only tank exports"
