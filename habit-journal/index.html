@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v71 -->
+  <!-- build: hj-today-version-v72 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -975,16 +975,54 @@
       touch-action: manipulation;
       position: relative;
     }
+    .category-filters .chip-pack {
+      display: inline-flex;
+      align-items: stretch;
+      flex-shrink: 0;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    .category-filters .chip-pack .chip {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 8px 4px;
+      min-height: 36px;
+    }
+    .category-filters .cat-nudge {
+      flex-shrink: 0;
+      width: 30px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .category-filters .cat-nudge:disabled {
+      opacity: 0.28;
+      cursor: default;
+    }
     .category-filters .chip[data-cat-filter]:not([data-cat-filter="all"]) {
       cursor: grab;
     }
     .category-filters.cat-reordering .chip[data-cat-filter]:not([data-cat-filter="all"]) {
       cursor: grabbing;
     }
-    .category-filters .chip.cat-dragging {
+    .category-filters .chip.cat-dragging,
+    .category-filters .chip-pack.cat-dragging {
       opacity: 0.45;
     }
-    .category-filters .chip.cat-drop-before::before {
+    .category-filters .chip.cat-drop-before::before,
+    .category-filters .chip-pack.cat-drop-before::before {
       content: "";
       position: absolute;
       left: -5px;
@@ -994,7 +1032,8 @@
       border-radius: 2px;
       background: var(--accent);
     }
-    .category-filters .chip.cat-drop-after::after {
+    .category-filters .chip.cat-drop-after::after,
+    .category-filters .chip-pack.cat-drop-after::after {
       content: "";
       position: absolute;
       right: -5px;
@@ -1004,9 +1043,17 @@
       border-radius: 2px;
       background: var(--accent);
     }
-    .category-filters .chip.on {
+    .category-filters .chip.on,
+    .category-filters .chip-pack.on .chip {
       border-color: var(--accent);
       background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .category-filters .chip-pack.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+    }
+    .category-filters .chip-pack.on .cat-nudge:not(:disabled) {
       color: var(--accent-dark);
     }
     .year-toolbar .btn[aria-pressed="true"] {
@@ -2874,15 +2921,24 @@
     body.layout-modern .today-hidden-restore-name {
       color: #f4f5f8;
     }
-    body.layout-modern .chip {
+    body.layout-modern .chip,
+    body.layout-modern .chip-pack {
       background: var(--card-2);
       border-color: var(--border);
       color: #e8ecf4;
     }
-    body.layout-modern .chip.on {
+    body.layout-modern .chip.on,
+    body.layout-modern .chip-pack.on,
+    body.layout-modern .chip-pack.on .chip {
       background: rgba(139, 124, 247, 0.28);
       border-color: rgba(139, 124, 247, 0.65);
       color: #fff;
+    }
+    body.layout-modern .chip-pack.on .cat-nudge:not(:disabled) {
+      color: #fff;
+    }
+    body.layout-modern .cat-nudge {
+      color: #c5cbe0;
     }
     body.layout-modern .habits-cat-toggle,
     body.layout-modern .habits-color-toggle,
@@ -3412,7 +3468,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v71 · Aug 27, 2026";
+  let habitJournalVersionText = "v72 · Sep 6, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3658,6 +3714,7 @@
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
   let todayViewOffset = 0;
+  let categoryFiltersScrollLeft = 0;
   let todayHiddenSectionOpen = false;
   let yearFullscreenHabitId = null;
   let habitEditId = null;
@@ -4278,6 +4335,27 @@
     return save();
   }
 
+  function visibleFilterCategories(onlyVisible) {
+    return (state.categories || []).filter(function (cat) {
+      const count = state.habits.filter(function (h) {
+        if (onlyVisible && h.hidden) return false;
+        return h.category === cat.id;
+      }).length;
+      return count > 0 || state.categoryFilter === cat.id;
+    });
+  }
+
+  function nudgeVisibleCategory(catId, dir, onlyVisible) {
+    const vis = visibleFilterCategories(onlyVisible);
+    const idx = vis.findIndex(function (c) { return c.id === catId; });
+    if (idx < 0) return false;
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= vis.length) return false;
+    if (dir < 0) return reorderCategoryBefore(catId, vis[swapIdx].id);
+    const afterNext = vis[swapIdx + 1];
+    return reorderCategoryBefore(catId, afterNext ? afterNext.id : null);
+  }
+
   function addHabitToState(name, category, step, type) {
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
@@ -4757,31 +4835,59 @@
   }
 
   function renderCategoryFiltersHtml(onlyVisible) {
-    let html = '<div class="category-filters" aria-label="Category filters. Hold a category to reorder.">';
+    const visibleCats = visibleFilterCategories(onlyVisible);
+    let html =
+      '<div class="category-filters" data-only-visible="' +
+      (onlyVisible ? "1" : "0") +
+      '" aria-label="Category filters. Use arrows or hold a category to reorder.">';
     html +=
       '<button type="button" class="chip' +
       (state.categoryFilter === "all" ? " on" : "") +
       '" data-cat-filter="all">All</button>';
-    state.categories.forEach(function (cat) {
+    visibleCats.forEach(function (cat, idx) {
       const count = state.habits.filter(function (h) {
         if (onlyVisible && h.hidden) return false;
         return h.category === cat.id;
       }).length;
-      if (count === 0 && state.categoryFilter !== cat.id) return;
       const accent = categoryAccentColor(cat.id);
       const on = state.categoryFilter === cat.id;
+      const canLeft = idx > 0;
+      const canRight = idx < visibleCats.length - 1;
+      html +=
+        '<div class="chip-pack' +
+        (on ? " on" : "") +
+        '" data-cat-id="' +
+        escapeHtml(cat.id) +
+        '" title="Arrows or hold to reorder" style="border-color:' +
+        accent +
+        (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
+        '">';
+      html +=
+        '<button type="button" class="cat-nudge" data-cat-nudge="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="-1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' left"' +
+        (canLeft ? "" : " disabled") +
+        ">‹</button>";
       html +=
         '<button type="button" class="chip' +
         (on ? " on" : "") +
         '" data-cat-filter="' +
         escapeHtml(cat.id) +
-        '" title="Hold to reorder" style="border-color:' +
-        accent +
-        (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
         '">' +
         escapeHtml(cat.label) +
         (count ? " (" + count + ")" : "") +
         "</button>";
+      html +=
+        '<button type="button" class="cat-nudge" data-cat-nudge="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' right"' +
+        (canRight ? "" : " disabled") +
+        ">›</button>";
+      html += "</div>";
     });
     html += "</div>";
     return html;
@@ -4791,6 +4897,14 @@
     if (!root) return;
     const row = root.querySelector(".category-filters");
     if (!row) return;
+    row.scrollLeft = categoryFiltersScrollLeft;
+    row.addEventListener(
+      "scroll",
+      function () {
+        categoryFiltersScrollLeft = row.scrollLeft;
+      },
+      { passive: true }
+    );
 
     let suppressClick = false;
     let holdTimer = null;
@@ -4801,8 +4915,12 @@
     let startX = 0;
     let startY = 0;
 
-    function categoryChips() {
-      return Array.prototype.slice.call(row.querySelectorAll('[data-cat-filter]:not([data-cat-filter="all"])'));
+    function categoryPacks() {
+      return Array.prototype.slice.call(row.querySelectorAll(".chip-pack[data-cat-id]"));
+    }
+
+    function packId(pack) {
+      return pack ? pack.getAttribute("data-cat-id") : "";
     }
 
     function clearDropUi() {
@@ -4825,32 +4943,32 @@
     }
 
     function updateDropFromX(clientX) {
-      const chips = categoryChips().filter(function (el) {
-        return el.getAttribute("data-cat-filter") !== dragId;
+      const packs = categoryPacks().filter(function (el) {
+        return packId(el) !== dragId;
       });
       dropBeforeId = null;
       clearDropUi();
-      const dragEl = row.querySelector('[data-cat-filter="' + dragId + '"]');
+      const dragEl = row.querySelector('.chip-pack[data-cat-id="' + dragId + '"]');
       if (dragEl) dragEl.classList.add("cat-dragging");
-      if (!chips.length) return;
-      for (let i = 0; i < chips.length; i++) {
-        const rect = chips[i].getBoundingClientRect();
+      if (!packs.length) return;
+      for (let i = 0; i < packs.length; i++) {
+        const rect = packs[i].getBoundingClientRect();
         const mid = rect.left + rect.width / 2;
         if (clientX < mid) {
-          dropBeforeId = chips[i].getAttribute("data-cat-filter");
-          chips[i].classList.add("cat-drop-before");
+          dropBeforeId = packId(packs[i]);
+          packs[i].classList.add("cat-drop-before");
           return;
         }
       }
       dropBeforeId = null;
-      chips[chips.length - 1].classList.add("cat-drop-after");
+      packs[packs.length - 1].classList.add("cat-drop-after");
     }
 
     function startDrag(id) {
       dragging = true;
       dragId = id;
       row.classList.add("cat-reordering");
-      const dragEl = row.querySelector('[data-cat-filter="' + id + '"]');
+      const dragEl = row.querySelector('.chip-pack[data-cat-id="' + id + '"]');
       if (dragEl) dragEl.classList.add("cat-dragging");
     }
 
@@ -4884,7 +5002,7 @@
             } catch (err) { /* ok */ }
             startDrag(catId);
             updateDropFromX(startX);
-          }, 280);
+          }, 380);
         },
         { passive: true }
       );
@@ -4896,7 +5014,7 @@
             if (!holdTimer) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
-            if (dx * dx + dy * dy > 36) {
+            if (dx * dx + dy * dy > 400) {
               clearTimeout(holdTimer);
               holdTimer = null;
             }
@@ -4941,6 +5059,22 @@
       },
       { passive: false }
     );
+
+    const onlyVisible = row.getAttribute("data-only-visible") !== "0";
+    row.querySelectorAll("[data-cat-nudge]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btn.disabled) return;
+        const id = btn.getAttribute("data-cat-nudge");
+        const dir = parseInt(btn.getAttribute("data-cat-dir"), 10);
+        if (!id || !dir) return;
+        if (nudgeVisibleCategory(id, dir, onlyVisible)) {
+          render();
+          toast("Category order saved");
+        }
+      };
+    });
   }
 
   function yearHabitFullscreenTitle(habit) {
@@ -7049,7 +7183,7 @@
     html +=
       '<p class="hint">Tap a name to edit · Hide on each row · pick type when adding · hidden habits below.' +
       eraserNote +
-      " Hold a counter cell to subtract. Tap Number or Time cells to type that day’s value. Hold ≡ to drag habits. Hold a category chip to reorder filters.</p>";
+      " Hold a counter cell to subtract. Tap Number or Time cells to type that day’s value. Hold ≡ to drag habits. Use ‹ › on a category chip to reorder filters.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -9180,7 +9314,7 @@
       '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
     html +=
-      '<p class="hint">Hold a category chip on Month/Stats to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
+      '<p class="hint">Use ‹ › on a Month or Stats category chip to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
 
     html += '<div class="add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
