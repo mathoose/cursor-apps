@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -49,6 +49,14 @@
       </label>
     </div>
     <p class="count" id="count"></p>
+    <div class="select-bar" id="selectBar">
+      <span id="selectMeta">Tap players to select</span>
+      <div class="select-actions">
+        <button type="button" id="selectVisible">Select visible</button>
+        <button type="button" id="clearSelect" disabled>Clear</button>
+        <button type="button" class="primary" id="exportBtn" disabled>Export</button>
+      </div>
+    </div>
   </section>
 
   <main>
@@ -63,9 +71,18 @@
     <p class="footnote" id="footnote"></p>
   </main>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="sheet" id="copySheet" hidden>
+    <div class="sheet-card">
+      <p>Clipboard blocked — select the text, copy, then paste it in the Cursor Apps chat.</p>
+      <textarea id="copyText" readonly></textarea>
+      <button type="button" class="primary" id="closeSheet">Done</button>
+    </div>
+  </div>
+
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
