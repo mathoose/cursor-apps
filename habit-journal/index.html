@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v73 -->
+  <!-- build: hj-today-version-v74 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3385,7 +3385,7 @@
           <option value="morning">Morning — first 3 opens</option>
           <option value="night">Night — after 8 PM</option>
         </select>
-        <p class="hint exclude-days-hint">Any category. Finished items move to Hidden for today.</p>
+        <p class="hint exclude-days-hint">Any category. Hide on the morning/night prompt to send them to Hidden for today.</p>
       </label>
       <label class="habit-edit-field" id="habitEditStepWrap">
         <span>+ per tap</span>
@@ -3559,7 +3559,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v73 · Sep 6, 2026";
+  let habitJournalVersionText = "v74 · Sep 7, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -4372,12 +4372,12 @@
     return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() };
   }
 
-  function isDailyHabitFinished(habit) {
+  function isDailyHabitHiddenToday(habit) {
     if (!habit) return true;
     if (isTodayDismissed(habit.id)) return true;
     const parts = getActualTodayParts();
     if (isDayExcluded(habit, parts.y, parts.m, parts.d)) return true;
-    return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
+    return false;
   }
 
   function getUnfinishedDailyHabits(when) {
@@ -4388,17 +4388,8 @@
       if (h.hidden) return false;
       if (normalizeDailyWhen(h.dailyWhen) !== want) return false;
       if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
-      return !isDailyHabitFinished(h);
+      return !isDailyHabitHiddenToday(h);
     });
-  }
-
-  function maybeFinishDailyHabit(habitId, y, m, d) {
-    if (!isTodayColumn(y, m, d)) return;
-    const habit = state.habits.find(function (h) { return h.id === habitId; });
-    if (!habit || !normalizeDailyWhen(habit.dailyWhen)) return;
-    if (isCellFilled(habit, getCellValue(cellKey(habitId, y, m, d)))) {
-      setTodayDismissed(habitId, true);
-    }
   }
 
   function recordAppOpen() {
@@ -4478,8 +4469,8 @@
     if (sub) {
       sub.textContent =
         when === "night"
-          ? "After 8 PM — mark or hide to finish"
-          : "First " + DAILY_MORNING_OPENS + " opens — mark or hide to finish";
+          ? "After 8 PM — tap to log, Hide when done"
+          : "First " + DAILY_MORNING_OPENS + " opens — tap to log, Hide when done";
     }
     const parts = getActualTodayParts();
     let html = "";
@@ -6534,10 +6525,8 @@
   }
 
   function afterCellChange(habitId, y, m, d) {
-    maybeFinishDailyHabit(habitId, y, m, d);
     save();
     refreshCellsForKey(habitId, y, m, d);
-    refreshDailyPrompt();
     if (activeTab === "month") return;
     if (activeTab === "stats" && graphsMode === "grid" && yearFullscreenHabitId) return;
     if (activeTab === "today") {
