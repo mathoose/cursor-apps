@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v74 -->
+  <!-- build: hj-today-version-v75 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3387,6 +3387,14 @@
         </select>
         <p class="hint exclude-days-hint">Any category. Hide on the morning/night prompt to send them to Hidden for today.</p>
       </label>
+      <label class="habit-edit-field">
+        <span>Stats plot scale</span>
+        <select id="habitEditPlotScale">
+          <option value="zero">From 0 to high</option>
+          <option value="min">Lowest entry = 0%</option>
+        </select>
+        <p class="hint exclude-days-hint">Use lowest for habits like Weight so the line uses the range you actually move in.</p>
+      </label>
       <label class="habit-edit-field" id="habitEditStepWrap">
         <span>+ per tap</span>
         <input type="number" id="habitEditStep" min="1" max="5000" />
@@ -3559,7 +3567,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v74 · Sep 7, 2026";
+  let habitJournalVersionText = "v75 · Sep 8, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -4108,6 +4116,20 @@
     return habit;
   }
 
+  function normalizePlotScale(value) {
+    return value === "min" ? "min" : "zero";
+  }
+
+  function applyPlotScale(habit, source) {
+    if (normalizePlotScale(source && source.plotScale) === "min") habit.plotScale = "min";
+    else delete habit.plotScale;
+    return habit;
+  }
+
+  function usesPlotMinScale(habit) {
+    return !!(habit && habit.plotScale === "min" && habit.type !== "yesno");
+  }
+
   function dailyWhenLabel(when) {
     if (when === "morning") return "Morning";
     if (when === "night") return "Night";
@@ -4159,7 +4181,7 @@
         const sd = parseIsoDateParts(h.statsStart);
         if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
       }
-      return applyDailyWhen(out, h);
+      return applyPlotScale(applyDailyWhen(out, h), h);
     }
     if (h.type === "yesno" || h.type === "counter" || h.type === "time" || h.type === "number") {
       const type = h.type;
@@ -4183,7 +4205,7 @@
         const sd = parseIsoDateParts(h.statsStart);
         if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
       }
-      return applyDailyWhen(out, h);
+      return applyPlotScale(applyDailyWhen(out, h), h);
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
     let type = "counter";
@@ -4206,7 +4228,7 @@
       const sd = parseIsoDateParts(h.statsStart);
       if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
     }
-    return applyDailyWhen(out, h);
+    return applyPlotScale(applyDailyWhen(out, h), h);
   }
 
   function setHabitHidden(habitId, hidden) {
@@ -5101,6 +5123,8 @@
     }
     const dailySel = document.getElementById("habitEditDailyWhen");
     if (dailySel) dailySel.value = normalizeDailyWhen(habit.dailyWhen);
+    const plotScaleSel = document.getElementById("habitEditPlotScale");
+    if (plotScaleSel) plotScaleSel.value = normalizePlotScale(habit.plotScale);
     renderHabitEditChangeLog(habitId);
     document.getElementById("habitEditSheet").hidden = false;
     document.body.classList.add("habit-edit-open");
@@ -5125,6 +5149,7 @@
     habit.name = name.slice(0, 40);
     habit.category = normalizeCategory(document.getElementById("habitEditCategory").value);
     applyDailyWhen(habit, { dailyWhen: document.getElementById("habitEditDailyWhen").value });
+    applyPlotScale(habit, { plotScale: document.getElementById("habitEditPlotScale").value });
     if (habit.type === "counter") {
       habit.step = Math.min(
         MAX_STEP,
@@ -8283,31 +8308,50 @@
     return days;
   }
 
-  function graphNormPercent(habit, raw, maxRaw) {
+  function graphNormPercent(habit, raw, maxRaw, minRaw) {
     if (raw == null) return null;
     if (habit.type === "yesno") {
       if (raw >= 1) return 100;
       if (raw <= 0) return 0;
       return 50;
     }
+    if (usesPlotMinScale(habit)) {
+      const low = minRaw == null ? 0 : minRaw;
+      const span = maxRaw - low;
+      if (span <= 0) return 50;
+      return ((raw - low) / span) * 100;
+    }
     if (maxRaw <= 0) return null;
     return (raw / maxRaw) * 100;
   }
 
-  function buildGraphLogSeries(habit, logSeries) {
-    let maxRaw = 0;
-    logSeries.points.forEach(function (p) {
-      if (p.value != null && p.value > maxRaw) maxRaw = p.value;
+  function graphRawBounds(values) {
+    let maxRaw = null;
+    let minRaw = null;
+    values.forEach(function (raw) {
+      if (raw == null || !isFinite(raw)) return;
+      if (maxRaw == null || raw > maxRaw) maxRaw = raw;
+      if (minRaw == null || raw < minRaw) minRaw = raw;
     });
-    if (maxRaw <= 0) {
+    return { maxRaw: maxRaw, minRaw: minRaw };
+  }
+
+  function buildGraphLogSeries(habit, logSeries) {
+    const bounds = graphRawBounds(
+      logSeries.points.map(function (p) { return p.value; })
+    );
+    let maxRaw = bounds.maxRaw;
+    const minRaw = bounds.minRaw;
+    if (maxRaw == null || maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
     return {
       habit: habit,
       points: logSeries.points.map(function (p) {
-        return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw) };
+        return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw, minRaw) };
       }),
       maxRaw: maxRaw,
+      minRaw: minRaw,
     };
   }
 
@@ -8349,11 +8393,12 @@
       const raw = graphRawValue(habit, val);
       return { day: day, raw: raw, val: val };
     });
-    let maxRaw = 0;
-    for (let i = visibleStartIndex; i < points.length; i++) {
-      if (points[i].raw != null && points[i].raw > maxRaw) maxRaw = points[i].raw;
-    }
-    if (maxRaw <= 0) {
+    const bounds = graphRawBounds(
+      points.slice(visibleStartIndex).map(function (p) { return p.raw; })
+    );
+    let maxRaw = bounds.maxRaw;
+    const minRaw = bounds.minRaw;
+    if (maxRaw == null || maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
     return {
@@ -8363,16 +8408,27 @@
           day: p.day,
           raw: p.raw,
           val: p.val,
-          norm: graphNormPercent(habit, p.raw, maxRaw),
+          norm: graphNormPercent(habit, p.raw, maxRaw, minRaw),
         };
       }),
       maxRaw: maxRaw,
+      minRaw: minRaw,
       visibleStartIndex: visibleStartIndex,
     };
   }
 
-  function formatGraphHighLabel(habit, maxRaw) {
+  function formatGraphScaleNumber(habit, raw) {
+    if (raw == null || !isFinite(raw)) return "—";
+    if (habit.type === "time") return formatDuration(Math.round(raw));
+    if (raw >= 1000) return formatCounterDisplay(raw);
+    return formatCounterDisplay(raw);
+  }
+
+  function formatGraphHighLabel(habit, maxRaw, minRaw) {
     if (habit.type === "yesno") return "100% = Yes";
+    if (usesPlotMinScale(habit) && minRaw != null && maxRaw != null) {
+      return formatGraphScaleNumber(habit, minRaw) + "–" + formatGraphScaleNumber(habit, maxRaw);
+    }
     if (maxRaw >= 1000) return "high: " + Math.round(maxRaw).toLocaleString("en-US");
     return "high: " + Math.round(maxRaw);
   }
@@ -9350,7 +9406,7 @@
         ? "Today uses activity log · each line scales to its own high since midnight · Yes/No habits use Yes as 100%."
         : graphRange === "1"
         ? "48h uses activity log · each line scales to its own high in the full 48 hours · Yes/No habits use Yes as 100%."
-        : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
+        : "Select habits to compare · each line scales to its own high in the range · set Lowest = 0% on a habit for Weight-style ranges · Yes/No habits use Yes as 100%.") +
       "</p>";
     html += '<div class="graph-range-row">';
     graphRangeOptions().forEach(function (range) {
@@ -9446,7 +9502,7 @@
           '"></span><span>' +
           escapeHtml(series.habit.name) +
           '</span><span class="graph-legend-meta">' +
-          escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw)) +
+          escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw, series.minRaw)) +
           "</span></div>";
       });
       if (graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)) {
@@ -9750,6 +9806,17 @@
         '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
         habit.id +
         '">Auto</button></div>';
+      row +=
+        '<div class="plot-color-row"><span>Plot scale</span>' +
+        '<select class="habit-cat-select" data-plot-scale="' +
+        habit.id +
+        '">' +
+        '<option value="zero"' +
+        (habit.plotScale === "min" ? "" : " selected") +
+        ">From 0</option>" +
+        '<option value="min"' +
+        (habit.plotScale === "min" ? " selected" : "") +
+        ">Lowest = 0%</option></select></div>";
       row += '<div class="habit-settings">';
       row += '<div class="type-row">';
       row +=
@@ -9909,6 +9976,15 @@
         const id = btn.getAttribute("data-plot-color-reset");
         if (!setHabitPlotColor(id, null)) return;
         toast("Plot color set to auto");
+        render();
+      };
+    });
+    root.querySelectorAll("[data-plot-scale]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-plot-scale"); });
+        if (!h) return;
+        applyPlotScale(h, { plotScale: sel.value });
+        save();
         render();
       };
     });
