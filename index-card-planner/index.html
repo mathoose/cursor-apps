@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Card Box</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Card Box" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3d2f24" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-today">
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Card Box</h1>
+      <p id="headerSub">Today’s pull</p>
+    </div>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <main class="main-panel">
+    <section class="view active" id="viewToday" data-view="today">
+      <div class="today-heading">
+        <p class="eyebrow" id="todayEyebrow">Saturday</p>
+        <h2 id="todayTitle">Sep 12</h2>
+        <p class="pull-line" id="pullLine">Daily · Today · Sat</p>
+      </div>
+
+      <div class="stage-wrap" id="todayStage">
+        <div class="stack-shadow s3" aria-hidden="true"></div>
+        <div class="stack-shadow s2" aria-hidden="true"></div>
+        <article class="index-card" id="heroCard" data-color="cream">
+          <div class="card-flip" id="heroFlip">
+            <div class="card-face front">
+              <div class="card-rule">
+                <span id="heroRuleLeft">Today</span>
+                <span id="heroRuleRight">1 / 1</span>
+              </div>
+              <button type="button" class="card-check" id="heroCheck" aria-label="Mark done">
+                <svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+              </button>
+              <p class="card-title" id="heroTitle">Add your first card</p>
+              <p class="card-meta" id="heroMeta"></p>
+            </div>
+            <div class="card-face back">
+              <div class="card-rule">
+                <span>Notes</span>
+                <span>flip</span>
+              </div>
+              <p class="card-notes" id="heroNotes">No notes yet.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="card-nav" id="cardNav">
+        <button type="button" class="nav-arrow" id="prevCardBtn" aria-label="Previous card">
+          <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="dots" id="cardDots"></div>
+        <button type="button" class="nav-arrow" id="nextCardBtn" aria-label="Next card">
+          <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+
+      <div class="today-actions">
+        <button type="button" class="btn btn-secondary" id="flipCardBtn">Flip</button>
+        <button type="button" class="btn btn-secondary" id="fileCardBtn">File</button>
+        <button type="button" class="btn btn-primary" id="editCardBtn">Edit</button>
+      </div>
+
+      <div class="today-footer">
+        <p class="progress" id="todayProgress">0 left</p>
+        <button type="button" class="text-btn" id="fileLeftoversBtn" hidden>File leftovers → tomorrow</button>
+      </div>
+
+      <div class="empty-state" id="todayEmpty" hidden>
+        <p>Nothing in today’s pull.<br />Daily, Today, and this weekday show up here — like flipping open the box each morning.</p>
+        <button type="button" class="btn btn-primary" id="emptyAddBtn">New card</button>
+        <button type="button" class="btn btn-secondary" id="emptySampleBtn">Fill a sample box</button>
+      </div>
+    </section>
+
+    <section class="view" id="viewBox" data-view="box">
+      <div class="box-frame">
+        <div class="tab-strip" id="tabStrip" role="tablist" aria-label="Dividers"></div>
+        <div class="pocket">
+          <div class="pocket-head">
+            <div>
+              <p class="eyebrow" id="pocketEyebrow">Divider</p>
+              <h2 id="pocketTitle">Inbox</h2>
+            </div>
+            <span class="pocket-count" id="pocketCount">0</span>
+          </div>
+          <p class="pocket-hint" id="pocketHint"></p>
+          <div class="mini-list" id="pocketList"></div>
+          <div class="empty-state pocket-empty" id="pocketEmpty" hidden>
+            <p>This divider is empty.<br />File a card here from Today, or add one to this pocket.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="fab" id="addCardBtn" aria-label="New card">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="today" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h6"/></svg>
+      <span class="nav-btn-label">Today</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="box" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M4 8h16v12H4z"/><path d="M7 8V6h3v2M14 8V5h3v3"/></svg>
+      <span class="nav-btn-label">Box</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="editorOverlay" role="dialog" aria-modal="true" aria-labelledby="editorTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="editorTitle">Card</h2>
+      <label class="field-label" for="cardTitleInput">Task</label>
+      <input type="text" id="cardTitleInput" maxlength="140" placeholder="One task per card" autocomplete="off" />
+      <label class="field-label" for="cardNotesInput">Back of card</label>
+      <textarea id="cardNotesInput" rows="3" maxlength="500" placeholder="Notes, errands, a phone number…"></textarea>
+      <p class="field-label">Paper color</p>
+      <div class="chip-row" id="colorChips"></div>
+      <p class="field-label">Repeat</p>
+      <div class="seg" id="repeatSeg">
+        <button type="button" data-repeat="none" class="on">Once</button>
+        <button type="button" data-repeat="daily">Daily</button>
+        <button type="button" data-repeat="weekly">Weekly</button>
+        <button type="button" data-repeat="monthly">Monthly</button>
+      </div>
+      <p class="field-label">File behind</p>
+      <div class="chip-row wrap" id="fileChips"></div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-danger" id="deleteCardBtn">Delete</button>
+        <button type="button" class="btn btn-primary" id="saveCardBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="fileOverlay" role="dialog" aria-modal="true" aria-labelledby="fileTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="fileTitle">File this card</h2>
+      <p class="settings-note">Move it behind a divider — same as sliding it in the box.</p>
+      <div class="file-list" id="fileList"></div>
+      <button type="button" class="btn btn-secondary" id="fileCloseBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+
+      <div class="settings-section">
+        <h3>How the box works</h3>
+        <p class="settings-note">One task per card. File cards behind Daily, Today, a weekday, Next week, or Later. Each morning, Today pulls Daily + Today + this weekday — the analog Trello / tickler from the $10 index-card box.</p>
+      </div>
+
+      <div class="settings-section">
+        <h3>Sample</h3>
+        <button type="button" class="btn btn-secondary" id="sampleBtn">Fill a sample box</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Done pile</h3>
+        <button type="button" class="btn btn-secondary" id="clearDoneBtn">Clear finished cards</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <p class="settings-note">Cards stay on this phone. Export JSON to keep a copy or move the box to another browser.</p>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
