@@ -337,6 +337,8 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   padding: 8px 4px;
 }
 
+[hidden] { display: none !important; }
+
 .btn {
   display: inline-flex;
   align-items: center;
