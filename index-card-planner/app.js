@@ -375,6 +375,10 @@
         "</button>"
       );
     }).join("");
+    var selectedChip = strip.querySelector(".tab-chip.on");
+    if (selectedChip && selectedChip.scrollIntoView) {
+      selectedChip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
 
     var tab = tabById(state, ui.selectedTab);
     var list = cardsInTab(tab.id);

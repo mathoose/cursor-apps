@@ -138,18 +138,18 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   position: relative;
   margin: 22px auto 8px;
   width: min(100%, 320px);
-  height: 250px;
+  height: 268px;
 }
 
 .stack-shadow {
   position: absolute;
-  inset: 12px 10px -6px;
-  border-radius: 10px;
-  background: #e8dcc4;
+  inset: 14px 12px -10px;
+  border-radius: 6px;
+  background: #e4d3b4;
   box-shadow: var(--shadow);
 }
-.stack-shadow.s2 { inset: 8px 6px -3px; transform: rotate(1.6deg); background: #f0e4cc; }
-.stack-shadow.s3 { inset: 16px 16px -8px; transform: rotate(-2.4deg); background: #ddd0b4; }
+.stack-shadow.s2 { inset: 8px 4px -4px; transform: rotate(2.2deg); background: #efe3c6; }
+.stack-shadow.s3 { inset: 18px 18px -12px; transform: rotate(-3.2deg); background: #d8c4a0; }
 
 .index-card {
   position: relative;
@@ -173,18 +173,20 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   inset: 0;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  border-radius: 8px;
-  padding: 16px 18px 18px;
+  border-radius: 5px;
+  padding: 14px 16px 16px 20px;
   box-shadow: var(--shadow-lg);
   background:
+    linear-gradient(90deg, transparent 42px, rgba(196, 92, 92, 0.38) 42px, rgba(196, 92, 92, 0.38) 44px, transparent 44px),
     repeating-linear-gradient(
       180deg,
       transparent 0 27px,
-      rgba(80, 60, 30, 0.07) 28px
+      rgba(70, 110, 170, 0.22) 27px,
+      rgba(70, 110, 170, 0.22) 28px
     ),
     var(--card-bg, #fbf6ea);
   color: var(--card-ink, #3d3428);
-  border: 1px solid rgba(80, 60, 30, 0.08);
+  border: 1px solid rgba(80, 60, 30, 0.12);
 }
 .card-face.back { transform: rotateY(180deg); }
 
@@ -203,10 +205,10 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 
 .card-check {
   position: absolute;
-  top: 52px;
-  left: 16px;
-  width: 32px;
-  height: 32px;
+  top: 58px;
+  left: 8px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid currentColor;
   background: transparent;
@@ -234,11 +236,11 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 .card-check.on svg { opacity: 1; }
 
 .card-title {
-  margin: 8px 0 0 44px;
+  margin: 10px 0 0 32px;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.45rem;
-  line-height: 1.25;
-  min-height: 3.4em;
+  font-size: 1.4rem;
+  line-height: 1.55;
+  min-height: 3.6em;
 }
 
 .card-title.done {
@@ -372,17 +374,20 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 .empty-state .btn { width: 100%; margin-bottom: 8px; }
 
 .box-frame {
-  background: linear-gradient(180deg, #7a5336 0%, #5a3b27 100%);
-  border-radius: 16px 16px 10px 10px;
-  padding: 10px 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 28%),
+    linear-gradient(180deg, #8b5e3c 0%, #5a3b27 100%);
+  border-radius: 16px 16px 12px 12px;
+  padding: 16px 8px 12px;
   box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 230, 190, 0.12);
 }
 
 .tab-strip {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   overflow-x: auto;
-  padding: 0 4px 0;
+  padding: 0 6px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -390,18 +395,19 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 
 .tab-chip {
   flex: 0 0 auto;
-  min-width: 46px;
-  height: 38px;
-  padding: 0 8px;
+  min-width: 54px;
+  height: 44px;
+  padding: 6px 8px 4px;
   border: 0;
   border-radius: 8px 8px 0 0;
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: #2c241c;
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
 }
 .tab-chip .count {
   display: block;
@@ -423,6 +429,7 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   border-radius: 0 0 8px 8px;
   min-height: 360px;
   padding: 16px 14px 18px;
+  box-shadow: inset 0 8px 12px rgba(61, 47, 36, 0.08);
 }
 
 .pocket-head {
@@ -764,3 +771,4 @@ body.hide-stage #todayStage,
 body.hide-stage #cardNav,
 body.hide-stage .today-actions,
 body.hide-stage .today-footer { display: none; }
+body.hide-stage .fab { display: none; }
