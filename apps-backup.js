@@ -31,6 +31,7 @@
     "stride-flow": "StrideFlow",
     "3d-print": "3D Print",
     "draft-board": "Draft Board",
+    "index-card-planner": "Card Box",
   };
 
   var PHOTO_DATABASES = [
@@ -1259,6 +1260,52 @@
           if (!c || !c.hex || colorHex[String(c.hex).toUpperCase()]) return;
           out.filamentColors.push(c);
           colorHex[String(c.hex).toUpperCase()] = true;
+        });
+        return out;
+      },
+    },
+    "index-card-planner": {
+      storageKey: "index-card-planner-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("index-card-planner-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.cards)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.cards)) return false;
+        return writeKey("index-card-planner-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.cards) && Array.isArray(obj.tabs) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.cards ? slice.cards.length : 0;
+        return n + " card" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          lastOpenDate: existing.lastOpenDate || incoming.lastOpenDate,
+          tabs: Array.isArray(existing.tabs) && existing.tabs.length ? existing.tabs.slice() : (incoming.tabs || []).slice(),
+          cards: (existing.cards || []).slice(),
+        };
+        var ids = {};
+        out.cards.forEach(function (c) {
+          if (c && c.id) ids[c.id] = true;
+        });
+        (incoming.cards || []).forEach(function (c) {
+          if (!c || !c.id || !c.title || ids[c.id]) return;
+          out.cards.push(c);
+          ids[c.id] = true;
         });
         return out;
       },

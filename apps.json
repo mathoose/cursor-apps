@@ -26,7 +26,8 @@
       "stitch-grid": { "storageKey": "stitch-grid-v1" },
       "photo-calendar": { "storageKey": "photo-calendar-v1" },
       "3d-print": { "storageKey": "3d-print-v1" },
-      "draft-board": { "storageKey": "draft-board-v1" }
+      "draft-board": { "storageKey": "draft-board-v1" },
+      "index-card-planner": { "storageKey": "index-card-planner-v1" }
     }
   },
   "apps": [
@@ -159,6 +160,12 @@
       "name": "Things Book",
       "subtitle": "Photo collections & tags",
       "storageKey": "things-book-v1"
+    },
+    {
+      "id": "index-card-planner",
+      "name": "Card Box",
+      "subtitle": "Index card planner",
+      "storageKey": "index-card-planner-v1"
     }
   ]
 }
