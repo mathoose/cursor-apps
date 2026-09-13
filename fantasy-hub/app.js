@@ -836,7 +836,9 @@
     if (!hasAccounts() || (!(snap.matchups || []).length && !(snap.errors || []).length && !state.demo)) {
       empty.hidden = false;
       list.hidden = true;
+      list.innerHTML = "";
       errors.hidden = true;
+      errors.innerHTML = "";
       return;
     }
     empty.hidden = true;
