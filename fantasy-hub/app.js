@@ -98,14 +98,19 @@
       teamId: row.teamId == null ? null : row.teamId,
       teamName: String(row.teamName || ""),
       enabled: row.enabled !== false,
-      espnS2: String(row.espnS2 || ""),
-      swid: String(row.swid || ""),
+      source: row.source === "snapshot" ? "snapshot" : "live",
+      espnPayload: row.espnPayload && typeof row.espnPayload === "object" ? row.espnPayload : null,
       error: String(row.error || "")
     };
   }
 
   function persist() {
     try {
+      ((state.espn && state.espn.leagues) || []).forEach(function (l) {
+        if (!l) return;
+        delete l.espnS2;
+        delete l.swid;
+      });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) {
       toast("Could not save on this phone");
@@ -305,8 +310,6 @@
           teamId: null,
           teamName: old.teamName || "",
           enabled: old.enabled !== false,
-          espnS2: "",
-          swid: "",
           error: ""
         };
       });
@@ -426,16 +429,60 @@
     return out;
   }
 
-  function espnHeaders(league) {
-    var headers = { Accept: "application/json" };
-    if (league.espnS2) headers.espn_s2 = league.espnS2;
-    if (league.swid) headers.swid = league.swid;
-    return headers;
-  }
-
   function espnLeagueUrl(league, week) {
     return ESPN + "/seasons/" + league.season + "/segments/0/leagues/" + league.id +
       "?view=mTeam&view=mRoster&view=mMatchup&view=mMatchupScore&view=mSettings&scoringPeriodId=" + week;
+  }
+
+  function isEspnUnauthorized(res) {
+    if (!res) return false;
+    if (res.status === 401) return true;
+    var msg = res.data && ((res.data.messages || [])[0] || "");
+    return String(msg).toLowerCase().indexOf("not authorized") >= 0;
+  }
+
+  function compactEspnPayload(data, week) {
+    return {
+      id: data && data.id,
+      seasonId: data && data.seasonId,
+      settings: { name: data && data.settings && data.settings.name },
+      teams: (data && data.teams) || [],
+      schedule: ((data && data.schedule) || []).filter(function (g) {
+        return Number(g.matchupPeriodId) === Number(week);
+      })
+    };
+  }
+
+  function espnHelperScript() {
+    return [
+      "(async function(){",
+      "  const u = new URL(location.href);",
+      "  const id = u.searchParams.get('leagueId');",
+      "  const season = u.searchParams.get('seasonId') || '" + currentSeason() + "';",
+      "  if (!id) { alert('Open your ESPN fantasy league page first'); return; }",
+      "  const week = prompt('NFL week', '" + currentWeek() + "') || '" + currentWeek() + "';",
+      "  const api = 'https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/' + season + '/segments/0/leagues/' + id + '?view=mTeam&view=mRoster&view=mMatchup&view=mMatchupScore&view=mSettings&scoringPeriodId=' + week;",
+      "  const res = await fetch(api, { credentials: 'include' });",
+      "  const data = await res.json();",
+      "  if (!res.ok) { alert((data && data.messages && data.messages[0]) || 'ESPN would not load the league'); return; }",
+      "  const out = JSON.stringify({ source: 'espn-hub', leagueId: id, season: season, week: Number(week), data: data });",
+      "  try { await navigator.clipboard.writeText(out); alert('Copied. Open Fantasy Hub and tap Add from snapshot.'); }",
+      "  catch (e) { prompt('Copy this snapshot', out); }",
+      "})();"
+    ].join("\n");
+  }
+
+  function copyEspnHelper() {
+    var text = espnHelperScript();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        toast("Helper copied — paste it in the ESPN Console");
+      }).catch(function () {
+        prompt("Copy this helper script", text);
+      });
+    } else {
+      prompt("Copy this helper script", text);
+    }
   }
 
   function addEspnLeague() {
@@ -454,32 +501,76 @@
       teamId: parsed.teamId,
       teamName: teamField,
       enabled: true,
-      espnS2: String(el("espnS2").value || "").trim(),
-      swid: String(el("espnSwid").value || "").trim(),
+      source: "live",
+      espnPayload: null,
       error: ""
     };
     if (!league.teamId && /^\d+$/.test(teamField)) league.teamId = Number(teamField);
     el("espnStatus").textContent = "Loading league " + league.id + "…";
-    return fetchJson(espnLeagueUrl(league, currentWeek()), { headers: espnHeaders(league) }).then(function (res) {
-      if (res.status === 401 || (res.data && res.data.details && String((res.data.messages || [])[0] || "").indexOf("not authorized") >= 0)) {
-        throw new Error("Private ESPN league — add espn_s2 and SWID cookies");
+    return fetchJson(espnLeagueUrl(league, currentWeek()), { headers: { Accept: "application/json" } }).then(function (res) {
+      if (isEspnUnauthorized(res)) {
+        throw new Error("Private league — make it Public in ESPN settings, or paste a snapshot below");
       }
       if (!res.ok || !res.data || !res.data.teams) {
         throw new Error((res.data && res.data.messages && res.data.messages[0]) || "Could not load that ESPN league");
       }
-      var teams = res.data.teams || [];
-      var picked = pickEspnTeam(teams, league);
-      if (!picked && teams.length) {
-        pendingEspn = { league: league, payload: res.data };
-        openTeamPicker(teams, res.data.settings && res.data.settings.name);
-        return;
-      }
-      if (!picked) throw new Error("No teams in that ESPN league");
-      finishEspnLeague(league, res.data, picked);
+      acceptEspnPayload(league, res.data, "live");
     }).catch(function (err) {
       el("espnStatus").textContent = err.message || "ESPN lookup failed";
       toast(err.message || "ESPN lookup failed");
     });
+  }
+
+  function addEspnSnapshot() {
+    var raw = String(el("espnSnapshot").value || "").trim();
+    if (!raw) {
+      toast("Paste the snapshot from the helper first");
+      return;
+    }
+    var parsed;
+    try { parsed = JSON.parse(raw); } catch (e) {
+      toast("That snapshot is not valid JSON");
+      return;
+    }
+    var data = parsed.data || parsed;
+    if (!data || !Array.isArray(data.teams)) {
+      toast("That file does not look like an ESPN league");
+      return;
+    }
+    var fromUrl = parseEspnInput(el("espnUrl").value, el("espnSeason").value || currentSeason());
+    var teamField = String(el("espnTeam").value || "").trim();
+    var league = {
+      localId: uid("es"),
+      id: String(parsed.leagueId || data.id || fromUrl.id || ""),
+      name: (data.settings && data.settings.name) || ("ESPN " + (parsed.leagueId || data.id || "")),
+      season: String(parsed.season || data.seasonId || fromUrl.season || currentSeason()),
+      rosterId: null,
+      teamId: fromUrl.teamId,
+      teamName: teamField,
+      enabled: true,
+      source: "snapshot",
+      espnPayload: null,
+      error: ""
+    };
+    if (!league.id) {
+      toast("Could not find a league ID in that snapshot");
+      return;
+    }
+    if (!league.teamId && /^\d+$/.test(teamField)) league.teamId = Number(teamField);
+    if (parsed.week) state.weekOverride = clampWeek(parsed.week);
+    acceptEspnPayload(league, data, "snapshot");
+  }
+
+  function acceptEspnPayload(league, data, source) {
+    var teams = data.teams || [];
+    var picked = pickEspnTeam(teams, league);
+    if (!picked && teams.length) {
+      pendingEspn = { league: league, payload: data, source: source };
+      openTeamPicker(teams, data.settings && data.settings.name);
+      return;
+    }
+    if (!picked) throw new Error("No teams in that ESPN league");
+    finishEspnLeague(league, data, picked, source);
   }
 
   function pickEspnTeam(teams, league) {
@@ -500,11 +591,19 @@
     return [team.location, team.nickname].filter(Boolean).join(" ") || team.abbrev || ("Team " + team.id);
   }
 
-  function finishEspnLeague(league, payload, team) {
+  function finishEspnLeague(league, payload, team, source) {
     league.teamId = team.id;
     league.teamName = espnTeamName(team);
     league.name = (payload.settings && payload.settings.name) || league.name;
     league.error = "";
+    league.source = source || "live";
+    delete league.espnS2;
+    delete league.swid;
+    if (league.source === "snapshot") {
+      league.espnPayload = compactEspnPayload(payload, currentWeek());
+    } else {
+      league.espnPayload = null;
+    }
     state.espn.leagues = (state.espn.leagues || []).filter(function (l) {
       return !(l.id === league.id && String(l.season) === String(league.season));
     });
@@ -513,7 +612,8 @@
     persist();
     el("espnUrl").value = "";
     el("espnTeam").value = "";
-    el("espnStatus").textContent = "Added " + league.name;
+    if (el("espnSnapshot")) el("espnSnapshot").value = "";
+    el("espnStatus").textContent = "Added " + league.name + (league.source === "snapshot" ? " · snapshot" : "");
     toast("ESPN league added");
     renderAccounts();
     closeTeamPicker();
@@ -533,39 +633,52 @@
     el("teamOverlay").hidden = true;
   }
 
+  function matchupFromEspnData(league, data, week) {
+    league.name = (data.settings && data.settings.name) || league.name;
+    var teams = data.teams || [];
+    var mine = pickEspnTeam(teams, league);
+    if (!mine) throw new Error("Pick your team in " + league.name);
+    league.teamId = mine.id;
+    league.teamName = espnTeamName(mine);
+
+    var schedule = data.schedule || [];
+    var game = schedule.filter(function (g) {
+      return Number(g.matchupPeriodId) === Number(week) &&
+        (Number(g.home && g.home.teamId) === Number(mine.id) || Number(g.away && g.away.teamId) === Number(mine.id));
+    })[0];
+    if (!game) throw new Error("No week " + week + " matchup in " + league.name);
+
+    var iAmHome = Number(game.home && game.home.teamId) === Number(mine.id);
+    var mineSide = iAmHome ? game.home : game.away;
+    var oppSide = iAmHome ? game.away : game.home;
+    var oppTeam = teams.filter(function (t) { return oppSide && Number(t.id) === Number(oppSide.teamId); })[0];
+
+    return {
+      platform: "espn",
+      leagueId: league.id,
+      leagueName: league.name,
+      week: week,
+      mine: packEspnSide(mineSide, mine, data, week),
+      opp: packEspnSide(oppSide, oppTeam, data, week)
+    };
+  }
+
   function loadEspnMatchup(league, week) {
-    return fetchJson(espnLeagueUrl(league, week), { headers: espnHeaders(league) }).then(function (res) {
+    if (league.source === "snapshot" && league.espnPayload) {
+      try {
+        return Promise.resolve(matchupFromEspnData(league, league.espnPayload, week));
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    }
+    return fetchJson(espnLeagueUrl(league, week), { headers: { Accept: "application/json" } }).then(function (res) {
+      if (isEspnUnauthorized(res)) {
+        throw new Error(league.name + " is private — make it Public in ESPN, or paste a new snapshot");
+      }
       if (!res.ok || !res.data || !res.data.teams) {
         throw new Error((res.data && res.data.messages && res.data.messages[0]) || "Could not load " + league.name);
       }
-      var data = res.data;
-      league.name = (data.settings && data.settings.name) || league.name;
-      var teams = data.teams || [];
-      var mine = pickEspnTeam(teams, league);
-      if (!mine) throw new Error("Pick your team in " + league.name);
-      league.teamId = mine.id;
-      league.teamName = espnTeamName(mine);
-
-      var schedule = data.schedule || [];
-      var game = schedule.filter(function (g) {
-        return Number(g.matchupPeriodId) === Number(week) &&
-          (Number(g.home && g.home.teamId) === Number(mine.id) || Number(g.away && g.away.teamId) === Number(mine.id));
-      })[0];
-      if (!game) throw new Error("No week " + week + " matchup in " + league.name);
-
-      var iAmHome = Number(game.home && game.home.teamId) === Number(mine.id);
-      var mineSide = iAmHome ? game.home : game.away;
-      var oppSide = iAmHome ? game.away : game.home;
-      var oppTeam = teams.filter(function (t) { return oppSide && Number(t.id) === Number(oppSide.teamId); })[0];
-
-      return {
-        platform: "espn",
-        leagueId: league.id,
-        leagueName: league.name,
-        week: week,
-        mine: packEspnSide(mineSide, mine, data, week),
-        opp: packEspnSide(oppSide, oppTeam, data, week)
-      };
+      return matchupFromEspnData(league, res.data, week);
     });
   }
 
@@ -982,7 +1095,7 @@
 
   function leagueRow(l, platform) {
     var sub = (l.teamName ? l.teamName + " · " : "") + (l.season || "") + (l.error ? " · " + l.error : "");
-    if (platform === "espn" && (l.espnS2 || l.swid)) sub += " · cookies saved";
+    if (platform === "espn" && l.source === "snapshot") sub += " · snapshot";
     return (
       '<div class="league-item" data-id="' + escapeHtml(l.localId) + '" data-platform="' + platform + '">' +
         '<label class="check-row" style="margin:0">' +
@@ -1104,8 +1217,12 @@
       if (e.key === "Enter") connectSleeper(el("sleeperUser").value);
     });
     el("espnAddBtn").addEventListener("click", addEspnLeague);
-    el("espnCookieToggle").addEventListener("click", function () {
-      el("espnCookieFields").hidden = !el("espnCookieFields").hidden;
+    el("espnCopyHelper").addEventListener("click", copyEspnHelper);
+    el("espnPasteBtn").addEventListener("click", function () {
+      try { addEspnSnapshot(); } catch (err) {
+        el("espnStatus").textContent = err.message || "Could not read snapshot";
+        toast(err.message || "Could not read snapshot");
+      }
     });
     el("includeBench").addEventListener("change", function () {
       state.includeBench = el("includeBench").checked;
@@ -1137,7 +1254,7 @@
       var teams = (pendingEspn.payload.teams || []);
       var team = teams.filter(function (t) { return Number(t.id) === teamId; })[0];
       if (!team) return;
-      finishEspnLeague(pendingEspn.league, pendingEspn.payload, team);
+      finishEspnLeague(pendingEspn.league, pendingEspn.payload, team, pendingEspn.source || "live");
     });
   }
 

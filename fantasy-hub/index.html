@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -87,7 +87,7 @@
       <div class="card">
         <p class="eyebrow espn">ESPN</p>
         <h3>Add a fantasy league</h3>
-        <p class="muted tight">Paste the league URL or ID. Public leagues load as-is. Private leagues need the <code>espn_s2</code> and <code>SWID</code> cookies from a browser that’s logged into ESPN.</p>
+        <p class="muted tight">Paste the league URL. If the league is <strong>public</strong>, scores refresh here. Private leagues cannot use pasted cookies from this website — the phone is not allowed to send them to ESPN, which is why those codes still failed.</p>
         <label class="field-label" for="espnUrl">League URL or ID</label>
         <input type="text" id="espnUrl" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="fantasy.espn.com/…leagueId=123456" />
         <div class="split">
@@ -96,20 +96,22 @@
             <input type="number" id="espnSeason" inputmode="numeric" min="2018" max="2030" />
           </div>
           <div>
-            <label class="field-label" for="espnTeam">Your team (optional)</label>
-            <input type="text" id="espnTeam" autocomplete="off" placeholder="Name or team #">
+            <label class="field-label" for="espnTeam">Your team</label>
+            <input type="text" id="espnTeam" autocomplete="off" placeholder="The Mathoose is Loose">
           </div>
-        </div>
-        <button type="button" class="text-btn" id="espnCookieToggle">Private league cookies</button>
-        <div id="espnCookieFields" hidden>
-          <label class="field-label" for="espnS2">espn_s2</label>
-          <input type="password" id="espnS2" autocomplete="off" spellcheck="false" />
-          <label class="field-label" for="espnSwid">SWID</label>
-          <input type="password" id="espnSwid" autocomplete="off" spellcheck="false" placeholder="{xxxxxxxx-…}" />
-          <p class="hint">On a computer: ESPN → DevTools → Application → Cookies → espn.com. Cookies stay on this phone.</p>
         </div>
         <button type="button" class="btn btn-primary" id="espnAddBtn">Add ESPN league</button>
         <p class="status-line" id="espnStatus"></p>
+
+        <div class="espn-private">
+          <p class="eyebrow warn">Private league</p>
+          <p class="muted tight">Easiest fix: in the ESPN app, open the league → Settings → make it <strong>Public</strong>. Then tap Add ESPN league again. Scores stay live, no codes.</p>
+          <p class="muted tight">Or keep it private: on a computer, open this same league on ESPN, paste the helper in the Console, then paste the result here. Do that when you want a fresh score.</p>
+          <button type="button" class="btn btn-secondary" id="espnCopyHelper">Copy helper script</button>
+          <label class="field-label" for="espnSnapshot">ESPN snapshot</label>
+          <textarea id="espnSnapshot" rows="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the snapshot JSON from the helper"></textarea>
+          <button type="button" class="btn btn-primary" id="espnPasteBtn">Add from snapshot</button>
+        </div>
         <div id="espnLeagueList" class="league-list"></div>
       </div>
 
@@ -170,6 +172,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
