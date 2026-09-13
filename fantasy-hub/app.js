@@ -3,6 +3,7 @@
 
   var APP_ID = "fantasy-hub";
   var STORAGE_KEY = "fantasy-hub-v1";
+  var SECRETS_KEY = "fantasy-hub-secrets-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
   var ESPN = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl";
@@ -61,7 +62,14 @@
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
       var parsed = JSON.parse(raw);
-      return normalizeState(parsed);
+      var moved = migrateLegacyCodes(parsed);
+      var st = normalizeState(parsed);
+      if (moved) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(stripAuthFields(st)));
+        } catch (e2) {}
+      }
+      return st;
     } catch (e) {
       return defaultState();
     }
@@ -98,15 +106,119 @@
       teamId: row.teamId == null ? null : row.teamId,
       teamName: String(row.teamName || ""),
       enabled: row.enabled !== false,
-      espnS2: String(row.espnS2 || ""),
-      swid: String(row.swid || ""),
       error: String(row.error || "")
     };
   }
 
+  function stripAuthFields(obj) {
+    if (!obj || typeof obj !== "object") return obj;
+    var copy = JSON.parse(JSON.stringify(obj));
+    (((copy.espn || {}).leagues) || []).forEach(function (l) {
+      if (!l) return;
+      delete l.espnS2;
+      delete l.swid;
+    });
+    return copy;
+  }
+
+  function emptySecrets() {
+    return { version: 1, espn: {} };
+  }
+
+  function loadSecrets() {
+    try {
+      var raw = localStorage.getItem(SECRETS_KEY);
+      if (!raw) return emptySecrets();
+      var p = JSON.parse(raw);
+      if (!p || typeof p !== "object" || !p.espn || typeof p.espn !== "object") return emptySecrets();
+      return { version: 1, espn: p.espn };
+    } catch (e) {
+      return emptySecrets();
+    }
+  }
+
+  function saveSecrets(secrets) {
+    try {
+      var espn = (secrets && secrets.espn) || {};
+      if (!Object.keys(espn).length) {
+        localStorage.removeItem(SECRETS_KEY);
+        return;
+      }
+      localStorage.setItem(SECRETS_KEY, JSON.stringify({ version: 1, espn: espn }));
+    } catch (e) {
+      toast("Could not save sign-in on this phone");
+    }
+  }
+
+  function secretSlot(league) {
+    if (!league) return "";
+    return String(league.localId || "") || (String(league.id || "") + "|" + String(league.season || ""));
+  }
+
+  function getEspnCodes(league) {
+    var all = loadSecrets();
+    var slot = secretSlot(league);
+    var row = (slot && all.espn[slot]) || all.espn[String(league && league.id) + "|" + String(league && league.season)] || null;
+    if (!row) return { espnS2: "", swid: "" };
+    return { espnS2: String(row.espnS2 || ""), swid: String(row.swid || "") };
+  }
+
+  function hasEspnCodes(league) {
+    var c = getEspnCodes(league);
+    return !!(c.espnS2 || c.swid);
+  }
+
+  function setEspnCodes(league, codes) {
+    if (!league) return;
+    var all = loadSecrets();
+    var slot = secretSlot(league);
+    if (!slot) return;
+    var s2 = codes && String(codes.espnS2 || "").trim();
+    var swid = codes && String(codes.swid || "").trim();
+    if (s2 || swid) all.espn[slot] = { espnS2: s2 || "", swid: swid || "" };
+    else delete all.espn[slot];
+    saveSecrets(all);
+  }
+
+  function removeEspnCodes(leagueOrId) {
+    var all = loadSecrets();
+    if (typeof leagueOrId === "string") {
+      delete all.espn[leagueOrId];
+    } else if (leagueOrId) {
+      delete all.espn[secretSlot(leagueOrId)];
+      delete all.espn[String(leagueOrId.id || "") + "|" + String(leagueOrId.season || "")];
+    }
+    saveSecrets(all);
+  }
+
+  function clearAllSecrets() {
+    try { localStorage.removeItem(SECRETS_KEY); } catch (e) {}
+  }
+
+  function migrateLegacyCodes(st) {
+    var moved = false;
+    ((st && st.espn && st.espn.leagues) || []).forEach(function (l) {
+      if (!l) return;
+      if (l.espnS2 || l.swid) {
+        setEspnCodes(l, { espnS2: l.espnS2, swid: l.swid });
+        delete l.espnS2;
+        delete l.swid;
+        moved = true;
+      }
+    });
+    return moved;
+  }
+
   function persist() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (state && state.espn && Array.isArray(state.espn.leagues)) {
+        state.espn.leagues.forEach(function (l) {
+          if (!l) return;
+          delete l.espnS2;
+          delete l.swid;
+        });
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stripAuthFields(state)));
     } catch (e) {
       toast("Could not save on this phone");
     }
@@ -305,8 +417,6 @@
           teamId: null,
           teamName: old.teamName || "",
           enabled: old.enabled !== false,
-          espnS2: "",
-          swid: "",
           error: ""
         };
       });
@@ -426,10 +536,11 @@
     return out;
   }
 
-  function espnHeaders(league) {
+  function espnHeaders(league, codes) {
     var headers = { Accept: "application/json" };
-    if (league.espnS2) headers.espn_s2 = league.espnS2;
-    if (league.swid) headers.swid = league.swid;
+    var auth = codes || getEspnCodes(league);
+    if (auth.espnS2) headers.espn_s2 = auth.espnS2;
+    if (auth.swid) headers.swid = auth.swid;
     return headers;
   }
 
@@ -445,6 +556,12 @@
       return Promise.resolve();
     }
     var teamField = String(el("espnTeam").value || "").trim();
+    var codes = {
+      espnS2: String(el("espnS2").value || "").trim(),
+      swid: String(el("espnSwid").value || "").trim()
+    };
+    el("espnS2").value = "";
+    el("espnSwid").value = "";
     var league = {
       localId: uid("es"),
       id: parsed.id,
@@ -454,13 +571,11 @@
       teamId: parsed.teamId,
       teamName: teamField,
       enabled: true,
-      espnS2: String(el("espnS2").value || "").trim(),
-      swid: String(el("espnSwid").value || "").trim(),
       error: ""
     };
     if (!league.teamId && /^\d+$/.test(teamField)) league.teamId = Number(teamField);
     el("espnStatus").textContent = "Loading league " + league.id + "…";
-    return fetchJson(espnLeagueUrl(league, currentWeek()), { headers: espnHeaders(league) }).then(function (res) {
+    return fetchJson(espnLeagueUrl(league, currentWeek()), { headers: espnHeaders(league, codes) }).then(function (res) {
       if (res.status === 401 || (res.data && res.data.details && String((res.data.messages || [])[0] || "").indexOf("not authorized") >= 0)) {
         throw new Error("Private ESPN league — add espn_s2 and SWID cookies");
       }
@@ -470,12 +585,12 @@
       var teams = res.data.teams || [];
       var picked = pickEspnTeam(teams, league);
       if (!picked && teams.length) {
-        pendingEspn = { league: league, payload: res.data };
+        pendingEspn = { league: league, payload: res.data, codes: codes };
         openTeamPicker(teams, res.data.settings && res.data.settings.name);
         return;
       }
       if (!picked) throw new Error("No teams in that ESPN league");
-      finishEspnLeague(league, res.data, picked);
+      finishEspnLeague(league, res.data, picked, codes);
     }).catch(function (err) {
       el("espnStatus").textContent = err.message || "ESPN lookup failed";
       toast(err.message || "ESPN lookup failed");
@@ -500,14 +615,21 @@
     return [team.location, team.nickname].filter(Boolean).join(" ") || team.abbrev || ("Team " + team.id);
   }
 
-  function finishEspnLeague(league, payload, team) {
+  function finishEspnLeague(league, payload, team, codes) {
     league.teamId = team.id;
     league.teamName = espnTeamName(team);
     league.name = (payload.settings && payload.settings.name) || league.name;
     league.error = "";
+    delete league.espnS2;
+    delete league.swid;
     state.espn.leagues = (state.espn.leagues || []).filter(function (l) {
-      return !(l.id === league.id && String(l.season) === String(league.season));
+      if (l.id === league.id && String(l.season) === String(league.season)) {
+        removeEspnCodes(l);
+        return false;
+      }
+      return true;
     });
+    if (codes && (codes.espnS2 || codes.swid)) setEspnCodes(league, codes);
     state.espn.leagues.push(league);
     state.demo = false;
     persist();
@@ -689,6 +811,7 @@
   }
 
   function clearBoard() {
+    clearAllSecrets();
     state = defaultState();
     persist();
     renderAll();
@@ -982,7 +1105,7 @@
 
   function leagueRow(l, platform) {
     var sub = (l.teamName ? l.teamName + " · " : "") + (l.season || "") + (l.error ? " · " + l.error : "");
-    if (platform === "espn" && (l.espnS2 || l.swid)) sub += " · cookies saved";
+    if (platform === "espn" && hasEspnCodes(l)) sub += " · signed in on this phone";
     return (
       '<div class="league-item" data-id="' + escapeHtml(l.localId) + '" data-platform="' + platform + '">' +
         '<label class="check-row" style="margin:0">' +
@@ -1007,7 +1130,7 @@
   }
 
   function exportJson() {
-    var payload = normalizeState(state);
+    var payload = stripAuthFields(normalizeState(state));
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -1061,6 +1184,7 @@
           toast("Invalid backup file");
           return;
         }
+        slice = stripAuthFields(slice);
         state = mergeState(state, slice);
         persist();
         renderAll();
@@ -1137,7 +1261,7 @@
       var teams = (pendingEspn.payload.teams || []);
       var team = teams.filter(function (t) { return Number(t.id) === teamId; })[0];
       if (!team) return;
-      finishEspnLeague(pendingEspn.league, pendingEspn.payload, team);
+      finishEspnLeague(pendingEspn.league, pendingEspn.payload, team, pendingEspn.codes);
     });
   }
 
@@ -1145,6 +1269,8 @@
     var btn = e.target.closest("[data-remove]");
     if (!btn) return;
     var id = btn.getAttribute("data-remove");
+    var doomed = findLeague(id);
+    if (doomed) removeEspnCodes(doomed);
     state.sleeper.leagues = (state.sleeper.leagues || []).filter(function (l) { return l.localId !== id; });
     state.espn.leagues = (state.espn.leagues || []).filter(function (l) { return l.localId !== id; });
     persist();

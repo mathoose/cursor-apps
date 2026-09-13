@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -74,7 +74,7 @@
       <div class="card">
         <p class="eyebrow sleeper">Sleeper</p>
         <h3>Find your leagues</h3>
-        <p class="muted tight">Sleeper usernames are public — no password. We’ll pull every NFL league on that account.</p>
+        <p class="muted tight">Sleeper usernames are public — no password. Yours stays on this phone so we can refresh scores. Nothing is sent to us.</p>
         <label class="field-label" for="sleeperUser">Username</label>
         <div class="row">
           <input type="text" id="sleeperUser" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="your_sleeper_name" />
@@ -87,7 +87,7 @@
       <div class="card">
         <p class="eyebrow espn">ESPN</p>
         <h3>Add a fantasy league</h3>
-        <p class="muted tight">Paste the league URL or ID. Public leagues load as-is. Private leagues need the <code>espn_s2</code> and <code>SWID</code> cookies from a browser that’s logged into ESPN.</p>
+        <p class="muted tight">Paste the league URL or ID. Public leagues load as-is. Private leagues need the <code>espn_s2</code> and <code>SWID</code> cookies from a browser that’s logged into ESPN. Those codes stay on this phone only — never in a backup or export.</p>
         <label class="field-label" for="espnUrl">League URL or ID</label>
         <input type="text" id="espnUrl" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="fantasy.espn.com/…leagueId=123456" />
         <div class="split">
@@ -103,10 +103,10 @@
         <button type="button" class="text-btn" id="espnCookieToggle">Private league cookies</button>
         <div id="espnCookieFields" hidden>
           <label class="field-label" for="espnS2">espn_s2</label>
-          <input type="password" id="espnS2" autocomplete="off" spellcheck="false" />
+          <input type="password" id="espnS2" name="fantasy-hub-espn-s2" autocomplete="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" />
           <label class="field-label" for="espnSwid">SWID</label>
-          <input type="password" id="espnSwid" autocomplete="off" spellcheck="false" placeholder="{xxxxxxxx-…}" />
-          <p class="hint">On a computer: ESPN → DevTools → Application → Cookies → espn.com. Cookies stay on this phone.</p>
+          <input type="password" id="espnSwid" name="fantasy-hub-espn-swid" autocomplete="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" placeholder="{xxxxxxxx-…}" />
+          <p class="hint">On a computer: ESPN → DevTools → Application → Cookies → espn.com. Paste once to stay signed in on this phone. Codes are not uploaded, backed up, or exported.</p>
         </div>
         <button type="button" class="btn btn-primary" id="espnAddBtn">Add ESPN league</button>
         <p class="status-line" id="espnStatus"></p>
@@ -128,7 +128,7 @@
 
       <div class="card">
         <h3>Backup</h3>
-        <p class="muted tight">Accounts stay on this phone. Export JSON to keep a copy or move it to another browser.</p>
+        <p class="muted tight">League list can be exported. ESPN sign-in codes never go in that file — only this phone keeps you signed in.</p>
         <div class="settings-btns">
           <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
           <label class="btn btn-secondary import-label">
@@ -170,6 +170,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

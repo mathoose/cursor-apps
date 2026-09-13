@@ -49,6 +49,7 @@
   var EXTRA_JSON_KEYS = {
     "world-cup-2026": ["world-cup-2026-scores-v1", "world-cup-2026-knockout-v1"],
     "habit-journal": ["habit-journal-meta-v1", "habit-journal-local-v1"],
+    "fantasy-hub": ["fantasy-hub-secrets-v1"],
   };
 
   var APP_REGISTRY = {
@@ -1321,7 +1322,7 @@
           var p = JSON.parse(raw);
           if (!p || typeof p !== "object") return null;
           if (!p.sleeper && !p.espn && !p.demo && !p.snapshot) return null;
-          return p;
+          return sanitizeFantasyHubSlice(p);
         } catch (e) {
           return null;
         }
@@ -1329,7 +1330,7 @@
       writeSlice: function (slice) {
         if (!slice || typeof slice !== "object") return false;
         if (!slice.sleeper && !slice.espn && !slice.demo && !slice.snapshot) return false;
-        return writeKey("fantasy-hub-v1", JSON.stringify(slice));
+        return writeKey("fantasy-hub-v1", JSON.stringify(sanitizeFantasyHubSlice(slice)));
       },
       isLegacy: function (obj) {
         return !!(obj && obj.format !== FORMAT && (obj.sleeper || obj.espn || obj.demo || obj.snapshot));
@@ -1344,6 +1345,8 @@
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;
         if (!existing) return incoming;
+        existing = sanitizeFantasyHubSlice(existing);
+        incoming = sanitizeFantasyHubSlice(incoming);
         function mergeLeagues(a, b) {
           var out = Array.isArray(a) ? a.slice() : [];
           var seen = {};
@@ -1376,10 +1379,26 @@
             leagues: mergeLeagues(existing.espn && existing.espn.leagues, incoming.espn && incoming.espn.leagues)
           }
         };
-        return out;
+        return sanitizeFantasyHubSlice(out);
       },
     },
   };
+
+  function sanitizeFantasyHubSlice(slice) {
+    if (!slice || typeof slice !== "object") return slice;
+    var out;
+    try {
+      out = JSON.parse(JSON.stringify(slice));
+    } catch (e) {
+      return slice;
+    }
+    (((out.espn || {}).leagues) || []).forEach(function (l) {
+      if (!l || typeof l !== "object") return;
+      delete l.espnS2;
+      delete l.swid;
+    });
+    return out;
+  }
 
   /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
@@ -1991,7 +2010,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1", "fantasy-hub-secrets-v1"],
       apps: apps,
       launcher: { hiddenApps: getHiddenAppIds(), appOrder: getAppOrderIds() },
       _meta: { included: included },

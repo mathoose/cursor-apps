@@ -4,7 +4,7 @@
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
-    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1", "photo-calendar-photos-v1"],
+    "excluded": ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "things-book-photos-v1", "photo-calendar-photos-v1", "fantasy-hub-secrets-v1"],
     "apps": {
       "habit-journal": { "storageKey": "habit-journal-v2", "legacyKeys": ["habit-journal-v1"] },
       "body-journal": { "storageKey": "body-journal-v1" },
