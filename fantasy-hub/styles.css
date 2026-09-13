@@ -152,6 +152,22 @@ main { max-width: 560px; margin: 0 auto; padding: 12px 14px 0; }
 .muted { color: var(--muted); margin: 0; }
 .muted.tight { margin-bottom: 12px; }
 .hint { color: var(--faint); font-size: 0.78rem; margin: 8px 0 0; line-height: 1.4; }
+textarea {
+  width: 100%;
+  min-height: 96px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(7, 20, 34, 0.55);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  resize: vertical;
+}
+textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1px; }
+.espn-private {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.espn-private .btn { width: 100%; margin-bottom: 8px; }
 
 .btn {
   min-height: var(--tap);
