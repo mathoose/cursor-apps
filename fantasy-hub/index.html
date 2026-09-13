@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Fantasy Hub</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Fantasy Hub" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#071422" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=3" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Fantasy Hub</h1>
+      <p id="headerSub">Scores in one spot</p>
+    </div>
+    <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh scores">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.2-5.5"/><path d="M20 4v5h-5"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="view active" id="viewScores" data-view="scores">
+      <div class="week-bar">
+        <button type="button" class="week-btn" id="weekPrev" aria-label="Previous week">‹</button>
+        <div class="week-label">
+          <p class="eyebrow" id="weekEyebrow">NFL</p>
+          <h2 id="weekTitle">Week 1</h2>
+        </div>
+        <button type="button" class="week-btn" id="weekNext" aria-label="Next week">›</button>
+      </div>
+
+      <div class="empty-state" id="scoresEmpty">
+        <p class="empty-kicker">One board for every league</p>
+        <h2>Track Sleeper and ESPN in one place</h2>
+        <p>Connect your accounts, then check live scores and a ranking of players you can root for without hurting another team.</p>
+        <button type="button" class="btn btn-primary" id="emptyConnectBtn">Connect accounts</button>
+        <button type="button" class="btn btn-secondary" id="emptyDemoBtn">Preview sample leagues</button>
+      </div>
+
+      <div id="scoreErrors" class="error-stack" hidden></div>
+      <div id="scoreList" class="score-list" hidden></div>
+    </section>
+
+    <section class="view" id="viewRoots" data-view="roots">
+      <div class="card intro-card">
+        <p class="eyebrow">Happy roots</p>
+        <h2>Cheer without the split</h2>
+        <p class="muted" id="rootIntro">Players on your lineups who are not starting against you in any connected league. Ranked by how many of your teams they help, then their points this week.</p>
+      </div>
+      <div class="empty-state compact" id="rootsEmpty" hidden>
+        <p>Connect a league or load the sample to see who you can root for.</p>
+      </div>
+      <div id="happyList" class="rank-list"></div>
+      <div id="conflictBlock" hidden>
+        <div class="card section-head">
+          <p class="eyebrow warn">Conflicted</p>
+          <h3>Help in one league, hurt in another</h3>
+        </div>
+        <div id="conflictList" class="rank-list"></div>
+      </div>
+    </section>
+
+    <section class="view" id="viewAccounts" data-view="accounts">
+      <div class="card">
+        <p class="eyebrow sleeper">Sleeper</p>
+        <h3>Find your leagues</h3>
+        <p class="muted tight">Sleeper usernames are public — no password. Yours stays on this phone so we can refresh scores. Nothing is sent to us.</p>
+        <label class="field-label" for="sleeperUser">Username</label>
+        <div class="row">
+          <input type="text" id="sleeperUser" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="your_sleeper_name" />
+          <button type="button" class="btn btn-primary" id="sleeperConnectBtn">Connect</button>
+        </div>
+        <p class="status-line" id="sleeperStatus"></p>
+        <div id="sleeperLeagueList" class="league-list"></div>
+      </div>
+
+      <div class="card">
+        <p class="eyebrow espn">ESPN</p>
+        <h3>Add a fantasy league</h3>
+        <p class="muted tight">Paste the league URL or ID. Public leagues load as-is. Private leagues need the <code>espn_s2</code> and <code>SWID</code> cookies from a browser that’s logged into ESPN. Those codes stay on this phone only — never in a backup or export.</p>
+        <label class="field-label" for="espnUrl">League URL or ID</label>
+        <input type="text" id="espnUrl" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="fantasy.espn.com/…leagueId=123456" />
+        <div class="split">
+          <div>
+            <label class="field-label" for="espnSeason">Season</label>
+            <input type="number" id="espnSeason" inputmode="numeric" min="2018" max="2030" />
+          </div>
+          <div>
+            <label class="field-label" for="espnTeam">Your team (optional)</label>
+            <input type="text" id="espnTeam" autocomplete="off" placeholder="Name or team #">
+          </div>
+        </div>
+        <button type="button" class="text-btn" id="espnCookieToggle">Private league cookies</button>
+        <div id="espnCookieFields" hidden>
+          <label class="field-label" for="espnS2">espn_s2</label>
+          <input type="password" id="espnS2" name="fantasy-hub-espn-s2" autocomplete="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" />
+          <label class="field-label" for="espnSwid">SWID</label>
+          <input type="password" id="espnSwid" name="fantasy-hub-espn-swid" autocomplete="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" placeholder="{xxxxxxxx-…}" />
+          <p class="hint">On a computer: ESPN → DevTools → Application → Cookies → espn.com. Paste once to stay signed in on this phone. Codes are not uploaded, backed up, or exported.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="espnAddBtn">Add ESPN league</button>
+        <p class="status-line" id="espnStatus"></p>
+        <div id="espnLeagueList" class="league-list"></div>
+      </div>
+
+      <div class="card">
+        <h3>Board</h3>
+        <label class="check-row">
+          <input type="checkbox" id="includeBench" />
+          <span>Count bench players in the root-for list</span>
+        </label>
+        <p class="muted tight" id="syncMeta">Not synced yet.</p>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="demoBtn">Load sample leagues</button>
+          <button type="button" class="btn btn-secondary" id="clearDemoBtn">Clear board</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Backup</h3>
+        <p class="muted tight">League list can be exported. ESPN sign-in codes never go in that file — only this phone keeps you signed in.</p>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="scores" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M4 19V5h6v14H4zM14 19v-8h6v8h-6z"/><path d="M4 12h6M14 15h6"/></svg>
+      <span>Scores</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="roots" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg>
+      <span>Root for</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="accounts" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
+      <span>Accounts</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="teamOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="teamPickTitle">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="teamPickTitle">Which team is yours?</h2>
+      <p class="muted" id="teamPickNote"></p>
+      <div id="teamPickList" class="file-list"></div>
+      <button type="button" class="btn btn-secondary" id="teamPickCancel">Cancel</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

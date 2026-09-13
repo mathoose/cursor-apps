@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Fantasy Hub icon">
+  <defs>
+    <linearGradient id="night" x1="20" y1="10" x2="160" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#16324f"/>
+      <stop offset="1" stop-color="#071422"/>
+    </linearGradient>
+    <linearGradient id="board" x1="40" y1="36" x2="140" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f2740"/>
+      <stop offset="1" stop-color="#0a1b2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="#071422"/>
+  <rect x="14" y="14" width="152" height="152" rx="32" fill="url(#night)"/>
+  <rect x="30" y="34" width="120" height="112" rx="16" fill="url(#board)" stroke="#f5d56e" stroke-width="3"/>
+  <path d="M42 62h96" stroke="#f5d56e" stroke-width="2" opacity=".35"/>
+  <text x="90" y="58" text-anchor="middle" font-family="ui-rounded, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#5eead4" letter-spacing="2">LIVE</text>
+  <text x="62" y="96" text-anchor="middle" font-family="ui-rounded, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#f8fafc">24</text>
+  <text x="118" y="96" text-anchor="middle" font-family="ui-rounded, -apple-system, sans-serif" font-size="28" font-weight="800" fill="#f8fafc">17</text>
+  <rect x="84" y="80" width="12" height="4" rx="2" fill="#f5d56e"/>
+  <ellipse cx="90" cy="122" rx="18" ry="12" fill="#f5d56e"/>
+  <path d="M78 122c4-3 20-3 24 0M78 122c4 3 20 3 24 0" fill="none" stroke="#7a4f12" stroke-width="1.4"/>
+  <path d="M132 40c0-7 8-10 12-4 4-6 12-3 12 4 0 10-12 16-12 16s-12-6-12-16z" fill="#fb7185"/>
+</svg>

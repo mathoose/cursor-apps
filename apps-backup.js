@@ -32,6 +32,7 @@
     "3d-print": "3D Print",
     "draft-board": "Draft Board",
     "index-card-planner": "Card Box",
+    "fantasy-hub": "Fantasy Hub",
   };
 
   var PHOTO_DATABASES = [
@@ -48,6 +49,7 @@
   var EXTRA_JSON_KEYS = {
     "world-cup-2026": ["world-cup-2026-scores-v1", "world-cup-2026-knockout-v1"],
     "habit-journal": ["habit-journal-meta-v1", "habit-journal-local-v1"],
+    "fantasy-hub": ["fantasy-hub-secrets-v1"],
   };
 
   var APP_REGISTRY = {
@@ -1310,7 +1312,93 @@
         return out;
       },
     },
+    "fantasy-hub": {
+      storageKey: "fantasy-hub-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("fantasy-hub-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object") return null;
+          if (!p.sleeper && !p.espn && !p.demo && !p.snapshot) return null;
+          return sanitizeFantasyHubSlice(p);
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice !== "object") return false;
+        if (!slice.sleeper && !slice.espn && !slice.demo && !slice.snapshot) return false;
+        return writeKey("fantasy-hub-v1", JSON.stringify(sanitizeFantasyHubSlice(slice)));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && (obj.sleeper || obj.espn || obj.demo || obj.snapshot));
+      },
+      summarize: function (slice) {
+        var sl = slice.sleeper && Array.isArray(slice.sleeper.leagues) ? slice.sleeper.leagues.length : 0;
+        var es = slice.espn && Array.isArray(slice.espn.leagues) ? slice.espn.leagues.length : 0;
+        var n = sl + es;
+        if (slice.demo && !n) return "sample board";
+        return n + " league" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        existing = sanitizeFantasyHubSlice(existing);
+        incoming = sanitizeFantasyHubSlice(incoming);
+        function mergeLeagues(a, b) {
+          var out = Array.isArray(a) ? a.slice() : [];
+          var seen = {};
+          out.forEach(function (l) {
+            if (l && l.id) seen[String(l.id) + "|" + String(l.season || "")] = true;
+          });
+          (b || []).forEach(function (l) {
+            if (!l || !l.id) return;
+            var key = String(l.id) + "|" + String(l.season || "");
+            if (seen[key]) return;
+            out.push(l);
+            seen[key] = true;
+          });
+          return out;
+        }
+        var out = {
+          version: 1,
+          demo: !!(existing.demo || incoming.demo),
+          includeBench: incoming.includeBench != null ? incoming.includeBench : existing.includeBench,
+          weekOverride: incoming.weekOverride != null ? incoming.weekOverride : existing.weekOverride,
+          lastSync: incoming.lastSync || existing.lastSync,
+          snapshot: incoming.snapshot || existing.snapshot,
+          sleeper: {
+            username: (incoming.sleeper && incoming.sleeper.username) || (existing.sleeper && existing.sleeper.username) || "",
+            userId: (incoming.sleeper && incoming.sleeper.userId) || (existing.sleeper && existing.sleeper.userId) || "",
+            displayName: (incoming.sleeper && incoming.sleeper.displayName) || (existing.sleeper && existing.sleeper.displayName) || "",
+            leagues: mergeLeagues(existing.sleeper && existing.sleeper.leagues, incoming.sleeper && incoming.sleeper.leagues)
+          },
+          espn: {
+            leagues: mergeLeagues(existing.espn && existing.espn.leagues, incoming.espn && incoming.espn.leagues)
+          }
+        };
+        return sanitizeFantasyHubSlice(out);
+      },
+    },
   };
+
+  function sanitizeFantasyHubSlice(slice) {
+    if (!slice || typeof slice !== "object") return slice;
+    var out;
+    try {
+      out = JSON.parse(JSON.stringify(slice));
+    } catch (e) {
+      return slice;
+    }
+    (((out.espn || {}).leagues) || []).forEach(function (l) {
+      if (!l || typeof l !== "object") return;
+      delete l.espnS2;
+      delete l.swid;
+    });
+    return out;
+  }
 
   /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
@@ -1922,7 +2010,7 @@
       format: FORMAT,
       version: BUNDLE_VERSION,
       exportedAt: new Date().toISOString(),
-      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1"],
+      excluded: ["philly-dates-menu-photos", "aruba-packing-wardrobe-photos", "meal-menu-photos-v1", "adhd-tracker-photos-v1", "dont-forget-photos-v1", "process-guide-photos-v1", "fantasy-hub-secrets-v1"],
       apps: apps,
       launcher: { hiddenApps: getHiddenAppIds(), appOrder: getAppOrderIds() },
       _meta: { included: included },
