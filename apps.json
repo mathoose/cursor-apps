@@ -27,7 +27,8 @@
       "photo-calendar": { "storageKey": "photo-calendar-v1" },
       "3d-print": { "storageKey": "3d-print-v1" },
       "draft-board": { "storageKey": "draft-board-v1" },
-      "index-card-planner": { "storageKey": "index-card-planner-v1" }
+      "index-card-planner": { "storageKey": "index-card-planner-v1" },
+      "fantasy-hub": { "storageKey": "fantasy-hub-v1" }
     }
   },
   "apps": [
@@ -138,6 +139,12 @@
       "name": "Draft Board",
       "subtitle": "ADP + draft settings",
       "storageKey": "draft-board-v1"
+    },
+    {
+      "id": "fantasy-hub",
+      "name": "Fantasy Hub",
+      "subtitle": "Sleeper & ESPN scores",
+      "storageKey": "fantasy-hub-v1"
     },
     {
       "id": "dynasty-board",
