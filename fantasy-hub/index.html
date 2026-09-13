@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="app-header">
@@ -105,8 +105,7 @@
 
         <div class="espn-private">
           <p class="eyebrow warn">Private league</p>
-          <p class="muted tight">Easiest fix: in the ESPN app, open the league → Settings → make it <strong>Public</strong>. Then tap Add ESPN league again. Scores stay live, no codes.</p>
-          <p class="muted tight">Or keep it private: on a computer, open this same league on ESPN, paste the helper in the Console, then paste the result here. Do that when you want a fresh score.</p>
+          <p class="muted tight">If you are not the commissioner, you cannot make the league public. Use a computer: open this league on ESPN, paste the helper in the Console, then paste the snapshot here when you want a fresh score.</p>
           <button type="button" class="btn btn-secondary" id="espnCopyHelper">Copy helper script</button>
           <label class="field-label" for="espnSnapshot">ESPN snapshot</label>
           <textarea id="espnSnapshot" rows="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste the snapshot JSON from the helper"></textarea>
@@ -119,7 +118,7 @@
         <h3>Board</h3>
         <label class="check-row">
           <input type="checkbox" id="includeBench" />
-          <span>Count bench players in the root-for list</span>
+          <span>Also count bench players on Root for (Scores always shows the bench)</span>
         </label>
         <p class="muted tight" id="syncMeta">Not synced yet.</p>
         <div class="settings-btns">
@@ -172,6 +171,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

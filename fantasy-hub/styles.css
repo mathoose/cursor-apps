@@ -302,6 +302,13 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   font-variant-numeric: tabular-nums;
 }
 .score-side.opp { text-align: right; }
+.score-side .outlook {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.01em;
+}
 .score-mid {
   padding-bottom: 6px;
   color: var(--faint);
@@ -351,7 +358,30 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   font-size: 0.82rem;
 }
 .player-row .meta { color: var(--faint); }
-.player-row .pts { font-variant-numeric: tabular-nums; font-weight: 700; }
+.player-row .pts {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.player-row .pts .proj {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.player-row .pts .proj::before { content: "proj "; }
+.player-row.bench { opacity: 0.88; }
+.bench-label {
+  margin: 10px 0 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
 
 .rank-card {
   display: grid;
