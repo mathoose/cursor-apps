@@ -2,6 +2,7 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
+  var APP_VERSION = "5 · Sep 14, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
@@ -473,7 +474,7 @@
     var starters = (row.starters || []).map(function (id) { return decorate(id, true); }).filter(Boolean);
     var starterSet = {};
     (row.starters || []).forEach(function (id) { starterSet[String(id)] = true; });
-    var bench = (row.players || roster && roster.players || []).map(function (id) {
+    var bench = sleeperBenchIds(row, roster).map(function (id) {
       if (starterSet[String(id)]) return null;
       return decorate(id, false);
     }).filter(Boolean);
@@ -486,6 +487,23 @@
       bench: bench,
       roster: starters.concat(bench)
     };
+  }
+
+  function sleeperBenchIds(row, roster) {
+    var ids = [];
+    var seen = {};
+    function add(id) {
+      if (id == null || id === "" || id === "0") return;
+      id = String(id);
+      if (seen[id]) return;
+      seen[id] = true;
+      ids.push(id);
+    }
+    (row && row.players || []).forEach(add);
+    (roster && roster.players || []).forEach(add);
+    (roster && roster.reserve || []).forEach(add);
+    (roster && roster.taxi || []).forEach(add);
+    return ids;
   }
 
   function parseEspnInput(raw, seasonDefault) {
@@ -1161,7 +1179,7 @@
   function lineupCol(title, starters, bench) {
     var startRows = (starters || []).map(playerRow).join("");
     var benchRows = (bench || []).map(playerRow).join("");
-    var benchBlock = benchRows ? '<p class="bench-label">Bench</p>' + benchRows : "";
+    var benchBlock = '<p class="bench-label">Bench</p>' + (benchRows || "<p class=\"muted\">No bench players</p>");
     return "<div><h4>" + escapeHtml(title || "") + "</h4>" +
       (startRows || "<p class=\"muted\">No starters</p>") +
       benchBlock + "</div>";
@@ -1264,11 +1282,17 @@
     );
   }
 
+  function stampVersion() {
+    var node = document.querySelector(".app-version");
+    if (node) node.textContent = "v" + APP_VERSION;
+  }
+
   function renderAll() {
     renderHeader();
     renderScores();
     renderRoots();
     renderAccounts();
+    stampVersion();
   }
 
   function findLeague(localId) {
