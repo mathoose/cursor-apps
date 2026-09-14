@@ -5,6 +5,7 @@
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
+  var SLEEPER_PROJ = "https://api.sleeper.app/projections/nfl";
   var ESPN = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl";
 
   var ESPN_TEAMS = {
@@ -20,6 +21,7 @@
   var state = defaultState();
   var nflState = { week: 1, season: "2026", display_week: 1 };
   var sleeperPlayers = null;
+  var sleeperProjCache = { key: "", map: null };
   var toastTimer = 0;
   var pendingEspn = null;
 
@@ -162,6 +164,86 @@
     if (n == null || isNaN(n)) return "—";
     var v = Math.round(Number(n) * 10) / 10;
     return (v % 1 === 0) ? String(v) : v.toFixed(1);
+  }
+
+  function fmtPct(p) {
+    if (p == null || isNaN(p)) return "—";
+    return Math.round(Number(p) * 100) + "%";
+  }
+
+  function erfApprox(x) {
+    var sign = x < 0 ? -1 : 1;
+    x = Math.abs(x);
+    var t = 1 / (1 + 0.3275911 * x);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+    return sign * y;
+  }
+
+  function winProbability(projA, projB) {
+    if (projA == null || projB == null || isNaN(projA) || isNaN(projB)) return null;
+    var diff = Number(projA) - Number(projB);
+    if (Math.abs(diff) < 0.05) return 0.5;
+    var sigma = 22;
+    var z = diff / (sigma * Math.SQRT2);
+    var p = 0.5 * (1 + erfApprox(z / Math.SQRT2));
+    return Math.max(0.01, Math.min(0.99, p));
+  }
+
+  function decorateMatchup(m) {
+    if (!m || !m.mine || !m.opp) return m;
+    if (m.mine.projected == null) m.mine.projected = sumStarterProjected(m.mine);
+    if (m.opp.projected == null) m.opp.projected = sumStarterProjected(m.opp);
+    var mineWin = m.mine.winPct != null ? Number(m.mine.winPct) : winProbability(m.mine.projected, m.opp.projected);
+    m.mine.winPct = mineWin;
+    m.opp.winPct = mineWin == null ? null : 1 - mineWin;
+    return m;
+  }
+
+  function sumStarterProjected(side) {
+    if (!side) return null;
+    var sum = 0;
+    var any = false;
+    (side.starters || []).forEach(function (p) {
+      if (p && p.projected != null && !isNaN(p.projected)) {
+        sum += Number(p.projected);
+        any = true;
+      }
+    });
+    return any ? sum : null;
+  }
+
+  function sleeperScoring(info) {
+    var rec = info && info.scoring_settings && Number(info.scoring_settings.rec);
+    if (rec >= 0.9) return "ppr";
+    if (rec >= 0.4) return "half";
+    return "std";
+  }
+
+  function sleeperProjPts(stats, scoring) {
+    if (!stats) return null;
+    var key = scoring === "ppr" ? "pts_ppr" : scoring === "half" ? "pts_half_ppr" : "pts_std";
+    if (stats[key] != null && !isNaN(Number(stats[key]))) return Number(stats[key]);
+    if (stats.pts_ppr != null && !isNaN(Number(stats.pts_ppr))) return Number(stats.pts_ppr);
+    return null;
+  }
+
+  function loadSleeperProjections(season, week) {
+    var key = String(season) + "-" + String(week);
+    if (sleeperProjCache.key === key && sleeperProjCache.map) return Promise.resolve(sleeperProjCache.map);
+    var url = SLEEPER_PROJ + "/" + season + "/" + week +
+      "?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF";
+    return fetchJson(url).then(function (res) {
+      var map = {};
+      var rows = Array.isArray(res.data) ? res.data : [];
+      rows.forEach(function (row) {
+        if (!row || row.player_id == null) return;
+        map[String(row.player_id)] = row.stats || {};
+      });
+      sleeperProjCache = { key: key, map: map };
+      return map;
+    }).catch(function () {
+      return sleeperProjCache.key === key ? sleeperProjCache.map : {};
+    });
   }
 
   function normName(s) {
@@ -325,7 +407,7 @@
     });
   }
 
-  function loadSleeperMatchup(league, week) {
+  function loadSleeperMatchup(league, week, projMap) {
     return Promise.all([
       fetchJson(SLEEPER + "/league/" + league.id),
       fetchJson(SLEEPER + "/league/" + league.id + "/users"),
@@ -337,6 +419,7 @@
       var rosters = Array.isArray(parts[2].data) ? parts[2].data : [];
       var matchups = Array.isArray(parts[3].data) ? parts[3].data : [];
       if (!parts[0].ok) throw new Error("Could not load " + league.name);
+      var scoring = sleeperScoring(info);
 
       var userById = {};
       users.forEach(function (u) { userById[String(u.user_id)] = u; });
@@ -368,37 +451,37 @@
         leagueId: league.id,
         leagueName: league.name,
         week: week,
-        mine: packSleeperSide(mineRow, myRoster, league.teamName || "You"),
-        opp: packSleeperSide(oppRow, oppRoster, (oppUser.metadata && oppUser.metadata.team_name) || oppUser.display_name || "Opponent")
+        mine: packSleeperSide(mineRow, myRoster, league.teamName || "You", projMap, scoring),
+        opp: packSleeperSide(oppRow, oppRoster, (oppUser.metadata && oppUser.metadata.team_name) || oppUser.display_name || "Opponent", projMap, scoring)
       };
     });
   }
 
-  function packSleeperSide(row, roster, teamName) {
+  function packSleeperSide(row, roster, teamName, projMap, scoring) {
     if (!row) {
-      return { teamName: teamName || "Bye", points: 0, starters: [], bench: [], roster: [] };
+      return { teamName: teamName || "Bye", points: 0, projected: null, winPct: null, starters: [], bench: [], roster: [] };
     }
     var pointsMap = row.players_points || {};
-    var starters = (row.starters || []).map(function (id) {
+    function decorate(id, starter) {
       var p = sleeperPlayer(id);
       if (!p) return null;
       p.points = Number(pointsMap[id] || 0);
-      p.starter = true;
+      p.projected = sleeperProjPts(projMap && projMap[String(id)], scoring);
+      p.starter = starter;
       return p;
-    }).filter(Boolean);
+    }
+    var starters = (row.starters || []).map(function (id) { return decorate(id, true); }).filter(Boolean);
     var starterSet = {};
     (row.starters || []).forEach(function (id) { starterSet[String(id)] = true; });
     var bench = (row.players || roster && roster.players || []).map(function (id) {
       if (starterSet[String(id)]) return null;
-      var p = sleeperPlayer(id);
-      if (!p) return null;
-      p.points = Number(pointsMap[id] || 0);
-      p.starter = false;
-      return p;
+      return decorate(id, false);
     }).filter(Boolean);
     return {
       teamName: teamName,
       points: Number(row.points || 0),
+      projected: sumStarterProjected({ starters: starters }),
+      winPct: null,
       starters: starters,
       bench: bench,
       roster: starters.concat(bench)
@@ -509,7 +592,7 @@
     el("espnStatus").textContent = "Loading league " + league.id + "…";
     return fetchJson(espnLeagueUrl(league, currentWeek()), { headers: { Accept: "application/json" } }).then(function (res) {
       if (isEspnUnauthorized(res)) {
-        throw new Error("Private league — make it Public in ESPN settings, or paste a snapshot below");
+        throw new Error("Private league — paste a snapshot from the helper below. This site cannot sign in to ESPN.");
       }
       if (!res.ok || !res.data || !res.data.teams) {
         throw new Error((res.data && res.data.messages && res.data.messages[0]) || "Could not load that ESPN league");
@@ -673,7 +756,7 @@
     }
     return fetchJson(espnLeagueUrl(league, week), { headers: { Accept: "application/json" } }).then(function (res) {
       if (isEspnUnauthorized(res)) {
-        throw new Error(league.name + " is private — make it Public in ESPN, or paste a new snapshot");
+        throw new Error(league.name + " is private — paste a new snapshot. This site cannot sign in to ESPN.");
       }
       if (!res.ok || !res.data || !res.data.teams) {
         throw new Error((res.data && res.data.messages && res.data.messages[0]) || "Could not load " + league.name);
@@ -685,7 +768,7 @@
   function packEspnSide(side, team, data, week) {
     var name = espnTeamName(team);
     if (!side && !team) {
-      return { teamName: "Bye", points: 0, starters: [], bench: [], roster: [] };
+      return { teamName: "Bye", points: 0, projected: null, winPct: null, starters: [], bench: [], roster: [] };
     }
     var entries = [];
     if (side && side.rosterForCurrentScoringPeriod && Array.isArray(side.rosterForCurrentScoringPeriod.entries)) {
@@ -696,23 +779,45 @@
     var starters = [];
     var bench = [];
     entries.forEach(function (entry) {
-      var p = espnEntryToPlayer(entry);
+      var p = espnEntryToPlayer(entry, week);
       if (!p) return;
       if (p.starter) starters.push(p);
       else bench.push(p);
     });
     var points = side && (side.totalPointsLive != null ? side.totalPointsLive : side.totalPoints);
     if (points == null) points = starters.reduce(function (sum, p) { return sum + (p.points || 0); }, 0);
+    var projected = null;
+    if (side && side.totalProjectedPointsLive != null) projected = Number(side.totalProjectedPointsLive);
+    else if (side && side.totalProjectedPoints != null) projected = Number(side.totalProjectedPoints);
+    else projected = sumStarterProjected({ starters: starters });
+    var winPct = null;
+    if (side && side.winProbability != null) winPct = Number(side.winProbability);
+    else if (side && side.projectedWinPct != null) winPct = Number(side.projectedWinPct);
+    if (winPct != null && !isNaN(winPct) && winPct > 1) winPct = winPct / 100;
+    if (winPct != null && (isNaN(winPct) || winPct < 0 || winPct > 1)) winPct = null;
     return {
       teamName: name,
       points: Number(points || 0),
+      projected: projected,
+      winPct: winPct,
       starters: starters,
       bench: bench,
       roster: starters.concat(bench)
     };
   }
 
-  function espnEntryToPlayer(entry) {
+  function espnStatTotal(stats, week, sourceId) {
+    if (!Array.isArray(stats)) return null;
+    var hits = stats.filter(function (s) {
+      if (!s || s.appliedTotal == null) return false;
+      if (sourceId != null && Number(s.statSourceId) !== Number(sourceId)) return false;
+      return s.scoringPeriodId == null || Number(s.scoringPeriodId) === Number(week);
+    });
+    if (!hits.length) return null;
+    return Number(hits[0].appliedTotal || 0);
+  }
+
+  function espnEntryToPlayer(entry, week) {
     var pool = entry && entry.playerPoolEntry;
     var player = pool && pool.player;
     if (!player) return null;
@@ -722,9 +827,10 @@
     var starter = !ESPN_BENCH[slot];
     var points = 0;
     if (pool.appliedStatTotal != null) points = Number(pool.appliedStatTotal);
-    else if (player.stats) {
-      var st = player.stats.filter(function (s) { return s.appliedTotal != null; })[0];
-      if (st) points = Number(st.appliedTotal || 0);
+    else {
+      var actual = espnStatTotal(player.stats, week, 0);
+      if (actual == null) actual = espnStatTotal(player.stats, week, null);
+      if (actual != null) points = actual;
     }
     return {
       id: String(player.id),
@@ -732,48 +838,77 @@
       pos: pos,
       team: team,
       points: points,
+      projected: espnStatTotal(player.stats, week, 1),
       starter: starter
     };
   }
 
   function demoSnapshot(week) {
-    function p(name, pos, team, points, starter) {
-      return { id: normName(name), name: name, pos: pos, team: team, points: points, starter: starter !== false };
+    function p(name, pos, team, points, opts) {
+      opts = opts || {};
+      return {
+        id: normName(name),
+        name: name,
+        pos: pos,
+        team: team,
+        points: points,
+        projected: opts.projected != null ? opts.projected : Math.round((points + 3.2) * 10) / 10,
+        starter: opts.starter !== false
+      };
     }
-    var chase = p("Ja'Marr Chase", "WR", "CIN", 22.4);
-    var cmc = p("Christian McCaffrey", "RB", "SF", 18.1);
-    var kelce = p("Travis Kelce", "TE", "KC", 11.2);
-    var mahomes = p("Patrick Mahomes", "QB", "KC", 19.6);
-    var achane = p("De'Von Achane", "RB", "MIA", 14.8);
-    var dk = p("DK Metcalf", "WR", "SEA", 9.3);
-    var nico = p("Nico Collins", "WR", "HOU", 13.5);
-    var niners = p("49ers D/ST", "DEF", "SF", 7.0);
-    var aubrey = p("Brandon Aubrey", "K", "DAL", 8.0);
-    var jefferson = p("Justin Jefferson", "WR", "MIN", 16.2);
-    var bijan = p("Bijan Robinson", "RB", "ATL", 17.4);
-    var amonra = p("Amon-Ra St. Brown", "WR", "DET", 15.8);
-    var allen = p("Josh Allen", "QB", "BUF", 23.2);
-    var mcbride = p("Trey McBride", "TE", "ARI", 10.1);
-    var kyren = p("Kyren Williams", "RB", "LAR", 12.6);
-    var ladd = p("Ladd McConkey", "WR", "LAC", 11.4);
-    var ravens = p("Ravens D/ST", "DEF", "BAL", 6.0);
-    var bates = p("Jake Bates", "K", "DET", 7.0);
+    var chase = p("Ja'Marr Chase", "WR", "CIN", 22.4, { projected: 19.8 });
+    var cmc = p("Christian McCaffrey", "RB", "SF", 18.1, { projected: 20.4 });
+    var kelce = p("Travis Kelce", "TE", "KC", 11.2, { projected: 12.6 });
+    var mahomes = p("Patrick Mahomes", "QB", "KC", 19.6, { projected: 21.1 });
+    var achane = p("De'Von Achane", "RB", "MIA", 14.8, { projected: 15.9 });
+    var dk = p("DK Metcalf", "WR", "SEA", 9.3, { projected: 13.2 });
+    var nico = p("Nico Collins", "WR", "HOU", 13.5, { projected: 14.7 });
+    var niners = p("49ers D/ST", "DEF", "SF", 7.0, { projected: 8.1 });
+    var aubrey = p("Brandon Aubrey", "K", "DAL", 8.0, { projected: 8.4 });
+    var jefferson = p("Justin Jefferson", "WR", "MIN", 16.2, { projected: 17.5 });
+    var bijan = p("Bijan Robinson", "RB", "ATL", 17.4, { projected: 18.6 });
+    var amonra = p("Amon-Ra St. Brown", "WR", "DET", 15.8, { projected: 16.4 });
+    var allen = p("Josh Allen", "QB", "BUF", 23.2, { projected: 22.8 });
+    var mcbride = p("Trey McBride", "TE", "ARI", 10.1, { projected: 11.3 });
+    var kyren = p("Kyren Williams", "RB", "LAR", 12.6, { projected: 14.2 });
+    var ladd = p("Ladd McConkey", "WR", "LAC", 11.4, { projected: 12.8 });
+    var ravens = p("Ravens D/ST", "DEF", "BAL", 6.0, { projected: 7.2 });
+    var bates = p("Jake Bates", "K", "DET", 7.0, { projected: 7.8 });
 
     var l1Mine = [mahomes, cmc, achane, chase, nico, dk, kelce, niners, aubrey];
-    var l1Opp = [p("Lamar Jackson", "QB", "BAL", 18.4), p("Breece Hall", "RB", "NYJ", 12.0), jefferson, p("A.J. Brown", "WR", "PHI", 13.1), p("Mark Andrews", "TE", "BAL", 8.8), p("James Cook", "RB", "BUF", 11.4), p("Eagles D/ST", "DEF", "PHI", 5.0), p("Harrison Butker", "K", "KC", 9.0), p("Chris Olave", "WR", "NO", 10.3)];
+    var l1MineBench = [
+      p("Rico Dowdle", "RB", "CAR", 3.2, { starter: false, projected: 8.4 }),
+      p("Rome Odunze", "WR", "CHI", 2.8, { starter: false, projected: 9.1 }),
+      p("Tyler Higbee", "TE", "LAR", 1.4, { starter: false, projected: 5.6 })
+    ];
+    var l1Opp = [p("Lamar Jackson", "QB", "BAL", 18.4, { projected: 22.0 }), p("Breece Hall", "RB", "NYJ", 12.0, { projected: 14.8 }), jefferson, p("A.J. Brown", "WR", "PHI", 13.1, { projected: 15.2 }), p("Mark Andrews", "TE", "BAL", 8.8, { projected: 10.4 }), p("James Cook", "RB", "BUF", 11.4, { projected: 13.6 }), p("Eagles D/ST", "DEF", "PHI", 5.0, { projected: 6.8 }), p("Harrison Butker", "K", "KC", 9.0, { projected: 8.6 }), p("Chris Olave", "WR", "NO", 10.3, { projected: 12.1 })];
+    var l1OppBench = [
+      p("Tank Dell", "WR", "HOU", 0.0, { starter: false, projected: 10.2 }),
+      p("Zach Charbonnet", "RB", "SEA", 4.1, { starter: false, projected: 7.5 })
+    ];
     var l2Mine = [allen, bijan, kyren, chase, amonra, ladd, mcbride, ravens, bates];
-    var l2Opp = [p("Jalen Hurts", "QB", "PHI", 20.1), p("Saquon Barkley", "RB", "PHI", 21.4), p("CeeDee Lamb", "WR", "DAL", 14.8), p("Puka Nacua", "WR", "LAR", 13.6), p("George Kittle", "TE", "SF", 9.9), p("Jahmyr Gibbs", "RB", "DET", 16.2), p("Cowboys D/ST", "DEF", "DAL", 4.0), p("Cameron Dicker", "K", "LAC", 8.0), p("Marvin Harrison Jr.", "WR", "ARI", 9.1)];
-    var l3Mine = [p("Joe Burrow", "QB", "CIN", 17.8), p("Kyren Williams", "RB", "LAR", 11.9), jefferson, p("Malik Nabers", "WR", "NYG", 12.4), p("Brock Bowers", "TE", "LV", 9.6), p("James Conner", "RB", "ARI", 10.2), p("Lions D/ST", "DEF", "DET", 8.0), p("Jake Elliott", "K", "PHI", 6.0), p("Zay Flowers", "WR", "BAL", 10.5)];
-    var l3Opp = [mahomes, cmc, p("Garrett Wilson", "WR", "NYJ", 11.1), p("Tee Higgins", "WR", "CIN", 12.8), p("Sam LaPorta", "TE", "DET", 8.4), p("Alvin Kamara", "RB", "NO", 9.7), p("Packers D/ST", "DEF", "GB", 5.0), p("Younghoe Koo", "K", "ATL", 7.0), p("Jaylen Waddle", "WR", "MIA", 8.6)];
+    var l2MineBench = [
+      p("Javonte Williams", "RB", "DAL", 5.6, { starter: false, projected: 9.8 }),
+      p("Xavier Worthy", "WR", "KC", 3.9, { starter: false, projected: 10.6 })
+    ];
+    var l2Opp = [p("Jalen Hurts", "QB", "PHI", 20.1, { projected: 21.4 }), p("Saquon Barkley", "RB", "PHI", 21.4, { projected: 19.8 }), p("CeeDee Lamb", "WR", "DAL", 14.8, { projected: 16.9 }), p("Puka Nacua", "WR", "LAR", 13.6, { projected: 15.5 }), p("George Kittle", "TE", "SF", 9.9, { projected: 11.2 }), p("Jahmyr Gibbs", "RB", "DET", 16.2, { projected: 17.1 }), p("Cowboys D/ST", "DEF", "DAL", 4.0, { projected: 6.4 }), p("Cameron Dicker", "K", "LAC", 8.0, { projected: 8.2 }), p("Marvin Harrison Jr.", "WR", "ARI", 9.1, { projected: 12.4 })];
+    var l2OppBench = [p("Chuba Hubbard", "RB", "CAR", 6.2, { starter: false, projected: 10.8 })];
+    var l3Mine = [p("Joe Burrow", "QB", "CIN", 17.8, { projected: 20.9 }), p("Kyren Williams", "RB", "LAR", 11.9, { projected: 14.2 }), jefferson, p("Malik Nabers", "WR", "NYG", 12.4, { projected: 14.6 }), p("Brock Bowers", "TE", "LV", 9.6, { projected: 11.0 }), p("James Conner", "RB", "ARI", 10.2, { projected: 12.3 }), p("Lions D/ST", "DEF", "DET", 8.0, { projected: 7.4 }), p("Jake Elliott", "K", "PHI", 6.0, { projected: 7.6 }), p("Zay Flowers", "WR", "BAL", 10.5, { projected: 12.0 })];
+    var l3MineBench = [p("Jayden Reed", "WR", "GB", 4.4, { starter: false, projected: 9.3 })];
+    var l3Opp = [mahomes, cmc, p("Garrett Wilson", "WR", "NYJ", 11.1, { projected: 13.4 }), p("Tee Higgins", "WR", "CIN", 12.8, { projected: 13.9 }), p("Sam LaPorta", "TE", "DET", 8.4, { projected: 10.1 }), p("Alvin Kamara", "RB", "NO", 9.7, { projected: 12.5 }), p("Packers D/ST", "DEF", "GB", 5.0, { projected: 6.2 }), p("Younghoe Koo", "K", "ATL", 7.0, { projected: 8.0 }), p("Jaylen Waddle", "WR", "MIA", 8.6, { projected: 11.2 })];
+    var l3OppBench = [p("D'Andre Swift", "RB", "CHI", 5.1, { starter: false, projected: 9.7 })];
 
-    function side(teamName, players) {
+    function side(teamName, players, benchPlayers) {
       var starters = players.map(function (x) { return Object.assign({}, x, { starter: true }); });
+      var bench = (benchPlayers || []).map(function (x) { return Object.assign({}, x, { starter: false }); });
       return {
         teamName: teamName,
         points: starters.reduce(function (s, x) { return s + x.points; }, 0),
+        projected: starters.reduce(function (s, x) { return s + (x.projected || 0); }, 0),
+        winPct: null,
         starters: starters,
-        bench: [],
-        roster: starters
+        bench: bench,
+        roster: starters.concat(bench)
       };
     }
 
@@ -784,9 +919,9 @@
       generatedAt: new Date().toISOString(),
       errors: [],
       matchups: [
-        { platform: "sleeper", leagueId: "demo-home", leagueName: "Hometown Heroes", week: week, mine: side("Mathoose", l1Mine), opp: side("Gronk's Cousin", l1Opp) },
-        { platform: "sleeper", leagueId: "demo-work", leagueName: "Work League", week: week, mine: side("Mathoose", l2Mine), opp: side("Waiver Wire FC", l2Opp) },
-        { platform: "espn", leagueId: "demo-keep", leagueName: "Thursday Keepers", week: week, mine: side("Keep the Receipts", l3Mine), opp: side("Sunday Scaries", l3Opp) }
+        decorateMatchup({ platform: "sleeper", leagueId: "demo-home", leagueName: "Hometown Heroes", week: week, mine: side("Mathoose", l1Mine, l1MineBench), opp: side("Gronk's Cousin", l1Opp, l1OppBench) }),
+        decorateMatchup({ platform: "sleeper", leagueId: "demo-work", leagueName: "Work League", week: week, mine: side("Mathoose", l2Mine, l2MineBench), opp: side("Waiver Wire FC", l2Opp, l2OppBench) }),
+        decorateMatchup({ platform: "espn", leagueId: "demo-keep", leagueName: "Thursday Keepers", week: week, mine: side("Keep the Receipts", l3Mine, l3MineBench), opp: side("Sunday Scaries", l3Opp, l3OppBench) })
       ]
     };
   }
@@ -820,10 +955,14 @@
         return;
       }
       var needPlayers = enabledSleeper().length > 0;
-      return (needPlayers ? loadSleeperPlayers(false) : Promise.resolve(null)).then(function () {
+      return Promise.all([
+        needPlayers ? loadSleeperPlayers(false) : Promise.resolve(null),
+        needPlayers ? loadSleeperProjections(currentSeason(), week) : Promise.resolve({})
+      ]).then(function (parts) {
+        var projMap = parts[1] || {};
         var jobs = [];
         enabledSleeper().forEach(function (league) {
-          jobs.push(loadSleeperMatchup(league, week).then(function (m) {
+          jobs.push(loadSleeperMatchup(league, week, projMap).then(function (m) {
             league.error = "";
             return { ok: true, matchup: m };
           }).catch(function (err) {
@@ -844,7 +983,7 @@
           var matchups = [];
           var errors = [];
           rows.forEach(function (row) {
-            if (row.ok) matchups.push(row.matchup);
+            if (row.ok) matchups.push(decorateMatchup(row.matchup));
             else errors.push(row);
           });
           state.snapshot = {
@@ -980,11 +1119,13 @@
             '<div class="score-side">' +
               '<p class="who">' + escapeHtml(m.mine.teamName || "You") + "</p>" +
               '<p class="pts">' + fmtPts(m.mine.points) + "</p>" +
+              outlookLine(m.mine) +
             "</div>" +
             '<div class="score-mid">VS</div>' +
             '<div class="score-side opp">' +
               '<p class="who">' + escapeHtml(m.opp.teamName || "Opponent") + "</p>" +
               '<p class="pts">' + fmtPts(m.opp.points) + "</p>" +
+              outlookLine(m.opp) +
             "</div>" +
           "</div>" +
           '<div class="bars">' +
@@ -993,21 +1134,37 @@
           "</div>" +
           '<p class="result ' + res.cls + '">' + res.text + " · tap for lineups</p>" +
           '<div class="lineup">' +
-            lineupCol(m.mine.teamName, m.mine.starters) +
-            lineupCol(m.opp.teamName, m.opp.starters) +
+            lineupCol(m.mine.teamName, m.mine.starters, m.mine.bench) +
+            lineupCol(m.opp.teamName, m.opp.starters, m.opp.bench) +
           "</div>" +
         "</button>"
       );
     }).join("");
   }
 
-  function lineupCol(title, players) {
-    var rows = (players || []).map(function (p) {
-      return '<div class="player-row"><span>' + escapeHtml(p.name) +
-        ' <span class="meta">' + escapeHtml((p.pos || "") + (p.team ? " " + p.team : "")) +
-        "</span></span><span class=\"pts\">" + fmtPts(p.points) + "</span></div>";
-    }).join("");
-    return "<div><h4>" + escapeHtml(title || "") + "</h4>" + (rows || "<p class=\"muted\">No starters</p>") + "</div>";
+  function outlookLine(side) {
+    if (!side) return "";
+    var bits = [];
+    if (side.projected != null) bits.push("Proj " + fmtPts(side.projected));
+    if (side.winPct != null) bits.push(fmtPct(side.winPct) + " win");
+    if (!bits.length) return "";
+    return '<p class="outlook">' + bits.join(" · ") + "</p>";
+  }
+
+  function playerRow(p) {
+    var proj = p.projected != null ? '<span class="proj">' + fmtPts(p.projected) + "</span>" : "";
+    return '<div class="player-row' + (p.starter === false ? " bench" : "") + '"><span>' + escapeHtml(p.name) +
+      ' <span class="meta">' + escapeHtml((p.pos || "") + (p.team ? " " + p.team : "")) +
+      "</span></span><span class=\"pts\">" + fmtPts(p.points) + proj + "</span></div>";
+  }
+
+  function lineupCol(title, starters, bench) {
+    var startRows = (starters || []).map(playerRow).join("");
+    var benchRows = (bench || []).map(playerRow).join("");
+    var benchBlock = benchRows ? '<p class="bench-label">Bench</p>' + benchRows : "";
+    return "<div><h4>" + escapeHtml(title || "") + "</h4>" +
+      (startRows || "<p class=\"muted\">No starters</p>") +
+      benchBlock + "</div>";
   }
 
   function renderRoots() {
