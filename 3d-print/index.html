@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="app-header">
@@ -40,6 +40,14 @@
             <option value="waitlisted">Waitlisted</option>
             <option value="ready">Ready</option>
             <option value="done">Done</option>
+          </select>
+        </div>
+        <div class="list-filter-row">
+          <span class="list-filter-label">Sort</span>
+          <select id="itemSort" class="list-filter-select" aria-label="Sort by">
+            <option value="custom">Custom</option>
+            <option value="added-newest">Newest added</option>
+            <option value="added-oldest">Oldest added</option>
           </select>
         </div>
         <div class="list-filter-row" id="categoryFilterRow" hidden>
@@ -553,6 +561,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

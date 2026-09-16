@@ -26,7 +26,8 @@
     filamentColors: [],
     filamentColorSortAt: 0,
     statusFilter: 'all',
-    categoryFilter: 'all'
+    categoryFilter: 'all',
+    itemSort: 'custom'
   };
 
   var currentView = 'queue';
@@ -425,6 +426,16 @@
     saveState();
   }
 
+  function normalizeItemSort(value) {
+    if (value === 'added-newest' || value === 'added-oldest') return value;
+    return 'custom';
+  }
+
+  function itemAddedMs(item) {
+    var t = Date.parse(item && item.createdAt ? item.createdAt : '');
+    return isNaN(t) ? 0 : t;
+  }
+
   function compareItemOrder(a, b) {
     var ao = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
     var bo = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
@@ -435,6 +446,14 @@
     var prio = b.priority - a.priority;
     if (prio) return prio;
     return a.createdAt < b.createdAt ? -1 : 1;
+  }
+
+  function compareItemsByTimeAdded(a, b, newestFirst) {
+    var diff = itemAddedMs(a) - itemAddedMs(b);
+    if (diff) return newestFirst ? -diff : diff;
+    if ((a.id || '') < (b.id || '')) return -1;
+    if ((a.id || '') > (b.id || '')) return 1;
+    return 0;
   }
 
   function ensureItemSortOrders() {
@@ -454,6 +473,17 @@
   function sortItems(items) {
     ensureItemSortOrders();
     return items.slice().sort(compareItemOrder);
+  }
+
+  function sortItemsForView(items) {
+    var mode = normalizeItemSort(state.itemSort);
+    if (mode === 'added-newest') {
+      return items.slice().sort(function (a, b) { return compareItemsByTimeAdded(a, b, true); });
+    }
+    if (mode === 'added-oldest') {
+      return items.slice().sort(function (a, b) { return compareItemsByTimeAdded(a, b, false); });
+    }
+    return sortItems(items);
   }
 
   function repositionItemByPriority(item) {
@@ -493,7 +523,8 @@
         filamentColors: state.filamentColors,
         filamentColorSortAt: state.filamentColorSortAt,
         statusFilter: state.statusFilter,
-        categoryFilter: state.categoryFilter
+        categoryFilter: state.categoryFilter,
+        itemSort: state.itemSort
       }));
     } catch (e) {
       console.error(e);
@@ -521,6 +552,7 @@
       if (typeof parsed.filamentColorSortAt === 'number') state.filamentColorSortAt = parsed.filamentColorSortAt;
       if (typeof parsed.statusFilter === 'string') state.statusFilter = parsed.statusFilter;
       if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
+      state.itemSort = normalizeItemSort(parsed.itemSort);
       ensureItemSortOrders();
       ensureFilamentColors();
       maybeReorderFilamentColors();
@@ -1347,13 +1379,16 @@
     var statusFilter = document.getElementById('statusFilter');
     if (statusFilter) statusFilter.value = state.statusFilter;
 
+    var sortSelect = document.getElementById('itemSort');
+    if (sortSelect) sortSelect.value = normalizeItemSort(state.itemSort);
+
     var filtered = state.items.filter(itemMatchesFilters);
-    var open = sortItems(filtered.filter(function (t) { return t.status !== 'done'; }));
+    var open = sortItemsForView(filtered.filter(function (t) { return t.status !== 'done'; }));
     var done = state.statusFilter === 'done'
-      ? sortItems(state.items.filter(function (t) {
+      ? sortItemsForView(state.items.filter(function (t) {
         return t.status === 'done' && (state.categoryFilter === 'all' || (t.categoryIds || []).includes(state.categoryFilter));
       }))
-      : sortItems(state.items.filter(function (t) { return t.status === 'done'; }));
+      : sortItemsForView(state.items.filter(function (t) { return t.status === 'done'; }));
 
     if (!open.length && state.statusFilter !== 'done') {
       container.appendChild(el('div', {
@@ -2242,6 +2277,11 @@
       saveState();
       renderQueue();
     });
+    document.getElementById('itemSort').addEventListener('change', function () {
+      state.itemSort = normalizeItemSort(this.value);
+      saveState();
+      renderQueue();
+    });
     document.getElementById('categoryFilter').addEventListener('change', function () {
       state.categoryFilter = this.value;
       saveState();
@@ -2312,7 +2352,8 @@
         filamentColors: [],
         filamentColorSortAt: 0,
         statusFilter: 'all',
-        categoryFilter: 'all'
+        categoryFilter: 'all',
+        itemSort: 'custom'
       };
       ensureFilamentColors();
       saveState();
