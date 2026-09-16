@@ -590,15 +590,19 @@
     gap: 8px;
     margin-bottom: 10px;
   }
+  .list-filter-row[hidden] {
+    display: none;
+  }
   .list-toolbar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
     margin-bottom: 10px;
   }
   .list-toolbar .list-filter-row {
     flex: 1;
-    min-width: 0;
+    min-width: 140px;
     margin-bottom: 0;
   }
   .list-tag-btn {
@@ -2119,7 +2123,15 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="list-toolbar" id="listToolbar" hidden>
+    <div class="list-toolbar" id="listToolbar">
+      <div class="list-filter-row">
+        <span class="list-filter-label">Sort</span>
+        <select id="listSortSelect" class="list-filter-select" aria-label="Sort tasks">
+          <option value="custom">Custom</option>
+          <option value="added-newest">Newest added</option>
+          <option value="added-oldest">Oldest added</option>
+        </select>
+      </div>
       <div class="list-filter-row" id="listCategoryFilterRow" hidden>
         <span class="list-filter-label">Category</span>
         <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
@@ -2176,9 +2188,19 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" id="inboxSubtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
-    <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
-      <span class="list-filter-label">Filter by</span>
-      <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+    <div class="list-toolbar" id="inboxToolbar">
+      <div class="list-filter-row">
+        <span class="list-filter-label">Sort</span>
+        <select id="inboxSortSelect" class="list-filter-select" aria-label="Sort inbox">
+          <option value="custom">Custom</option>
+          <option value="added-newest">Newest added</option>
+          <option value="added-oldest">Oldest added</option>
+        </select>
+      </div>
+      <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
+        <span class="list-filter-label">Filter by</span>
+        <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+      </div>
     </div>
     <div class="quick-add-card">
       <div class="quick-add">
@@ -2803,7 +2825,8 @@ let state = {
   selectedDate: null,
   matrixFilter: 'all',
   categoryFilter: 'all',
-  amsFilter: 'all'
+  amsFilter: 'all',
+  taskSort: 'custom'
 };
 
 const quickAddCategoryUi = {
@@ -2922,6 +2945,7 @@ function loadState() {
     if (parsed.amsFilter === 'all' || parsed.amsFilter === 'ams' || parsed.amsFilter === 'no-ams') {
       state.amsFilter = parsed.amsFilter;
     }
+    state.taskSort = normalizeTaskSort(parsed.taskSort);
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -3059,6 +3083,43 @@ function compareTaskOrder(a, b) {
   return a.createdAt < b.createdAt ? -1 : 1;
 }
 
+function normalizeTaskSort(value) {
+  if (value === 'added-newest' || value === 'added-oldest') return value;
+  return 'custom';
+}
+
+function taskAddedMs(task) {
+  const t = Date.parse(task && task.createdAt ? task.createdAt : '');
+  return Number.isNaN(t) ? 0 : t;
+}
+
+function compareTasksByTimeAdded(a, b, newestFirst) {
+  const diff = taskAddedMs(a) - taskAddedMs(b);
+  if (diff) return newestFirst ? -diff : diff;
+  if ((a.id || '') < (b.id || '')) return -1;
+  if ((a.id || '') > (b.id || '')) return 1;
+  return 0;
+}
+
+function sortTasksForView(tasks) {
+  const mode = normalizeTaskSort(state.taskSort);
+  if (mode === 'added-newest') {
+    return tasks.slice().sort((a, b) => compareTasksByTimeAdded(a, b, true));
+  }
+  if (mode === 'added-oldest') {
+    return tasks.slice().sort((a, b) => compareTasksByTimeAdded(a, b, false));
+  }
+  return sortTasksByOrder(tasks);
+}
+
+function syncTaskSortSelects() {
+  const value = normalizeTaskSort(state.taskSort);
+  ['listSortSelect', 'inboxSortSelect'].forEach((id) => {
+    const select = document.getElementById(id);
+    if (select) select.value = value;
+  });
+}
+
 function taskGroupKey(task) {
   return task.listId + ':' + (task.completed ? '1' : '0');
 }
@@ -3139,6 +3200,7 @@ function moveTaskToIndex(taskId, newIndex) {
 }
 
 function canReorderTasksInView() {
+  if (normalizeTaskSort(state.taskSort) !== 'custom') return false;
   if (currentView === 'lists') {
     return state.categoryFilter === 'all' && state.amsFilter === 'all';
   }
@@ -3779,7 +3841,8 @@ function saveState() {
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter,
-      amsFilter: state.amsFilter
+      amsFilter: state.amsFilter,
+      taskSort: state.taskSort
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -4497,9 +4560,9 @@ function syncListToolbar() {
   const toolbar = document.getElementById('listToolbar');
   if (!toolbar) return;
   const hasTasks = state.tasks.some(t => t.listId === state.activeListId);
-  const printerList = isPrinterList(state.activeListId);
-  const hasCategories = getCategoriesForList(state.activeListId).length > 0;
-  toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
+  const tagBtn = document.getElementById('bulkTagListBtn');
+  if (tagBtn) tagBtn.hidden = !hasTasks;
+  toolbar.hidden = false;
 }
 
 function appendTaskRowMarks(parent, task) {
@@ -4631,6 +4694,7 @@ function render() {
   renderCategoryFilters();
   renderQuickAddCategories();
   renderQuickAddFilament();
+  syncTaskSortSelects();
   if (currentView === 'matrix') renderMatrix();
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'lists') renderListsView();
@@ -5008,8 +5072,8 @@ function renderListsView() {
     syncListToolbar();
     return;
   }
-  const open = sortTasksByOrder(tasks.filter(t => !t.completed));
-  const done = sortTasksByOrder(tasks.filter(t => t.completed));
+  const open = sortTasksForView(tasks.filter(t => !t.completed));
+  const done = sortTasksForView(tasks.filter(t => t.completed));
   if (canReorderTasksInView() && (open.length || done.length)) {
     container.appendChild(el('p', { class: 'task-reorder-hint', text: taskReorderHintText() }));
   }
@@ -5065,7 +5129,7 @@ function renderInbox() {
     return;
   }
   const list = el('div', { class: 'task-list' });
-  const sorted = sortTasksByOrder(tasks);
+  const sorted = sortTasksForView(tasks);
   sorted.forEach((t) => list.appendChild(renderTaskRow(t)));
   container.appendChild(list);
   bindTaskListDrag(list);
@@ -5805,7 +5869,8 @@ function exportBackup() {
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter,
-      amsFilter: state.amsFilter
+      amsFilter: state.amsFilter,
+      taskSort: state.taskSort
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -7040,6 +7105,7 @@ function wireSettings() {
     state.activeListId = 'inbox';
     state.categoryFilter = 'all';
     state.amsFilter = 'all';
+    state.taskSort = 'custom';
     state.counters = [];
     state.counterLogs = {};
     state.compareHabitIds = [];
@@ -7088,6 +7154,18 @@ function purgeLegacyFitnessHabitStorage() {
   saveState();
 }
 
+function wireTaskSort() {
+  function onSortChange(e) {
+    state.taskSort = normalizeTaskSort(e.target.value);
+    saveState();
+    render();
+  }
+  const listSelect = document.getElementById('listSortSelect');
+  const inboxSelect = document.getElementById('inboxSortSelect');
+  if (listSelect) listSelect.addEventListener('change', onSortChange);
+  if (inboxSelect) inboxSelect.addEventListener('change', onSortChange);
+}
+
 function init() {
   loadState();
   ensureFilamentColors();
@@ -7104,6 +7182,7 @@ function init() {
   wireDateNav();
   wireCounterEditor();
   wireHeatmap();
+  wireTaskSort();
   render();
 
   // Re-render at midnight so "today" rolls over correctly
