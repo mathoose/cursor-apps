@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Things Happening</title>
+  <!-- build: things-happening-v1 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Things Happening" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3f2a1d" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <style>
+    :root {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --ink: #2b1c12;
+      --muted: #6b5344;
+      --paper: #f6efe4;
+      --card: #fffaf3;
+      --line: #e4d4c2;
+      --accent: #c45c26;
+      --accent-ink: #fffaf3;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    header {
+      padding: calc(14px + var(--safe-top)) 16px 12px;
+    }
+    .top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .apps-home-back {
+      background: #efe3d3;
+      color: var(--ink);
+    }
+    .titles { min-width: 0; flex: 1; }
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    main { padding: 0 16px 24px; }
+    .hero-card, .event-list, .how {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 16px;
+    }
+    .hero-card p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .add-btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+    .add-btn:active { opacity: 0.88; transform: scale(0.99); }
+    .how {
+      margin-top: 12px;
+    }
+    .how h2, .event-list h2 {
+      margin: 0 0 10px;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .how ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .how li + li { margin-top: 6px; }
+    .event-list {
+      margin-top: 12px;
+      padding: 0;
+      overflow: hidden;
+    }
+    .event-list h2 { padding: 16px 16px 0; }
+    .event {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid var(--line);
+    }
+    .event:first-of-type { border-top: 0; }
+    .when {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.3;
+    }
+    .what { font-size: 0.95rem; font-weight: 600; }
+    .where {
+      margin-top: 2px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top topbar-with-home">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="titles">
+        <h1>Things Happening</h1>
+        <p class="sub">Fall 2026 · 16 festivals</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-card">
+      <p>Add these Philly-area fall festivals to the shared calendar you already use. They are all-day events, with hours and links in the notes.</p>
+      <a class="add-btn" href="fall-2026.ics">Add to Calendar</a>
+    </section>
+
+    <section class="how">
+      <h2>On iPhone</h2>
+      <ol>
+        <li>Tap <strong>Add to Calendar</strong>.</li>
+        <li>Choose <strong>Add All</strong>.</li>
+        <li>Pick your shared calendar — not the default personal one.</li>
+      </ol>
+    </section>
+
+    <section class="event-list" aria-label="Events in the file">
+      <h2>In this file</h2>
+      <article class="event"><div class="when">Sep 18–20</div><div><div class="what">Rittenhouse Square Fine Art Show</div><div class="where">Rittenhouse Square · 11–6 Fri/Sat, 11–5 Sun</div></div></article>
+      <article class="event"><div class="when">Sep 19</div><div><div class="what">Fishtown Fall Family Festival</div><div class="where">Evil Genius · noon–6</div></div></article>
+      <article class="event"><div class="when">Sep 26</div><div><div class="what">Delaware River Festival</div><div class="where">Penn’s Landing · 10–4</div></div></article>
+      <article class="event"><div class="when">Sep 26</div><div><div class="what">Linvilla Orchards Apple Festival</div><div class="where">Media, PA · 8–6</div></div></article>
+      <article class="event"><div class="when">Sep 26</div><div><div class="what">South Street Fall Fest / Oktoberfest</div><div class="where">South Street · noon–7 / noon–8</div></div></article>
+      <article class="event"><div class="when">Sep 26</div><div><div class="what">Chinatown Mid-Autumn Festival</div><div class="where">10th Street, Chinatown</div></div></article>
+      <article class="event"><div class="when">Sep 26–27</div><div><div class="what">New Hope Arts &amp; Crafts Festival</div><div class="where">New Hope–Solebury HS · Sat 10–5, Sun 10–4</div></div></article>
+      <article class="event"><div class="when">Sep 27</div><div><div class="what">Chestnut Hill Fall for the Arts</div><div class="where">Germantown Ave · 11–5</div></div></article>
+      <article class="event"><div class="when">Oct 3</div><div><div class="what">Roxtoberfest</div><div class="where">Ridge Ave, Roxborough · noon–6</div></div></article>
+      <article class="event"><div class="when">Oct 9–10</div><div><div class="what">23rd Street Armory Oktoberfest</div><div class="where">22 S 23rd St · ticketed 21+</div></div></article>
+      <article class="event"><div class="when">Oct 9–11</div><div><div class="what">Made in Philadelphia Fall Market</div><div class="where">Dilworth Park · Fri/Sat 12–8, Sun 12–6</div></div></article>
+      <article class="event"><div class="when">Oct 11</div><div><div class="what">OURfest</div><div class="where">Gayborhood, 12th &amp; Locust · noon–6</div></div></article>
+      <article class="event"><div class="when">Oct 17</div><div><div class="what">Manayunk Fall Fest</div><div class="where">Main Street · 11–4</div></div></article>
+      <article class="event"><div class="when">Oct 17</div><div><div class="what">East FallsFest</div><div class="where">Ridge &amp; Midvale · 11–5</div></div></article>
+      <article class="event"><div class="when">Oct 17–18</div><div><div class="what">Philly Coffee Festival</div><div class="where">23rd Street Armory · 9–4:30, tickets</div></div></article>
+      <article class="event"><div class="when">Oct 25</div><div><div class="what">East Passyunk Fall Fest</div><div class="where">East Passyunk Ave · 11–4</div></div></article>
+    </section>
+  </main>
+
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
