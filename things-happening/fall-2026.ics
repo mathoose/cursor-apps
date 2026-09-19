@@ -4,7 +4,7 @@ PRODID:-//mathoose//cursor-apps//things-happening//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Things Happening
-X-WR-CALDESC:Philly-area fall 2026 festivals with hours and official links
+X-WR-CALDESC:Philly-area fall 2026 festivals plus remaining Open Streets
 BEGIN:VTIMEZONE
 TZID:America/New_York
 BEGIN:DAYLIGHT
@@ -291,5 +291,111 @@ URL:https://www.visiteastpassyunk.com/fallfest
 DESCRIPTION:Typical hours 11am–4pm. Official pages still show Saturday Oc
  t 25\, 2025 — Oct 25 2026 is a Sunday. 2026 date not posted yet.\nhttps:
  //www.visiteastpassyunk.com/fallfest
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20260920@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20260920T100000
+DTEND;TZID=America/New_York:20260920T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:10am-5pm. Live music 10:30am-4:30pm. Eagles broadcast in the Fu
+ lton Fun Zone at 1pm.\nWalnut from Broad to 19th\; 18th from Chestnut to L
+ ocust. Street closures 7am-6pm. Rain or shine\; no rain date. Walk bikes t
+ hrough the zone.\nhttps://centercityphila.org/explore/open-streets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20260927@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20260927T100000
+DTEND;TZID=America/New_York:20260927T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:10am-5pm. Mini golf\, live music\, Music Play Patrol\, Curtis I
+ nstitute brass.\nWalnut from Broad to 19th\; 18th from Chestnut to Locust.
+  Street closures 7am-6pm. Rain or shine\; no rain date. Walk bikes through
+  the zone.\nhttps://centercityphila.org/explore/open-streets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20261004@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20261004T100000
+DTEND;TZID=America/New_York:20261004T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:10am-5pm. Live music 10:30am-4:30pm. Eagles broadcast in the Fu
+ lton Fun Zone at 1pm.\nWalnut from Broad to 19th\; 18th from Chestnut to L
+ ocust. Street closures 7am-6pm. Rain or shine\; no rain date. Walk bikes t
+ hrough the zone.\nhttps://centercityphila.org/explore/open-streets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20261011@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20261011T093000
+DTEND;TZID=America/New_York:20261011T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:Starts 9:30am this Sunday for the Eagles London game broadcast.
+  Usual public hours are 10am-5pm.\nWalnut from Broad to 19th\; 18th from C
+ hestnut to Locust. Street closures 7am-6pm. Rain or shine\; no rain date. 
+ Walk bikes through the zone.\nhttps://centercityphila.org/explore/open-str
+ eets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20261018@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20261018T100000
+DTEND;TZID=America/New_York:20261018T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:10am-5pm. Live music 10:30am-4:30pm. Eagles broadcast in the Fu
+ lton Fun Zone at 1pm.\nWalnut from Broad to 19th\; 18th from Chestnut to L
+ ocust. Street closures 7am-6pm. Rain or shine\; no rain date. Walk bikes t
+ hrough the zone.\nhttps://centercityphila.org/explore/open-streets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20261025@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20261025T100000
+DTEND;TZID=America/New_York:20261025T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:10am-5pm. Pumpkin painting\, monster making\, trick-or-treat tr
+ ail\, marching band.\nWalnut from Broad to 19th\; 18th from Chestnut to Lo
+ cust. Street closures 7am-6pm. Rain or shine\; no rain date. Walk bikes th
+ rough the zone.\nhttps://centercityphila.org/explore/open-streets-ww/
+END:VEVENT
+BEGIN:VEVENT
+UID:things-happening-2026-open-streets-20261206@cursor-apps
+DTSTAMP:20260919T185613Z
+DTSTART;TZID=America/New_York:20261206T100000
+DTEND;TZID=America/New_York:20261206T170000
+SUMMARY:Open Streets: West Walnut
+LOCATION:Walnut St (Broad to 19th) and 18th St (Chestnut to Locust)\, Phila
+ delphia\, PA
+URL:https://centercityphila.org/explore/open-streets-ww/
+CATEGORIES:Open Streets
+DESCRIPTION:Winter Open Streets: West Walnut. 10am-5pm. Confirmed on CCD 20
+ 26 schedule.\nWalnut from Broad to 19th\; 18th from Chestnut to Locust. St
+ reet closures 7am-6pm. Rain or shine\; no rain date. Walk bikes through th
+ e zone.\nhttps://centercityphila.org/explore/open-streets-ww/
 END:VEVENT
 END:VCALENDAR
