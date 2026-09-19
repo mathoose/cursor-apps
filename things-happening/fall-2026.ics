@@ -4,198 +4,216 @@ PRODID:-//mathoose//cursor-apps//things-happening//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:Things Happening
-X-WR-CALDESC:Philly-area fall 2026 festivals from the @bonn_nappetit list
+X-WR-CALDESC:Philly-area fall 2026 festivals with official event links
 BEGIN:VEVENT
 UID:things-happening-2026-rittenhouse-fine-art@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260918
 DTEND;VALUE=DATE:20260921
 SUMMARY:Rittenhouse Square Fine Art Show
 LOCATION:Rittenhouse Square\, 1800 Walnut St\, Philadelphia\, PA 19103
-DESCRIPTION:Fri–Sat 11am–6pm\, Sun 11am–5pm.\n145 artists in the park
- . Free to browse.\nhttps://www.rittenhousesquareart.com/\nSource: @bonn_na
- ppetit fall list
+URL:https://www.rittenhousesquareart.com/
+DESCRIPTION:Fri–Sat 11am–6pm\, Sun 11am–5pm. Free.\nConfirmed on the 
+ official FAQ.\nhttps://www.rittenhousesquareart.com/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-evil-genius-family-fest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260919
 DTEND;VALUE=DATE:20260920
-SUMMARY:Fishtown Fall Family Festival (Evil Genius)
+SUMMARY:Evil Genius Family Fun Fest
 LOCATION:1700 N Front St\, Philadelphia\, PA 19122
-DESCRIPTION:Noon–6pm. Free block party outside Evil Genius Beer Company.\
- nKids activities\, vendors\, food\, and the taproom.\nSource: @bonn_nappet
- it fall list
+URL:https://evilgeniusbeer.com/calendar/
+DESCRIPTION:Noon–6pm. Free block party. Street closed.\nConfirmed on the 
+ Evil Genius calendar (Family Fun Fest).\nhttps://evilgeniusbeer.com/calend
+ ar/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-delaware-river-festival@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260926
 DTEND;VALUE=DATE:20260927
 SUMMARY:Delaware River Festival
 LOCATION:Penn's Landing\, 211 S Christopher Columbus Blvd\, Philadelphia\, 
  PA 19106
-DESCRIPTION:10am–4pm. Free. Pedal boats\, ferry to Wiggins Park in Camden
- \, museum entry\, crafts.\nRain or shine.\nhttps://www.delawareriverfest.o
- rg/\nSource: @bonn_nappetit fall list
+URL:https://www.delawareriverfest.org/festival-details
+DESCRIPTION:10am–4pm. Free. Ferry to Wiggins Park in Camden. Rain or shin
+ e.\nConfirmed on the official festival page.\nhttps://www.delawareriverfes
+ t.org/festival-details
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-linvilla-apple-festival@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260926
 DTEND;VALUE=DATE:20260927
 SUMMARY:Linvilla Orchards Apple Festival
 LOCATION:137 W Knowlton Rd\, Media\, PA 19063
-DESCRIPTION:8am–6pm. Free admission and parking. Rain date Sun Sep 27.\nC
- ider doughnuts\, pies\, Pumpkinland\, hayrides. Some attractions ticketed.
- \nSource: @bonn_nappetit fall list
+URL:https://www.linvilla.com/family-fun/apple-festival
+DESCRIPTION:8am–6pm. Free admission and parking. Rain date Sun Sep 27\, 2
+ 026.\nConfirmed on the Linvilla page.\nhttps://www.linvilla.com/family-fun
+ /apple-festival
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-south-street-fall-fest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260926
 DTEND;VALUE=DATE:20260927
 SUMMARY:South Street Fall Fest / Oktoberfest
 LOCATION:South Street between Front St and 8th St\, Philadelphia\, PA
-DESCRIPTION:District Fall Fest noon–7pm across eight blocks.\nBrauhaus Sc
- hmitz Oktoberfest on the 700 block noon–8pm. Free admission.\nhttps://so
- uthstreet.com/events/fall-fest-2026/\nSource: @bonn_nappetit fall list
+URL:https://southstreet.com/events/fall-fest-2026/
+DESCRIPTION:Noon–7pm across eight blocks. Brauhaus Schmitz Oktoberfest is
+  on the 700 block.\nConfirmed on the South Street District page.\nhttps://
+ southstreet.com/events/fall-fest-2026/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-chinatown-mid-autumn@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260926
 DTEND;VALUE=DATE:20260927
 SUMMARY:Chinatown Mid-Autumn Festival
-LOCATION:10th Street\, Chinatown\, Philadelphia\, PA
-DESCRIPTION:Asian Americans United 31st Mid-Autumn Festival.\nLion dance\, 
- performances\, games\, mooncake contest. Family-friendly.\nhttps://www.aau
- nited.org/maf\nSource: @bonn_nappetit fall list
+LOCATION:10th Street near the Friendship Gate\, Chinatown\, Philadelphia\, 
+ PA 19107
+URL:https://www.aaunited.org/maf
+DESCRIPTION:Noon–8pm. Lion dance\, performances\, mooncake contest\, lant
+ ern parade.\nDate confirmed on the AAU page and PhillyVoice (hours from Ph
+ illyVoice).\nhttps://www.aaunited.org/maf
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-new-hope-arts-crafts@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260926
 DTEND;VALUE=DATE:20260928
 SUMMARY:New Hope Arts & Crafts Festival
 LOCATION:New Hope-Solebury High School\, 180 W Bridge St\, New Hope\, PA 18
  938
-DESCRIPTION:Sat 10am–5pm\, Sun 10am–4pm. $5 donation. Rain or shine.\n1
- 60+ juried artists. Free shuttle to downtown New Hope.\nhttps://www.visitn
- ewhope.com/new-hope-arts-crafts/\nSource: @bonn_nappetit fall list
+URL:https://www.visitnewhope.com/new-hope-arts-crafts/
+DESCRIPTION:Sat 10am–5pm\, Sun 10am–4pm. $5 donation. Rain or shine.\nC
+ onfirmed on the New Hope Chamber page.\nhttps://www.visitnewhope.com/new-h
+ ope-arts-crafts/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-chestnut-hill-fall-arts@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20260927
 DTEND;VALUE=DATE:20260928
 SUMMARY:Chestnut Hill Fall for the Arts
 LOCATION:Germantown Ave\, Chestnut Hill\, Philadelphia\, PA 19118
-DESCRIPTION:11am–5pm. Free. Rain date Sun Oct 11.\n300+ artists along Ger
- mantown Avenue\, live music\, food.\nhttps://chestnuthillpa.com/fall-for-t
- he-arts-festival/\nSource: @bonn_nappetit fall list
+URL:https://chestnuthillpa.com/fall-for-the-arts-festival/
+DESCRIPTION:11am–5pm. Free. Rain date reported as Sun Oct 11.\nDate confi
+ rmed by Creative Philadelphia\; organizer page is the link.\nhttps://chest
+ nuthillpa.com/fall-for-the-arts-festival/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-roxtoberfest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261003
 DTEND;VALUE=DATE:20261004
 SUMMARY:Roxtoberfest
 LOCATION:Ridge Ave from Lyceum Ave to Leverington Ave\, Roxborough\, Philad
  elphia\, PA
-DESCRIPTION:Noon–6pm. Free. Live music\, beer gardens\, vendors\, dog cos
- tume parade.\nhttps://www.creativephl.org/arts-event/roxtoberfest/\nSource
- : @bonn_nappetit fall list
+URL:https://roxtoberfest.brightrtravel.com/
+DESCRIPTION:Noon–6pm. Free. Live music\, beer gardens\, vendors\, pet cos
+ tume contest.\nDate confirmed by Creative Philadelphia / PhillyVoice\; thi
+ s is the event site.\nhttps://roxtoberfest.brightrtravel.com/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-armory-oktoberfest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261009
 DTEND;VALUE=DATE:20261011
 SUMMARY:23rd Street Armory Oktoberfest
 LOCATION:23rd Street Armory\, 22 S 23rd St\, Philadelphia\, PA 19103
+URL:https://brauhausschmitz.com/oktoberfest/
 DESCRIPTION:Ticketed\, 21+.\nFri Oct 9: 7:30–11:30pm.\nSat Oct 10: 1–5p
- m and 7:30–11:30pm.\nhttps://www.brauhausschmitz.com/whats-on/\nSource: 
- @bonn_nappetit fall list
+ m and 7:30–11:30pm.\nConfirmed on the Brauhaus Schmitz page.\nhttps://br
+ auhausschmitz.com/oktoberfest/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-made-in-phila-fall-market@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261009
 DTEND;VALUE=DATE:20261012
 SUMMARY:Made in Philadelphia Fall Market
 LOCATION:Dilworth Park\, 1 S 15th St\, Philadelphia\, PA 19102
+URL:https://www.madeinphila.com/
 DESCRIPTION:Fri–Sat 12–8pm\, Sun 12–6pm. Free. 10th anniversary maker
- s market.\nhttps://www.madeinphila.com/\nSource: @bonn_nappetit fall list
+ s market.\nConfirmed on the official market page.\nhttps://www.madeinphila
+ .com/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-ourfest-gayborhood@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261011
 DTEND;VALUE=DATE:20261012
 SUMMARY:OURfest (Gayborhood Block Party)
 LOCATION:12th & Locust\, Gayborhood\, Philadelphia\, PA 19107
-DESCRIPTION:Noon–6pm. Free festival and resource fair after the National 
- Coming Out Day parade.\nWeekend events also run Oct 9–11.\nhttps://phill
- ygaycalendar.com/ourfest/\nSource: @bonn_nappetit fall list
+URL:https://phillygaycalendar.com/ourfest/
+DESCRIPTION:Noon–6pm Sunday festival after the National Coming Out Day pa
+ rade. Weekend events also Oct 9–11.\nConfirmed by PhillyVoice and Philly
+  Gay Calendar.\nhttps://phillygaycalendar.com/ourfest/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-manayunk-fall-fest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Manayunk Fall Fest
 LOCATION:Main Street\, Manayunk\, Philadelphia\, PA 19127
+URL:https://manayunk.com/mnyk-events/manayunk-fall-fest/
 DESCRIPTION:11am–4pm. Free. Vendors\, food trucks\, live music\, mac-and-
- cheese crawl.\nhttps://manayunk.com/mnyk-events/manayunk-fall-fest/\nSourc
- e: @bonn_nappetit fall list
+ cheese crawl.\nConfirmed on the Manayunk BID page.\nhttps://manayunk.com/m
+ nyk-events/manayunk-fall-fest/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-east-falls-fest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:East FallsFest
 LOCATION:Ridge Ave & Midvale Ave\, East Falls\, Philadelphia\, PA 19129
+URL:https://discovereastfalls.org/fallsfest/
 DESCRIPTION:11am–5pm. Live music\, kids activities\, food\, beer garden.\
- nhttps://discovereastfalls.org/fallsfest/\nSource: @bonn_nappetit fall lis
- t
+ nConfirmed on the East Falls Development Corporation page.\nhttps://discov
+ ereastfalls.org/fallsfest/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-philly-coffee-festival@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261019
 SUMMARY:Philly Coffee Festival
 LOCATION:23rd Street Armory\, 22 S 23rd St\, Philadelphia\, PA 19103
-DESCRIPTION:9am–4:30pm both days. Tickets about $25–$73. 20+ specialty 
- roasters\, food\, live music.\nhttps://phillycoffeefestival.com/\nSource: 
- @bonn_nappetit fall list
+URL:https://www.phillycoffeefestival.com/
+DESCRIPTION:Oct 17–18 at the Armory. Tickets required\; sessions on the o
+ fficial site.\nConfirmed on the official festival page.\nhttps://www.phill
+ ycoffeefestival.com/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:things-happening-2026-east-passyunk-fall-fest@cursor-apps
-DTSTAMP:20260919T165505Z
+DTSTAMP:20260919T165932Z
 DTSTART;VALUE=DATE:20261025
 DTEND;VALUE=DATE:20261026
-SUMMARY:East Passyunk Fall Fest
+SUMMARY:East Passyunk Fall Fest (2026 date unconfirmed)
 LOCATION:East Passyunk Avenue\, Philadelphia\, PA 19148
-DESCRIPTION:11am–4pm. Neighborhood fall festival on the Avenue.\nhttps://
- www.visiteastpassyunk.com/fallfest\nSource: @bonn_nappetit fall list
+URL:https://www.visiteastpassyunk.com/fallfest
+DESCRIPTION:Instagram listed 10/25. Official BID/Creative Philadelphia page
+ s still show Saturday Oct 25\, 2025 — Oct 25 2026 is a Sunday. 2026 date
+  not posted yet.\nhttps://www.visiteastpassyunk.com/fallfest
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR
