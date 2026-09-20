@@ -2,7 +2,7 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "6 · Sep 20, 2026";
+  var APP_VERSION = "7 · Sep 20, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
@@ -23,6 +23,7 @@
   var nflState = { week: 1, season: "2026", display_week: 1 };
   var sleeperPlayers = null;
   var sleeperProjCache = { key: "", map: null };
+  var sleeperGameStatusCache = { key: "", map: null };
   var toastTimer = 0;
   var pendingEspn = null;
 
@@ -219,26 +220,48 @@
     var sum = 0;
     var any = false;
     (side.starters || []).forEach(function (p) {
-      if (p && p.projected != null && !isNaN(p.projected)) {
-        sum += Number(p.projected);
+      var v = livePlayerProjected(p);
+      if (v != null && !isNaN(v)) {
+        sum += Number(v);
         any = true;
       }
     });
     return any ? sum : null;
   }
 
-  function sleeperScoring(info) {
-    var rec = info && info.scoring_settings && Number(info.scoring_settings.rec);
-    if (rec >= 0.9) return "ppr";
-    if (rec >= 0.4) return "half";
-    return "std";
+  function livePlayerProjected(player) {
+    if (!player) return null;
+    var pre = player.projected;
+    var pts = player.points != null && !isNaN(Number(player.points)) ? Number(player.points) : null;
+    if (player.gameStatus === "complete") {
+      return pts != null ? pts : pre;
+    }
+    if (player.gameStatus === "in_progress") {
+      if (pre == null) return pts;
+      if (pts == null) return Number(pre);
+      return Math.max(pts, Number(pre));
+    }
+    return pre;
   }
 
-  function sleeperProjPts(stats, scoring) {
+  function sleeperProjPts(stats, scoringSettings) {
     if (!stats) return null;
-    var key = scoring === "ppr" ? "pts_ppr" : scoring === "half" ? "pts_half_ppr" : "pts_std";
-    if (stats[key] != null && !isNaN(Number(stats[key]))) return Number(stats[key]);
+    if (scoringSettings && typeof scoringSettings === "object") {
+      var total = 0;
+      var any = false;
+      Object.keys(scoringSettings).forEach(function (key) {
+        if (!key || key.indexOf("pts_") === 0) return;
+        var weight = scoringSettings[key];
+        var val = stats[key];
+        if (weight == null || val == null || isNaN(Number(weight)) || isNaN(Number(val))) return;
+        total += Number(weight) * Number(val);
+        any = true;
+      });
+      if (any) return total;
+    }
     if (stats.pts_ppr != null && !isNaN(Number(stats.pts_ppr))) return Number(stats.pts_ppr);
+    if (stats.pts_half_ppr != null && !isNaN(Number(stats.pts_half_ppr))) return Number(stats.pts_half_ppr);
+    if (stats.pts_std != null && !isNaN(Number(stats.pts_std))) return Number(stats.pts_std);
     return null;
   }
 
@@ -259,6 +282,47 @@
     }).catch(function () {
       return sleeperProjCache.key === key ? sleeperProjCache.map : {};
     });
+  }
+
+  function loadSleeperGameStatus(season, week) {
+    var key = String(season) + "-" + String(week);
+    if (sleeperGameStatusCache.key === key && sleeperGameStatusCache.map) {
+      return Promise.resolve(sleeperGameStatusCache.map);
+    }
+    return fetchJson(SLEEPER + "/scores/nfl/regular/" + season + "/" + week).then(function (res) {
+      var map = {};
+      var rows = Array.isArray(res.data) ? res.data : [];
+      rows.forEach(function (g) {
+        if (!g) return;
+        var md = g.metadata || {};
+        var status = "pre";
+        if (g.status === "complete" || md.is_over || md.status === "closed" || md.closed) status = "complete";
+        else if (g.status === "in_game" || md.is_in_progress || md.has_started) status = "in_progress";
+        [md.home_team, md.away_team].forEach(function (t) {
+          if (t) map[String(t).toUpperCase()] = status;
+        });
+      });
+      sleeperGameStatusCache = { key: key, map: map };
+      return map;
+    }).catch(function () {
+      return sleeperGameStatusCache.key === key ? sleeperGameStatusCache.map : {};
+    });
+  }
+
+  function playerNflTeam(player) {
+    if (!player) return "";
+    var team = String(player.team || "").toUpperCase();
+    if (team) return team;
+    if (player.pos === "DEF" && player.id && String(player.id).length <= 3) {
+      return String(player.id).toUpperCase();
+    }
+    return "";
+  }
+
+  function playerGameStatus(player, gameStatusMap) {
+    var team = playerNflTeam(player);
+    if (!team || !gameStatusMap) return "pre";
+    return gameStatusMap[team] || "pre";
   }
 
   function normName(s) {
@@ -425,7 +489,7 @@
     });
   }
 
-  function loadSleeperMatchup(league, week, projMap) {
+  function loadSleeperMatchup(league, week, projMap, gameStatusMap) {
     return Promise.all([
       fetchJson(SLEEPER + "/league/" + league.id),
       fetchJson(SLEEPER + "/league/" + league.id + "/users"),
@@ -437,7 +501,7 @@
       var rosters = Array.isArray(parts[2].data) ? parts[2].data : [];
       var matchups = Array.isArray(parts[3].data) ? parts[3].data : [];
       if (!parts[0].ok) throw new Error("Could not load " + league.name);
-      var scoring = sleeperScoring(info);
+      var scoringSettings = info.scoring_settings || {};
 
       var userById = {};
       users.forEach(function (u) { userById[String(u.user_id)] = u; });
@@ -474,12 +538,12 @@
         leagueName: league.name,
         week: week,
         medianWin: useMedian,
-        mine: packSleeperSide(mineRow, myRoster, league.teamName || "You", projMap, scoring),
-        opp: packSleeperSide(oppRow, oppRoster, (oppUser.metadata && oppUser.metadata.team_name) || oppUser.display_name || "Opponent", projMap, scoring)
+        mine: packSleeperSide(mineRow, myRoster, league.teamName || "You", projMap, scoringSettings, gameStatusMap),
+        opp: packSleeperSide(oppRow, oppRoster, (oppUser.metadata && oppUser.metadata.team_name) || oppUser.display_name || "Opponent", projMap, scoringSettings, gameStatusMap)
       };
 
       if (useMedian) {
-        out.median = buildMedianBoard(matchups, rosterById, userById, myRoster.roster_id, projMap, scoring);
+        out.median = buildMedianBoard(matchups, rosterById, userById, myRoster.roster_id, projMap, scoringSettings, gameStatusMap);
       }
       return out;
     });
@@ -491,10 +555,10 @@
     return (user.metadata && user.metadata.team_name) || user.display_name || fallback || "Team";
   }
 
-  function buildMedianBoard(matchupRows, rosterById, userById, myRosterId, projMap, scoring) {
+  function buildMedianBoard(matchupRows, rosterById, userById, myRosterId, projMap, scoringSettings, gameStatusMap) {
     var teams = (matchupRows || []).map(function (row) {
       var roster = rosterById[Number(row.roster_id)] || null;
-      var side = packSleeperSide(row, roster, teamLabel(roster, userById, "Team " + row.roster_id), projMap, scoring);
+      var side = packSleeperSide(row, roster, teamLabel(roster, userById, "Team " + row.roster_id), projMap, scoringSettings, gameStatusMap);
       return {
         rosterId: Number(row.roster_id),
         isMine: Number(row.roster_id) === Number(myRosterId),
@@ -600,7 +664,7 @@
     };
   }
 
-  function packSleeperSide(row, roster, teamName, projMap, scoring) {
+  function packSleeperSide(row, roster, teamName, projMap, scoringSettings, gameStatusMap) {
     if (!row) {
       return { teamName: teamName || "Bye", points: 0, projected: null, winPct: null, starters: [], bench: [], roster: [] };
     }
@@ -609,7 +673,14 @@
       var p = sleeperPlayer(id);
       if (!p) return null;
       p.points = Number(pointsMap[id] || 0);
-      p.projected = sleeperProjPts(projMap && projMap[String(id)], scoring);
+      var pregame = sleeperProjPts(projMap && projMap[String(id)], scoringSettings);
+      p.gameStatus = playerGameStatus(p, gameStatusMap);
+      // Match Sleeper's player line: pregame proj for finished/upcoming; live floor for in-progress.
+      if (p.gameStatus === "in_progress" && pregame != null) {
+        p.projected = Math.max(p.points, Number(pregame));
+      } else {
+        p.projected = pregame;
+      }
       p.starter = starter;
       return p;
     }
@@ -1204,12 +1275,14 @@
       var needPlayers = enabledSleeper().length > 0;
       return Promise.all([
         needPlayers ? loadSleeperPlayers(false) : Promise.resolve(null),
-        needPlayers ? loadSleeperProjections(currentSeason(), week) : Promise.resolve({})
+        needPlayers ? loadSleeperProjections(currentSeason(), week) : Promise.resolve({}),
+        needPlayers ? loadSleeperGameStatus(currentSeason(), week) : Promise.resolve({})
       ]).then(function (parts) {
         var projMap = parts[1] || {};
+        var gameStatusMap = parts[2] || {};
         var jobs = [];
         enabledSleeper().forEach(function (league) {
-          jobs.push(loadSleeperMatchup(league, week, projMap).then(function (m) {
+          jobs.push(loadSleeperMatchup(league, week, projMap, gameStatusMap).then(function (m) {
             league.error = "";
             return { ok: true, matchup: m };
           }).catch(function (err) {
