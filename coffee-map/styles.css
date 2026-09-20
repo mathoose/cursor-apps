@@ -338,10 +338,6 @@ body.here-open .here-btn { bottom: calc(var(--nav-h) + 148px); }
   color: var(--muted);
 }
 
-.cafe-pin.pin-dim {
-  opacity: 0.28;
-}
-
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -387,37 +383,6 @@ body.here-open .here-btn { bottom: calc(var(--nav-h) + 148px); }
   font-size: 9px !important;
   background: rgba(255, 250, 246, 0.75) !important;
 }
-
-.cafe-pin {
-  background: none !important;
-  border: none !important;
-}
-.pin-wrap {
-  position: relative;
-  width: 28px;
-  height: 36px;
-}
-.pin-body {
-  width: 28px;
-  height: 28px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 8px rgba(44, 28, 18, 0.28);
-}
-.pin-body span {
-  transform: rotate(45deg);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1;
-}
-.pin-want .pin-body { background: var(--want); }
-.pin-been .pin-body { background: var(--been); }
-.pin-candidate .pin-body { background: #1f2937; }
-.pin-drop .pin-body { background: #7c3aed; }
 
 .overlay {
   position: fixed;

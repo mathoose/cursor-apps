@@ -2544,7 +2544,6 @@ if (document.getElementById('picker-view-details')) {
   });
 }
 
-var CITY_MAP_LABEL_ZOOM = 15;
 var cityLeafletMap = null;
 var cityMapMarkersLayer = null;
 var cityMapOverlay = document.getElementById('city-map-overlay');
@@ -2618,11 +2617,6 @@ function allMappedPlaces() {
   });
 }
 
-function updateCityMapZoomClass() {
-  if (!cityMapOverlay || !cityLeafletMap) return;
-  cityMapOverlay.classList.toggle('zoomed-in', cityLeafletMap.getZoom() >= CITY_MAP_LABEL_ZOOM);
-}
-
 function cityMapPinColor(kind) {
   if (kind === 'specials') return '#c62828';
   if (kind === 'open') return '#2e7d32';
@@ -2639,30 +2633,35 @@ function ensureCityLeafletMap() {
     attributionControl: true,
     minZoom: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.minZoom : 10,
     maxZoom: 19,
-    maxBounds: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.latLngBounds() : undefined,
-    maxBoundsViscosity: 0.85
+    maxBounds: typeof PhillyWalkMap !== 'undefined'
+      ? (PhillyWalkMap.panLatLngBounds ? PhillyWalkMap.panLatLngBounds() : PhillyWalkMap.latLngBounds())
+      : undefined,
+    maxBoundsViscosity: typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.maxBoundsViscosity != null
+      ? PhillyWalkMap.maxBoundsViscosity
+      : 0.35
   }).setView([39.9526, -75.1636], 13);
   if (typeof PhillyWalkMap !== 'undefined') {
     PhillyWalkMap.addTiles(cityLeafletMap);
     PhillyWalkMap.applyLimits(cityLeafletMap);
+    if (PhillyWalkMap.ensurePinPane) PhillyWalkMap.ensurePinPane(cityLeafletMap);
+    if (PhillyWalkMap.bindZoomLabels) PhillyWalkMap.bindZoomLabels(cityLeafletMap, cityMapOverlay);
   } else {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
     }).addTo(cityLeafletMap);
+    if (!cityLeafletMap.getPane('pins')) {
+      cityLeafletMap.createPane('pins');
+      cityLeafletMap.getPane('pins').style.zIndex = 660;
+    }
   }
   cityMapMarkersLayer = L.layerGroup().addTo(cityLeafletMap);
-  if (!cityLeafletMap.getPane('pins')) {
-    cityLeafletMap.createPane('pins');
-    cityLeafletMap.getPane('pins').style.zIndex = 660;
-  }
   if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.attachHereControl && !cityMapHereControl) {
     cityMapHereControl = PhillyWalkMap.attachHereControl(cityLeafletMap, {
       onChange: updateCityMapHereUi,
       onError: function(msg) { cityMapToast(msg); }
     });
   }
-  cityLeafletMap.on('zoomend', updateCityMapZoomClass);
   cityLeafletMap.on('click', function(e) {
     if (Date.now() < cityMapIgnoreClickUntil) return;
     if (e.originalEvent && e.originalEvent.target &&
@@ -2686,47 +2685,40 @@ function renderCityMapPins() {
     if (hideClosed && kind === 'closed') return;
     var dim = cityMapHereControl && cityMapHereControl.isActive() &&
       !cityMapHereControl.isWithin(r.lat, r.lng);
-    var marker = L.circleMarker([r.lat, r.lng], {
-      radius: 11,
-      color: '#fff',
-      weight: 2,
-      fillColor: cityMapPinColor(kind),
-      fillOpacity: dim ? 0.28 : 1,
-      opacity: dim ? 0.35 : 1,
-      bubblingMouseEvents: false,
-      pane: 'pins'
-    });
-    marker.bindTooltip(r.name, {
-      permanent: true,
-      direction: 'right',
-      offset: [10, 0],
-      className: 'city-map-tooltip' + (dim ? ' dim' : ''),
-      opacity: dim ? 0.35 : 1,
-      interactive: true
-    });
-    marker.on('click', function() {
-      cityMapIgnoreClickUntil = Date.now() + 400;
-      openCityMapPopup(r.name);
-    });
-    cityMapMarkersLayer.addLayer(marker);
-    requestAnimationFrame(function() {
-      var tip = marker.getTooltip();
-      var tipEl = tip && tip.getElement();
-      if (!tipEl) return;
-      tipEl.style.pointerEvents = 'auto';
-      tipEl.addEventListener('click', function(ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
+    var marker;
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.addCirclePin) {
+      marker = PhillyWalkMap.addCirclePin([r.lat, r.lng], {
+        fillColor: cityMapPinColor(kind),
+        dim: dim,
+        label: r.name,
+        labelInteractive: true,
+        onClick: function() {
+          cityMapIgnoreClickUntil = Date.now() + 400;
+          openCityMapPopup(r.name);
+        }
+      });
+    } else {
+      marker = L.circleMarker([r.lat, r.lng], {
+        radius: 11,
+        color: '#fff',
+        weight: 2,
+        fillColor: cityMapPinColor(kind),
+        fillOpacity: dim ? 0.28 : 1,
+        opacity: dim ? 0.35 : 1,
+        bubblingMouseEvents: false,
+        pane: 'pins'
+      });
+      marker.on('click', function() {
         cityMapIgnoreClickUntil = Date.now() + 400;
         openCityMapPopup(r.name);
       });
-    });
+    }
+    cityMapMarkersLayer.addLayer(marker);
   });
   var countEl = document.getElementById('city-map-count');
   if (countEl) {
     countEl.textContent = specials + ' specials \u00b7 ' + open + ' open \u00b7 ' + closed + ' closed';
   }
-  updateCityMapZoomClass();
 }
 
 function openCityMapPopup(name) {

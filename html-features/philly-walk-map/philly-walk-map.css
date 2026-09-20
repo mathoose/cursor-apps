@@ -1,0 +1,44 @@
+/* Shared walking-map pins: white-bordered circles, names at zoom 15+. */
+
+.leaflet-container:not(.zoomed-in) .philly-pin-label {
+  display: none !important;
+}
+
+.leaflet-tooltip.philly-pin-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #3d3428;
+  font-weight: 600;
+  font-size: 11px;
+  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 1px 0 #fff;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+.leaflet-tooltip.philly-pin-label::before { display: none; }
+.leaflet-tooltip.philly-pin-label.dim { opacity: 0.35 !important; }
+
+.philly-pin-icon {
+  background: none !important;
+  border: none !important;
+}
+
+.philly-pin-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.philly-pin-dot span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}

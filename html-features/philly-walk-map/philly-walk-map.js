@@ -6,16 +6,22 @@
  * around the Art Museum.
  *
  * Also: one-shot “Where am I” (getCurrentPosition only — never watchPosition).
+ * Pins: white-bordered circleMarkers; names appear at zoom 15+.
  */
 (function (root) {
   'use strict';
 
   var B = {
-    south: 39.885,
-    north: 39.984,
-    west: -75.214,
-    east: -75.118
+    south: 39.878,
+    north: 39.992,
+    west: -75.222,
+    east: -75.114
   };
+
+  var PAN_PAD = 0.016;
+  var LABEL_ZOOM = 15;
+  var PIN_RADIUS = 11;
+  var MAX_BOUNDS_VISCOSITY = 0.35;
 
   var WALK_M_PER_MIN = 80;
   var HERE_MIN_DEFAULT = 10;
@@ -238,10 +244,106 @@
     };
   }
 
+  function latLngBounds() {
+    return [[B.south, B.west], [B.north, B.east]];
+  }
+
+  function panLatLngBounds() {
+    return [
+      [B.south - PAN_PAD, B.west - PAN_PAD],
+      [B.north + PAN_PAD, B.east + PAN_PAD]
+    ];
+  }
+
+  function ensurePinPane(map) {
+    if (!map || typeof map.getPane !== 'function') return;
+    if (!map.getPane('pins')) {
+      map.createPane('pins');
+      map.getPane('pins').style.zIndex = 660;
+    }
+  }
+
+  function bindZoomLabels(map, extraEl) {
+    if (!map) return function () {};
+    function sync() {
+      var zoomed = map.getZoom() >= LABEL_ZOOM;
+      var container = map.getContainer && map.getContainer();
+      if (container) container.classList.toggle('zoomed-in', zoomed);
+      if (extraEl) extraEl.classList.toggle('zoomed-in', zoomed);
+    }
+    map.on('zoomend', sync);
+    sync();
+    return sync;
+  }
+
+  function addCirclePin(latlng, opts) {
+    opts = opts || {};
+    if (typeof L === 'undefined') return null;
+    var marker = L.circleMarker(latlng, {
+      radius: opts.radius || PIN_RADIUS,
+      color: '#fff',
+      weight: opts.weight != null ? opts.weight : 2,
+      fillColor: opts.fillColor || '#c2410c',
+      fillOpacity: opts.dim ? 0.28 : (opts.fillOpacity != null ? opts.fillOpacity : 1),
+      opacity: opts.dim ? 0.35 : (opts.opacity != null ? opts.opacity : 1),
+      bubblingMouseEvents: false,
+      pane: opts.pane || 'pins',
+      interactive: opts.interactive !== false
+    });
+    if (opts.label) {
+      var cls = 'philly-pin-label';
+      if (opts.labelClass) cls += ' ' + opts.labelClass;
+      if (opts.dim) cls += ' dim';
+      marker.bindTooltip(opts.label, {
+        permanent: true,
+        direction: 'right',
+        offset: [10, 0],
+        className: cls,
+        opacity: opts.dim ? 0.35 : 1,
+        interactive: !!opts.labelInteractive
+      });
+    }
+    if (opts.onClick) {
+      marker.on('click', opts.onClick);
+      if (opts.labelInteractive) {
+        marker.on('add', function () {
+          var tip = marker.getTooltip();
+          var tipEl = tip && tip.getElement();
+          if (!tipEl) return;
+          tipEl.style.pointerEvents = 'auto';
+          tipEl.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            opts.onClick(ev);
+          });
+        });
+      }
+    }
+    return marker;
+  }
+
+  function circleDivIcon(opts) {
+    opts = opts || {};
+    if (typeof L === 'undefined') return null;
+    var fill = opts.fillColor || '#1f2937';
+    var inner = opts.html ? ('<span>' + opts.html + '</span>') : '';
+    return L.divIcon({
+      className: 'philly-pin-icon',
+      html: '<div class="philly-pin-dot" style="background:' + fill + '">' + inner + '</div>',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -14]
+    });
+  }
+
   var api = {
     id: 'philly-walk-map',
     label: 'Philly walking map',
     bounds: B,
+    panPad: PAN_PAD,
+    labelZoom: LABEL_ZOOM,
+    pinRadius: PIN_RADIUS,
+    maxBoundsViscosity: MAX_BOUNDS_VISCOSITY,
     center: { lat: 39.9526, lng: -75.1636 },
     minZoom: 13,
     defaultZoom: 13,
@@ -263,9 +365,8 @@
       return [B.west, B.south, B.east, B.north].join(',');
     },
 
-    latLngBounds: function () {
-      return [[B.south, B.west], [B.north, B.east]];
-    },
+    latLngBounds: latLngBounds,
+    panLatLngBounds: panLatLngBounds,
 
     addTiles: function (map) {
       if (typeof L === 'undefined' || !map) return null;
@@ -277,17 +378,23 @@
 
     applyLimits: function (map) {
       if (!map) return;
-      map.setMaxBounds(api.latLngBounds());
+      map.options.maxBoundsViscosity = MAX_BOUNDS_VISCOSITY;
+      map.setMaxBounds(panLatLngBounds());
       if (typeof map.setMinZoom === 'function') map.setMinZoom(api.minZoom);
     },
 
     fit: function (map, padding) {
       if (!map || typeof L === 'undefined') return;
-      map.fitBounds(api.latLngBounds(), {
+      map.fitBounds(latLngBounds(), {
         padding: padding || [28, 28],
         maxZoom: 14
       });
     },
+
+    ensurePinPane: ensurePinPane,
+    bindZoomLabels: bindZoomLabels,
+    addCirclePin: addCirclePin,
+    circleDivIcon: circleDivIcon,
 
     metersForWalkMinutes: metersForWalkMinutes,
     haversineMeters: haversineMeters,
