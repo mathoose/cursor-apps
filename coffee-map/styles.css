@@ -580,6 +580,50 @@ textarea {
 }
 .star.on { color: #d97706; }
 
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 0 12px;
+  min-height: 44px;
+}
+.price-prefix {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 1rem;
+}
+.price-row input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  min-width: 0;
+}
+.price-row input:focus {
+  outline: none;
+}
+.card-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+.price-pill {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink);
+  background: #f3ebe3;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
 .detail-actions {
   display: flex;
   flex-direction: column;

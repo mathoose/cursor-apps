@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-map-v9 -->
+<!-- build: coffee-map-v11 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body class="view-map">
   <header class="topbar">
@@ -62,6 +62,7 @@
           <select id="listSort">
             <option value="name">Name</option>
             <option value="rating">Rating</option>
+            <option value="price">Price paid</option>
             <option value="added">Newest</option>
           </select>
         </label>
@@ -128,6 +129,11 @@
       </div>
       <p class="field-label">Rating</p>
       <div class="stars" id="starRow" role="radiogroup" aria-label="Rating"></div>
+      <label class="field-label" for="priceInput">What you paid</label>
+      <div class="price-row">
+        <span class="price-prefix" aria-hidden="true">$</span>
+        <input type="number" id="priceInput" inputmode="decimal" min="0" max="9999" step="0.01" placeholder="e.g. 5.50" />
+      </div>
       <label class="field-label" for="notesInput">Note</label>
       <textarea id="notesInput" rows="3" maxlength="400" placeholder="What you ordered, the vibe…"></textarea>
       <div class="detail-actions">
@@ -176,6 +182,6 @@
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>

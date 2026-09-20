@@ -41,6 +41,21 @@
     return Math.round(n);
   }
 
+  function clampPrice(n) {
+    if (n == null || n === '') return null;
+    if (typeof n === 'string') n = n.replace(/[^0-9.]/g, '');
+    n = Number(n);
+    if (!isFinite(n) || n < 0) return null;
+    if (n > 9999) n = 9999;
+    return Math.round(n * 100) / 100;
+  }
+
+  function formatPrice(n) {
+    n = clampPrice(n);
+    if (n == null) return '';
+    return Number.isInteger(n) ? ('$' + n) : ('$' + n.toFixed(2));
+  }
+
   function normalizeHours(raw) {
     if (!raw || typeof raw !== 'object') return null;
     var out = {};
@@ -90,6 +105,7 @@
       seeded: !!raw.seeded,
       status: status,
       rating: clampRating(raw.rating),
+      price: clampPrice(raw.price),
       notes: String(raw.notes || '').trim(),
       addedAt: raw.addedAt || new Date().toISOString(),
       visitedAt: raw.visitedAt || (status === 'been' ? new Date().toISOString() : null)
@@ -571,6 +587,12 @@
       places.sort(function (a, b) {
         return (b.rating || 0) - (a.rating || 0) || a.name.localeCompare(b.name);
       });
+    } else if (ui.sort === 'price') {
+      places.sort(function (a, b) {
+        var ap = a.price == null ? -1 : a.price;
+        var bp = b.price == null ? -1 : b.price;
+        return bp - ap || a.name.localeCompare(b.name);
+      });
     } else if (ui.sort === 'added') {
       places.sort(function (a, b) {
         return String(b.addedAt).localeCompare(String(a.addedAt));
@@ -613,7 +635,10 @@
         (p.status === 'been' ? '<span class="been-pill">Been</span>' : '') +
         '</div>' +
         (metaBits.length || openHtml ? '<div class="meta">' + openHtml + escapeHtml(metaBits.join(' · ')) + '</div>' : '') +
-        (p.rating ? '<div class="stars-inline">' + starText(p.rating) + '</div>' : '') +
+        ((p.rating || p.price != null) ? '<div class="card-stats">' +
+          (p.rating ? '<span class="stars-inline">' + starText(p.rating) + '</span>' : '') +
+          (p.price != null ? '<span class="price-pill">' + escapeHtml(formatPrice(p.price)) + '</span>' : '') +
+          '</div>' : '') +
         '</button>';
     }).join('');
   }
@@ -796,6 +821,7 @@
       instagramUrl: ig,
       status: 'want',
       rating: null,
+      price: null,
       notes: '',
       addedAt: new Date().toISOString()
     });
@@ -900,6 +926,10 @@
     document.getElementById('statusWant').classList.toggle('on-want', p.status !== 'been');
     document.getElementById('statusBeen').classList.toggle('on-been', p.status === 'been');
     document.getElementById('notesInput').value = p.notes || '';
+    var priceInput = document.getElementById('priceInput');
+    if (priceInput) {
+      priceInput.value = p.price != null ? String(p.price) : '';
+    }
     renderStars(p.rating);
     var ig = document.getElementById('openIgBtn');
     if (p.instagramUrl && isInstagramUrl(p.instagramUrl)) {
@@ -1206,6 +1236,37 @@
         updatePlace(activePlaceId, { notes: val });
       }, 250);
     });
+    var priceTimer = null;
+    var priceInput = document.getElementById('priceInput');
+    if (priceInput) {
+      function commitPrice(normalize) {
+        if (!activePlaceId) return;
+        var raw = document.getElementById('priceInput').value;
+        var price = clampPrice(raw);
+        var patch = { price: price };
+        if (price != null) patch.status = 'been';
+        var updated = updatePlace(activePlaceId, patch);
+        var el = document.getElementById('priceInput');
+        if (el && normalize) el.value = price != null ? String(price) : '';
+        if (updated) {
+          document.getElementById('statusWant').classList.toggle('on-want', updated.status !== 'been');
+          document.getElementById('statusBeen').classList.toggle('on-been', updated.status === 'been');
+        }
+      }
+      priceInput.addEventListener('input', function () {
+        if (!activePlaceId) return;
+        if (priceTimer) clearTimeout(priceTimer);
+        priceTimer = setTimeout(function () { commitPrice(false); }, 400);
+      });
+      priceInput.addEventListener('change', function () {
+        if (priceTimer) clearTimeout(priceTimer);
+        commitPrice(true);
+      });
+      priceInput.addEventListener('blur', function () {
+        if (priceTimer) clearTimeout(priceTimer);
+        commitPrice(true);
+      });
+    }
     document.getElementById('deletePlaceBtn').addEventListener('click', function () {
       if (!activePlaceId) return;
       if (!window.confirm('Remove this cafe from your map?')) return;
