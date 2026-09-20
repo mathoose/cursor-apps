@@ -2551,6 +2551,7 @@ var cityMapOverlay = document.getElementById('city-map-overlay');
 var cityMapOnlyOpen = document.getElementById('map-only-open');
 var cityMapPopup = document.getElementById('city-map-popup');
 var cityMapPopupName = '';
+var cityMapIgnoreClickUntil = 0;
 
 function cityMapPinKind(r) {
   if (isHappyHourNow(r)) return 'specials';
@@ -2569,17 +2570,10 @@ function updateCityMapZoomClass() {
   cityMapOverlay.classList.toggle('zoomed-in', cityLeafletMap.getZoom() >= CITY_MAP_LABEL_ZOOM);
 }
 
-function cityMapPinIcon(kind, name) {
-  var shortName = name.length > 24 ? name.slice(0, 22) + '\u2026' : name;
-  var html = '<div class="city-map-pin-wrap ' + kind + '" data-place="' + escapeHtml(name) + '">'
-    + '<span class="city-map-pin ' + kind + '"></span>'
-    + '<span class="city-map-pin-label">' + escapeHtml(shortName) + '</span></div>';
-  return L.divIcon({
-    className: 'city-map-leaflet-pin',
-    html: html,
-    iconSize: [28, 36],
-    iconAnchor: [14, 34]
-  });
+function cityMapPinColor(kind) {
+  if (kind === 'specials') return '#c62828';
+  if (kind === 'open') return '#2e7d32';
+  return '#9e9e9e';
 }
 
 function ensureCityLeafletMap() {
@@ -2599,14 +2593,13 @@ function ensureCityLeafletMap() {
   }).addTo(cityLeafletMap);
   cityMapMarkersLayer = L.layerGroup().addTo(cityLeafletMap);
   cityLeafletMap.on('zoomend', updateCityMapZoomClass);
-  el.addEventListener('click', function(e) {
-    var wrap = e.target.closest('[data-place]');
-    if (!wrap) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-    openCityMapPopup(wrap.getAttribute('data-place'));
-  }, true);
+  cityLeafletMap.on('click', function(e) {
+    if (Date.now() < cityMapIgnoreClickUntil) return;
+    if (e.originalEvent && e.originalEvent.target &&
+        e.originalEvent.target.closest &&
+        e.originalEvent.target.closest('.city-map-popup')) return;
+    closeCityMapPopup();
+  });
   return cityLeafletMap;
 }
 
@@ -2621,14 +2614,24 @@ function renderCityMapPins() {
     else if (kind === 'open') open += 1;
     else closed += 1;
     if (hideClosed && kind === 'closed') return;
-    var marker = L.marker([r.lat, r.lng], {
-      icon: cityMapPinIcon(kind, r.name),
-      keyboard: true,
-      title: r.name,
+    var marker = L.circleMarker([r.lat, r.lng], {
+      radius: 9,
+      color: '#fff',
+      weight: 2,
+      fillColor: cityMapPinColor(kind),
+      fillOpacity: 1,
       bubblingMouseEvents: false
     });
-    marker.on('click', function(e) {
-      L.DomEvent.stop(e);
+    marker.bindTooltip(r.name, {
+      permanent: true,
+      direction: 'right',
+      offset: [10, 0],
+      className: 'city-map-tooltip',
+      opacity: 1,
+      interactive: true
+    });
+    marker.on('click', function() {
+      cityMapIgnoreClickUntil = Date.now() + 400;
       openCityMapPopup(r.name);
     });
     cityMapMarkersLayer.addLayer(marker);

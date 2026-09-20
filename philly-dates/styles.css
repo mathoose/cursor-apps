@@ -997,46 +997,21 @@ a.quick-add-full-link { font-family: inherit; }
   font-size: 10px;
   background: rgba(255,255,255,0.8);
 }
-.city-map-leaflet-pin {
-  background: none !important;
-  border: none !important;
-  pointer-events: auto !important;
+.city-map-overlay:not(.zoomed-in) .city-map-tooltip {
+  display: none !important;
 }
-.city-map-pin-wrap {
-  position: relative;
-  width: 28px;
-  height: 36px;
-}
-.city-map-pin {
-  position: absolute;
-  left: 5px;
-  top: 8px;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #fff;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  display: block;
-  pointer-events: none;
-}
-.city-map-pin-label {
-  position: absolute;
-  left: 26px;
-  top: 10px;
-  font-size: 11px;
-  font-weight: 600;
+.leaflet-tooltip.city-map-tooltip {
+  background: transparent;
+  border: none;
+  box-shadow: none;
   color: #3d3428;
-  opacity: 0;
-  white-space: nowrap;
-  pointer-events: none;
+  font-weight: 600;
+  font-size: 11px;
   text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 1px 0 #fff;
-  letter-spacing: 0.01em;
+  padding: 2px 4px;
+  white-space: nowrap;
 }
-.city-map-overlay.zoomed-in .city-map-pin-label {
-  opacity: 0.85;
-  pointer-events: auto;
-}
+.leaflet-tooltip.city-map-tooltip::before { display: none; }
 .city-map-popup {
   position: absolute;
   left: 10px;
