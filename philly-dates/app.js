@@ -2571,14 +2571,14 @@ function updateCityMapZoomClass() {
 
 function cityMapPinIcon(kind, name) {
   var shortName = name.length > 24 ? name.slice(0, 22) + '\u2026' : name;
-  var html = '<div class="city-map-pin-wrap ' + kind + '">'
+  var html = '<div class="city-map-pin-wrap ' + kind + '" data-place="' + escapeHtml(name) + '">'
     + '<span class="city-map-pin ' + kind + '"></span>'
     + '<span class="city-map-pin-label">' + escapeHtml(shortName) + '</span></div>';
   return L.divIcon({
     className: 'city-map-leaflet-pin',
     html: html,
-    iconSize: [18, 18],
-    iconAnchor: [9, 18]
+    iconSize: [28, 36],
+    iconAnchor: [14, 34]
   });
 }
 
@@ -2599,11 +2599,14 @@ function ensureCityLeafletMap() {
   }).addTo(cityLeafletMap);
   cityMapMarkersLayer = L.layerGroup().addTo(cityLeafletMap);
   cityLeafletMap.on('zoomend', updateCityMapZoomClass);
-  cityLeafletMap.on('click', function(e) {
-    var t = e.originalEvent && e.originalEvent.target;
-    if (t && t.closest && t.closest('.city-map-leaflet-pin, .city-map-popup')) return;
-    closeCityMapPopup();
-  });
+  el.addEventListener('click', function(e) {
+    var wrap = e.target.closest('[data-place]');
+    if (!wrap) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    openCityMapPopup(wrap.getAttribute('data-place'));
+  }, true);
   return cityLeafletMap;
 }
 

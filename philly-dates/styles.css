@@ -1004,13 +1004,13 @@ a.quick-add-full-link { font-family: inherit; }
 }
 .city-map-pin-wrap {
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: 28px;
+  height: 36px;
 }
 .city-map-pin {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 5px;
+  top: 8px;
   width: 18px;
   height: 18px;
   border: 2px solid #fff;
@@ -1018,11 +1018,12 @@ a.quick-add-full-link { font-family: inherit; }
   transform: rotate(-45deg);
   box-shadow: 0 1px 4px rgba(0,0,0,0.35);
   display: block;
+  pointer-events: none;
 }
 .city-map-pin-label {
   position: absolute;
-  left: 20px;
-  top: 1px;
+  left: 26px;
+  top: 10px;
   font-size: 11px;
   font-weight: 600;
   color: #3d3428;
@@ -1032,7 +1033,10 @@ a.quick-add-full-link { font-family: inherit; }
   text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 1px 0 #fff;
   letter-spacing: 0.01em;
 }
-.city-map-overlay.zoomed-in .city-map-pin-label { opacity: 0.85; }
+.city-map-overlay.zoomed-in .city-map-pin-label {
+  opacity: 0.85;
+  pointer-events: auto;
+}
 .city-map-popup {
   position: absolute;
   left: 10px;
