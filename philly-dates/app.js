@@ -2615,7 +2615,7 @@ function renderCityMapPins() {
     else closed += 1;
     if (hideClosed && kind === 'closed') return;
     var marker = L.circleMarker([r.lat, r.lng], {
-      radius: 9,
+      radius: 11,
       color: '#fff',
       weight: 2,
       fillColor: cityMapPinColor(kind),
@@ -2635,6 +2635,14 @@ function renderCityMapPins() {
       openCityMapPopup(r.name);
     });
     cityMapMarkersLayer.addLayer(marker);
+    var tip = marker.getTooltip();
+    if (tip && tip.getElement()) {
+      L.DomEvent.on(tip.getElement(), 'click', function(ev) {
+        L.DomEvent.stop(ev);
+        cityMapIgnoreClickUntil = Date.now() + 400;
+        openCityMapPopup(r.name);
+      });
+    }
   });
   var countEl = document.getElementById('city-map-count');
   if (countEl) {

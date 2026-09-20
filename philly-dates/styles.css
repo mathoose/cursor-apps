@@ -1019,7 +1019,7 @@ a.quick-add-full-link { font-family: inherit; }
   width: calc(100% - 68px);
   max-width: 420px;
   bottom: calc(12px + var(--safe-bottom));
-  z-index: 4;
+  z-index: 5000;
   background: #fff;
   color: #3d3428;
   border-radius: 16px;
