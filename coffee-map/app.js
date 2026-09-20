@@ -472,16 +472,26 @@
       });
   }
 
-  function pinIcon(kind, label) {
-    var cls = 'pin-wrap pin-' + kind;
-    var html = '<div class="' + cls + '"><div class="pin-body"><span>' +
-      escapeHtml(label || '') + '</span></div></div>';
-    return L.divIcon({
-      className: 'cafe-pin',
-      html: html,
-      iconSize: [28, 36],
-      iconAnchor: [14, 34],
-      popupAnchor: [0, -28]
+  function pinFill(kind) {
+    if (kind === 'been') return '#5b7050';
+    if (kind === 'drop') return '#7c3aed';
+    if (kind === 'candidate') return '#1f2937';
+    return '#c2410c';
+  }
+
+  function addPlacePin(latlng, opts) {
+    opts = opts || {};
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.addCirclePin) {
+      return PhillyWalkMap.addCirclePin(latlng, opts);
+    }
+    return L.circleMarker(latlng, {
+      radius: 11,
+      color: '#fff',
+      weight: 2,
+      fillColor: opts.fillColor || pinFill('want'),
+      fillOpacity: opts.dim ? 0.28 : 1,
+      opacity: opts.dim ? 0.35 : 1,
+      bubblingMouseEvents: false
     });
   }
 
@@ -508,20 +518,14 @@
     var hereActive = hereControl && hereControl.isActive();
     filteredPlaces(data).forEach(function (p) {
       var kind = p.status === 'been' ? 'been' : 'want';
-      var label = p.status === 'been' ? '✓' : '•';
       var dim = hereActive && hereControl && !hereControl.isWithin(p.lat, p.lng);
-      var marker = L.marker([p.lat, p.lng], {
-        icon: pinIcon(kind, label),
-        keyboard: true,
-        opacity: dim ? 0.32 : 1
+      var marker = addPlacePin([p.lat, p.lng], {
+        fillColor: pinFill(kind),
+        dim: dim,
+        label: p.name,
+        labelInteractive: true,
+        onClick: function () { openDetail(p.id); }
       });
-      if (dim) {
-        marker.on('add', function () {
-          var el = marker.getElement();
-          if (el) el.classList.add('pin-dim');
-        });
-      }
-      marker.on('click', function () { openDetail(p.id); });
       placesLayer.addLayer(marker);
     });
   }
@@ -629,11 +633,12 @@
     }
     var bounds = [];
     cands.forEach(function (c, i) {
-      var marker = L.marker([c.lat, c.lng], {
-        icon: pinIcon('candidate', String(i + 1)),
-        zIndexOffset: 600
+      var marker = addPlacePin([c.lat, c.lng], {
+        fillColor: pinFill('candidate'),
+        label: (i + 1) + ' · ' + c.name,
+        labelInteractive: true,
+        onClick: function () { saveFromCandidate(c); }
       });
-      marker.on('click', function () { saveFromCandidate(c); });
       candidatesLayer.addLayer(marker);
       bounds.push([c.lat, c.lng]);
     });
@@ -820,10 +825,14 @@
     if (document.getElementById('detailOverlay') && !document.getElementById('detailOverlay').hidden) return;
     droppedPin = { lat: latlng.lat, lng: latlng.lng };
     if (dropMarker) map.removeLayer(dropMarker);
+    var dropIcon = (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.circleDivIcon)
+      ? PhillyWalkMap.circleDivIcon({ fillColor: pinFill('drop'), html: '+' })
+      : undefined;
     dropMarker = L.marker([latlng.lat, latlng.lng], {
-      icon: pinIcon('drop', '+'),
+      icon: dropIcon,
       draggable: true,
-      zIndexOffset: 800
+      zIndexOffset: 800,
+      pane: 'pins'
     });
     dropMarker.on('dragend', function () {
       var ll = dropMarker.getLatLng();
@@ -1018,12 +1027,18 @@
       attributionControl: true,
       minZoom: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.minZoom : 11,
       maxZoom: 19,
-      maxBounds: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.latLngBounds() : undefined,
-      maxBoundsViscosity: 0.85
+      maxBounds: typeof PhillyWalkMap !== 'undefined'
+        ? (PhillyWalkMap.panLatLngBounds ? PhillyWalkMap.panLatLngBounds() : PhillyWalkMap.latLngBounds())
+        : undefined,
+      maxBoundsViscosity: typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.maxBoundsViscosity != null
+        ? PhillyWalkMap.maxBoundsViscosity
+        : 0.35
     }).setView([PHILLY.lat, PHILLY.lng], 13);
     if (typeof PhillyWalkMap !== 'undefined') {
       PhillyWalkMap.addTiles(map);
       PhillyWalkMap.applyLimits(map);
+      if (PhillyWalkMap.ensurePinPane) PhillyWalkMap.ensurePinPane(map);
+      if (PhillyWalkMap.bindZoomLabels) PhillyWalkMap.bindZoomLabels(map);
     } else {
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,

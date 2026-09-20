@@ -997,22 +997,9 @@ a.quick-add-full-link { font-family: inherit; }
   font-size: 10px;
   background: rgba(255,255,255,0.8);
 }
-.city-map-overlay:not(.zoomed-in) .city-map-tooltip {
+.city-map-overlay:not(.zoomed-in) .philly-pin-label {
   display: none !important;
 }
-.leaflet-tooltip.city-map-tooltip {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  color: #3d3428;
-  font-weight: 600;
-  font-size: 11px;
-  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 1px 0 #fff;
-  padding: 2px 4px;
-  white-space: nowrap;
-}
-.leaflet-tooltip.city-map-tooltip::before { display: none; }
-.leaflet-tooltip.city-map-tooltip.dim { opacity: 0.35 !important; }
 .city-map-popup {
   position: absolute;
   left: 10px;
