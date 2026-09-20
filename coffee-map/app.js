@@ -192,6 +192,7 @@
     seeds.forEach(function (raw) {
       var seed = normalizePlace(Object.assign({}, raw, { seeded: true, status: 'want' }));
       if (!seed || hidden[seed.id]) return;
+      if (typeof PhillyWalkMap !== 'undefined' && !PhillyWalkMap.contains(seed.lat, seed.lng)) return;
       var existing = byId[seed.id];
       if (!existing) {
         existing = data.places.filter(function (p) {
@@ -210,6 +211,12 @@
         byId[seed.id] = seed;
       }
     });
+    if (typeof PhillyWalkMap !== 'undefined') {
+      data.places = data.places.filter(function (p) {
+        if (!p.seeded) return true;
+        return PhillyWalkMap.contains(p.lat, p.lng);
+      });
+    }
     return data;
   }
 
@@ -244,7 +251,7 @@
   }
 
   function loadSeed() {
-    return fetch('places.json?v=2')
+    return fetch('places.json?v=4')
       .then(function (r) { return r.ok ? r.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
@@ -432,6 +439,9 @@
       limit: '8',
       lang: 'en'
     });
+    if (typeof PhillyWalkMap !== 'undefined') {
+      params.set('bbox', PhillyWalkMap.photonBbox());
+    }
     return fetch(PHOTON_URL + '?' + params.toString())
       .then(function (r) {
         if (!r.ok) throw new Error('search failed');
@@ -453,6 +463,9 @@
             score: amenityBonus(props)
           };
         }).filter(Boolean);
+        if (typeof PhillyWalkMap !== 'undefined') {
+          out = out.filter(function (c) { return PhillyWalkMap.contains(c.lat, c.lng); });
+        }
         out.sort(function (a, b) { return b.score - a.score; });
         return out;
       });
@@ -954,12 +967,21 @@
     }
     map = L.map('map', {
       zoomControl: false,
-      attributionControl: true
-    }).setView([PHILLY.lat, PHILLY.lng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attributionControl: true,
+      minZoom: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.minZoom : 11,
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+      maxBounds: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.latLngBounds() : undefined,
+      maxBoundsViscosity: 0.85
+    }).setView([PHILLY.lat, PHILLY.lng], 13);
+    if (typeof PhillyWalkMap !== 'undefined') {
+      PhillyWalkMap.addTiles(map);
+      PhillyWalkMap.applyLimits(map);
+    } else {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+    }
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
     placesLayer = L.layerGroup().addTo(map);
     candidatesLayer = L.layerGroup().addTo(map);
@@ -995,9 +1017,13 @@
   }
 
   function fitMapToPlaces(data) {
-    if (!map || !data || !data.places.length) return;
-    var b = L.latLngBounds(data.places.map(function (p) { return [p.lat, p.lng]; }));
-    map.fitBounds(b, { maxZoom: 14, padding: [60, 60] });
+    if (!map) return;
+    var pts = ((data && data.places) || []).map(function (p) { return [p.lat, p.lng]; });
+    if (pts.length) {
+      map.fitBounds(pts, { maxZoom: 14, padding: [36, 36] });
+      return;
+    }
+    if (typeof PhillyWalkMap !== 'undefined') PhillyWalkMap.fit(map, [36, 36]);
   }
 
   function bind() {

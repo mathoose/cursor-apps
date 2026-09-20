@@ -21,6 +21,7 @@ When starting a new app or feature that needs a proven interaction:
 | Pattern | Folder | Status | Use when |
 |---------|--------|--------|----------|
 | Collapsible gallery (3-col grid, expand/collapse all) | [collapsible-gallery-3col/](collapsible-gallery-3col/) | Collapsed layout approved; expanded inner content WIP | Many items grouped by category; horizontal chip filters; expand individual items into a row above a 3-column collapsed grid |
+| Philly walking map (OSM + walking box) | [philly-walk-map/](philly-walk-map/) | Bounds approved | Any in-app Philly map used on foot: Navy Yard → Fishtown / Olde Kensington, 45th St → river |
 
 ## Adding a new pattern
 
