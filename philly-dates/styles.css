@@ -986,31 +986,25 @@ a.quick-add-full-link { font-family: inherit; }
   flex: 1;
   overflow: hidden;
   position: relative;
-  touch-action: none;
-  cursor: grab;
+  min-height: 0;
 }
-.city-map-viewport.panning { cursor: grabbing; }
-.city-map-stage {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 1400px;
-  transform-origin: 0 0;
-  will-change: transform;
-}
-.city-map-art {
-  display: block;
+.city-map-leaflet {
   width: 100%;
-  height: auto;
-  pointer-events: none;
-  user-select: none;
+  height: 100%;
+  background: #e8e0d0;
 }
-.city-map-pins { position: absolute; inset: 0; }
+.city-map-overlay .leaflet-control-attribution {
+  font-size: 10px;
+  background: rgba(255,255,255,0.8);
+}
+.city-map-leaflet-pin {
+  background: none !important;
+  border: none !important;
+}
 .city-map-pin-wrap {
-  position: absolute;
-  width: 0;
-  height: 0;
-  z-index: 1;
+  position: relative;
+  width: 18px;
+  height: 18px;
 }
 .city-map-pin {
   position: absolute;
@@ -1018,32 +1012,26 @@ a.quick-add-full-link { font-family: inherit; }
   top: 0;
   width: 18px;
   height: 18px;
-  margin: -9px 0 0 -9px;
   border: 2px solid #fff;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  cursor: pointer;
-  padding: 0;
+  display: block;
 }
 .city-map-pin-label {
   position: absolute;
-  left: 11px;
-  top: -8px;
+  left: 20px;
+  top: 1px;
   font-size: 11px;
   font-weight: 600;
-  color: #5c554a;
+  color: #3d3428;
   opacity: 0;
   white-space: nowrap;
   pointer-events: none;
-  transform: scale(calc(1 / var(--map-scale, 1)));
-  transform-origin: left center;
-  text-shadow: 0 0 4px #f3eee3, 0 0 4px #f3eee3, 0 1px 0 #f3eee3;
+  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 1px 0 #fff;
   letter-spacing: 0.01em;
 }
-.city-map-overlay.zoomed-in .city-map-pin-label { opacity: 0.72; }
-.city-map-pin:focus { outline: 2px solid #1976d2; outline-offset: 2px; }
-.city-map-overlay.hide-closed .city-map-pin-wrap.closed { display: none; }
+.city-map-overlay.zoomed-in .city-map-pin-label { opacity: 0.85; }
 .city-map-popup {
   position: absolute;
   left: 10px;
