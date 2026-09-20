@@ -10,7 +10,21 @@ var menuPhotoUrlCache = {};
 var menuPhotoUrlPending = {};
 var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var RESTAURANTS = [];
-var NEIGHBORHOODS = ["Bella Vista", "Center City", "East Passyunk", "Fairmount", "Fishtown", "Graduate Hospital", "Kensington", "Logan Square", "Midtown Village", "Northern Liberties", "Old City", "Passyunk Square", "Penn's Landing", "Queen Village", "Rittenhouse", "Society Hill", "South Philadelphia", "South Street", "University City", "Washington Square West"];
+var NEIGHBORHOODS = ["Bella Vista", "Center City", "East Passyunk", "Fairmount", "Fishtown", "Graduate Hospital", "Kensington", "Midtown", "Northern Liberties", "Old City", "Queen Village", "Rittenhouse", "South Philly", "University City"];
+var NEIGHBORHOOD_ALIASES = {
+  'Midtown Village': 'Midtown',
+  'Washington Square West': 'Midtown',
+  'Logan Square': 'Fairmount',
+  'Society Hill': 'Old City',
+  "Penn's Landing": 'Old City',
+  'South Street': 'Queen Village',
+  'Passyunk Square': 'East Passyunk',
+  'South Philadelphia': 'South Philly'
+};
+function canonicalNeighborhood(n) {
+  n = String(n || '').trim();
+  return NEIGHBORHOOD_ALIASES[n] || n;
+}
 var byName = {};
 var loadError = document.getElementById('load-error');
 var currentModalName = '';
@@ -946,7 +960,7 @@ function mergeOverrides(overrides) {
     if (!r) {
       r = {
         name: name,
-        neighborhood: o.neighborhood || '',
+        neighborhood: canonicalNeighborhood(o.neighborhood || ''),
         address: o.address || '',
         description: o.description || '',
         hh_menu: o.hh_menu || '',
@@ -971,7 +985,7 @@ function mergeOverrides(overrides) {
     if (o.instagram !== undefined) r.instagram = o.instagram;
     if (o.social !== undefined) r.social = o.social;
     if (o.address !== undefined) r.address = o.address;
-    if (o.neighborhood !== undefined) r.neighborhood = o.neighborhood;
+    if (o.neighborhood !== undefined) r.neighborhood = canonicalNeighborhood(o.neighborhood);
     if (o.hours !== undefined) r.hours = o.hours;
     if (o.hoursSource !== undefined) r.hoursSource = o.hoursSource;
     if (o.googlePlaceId !== undefined) r.googlePlaceId = o.googlePlaceId;
@@ -996,6 +1010,7 @@ function rebuildRestaurantLists(allPlaces) {
   });
   byName = {};
   allPlaces.forEach(function(r) {
+    r.neighborhood = canonicalNeighborhood(r.neighborhood);
     byName[r.name] = r;
     if (r.neighborhood && NEIGHBORHOODS.indexOf(r.neighborhood) === -1) {
       NEIGHBORHOODS.push(r.neighborhood);
@@ -1016,7 +1031,7 @@ function bootstrapData(allPlaces) {
 
 function startApp() {
   reconcileMenuPhotosFromIdb().finally(function() {
-  fetch('places.json?v=6')
+  fetch('places.json?v=7')
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
@@ -1106,6 +1121,32 @@ function formatTodayHours(r) {
   var dayHours = r.hours[getTodayDayName()];
   if (!dayHours) return 'Closed today';
   return 'Open today ' + dayHours.open + ' – ' + dayHours.close;
+}
+function formatTodayOpenRange(r) {
+  if (!hasGoogleHours(r)) return 'Hours unknown';
+  var dayHours = r.hours[getTodayDayName()];
+  if (!dayHours || !dayHours.open) return 'Closed today';
+  return dayHours.open + ' \u2013 ' + dayHours.close;
+}
+function formatTodayHappyHourRange(r) {
+  var day = getTodayDayName();
+  var s = r.schedule && r.schedule[day];
+  if (!s || !s.start || !s.end) return 'None today';
+  return s.start + ' \u2013 ' + s.end;
+}
+function formatPlaceLocation(r) {
+  return [r.neighborhood, r.address].filter(Boolean).join(' \u00b7 ');
+}
+function formatHoursBlockHtml(r) {
+  var loc = formatPlaceLocation(r);
+  var hhNow = isHappyHourNow(r);
+  return '<div class="hours-block">'
+    + (loc ? '<p class="hours-loc">' + escapeHtml(loc) + '</p>' : '')
+    + '<dl class="hours-dl">'
+    + '<div><dt>Open</dt><dd>' + escapeHtml(formatTodayOpenRange(r)) + '</dd></div>'
+    + '<div><dt>Happy hour</dt><dd' + (hhNow ? ' class="hh-now"' : '') + '>'
+    + escapeHtml(formatTodayHappyHourRange(r)) + (hhNow ? ' · now' : '') + '</dd></div>'
+    + '</dl></div>';
 }
 function pickDefaultTime(day) {
   var now = getNowSlot();
@@ -1210,7 +1251,7 @@ function renderViewMode(r) {
   editMode = false;
   addingNewPlace = false;
   document.getElementById('modal-edit').style.display = '';
-  let body = renderPlaceMetaPanelHtml(r.name) + formatDescription(r.description);
+  let body = formatHoursBlockHtml(r) + renderPlaceMetaPanelHtml(r.name) + formatDescription(r.description);
   body += renderPlaceLinksHtml(r);
   modalBody.innerHTML = '<div id="modal-menu-photo" class="menu-photo-block" hidden></div>' + body;
   showMenuPhotoInModal(r.name);
@@ -1480,7 +1521,7 @@ function saveEdit(originalName) {
   if (!name) { alert('Name is required.'); return; }
   if (isNew && byName[name]) { alert('A place with this name already exists.'); return; }
   var address = document.getElementById('edit-address').value.trim();
-  var neighborhood = document.getElementById('edit-neighborhood').value.trim();
+  var neighborhood = canonicalNeighborhood(document.getElementById('edit-neighborhood').value.trim());
   var description = document.getElementById('edit-description').value.trim();
   var hh_menu = document.getElementById('edit-hh-menu').value.trim();
   var instagram = document.getElementById('edit-instagram').value.trim();
@@ -1572,6 +1613,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (isQuickAddOpen()) closeQuickAdd();
     else if (modal.classList.contains('open')) closeModal();
+    else if (cityMapPopup && !cityMapPopup.hidden) closeCityMapPopup();
     else if (isCityMapOpen()) closeCityMap();
     closeSettings();
     closePickerModal();
@@ -2502,16 +2544,19 @@ if (document.getElementById('picker-view-details')) {
   });
 }
 
-var CITY_MAP_WEST = -75.205;
-var CITY_MAP_EAST = -75.128;
-var CITY_MAP_SOUTH = 39.918;
-var CITY_MAP_NORTH = 39.985;
-var cityMapState = { scale: 1.7, x: 0, y: 0, min: 0.85, max: 4.5 };
+var CITY_MAP_WEST = -75.225;
+var CITY_MAP_EAST = -75.118;
+var CITY_MAP_SOUTH = 39.910;
+var CITY_MAP_NORTH = 39.990;
+var CITY_MAP_LABEL_SCALE = 2.15;
+var cityMapState = { scale: 1.45, x: 0, y: 0, min: 0.32, max: 5.5 };
 var cityMapOverlay = document.getElementById('city-map-overlay');
 var cityMapViewport = document.getElementById('city-map-viewport');
 var cityMapStage = document.getElementById('city-map-stage');
 var cityMapPinsEl = document.getElementById('city-map-pins');
 var cityMapOnlyOpen = document.getElementById('map-only-open');
+var cityMapPopup = document.getElementById('city-map-popup');
+var cityMapPopupName = '';
 
 function cityMapPinKind(r) {
   if (isHappyHourNow(r)) return 'specials';
@@ -2537,6 +2582,10 @@ function allMappedPlaces() {
 function applyCityMapTransform() {
   if (!cityMapStage) return;
   cityMapStage.style.transform = 'translate(' + cityMapState.x + 'px,' + cityMapState.y + 'px) scale(' + cityMapState.scale + ')';
+  if (cityMapOverlay) {
+    cityMapOverlay.style.setProperty('--map-scale', String(cityMapState.scale));
+    cityMapOverlay.classList.toggle('zoomed-in', cityMapState.scale >= CITY_MAP_LABEL_SCALE);
+  }
 }
 
 function cityMapFocus(lat, lng, scale) {
@@ -2574,9 +2623,12 @@ function renderCityMapPins() {
     if (item.kind === 'specials') specials += 1;
     else if (item.kind === 'open') open += 1;
     else closed += 1;
-    return '<button type="button" class="city-map-pin ' + item.kind + '" data-name="'
-      + escapeHtml(item.r.name) + '" style="left:' + item.x.toFixed(2) + '%;top:' + item.y.toFixed(2)
-      + '%" aria-label="' + escapeHtml(item.r.name) + ', ' + item.kind + '"></button>';
+    var shortName = item.r.name.length > 28 ? item.r.name.slice(0, 26) + '\u2026' : item.r.name;
+    return '<div class="city-map-pin-wrap ' + item.kind + '" style="left:' + item.x.toFixed(2)
+      + '%;top:' + item.y.toFixed(2) + '%">'
+      + '<button type="button" class="city-map-pin ' + item.kind + '" data-name="'
+      + escapeHtml(item.r.name) + '" aria-label="' + escapeHtml(item.r.name) + ', ' + item.kind + '"></button>'
+      + '<span class="city-map-pin-label">' + escapeHtml(shortName) + '</span></div>';
   }).join('');
   var countEl = document.getElementById('city-map-count');
   if (countEl) {
@@ -2585,9 +2637,27 @@ function renderCityMapPins() {
   cityMapPinsEl.querySelectorAll('.city-map-pin').forEach(function(btn) {
     btn.addEventListener('click', function(e) {
       e.stopPropagation();
-      openModal(btn.getAttribute('data-name'));
+      openCityMapPopup(btn.getAttribute('data-name'));
     });
   });
+}
+
+function openCityMapPopup(name) {
+  var r = byName[name];
+  if (!r || !cityMapPopup) return;
+  cityMapPopupName = name;
+  document.getElementById('city-map-popup-name').textContent = r.name;
+  document.getElementById('city-map-popup-loc').textContent = formatPlaceLocation(r) || 'Philadelphia';
+  document.getElementById('city-map-popup-open').textContent = formatTodayOpenRange(r);
+  var hhEl = document.getElementById('city-map-popup-hh');
+  hhEl.textContent = formatTodayHappyHourRange(r) + (isHappyHourNow(r) ? ' · now' : '');
+  hhEl.classList.toggle('hh-now', isHappyHourNow(r));
+  cityMapPopup.hidden = false;
+}
+
+function closeCityMapPopup() {
+  if (cityMapPopup) cityMapPopup.hidden = true;
+  cityMapPopupName = '';
 }
 
 function openCityMap() {
@@ -2596,15 +2666,17 @@ function openCityMap() {
   if (cityMapOnlyOpen) {
     cityMapOverlay.classList.toggle('hide-closed', cityMapOnlyOpen.checked);
   }
+  closeCityMapPopup();
   renderCityMapPins();
   requestAnimationFrame(function() {
-    cityMapFocus(39.9526, -75.1636, 1.85);
+    cityMapFocus(39.9526, -75.1636, 1.35);
   });
   updateBodyModalClass();
 }
 
 function closeCityMap() {
   if (!cityMapOverlay) return;
+  closeCityMapPopup();
   cityMapOverlay.hidden = true;
   updateBodyModalClass();
 }
@@ -2631,7 +2703,7 @@ function wireCityMapPanZoom() {
   var pinchStartScale = 1;
 
   cityMapViewport.addEventListener('pointerdown', function(e) {
-    if (e.target.closest && e.target.closest('.city-map-pin')) return;
+    if (e.target.closest && (e.target.closest('.city-map-pin') || e.target.closest('.city-map-popup'))) return;
     pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
     if (Object.keys(pointers).length === 1) {
       dragging = true;
@@ -2709,6 +2781,14 @@ if (document.getElementById('city-map-in')) {
 }
 if (document.getElementById('city-map-out')) {
   document.getElementById('city-map-out').addEventListener('click', function() { cityMapZoomBy(1 / 1.2); });
+}
+if (document.getElementById('city-map-popup-close')) {
+  document.getElementById('city-map-popup-close').addEventListener('click', closeCityMapPopup);
+}
+if (document.getElementById('city-map-popup-details')) {
+  document.getElementById('city-map-popup-details').addEventListener('click', function() {
+    if (cityMapPopupName) openModal(cityMapPopupName);
+  });
 }
 wireCityMapPanZoom();
 

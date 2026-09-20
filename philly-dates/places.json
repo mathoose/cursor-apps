@@ -2,7 +2,7 @@
   {
     "name": "Prunella",
     "address": "112 S 13th st Philadelphia, PA 19102",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Happy hour is bar seating only\n* Lunch specials are not the happy hour\n* 8/10\n* Spicy chicken caesar\n* https://www.tiktok.com/t/ZP8yeeEqF/\n* Deals (Sun–Sat 4 PM–6 PM): $7 Cosmopolita plus house wine, daily happy-hour beer, daily pizza special (Pepperoni or Plain Jane), and snacks (garlic knots, crispy polenta, tomato toast, polpetti); other item prices unconfirmed on the official menu.",
     "social": "",
     "hh_menu": "https://prunellaphl.com/menu",
@@ -76,7 +76,7 @@
   {
     "name": "Mona",
     "address": "1308 Chestnut St, Philadelphia, PA 19107",
-    "neighborhood": "Center City",
+    "neighborhood": "Midtown",
     "description": "Happy hour is bar seating only\n* 8.5/10 best happy hour\n* Greek place with the cool speakeasy we haven't gotten to try yet\n* Gorgeous interior\n* https://www.instagram.com/reel/DMxsgYFt-zz/?igsh=M2l1NWczZXluaDlw\n* Deals (Mon–Fri 4 PM–7 PM): Bar-only weekdays: $5 Applicant cabernet/sauvignon blanc, $7 Naxos and Forbidden Fig cocktails, $5 Alfa/Mythos; food includes $5 mezze/spreads, $6 spanakopita/gyro dumplings/Greek fries, $7 kebabs/zucchini chips, $8 mussels, $12 lamb sliders.",
     "social": "",
     "hh_menu": "https://monaphilly.com/",
@@ -143,7 +143,7 @@
   {
     "name": "Vintage Wine Bar",
     "address": "129 S 13th St Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "6.5/10\n* Always a spot\n* Calamari is small portion but good\n* Fries are good\n* Sangria and wine are nice\n* Deals (Mon–Fri 4 PM–6 PM): $7 White Cosmo, $5 Love City beer, $6 draft wine, $6 sangria; food includes $8 galette, $9 fried calamari, $8 shoestring fries, $12 escargot (beignets and fried cauliflower prices unlisted).",
     "social": "https://www.instagram.com/reel/DATQz3VvAf5/?igsh=NTU3aWc4bHBpYWY=",
     "hh_menu": "https://www.vintage-philadelphia.com/menus?menu=happy-hour",
@@ -209,7 +209,7 @@
   {
     "name": "Darling Jack's Tavern",
     "address": "104 S 13th St Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "American bar food\n* Burger is fountain porter level\n* Deals (Mon–Fri 4 PM–7 PM): $8 cocktails, $7 house wine, $5 beer; bar bites include $7 whipped feta, $5 croquettes/chips/ham-and-eggs, $7 smash burger, $10 tavern cheese pizza. Walk-in only at the bar and outdoor tables.",
     "social": "https://www.instagram.com/reel/DSyJi4Jkly6/?igsh=cGlwdnhzZnpyNnB0",
     "hh_menu": "https://www.darlingjacks.com/happy-hour",
@@ -275,7 +275,7 @@
   {
     "name": "Moriarty's Irish Pub",
     "address": "1116 Walnut St Philadelphia, PA 19107",
-    "neighborhood": "Center City",
+    "neighborhood": "Midtown",
     "description": "French onion soup $7\n* Classic spot\n* Confirm current specials — official site does not list happy-hour prices",
     "social": "https://www.instagram.com/reel/CoK17NEp1z0/?igsh=MXkxdzFsY2EyNjJwMg==",
     "hh_menu": "https://www.moriartyspub.com/menu",
@@ -341,7 +341,7 @@
   {
     "name": "Double Knot",
     "address": "120 S 13th St Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Sushi\n* https://www.tiktok.com/@emmayums/video/7597261514008956190?q=double%20knot%20happy%20hour&t=1772414963542\n* Deals (Sun–Sat 4 PM–7 PM): Daily walk-in HH at the upstairs bar/cafe: $8 rolls, $5-$7 robata, $8-$9 snacks/bao/dumplings, $6 house wine/rosé/junmai, $7 specialty cocktails (The Tautline Hitch, The Sheet Bend).",
     "social": "",
     "hh_menu": "https://www.doubleknotphilly.com/menu",
@@ -415,7 +415,7 @@
   {
     "name": "The Bread Room",
     "address": "834 Chestnut St, Philadelphia, PA 19107",
-    "neighborhood": "Center City",
+    "neighborhood": "Midtown",
     "description": "Bakery: https://www.instagram.com/reel/DR472oSkWh_/?igsh=Y3cxN3AyOHo1cWg=",
     "social": "",
     "hh_menu": "https://thebreadroomphl.com/",
@@ -460,7 +460,7 @@
   {
     "name": "Botld",
     "address": "117 S 13th St, Philadelphia, PA 19107",
-    "neighborhood": "Center City",
+    "neighborhood": "Midtown",
     "description": "$9 cocktail https://www.instagram.com/reel/DJk4GLxtHzD/?igsh=Y3Ntcm12ZjF2bWtq",
     "social": "",
     "hh_menu": "https://botld.com/",
@@ -1440,7 +1440,7 @@
   {
     "name": "Brauhaus Schmitz",
     "address": "718 South St Philadelphia, PA 19147",
-    "neighborhood": "South Street",
+    "neighborhood": "Queen Village",
     "description": "Happy hour is bar seating only\n* Been here > $10 sometimes\n* Good for parties\n* Really good doner on shareable plates\n* $16 liters\n* Deals (Mon–Fri 4 PM–7 PM): $6 all beers, $7 house wine, $8 sausage sandwiches — bar only.",
     "social": "",
     "hh_menu": "https://brauhausschmitz.com/food-menu/",
@@ -1596,7 +1596,7 @@
   {
     "name": "Cavannaugh's headhouse",
     "address": "421 S 2nd St, Philadelphia, PA 19147",
-    "neighborhood": "Society Hill",
+    "neighborhood": "Old City",
     "description": "10/10\n* great food (fish and chips, chili tater tots)\n* Officially Cavanaugh's Headhouse",
     "social": "",
     "hh_menu": "https://www.cavsheadhouse.com/",
@@ -1712,7 +1712,7 @@
   {
     "name": "Paddy Whacks Irish sports pup",
     "address": "150 South St, Philadelphia, PA 19147",
-    "neighborhood": "South Street",
+    "neighborhood": "Queen Village",
     "description": "6/10\n* poor service here before we just left\n* Paddy Whacks Irish sports pub",
     "social": "",
     "hh_menu": "https://www.paddywhackspub.com/",
@@ -1757,7 +1757,7 @@
   {
     "name": "Marsha's South Street",
     "address": "430 South St, Philadelphia, PA 19147",
-    "neighborhood": "South Street",
+    "neighborhood": "Queen Village",
     "description": "Female's sports bar https://www.instagram.com/reel/DOyPaAqkY6r/?igsh=c2t4azIweThoaTd5",
     "social": "",
     "hh_menu": "https://www.marshassouthstreet.com/",
@@ -1802,7 +1802,7 @@
   {
     "name": "Bistro Romano",
     "address": "120 Lombard St, Philadelphia, PA 19147",
-    "neighborhood": "Society Hill",
+    "neighborhood": "Old City",
     "description": "Italian\n* Gorgeous interior: https://www.instagram.com/reel/DT6J4bBEq1P/?igsh=eGNlcWVmcDdhbTlw",
     "social": "",
     "hh_menu": "https://www.bistroromano.com/",
@@ -3293,7 +3293,7 @@
   {
     "name": "Umami",
     "address": "727 Walnut St (basement), Philadelphia, PA 19106",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "Confirm current specials — official site does not list happy-hour prices",
     "social": "",
     "hh_menu": "https://umamisteakandsushi.com/",
@@ -3475,7 +3475,7 @@
   {
     "name": "Pearl and Mary Oyster Bar",
     "address": "114 S 13th St, Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Cheap eats, including non-seafood options.\n* Deals (Sun–Sat 4 PM–7 PM): Daily 4–7 PM walk-in at the bar and oyster bar: $5 beer, $6 wine (white/rosé/red), $7 cocktails (Mary's Daiquiri, Sea Rose); raw bar $1 clam, $2 oyster, $3 shrimp, $7 daily crudo; $7 chicken/smash/fish sandwiches; snacks $3 shrimp toast, $4 deviled eggs, $4 fries, $7 Vietnamese wings.",
     "social": "",
     "hh_menu": "https://www.pearlandmary.com/menu",
@@ -3620,7 +3620,7 @@
   {
     "name": "QU Japan",
     "address": "1635 Market St #103, Philadelphia, PA 19103",
-    "neighborhood": "Center City",
+    "neighborhood": "Rittenhouse",
     "description": "https://www.instagram.com/p/DF51oWKB1L4/?hl=en\n* Deals (Mon–Fri 4 PM–6:30 PM; Sat 1 PM–3 PM): Official HH PDF: all listed food $6.50 (apps, rolls, fried rice); $6 draft/bottle beer (Sapporo, Allagash White, Lagunitas IPA, Modelo); $6 wine; $8 cocktails (margarita, lotus blossom, mojito, plus house pours listed on the HH menu).",
     "social": "",
     "hh_menu": "https://www.qujapanphl.com/",
@@ -3687,7 +3687,7 @@
   {
     "name": "The Lesiuer",
     "address": "1523 Sansom St (1st Floor), Philadelphia, PA 19102",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Deals (Tue–Sat 4 PM–6 PM): Tue–Sat 4–6 PM in the bar and lounge: $6 draft wine (Sauvignon Blanc, Cinsault rosé), $7 cocktails (Bees Knees, Raspberry Daiquiri), $5 New Trail Lazy River pilsner; food $3/ea shrimp cocktail, $8 fries, $9 cheeseburger, $9 salmon tartare, $9 mac & cheese, $10 beef tartare, $10 onion crêpes.\n* Officially spelled The Lesieur",
     "social": "",
     "hh_menu": "https://thelesieur.com/happyhour",
@@ -3778,7 +3778,7 @@
   {
     "name": "Tesiny",
     "address": "719 Dickinson St, Philadelphia, PA 19147",
-    "neighborhood": "South Philadelphia",
+    "neighborhood": "Bella Vista",
     "description": "South Philly nice restaurant. https://www.tesiny.com/menu",
     "social": "",
     "hh_menu": "https://www.tesiny.com/",
@@ -3815,7 +3815,7 @@
   {
     "name": "Indo Spice Restaurant",
     "address": "1423 W Passyunk Ave, Philadelphia, PA 19145",
-    "neighborhood": "Passyunk Square",
+    "neighborhood": "East Passyunk",
     "description": "nice photos, good looking rice,",
     "social": "",
     "hh_menu": "",
@@ -3860,7 +3860,7 @@
   {
     "name": "Drury Beer Garden (DBG)",
     "address": "1311 Sansom St, Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Cheap food.\n* Deals (Sun 4 PM–7 PM; Tue–Sat 4 PM–7 PM): Tue–Sun 4–7 PM: $4 smash burger / $6 double smash, $5 fries, $5 beer/seltzer (Drury Light, Goose Island IPA, Guinness, Escape Goat), $6 house wine, $7 well drinks, $9 citywides, plus HH snacks ($5 pretzel, $6 chips & guac / pickle chips, $8 nachos / cheesesteak eggrolls, $10 loaded fries, $12 wings).",
     "social": "https://www.instagram.com/reel/DWzi5JeEde1/?igsh=OW56OWpjeWZkYmJy",
     "hh_menu": "https://dbgphilly.com/menu",
@@ -4646,7 +4646,7 @@
   {
     "name": "Tamalex Bar and Grille",
     "address": "122 Lombard St, Philadelphia, PA 19147",
-    "neighborhood": "Society Hill",
+    "neighborhood": "Old City",
     "description": "Confirm current specials — official site does not list happy-hour prices",
     "social": "",
     "hh_menu": "https://tamalexbarandgrill.com/",
@@ -5469,7 +5469,7 @@
   {
     "name": "Sofia corner cafe",
     "address": "1112 Locust St, Philadelphia, PA 19107",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "center city brunch",
     "social": "https://www.instagram.com/reel/DWynQJ7DfhK/?igsh=MTRxbXowMGFhMG5pcw==",
     "hh_menu": "https://soficornercafe.com/",
@@ -5844,7 +5844,7 @@
   {
     "name": "Assembly rooftop lounge",
     "address": "1840 Benjamin Franklin Pkwy, Philadelphia, PA 19103",
-    "neighborhood": "Logan Square",
+    "neighborhood": "Fairmount",
     "description": "Nine floors up at The Logan with Parkway views. 21+ to enter except weekend brunch. Reservations recommended; walk-ins based on availability.\n* Deals (Sun–Thu 4 PM–6 PM): Rose Gold Margarita $15 (includes mini carne guisada taco); Frosé $10; featured beer $6; wine (red, white, sparkling) $9; Margherita flatbread $10; Calabrese salami flatbread $10; Bianca flatbread $10; roasted corn guacamole $10.",
     "social": "",
     "hh_menu": "https://www.assemblyrooftop.com/menu/happy-hour/",
@@ -5955,7 +5955,7 @@
   {
     "name": "The wayward",
     "address": "1170 Ludlow St, Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "1170 Ludlow St Philadelphia, PA 19107\n* Deals (Sun–Sat 4 PM–6 PM): Official HH list: $5 red, $5 white, $4 daily beer, $6 daily bartender's punch; $3 nicoise tartare, $3 gulf shrimp, half-off daily oysters; $3 frites, $4 corn beignets, $5 escargot croquettes, $6 chef's daily tarte flambé; tartines $6.",
     "social": "",
     "hh_menu": "https://www.thewayward.com/home-new-1",
@@ -6330,7 +6330,7 @@
   {
     "name": "Hi-Lo taco",
     "address": "1109 Walnut St, Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Tex-Mex tacos and tequila bar on Walnut Street in Midtown Village. Closed Sunday. Monday is lunch-only (11 AM–2 PM). Header copy says happy hour every day 4–6 PM, but the hours block specifies Tuesday–Saturday 4–6 PM plus Friday–Saturday 9–10 PM.",
     "social": "",
     "hh_menu": "https://www.hilotacoco.com/happy-hour-menu",
@@ -6392,7 +6392,7 @@
   {
     "name": "Strangelove's",
     "address": "216 S 11th St, Philadelphia, PA 19107",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "Home of 30+ wing flavors, Gold Leaf cheesesteak, and a free upstairs arcade/lounge (pool, darts). Sunday karaoke with $30 mimosa towers 3–7 PM (not HH). Birthday: ask bartender for a free flight of shots (Instagram @strangelovesphilly). Address 216 S 11th St, across from Jefferson Hospital.\n* Deals (Sun–Sat 4 PM–6 PM): Official HH page: everyday 4–6 PM; regular menu still available. $5 well drinks, $6 wine, $2 off select drafts, 10% off select beer pitchers. HH food listed with prices includes 30+ wing flavors $12, empanadas $12, hummus $10, mac n cheese balls $9, onion rings $7, crab fries $7, truffle fries $7, Brussels $8.",
     "social": "",
     "hh_menu": "http://www.strangelovesbeerbar.com/happy-hour",
@@ -6931,7 +6931,7 @@
   {
     "name": "Casablanca",
     "address": "947 Federal St, Philadelphia, PA 19147",
-    "neighborhood": "Passyunk Square",
+    "neighborhood": "East Passyunk",
     "description": "mediterranian grill fun interior\n* https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
     "social": "https://www.instagram.com/reel/DV3f-WFEc4h/?igsh=MXFldmU0ejlxYnAybw==",
     "hh_menu": "https://casablanca-grill.com/",
@@ -7005,7 +7005,7 @@
   {
     "name": "Middle child",
     "address": "248 S 11th St, Philadelphia, PA 19107 (Center City shop). Clubhouse is 1232 N Front St, Fishtown.",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "center city sandwich shop\n* https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
     "social": "https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
     "hh_menu": "https://middlechildphilly.com/",
@@ -7153,7 +7153,7 @@
   {
     "name": "Mi vida",
     "address": "1150 Ludlow Street, Philadelphia, PA 19107",
-    "neighborhood": "Center City",
+    "neighborhood": "Midtown",
     "description": "Chef Roberto Santibañez modern Mexican at East Market. Weekend brunch Sat–Sun 11 AM–3 PM. Official address 1150 Ludlow Street; phone (445) 447-3097. Brand Instagram @mividamexico.\n* https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==\n* Deals (Mon–Fri 2 PM–6 PM): Official Philly HH PDF (6.25.26): Mon–Fri 2–6 PM at the bar, subject to availability. Drafts $5 (Dos Equis Lager, Pacífico, Dos Equis Ámbar, Yards Philadelphia Pale Ale, Modelo Especial, 2SP Pony Boi Light Lager). Wines $7. Cocktails: La Frozen $9, La Casita $8, De la Casa $8, Ponche de Lola $8 / pitcher $39. Food: alitas $2 each; tacos dorados $6; queso fundido $8; tatanachos $11 (add chicken +$7, steak +$10). Tacos $6 each, $4.50 each on Taco Tuesdays.",
     "social": "https://www.instagram.com/reel/DVt2u8xj6ZL/?igsh=MXJjOGc4bzF4cTJuYQ==",
     "hh_menu": "https://www.mividamexico.com/",
@@ -7199,7 +7199,7 @@
   {
     "name": "Griddle and rice",
     "address": "2151 S 22nd St, Philadelphia, PA 19145",
-    "neighborhood": "South Philadelphia",
+    "neighborhood": "South Philly",
     "description": "MUST TRY SOON appears to be amazing breakfast food\n* https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
     "social": "https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
     "hh_menu": "https://www.griddlericephilly.com/",
@@ -7211,7 +7211,7 @@
   {
     "name": "Rhythm and spirits",
     "address": "1617 John F. Kennedy Blvd, Philadelphia, PA 19103",
-    "neighborhood": "Center City",
+    "neighborhood": "Fairmount",
     "description": "Italian-American from Chef Lee Sanchez, relocated from Atlantic City to One Penn Center above Suburban Station. Live music after dinner. Dinner listed Wed–Thu 4–9, Fri 4–10, Sat 2–7, Sun 2–8; Mon–Tue dinner closed (lunch those days). 1617 John F. Kennedy Blvd, (267) 239-2280.\n* https://www.instagram.com/reel/DWRYQe2kbqX/?igsh=dGRqMGZ6OTUzeHVy\n* Deals (Sun 4 PM–6 PM; Wed–Sat 4 PM–6 PM): Official homepage: Happy Hour Wednesday–Sunday 4–6 PM. $5 cicchetti (Boardwalk Fries, Mama's Meatball Slider, Empanada ai quattro formaggi, South Philly Roast Pork Slider, Shrimp Taco); $9 glass of wine; $7 Aperol or Zeide Spritz.",
     "social": "https://www.instagram.com/reel/DQz2cQiEbNZ/?igsh=cHFhd2YxZ3A5MXgy",
     "hh_menu": "https://rhythmandspirits.com/",
@@ -7414,7 +7414,7 @@
   {
     "name": "Samurai Asian Fusion",
     "address": "1420 Locust St, Philadelphia, PA 19102",
-    "neighborhood": "Center City",
+    "neighborhood": "Rittenhouse",
     "description": "$27 happy hour https://samuraiasianfusion.com/menu.html",
     "social": "https://samuraiasianfusion.com/menu.html?fbclid=PAZnRzaAQ_v3NleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAaejY1-kHXQnIs55O2UexqozOd72_gMuRgUAcdBtleztwJUMIXqGnWvclPrmeg_aem__7nKzRYoqiCdSelJRwXQ-g",
     "hh_menu": "https://samuraiasianfusion.com/menu.html",
@@ -7533,7 +7533,7 @@
   {
     "name": "Green Elephant",
     "address": "1500 Locust St, Philadelphia, PA 19102",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Year-round venue is The Elephant Espresso Martini Bar (Teddy Sourias / Craft Concepts) at 1500 Locust St — Philly's espresso-martini bar with 10+ variations. Green Elephant is the seasonal St. Patrick's overlay (also White Elephant in winter, Pink Elephant for Valentine's), not a separate restaurant. Walk-in only. Instagram @theelephantphl (site listed there: whiteelephantphl.com). Phone (267) 761-5582. Typical hours from listings: Mon–Wed/Sun 4 PM–12 AM, Thu–Sat 4 PM–2 AM.\n* Confirm current specials — official site does not list happy-hour prices\n* Standing bar is The Elephant; Green Elephant is a seasonal overlay",
     "social": "https://www.instagram.com/reel/DWkQHm6jaA6/?igsh=MW5sN2Vya2Uya2N2bw==",
     "hh_menu": "https://whiteelephantphl.com/",
@@ -7566,7 +7566,7 @@
   {
     "name": "El Vez",
     "address": "121 S. 13th Street, Philadelphia, PA 19107",
-    "neighborhood": "Midtown Village",
+    "neighborhood": "Midtown",
     "description": "Stephen Starr Mex-Eclectic spot with a large tequila list, vintage photo booth, and a lively party vibe. 121 S. 13th St; (215) 928-9800.\n* Deals (Mon–Fri 3 PM–5 PM): Official Happy Hour tab (Mon–Fri 3:00–5:00 PM): Classic El Vez, Frozen Blood Orange, and Pink Cadillac margaritas $9 glass / $36 pitcher; El Vez Colada $9; Zero-Proof Cucumber Fizz $5 (add Corazon tequila +$4); Sauvignon Blanc or Merlot $8; all draft beer $5; Michelada $6 (Modelo Especial / Modelo Negra). Food: Taco Americano $4; Cheese Crisp $7 (add chicken, carnitas, or short rib +$4); Carnitas Taquitos $9; Salsa con Queso $10; Tlayuda de Camarón $14; Birria Asada Fries $14.",
     "social": "https://www.instagram.com/reel/DWhhKOuEXv9/?igsh=MWcwcmxjeG13eWVqeQ==",
     "hh_menu": "https://elvezrestaurant.com/",
@@ -7599,7 +7599,7 @@
   {
     "name": "Static",
     "address": "1137 Spruce St, Philadelphia, PA 19107",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "cool bar playing movies on projectors",
     "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
     "hh_menu": "",
@@ -7611,7 +7611,7 @@
   {
     "name": "Homegrown 215",
     "address": "1515 W Porter St, Philadelphia, PA 19145",
-    "neighborhood": "South Philadelphia",
+    "neighborhood": "South Philly",
     "description": "South Philly neighborhood breakfast & lunch cafe (also Callowhill location). Bean2bean coffee, free WiFi, full breakfast/lunch menu, seasonal Frobo blended drinks. Open Mon-Fri 7 AM-4 PM, Sat-Sun 8 AM-4 PM - daytime cafe only, no bar/happy hour.",
     "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
     "hh_menu": "https://homegrown215.com/",
@@ -7741,7 +7741,7 @@
   {
     "name": "Garage",
     "address": "1231 East Passyunk Ave, Philadelphia, PA 19147",
-    "neighborhood": "Passyunk Square",
+    "neighborhood": "East Passyunk",
     "description": "Beer bar at 1231 E Passyunk Ave, between Pat’s and Geno’s; BYO cheesesteaks encouraged. Pool/skeeball and a large canned-beer selection. Hours on the official site: Mon–Fri 5 PM–2 AM, Sat–Sun 12 PM–2 AM. Phone (215) 278-2429.",
     "social": "",
     "hh_menu": "https://www.garagephilly.com/passyunk",
@@ -7883,7 +7883,7 @@
   {
     "name": "Kanella Grill",
     "address": "1001 Spruce St, Philadelphia, PA 19107",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "Greek place, outdoor seating with lots of sun\n* Emily recommends. Good dips",
     "social": "",
     "hh_menu": "https://www.kanellarestaurant.com/",
@@ -8090,7 +8090,7 @@
   {
     "name": "Vernick Fish",
     "address": "1 N 19th St (One N. 19th Street), Philadelphia, PA 19103",
-    "neighborhood": "Logan Square",
+    "neighborhood": "Fairmount",
     "description": "James Beard chef Greg Vernick’s American oyster bar in Four Seasons Hotel Philadelphia at Comcast Center. Bar walk-ins from 4:30 PM daily; dinner 5–10 PM. Smart-casual dress code. One N. 19th St; (215) 419-5055.\n* Deals (Sun–Thu 4:30 PM–6:30 PM): unconfirmed. Social Hour / specially priced selections are advertised Sunday–Thursday 4:30–6:30 PM at the bar and lounge; the menus page does not list Social Hour item prices. Do not treat the $49 weekday lunch prix fixe as happy hour.",
     "social": "",
     "hh_menu": "https://www.vernickfish.com/location/vernick-fish/",
@@ -8135,7 +8135,7 @@
   {
     "name": "Emelia",
     "address": "Listed 1218 Spruce St; official Emilia is 2406 Frankford Ave, Philadelphia, PA 19125",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "",
     "social": "",
     "hh_menu": "https://www.emiliaphilly.com/",
@@ -8159,7 +8159,7 @@
   {
     "name": "Kiddo restaurant",
     "address": "1138 Pine St, Philadelphia, PA 19107",
-    "neighborhood": "Washington Square West",
+    "neighborhood": "Midtown",
     "description": "Deals (Mon 4 PM–6 PM; Wed–Fri 4 PM–6 PM): Bar area only: $10–$12 pastas, $10 wine and cocktails, $7 non-alcoholic beverages, $5 draft beer and cider.",
     "social": "",
     "hh_menu": "https://www.kiddorestaurant.com/",
