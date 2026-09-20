@@ -1006,8 +1006,16 @@ a.quick-add-full-link { font-family: inherit; }
   user-select: none;
 }
 .city-map-pins { position: absolute; inset: 0; }
+.city-map-pin-wrap {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 1;
+}
 .city-map-pin {
   position: absolute;
+  left: 0;
+  top: 0;
   width: 18px;
   height: 18px;
   margin: -9px 0 0 -9px;
@@ -1017,10 +1025,76 @@ a.quick-add-full-link { font-family: inherit; }
   box-shadow: 0 1px 4px rgba(0,0,0,0.35);
   cursor: pointer;
   padding: 0;
-  z-index: 1;
 }
+.city-map-pin-label {
+  position: absolute;
+  left: 11px;
+  top: -8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5c554a;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: scale(calc(1 / var(--map-scale, 1)));
+  transform-origin: left center;
+  text-shadow: 0 0 4px #f3eee3, 0 0 4px #f3eee3, 0 1px 0 #f3eee3;
+  letter-spacing: 0.01em;
+}
+.city-map-overlay.zoomed-in .city-map-pin-label { opacity: 0.72; }
 .city-map-pin:focus { outline: 2px solid #1976d2; outline-offset: 2px; }
-.city-map-overlay.hide-closed .city-map-pin.closed { display: none; }
+.city-map-overlay.hide-closed .city-map-pin-wrap.closed { display: none; }
+.city-map-popup {
+  position: absolute;
+  left: 10px;
+  right: auto;
+  width: calc(100% - 68px);
+  max-width: 420px;
+  bottom: calc(12px + var(--safe-bottom));
+  z-index: 4;
+  background: #fff;
+  color: #3d3428;
+  border-radius: 16px;
+  padding: 14px 40px 14px 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+}
+.city-map-popup[hidden] { display: none; }
+.city-map-popup h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+.city-map-popup-loc {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+  color: #6a6256;
+}
+.city-map-popup .modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.city-map-popup .btn { width: 100%; margin-top: 10px; }
+.hours-block { margin: 0 0 12px; }
+.hours-loc {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.hours-dl { margin: 0; }
+.hours-dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+.hours-dl dt {
+  font-weight: 600;
+  color: var(--muted);
+}
+.hours-dl dd { margin: 0; text-align: right; font-weight: 600; }
+.hours-dl dd.hh-now { color: #c62828; }
 .city-map-zoom {
   position: absolute;
   right: 12px;
