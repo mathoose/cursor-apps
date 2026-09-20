@@ -566,15 +566,78 @@ function setTagFilter(id) {
   refreshFilters();
 }
 
+function orderItemId() {
+  return 'ord-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+function clampOrderPrice(n) {
+  if (n == null || n === '') return null;
+  if (typeof n === 'string') n = n.replace(/[^0-9.]/g, '');
+  n = Number(n);
+  if (!isFinite(n) || n < 0) return null;
+  if (n > 9999) n = 9999;
+  return Math.round(n * 100) / 100;
+}
+
+function formatOrderPrice(n) {
+  n = clampOrderPrice(n);
+  if (n == null) return '';
+  return Number.isInteger(n) ? ('$' + n) : ('$' + n.toFixed(2));
+}
+
+function clampHappiness(n) {
+  if (n == null || n === '') return null;
+  n = Number(n);
+  if (!n || n < 1) return null;
+  if (n > 5) return 5;
+  return Math.round(n);
+}
+
+function normalizeOrderItem(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  return {
+    id: raw.id ? String(raw.id) : orderItemId(),
+    name: String(raw.name || '').trim().slice(0, 80),
+    price: clampOrderPrice(raw.price),
+    happiness: clampHappiness(raw.happiness)
+  };
+}
+
+function normalizeOrders(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeOrderItem).filter(Boolean);
+}
+
+function orderHasContent(o) {
+  return !!(o && (o.name || o.price != null || o.happiness));
+}
+
+function ordersTotal(orders) {
+  var total = 0;
+  var any = false;
+  (orders || []).forEach(function(o) {
+    if (o && o.price != null) {
+      total += o.price;
+      any = true;
+    }
+  });
+  return any ? Math.round(total * 100) / 100 : null;
+}
+
 function getPlaceMeta(name) {
   var st = loadAppState();
   var m = st.placeMeta && st.placeMeta[name];
-  if (!m) return { visited: false, rating: null, tagIds: [] };
+  if (!m) return { visited: false, rating: null, tagIds: [], orders: [] };
   return {
     visited: !!m.visited,
     rating: typeof m.rating === 'number' && m.rating >= 1 && m.rating <= 10 ? m.rating : null,
-    tagIds: Array.isArray(m.tagIds) ? m.tagIds.slice() : []
+    tagIds: Array.isArray(m.tagIds) ? m.tagIds.slice() : [],
+    orders: normalizeOrders(m.orders)
   };
+}
+
+function placeMetaIsEmpty(meta) {
+  return !meta.visited && meta.rating == null && !meta.tagIds.length && !meta.orders.some(orderHasContent) && !meta.orders.length;
 }
 
 function setPlaceMeta(name, patch) {
@@ -585,12 +648,13 @@ function setPlaceMeta(name, patch) {
   var next = {
     visited: patch.visited !== undefined ? !!patch.visited : cur.visited,
     rating: patch.rating !== undefined ? patch.rating : cur.rating,
-    tagIds: patch.tagIds !== undefined ? patch.tagIds.slice() : cur.tagIds
+    tagIds: patch.tagIds !== undefined ? patch.tagIds.slice() : cur.tagIds,
+    orders: patch.orders !== undefined ? normalizeOrders(patch.orders) : cur.orders
   };
   if (next.rating != null) {
     next.rating = Math.min(10, Math.max(1, parseInt(next.rating, 10) || 0)) || null;
   }
-  if (!next.visited && next.rating == null && !next.tagIds.length) {
+  if (placeMetaIsEmpty(next)) {
     delete st.placeMeta[name];
   } else {
     st.placeMeta[name] = next;
@@ -643,7 +707,7 @@ function deleteTag(id) {
       var m = st.placeMeta[name];
       if (m && Array.isArray(m.tagIds)) {
         m.tagIds = m.tagIds.filter(function(tid) { return tid !== id; });
-        if (!m.visited && m.rating == null && !m.tagIds.length) delete st.placeMeta[name];
+        if (!m.visited && m.rating == null && !(m.tagIds && m.tagIds.length) && !(m.orders && m.orders.length)) delete st.placeMeta[name];
       }
     });
   }
@@ -805,13 +869,148 @@ function renderPlaceMetaPanelHtml(name) {
       return '<button type="button" class="place-tag-chip' + (on ? ' on' : '') + '" data-place-tag="' + escapeHtml(tag.id) + '">' + escapeHtml(tag.label) + '</button>';
     }).join('');
   }
+  var ordersHtml = renderOrdersPanelHtml(meta.orders);
   return '<div class="place-meta-panel" id="place-meta-panel">'
     + '<label class="visited-toggle"><input type="checkbox" id="modal-visited"' + (meta.visited ? ' checked' : '') + ' /> I\'ve been here</label>'
     + '<div class="rating-row"><label for="modal-rating">Rating</label>'
     + '<select id="modal-rating" aria-label="Rating 1 to 10">' + ratingOpts + '</select>'
     + '<span class="hint" style="margin:0">1–10</span></div>'
+    + '<div class="place-orders-block"><label>What you ordered</label>'
+    + '<div class="orders-list" id="modal-orders-list">' + ordersHtml + '</div>'
+    + '<button type="button" class="btn btn-secondary orders-add-btn" id="modal-add-order">Add item</button></div>'
     + '<div class="place-tags-block"><label>Tags</label><div class="place-tag-chips">' + tagChips + '</div></div>'
     + '</div>';
+}
+
+function renderOrdersPanelHtml(orders) {
+  orders = orders || [];
+  if (!orders.length) {
+    return '<p class="orders-empty">No items yet — add what you got.</p>';
+  }
+  return orders.map(function(o) {
+    var happy = '';
+    for (var i = 1; i <= 5; i++) {
+      happy += '<button type="button" class="happy-star' + (o.happiness && i <= o.happiness ? ' on' : '') +
+        '" data-order-happy="' + escapeHtml(o.id) + '" data-happy="' + i +
+        '" aria-label="' + i + ' happiness">' + (i <= (o.happiness || 0) ? '★' : '☆') + '</button>';
+    }
+    return '<div class="order-row" data-order-id="' + escapeHtml(o.id) + '">'
+      + '<input type="text" class="order-name" data-order-field="name" data-order-id="' + escapeHtml(o.id) +
+      '" value="' + escapeHtml(o.name) + '" placeholder="Item name" maxlength="80" autocomplete="off" />'
+      + '<div class="order-price-row"><span class="price-prefix" aria-hidden="true">$</span>'
+      + '<input type="number" class="order-price" data-order-field="price" data-order-id="' + escapeHtml(o.id) +
+      '" inputmode="decimal" min="0" max="9999" step="0.01" placeholder="0.00" value="' +
+      (o.price != null ? escapeHtml(String(o.price)) : '') + '" /></div>'
+      + '<div class="order-happy" role="group" aria-label="Happiness">' + happy + '</div>'
+      + '<button type="button" class="order-remove" data-order-remove="' + escapeHtml(o.id) + '">Remove</button>'
+      + '</div>';
+  }).join('');
+}
+
+function refreshOrdersPanel(name) {
+  var list = document.getElementById('modal-orders-list');
+  if (!list) return;
+  list.innerHTML = renderOrdersPanelHtml(getPlaceMeta(name).orders);
+  wireOrdersPanel(name);
+}
+
+function patchPlaceOrders(name, mutator) {
+  var meta = getPlaceMeta(name);
+  var orders = meta.orders.map(function(o) {
+    return { id: o.id, name: o.name, price: o.price, happiness: o.happiness };
+  });
+  mutator(orders);
+  var patch = { orders: orders };
+  if (orders.some(orderHasContent)) patch.visited = true;
+  setPlaceMeta(name, patch);
+  return getPlaceMeta(name).orders;
+}
+
+function wireOrdersPanel(name) {
+  var list = document.getElementById('modal-orders-list');
+  var addBtn = document.getElementById('modal-add-order');
+  if (addBtn) {
+    addBtn.onclick = function() {
+      patchPlaceOrders(name, function(orders) {
+        orders.push({ id: orderItemId(), name: '', price: null, happiness: null });
+      });
+      refreshOrdersPanel(name);
+      renderModalMeta(byName[name]);
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+      var input = list && list.querySelector('.order-row:last-child .order-name');
+      if (input) input.focus();
+    };
+  }
+  if (!list) return;
+  var timers = {};
+  function commitField(el, normalizePrice) {
+    if (!el) return;
+    var oid = el.getAttribute('data-order-id');
+    var field = el.getAttribute('data-order-field');
+    patchPlaceOrders(name, function(orders) {
+      orders.forEach(function(o) {
+        if (o.id !== oid) return;
+        if (field === 'name') o.name = String(el.value || '').trim().slice(0, 80);
+        if (field === 'price') o.price = clampOrderPrice(el.value);
+      });
+    });
+    if (normalizePrice && field === 'price') {
+      var match = getPlaceMeta(name).orders.filter(function(o) { return o.id === oid; })[0];
+      el.value = match && match.price != null ? String(match.price) : '';
+    }
+    if (field === 'name') el.value = String(el.value || '').trim().slice(0, 80);
+    renderModalMeta(byName[name]);
+    refreshFilters();
+    if (viewMode === 'list') renderListView();
+  }
+  list.querySelectorAll('.order-name, .order-price').forEach(function(el) {
+    el.oninput = function() {
+      var key = el.getAttribute('data-order-id') + ':' + el.getAttribute('data-order-field');
+      if (timers[key]) clearTimeout(timers[key]);
+      timers[key] = setTimeout(function() { commitField(el, false); }, 350);
+    };
+    el.onchange = function() {
+      var key = el.getAttribute('data-order-id') + ':' + el.getAttribute('data-order-field');
+      if (timers[key]) clearTimeout(timers[key]);
+      commitField(el, true);
+    };
+    el.onblur = function() {
+      var key = el.getAttribute('data-order-id') + ':' + el.getAttribute('data-order-field');
+      if (timers[key]) clearTimeout(timers[key]);
+      commitField(el, true);
+    };
+  });
+  list.querySelectorAll('[data-order-remove]').forEach(function(btn) {
+    btn.onclick = function() {
+      var rid = btn.getAttribute('data-order-remove');
+      patchPlaceOrders(name, function(orders) {
+        for (var i = orders.length - 1; i >= 0; i--) {
+          if (orders[i].id === rid) orders.splice(i, 1);
+        }
+      });
+      refreshOrdersPanel(name);
+      renderModalMeta(byName[name]);
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+    };
+  });
+  list.querySelectorAll('[data-order-happy]').forEach(function(btn) {
+    btn.onclick = function() {
+      var oid = btn.getAttribute('data-order-happy');
+      var n = Number(btn.getAttribute('data-happy'));
+      patchPlaceOrders(name, function(orders) {
+        orders.forEach(function(o) {
+          if (o.id !== oid) return;
+          o.happiness = o.happiness === n ? null : n;
+        });
+      });
+      refreshOrdersPanel(name);
+      renderModalMeta(byName[name]);
+      refreshFilters();
+      if (viewMode === 'list') renderListView();
+    };
+  });
 }
 
 function wirePlaceMetaPanel(name) {
@@ -849,6 +1048,7 @@ function wirePlaceMetaPanel(name) {
       if (viewMode === 'list') renderListView();
     };
   });
+  wireOrdersPanel(name);
 }
 
 function getFavorites() {
@@ -1459,6 +1659,11 @@ function formatModalMetaHtml(r) {
   }
   if (meta.visited) bits.push('Visited');
   if (meta.rating) bits.push('\u2605 ' + meta.rating + '/10');
+  var filled = (meta.orders || []).filter(orderHasContent).length;
+  if (filled) {
+    var total = ordersTotal(meta.orders);
+    bits.push(filled + ' ordered' + (total != null ? ' · ' + formatOrderPrice(total) : ''));
+  }
   return bits.join(' \u00b7 ');
 }
 
@@ -1471,6 +1676,11 @@ function formatModalMeta(r) {
   var meta = getPlaceMeta(r.name);
   if (meta.visited) parts.push('Visited');
   if (meta.rating) parts.push('\u2605 ' + meta.rating + '/10');
+  var filled = (meta.orders || []).filter(orderHasContent).length;
+  if (filled) {
+    var total = ordersTotal(meta.orders);
+    parts.push(filled + ' ordered' + (total != null ? ' · ' + formatOrderPrice(total) : ''));
+  }
   return parts.join(' \u00b7 ');
 }
 
@@ -2055,6 +2265,12 @@ function renderListView() {
     var sub = escapeHtml(r.neighborhood || 'No neighborhood');
     if (meta.visited) sub += ' · <span class="list-badge">visited</span>';
     if (meta.rating) sub += ' · <span class="list-rating">★ ' + meta.rating + '/10</span>';
+    var filledOrders = (meta.orders || []).filter(orderHasContent).length;
+    if (filledOrders) {
+      var totalSpend = ordersTotal(meta.orders);
+      sub += ' · <span class="list-badge">' + filledOrders + ' item' + (filledOrders === 1 ? '' : 's') +
+        (totalSpend != null ? ' · ' + escapeHtml(formatOrderPrice(totalSpend)) : '') + '</span>';
+    }
     if (!hasHH) sub += ' · <span class="list-tag">no HH times yet</span>';
     if (meta.tagIds.length) {
       sub += ' · ' + meta.tagIds.map(function(id) {
