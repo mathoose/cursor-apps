@@ -2599,7 +2599,11 @@ function ensureCityLeafletMap() {
   }).addTo(cityLeafletMap);
   cityMapMarkersLayer = L.layerGroup().addTo(cityLeafletMap);
   cityLeafletMap.on('zoomend', updateCityMapZoomClass);
-  cityLeafletMap.on('click', function() { closeCityMapPopup(); });
+  cityLeafletMap.on('click', function(e) {
+    var t = e.originalEvent && e.originalEvent.target;
+    if (t && t.closest && t.closest('.city-map-leaflet-pin, .city-map-popup')) return;
+    closeCityMapPopup();
+  });
   return cityLeafletMap;
 }
 
@@ -2617,10 +2621,11 @@ function renderCityMapPins() {
     var marker = L.marker([r.lat, r.lng], {
       icon: cityMapPinIcon(kind, r.name),
       keyboard: true,
-      title: r.name
+      title: r.name,
+      bubblingMouseEvents: false
     });
     marker.on('click', function(e) {
-      L.DomEvent.stopPropagation(e);
+      L.DomEvent.stop(e);
       openCityMapPopup(r.name);
     });
     cityMapMarkersLayer.addLayer(marker);

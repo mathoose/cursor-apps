@@ -1000,6 +1000,7 @@ a.quick-add-full-link { font-family: inherit; }
 .city-map-leaflet-pin {
   background: none !important;
   border: none !important;
+  pointer-events: auto !important;
 }
 .city-map-pin-wrap {
   position: relative;
