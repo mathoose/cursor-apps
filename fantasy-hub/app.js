@@ -2,7 +2,7 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "5 · Sep 14, 2026";
+  var APP_VERSION = "6 · Sep 20, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
@@ -92,6 +92,8 @@
 
   function cloneLeague(row) {
     if (!row || typeof row !== "object") return null;
+    var medianWin = null;
+    if (row.medianWin === true || row.medianWin === false) medianWin = row.medianWin;
     return {
       localId: String(row.localId || uid("lg")),
       id: String(row.id || ""),
@@ -101,10 +103,22 @@
       teamId: row.teamId == null ? null : row.teamId,
       teamName: String(row.teamName || ""),
       enabled: row.enabled !== false,
+      medianWin: medianWin,
       source: row.source === "snapshot" ? "snapshot" : "live",
       espnPayload: row.espnPayload && typeof row.espnPayload === "object" ? row.espnPayload : null,
       error: String(row.error || "")
     };
+  }
+
+  function looksLikeMedianLeague(name) {
+    return /\bbeta\b/i.test(String(name || "")) || /\bmedian\b/i.test(String(name || ""));
+  }
+
+  function leagueUsesMedian(league) {
+    if (!league) return false;
+    if (league.medianWin === true) return true;
+    if (league.medianWin === false) return false;
+    return looksLikeMedianLeague(league.name);
   }
 
   function persist() {
@@ -384,15 +398,18 @@
       (state.sleeper.leagues || []).forEach(function (l) { prev[l.id] = l; });
       state.sleeper.leagues = leagues.map(function (lg) {
         var old = prev[String(lg.league_id)] || {};
+        var name = lg.name || "Sleeper league";
+        var medianWin = old.medianWin === true || old.medianWin === false ? old.medianWin : null;
         return {
           localId: old.localId || uid("sl"),
           id: String(lg.league_id),
-          name: lg.name || "Sleeper league",
+          name: name,
           season: String(lg.season || currentSeason()),
           rosterId: old.rosterId == null ? null : old.rosterId,
           teamId: null,
           teamName: old.teamName || "",
           enabled: old.enabled !== false,
+          medianWin: medianWin,
           error: ""
         };
       });
@@ -425,6 +442,9 @@
       var userById = {};
       users.forEach(function (u) { userById[String(u.user_id)] = u; });
 
+      var rosterById = {};
+      rosters.forEach(function (r) { rosterById[Number(r.roster_id)] = r; });
+
       var myRoster = null;
       rosters.forEach(function (r) {
         var owner = String(r.owner_id || "");
@@ -444,18 +464,140 @@
       var oppRow = matchups.filter(function (m) {
         return m.matchup_id === mineRow.matchup_id && Number(m.roster_id) !== Number(myRoster.roster_id);
       })[0] || null;
-      var oppRoster = oppRow ? rosters.filter(function (r) { return Number(r.roster_id) === Number(oppRow.roster_id); })[0] : null;
+      var oppRoster = oppRow ? rosterById[Number(oppRow.roster_id)] : null;
       var oppUser = oppRoster ? userById[String(oppRoster.owner_id)] || {} : {};
+      var useMedian = leagueUsesMedian(league);
 
-      return {
+      var out = {
         platform: "sleeper",
         leagueId: league.id,
         leagueName: league.name,
         week: week,
+        medianWin: useMedian,
         mine: packSleeperSide(mineRow, myRoster, league.teamName || "You", projMap, scoring),
         opp: packSleeperSide(oppRow, oppRoster, (oppUser.metadata && oppUser.metadata.team_name) || oppUser.display_name || "Opponent", projMap, scoring)
       };
+
+      if (useMedian) {
+        out.median = buildMedianBoard(matchups, rosterById, userById, myRoster.roster_id, projMap, scoring);
+      }
+      return out;
     });
+  }
+
+  function teamLabel(roster, userById, fallback) {
+    if (!roster) return fallback || "Team";
+    var user = userById[String(roster.owner_id)] || {};
+    return (user.metadata && user.metadata.team_name) || user.display_name || fallback || "Team";
+  }
+
+  function buildMedianBoard(matchupRows, rosterById, userById, myRosterId, projMap, scoring) {
+    var teams = (matchupRows || []).map(function (row) {
+      var roster = rosterById[Number(row.roster_id)] || null;
+      var side = packSleeperSide(row, roster, teamLabel(roster, userById, "Team " + row.roster_id), projMap, scoring);
+      return {
+        rosterId: Number(row.roster_id),
+        isMine: Number(row.roster_id) === Number(myRosterId),
+        teamName: side.teamName,
+        points: Number(side.points || 0),
+        projected: side.projected,
+        starters: side.starters || []
+      };
+    });
+
+    function sortBy(metric) {
+      return teams.slice().sort(function (a, b) {
+        var av = a[metric];
+        var bv = b[metric];
+        if (av == null && bv == null) return a.teamName.localeCompare(b.teamName);
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        if (bv !== av) return bv - av;
+        if (b.points !== a.points) return b.points - a.points;
+        return a.teamName.localeCompare(b.teamName);
+      }).map(function (t, i) {
+        return Object.assign({}, t, { rank: i + 1 });
+      });
+    }
+
+    var byProjected = sortBy("projected");
+    var byPoints = sortBy("points");
+    var teamCount = byProjected.length;
+    var topSlots = Math.max(1, Math.floor(teamCount / 2));
+    var lastIn = byProjected[topSlots - 1] || null;
+    var firstOut = byProjected[topSlots] || null;
+    var medianProjected = lastIn && lastIn.projected != null ? lastIn.projected : null;
+    if (lastIn && firstOut && lastIn.projected != null && firstOut.projected != null) {
+      medianProjected = Math.round(((Number(lastIn.projected) + Number(firstOut.projected)) / 2) * 10) / 10;
+    }
+    var medianLive = null;
+    var lastInLive = byPoints[topSlots - 1] || null;
+    var firstOutLive = byPoints[topSlots] || null;
+    if (lastInLive && firstOutLive) {
+      medianLive = Math.round(((Number(lastInLive.points) + Number(firstOutLive.points)) / 2) * 10) / 10;
+    } else if (lastInLive) {
+      medianLive = Number(lastInLive.points);
+    }
+
+    var mineProj = byProjected.filter(function (t) { return t.isMine; })[0] || null;
+    var mineLive = byPoints.filter(function (t) { return t.isMine; })[0] || null;
+    var ranked = byProjected.map(function (t) {
+      return Object.assign({}, t, {
+        inTopHalf: t.rank <= topSlots,
+        onBubble: Math.abs(t.rank - topSlots) <= 2 || Math.abs(t.rank - (topSlots + 1)) <= 2
+      });
+    });
+
+    var bubbleStart = Math.max(1, topSlots - 2);
+    var bubbleEnd = Math.min(teamCount, topSlots + 3);
+    var foeTeams = ranked.filter(function (t) {
+      if (t.isMine) return false;
+      return t.rank >= bubbleStart && t.rank <= bubbleEnd;
+    });
+    if (!foeTeams.length) {
+      foeTeams = ranked.filter(function (t) { return !t.isMine && t.rank <= topSlots + 1; });
+    }
+
+    var rootAgainst = [];
+    foeTeams.forEach(function (team) {
+      (team.starters || []).forEach(function (p) {
+        if (!p) return;
+        rootAgainst.push({
+          player: p,
+          teamName: team.teamName,
+          teamRank: team.rank,
+          inTopHalf: team.inTopHalf,
+          onBubble: team.onBubble,
+          projected: p.projected,
+          points: p.points
+        });
+      });
+    });
+    rootAgainst.sort(function (a, b) {
+      var ap = a.projected;
+      var bp = b.projected;
+      if (ap == null && bp == null) return (b.points || 0) - (a.points || 0);
+      if (ap == null) return 1;
+      if (bp == null) return -1;
+      if (bp !== ap) return bp - ap;
+      return String(a.player.name || "").localeCompare(String(b.player.name || ""));
+    });
+
+    return {
+      teamCount: teamCount,
+      topSlots: topSlots,
+      medianProjected: medianProjected,
+      medianLive: medianLive,
+      cutProjected: firstOut && firstOut.projected != null ? firstOut.projected : null,
+      myProjectedRank: mineProj ? mineProj.rank : null,
+      myLiveRank: mineLive ? mineLive.rank : null,
+      myProjected: mineProj ? mineProj.projected : null,
+      myPoints: mineLive ? mineLive.points : null,
+      myInTopHalfProjected: mineProj ? mineProj.rank <= topSlots : null,
+      myInTopHalfLive: mineLive ? mineLive.rank <= topSlots : null,
+      teams: ranked,
+      rootAgainst: rootAgainst
+    };
   }
 
   function packSleeperSide(row, roster, teamName, projMap, scoring) {
@@ -937,10 +1079,97 @@
       generatedAt: new Date().toISOString(),
       errors: [],
       matchups: [
-        decorateMatchup({ platform: "sleeper", leagueId: "demo-home", leagueName: "Hometown Heroes", week: week, mine: side("Mathoose", l1Mine, l1MineBench), opp: side("Gronk's Cousin", l1Opp, l1OppBench) }),
+        decorateMatchup({
+          platform: "sleeper",
+          leagueId: "demo-beta",
+          leagueName: "Beta League",
+          week: week,
+          medianWin: true,
+          mine: side("Mathoose", l1Mine, l1MineBench),
+          opp: side("Gronk's Cousin", l1Opp, l1OppBench),
+          median: demoMedianBoard(side("Mathoose", l1Mine, l1MineBench), side("Gronk's Cousin", l1Opp, l1OppBench), [
+            side("Waiver Wire FC", l2Opp, l2OppBench),
+            side("Keep the Receipts", l3Mine, l3MineBench),
+            side("Sunday Scaries", l3Opp, l3OppBench),
+            side("Hometown Heroes", l2Mine, l2MineBench),
+            side("Red Zone Rats", [jefferson, bijan, amonra, allen, mcbride, kyren, ladd, ravens, bates]),
+            side("Stacked Deck", [chase, cmc, kelce, mahomes, achane, dk, nico, niners, aubrey])
+          ])
+        }),
         decorateMatchup({ platform: "sleeper", leagueId: "demo-work", leagueName: "Work League", week: week, mine: side("Mathoose", l2Mine, l2MineBench), opp: side("Waiver Wire FC", l2Opp, l2OppBench) }),
         decorateMatchup({ platform: "espn", leagueId: "demo-keep", leagueName: "Thursday Keepers", week: week, mine: side("Keep the Receipts", l3Mine, l3MineBench), opp: side("Sunday Scaries", l3Opp, l3OppBench) })
       ]
+    };
+  }
+
+  function demoMedianBoard(mine, opp, others) {
+    var teams = [Object.assign({}, mine, { isMine: true, rosterId: 1 })]
+      .concat([Object.assign({}, opp, { isMine: false, rosterId: 2 })])
+      .concat((others || []).map(function (t, i) {
+        return Object.assign({}, t, { isMine: false, rosterId: i + 3 });
+      }));
+    var ranked = teams.slice().sort(function (a, b) {
+      return (b.projected || 0) - (a.projected || 0);
+    }).map(function (t, i) {
+      var topSlots = Math.floor(teams.length / 2);
+      return {
+        rosterId: t.rosterId,
+        isMine: !!t.isMine,
+        teamName: t.teamName,
+        points: t.points,
+        projected: t.projected,
+        starters: t.starters || [],
+        rank: i + 1,
+        inTopHalf: i < topSlots,
+        onBubble: Math.abs((i + 1) - topSlots) <= 2 || Math.abs((i + 1) - (topSlots + 1)) <= 2
+      };
+    });
+    var topSlots = Math.floor(teams.length / 2);
+    var lastIn = ranked[topSlots - 1];
+    var firstOut = ranked[topSlots];
+    var medianProjected = lastIn && firstOut
+      ? Math.round(((lastIn.projected + firstOut.projected) / 2) * 10) / 10
+      : (lastIn ? lastIn.projected : null);
+    var byPoints = teams.slice().sort(function (a, b) { return (b.points || 0) - (a.points || 0); });
+    var medianLive = byPoints.length >= topSlots + 1
+      ? Math.round(((byPoints[topSlots - 1].points + byPoints[topSlots].points) / 2) * 10) / 10
+      : (byPoints[topSlots - 1] ? byPoints[topSlots - 1].points : null);
+    var mineRow = ranked.filter(function (t) { return t.isMine; })[0];
+    var mineLiveRank = null;
+    byPoints.forEach(function (t, i) { if (t.isMine) mineLiveRank = i + 1; });
+    var bubbleStart = Math.max(1, topSlots - 2);
+    var bubbleEnd = Math.min(ranked.length, topSlots + 3);
+    var rootAgainst = [];
+    ranked.forEach(function (team) {
+      if (team.isMine) return;
+      if (team.rank < bubbleStart || team.rank > bubbleEnd) return;
+      (team.starters || []).forEach(function (p) {
+        rootAgainst.push({
+          player: p,
+          teamName: team.teamName,
+          teamRank: team.rank,
+          inTopHalf: team.inTopHalf,
+          onBubble: team.onBubble,
+          projected: p.projected,
+          points: p.points
+        });
+      });
+    });
+    rootAgainst.sort(function (a, b) { return (b.projected || 0) - (a.projected || 0); });
+    return {
+      teamCount: ranked.length,
+      topSlots: topSlots,
+      medianProjected: medianProjected,
+      medianLive: medianLive,
+      cutProjected: firstOut ? firstOut.projected : null,
+      myProjectedRank: mineRow ? mineRow.rank : null,
+      myLiveRank: mineLiveRank,
+      myProjected: mineRow ? mineRow.projected : null,
+      myPoints: mineRow ? mineRow.points : null,
+      myInTopHalfProjected: mineRow ? mineRow.rank <= topSlots : null,
+      myInTopHalfLive: mineLiveRank != null ? mineLiveRank <= topSlots : null,
+      teams: ranked,
+      rootAgainst: rootAgainst
     };
   }
 
@@ -1128,7 +1357,7 @@
       var minePct = Math.max(6, Math.round((m.mine.points / top) * 100));
       var oppPct = Math.max(6, Math.round((m.opp.points / top) * 100));
       return (
-        '<button type="button" class="score-card" data-idx="' + idx + '">' +
+        '<button type="button" class="score-card' + (m.medianWin ? " has-median" : "") + '" data-idx="' + idx + '">' +
           '<div class="score-top">' +
             '<h3 class="league-name">' + escapeHtml(m.leagueName) + "</h3>" +
             '<span class="platform ' + m.platform + '">' + (m.platform === "espn" ? "ESPN" : "Sleeper") + "</span>" +
@@ -1151,13 +1380,65 @@
             '<div class="bar opp"><span style="width:' + oppPct + '%"></span></div>' +
           "</div>" +
           '<p class="result ' + res.cls + '">' + res.text + " · tap for lineups</p>" +
+          medianSummaryHtml(m) +
           '<div class="lineup">' +
             lineupCol(m.mine.teamName, m.mine.starters, m.mine.bench) +
             lineupCol(m.opp.teamName, m.opp.starters, m.opp.bench) +
+            medianBoardHtml(m) +
           "</div>" +
         "</button>"
       );
     }).join("");
+  }
+
+  function medianSummaryHtml(m) {
+    if (!m || !m.medianWin || !m.median) return "";
+    var med = m.median;
+    var bits = [];
+    if (med.medianProjected != null) bits.push("Proj median " + fmtPts(med.medianProjected));
+    if (med.myProjectedRank != null) {
+      bits.push("#" + med.myProjectedRank + " of " + med.teamCount + " proj");
+    }
+    var status = med.myInTopHalfProjected
+      ? "Top " + med.topSlots + " · extra win"
+      : "Outside top " + med.topSlots;
+    return (
+      '<div class="median-summary">' +
+        '<p class="median-kicker">Median · top ' + med.topSlots + " get a win</p>" +
+        '<p class="median-line">' + escapeHtml(bits.join(" · ")) + "</p>" +
+        '<p class="median-status' + (med.myInTopHalfProjected ? " in" : " out") + '">' + escapeHtml(status) + "</p>" +
+      "</div>"
+    );
+  }
+
+  function medianBoardHtml(m) {
+    if (!m || !m.medianWin || !m.median || !(m.median.teams || []).length) return "";
+    var med = m.median;
+    var rows = med.teams.map(function (t) {
+      var cls = "median-row" +
+        (t.isMine ? " mine" : "") +
+        (t.inTopHalf ? " in" : " out") +
+        (t.rank === med.topSlots ? " cut" : "");
+      return (
+        '<div class="' + cls + '">' +
+          '<span class="median-rank">' + t.rank + "</span>" +
+          '<span class="median-team">' + escapeHtml(t.teamName) + (t.isMine ? " · you" : "") + "</span>" +
+          '<span class="median-pts">' +
+            '<strong>' + fmtPts(t.points) + "</strong>" +
+            (t.projected != null ? '<span class="proj">' + fmtPts(t.projected) + "</span>" : "") +
+          "</span>" +
+        "</div>"
+      );
+    }).join("");
+    return (
+      '<div class="median-board">' +
+        "<h4>Projected standings · median</h4>" +
+        '<p class="median-note">Top ' + med.topSlots + " of " + med.teamCount +
+          (med.medianProjected != null ? " · line " + fmtPts(med.medianProjected) : "") +
+          "</p>" +
+        rows +
+      "</div>"
+    );
   }
 
   function outlookLine(side) {
@@ -1191,10 +1472,13 @@
     var happyBox = el("happyList");
     var conflictBlock = el("conflictBlock");
     var conflictList = el("conflictList");
+    var medianBlock = el("medianRootBlock");
+    var medianList = el("medianRootList");
     if (!hasAccounts() || !(snap.matchups || []).length) {
       empty.hidden = false;
       happyBox.innerHTML = "";
       conflictBlock.hidden = true;
+      if (medianBlock) medianBlock.hidden = true;
       return;
     }
     empty.hidden = true;
@@ -1211,6 +1495,60 @@
     } else {
       conflictBlock.hidden = true;
     }
+    renderMedianRoots(snap.matchups || []);
+  }
+
+  function renderMedianRoots(matchups) {
+    var medianBlock = el("medianRootBlock");
+    var medianList = el("medianRootList");
+    var medianIntro = el("medianRootIntro");
+    if (!medianBlock || !medianList) return;
+    var rows = [];
+    matchups.forEach(function (m) {
+      if (!m.medianWin || !m.median || !(m.median.rootAgainst || []).length) return;
+      (m.median.rootAgainst || []).forEach(function (item) {
+        rows.push({
+          league: m.leagueName,
+          topSlots: m.median.topSlots,
+          medianProjected: m.median.medianProjected,
+          item: item
+        });
+      });
+    });
+    if (!rows.length) {
+      medianBlock.hidden = true;
+      medianList.innerHTML = "";
+      return;
+    }
+    medianBlock.hidden = false;
+    if (medianIntro) {
+      medianIntro.textContent = "Starters on bubble teams fighting for the top-half median win. Root against big projected games that could push you out — or keep a rival in.";
+    }
+    medianList.innerHTML = rows.map(function (row, i) {
+      return medianRootCard(row, i + 1);
+    }).join("");
+  }
+
+  function medianRootCard(row, n) {
+    var p = row.item.player || {};
+    var tag = row.item.inTopHalf ? "above line" : "below line";
+    if (row.item.onBubble) tag = "bubble · " + tag;
+    return (
+      '<article class="rank-card against">' +
+        '<div class="rank-num">' + n + "</div>" +
+        "<div>" +
+          '<p class="rank-name">' + escapeHtml(p.name || "Player") + "</p>" +
+          '<p class="rank-sub">' + escapeHtml(
+            (p.pos || "") + (p.team ? " · " + p.team : "") +
+            " · #" + row.item.teamRank + " " + row.item.teamName +
+            " · " + row.league + " · " + tag
+          ) + "</p>" +
+        "</div>" +
+        '<div class="rank-pts">' + fmtPts(row.item.projected != null ? row.item.projected : row.item.points) +
+          "<span>" + (row.item.projected != null ? "proj" : "pts") + " against</span>" +
+        "</div>" +
+      "</article>"
+    );
   }
 
   function rankCard(row, n, conflict) {
@@ -1269,14 +1607,22 @@
   }
 
   function leagueRow(l, platform) {
+    var usesMedian = platform === "sleeper" && leagueUsesMedian(l);
     var sub = (l.teamName ? l.teamName + " · " : "") + (l.season || "") + (l.error ? " · " + l.error : "");
     if (platform === "espn" && l.source === "snapshot") sub += " · snapshot";
+    if (usesMedian) sub += " · median win";
+    var medianBtn = platform === "sleeper"
+      ? '<button type="button" class="tiny median-btn' + (usesMedian ? " on" : "") +
+        '" data-median="' + escapeHtml(l.localId) + '" aria-pressed="' + (usesMedian ? "true" : "false") + '">' +
+        (usesMedian ? "Median on" : "Median") + "</button>"
+      : "";
     return (
       '<div class="league-item" data-id="' + escapeHtml(l.localId) + '" data-platform="' + platform + '">' +
         '<label class="check-row" style="margin:0">' +
           '<input type="checkbox" data-toggle="' + escapeHtml(l.localId) + '" ' + (l.enabled ? "checked" : "") + " />" +
         "</label>" +
         '<div class="grow"><p class="name">' + escapeHtml(l.name) + '</p><p class="sub">' + escapeHtml(sub) + "</p></div>" +
+        medianBtn +
         '<button type="button" class="tiny" data-remove="' + escapeHtml(l.localId) + '">Remove</button>' +
       "</div>"
     );
@@ -1440,6 +1786,20 @@
   }
 
   function onLeagueListClick(e) {
+    var medianBtn = e.target.closest("[data-median]");
+    if (medianBtn) {
+      var mid = medianBtn.getAttribute("data-median");
+      var mrow = findLeague(mid);
+      if (!mrow) return;
+      var currentlyOn = leagueUsesMedian(mrow);
+      mrow.medianWin = !currentlyOn;
+      persist();
+      renderAccounts();
+      if (hasAccounts()) refreshAll();
+      else renderAll();
+      toast(mrow.medianWin ? "Median win tracking on" : "Median win tracking off");
+      return;
+    }
     var btn = e.target.closest("[data-remove]");
     if (!btn) return;
     var id = btn.getAttribute("data-remove");

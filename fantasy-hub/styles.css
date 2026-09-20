@@ -383,6 +383,110 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   color: var(--faint);
 }
 
+.median-summary {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(155, 135, 255, 0.1);
+  border: 1px solid rgba(155, 135, 255, 0.22);
+}
+.median-kicker {
+  margin: 0 0 4px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sleeper);
+}
+.median-line {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.median-status {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.median-status.in { color: var(--win); }
+.median-status.out { color: var(--loss); }
+
+.median-board {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.median-board h4 {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.median-note {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  color: var(--faint);
+}
+.median-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 0.82rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.median-row:last-child { border-bottom: 0; }
+.median-row.cut {
+  border-bottom-color: rgba(155, 135, 255, 0.45);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
+}
+.median-row.mine .median-team { color: var(--mint); font-weight: 800; }
+.median-row.out { opacity: 0.78; }
+.median-rank {
+  font-weight: 800;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.median-row.in .median-rank { color: var(--sleeper); }
+.median-pts {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.median-pts .proj {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.median-pts .proj::before { content: "proj "; }
+
+.rank-card.against .rank-num {
+  background: rgba(251, 113, 133, 0.14);
+  color: var(--loss);
+}
+
+.league-item .median-btn {
+  color: var(--muted);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px 10px;
+  min-height: 36px;
+  background: transparent;
+}
+.league-item .median-btn.on {
+  color: var(--sleeper);
+  border-color: rgba(155, 135, 255, 0.45);
+  background: rgba(155, 135, 255, 0.12);
+}
+
 .rank-card {
   display: grid;
   grid-template-columns: 36px 1fr auto;

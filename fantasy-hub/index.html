@@ -10,11 +10,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#071422" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: fh-v5-live-board -->
+  <!-- build: fh-v6-median-board -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
   <header class="app-header">
@@ -63,6 +63,14 @@
         <p>Connect a league or load the sample to see who you can root for.</p>
       </div>
       <div id="happyList" class="rank-list"></div>
+      <div id="medianRootBlock" hidden>
+        <div class="card section-head">
+          <p class="eyebrow warn">Root against</p>
+          <h3>Median bubble foes</h3>
+          <p class="muted tight" id="medianRootIntro">Starters on teams near the median cut in leagues with a top-half win.</p>
+        </div>
+        <div id="medianRootList" class="rank-list"></div>
+      </div>
       <div id="conflictBlock" hidden>
         <div class="card section-head">
           <p class="eyebrow warn">Conflicted</p>
@@ -84,6 +92,7 @@
         </div>
         <p class="status-line" id="sleeperStatus"></p>
         <div id="sleeperLeagueList" class="league-list"></div>
+        <p class="hint">Tap <strong>Median</strong> on a league when the top half of scores get an extra win (e.g. Beta). Leagues with “beta” or “median” in the name turn on automatically.</p>
       </div>
 
       <div class="card">
@@ -173,6 +182,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js?v=33" defer></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
