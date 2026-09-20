@@ -9,7 +9,7 @@
     "website": "https://www.functioncoffeelabs.com/",
     "instagramUrl": "https://www.instagram.com/functioncoffeelabs/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Sat 7:30am–4pm · Sun 7:30am–3pm",
+    "hoursNote": "Mon\u2013Sat 7:30am\u20134pm \u00b7 Sun 7:30am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -43,7 +43,7 @@
   },
   {
     "id": "elixr-center-city",
-    "name": "Elixr Coffee — Center City",
+    "name": "Elixr Coffee \u2014 Center City",
     "neighborhood": "Center City",
     "address": "207 S Sydenham St, Philadelphia, PA 19102",
     "lat": 39.949402,
@@ -51,7 +51,7 @@
     "website": "https://elixrcoffee.com/pages/about-us-and-locations",
     "instagramUrl": "https://www.instagram.com/elixrcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–7pm",
+    "hoursNote": "Daily 7am\u20137pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -85,7 +85,7 @@
   },
   {
     "id": "elixr-12th",
-    "name": "Elixr Coffee — 12th St",
+    "name": "Elixr Coffee \u2014 12th St",
     "neighborhood": "Callowhill",
     "address": "315 N 12th St, Philadelphia, PA 19107",
     "lat": 39.958274,
@@ -93,7 +93,7 @@
     "website": "https://elixrcoffee.com/pages/about-us-and-locations",
     "instagramUrl": "https://www.instagram.com/elixrcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–4pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20134pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -127,7 +127,7 @@
   },
   {
     "id": "elixr-west-philly",
-    "name": "Elixr Coffee — West Philly",
+    "name": "Elixr Coffee \u2014 West Philly",
     "neighborhood": "University City",
     "address": "3675 Market St, Philadelphia, PA 19104",
     "lat": 39.9568,
@@ -135,7 +135,7 @@
     "website": "https://elixrcoffee.com/pages/about-us-and-locations",
     "instagramUrl": "https://www.instagram.com/elixrcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 8am–5pm · Sat–Sun closed",
+    "hoursNote": "Mon\u2013Fri 8am\u20135pm \u00b7 Sat\u2013Sun closed",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -167,7 +167,7 @@
   },
   {
     "id": "elixr-16th-market",
-    "name": "Elixr Coffee — 16th & Market",
+    "name": "Elixr Coffee \u2014 16th & Market",
     "neighborhood": "Center City",
     "address": "1600 Market St, Philadelphia, PA 19103",
     "lat": 39.952627,
@@ -175,7 +175,7 @@
     "website": "https://elixrcoffee.com/pages/about-us-and-locations",
     "instagramUrl": "https://www.instagram.com/elixrcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 8am–4pm · Sat–Sun closed",
+    "hoursNote": "Mon\u2013Fri 8am\u20134pm \u00b7 Sat\u2013Sun closed",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -207,7 +207,7 @@
   },
   {
     "id": "madis-university-city",
-    "name": "Madis Coffee — University City",
+    "name": "Madis Coffee \u2014 University City",
     "neighborhood": "University City",
     "address": "3527 Lancaster Ave, Philadelphia, PA 19104",
     "lat": 39.958569,
@@ -215,7 +215,7 @@
     "website": "https://madiscoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–6pm",
+    "hoursNote": "Daily 7am\u20136pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -249,7 +249,7 @@
   },
   {
     "id": "madis-curtis",
-    "name": "Madis Coffee — The Curtis",
+    "name": "Madis Coffee \u2014 The Curtis",
     "neighborhood": "Washington Square West",
     "address": "601 Walnut St, Philadelphia, PA 19106",
     "lat": 39.948127,
@@ -257,7 +257,7 @@
     "website": "https://madiscoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–6pm · Sat–Sun 8am–6pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -291,7 +291,7 @@
   },
   {
     "id": "madis-center-city",
-    "name": "Madis Coffee — Center City",
+    "name": "Madis Coffee \u2014 Center City",
     "neighborhood": "Center City",
     "address": "1441 Chestnut St, Philadelphia, PA 19102",
     "lat": 39.951205,
@@ -299,7 +299,7 @@
     "website": "https://madiscoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 6:30am–6pm · Sat–Sun 7am–6pm",
+    "hoursNote": "Mon\u2013Fri 6:30am\u20136pm \u00b7 Sat\u2013Sun 7am\u20136pm",
     "hours": {
       "Monday": {
         "open": "6:30 AM",
@@ -341,7 +341,7 @@
     "website": "https://thepalmvintage.com/",
     "instagramUrl": "https://www.instagram.com/palmvintage_phl/",
     "hoursSource": "listing",
-    "hoursNote": "Cafe daily 7am–4pm · Sushi & bar Sun–Thu 5pm–midnight, Fri–Sat 5pm–2am",
+    "hoursNote": "Cafe daily 7am\u20134pm \u00b7 Sushi & bar Sun\u2013Thu 5pm\u2013midnight, Fri\u2013Sat 5pm\u20132am",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -397,7 +397,7 @@
     "website": "https://www.enswellphilly.com/",
     "instagramUrl": "https://www.instagram.com/enswellphilly/",
     "hoursSource": "official",
-    "hoursNote": "Cafe Mon–Fri 7am–3pm, Sat–Sun 8am–3pm · Dinner Mon–Thu 4:30–9:30pm, Fri–Sat 4:30–10pm · Bar until 10pm (Fri–Sat 10:30pm) · Sun evenings closed",
+    "hoursNote": "Cafe Mon\u2013Fri 7am\u20133pm, Sat\u2013Sun 8am\u20133pm \u00b7 Dinner Mon\u2013Thu 4:30\u20139:30pm, Fri\u2013Sat 4:30\u201310pm \u00b7 Bar until 10pm (Fri\u2013Sat 10:30pm) \u00b7 Sun evenings closed",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -451,7 +451,7 @@
     "website": "https://www.chibanos.com/",
     "instagramUrl": "https://www.instagram.com/chibanos_philly/",
     "hoursSource": "press",
-    "hoursNote": "Wed–Sun 8am–3pm · Mon–Tue closed",
+    "hoursNote": "Wed\u2013Sun 8am\u20133pm \u00b7 Mon\u2013Tue closed",
     "hours": {
       "Monday": {
         "closed": true
@@ -491,7 +491,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/lamaisonjaune.cafe/",
     "hoursSource": "press",
-    "hoursNote": "Mon–Thu 7am–4pm · Fri–Sun 7am–5pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20134pm \u00b7 Fri\u2013Sun 7am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -533,7 +533,7 @@
     "website": "https://www.bennasphere.com/",
     "instagramUrl": "https://www.instagram.com/bennascafe/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 7am–2pm · Sat–Sun 8am–2pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20132pm \u00b7 Sat\u2013Sun 8am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -567,7 +567,7 @@
   },
   {
     "id": "little-susies-old-city",
-    "name": "Little Susie's — Old City",
+    "name": "Little Susie's \u2014 Old City",
     "neighborhood": "Old City",
     "address": "140 Chestnut St, Philadelphia, PA 19106",
     "lat": 39.948268,
@@ -575,7 +575,7 @@
     "website": "https://www.littlesusies.com/",
     "instagramUrl": "https://www.instagram.com/littlesusies/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -609,7 +609,7 @@
   },
   {
     "id": "little-susies-chadwick",
-    "name": "Little Susie's — Point Breeze",
+    "name": "Little Susie's \u2014 Point Breeze",
     "neighborhood": "Point Breeze",
     "address": "1754 S Chadwick St, Philadelphia, PA 19148",
     "lat": 39.92868,
@@ -617,7 +617,7 @@
     "website": "https://www.littlesusies.com/",
     "instagramUrl": "https://www.instagram.com/littlesusies/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -651,7 +651,7 @@
   },
   {
     "id": "little-susies-front",
-    "name": "Little Susie's — Front St",
+    "name": "Little Susie's \u2014 Front St",
     "neighborhood": "Olde Kensington",
     "address": "1772 N Front St, Philadelphia, PA 19122",
     "lat": 39.977104,
@@ -659,7 +659,7 @@
     "website": "https://www.littlesusies.com/",
     "instagramUrl": "https://www.instagram.com/littlesusies/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -693,7 +693,7 @@
   },
   {
     "id": "little-susies-bella-vista",
-    "name": "Little Susie's — Bella Vista",
+    "name": "Little Susie's \u2014 Bella Vista",
     "neighborhood": "Bella Vista",
     "address": "800 S 9th St, Philadelphia, PA 19147",
     "lat": 39.939638,
@@ -701,7 +701,7 @@
     "website": "https://www.littlesusies.com/",
     "instagramUrl": "https://www.instagram.com/littlesusies/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -743,7 +743,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/dripvietcafe/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Thu 9am–5pm · Fri–Sun 9am–7pm",
+    "hoursNote": "Mon\u2013Thu 9am\u20135pm \u00b7 Fri\u2013Sun 9am\u20137pm",
     "hours": {
       "Monday": {
         "open": "9:00 AM",
@@ -785,7 +785,7 @@
     "website": "https://brownstreetcoffee.com/",
     "instagramUrl": "https://www.instagram.com/brownstreetcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–5pm",
+    "hoursNote": "Daily 7am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -827,7 +827,7 @@
     "website": "https://www.kfarcafe.com/",
     "instagramUrl": "https://www.instagram.com/kfar_philly/",
     "hoursSource": "official",
-    "hoursNote": "Daily 8am–5pm",
+    "hoursNote": "Daily 8am\u20135pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -861,7 +861,7 @@
   },
   {
     "id": "valerio-fishtown",
-    "name": "Valerio Coffee — Fishtown",
+    "name": "Valerio Coffee \u2014 Fishtown",
     "neighborhood": "Fishtown",
     "address": "2331 Frankford Ave, Philadelphia, PA 19125",
     "lat": 39.981058,
@@ -869,7 +869,7 @@
     "website": "https://valeriocoffee.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/valeriocoffee/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 8am–3:30pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 8am\u20133:30pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -911,7 +911,7 @@
     "website": "https://www.togetherphilly.com/",
     "instagramUrl": "https://www.instagram.com/togetherphilly/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Tue 7am–2pm · Wed–Sat 7am–6pm · Sun 8am–2pm",
+    "hoursNote": "Mon\u2013Tue 7am\u20132pm \u00b7 Wed\u2013Sat 7am\u20136pm \u00b7 Sun 8am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -953,7 +953,7 @@
     "website": "https://solarmythbar.com/",
     "instagramUrl": "https://www.instagram.com/solarmythbar/",
     "hoursSource": "listing",
-    "hoursNote": "Daily 8am–2am · coffee by day, wine bar at night",
+    "hoursNote": "Daily 8am\u20132am \u00b7 coffee by day, wine bar at night",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -987,7 +987,7 @@
   },
   {
     "id": "milkcrate-fishtown",
-    "name": "Milkcrate Cafe — Fishtown",
+    "name": "Milkcrate Cafe \u2014 Fishtown",
     "neighborhood": "Fishtown",
     "address": "400 E Girard Ave, Philadelphia, PA 19125",
     "lat": 39.970021,
@@ -995,7 +995,7 @@
     "website": "https://www.milkcratecafe.com/",
     "instagramUrl": "https://www.instagram.com/milkcratecafe/",
     "hoursSource": "official",
-    "hoursNote": "Daily 8am–3pm",
+    "hoursNote": "Daily 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -1029,7 +1029,7 @@
   },
   {
     "id": "milkcrate-west",
-    "name": "Milkcrate Cafe — West Philly",
+    "name": "Milkcrate Cafe \u2014 West Philly",
     "neighborhood": "University City",
     "address": "4435 Baltimore Ave, Philadelphia, PA 19104",
     "lat": 39.949366,
@@ -1037,7 +1037,7 @@
     "website": "https://www.milkcratecafe.com/",
     "instagramUrl": "https://www.instagram.com/milkcratecafe/",
     "hoursSource": "official",
-    "hoursNote": "Daily 8am–3pm",
+    "hoursNote": "Daily 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -1079,7 +1079,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/peddlercoffee/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 7am–5pm · Sat–Sun 8am–5pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20135pm \u00b7 Sat\u2013Sun 8am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1113,7 +1113,7 @@
   },
   {
     "id": "the-ground-gotham",
-    "name": "The Ground — The Gotham",
+    "name": "The Ground \u2014 The Gotham",
     "neighborhood": "Olde Kensington",
     "address": "2000 N 2nd St, Philadelphia, PA 19122",
     "lat": 39.981261,
@@ -1121,7 +1121,7 @@
     "website": "https://www.thegroundcpg.com/",
     "instagramUrl": "https://www.instagram.com/thegroundcpg/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7:30am–4pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 7:30am\u20134pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -1155,7 +1155,7 @@
   },
   {
     "id": "the-ground-rittenhouse",
-    "name": "The Ground — Rittenhouse",
+    "name": "The Ground \u2014 Rittenhouse",
     "neighborhood": "Rittenhouse",
     "address": "120 S 18th St, Philadelphia, PA 19103",
     "lat": 39.951036,
@@ -1163,7 +1163,7 @@
     "website": "https://www.thegroundcpg.com/",
     "instagramUrl": "https://www.instagram.com/thegroundcpg/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7:30am–5:30pm · Sat–Sun 8am–6pm",
+    "hoursNote": "Mon\u2013Fri 7:30am\u20135:30pm \u00b7 Sat\u2013Sun 8am\u20136pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -1205,7 +1205,7 @@
     "website": "https://www.grindcorehouse.com/",
     "instagramUrl": "https://www.instagram.com/grindcorehouse/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1247,7 +1247,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/gleanerscafe/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 7am–7pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20137pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1289,7 +1289,7 @@
     "website": "https://chapterhousecafe.wordpress.com/",
     "instagramUrl": "https://www.instagram.com/chapterhousecafe/",
     "hoursSource": "listing",
-    "hoursNote": "Daily 7am–8pm · Thu until 10pm",
+    "hoursNote": "Daily 7am\u20138pm \u00b7 Thu until 10pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1331,7 +1331,7 @@
     "website": "https://lapetitetassecafe.com/",
     "instagramUrl": "https://www.instagram.com/lapetitetassecafe/",
     "hoursSource": "listing",
-    "hoursNote": "Coffee trailer · Mon/Fri 7am–noon · Tue 7–11am · Sat–Sun 7:30am–1:30pm · Wed–Thu closed",
+    "hoursNote": "Coffee trailer \u00b7 Mon/Fri 7am\u2013noon \u00b7 Tue 7\u201311am \u00b7 Sat\u2013Sun 7:30am\u20131:30pm \u00b7 Wed\u2013Thu closed",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1371,7 +1371,7 @@
     "website": "https://vesselcoffeeco.com/",
     "instagramUrl": "https://www.instagram.com/vesselcoffeeco/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Sat 7am–3pm · Sun closed",
+    "hoursNote": "Mon\u2013Sat 7am\u20133pm \u00b7 Sun closed",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1404,7 +1404,7 @@
   },
   {
     "id": "vibrant-rittenhouse",
-    "name": "Vibrant Coffee — Rittenhouse",
+    "name": "Vibrant Coffee \u2014 Rittenhouse",
     "neighborhood": "Rittenhouse",
     "address": "222 W Rittenhouse Square, Philadelphia, PA 19103",
     "lat": 39.9492,
@@ -1412,7 +1412,7 @@
     "website": "https://www.vibrantcoffeeroasters.com/cafes",
     "instagramUrl": "https://www.instagram.com/vibrantcoffeeandbakery/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–4pm",
+    "hoursNote": "Daily 7am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1446,7 +1446,7 @@
   },
   {
     "id": "vibrant-city-hall",
-    "name": "Vibrant Coffee — City Hall",
+    "name": "Vibrant Coffee \u2014 City Hall",
     "neighborhood": "Center City",
     "address": "121 S Broad St, Philadelphia, PA 19107",
     "lat": 39.950261,
@@ -1454,7 +1454,7 @@
     "website": "https://www.vibrantcoffeeroasters.com/cafes",
     "instagramUrl": "https://www.instagram.com/vibrantcoffeeandbakery/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–4pm",
+    "hoursNote": "Daily 7am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1488,7 +1488,7 @@
   },
   {
     "id": "vibrant-lombard",
-    "name": "Vibrant Coffee — Lombard",
+    "name": "Vibrant Coffee \u2014 Lombard",
     "neighborhood": "Washington Square West",
     "address": "542 Lombard St, Philadelphia, PA 19147",
     "lat": 39.942922,
@@ -1496,7 +1496,7 @@
     "website": "https://www.vibrantcoffeeroasters.com/cafes",
     "instagramUrl": "https://www.instagram.com/vibrantcoffeeandbakery/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7:30am–3:30pm",
+    "hoursNote": "Daily 7:30am\u20133:30pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -1530,7 +1530,7 @@
   },
   {
     "id": "rival-bros-lombard",
-    "name": "Rival Bros — Lombard",
+    "name": "Rival Bros \u2014 Lombard",
     "neighborhood": "Fitler Square",
     "address": "2400 Lombard St, Philadelphia, PA 19146",
     "lat": 39.946485,
@@ -1538,7 +1538,7 @@
     "website": "https://rivalbros.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/rivalbros/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 6am–6pm · Sat–Sun 7am–6pm",
+    "hoursNote": "Mon\u2013Fri 6am\u20136pm \u00b7 Sat\u2013Sun 7am\u20136pm",
     "hours": {
       "Monday": {
         "open": "6:00 AM",
@@ -1572,7 +1572,7 @@
   },
   {
     "id": "rival-bros-tasker",
-    "name": "Rival Bros — East Passyunk",
+    "name": "Rival Bros \u2014 East Passyunk",
     "neighborhood": "East Passyunk",
     "address": "1100 Tasker St, Philadelphia, PA 19148",
     "lat": 39.929701,
@@ -1580,7 +1580,7 @@
     "website": "https://rivalbros.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/rivalbros/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 7am–6pm · Fri 7am–7pm · Sat 8am–7pm · Sun 8am–6pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20136pm \u00b7 Fri 7am\u20137pm \u00b7 Sat 8am\u20137pm \u00b7 Sun 8am\u20136pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1614,7 +1614,7 @@
   },
   {
     "id": "rival-bros-jefferson",
-    "name": "Rival Bros — Brewerytown",
+    "name": "Rival Bros \u2014 Brewerytown",
     "neighborhood": "Brewerytown",
     "address": "3145 W Jefferson St, Philadelphia, PA 19121",
     "lat": 39.979543,
@@ -1622,7 +1622,7 @@
     "website": "https://rivalbros.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/rivalbros/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–4pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1656,7 +1656,7 @@
   },
   {
     "id": "rival-bros-sansom",
-    "name": "Rival Bros — Sansom",
+    "name": "Rival Bros \u2014 Sansom",
     "neighborhood": "Center City",
     "address": "1134 Sansom St, Philadelphia, PA 19107",
     "lat": 39.949469,
@@ -1664,7 +1664,7 @@
     "website": "https://rivalbros.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/rivalbros/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 6am–6pm · Sat–Sun 8am–6pm",
+    "hoursNote": "Mon\u2013Fri 6am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
     "hours": {
       "Monday": {
         "open": "6:00 AM",
@@ -1698,7 +1698,7 @@
   },
   {
     "id": "rival-bros-2nd",
-    "name": "Rival Bros — Olde Kensington",
+    "name": "Rival Bros \u2014 Olde Kensington",
     "neighborhood": "Olde Kensington",
     "address": "1701 N 2nd St, Philadelphia, PA 19122",
     "lat": 39.976278,
@@ -1706,7 +1706,7 @@
     "website": "https://rivalbros.com/pages/cafes",
     "instagramUrl": "https://www.instagram.com/rivalbros/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–6pm · Sat–Sun 8am–6pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1748,7 +1748,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/redhookcoffee/",
     "hoursSource": "listing",
-    "hoursNote": "Sun/Mon/Wed/Fri/Sat 7:30am · closed Tue & Thu (hours vary)",
+    "hoursNote": "Sun/Mon/Wed/Fri/Sat 7:30am \u00b7 closed Tue & Thu (hours vary)",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -1788,7 +1788,7 @@
     "website": "https://www.hermanscoffee.com/",
     "instagramUrl": "https://www.instagram.com/hermanscoffee/",
     "hoursSource": "official",
-    "hoursNote": "Cafe Mon–Fri 6am–6pm, Sat–Sun 7am–6pm · After Dark Thu–Mon 6pm–11pm",
+    "hoursNote": "Cafe Mon\u2013Fri 6am\u20136pm, Sat\u2013Sun 7am\u20136pm \u00b7 After Dark Thu\u2013Mon 6pm\u201311pm",
     "hours": {
       "Monday": {
         "open": "6:00 AM",
@@ -1840,7 +1840,7 @@
     "website": "https://www.nookbakeryandcoffee.com/",
     "instagramUrl": "https://www.instagram.com/nookbakery/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Thu 7:30am–3:30pm · Fri 7:30am–3pm · Sat 8am–1pm · Sun closed",
+    "hoursNote": "Mon\u2013Thu 7:30am\u20133:30pm \u00b7 Fri 7:30am\u20133pm \u00b7 Sat 8am\u20131pm \u00b7 Sun closed",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -1873,7 +1873,7 @@
   },
   {
     "id": "forin-coral",
-    "name": "Forin — Coral St",
+    "name": "Forin \u2014 Coral St",
     "neighborhood": "Kensington",
     "address": "2041 Coral St, Philadelphia, PA 19125",
     "lat": 39.981275,
@@ -1881,7 +1881,7 @@
     "website": "https://forincafe.com/cafe/",
     "instagramUrl": "https://www.instagram.com/forincafe/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–2pm · Sat–Sun 7am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20132pm \u00b7 Sat\u2013Sun 7am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1915,7 +1915,7 @@
   },
   {
     "id": "forin-south",
-    "name": "Forin — South St",
+    "name": "Forin \u2014 South St",
     "neighborhood": "Queen Village",
     "address": "226 South St, Philadelphia, PA 19147",
     "lat": 39.941147,
@@ -1923,7 +1923,7 @@
     "website": "https://forincafe.com/226-2/",
     "instagramUrl": "https://www.instagram.com/forincafe/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -1965,7 +1965,7 @@
     "website": "https://bean2bean.com/",
     "instagramUrl": "https://www.instagram.com/bean2beancoffee/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 8am–3pm · Sat–Sun closed",
+    "hoursNote": "Mon\u2013Fri 8am\u20133pm \u00b7 Sat\u2013Sun closed",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -2005,7 +2005,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/mrrabbitcoffee/",
     "hoursSource": "listing",
-    "hoursNote": "Daily 7am–4pm",
+    "hoursNote": "Daily 7am\u20134pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2039,7 +2039,7 @@
   },
   {
     "id": "reanimator-fishtown",
-    "name": "ReAnimator — Fishtown",
+    "name": "ReAnimator \u2014 Fishtown",
     "neighborhood": "Fishtown",
     "address": "1523 E Susquehanna Ave, Philadelphia, PA 19125",
     "lat": 39.97649,
@@ -2047,7 +2047,7 @@
     "website": "https://www.reanimatorcoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2081,7 +2081,7 @@
   },
   {
     "id": "reanimator-kensington",
-    "name": "ReAnimator — South Kensington",
+    "name": "ReAnimator \u2014 South Kensington",
     "neighborhood": "South Kensington",
     "address": "310 W Master St, Philadelphia, PA 19122",
     "lat": 39.97239,
@@ -2089,7 +2089,7 @@
     "website": "https://www.reanimatorcoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2123,7 +2123,7 @@
   },
   {
     "id": "reanimator-south",
-    "name": "ReAnimator — South Philly",
+    "name": "ReAnimator \u2014 South Philly",
     "neighborhood": "South Philadelphia",
     "address": "1248 S Clarion St, Philadelphia, PA 19147",
     "lat": 39.93405,
@@ -2131,7 +2131,7 @@
     "website": "https://www.reanimatorcoffee.com/pages/locations",
     "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2173,7 +2173,7 @@
     "website": "https://www.oxcoffee.com/",
     "instagramUrl": "https://www.instagram.com/oxcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7:30am–1pm · Sat–Sun 8am–3pm",
+    "hoursNote": "Mon\u2013Fri 7:30am\u20131pm \u00b7 Sat\u2013Sun 8am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -2215,7 +2215,7 @@
     "website": "https://persimmoncoffee.com/",
     "instagramUrl": "https://www.instagram.com/persimmoncoffee/",
     "hoursSource": "official",
-    "hoursNote": "Weekdays 8am–3pm · weekends 8am–4pm",
+    "hoursNote": "Weekdays 8am\u20133pm \u00b7 weekends 8am\u20134pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -2249,7 +2249,7 @@
   },
   {
     "id": "menagerie-old-city",
-    "name": "Menagerie Coffee — Old City",
+    "name": "Menagerie Coffee \u2014 Old City",
     "neighborhood": "Old City",
     "address": "18 S 3rd St, Philadelphia, PA 19106",
     "lat": 39.949678,
@@ -2257,7 +2257,7 @@
     "website": "https://www.menageriecoffee.com/",
     "instagramUrl": "https://www.instagram.com/menageriecoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 7am–5pm · Fri 7am–6pm · Sat 8am–6pm · Sun 8am–5pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20135pm \u00b7 Fri 7am\u20136pm \u00b7 Sat 8am\u20136pm \u00b7 Sun 8am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2291,7 +2291,7 @@
   },
   {
     "id": "menagerie-nolibs",
-    "name": "Menagerie Coffee — Northern Liberties",
+    "name": "Menagerie Coffee \u2014 Northern Liberties",
     "neighborhood": "Northern Liberties",
     "address": "908 N 3rd St, Philadelphia, PA 19123",
     "lat": 39.965404,
@@ -2299,7 +2299,7 @@
     "website": "https://www.menageriecoffee.com/",
     "instagramUrl": "https://www.instagram.com/menageriecoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 7am–5pm · Fri 7am–6pm · Sat 8am–6pm · Sun 8am–5pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20135pm \u00b7 Fri 7am\u20136pm \u00b7 Sat 8am\u20136pm \u00b7 Sun 8am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2341,7 +2341,7 @@
     "website": "https://thankyoutwice.com/",
     "instagramUrl": "https://www.instagram.com/thankyou.twice/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 7:30am–2:30pm · Sat–Sun 8am–2pm",
+    "hoursNote": "Mon\u2013Fri 7:30am\u20132:30pm \u00b7 Sat\u2013Sun 8am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:30 AM",
@@ -2383,7 +2383,7 @@
     "website": "https://www.b2cafepa.com/",
     "instagramUrl": "https://www.instagram.com/b2cafe/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–7pm",
+    "hoursNote": "Daily 7am\u20137pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2425,7 +2425,7 @@
     "website": "https://www.threegracescoffee.com/",
     "instagramUrl": "https://www.instagram.com/threegracescoffee/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–5pm",
+    "hoursNote": "Daily 7am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2467,7 +2467,7 @@
     "website": "https://www.twopersonscoffee.com/",
     "instagramUrl": "https://www.instagram.com/twopersonscoffee/",
     "hoursSource": "official",
-    "hoursNote": "Daily 8am–4pm · Bok Building",
+    "hoursNote": "Daily 8am\u20134pm \u00b7 Bok Building",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -2509,7 +2509,7 @@
     "website": "https://mugcoffeeandclay.com/",
     "instagramUrl": "https://www.instagram.com/mug_coffee_and_clay/",
     "hoursSource": "listing",
-    "hoursNote": "Tue–Fri 7am–4pm · Sat–Sun 8am–4pm · Mon closed",
+    "hoursNote": "Tue\u2013Fri 7am\u20134pm \u00b7 Sat\u2013Sun 8am\u20134pm \u00b7 Mon closed",
     "hours": {
       "Monday": {
         "closed": true
@@ -2550,7 +2550,7 @@
     "website": "https://www.supremacoffeeroastery.com/",
     "instagramUrl": "https://www.instagram.com/supremacoffeeroastery/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Thu 7am–5pm · Fri–Sat 7am–7pm · Sun 7am–5pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20135pm \u00b7 Fri\u2013Sat 7am\u20137pm \u00b7 Sun 7am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2584,7 +2584,7 @@
   },
   {
     "id": "la-colombe-rittenhouse",
-    "name": "La Colombe — Rittenhouse",
+    "name": "La Colombe \u2014 Rittenhouse",
     "neighborhood": "Rittenhouse",
     "address": "130 S 19th St, Philadelphia, PA 19103",
     "lat": 39.950757,
@@ -2592,7 +2592,7 @@
     "website": "https://www.lacolombe.com/pages/cafes/rittenhouse-square",
     "instagramUrl": "https://www.instagram.com/lacolombecoffee/",
     "hoursSource": "official",
-    "hoursNote": "Daily 6am–7pm",
+    "hoursNote": "Daily 6am\u20137pm",
     "hours": {
       "Monday": {
         "open": "6:00 AM",
@@ -2634,7 +2634,7 @@
     "website": "https://oldcitycoffee.com/",
     "instagramUrl": "https://www.instagram.com/oldcitycoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 7am–4pm · Fri–Sat 7am–5pm · Sun 8am–5pm",
+    "hoursNote": "Mon\u2013Thu 7am\u20134pm \u00b7 Fri\u2013Sat 7am\u20135pm \u00b7 Sun 8am\u20135pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2668,7 +2668,7 @@
   },
   {
     "id": "cafe-tolia",
-    "name": "Café Tolia",
+    "name": "Caf\u00e9 Tolia",
     "neighborhood": "Old City",
     "address": "26 N 3rd St, Philadelphia, PA 19106",
     "lat": 39.950985,
@@ -2676,7 +2676,7 @@
     "website": "https://www.cafetolia.com/",
     "instagramUrl": "https://www.instagram.com/cafetolia/",
     "hoursSource": "official",
-    "hoursNote": "Tue–Sun 8am–4pm · Mon closed",
+    "hoursNote": "Tue\u2013Sun 8am\u20134pm \u00b7 Mon closed",
     "hours": {
       "Monday": {
         "closed": true
@@ -2709,7 +2709,7 @@
   },
   {
     "id": "cuor-di-caffe",
-    "name": "Cuor di Caffè",
+    "name": "Cuor di Caff\u00e8",
     "neighborhood": "Old City",
     "address": "100 Market St, Philadelphia, PA 19106",
     "lat": 39.949572,
@@ -2717,7 +2717,7 @@
     "website": "https://cuordicaffe.net/",
     "instagramUrl": "https://www.instagram.com/cuor.di.caffe/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 8am–6pm · Fri–Sun 8am–8pm",
+    "hoursNote": "Mon\u2013Thu 8am\u20136pm \u00b7 Fri\u2013Sun 8am\u20138pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -2751,7 +2751,7 @@
   },
   {
     "id": "schmear-passyunk",
-    "name": "Schmear — Passyunk",
+    "name": "Schmear \u2014 Passyunk",
     "neighborhood": "East Passyunk",
     "address": "1742 E Passyunk Ave, Philadelphia, PA 19148",
     "lat": 39.927902,
@@ -2759,7 +2759,7 @@
     "website": "https://schmearit.com/",
     "instagramUrl": "https://www.instagram.com/schmearit/",
     "hoursSource": "official",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2801,7 +2801,7 @@
     "website": "https://www.groundupcafeandcoffee.com/",
     "instagramUrl": "https://www.instagram.com/groundup_cafeandcoffee/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 8am–5pm · Sat 8am–3pm · Sun closed",
+    "hoursNote": "Mon\u2013Fri 8am\u20135pm \u00b7 Sat 8am\u20133pm \u00b7 Sun closed",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -2842,7 +2842,7 @@
     "website": "https://www.greenstreetcoffee.com/pages/visit-us",
     "instagramUrl": "https://www.instagram.com/greenstreetcoffeeco/",
     "hoursSource": "official",
-    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 7:30am–3pm",
+    "hoursNote": "Mon\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 7:30am\u20133pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2884,7 +2884,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/hannahkcafe/",
     "hoursSource": "listing",
-    "hoursNote": "Tue–Sun 8am–4pm · Mon closed",
+    "hoursNote": "Tue\u2013Sun 8am\u20134pm \u00b7 Mon closed",
     "hours": {
       "Monday": {
         "closed": true
@@ -2925,7 +2925,7 @@
     "website": "https://schmaltzphilly.com/",
     "instagramUrl": "https://www.instagram.com/schmaltzphilly/",
     "hoursSource": "official",
-    "hoursNote": "Fri–Mon 7am–2pm · Tue–Thu closed",
+    "hoursNote": "Fri\u2013Mon 7am\u20132pm \u00b7 Tue\u2013Thu closed",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2964,7 +2964,7 @@
     "website": "",
     "instagramUrl": "https://www.instagram.com/ringocoffeeanddonuts/",
     "hoursSource": "listing",
-    "hoursNote": "Daily 7am–2pm",
+    "hoursNote": "Daily 7am\u20132pm",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -2998,7 +2998,7 @@
   },
   {
     "id": "hive-cafe",
-    "name": "Hive Café",
+    "name": "Hive Caf\u00e9",
     "neighborhood": "Point Breeze",
     "address": "1444 S Broad St, Philadelphia, PA 19146",
     "lat": 39.932381,
@@ -3006,7 +3006,7 @@
     "website": "https://hive-cafe.square.site/",
     "instagramUrl": "https://www.instagram.com/hivecafephilly/",
     "hoursSource": "listing",
-    "hoursNote": "Mon–Fri 8am–3pm · Sat–Sun 9am–3pm",
+    "hoursNote": "Mon\u2013Fri 8am\u20133pm \u00b7 Sat\u2013Sun 9am\u20133pm",
     "hours": {
       "Monday": {
         "open": "8:00 AM",
@@ -3048,7 +3048,7 @@
     "website": "https://twoeaglescafe.wordpress.com/",
     "instagramUrl": "https://www.instagram.com/twoeaglescafe/",
     "hoursSource": "listing",
-    "hoursNote": "Tue–Fri 7am–3pm · Sat–Sun 8am–4pm · Mon closed",
+    "hoursNote": "Tue\u2013Fri 7am\u20133pm \u00b7 Sat\u2013Sun 8am\u20134pm \u00b7 Mon closed",
     "hours": {
       "Monday": {
         "closed": true
@@ -3076,6 +3076,758 @@
       "Sunday": {
         "open": "8:00 AM",
         "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "la-colombe-fishtown",
+    "name": "La Colombe \u2014 Fishtown",
+    "neighborhood": "Fishtown",
+    "address": "1335 Frankford Ave, Philadelphia, PA 19125",
+    "lat": 39.971229,
+    "lng": -75.134283,
+    "website": "https://www.lacolombe.com/pages/cafes/fishtown",
+    "instagramUrl": "https://www.instagram.com/lacolombe/",
+    "hoursSource": "official",
+    "hoursNote": "Daily 6am\u20136pm",
+    "hours": {
+      "Monday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "haraz-fishtown",
+    "name": "Haraz Coffee House \u2014 Fishtown",
+    "neighborhood": "Fishtown",
+    "address": "23 W Girard Ave #202, Philadelphia, PA 19123",
+    "lat": 39.96913,
+    "lng": -75.135565,
+    "website": "https://harazcoffeehouse.com/",
+    "instagramUrl": "https://www.instagram.com/hrzcoffeefishtown/",
+    "hoursSource": "press",
+    "hoursNote": "Sun\u2013Wed 8am\u201310pm \u00b7 Thu\u2013Sat 8am\u201312am (listings)",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "12:00 AM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      }
+    }
+  },
+  {
+    "id": "one-shot-coffee",
+    "name": "One Shot Coffee",
+    "neighborhood": "Northern Liberties",
+    "address": "217 W George St, Philadelphia, PA 19123",
+    "lat": 39.967725,
+    "lng": -75.140667,
+    "website": "https://oneshotcoffeecafe.com/",
+    "instagramUrl": "https://www.instagram.com/oneshotcoffeecafe/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7am\u20134pm \u00b7 Sat\u2013Sun 8am\u20134pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "sandpiper-cafe",
+    "name": "Sandpiper Cafe",
+    "neighborhood": "Graduate Hospital",
+    "address": "1640 South St, Philadelphia, PA 19146",
+    "lat": 39.944052,
+    "lng": -75.169449,
+    "website": "https://sandpiperphilly.com/",
+    "instagramUrl": "https://www.instagram.com/sandpiper.philly/",
+    "hoursSource": "press",
+    "hoursNote": "Daily ~7am\u20134pm (Hoodline / listings)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "ultimo-grad-hospital",
+    "name": "Ultimo Coffee \u2014 Grad Hospital",
+    "neighborhood": "Graduate Hospital",
+    "address": "2149 Catharine St, Philadelphia, PA 19146",
+    "lat": 39.942603,
+    "lng": -75.17902,
+    "website": "https://www.ultimocoffee.com/",
+    "instagramUrl": "https://www.instagram.com/ultimocoffee/",
+    "hoursSource": "google",
+    "hoursNote": "Mon\u2013Fri 7am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "jiggy-coffee",
+    "name": "Jiggy Coffee",
+    "neighborhood": "Washington Square West",
+    "address": "1000 Pine St, Philadelphia, PA 19107",
+    "lat": 39.944626,
+    "lng": -75.158356,
+    "website": "http://jiggycoffee.com/",
+    "instagramUrl": "https://www.instagram.com/jiggycoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon closed \u00b7 Tue\u2013Fri 7am\u20134pm \u00b7 Sat 8am\u20134pm \u00b7 Sun 8am\u20132pm",
+    "hours": {
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    }
+  },
+  {
+    "id": "ace-outpost",
+    "name": "Ace Outpost",
+    "neighborhood": "Queen Village",
+    "address": "749 S 4th St, Philadelphia, PA 19147",
+    "lat": 39.938902,
+    "lng": -75.149561,
+    "website": "https://aceoutpostphilly.com/",
+    "instagramUrl": "https://www.instagram.com/aceoutpostphilly/",
+    "hoursSource": "press",
+    "hoursNote": "Sun\u2013Thu 8am\u20135pm \u00b7 Fri\u2013Sat 8am\u20136pm (listings); confirm on Instagram",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "shot-tower-coffee",
+    "name": "Shot Tower Coffee",
+    "neighborhood": "Queen Village",
+    "address": "542 Christian St, Philadelphia, PA 19147",
+    "lat": 39.937595,
+    "lng": -75.153205,
+    "website": "http://www.shottowercoffee.com/",
+    "instagramUrl": "https://www.instagram.com/shottowercoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7am\u20134:30pm \u00b7 Sat\u2013Sun 8am\u20134:30pm (Instagram)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:30 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:30 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:30 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:30 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:30 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:30 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:30 PM"
+      }
+    }
+  },
+  {
+    "id": "rally-coffee",
+    "name": "Rally",
+    "neighborhood": "Bella Vista",
+    "address": "701 S 7th St, Philadelphia, PA 19147",
+    "lat": 39.941233,
+    "lng": -75.153958,
+    "website": "https://www.heyrally.com/",
+    "instagramUrl": "https://www.instagram.com/heyrally/",
+    "hoursSource": "press",
+    "hoursNote": "Daily 7:30am\u20135pm",
+    "hours": {
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "la-jefa",
+    "name": "La Jefa",
+    "neighborhood": "Rittenhouse",
+    "address": "1605 Latimer St, Philadelphia, PA 19103",
+    "lat": 39.948237,
+    "lng": -75.168075,
+    "website": "https://lajefaphilly.com/",
+    "instagramUrl": "https://www.instagram.com/lajefaphilly/",
+    "hoursSource": "official",
+    "hoursNote": "Coffee & pastry 8am\u20133pm daily \u00b7 brunch Wed\u2013Sun 10am\u20132:45pm",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "rival-bros-midtown",
+    "name": "Rival Bros \u2014 Midtown Village",
+    "neighborhood": "Midtown Village",
+    "address": "1134 Sansom St, Philadelphia, PA 19107",
+    "lat": 39.949462,
+    "lng": -75.159619,
+    "website": "https://rivalbros.com/pages/midtown-village-cafe",
+    "instagramUrl": "https://www.instagram.com/rivalbroscoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 6am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
+    "hours": {
+      "Monday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "rowhome-fitler",
+    "name": "Rowhome Coffee \u2014 Fitler Square",
+    "neighborhood": "Fitler Square",
+    "address": "2536 Pine St, Philadelphia, PA 19103",
+    "lat": 39.947619,
+    "lng": -75.182613,
+    "website": "https://www.rowhomecoffee.com/",
+    "instagramUrl": "https://www.instagram.com/rowhomecoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Pretzel breakfast sandwiches + La Colombe coffee \u2014 confirm hours on site",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "vernick-coffee-bar",
+    "name": "Vernick Coffee Bar",
+    "neighborhood": "Logan Square",
+    "address": "1800 Arch St 2nd floor, Philadelphia, PA 19103",
+    "lat": 39.954978,
+    "lng": -75.170403,
+    "website": "https://www.vernickcoffeebar.com/",
+    "instagramUrl": "https://www.instagram.com/vernickcoffeebar/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7:30am\u20134pm \u00b7 cafe lunch 11am\u20132:30pm (Instagram)",
+    "hours": {
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "closed": true
+      },
+      "Sunday": {
+        "closed": true
+      }
+    }
+  },
+  {
+    "id": "ants-pants-cafe",
+    "name": "Ants Pants Cafe",
+    "neighborhood": "Graduate Hospital",
+    "address": "2212 South St, Philadelphia, PA 19146",
+    "lat": 39.94515,
+    "lng": -75.179081,
+    "website": "https://antspantscafe.com/",
+    "instagramUrl": "https://www.instagram.com/antspantscafe/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 8:30am\u20133pm \u00b7 Sat\u2013Sun 8am\u20133pm \u00b7 Elixr coffee \u00b7 cash only",
+    "hours": {
+      "Monday": {
+        "open": "8:30 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:30 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "coffee-zeit",
+    "name": "Coffee Zeit",
+    "neighborhood": "Old City",
+    "address": "246 Race St, Philadelphia, PA 19106",
+    "lat": 39.953769,
+    "lng": -75.144493,
+    "website": "https://coffeezeit.net/",
+    "instagramUrl": "https://www.instagram.com/coffeezeitphl/",
+    "hoursSource": "google",
+    "hoursNote": "Mon closed \u00b7 Tue\u2013Sat 8am\u20134pm \u00b7 Sun 9am\u20134pm",
+    "hours": {
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "cambridge-street-coffee",
+    "name": "Cambridge Street Coffee House",
+    "neighborhood": "Fairmount",
+    "address": "1733 Ridge Ave, Philadelphia, PA 19130",
+    "lat": 39.971446,
+    "lng": -75.165697,
+    "website": "https://cambridgestcoffeehouse.com/",
+    "instagramUrl": "https://www.instagram.com/cambridgestcoffeehouse/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7am\u20136pm \u00b7 Sat\u2013Sun 8am\u20136pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "habitat-coffee",
+    "name": "Habitat Coffee",
+    "neighborhood": "Washington Square West",
+    "address": "1101 Spruce St, Philadelphia, PA 19107",
+    "lat": 39.946411,
+    "lng": -75.159578,
+    "website": "https://habitat.coffee/",
+    "instagramUrl": "https://www.instagram.com/habitatcoffeehouse/",
+    "hoursSource": "official",
+    "hoursNote": "Weekdays 6am\u20136pm \u00b7 weekends 7am\u20136pm",
+    "hours": {
+      "Monday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "6:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "good-karma-society-hill",
+    "name": "Good Karma Cafe \u2014 Society Hill",
+    "neighborhood": "Society Hill",
+    "address": "928 Pine St, Philadelphia, PA 19107",
+    "lat": 39.944556,
+    "lng": -75.157862,
+    "website": "https://www.goodkarmacafe.com/",
+    "instagramUrl": "https://www.instagram.com/goodkarmacoffee/",
+    "hoursSource": "press",
+    "hoursNote": "Neighborhood cafe \u2014 confirm same-day hours",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
       }
     }
   }
