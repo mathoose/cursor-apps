@@ -28,7 +28,8 @@
       "3d-print": { "storageKey": "3d-print-v1" },
       "draft-board": { "storageKey": "draft-board-v1" },
       "index-card-planner": { "storageKey": "index-card-planner-v1" },
-      "fantasy-hub": { "storageKey": "fantasy-hub-v1" }
+      "fantasy-hub": { "storageKey": "fantasy-hub-v1" },
+      "coffee-map": { "storageKey": "coffee-map-v1" }
     }
   },
   "apps": [
@@ -67,6 +68,12 @@
       "name": "Philly Dates",
       "subtitle": "Happy hours & menus",
       "storageKey": "philly-dates-v2"
+    },
+    {
+      "id": "coffee-map",
+      "name": "Coffee Map",
+      "subtitle": "Cafes to try & rate",
+      "storageKey": "coffee-map-v1"
     },
     {
       "id": "world-cup-2026",
