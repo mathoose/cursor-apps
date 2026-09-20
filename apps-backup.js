@@ -1389,7 +1389,11 @@
         try {
           var p = JSON.parse(raw);
           if (!p || !Array.isArray(p.places)) return null;
-          return { version: p.version || 1, places: p.places };
+          return {
+            version: p.version || 1,
+            places: p.places,
+            hiddenSeedIds: Array.isArray(p.hiddenSeedIds) ? p.hiddenSeedIds : [],
+          };
         } catch (e) {
           return null;
         }
@@ -1398,7 +1402,11 @@
         if (!slice || !Array.isArray(slice.places)) return false;
         return writeKey(
           "coffee-map-v1",
-          JSON.stringify({ version: slice.version || 1, places: slice.places })
+          JSON.stringify({
+            version: slice.version || 1,
+            places: slice.places,
+            hiddenSeedIds: Array.isArray(slice.hiddenSeedIds) ? slice.hiddenSeedIds : [],
+          })
         );
       },
       isLegacy: function (obj) {
@@ -1414,21 +1422,24 @@
         var out = {
           version: 1,
           places: (existing.places || []).slice(),
+          hiddenSeedIds: (existing.hiddenSeedIds || []).slice(),
         };
         var ids = {};
-        var ig = {};
         out.places.forEach(function (p) {
           if (p && p.id) ids[p.id] = true;
-          if (p && p.instagramUrl) ig[String(p.instagramUrl).toLowerCase()] = true;
         });
         (incoming.places || []).forEach(function (p) {
           if (!p || !p.id || !p.name) return;
           if (ids[p.id]) return;
-          var key = p.instagramUrl ? String(p.instagramUrl).toLowerCase() : "";
-          if (key && ig[key]) return;
           out.places.push(p);
           ids[p.id] = true;
-          if (key) ig[key] = true;
+        });
+        var hidden = {};
+        out.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+        (incoming.hiddenSeedIds || []).forEach(function (id) {
+          if (!id || hidden[id]) return;
+          out.hiddenSeedIds.push(id);
+          hidden[id] = true;
         });
         return out;
       },

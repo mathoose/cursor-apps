@@ -20,12 +20,16 @@
     sort: 'name'
   };
 
+  var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var seedPlaces = [];
+  var seedLoaded = false;
+
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   }
 
   function defaultData() {
-    return { version: 1, places: [] };
+    return { version: 1, places: [], hiddenSeedIds: [] };
   }
 
   function clampRating(n) {
@@ -34,6 +38,33 @@
     if (!n || n < 1) return null;
     if (n > 5) return 5;
     return Math.round(n);
+  }
+
+  function normalizeHours(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    var out = {};
+    var i;
+    var any = false;
+    for (i = 0; i < DAY_NAMES.length; i++) {
+      var day = DAY_NAMES[i];
+      var slot = raw[day];
+      if (!slot || typeof slot !== 'object') continue;
+      any = true;
+      if (slot.closed) {
+        out[day] = { closed: true };
+        continue;
+      }
+      var row = {
+        open: String(slot.open || '').trim(),
+        close: String(slot.close || '').trim()
+      };
+      if (slot.open2 && slot.close2) {
+        row.open2 = String(slot.open2).trim();
+        row.close2 = String(slot.close2).trim();
+      }
+      if (row.open && row.close) out[day] = row;
+    }
+    return any ? out : null;
   }
 
   function normalizePlace(raw) {
@@ -49,7 +80,13 @@
       lat: lat,
       lng: lng,
       address: String(raw.address || '').trim(),
+      neighborhood: String(raw.neighborhood || '').trim(),
+      website: String(raw.website || '').trim(),
       instagramUrl: String(raw.instagramUrl || '').trim(),
+      hours: normalizeHours(raw.hours),
+      hoursNote: String(raw.hoursNote || '').trim(),
+      hoursSource: String(raw.hoursSource || '').trim(),
+      seeded: !!raw.seeded,
       status: status,
       rating: clampRating(raw.rating),
       notes: String(raw.notes || '').trim(),
@@ -61,9 +98,11 @@
   function normalizeData(raw) {
     var data = raw && typeof raw === 'object' ? raw : defaultData();
     var places = Array.isArray(data.places) ? data.places : [];
+    var hidden = Array.isArray(data.hiddenSeedIds) ? data.hiddenSeedIds : [];
     return {
       version: 1,
-      places: places.map(normalizePlace).filter(Boolean)
+      places: places.map(normalizePlace).filter(Boolean),
+      hiddenSeedIds: hidden.map(function (id) { return String(id); }).filter(Boolean)
     };
   }
 
@@ -84,24 +123,137 @@
   function mergePlaces(existing, incoming) {
     if (!incoming) return existing || defaultData();
     if (!existing) return normalizeData(incoming);
-    var out = { version: 1, places: (existing.places || []).slice() };
+    var out = normalizeData(existing);
     var ids = {};
-    var ig = {};
     out.places.forEach(function (p) {
       ids[p.id] = true;
-      if (p.instagramUrl) ig[normIgKey(p.instagramUrl)] = true;
     });
     (incoming.places || []).forEach(function (raw) {
       var p = normalizePlace(raw);
       if (!p) return;
       if (ids[p.id]) return;
-      var key = p.instagramUrl ? normIgKey(p.instagramUrl) : '';
-      if (key && ig[key]) return;
       out.places.push(p);
       ids[p.id] = true;
-      if (key) ig[key] = true;
+    });
+    var hidden = {};
+    out.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+    (incoming.hiddenSeedIds || []).forEach(function (id) {
+      if (id && !hidden[id]) {
+        out.hiddenSeedIds.push(String(id));
+        hidden[id] = true;
+      }
     });
     return out;
+  }
+
+  function nameKey(s) {
+    return String(s || '')
+      .toLowerCase()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9]+/g, '')
+      .replace(/(coffee|cafe|cafes|roasters|roastery|labs|lab)/g, '');
+  }
+
+  function namesFuzzy(a, b) {
+    var x = nameKey(a);
+    var y = nameKey(b);
+    if (!x || !y) return false;
+    return x === y || x.indexOf(y) !== -1 || y.indexOf(x) !== -1;
+  }
+
+  function isNear(a, b) {
+    if (!a || !b) return false;
+    var dlat = a.lat - b.lat;
+    var dlng = a.lng - b.lng;
+    return (dlat * dlat + dlng * dlng) < 0.00000064;
+  }
+
+  function applySeedCatalog(dest, seed) {
+    dest.name = seed.name;
+    dest.lat = seed.lat;
+    dest.lng = seed.lng;
+    dest.address = seed.address || dest.address;
+    dest.neighborhood = seed.neighborhood || dest.neighborhood;
+    dest.website = seed.website || '';
+    dest.instagramUrl = seed.instagramUrl || dest.instagramUrl || '';
+    dest.hours = seed.hours;
+    dest.hoursNote = seed.hoursNote || '';
+    dest.hoursSource = seed.hoursSource || '';
+    dest.seeded = true;
+    dest.id = seed.id;
+  }
+
+  function mergeSeedIntoData(data, seeds) {
+    data = normalizeData(data);
+    var hidden = {};
+    data.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+    var byId = {};
+    data.places.forEach(function (p) { byId[p.id] = p; });
+    seeds.forEach(function (raw) {
+      var seed = normalizePlace(Object.assign({}, raw, { seeded: true, status: 'want' }));
+      if (!seed || hidden[seed.id]) return;
+      var existing = byId[seed.id];
+      if (!existing) {
+        existing = data.places.filter(function (p) {
+          return isNear(p, seed) && namesFuzzy(p.name, seed.name);
+        })[0];
+      }
+      if (existing) {
+        var oldId = existing.id;
+        applySeedCatalog(existing, seed);
+        if (oldId !== seed.id) {
+          delete byId[oldId];
+          byId[seed.id] = existing;
+        }
+      } else {
+        data.places.push(seed);
+        byId[seed.id] = seed;
+      }
+    });
+    return data;
+  }
+
+  function parseClock(s) {
+    var m = String(s || '').trim().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/i);
+    if (!m) return null;
+    var h = Number(m[1]);
+    var min = Number(m[2] || 0);
+    var ap = m[3].toUpperCase();
+    if (h === 12) h = 0;
+    if (ap === 'PM') h += 12;
+    return h * 60 + min;
+  }
+
+  function inSlot(mins, open, close) {
+    var o = parseClock(open);
+    var c = parseClock(close);
+    if (o == null || c == null) return false;
+    if (c <= o) return mins >= o || mins < c;
+    return mins >= o && mins < c;
+  }
+
+  function isOpenNow(place, date) {
+    if (!place || !place.hours) return null;
+    date = date || new Date();
+    var slot = place.hours[DAY_NAMES[date.getDay()]];
+    if (!slot || slot.closed) return false;
+    var mins = date.getHours() * 60 + date.getMinutes();
+    if (slot.open && inSlot(mins, slot.open, slot.close)) return true;
+    if (slot.open2 && inSlot(mins, slot.open2, slot.close2)) return true;
+    return false;
+  }
+
+  function loadSeed() {
+    return fetch('places.json?v=2')
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .catch(function () { return []; })
+      .then(function (list) {
+        seedPlaces = Array.isArray(list) ? list : [];
+        seedLoaded = true;
+        if (!seedPlaces.length) return;
+        var merged = mergeSeedIntoData(loadData(), seedPlaces);
+        saveData(merged);
+      });
   }
 
   function escapeHtml(s) {
@@ -384,11 +536,19 @@
     }
     if (empty) empty.hidden = true;
     list.innerHTML = places.map(function (p) {
+      var open = isOpenNow(p);
+      var metaBits = [];
+      if (p.neighborhood) metaBits.push(p.neighborhood);
+      if (p.hoursNote) metaBits.push(p.hoursNote.split(' · ')[0]);
+      else if (p.address) metaBits.push(p.address);
+      var openHtml = open == null ? '' : (
+        '<span class="' + (open ? 'open-pill' : 'closed-pill') + '">' + (open ? 'Open' : 'Closed') + '</span> '
+      );
       return '<button type="button" class="place-card ' + (p.status === 'been' ? 'been' : '') + '" data-id="' +
         escapeHtml(p.id) + '"><div class="name"><span class="name-text">' + escapeHtml(p.name) + '</span>' +
         (p.status === 'been' ? '<span class="been-pill">Been</span>' : '') +
         '</div>' +
-        (p.address ? '<div class="meta">' + escapeHtml(p.address) + '</div>' : '') +
+        (metaBits.length || openHtml ? '<div class="meta">' + openHtml + escapeHtml(metaBits.join(' · ')) + '</div>' : '') +
         (p.rating ? '<div class="stars-inline">' + starText(p.rating) + '</div>' : '') +
         '</button>';
     }).join('');
@@ -655,7 +815,19 @@
     document.body.classList.add('sheet-open');
     document.getElementById('detailOverlay').hidden = false;
     document.getElementById('detailName').textContent = p.name;
-    document.getElementById('detailAddress').textContent = p.address || '';
+    var addrBits = [];
+    if (p.address) addrBits.push(p.address);
+    else if (p.neighborhood) addrBits.push(p.neighborhood);
+    document.getElementById('detailAddress').textContent = addrBits.join(' · ');
+    var hoursEl = document.getElementById('detailHours');
+    if (hoursEl) {
+      var open = isOpenNow(p);
+      var pill = open == null ? '' : (
+        '<span class="' + (open ? 'open-pill' : 'closed-pill') + '">' + (open ? 'Open now' : 'Closed') + '</span>'
+      );
+      hoursEl.innerHTML = pill + escapeHtml(p.hoursNote || '');
+      hoursEl.hidden = !p.hoursNote && open == null;
+    }
     document.getElementById('statusWant').classList.toggle('on-want', p.status !== 'been');
     document.getElementById('statusBeen').classList.toggle('on-been', p.status === 'been');
     document.getElementById('notesInput').value = p.notes || '';
@@ -667,6 +839,23 @@
     } else {
       ig.hidden = true;
       ig.removeAttribute('href');
+    }
+    var site = document.getElementById('openSiteBtn');
+    if (site) {
+      if (p.website) {
+        site.hidden = false;
+        site.href = p.website;
+      } else {
+        site.hidden = true;
+        site.removeAttribute('href');
+      }
+    }
+    var maps = document.getElementById('openMapsBtn');
+    if (maps) {
+      maps.hidden = false;
+      maps.href = 'https://maps.google.com/?q=' + encodeURIComponent(
+        (p.address ? p.address : p.name + ' Philadelphia') + ' @' + p.lat + ',' + p.lng
+      );
     }
     if (map && ui.view === 'map') {
       map.setView([p.lat, p.lng], Math.max(map.getZoom(), 15));
@@ -802,10 +991,13 @@
     });
 
     var data = loadData();
-    if (data.places.length) {
-      var b = L.latLngBounds(data.places.map(function (p) { return [p.lat, p.lng]; }));
-      map.fitBounds(b, { maxZoom: 14, padding: [60, 60] });
-    }
+    if (data.places.length) fitMapToPlaces(data);
+  }
+
+  function fitMapToPlaces(data) {
+    if (!map || !data || !data.places.length) return;
+    var b = L.latLngBounds(data.places.map(function (p) { return [p.lat, p.lng]; }));
+    map.fitBounds(b, { maxZoom: 14, padding: [60, 60] });
   }
 
   function bind() {
@@ -899,13 +1091,17 @@
     });
     document.getElementById('deletePlaceBtn').addEventListener('click', function () {
       if (!activePlaceId) return;
-      if (!window.confirm('Delete this cafe?')) return;
+      if (!window.confirm('Remove this cafe from your map?')) return;
       var data = loadData();
+      var gone = data.places.filter(function (p) { return p.id === activePlaceId; })[0];
       data.places = data.places.filter(function (p) { return p.id !== activePlaceId; });
+      if (gone && gone.seeded && data.hiddenSeedIds.indexOf(gone.id) === -1) {
+        data.hiddenSeedIds.push(gone.id);
+      }
       saveData(data);
       closeDetail();
       render();
-      toast('Deleted');
+      toast('Removed');
     });
 
     document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
@@ -932,7 +1128,11 @@
     bind();
     initMap();
     render();
-    consumeAddQuery();
+    loadSeed().then(function () {
+      render();
+      fitMapToPlaces(loadData());
+      consumeAddQuery();
+    });
   }
 
   if (document.readyState === 'loading') {

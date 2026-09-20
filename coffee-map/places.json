@@ -1,0 +1,296 @@
+[
+  {
+    "id": "function-coffee-labs",
+    "name": "Function Coffee Labs",
+    "neighborhood": "Bella Vista",
+    "address": "1001 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.937869,
+    "lng": -75.159555,
+    "website": "https://www.functioncoffeelabs.com/",
+    "instagramUrl": "https://www.instagram.com/functioncoffeelabs/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Sat 7:30am–4pm · Sun 7:30am–3pm",
+    "hours": {
+      "Monday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Tuesday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Wednesday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Thursday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Friday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Saturday": { "open": "7:30 AM", "close": "4:00 PM" },
+      "Sunday": { "open": "7:30 AM", "close": "3:00 PM" }
+    }
+  },
+  {
+    "id": "elixr-center-city",
+    "name": "Elixr Coffee — Center City",
+    "neighborhood": "Center City",
+    "address": "207 S Sydenham St, Philadelphia, PA 19102",
+    "lat": 39.949402,
+    "lng": -75.166715,
+    "website": "https://elixrcoffee.com/pages/about-us-and-locations",
+    "instagramUrl": "https://www.instagram.com/elixrcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7am–7pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Saturday": { "open": "7:00 AM", "close": "7:00 PM" },
+      "Sunday": { "open": "7:00 AM", "close": "7:00 PM" }
+    }
+  },
+  {
+    "id": "elixr-12th",
+    "name": "Elixr Coffee — 12th St",
+    "neighborhood": "Callowhill",
+    "address": "315 N 12th St, Philadelphia, PA 19107",
+    "lat": 39.958274,
+    "lng": -75.158361,
+    "website": "https://elixrcoffee.com/pages/about-us-and-locations",
+    "instagramUrl": "https://www.instagram.com/elixrcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–4pm · Sat–Sun 8am–4pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "4:00 PM" }
+    }
+  },
+  {
+    "id": "elixr-west-philly",
+    "name": "Elixr Coffee — West Philly",
+    "neighborhood": "University City",
+    "address": "3675 Market St, Philadelphia, PA 19104",
+    "lat": 39.956800,
+    "lng": -75.195169,
+    "website": "https://elixrcoffee.com/pages/about-us-and-locations",
+    "instagramUrl": "https://www.instagram.com/elixrcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 8am–5pm · Sat–Sun closed",
+    "hours": {
+      "Monday": { "open": "8:00 AM", "close": "5:00 PM" },
+      "Tuesday": { "open": "8:00 AM", "close": "5:00 PM" },
+      "Wednesday": { "open": "8:00 AM", "close": "5:00 PM" },
+      "Thursday": { "open": "8:00 AM", "close": "5:00 PM" },
+      "Friday": { "open": "8:00 AM", "close": "5:00 PM" },
+      "Saturday": { "closed": true },
+      "Sunday": { "closed": true }
+    }
+  },
+  {
+    "id": "elixr-16th-market",
+    "name": "Elixr Coffee — 16th & Market",
+    "neighborhood": "Center City",
+    "address": "1600 Market St, Philadelphia, PA 19103",
+    "lat": 39.952627,
+    "lng": -75.167071,
+    "website": "https://elixrcoffee.com/pages/about-us-and-locations",
+    "instagramUrl": "https://www.instagram.com/elixrcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 8am–4pm · Sat–Sun closed",
+    "hours": {
+      "Monday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Tuesday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Wednesday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Thursday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Friday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Saturday": { "closed": true },
+      "Sunday": { "closed": true }
+    }
+  },
+  {
+    "id": "madis-university-city",
+    "name": "Madis Coffee — University City",
+    "neighborhood": "University City",
+    "address": "3527 Lancaster Ave, Philadelphia, PA 19104",
+    "lat": 39.958569,
+    "lng": -75.193222,
+    "website": "https://madiscoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7am–6pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Saturday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Sunday": { "open": "7:00 AM", "close": "6:00 PM" }
+    }
+  },
+  {
+    "id": "madis-curtis",
+    "name": "Madis Coffee — The Curtis",
+    "neighborhood": "Washington Square West",
+    "address": "601 Walnut St, Philadelphia, PA 19106",
+    "lat": 39.948127,
+    "lng": -75.151844,
+    "website": "https://madiscoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–6pm · Sat–Sun 8am–6pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "6:00 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "6:00 PM" }
+    }
+  },
+  {
+    "id": "madis-center-city",
+    "name": "Madis Coffee — Center City",
+    "neighborhood": "Center City",
+    "address": "1441 Chestnut St, Philadelphia, PA 19102",
+    "lat": 39.951205,
+    "lng": -75.165008,
+    "website": "https://madiscoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/madiscoffee_roasters/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 6:30am–6pm · Sat–Sun 7am–6pm",
+    "hours": {
+      "Monday": { "open": "6:30 AM", "close": "6:00 PM" },
+      "Tuesday": { "open": "6:30 AM", "close": "6:00 PM" },
+      "Wednesday": { "open": "6:30 AM", "close": "6:00 PM" },
+      "Thursday": { "open": "6:30 AM", "close": "6:00 PM" },
+      "Friday": { "open": "6:30 AM", "close": "6:00 PM" },
+      "Saturday": { "open": "7:00 AM", "close": "6:00 PM" },
+      "Sunday": { "open": "7:00 AM", "close": "6:00 PM" }
+    }
+  },
+  {
+    "id": "palm-vintage",
+    "name": "Palm Vintage",
+    "neighborhood": "Center City",
+    "address": "1414 S Penn Square, Philadelphia, PA 19102",
+    "lat": 39.951667,
+    "lng": -75.16518,
+    "website": "https://thepalmvintage.com/",
+    "instagramUrl": "https://www.instagram.com/palmvintage_phl/",
+    "hoursSource": "listing",
+    "hoursNote": "Cafe daily 7am–4pm · Sushi & bar Sun–Thu 5pm–midnight, Fri–Sat 5pm–2am",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "12:00 AM" },
+      "Tuesday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "12:00 AM" },
+      "Wednesday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "12:00 AM" },
+      "Thursday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "12:00 AM" },
+      "Friday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "2:00 AM" },
+      "Saturday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "2:00 AM" },
+      "Sunday": { "open": "7:00 AM", "close": "4:00 PM", "open2": "5:00 PM", "close2": "12:00 AM" }
+    }
+  },
+  {
+    "id": "enswell",
+    "name": "Enswell",
+    "neighborhood": "Rittenhouse",
+    "address": "1528 Spruce St, Philadelphia, PA 19102",
+    "lat": 39.947250,
+    "lng": -75.167748,
+    "website": "https://www.enswellphilly.com/",
+    "instagramUrl": "https://www.instagram.com/enswellphilly/",
+    "hoursSource": "official",
+    "hoursNote": "Cafe Mon–Fri 7am–3pm, Sat–Sun 8am–3pm · Dinner Mon–Thu 4:30–9:30pm, Fri–Sat 4:30–10pm · Bar until 10pm (Fri–Sat 10:30pm) · Sun evenings closed",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:30 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "3:00 PM", "open2": "4:30 PM", "close2": "10:30 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "3:00 PM" }
+    }
+  },
+  {
+    "id": "chibanos",
+    "name": "Chibanos",
+    "neighborhood": "Washington Square West",
+    "address": "1127 Pine St, Philadelphia, PA 19107",
+    "lat": 39.945146,
+    "lng": -75.160618,
+    "website": "https://www.chibanos.com/",
+    "instagramUrl": "https://www.instagram.com/chibanos_philly/",
+    "hoursSource": "press",
+    "hoursNote": "Wed–Sun 8am–3pm · Mon–Tue closed",
+    "hours": {
+      "Monday": { "closed": true },
+      "Tuesday": { "closed": true },
+      "Wednesday": { "open": "8:00 AM", "close": "3:00 PM" },
+      "Thursday": { "open": "8:00 AM", "close": "3:00 PM" },
+      "Friday": { "open": "8:00 AM", "close": "3:00 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "3:00 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "3:00 PM" }
+    }
+  },
+  {
+    "id": "la-maison-jaune",
+    "name": "La Maison Jaune",
+    "neighborhood": "Fitler Square",
+    "address": "244 S 22nd St, Philadelphia, PA 19103",
+    "lat": 39.949183,
+    "lng": -75.177929,
+    "website": "",
+    "instagramUrl": "https://www.instagram.com/lamaisonjaune.cafe/",
+    "hoursSource": "press",
+    "hoursNote": "Mon–Thu 7am–4pm · Fri–Sun 7am–5pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "4:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "5:00 PM" },
+      "Saturday": { "open": "7:00 AM", "close": "5:00 PM" },
+      "Sunday": { "open": "7:00 AM", "close": "5:00 PM" }
+    }
+  },
+  {
+    "id": "bennas-cafe",
+    "name": "Benna's Cafe",
+    "neighborhood": "Passyunk Square",
+    "address": "1236 S 8th St, Philadelphia, PA 19147",
+    "lat": 39.932965,
+    "lng": -75.157769,
+    "website": "https://www.bennasphere.com/",
+    "instagramUrl": "https://www.instagram.com/bennascafe/",
+    "hoursSource": "listing",
+    "hoursNote": "Mon–Fri 7am–2pm · Sat–Sun 8am–2pm",
+    "hours": {
+      "Monday": { "open": "7:00 AM", "close": "2:00 PM" },
+      "Tuesday": { "open": "7:00 AM", "close": "2:00 PM" },
+      "Wednesday": { "open": "7:00 AM", "close": "2:00 PM" },
+      "Thursday": { "open": "7:00 AM", "close": "2:00 PM" },
+      "Friday": { "open": "7:00 AM", "close": "2:00 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "2:00 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "2:00 PM" }
+    }
+  },
+  {
+    "id": "caphe-roasters",
+    "name": "Càphê Roasters",
+    "neighborhood": "Kensington",
+    "address": "3400 J St G1, Philadelphia, PA 19134",
+    "lat": 39.999190,
+    "lng": -75.108836,
+    "website": "https://www.capheroasters.com/",
+    "instagramUrl": "https://www.instagram.com/capheroasters/",
+    "hoursSource": "official",
+    "hoursNote": "Wed–Mon 8am–4pm · Tue closed",
+    "hours": {
+      "Monday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Tuesday": { "closed": true },
+      "Wednesday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Thursday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Friday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Saturday": { "open": "8:00 AM", "close": "4:00 PM" },
+      "Sunday": { "open": "8:00 AM", "close": "4:00 PM" }
+    }
+  }
+]
