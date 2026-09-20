@@ -385,7 +385,9 @@
     if (empty) empty.hidden = true;
     list.innerHTML = places.map(function (p) {
       return '<button type="button" class="place-card ' + (p.status === 'been' ? 'been' : '') + '" data-id="' +
-        escapeHtml(p.id) + '"><div class="name">' + escapeHtml(p.name) + '</div>' +
+        escapeHtml(p.id) + '"><div class="name"><span class="name-text">' + escapeHtml(p.name) + '</span>' +
+        (p.status === 'been' ? '<span class="been-pill">Been</span>' : '') +
+        '</div>' +
         (p.address ? '<div class="meta">' + escapeHtml(p.address) + '</div>' : '') +
         (p.rating ? '<div class="stars-inline">' + starText(p.rating) + '</div>' : '') +
         '</button>';
@@ -659,7 +661,7 @@
     document.getElementById('notesInput').value = p.notes || '';
     renderStars(p.rating);
     var ig = document.getElementById('openIgBtn');
-    if (p.instagramUrl) {
+    if (p.instagramUrl && isInstagramUrl(p.instagramUrl)) {
       ig.hidden = false;
       ig.href = p.instagramUrl;
     } else {
