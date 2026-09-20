@@ -244,7 +244,7 @@
   }
 
   function loadSeed() {
-    return fetch('places.json?v=2')
+    return fetch('places.json?v=3')
       .then(function (r) { return r.ok ? r.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
