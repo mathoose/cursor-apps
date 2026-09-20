@@ -2748,5 +2748,335 @@
         "close": "8:00 PM"
       }
     }
+  },
+  {
+    "id": "schmear-passyunk",
+    "name": "Schmear — Passyunk",
+    "neighborhood": "East Passyunk",
+    "address": "1742 E Passyunk Ave, Philadelphia, PA 19148",
+    "lat": 39.927902,
+    "lng": -75.166015,
+    "website": "https://schmearit.com/",
+    "instagramUrl": "https://www.instagram.com/schmearit/",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7am–2pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      }
+    }
+  },
+  {
+    "id": "ground-up-cafe",
+    "name": "Ground Up Cafe & Coffee",
+    "neighborhood": "East Passyunk",
+    "address": "1926 E Passyunk Ave, Philadelphia, PA 19148",
+    "lat": 39.926068,
+    "lng": -75.168172,
+    "website": "https://www.groundupcafeandcoffee.com/",
+    "instagramUrl": "https://www.instagram.com/groundup_cafeandcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 8am–5pm · Sat 8am–3pm · Sun closed",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "closed": true
+      }
+    }
+  },
+  {
+    "id": "greenstreet-coffee",
+    "name": "Greenstreet Coffee",
+    "neighborhood": "Point Breeze",
+    "address": "1207 S 15th St, Philadelphia, PA 19146",
+    "lat": 39.935452,
+    "lng": -75.168619,
+    "website": "https://www.greenstreetcoffee.com/pages/visit-us",
+    "instagramUrl": "https://www.instagram.com/greenstreetcoffeeco/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 7:30am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "hannah-k-cafe",
+    "name": "Hannah K Cafe",
+    "neighborhood": "Point Breeze",
+    "address": "1200 Point Breeze Ave, Philadelphia, PA 19146",
+    "lat": 39.937252,
+    "lng": -75.177112,
+    "website": "",
+    "instagramUrl": "https://www.instagram.com/hannahkcafe/",
+    "hoursSource": "listing",
+    "hoursNote": "Tue–Sun 8am–4pm · Mon closed",
+    "hours": {
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "schmaltz",
+    "name": "Schmaltz",
+    "neighborhood": "Point Breeze",
+    "address": "1300 S 18th St, Philadelphia, PA 19146",
+    "lat": 39.934933,
+    "lng": -75.174044,
+    "website": "https://schmaltzphilly.com/",
+    "instagramUrl": "https://www.instagram.com/schmaltzphilly/",
+    "hoursSource": "official",
+    "hoursNote": "Fri–Mon 7am–2pm · Tue–Thu closed",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "closed": true
+      },
+      "Thursday": {
+        "closed": true
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      }
+    }
+  },
+  {
+    "id": "ringo-coffee-donuts",
+    "name": "Ringo Coffee & Donuts",
+    "neighborhood": "Point Breeze",
+    "address": "2001 Federal St, Philadelphia, PA 19146",
+    "lat": 39.937442,
+    "lng": -75.176787,
+    "website": "",
+    "instagramUrl": "https://www.instagram.com/ringocoffeeanddonuts/",
+    "hoursSource": "listing",
+    "hoursNote": "Daily 7am–2pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      }
+    }
+  },
+  {
+    "id": "hive-cafe",
+    "name": "Hive Café",
+    "neighborhood": "Point Breeze",
+    "address": "1444 S Broad St, Philadelphia, PA 19146",
+    "lat": 39.932381,
+    "lng": -75.168109,
+    "website": "https://hive-cafe.square.site/",
+    "instagramUrl": "https://www.instagram.com/hivecafephilly/",
+    "hoursSource": "listing",
+    "hoursNote": "Mon–Fri 8am–3pm · Sat–Sun 9am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "two-eagles-cafe",
+    "name": "Two Eagles Cafe",
+    "neighborhood": "Point Breeze",
+    "address": "1401 S 20th St, Philadelphia, PA 19146",
+    "lat": 39.934059,
+    "lng": -75.177232,
+    "website": "https://twoeaglescafe.wordpress.com/",
+    "instagramUrl": "https://www.instagram.com/twoeaglescafe/",
+    "hoursSource": "listing",
+    "hoursNote": "Tue–Fri 7am–3pm · Sat–Sun 8am–4pm · Mon closed",
+    "hours": {
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    }
   }
 ]
