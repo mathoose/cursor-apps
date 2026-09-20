@@ -33,6 +33,7 @@
     "draft-board": "Draft Board",
     "index-card-planner": "Card Box",
     "fantasy-hub": "Fantasy Hub",
+    "coffee-map": "Coffee Map",
   };
 
   var PHOTO_DATABASES = [
@@ -1376,6 +1377,59 @@
             leagues: mergeLeagues(existing.espn && existing.espn.leagues, incoming.espn && incoming.espn.leagues)
           }
         };
+        return out;
+      },
+    },
+    "coffee-map": {
+      storageKey: "coffee-map-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("coffee-map-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.places)) return null;
+          return { version: p.version || 1, places: p.places };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.places)) return false;
+        return writeKey(
+          "coffee-map-v1",
+          JSON.stringify({ version: slice.version || 1, places: slice.places })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.places) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.places ? slice.places.length : 0;
+        return n + " cafe" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          places: (existing.places || []).slice(),
+        };
+        var ids = {};
+        var ig = {};
+        out.places.forEach(function (p) {
+          if (p && p.id) ids[p.id] = true;
+          if (p && p.instagramUrl) ig[String(p.instagramUrl).toLowerCase()] = true;
+        });
+        (incoming.places || []).forEach(function (p) {
+          if (!p || !p.id || !p.name) return;
+          if (ids[p.id]) return;
+          var key = p.instagramUrl ? String(p.instagramUrl).toLowerCase() : "";
+          if (key && ig[key]) return;
+          out.places.push(p);
+          ids[p.id] = true;
+          if (key) ig[key] = true;
+        });
         return out;
       },
     },

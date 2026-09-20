@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!-- build: coffee-map-v1 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Coffee Map</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Coffee Map" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#9a3412" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body class="view-map">
+  <header class="topbar">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="topbar-titles">
+      <h1>Coffee Map</h1>
+      <p class="sub" id="headerSub">Cafes to try &amp; rate</p>
+    </div>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <div class="filter-bar" id="filterBar" role="tablist" aria-label="Filter places">
+    <button type="button" class="chip on" data-filter="all">All</button>
+    <button type="button" class="chip" data-filter="want">Want to go</button>
+    <button type="button" class="chip" data-filter="been">Been</button>
+  </div>
+
+  <main>
+    <div id="map" class="map" role="application" aria-label="Philadelphia coffee map"></div>
+    <section class="list-view" id="listView" hidden>
+      <div class="list-toolbar">
+        <span id="listCount">0 places</span>
+        <label class="sort-label">Sort
+          <select id="listSort">
+            <option value="name">Name</option>
+            <option value="rating">Rating</option>
+            <option value="added">Newest</option>
+          </select>
+        </label>
+      </div>
+      <div class="place-list" id="placeList"></div>
+      <div class="empty-state" id="listEmpty" hidden>
+        <p>No cafes yet.<br />Paste an Instagram reel to pin one.</p>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="fab" id="addFab" aria-label="Add a cafe">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <nav class="bottom-nav" role="tablist" aria-label="Views">
+    <button type="button" class="nav-btn active" data-view="map" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M12 21s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+      <span>Map</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="list" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span>List</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="addOverlay" role="dialog" aria-modal="true" aria-labelledby="addTitle" hidden>
+    <div class="sheet sheet-add">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="addTitle">Add a cafe</h2>
+        <button type="button" class="text-btn" id="addCloseBtn">Close</button>
+      </div>
+      <p class="hint">Paste an Instagram reel or post. We’ll guess the name and search Philadelphia.</p>
+      <div class="url-row">
+        <input type="url" id="igUrlInput" placeholder="instagram.com/reel/…" inputmode="url" autocomplete="off" enterkeyhint="go" />
+        <button type="button" class="btn btn-secondary" id="pasteBtn">Paste</button>
+      </div>
+      <p class="meta-snippet" id="metaSnippet" hidden></p>
+      <label class="field-label" for="placeNameInput">Cafe name</label>
+      <div class="url-row">
+        <input type="text" id="placeNameInput" placeholder="e.g. La Colombe" autocomplete="off" enterkeyhint="search" />
+        <button type="button" class="btn btn-primary" id="searchBtn">Search</button>
+      </div>
+      <p class="status-line" id="addStatus" hidden></p>
+      <div class="candidate-list" id="candidateList"></div>
+      <p class="hint tiny">Or long-press the map to drop a pin, then save.</p>
+      <button type="button" class="btn btn-secondary" id="saveDroppedBtn" hidden>Save dropped pin</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailName" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="detailName">Cafe</h2>
+        <button type="button" class="text-btn" id="detailCloseBtn">Close</button>
+      </div>
+      <p class="detail-address" id="detailAddress"></p>
+      <div class="status-toggle" role="group" aria-label="Visit status">
+        <button type="button" class="status-btn" data-status="want" id="statusWant">Want to go</button>
+        <button type="button" class="status-btn" data-status="been" id="statusBeen">Been here</button>
+      </div>
+      <p class="field-label">Rating</p>
+      <div class="stars" id="starRow" role="radiogroup" aria-label="Rating"></div>
+      <label class="field-label" for="notesInput">Note</label>
+      <textarea id="notesInput" rows="3" maxlength="400" placeholder="What you ordered, the vibe…"></textarea>
+      <div class="detail-actions">
+        <a class="btn btn-primary" id="openIgBtn" target="_blank" rel="noopener" hidden>Open in Instagram</a>
+        <button type="button" class="btn btn-danger" id="deletePlaceBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">Import is additive — existing cafes stay, new ones are added.</p>
+      </div>
+      <div class="settings-section">
+        <h3>From Instagram</h3>
+        <p class="settings-note">In Instagram, tap <strong>Copy link</strong>, then Paste here. Optional iOS Shortcut: open <code>?add=</code> with the reel URL.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>

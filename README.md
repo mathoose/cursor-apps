@@ -15,6 +15,7 @@ iPhone-style grid with custom icons. New app folders are picked up automatically
 | Philly Dates | https://mathoose.github.io/cursor-apps/philly-dates/ |
 | Our Menu | https://mathoose.github.io/cursor-apps/meal-menu/ |
 | Closet Picker | https://mathoose.github.io/cursor-apps/aruba-packing/ |
+| Coffee Map | https://mathoose.github.io/cursor-apps/coffee-map/ |
 
 ## Backup all apps
 
