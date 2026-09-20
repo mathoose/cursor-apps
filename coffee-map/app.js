@@ -15,6 +15,8 @@
   var activePlaceId = null;
   var droppedPin = null;
   var hereControl = null;
+  var sortBeforeDistance = 'name';
+  var pendingDistanceSort = false;
   var ui = {
     view: 'map',
     filter: 'all',
@@ -530,44 +532,101 @@
     });
   }
 
+  function hereButtons() {
+    return [
+      document.getElementById('hereBtn'),
+      document.getElementById('listHereBtn')
+    ];
+  }
+
+  function syncDistanceSortUi(state) {
+    var select = document.getElementById('listSort');
+    var clearBtn = document.getElementById('listHereClear');
+    var available = typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.syncDistanceSortOption
+      ? PhillyWalkMap.syncDistanceSortOption(select, state, 'distance')
+      : !!(state && state.active);
+    if (clearBtn) clearBtn.hidden = !available;
+    if (available && pendingDistanceSort) {
+      pendingDistanceSort = false;
+      ui.sort = 'distance';
+      if (select) select.value = 'distance';
+    } else if (!available && ui.sort === 'distance') {
+      ui.sort = sortBeforeDistance || 'name';
+      if (select) select.value = ui.sort;
+    } else if (select && available && ui.sort === 'distance') {
+      select.value = 'distance';
+    }
+  }
+
   function updateHereUi(state) {
-    var bar = document.getElementById('hereBar');
-    var btn = document.getElementById('hereBtn');
-    var label = document.getElementById('hereLabel');
-    var minutes = document.getElementById('hereMinutes');
-    var count = document.getElementById('hereCount');
-    var slider = document.getElementById('hereSlider');
-    if (!bar || !btn) return;
-    btn.disabled = !!(state && state.locating);
-    btn.textContent = '';
-    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>' +
-      (state && state.locating ? 'Locating…' : 'Where am I') + '</span>';
-    if (!state || !state.active) {
-      bar.hidden = true;
-      document.body.classList.remove('here-open');
-      renderPlacesLayer();
-      return;
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.syncHereButtons) {
+      PhillyWalkMap.syncHereButtons(hereButtons(), state);
     }
-    bar.hidden = false;
-    document.body.classList.add('here-open');
-    if (slider && Number(slider.value) !== state.minutes) slider.value = String(state.minutes);
-    if (label) label.textContent = PhillyWalkMap.formatWalkLabel(state.minutes);
-    if (minutes) minutes.textContent = state.minutes + ' min';
-    if (count) {
-      var n = hereControl ? hereControl.countWithin(filteredPlaces(loadData())) : 0;
-      count.textContent = n + ' place' + (n === 1 ? '' : 's') + ' inside this walk';
+    syncDistanceSortUi(state);
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.syncHereBar) {
+      PhillyWalkMap.syncHereBar({
+        bar: document.getElementById('hereBar'),
+        label: document.getElementById('hereLabel'),
+        minutes: document.getElementById('hereMinutes'),
+        count: document.getElementById('hereCount'),
+        slider: document.getElementById('hereSlider'),
+        openClassEl: document.body,
+        openClass: 'here-open'
+      }, state, function () {
+        return hereControl ? hereControl.countWithin(filteredPlaces(loadData())) : 0;
+      });
+    } else {
+      var bar = document.getElementById('hereBar');
+      if (bar) {
+        if (!state || !state.active) {
+          bar.hidden = true;
+          document.body.classList.remove('here-open');
+        } else {
+          bar.hidden = false;
+          document.body.classList.add('here-open');
+        }
+      }
     }
-    renderPlacesLayer();
+    if (ui.view === 'map') renderPlacesLayer();
+    if (ui.view === 'list' || (state && state.active)) renderList();
   }
 
   function clearHere() {
     if (hereControl) hereControl.clear();
   }
 
+  function ensureHereSession() {
+    if (hereControl) return hereControl;
+    if (typeof PhillyWalkMap === 'undefined' || !PhillyWalkMap.createHereSession) return null;
+    hereControl = PhillyWalkMap.createHereSession({
+      onChange: updateHereUi,
+      onError: function (msg) {
+        pendingDistanceSort = false;
+        toast(msg);
+      }
+    });
+    if (map && hereControl.attachToMap) hereControl.attachToMap(map);
+    return hereControl;
+  }
+
+  function requestLocate() {
+    var session = ensureHereSession();
+    if (!session) {
+      toast('Location helper failed to load');
+      return;
+    }
+    session.locate();
+  }
+
   function renderList() {
     var data = loadData();
     var places = filteredPlaces(data).slice();
-    if (ui.sort === 'rating') {
+    var hereState = hereControl ? hereControl.getState() : null;
+    var hereActive = !!(hereState && hereState.active && hereState.lat != null);
+
+    if (ui.sort === 'distance' && hereActive && typeof PhillyWalkMap !== 'undefined') {
+      places = PhillyWalkMap.sortByDistance(places, hereState.lat, hereState.lng);
+    } else if (ui.sort === 'rating') {
       places.sort(function (a, b) {
         return (b.rating || 0) - (a.rating || 0) || a.name.localeCompare(b.name);
       });
@@ -602,6 +661,10 @@
     list.innerHTML = places.map(function (p) {
       var open = isOpenNow(p);
       var metaBits = [];
+      if (hereActive && typeof PhillyWalkMap !== 'undefined') {
+        var dist = hereControl.distanceTo(p.lat, p.lng);
+        if (dist != null) metaBits.push(PhillyWalkMap.formatDistance(dist));
+      }
       if (p.neighborhood) metaBits.push(p.neighborhood);
       if (p.hoursNote) metaBits.push(p.hoursNote.split(' · ')[0]);
       else if (p.address) metaBits.push(p.address);
@@ -950,9 +1013,12 @@
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-selected', on ? 'true' : 'false');
     });
-    if (ui.view !== 'map') clearHere();
+    if (hereControl && hereControl.setDrawEnabled) {
+      hereControl.setDrawEnabled(ui.view === 'map');
+    }
     if (ui.view === 'map' && map) {
       setTimeout(function () { map.invalidateSize(); }, 50);
+      if (hereControl && hereControl.isActive()) renderPlacesLayer();
     }
     renderList();
   }
@@ -1022,39 +1088,32 @@
       toast('Map failed to load');
       return;
     }
-    map = L.map('map', {
-      zoomControl: false,
-      attributionControl: true,
-      minZoom: typeof PhillyWalkMap !== 'undefined' ? PhillyWalkMap.minZoom : 11,
-      maxZoom: 19,
-      maxBounds: typeof PhillyWalkMap !== 'undefined'
-        ? (PhillyWalkMap.panLatLngBounds ? PhillyWalkMap.panLatLngBounds() : PhillyWalkMap.latLngBounds())
-        : undefined,
-      maxBoundsViscosity: typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.maxBoundsViscosity != null
-        ? PhillyWalkMap.maxBoundsViscosity
-        : 0.35
-    }).setView([PHILLY.lat, PHILLY.lng], 13);
-    if (typeof PhillyWalkMap !== 'undefined') {
-      PhillyWalkMap.addTiles(map);
-      PhillyWalkMap.applyLimits(map);
-      if (PhillyWalkMap.ensurePinPane) PhillyWalkMap.ensurePinPane(map);
-      if (PhillyWalkMap.bindZoomLabels) PhillyWalkMap.bindZoomLabels(map);
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.createMap) {
+      map = PhillyWalkMap.createMap(document.getElementById('map'), {
+        center: PHILLY,
+        zoom: 13
+      });
     } else {
+      map = L.map('map', {
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: 11,
+        maxZoom: 19
+      }).setView([PHILLY.lat, PHILLY.lng], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap'
       }).addTo(map);
     }
+    if (!map) {
+      toast('Map failed to load');
+      return;
+    }
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
     placesLayer = L.layerGroup().addTo(map);
     candidatesLayer = L.layerGroup().addTo(map);
 
-    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.attachHereControl) {
-      hereControl = PhillyWalkMap.attachHereControl(map, {
-        onChange: updateHereUi,
-        onError: function (msg) { toast(msg); }
-      });
-    }
+    ensureHereSession();
 
     var holdTimer = null;
     function startHold(latlng) {
@@ -1148,17 +1207,19 @@
     });
     var hereBtn = document.getElementById('hereBtn');
     if (hereBtn) {
-      hereBtn.addEventListener('click', function () {
-        if (!hereControl) {
-          toast('Location helper failed to load');
-          return;
-        }
-        hereControl.locate();
-      });
+      hereBtn.addEventListener('click', function () { requestLocate(); });
+    }
+    var listHereBtn = document.getElementById('listHereBtn');
+    if (listHereBtn) {
+      listHereBtn.addEventListener('click', function () { requestLocate(); });
     }
     var hereClearBtn = document.getElementById('hereClearBtn');
     if (hereClearBtn) {
       hereClearBtn.addEventListener('click', function () { clearHere(); });
+    }
+    var listHereClear = document.getElementById('listHereClear');
+    if (listHereClear) {
+      listHereClear.addEventListener('click', function () { clearHere(); });
     }
     var hereSlider = document.getElementById('hereSlider');
     if (hereSlider) {
@@ -1168,7 +1229,24 @@
       });
     }
     document.getElementById('listSort').addEventListener('change', function () {
-      ui.sort = document.getElementById('listSort').value;
+      var select = document.getElementById('listSort');
+      var next = select.value;
+      if (next === 'distance') {
+        var state = hereControl && hereControl.getState();
+        if (ui.sort !== 'distance') sortBeforeDistance = ui.sort;
+        if (!state || !state.active) {
+          pendingDistanceSort = true;
+          select.value = sortBeforeDistance || 'name';
+          requestLocate();
+          return;
+        }
+        ui.sort = 'distance';
+        renderList();
+        return;
+      }
+      pendingDistanceSort = false;
+      sortBeforeDistance = next;
+      ui.sort = next;
       renderList();
     });
     document.getElementById('placeList').addEventListener('click', function (e) {

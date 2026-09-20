@@ -13,8 +13,8 @@
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=12" />
 </head>
 <body>
   <header class="top">
@@ -27,6 +27,10 @@
         <p class="sub">Happy hours · tap a name for details</p>
       </div>
       <div class="top-actions">
+        <button type="button" class="philly-here-btn compact" id="list-here-btn" aria-label="Where am I">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+          <span>Where am I</span>
+        </button>
         <button type="button" class="btn btn-map" id="map-btn">Map</button>
         <button type="button" class="btn btn-icon" id="settings-btn" title="Settings" aria-label="Settings">⚙️</button>
       </div>
@@ -73,8 +77,10 @@
         <select id="list-sort">
           <option value="favorites">Favorites first, then A–Z</option>
           <option value="alpha">Alphabetical only</option>
+          <option value="distance" data-fallback="favorites">Distance</option>
         </select>
       </label>
+      <button type="button" class="text-btn filter-list-only list-here-clear" id="list-here-clear" hidden>Clear location</button>
     </div>
 
     <div class="summary" id="summary"></div>
@@ -260,17 +266,17 @@
     <div class="city-map-viewport" id="city-map-viewport">
       <div id="city-map" class="city-map-leaflet" role="application" aria-label="Philadelphia map"></div>
     </div>
-    <div class="city-map-here-bar" id="city-map-here-bar" hidden>
-      <div class="city-map-here-top">
-        <p class="city-map-here-label" id="city-map-here-label">~800 m · 10 min walk</p>
-        <button type="button" class="text-btn" id="city-map-here-clear">Clear</button>
+    <div class="philly-here-bar city-map-here-bar" id="city-map-here-bar" hidden>
+      <div class="philly-here-bar-top city-map-here-top">
+        <p class="philly-here-label city-map-here-label" id="city-map-here-label">~800 m · 10 min walk</p>
+        <button type="button" class="text-btn philly-here-clear" id="city-map-here-clear">Clear</button>
       </div>
-      <label class="city-map-here-slider">
+      <label class="philly-here-slider city-map-here-slider">
         <span>Walk</span>
         <input type="range" id="city-map-here-slider" min="5" max="25" step="1" value="10" />
         <span id="city-map-here-minutes">10 min</span>
       </label>
-      <p class="city-map-here-count" id="city-map-here-count"></p>
+      <p class="philly-here-count city-map-here-count" id="city-map-here-count"></p>
     </div>
     <div class="city-map-popup" id="city-map-popup" hidden>
       <button type="button" class="modal-close" id="city-map-popup-close" aria-label="Close place">&times;</button>
@@ -282,8 +288,11 @@
       </dl>
       <button type="button" class="btn btn-primary" id="city-map-popup-details">Details</button>
     </div>
+    <button type="button" class="philly-here-btn city-map-here-btn" id="city-map-here" aria-label="Where am I">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span>Where am I</span>
+    </button>
     <div class="city-map-zoom">
-      <button type="button" id="city-map-here" aria-label="Where am I" title="Where am I">⌖</button>
       <button type="button" id="city-map-in" aria-label="Zoom in">+</button>
       <button type="button" id="city-map-out" aria-label="Zoom out">−</button>
     </div>
@@ -294,8 +303,8 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=15" defer></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=6"></script>
+  <script src="app.js?v=16" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

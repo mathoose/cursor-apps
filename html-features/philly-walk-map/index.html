@@ -23,17 +23,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="philly-walk-map.js"></script>
   <script>
-    var map = L.map('map', {
-      zoomControl: true,
-      maxZoom: 19,
-      minZoom: PhillyWalkMap.minZoom,
-      maxBounds: PhillyWalkMap.panLatLngBounds(),
-      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity
+    var map = PhillyWalkMap.createMap(document.getElementById('map'), {
+      zoomControl: true
     });
-    PhillyWalkMap.addTiles(map);
-    PhillyWalkMap.applyLimits(map);
-    PhillyWalkMap.ensurePinPane(map);
-    PhillyWalkMap.bindZoomLabels(map);
     PhillyWalkMap.fit(map);
     L.rectangle(PhillyWalkMap.latLngBounds(), {
       color: '#9a3412',

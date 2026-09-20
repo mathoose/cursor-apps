@@ -1071,9 +1071,14 @@ a.quick-add-full-link { font-family: inherit; }
   color: #3d3428;
   cursor: pointer;
 }
-#city-map-here {
-  font-size: 1.1rem;
-  line-height: 1;
+.city-map-here-btn {
+  position: absolute;
+  left: 12px;
+  bottom: calc(16px + var(--safe-bottom));
+  z-index: 3;
+  border-color: #d7d0c2;
+  background: rgba(255, 252, 246, 0.97);
+  color: #3d3428;
 }
 .city-map-here-bar {
   position: absolute;
@@ -1081,50 +1086,12 @@ a.quick-add-full-link { font-family: inherit; }
   right: 64px;
   bottom: calc(16px + var(--safe-bottom));
   z-index: 3;
-  padding: 10px 12px;
-  border: 1px solid #d7d0c2;
-  border-radius: 14px;
+  border-color: #d7d0c2;
   background: rgba(255, 252, 246, 0.97);
-  box-shadow: 0 8px 24px rgba(40, 32, 20, 0.14);
 }
-.city-map-here-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.city-map-here-label {
-  margin: 0;
-  font-size: 0.88rem;
-  font-weight: 650;
-  color: #3d3428;
-}
-.city-map-here-bar .text-btn {
-  border: none;
-  background: transparent;
+.city-map-here-bar .text-btn,
+.city-map-here-bar .philly-here-clear {
   color: #2e7d32;
-  font-weight: 650;
-  padding: 4px 2px;
-  cursor: pointer;
-}
-.city-map-here-slider {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  color: #6a6256;
-  font-weight: 600;
-}
-.city-map-here-slider input[type="range"] {
-  width: 100%;
-  accent-color: #2563eb;
-}
-.city-map-here-count {
-  margin: 6px 0 0;
-  font-size: 0.75rem;
-  color: #6a6256;
 }
 .city-map-toast {
   position: absolute;
@@ -1142,4 +1109,22 @@ a.quick-add-full-link { font-family: inherit; }
 }
 .city-map-overlay.here-open .city-map-zoom {
   bottom: calc(118px + var(--safe-bottom));
+}
+.city-map-overlay.here-open .city-map-here-btn {
+  bottom: calc(118px + var(--safe-bottom));
+}
+.top-actions .philly-here-btn.compact {
+  border-color: #d7d0c2;
+  background: #fff;
+  color: #3d3428;
+}
+.list-here-clear {
+  border: none;
+  background: transparent;
+  color: #2e7d32;
+  font-weight: 650;
+  font-size: 0.82rem;
+  padding: 4px 2px;
+  cursor: pointer;
+  align-self: end;
 }

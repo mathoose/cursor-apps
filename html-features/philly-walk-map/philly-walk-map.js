@@ -7,6 +7,7 @@
  *
  * Also: one-shot “Where am I” (getCurrentPosition only — never watchPosition).
  * Pins: white-bordered circleMarkers; names appear at zoom 15+.
+ * Location is session-only (never written to storage).
  */
 (function (root) {
   'use strict';
@@ -27,6 +28,10 @@
   var HERE_MIN_DEFAULT = 10;
   var HERE_MIN_LO = 5;
   var HERE_MIN_HI = 25;
+
+  var HERE_BTN_SVG =
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/>' +
+    '<path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>';
 
   function metersForWalkMinutes(min) {
     min = Number(min);
@@ -86,11 +91,56 @@
     return shown + ' · ' + minutes + ' min walk';
   }
 
+  function formatDistance(meters) {
+    meters = Number(meters);
+    if (!isFinite(meters) || meters < 0) return '';
+    if (meters < 1000) return Math.round(meters) + ' m';
+    var km = meters / 1000;
+    return (km < 10 ? km.toFixed(1) : Math.round(km)) + ' km';
+  }
+
+  function sortByDistance(places, lat, lng) {
+    lat = Number(lat);
+    lng = Number(lng);
+    var list = (places || []).slice();
+    if (!isFinite(lat) || !isFinite(lng)) {
+      list.sort(function (a, b) {
+        return String(a && a.name || '').localeCompare(String(b && b.name || ''));
+      });
+      return list;
+    }
+    list.forEach(function (p) {
+      if (p && typeof p.lat === 'number' && typeof p.lng === 'number') {
+        p._distanceM = haversineMeters(lat, lng, p.lat, p.lng);
+      } else {
+        p._distanceM = Infinity;
+      }
+    });
+    list.sort(function (a, b) {
+      var da = a._distanceM;
+      var db = b._distanceM;
+      if (da !== db) return da - db;
+      return String(a && a.name || '').localeCompare(String(b && b.name || ''));
+    });
+    return list;
+  }
+
+  function snapshotState(state) {
+    return {
+      active: !!state.active,
+      lat: state.lat,
+      lng: state.lng,
+      minutes: state.minutes,
+      meters: metersForWalkMinutes(state.minutes),
+      locating: !!state.locating
+    };
+  }
+
   /**
-   * Owns a temporary you-pin + walk circle on a Leaflet map.
-   * Never stores coordinates. Call clear() when leaving the map.
+   * Session-level location. Works with or without a map.
+   * Never stores coordinates. Call clear() only on explicit Clear.
    */
-  function attachHereControl(map, opts) {
+  function createHereSession(opts) {
     opts = opts || {};
     var state = {
       active: false,
@@ -99,21 +149,14 @@
       minutes: HERE_MIN_DEFAULT,
       locating: false
     };
+    var map = null;
     var marker = null;
     var circle = null;
     var layer = null;
+    var drawEnabled = true;
 
     function emit() {
-      if (opts.onChange) {
-        opts.onChange({
-          active: state.active,
-          lat: state.lat,
-          lng: state.lng,
-          minutes: state.minutes,
-          meters: metersForWalkMinutes(state.minutes),
-          locating: state.locating
-        });
-      }
+      if (opts.onChange) opts.onChange(snapshotState(state));
     }
 
     function ensureLayer() {
@@ -123,8 +166,14 @@
       return layer;
     }
 
+    function clearLayers() {
+      if (layer) layer.clearLayers();
+      marker = null;
+      circle = null;
+    }
+
     function draw() {
-      if (!state.active || state.lat == null || typeof L === 'undefined' || !map) return;
+      if (!drawEnabled || !state.active || state.lat == null || typeof L === 'undefined' || !map) return;
       ensureLayer();
       var latlng = [state.lat, state.lng];
       var radius = metersForWalkMinutes(state.minutes);
@@ -161,11 +210,7 @@
       state.lat = null;
       state.lng = null;
       state.locating = false;
-      if (layer) {
-        layer.clearLayers();
-      }
-      marker = null;
-      circle = null;
+      clearLayers();
       emit();
     }
 
@@ -179,13 +224,13 @@
       emit();
     }
 
-    function placeAt(lat, lng) {
+    function placeAt(lat, lng, pan) {
       state.lat = lat;
       state.lng = lng;
       state.active = true;
       state.locating = false;
       draw();
-      if (map && typeof map.panTo === 'function') {
+      if (pan !== false && map && typeof map.panTo === 'function') {
         map.panTo([lat, lng]);
       }
       emit();
@@ -197,7 +242,7 @@
       emit();
       locateOnce(
         function (fix) {
-          placeAt(fix.lat, fix.lng);
+          placeAt(fix.lat, fix.lng, !!map);
         },
         function (err) {
           state.locating = false;
@@ -223,25 +268,61 @@
       return haversineMeters(state.lat, state.lng, lat, lng) <= metersForWalkMinutes(state.minutes);
     }
 
+    function attachToMap(nextMap) {
+      if (map === nextMap) {
+        draw();
+        return;
+      }
+      clearLayers();
+      layer = null;
+      map = nextMap || null;
+      if (map && state.active) draw();
+    }
+
+    function detachMap() {
+      clearLayers();
+      layer = null;
+      map = null;
+    }
+
+    function setDrawEnabled(on) {
+      drawEnabled = !!on;
+      if (!drawEnabled) {
+        clearLayers();
+      } else if (state.active) {
+        draw();
+      }
+    }
+
     return {
       locate: locate,
       clear: clear,
       setMinutes: setMinutes,
-      getState: function () {
-        return {
-          active: state.active,
-          lat: state.lat,
-          lng: state.lng,
-          minutes: state.minutes,
-          meters: metersForWalkMinutes(state.minutes),
-          locating: state.locating
-        };
-      },
+      placeAt: placeAt,
+      attachToMap: attachToMap,
+      detachMap: detachMap,
+      setDrawEnabled: setDrawEnabled,
+      getState: function () { return snapshotState(state); },
       isActive: function () { return state.active; },
       countWithin: countWithin,
       isWithin: isWithin,
-      formatLabel: function () { return formatWalkLabel(state.minutes); }
+      formatLabel: function () { return formatWalkLabel(state.minutes); },
+      distanceTo: function (lat, lng) {
+        if (!state.active || state.lat == null) return null;
+        if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+        return haversineMeters(state.lat, state.lng, lat, lng);
+      }
     };
+  }
+
+  /**
+   * Owns a temporary you-pin + walk circle on a Leaflet map.
+   * Backed by createHereSession for compatibility with older call sites.
+   */
+  function attachHereControl(map, opts) {
+    var session = createHereSession(opts);
+    if (map) session.attachToMap(map);
+    return session;
   }
 
   function latLngBounds() {
@@ -336,6 +417,107 @@
     });
   }
 
+  /**
+   * Create a Leaflet map with shared Philly walk limits, tiles, pin pane, and zoom labels.
+   * opts: center {lat,lng}, zoom, zoomControl, attributionControl, extraEl (for zoom label class)
+   */
+  function createMap(el, opts) {
+    opts = opts || {};
+    if (typeof L === 'undefined' || !el) return null;
+    var center = opts.center || api.center;
+    var zoom = opts.zoom != null ? opts.zoom : api.defaultZoom;
+    var map = L.map(el, {
+      zoomControl: opts.zoomControl === true,
+      attributionControl: opts.attributionControl !== false,
+      minZoom: api.minZoom,
+      maxZoom: opts.maxZoom != null ? opts.maxZoom : 19,
+      maxBounds: panLatLngBounds(),
+      maxBoundsViscosity: MAX_BOUNDS_VISCOSITY
+    }).setView([center.lat, center.lng], zoom);
+    api.addTiles(map);
+    api.applyLimits(map);
+    ensurePinPane(map);
+    bindZoomLabels(map, opts.extraEl || null);
+    return map;
+  }
+
+  /**
+   * Sync shared here-button label / disabled state.
+   * buttons: Element or Element[]
+   */
+  function syncHereButtons(buttons, state) {
+    var list = Array.isArray(buttons) ? buttons : (buttons ? [buttons] : []);
+    var locating = !!(state && state.locating);
+    var label = locating ? 'Locating…' : 'Where am I';
+    list.forEach(function (btn) {
+      if (!btn) return;
+      btn.disabled = locating;
+      var span = btn.querySelector('span');
+      if (span) {
+        span.textContent = label;
+      } else if (btn.classList.contains('philly-here-btn') || btn.classList.contains('here-btn')) {
+        btn.innerHTML = HERE_BTN_SVG + '<span>' + label + '</span>';
+      } else {
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      }
+    });
+  }
+
+  /**
+   * Sync walk slider bar from session state.
+   * els: { bar, label, minutes, count, slider, openClassEl, openClass }
+   * countFn optional () => number for “N places inside this walk”
+   */
+  function syncHereBar(els, state, countFn) {
+    els = els || {};
+    var bar = els.bar;
+    if (!bar) return;
+    var openClassEl = els.openClassEl || null;
+    var openClass = els.openClass || 'here-open';
+    if (!state || !state.active) {
+      bar.hidden = true;
+      if (openClassEl) openClassEl.classList.remove(openClass);
+      return;
+    }
+    bar.hidden = false;
+    if (openClassEl) openClassEl.classList.add(openClass);
+    if (els.slider && Number(els.slider.value) !== state.minutes) {
+      els.slider.value = String(state.minutes);
+    }
+    if (els.label) els.label.textContent = formatWalkLabel(state.minutes);
+    if (els.minutes) els.minutes.textContent = state.minutes + ' min';
+    if (els.count) {
+      var n = typeof countFn === 'function' ? countFn() : 0;
+      els.count.textContent = n + ' place' + (n === 1 ? '' : 's') + ' inside this walk';
+    }
+  }
+
+  /**
+   * Keep Distance <option> in sync. Always selectable; when location is inactive,
+   * callers can treat a Distance selection as a locate request.
+   * Returns true if a fix is currently available for sorting.
+   */
+  function syncDistanceSortOption(selectEl, state, optionValue) {
+    if (!selectEl) return false;
+    optionValue = optionValue || 'distance';
+    var opt = selectEl.querySelector('option[value="' + optionValue + '"]');
+    var available = !!(state && state.active && state.lat != null);
+    if (opt) {
+      opt.disabled = false;
+      opt.hidden = false;
+    }
+    if (!available && selectEl.value === optionValue) {
+      var fallback = opt && opt.getAttribute('data-fallback');
+      if (fallback) selectEl.value = fallback;
+      else {
+        var first = selectEl.querySelector('option:not([value="' + optionValue + '"])');
+        if (first) selectEl.value = first.value;
+      }
+    }
+    return available;
+  }
+
   var api = {
     id: 'philly-walk-map',
     label: 'Philly walking map',
@@ -353,6 +535,7 @@
     HERE_MIN_DEFAULT: HERE_MIN_DEFAULT,
     HERE_MIN_LO: HERE_MIN_LO,
     HERE_MIN_HI: HERE_MIN_HI,
+    HERE_BTN_SVG: HERE_BTN_SVG,
 
     contains: function (lat, lng) {
       lat = Number(lat);
@@ -391,6 +574,7 @@
       });
     },
 
+    createMap: createMap,
     ensurePinPane: ensurePinPane,
     bindZoomLabels: bindZoomLabels,
     addCirclePin: addCirclePin,
@@ -401,7 +585,13 @@
     locateOnce: locateOnce,
     locateErrorMessage: locateErrorMessage,
     formatWalkLabel: formatWalkLabel,
-    attachHereControl: attachHereControl
+    formatDistance: formatDistance,
+    sortByDistance: sortByDistance,
+    createHereSession: createHereSession,
+    attachHereControl: attachHereControl,
+    syncHereButtons: syncHereButtons,
+    syncHereBar: syncHereBar,
+    syncDistanceSortOption: syncDistanceSortOption
   };
 
   root.PhillyWalkMap = api;

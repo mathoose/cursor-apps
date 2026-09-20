@@ -42,3 +42,105 @@
   font-weight: 800;
   line-height: 1;
 }
+
+/* Shared “Where am I” chrome — apps set position / offsets */
+
+.philly-here-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px 0 10px;
+  border: 1px solid #d7d0c2;
+  border-radius: 999px;
+  background: rgba(255, 250, 246, 0.96);
+  color: #3d3428;
+  box-shadow: 0 2px 10px rgba(44, 28, 18, 0.12);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.philly-here-btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.philly-here-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.philly-here-btn.compact {
+  height: 34px;
+  padding: 0 10px 0 8px;
+  font-size: 0.78rem;
+  box-shadow: none;
+}
+
+.philly-here-btn.compact svg {
+  width: 16px;
+  height: 16px;
+}
+
+.philly-here-bar {
+  padding: 12px 14px;
+  border: 1px solid #d7d0c2;
+  border-radius: 16px;
+  background: rgba(255, 250, 246, 0.97);
+  box-shadow: 0 8px 24px rgba(40, 32, 20, 0.14);
+  box-sizing: border-box;
+}
+
+.philly-here-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.philly-here-label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #3d3428;
+}
+
+.philly-here-bar .text-btn,
+.philly-here-clear {
+  border: none;
+  background: transparent;
+  color: #2563eb;
+  font-weight: 650;
+  padding: 4px 2px;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.philly-here-slider {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #6a6256;
+  font-weight: 600;
+}
+
+.philly-here-slider input[type="range"] {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.philly-here-count {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #6a6256;
+}
