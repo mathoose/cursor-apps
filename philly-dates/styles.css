@@ -1058,7 +1058,7 @@ a.quick-add-full-link { font-family: inherit; }
   display: flex;
   flex-direction: column;
   gap: 6px;
-  z-index: 2;
+  z-index: 800;
 }
 .city-map-zoom button {
   width: 40px;
@@ -1075,7 +1075,7 @@ a.quick-add-full-link { font-family: inherit; }
   position: absolute;
   left: 12px;
   bottom: calc(16px + var(--safe-bottom));
-  z-index: 3;
+  z-index: 800;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1106,7 +1106,7 @@ a.quick-add-full-link { font-family: inherit; }
   left: 12px;
   right: 64px;
   bottom: calc(16px + var(--safe-bottom));
-  z-index: 3;
+  z-index: 810;
   padding: 10px 12px;
   border: 1px solid #d7d0c2;
   border-radius: 14px;
