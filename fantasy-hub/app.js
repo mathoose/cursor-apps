@@ -2,7 +2,7 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "7 · Sep 20, 2026";
+  var APP_VERSION = "8 · Sep 20, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
@@ -231,15 +231,19 @@
 
   function livePlayerProjected(player) {
     if (!player) return null;
-    var pre = player.projected;
+    var pre = player.pregame != null ? player.pregame : player.projected;
     var pts = player.points != null && !isNaN(Number(player.points)) ? Number(player.points) : null;
-    if (player.gameStatus === "complete") {
+    var frac = player.gameFrac == null ? 1 : Number(player.gameFrac);
+    if (isNaN(frac)) frac = 1;
+    if (player.gameStatus === "complete" || frac <= 0) {
       return pts != null ? pts : pre;
     }
     if (player.gameStatus === "in_progress") {
       if (pre == null) return pts;
       if (pts == null) return Number(pre);
-      return Math.max(pts, Number(pre));
+      // Match Sleeper: remaining = leftover pregame × fraction of game left.
+      var rem = Math.max(0, Number(pre) - pts) * Math.max(0, Math.min(1, frac));
+      return pts + rem;
     }
     return pre;
   }
@@ -284,6 +288,32 @@
     });
   }
 
+  function parseGameClock(tr) {
+    if (!tr) return 0;
+    var m = String(tr).match(/^(\d+):(\d+)/);
+    if (!m) return 0;
+    return Number(m[1]) * 60 + Number(m[2]);
+  }
+
+  function gameFracRemaining(game) {
+    if (!game) return 1;
+    var md = game.metadata || {};
+    if (game.status === "complete" || md.is_over || md.status === "closed" || md.closed) return 0;
+    var quarter = String(md.quarter || "");
+    if (quarter === "F" || quarter === "FO" || /final/i.test(quarter)) return 0;
+    if (game.status === "pre_game" || (!md.has_started && !md.is_in_progress && game.status !== "in_game")) {
+      return 1;
+    }
+    if (/OT/i.test(quarter) || md.is_overtime) {
+      return Math.min(0.05, parseGameClock(md.time_remaining) / 3600);
+    }
+    var q = Number(md.quarter_num || 0);
+    if (!q || q < 1) q = 1;
+    if (q > 4) return Math.min(0.05, parseGameClock(md.time_remaining) / 3600);
+    var remSec = (4 - q) * 900 + parseGameClock(md.time_remaining);
+    return Math.max(0, Math.min(1, remSec / 3600));
+  }
+
   function loadSleeperGameStatus(season, week) {
     var key = String(season) + "-" + String(week);
     if (sleeperGameStatusCache.key === key && sleeperGameStatusCache.map) {
@@ -295,11 +325,19 @@
       rows.forEach(function (g) {
         if (!g) return;
         var md = g.metadata || {};
+        var frac = gameFracRemaining(g);
         var status = "pre";
-        if (g.status === "complete" || md.is_over || md.status === "closed" || md.closed) status = "complete";
-        else if (g.status === "in_game" || md.is_in_progress || md.has_started) status = "in_progress";
+        if (frac <= 0 || g.status === "complete" || md.is_over || md.status === "closed" || md.closed) {
+          status = "complete";
+          frac = 0;
+        } else if (g.status === "in_game" || md.is_in_progress || md.has_started || frac < 1) {
+          status = "in_progress";
+        } else {
+          status = "pre";
+          frac = 1;
+        }
         [md.home_team, md.away_team].forEach(function (t) {
-          if (t) map[String(t).toUpperCase()] = status;
+          if (t) map[String(t).toUpperCase()] = { status: status, frac: frac };
         });
       });
       sleeperGameStatusCache = { key: key, map: map };
@@ -319,10 +357,15 @@
     return "";
   }
 
-  function playerGameStatus(player, gameStatusMap) {
+  function playerGameInfo(player, gameStatusMap) {
     var team = playerNflTeam(player);
-    if (!team || !gameStatusMap) return "pre";
-    return gameStatusMap[team] || "pre";
+    var info = team && gameStatusMap ? gameStatusMap[team] : null;
+    if (!info) return { status: "pre", frac: 1 };
+    if (typeof info === "string") return { status: info, frac: info === "complete" ? 0 : 1 };
+    return {
+      status: info.status || "pre",
+      frac: info.frac == null ? 1 : Number(info.frac)
+    };
   }
 
   function normName(s) {
@@ -674,13 +717,19 @@
       if (!p) return null;
       p.points = Number(pointsMap[id] || 0);
       var pregame = sleeperProjPts(projMap && projMap[String(id)], scoringSettings);
-      p.gameStatus = playerGameStatus(p, gameStatusMap);
-      // Match Sleeper's player line: pregame proj for finished/upcoming; live floor for in-progress.
-      if (p.gameStatus === "in_progress" && pregame != null) {
-        p.projected = Math.max(p.points, Number(pregame));
-      } else {
-        p.projected = pregame;
-      }
+      var info = playerGameInfo(p, gameStatusMap);
+      p.gameStatus = info.status;
+      p.gameFrac = info.frac;
+      p.pregame = pregame;
+      var live = livePlayerProjected({
+        points: p.points,
+        pregame: pregame,
+        projected: pregame,
+        gameStatus: info.status,
+        gameFrac: info.frac
+      });
+      // Player line matches Sleeper: finished keep pregame under the score; live games show live proj.
+      p.projected = info.status === "complete" ? pregame : live;
       p.starter = starter;
       return p;
     }
@@ -1468,18 +1517,20 @@
     if (!m || !m.medianWin || !m.median) return "";
     var med = m.median;
     var bits = [];
-    if (med.medianProjected != null) bits.push("Proj median " + fmtPts(med.medianProjected));
+    if (med.medianLive != null) bits.push("Median " + fmtPts(med.medianLive));
+    if (med.medianProjected != null) bits.push("Proj " + fmtPts(med.medianProjected));
     if (med.myProjectedRank != null) {
       bits.push("#" + med.myProjectedRank + " of " + med.teamCount + " proj");
     }
-    var status = med.myInTopHalfProjected
+    var inTop = med.myInTopHalfLive != null ? med.myInTopHalfLive : med.myInTopHalfProjected;
+    var status = inTop
       ? "Top " + med.topSlots + " · extra win"
       : "Outside top " + med.topSlots;
     return (
       '<div class="median-summary">' +
         '<p class="median-kicker">Median · top ' + med.topSlots + " get a win</p>" +
         '<p class="median-line">' + escapeHtml(bits.join(" · ")) + "</p>" +
-        '<p class="median-status' + (med.myInTopHalfProjected ? " in" : " out") + '">' + escapeHtml(status) + "</p>" +
+        '<p class="median-status' + (inTop ? " in" : " out") + '">' + escapeHtml(status) + "</p>" +
       "</div>"
     );
   }
@@ -1507,7 +1558,8 @@
       '<div class="median-board">' +
         "<h4>Projected standings · median</h4>" +
         '<p class="median-note">Top ' + med.topSlots + " of " + med.teamCount +
-          (med.medianProjected != null ? " · line " + fmtPts(med.medianProjected) : "") +
+          (med.medianLive != null ? " · median " + fmtPts(med.medianLive) : "") +
+          (med.medianProjected != null ? " · proj " + fmtPts(med.medianProjected) : "") +
           "</p>" +
         rows +
       "</div>"
