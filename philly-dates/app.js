@@ -8,7 +8,6 @@ var MAX_TAGS = 24;
 var menuPhotoObjectUrl = null;
 var menuPhotoUrlCache = {};
 var menuPhotoUrlPending = {};
-var DEFAULT_MAP_URL = "https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14";
 var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 var RESTAURANTS = [];
 var NEIGHBORHOODS = ["Bella Vista", "Center City", "East Passyunk", "Fairmount", "Fishtown", "Graduate Hospital", "Kensington", "Logan Square", "Midtown Village", "Northern Liberties", "Old City", "Passyunk Square", "Penn's Landing", "Queen Village", "Rittenhouse", "Society Hill", "South Philadelphia", "South Street", "University City", "Washington Square West"];
