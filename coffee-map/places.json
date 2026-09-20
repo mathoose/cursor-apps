@@ -3830,5 +3830,298 @@
         "close": "6:00 PM"
       }
     }
+  },
+  {
+    "id": "coffee-cream-and-dreams",
+    "name": "Coffee Cream & Dreams",
+    "neighborhood": "Spring Garden",
+    "address": "1436 Fairmount Ave, Philadelphia, PA 19130",
+    "lat": 39.966996,
+    "lng": -75.16141,
+    "website": "https://www.coffeecreamanddreams-pa.com/",
+    "instagramUrl": "https://www.instagram.com/coffeecreamanddreams.pa/",
+    "hoursSource": "google",
+    "hoursNote": "Mon\u2013Fri 7am\u20131pm \u00b7 Sat\u2013Sun 8am\u20131pm (listings)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "1:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "1:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "1:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "1:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "1:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "1:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "1:00 PM"
+      }
+    }
+  },
+  {
+    "id": "the-daily-broad",
+    "name": "the daily.",
+    "neighborhood": "North Broad",
+    "address": "699 N Broad St, Philadelphia, PA 19123",
+    "lat": 39.966724,
+    "lng": -75.16009,
+    "website": "https://www.instagram.com/thedailyphl/",
+    "instagramUrl": "https://www.instagram.com/thedailyphl/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7am\u20132pm \u00b7 Sat\u2013Sun 8am\u20132pm \u00b7 enter on Fairmount off Broad (Instagram)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    }
+  },
+  {
+    "id": "flores-coffee-shop",
+    "name": "Flores Coffee Shop",
+    "neighborhood": "Francisville",
+    "address": "1900 W Girard Ave, Philadelphia, PA 19130",
+    "lat": 39.972331,
+    "lng": -75.167576,
+    "website": "https://www.instagram.com/florescoffeeshopphilly/",
+    "instagramUrl": "https://www.instagram.com/florescoffeeshopphilly/",
+    "hoursSource": "google",
+    "hoursNote": "Mon\u2013Fri 7am\u20134pm \u00b7 Sat 8am\u20133pm \u00b7 Sun closed",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "closed": true
+      }
+    }
+  },
+  {
+    "id": "twisted-grounds",
+    "name": "Twisted Grounds",
+    "neighborhood": "Spring Garden",
+    "address": "547 N 20th St, Philadelphia, PA 19130",
+    "lat": 39.963995,
+    "lng": -75.170807,
+    "website": "https://www.twistedgroundsphilly.com/",
+    "instagramUrl": "https://www.instagram.com/twistedgroundsphilly/",
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Fri 7am\u20134pm \u00b7 Sat\u2013Sun 7:30am\u20135pm (site); Instagram notes Tue later hours",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "warehouse-cafe",
+    "name": "Warehouse Cafe",
+    "neighborhood": "Fairmount",
+    "address": "2100 Fairmount Ave, Philadelphia, PA 19130",
+    "lat": 39.967093,
+    "lng": -75.172305,
+    "website": "https://www.warehousecafephilly.com/",
+    "instagramUrl": "https://www.instagram.com/warehousecafephilly/",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7am\u20135pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "musette-fairmount",
+    "name": "Musette \u2014 Fairmount",
+    "neighborhood": "Fairmount",
+    "address": "2441 Aspen St, Philadelphia, PA 19130",
+    "lat": 39.969012,
+    "lng": -75.17817,
+    "website": "https://www.musettephiladelphia.com/",
+    "instagramUrl": "https://www.instagram.com/cafe_musette/",
+    "hoursSource": "press",
+    "hoursNote": "Mon\u2013Fri ~7am\u20134pm \u00b7 Sat\u2013Sun ~8am\u20135pm (listings)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "lucky-goat-coffee",
+    "name": "Lucky Goat Coffee House",
+    "neighborhood": "Fairmount",
+    "address": "888 N 26th St, Philadelphia, PA 19130",
+    "lat": 39.972569,
+    "lng": -75.179333,
+    "website": "https://luckygoatphilly.com/",
+    "instagramUrl": "https://www.instagram.com/luckygoatphilly/",
+    "hoursSource": "press",
+    "hoursNote": "Elixr coffee \u00b7 Fairmount/Brewerytown border \u00b7 confirm hours on site (often ~7am\u20133pm)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      }
+    }
   }
 ]
