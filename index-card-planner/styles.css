@@ -457,7 +457,32 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 .mini-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+}
+
+.freq-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.mini-list .freq-divider:first-child { margin-top: 0; }
+.freq-divider::after {
+  content: "";
+  flex: 1;
+  order: 2;
+  height: 1px;
+  background: var(--border);
+}
+.freq-n {
+  order: 3;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
 }
 
 .mini-card {
@@ -469,6 +494,7 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   border: 1px solid rgba(80, 60, 30, 0.1);
   border-radius: 8px;
   padding: 12px 12px 12px 10px;
+  margin-bottom: 8px;
   background: var(--card-bg, #fbf6ea);
   color: var(--card-ink, #3d3428);
   box-shadow: 0 3px 10px rgba(61, 47, 36, 0.08);
@@ -504,19 +530,61 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
 }
 .mini-card .check.on svg { opacity: 1; }
 
-.mini-card .body { flex: 1; min-width: 0; }
+.mini-card .body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+}
 .mini-card .title {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.05rem;
   line-height: 1.25;
 }
-.mini-card .title.done { text-decoration: line-through; opacity: 0.55; }
+.mini-card .title.done { text-decoration: line-through; opacity: 0.7; }
 .mini-card .meta {
-  margin-top: 3px;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   opacity: 0.65;
+}
+
+.mini-card.compact {
+  padding: 6px 10px 6px 8px;
+  gap: 8px;
+  min-height: 36px;
+  margin-bottom: 4px;
+  border-top-width: 2px;
+  box-shadow: none;
+  opacity: 0.78;
+}
+.mini-card.compact .check {
+  width: 22px;
+  height: 22px;
+}
+.mini-card.compact .body {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mini-card.compact .title {
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mini-card.compact .meta {
+  flex-shrink: 0;
+  margin: 0;
 }
 
 .fab {
@@ -746,7 +814,7 @@ input:focus, textarea:focus {
 
 .toast {
   position: fixed;
-  bottom: calc(var(--nav-h) + 16px);
+  bottom: calc(var(--nav-h) + 80px);
   left: 50%;
   transform: translateX(-50%) translateY(12px);
   background: var(--desk);

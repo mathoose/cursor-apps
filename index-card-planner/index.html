@@ -12,16 +12,16 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
-<body class="view-today">
+<body class="view-box">
   <header class="app-header">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     <div class="header-titles">
       <h1>Card Box</h1>
-      <p id="headerSub">Today’s pull</p>
+      <p id="headerSub">The card file</p>
     </div>
     <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
@@ -29,7 +29,7 @@
   </header>
 
   <main class="main-panel">
-    <section class="view active" id="viewToday" data-view="today">
+    <section class="view" id="viewToday" data-view="today">
       <div class="today-heading">
         <p class="eyebrow" id="todayEyebrow">Saturday</p>
         <h2 id="todayTitle">Sep 12</h2>
@@ -91,7 +91,7 @@
       </div>
     </section>
 
-    <section class="view" id="viewBox" data-view="box">
+    <section class="view active" id="viewBox" data-view="box">
       <div class="box-frame">
         <div class="tab-strip" id="tabStrip" role="tablist" aria-label="Dividers"></div>
         <div class="pocket">
@@ -117,11 +117,11 @@
   </button>
 
   <nav class="bottom-nav" role="tablist">
-    <button type="button" class="nav-btn active" data-view="today" role="tab" aria-selected="true">
+    <button type="button" class="nav-btn" data-view="today" role="tab" aria-selected="false">
       <svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="16" rx="2"/><path d="M8 8h8M8 12h6"/></svg>
       <span class="nav-btn-label">Today</span>
     </button>
-    <button type="button" class="nav-btn" data-view="box" role="tab" aria-selected="false">
+    <button type="button" class="nav-btn active" data-view="box" role="tab" aria-selected="true">
       <svg viewBox="0 0 24 24"><path d="M4 8h16v12H4z"/><path d="M7 8V6h3v2M14 8V5h3v3"/></svg>
       <span class="nav-btn-label">Box</span>
     </button>
@@ -170,7 +170,7 @@
 
       <div class="settings-section">
         <h3>How the box works</h3>
-        <p class="settings-note">One task per card. File cards behind Daily, Today, a weekday, Next week, or Later. Each morning, Today pulls Daily + Today + this weekday — the analog Trello / tickler from the $10 index-card box.</p>
+        <p class="settings-note">One task per card. Daily / Weekly / Monthly dividers hold routines. Finish a weekly card and it slides to Next until Monday; monthly cards wait in Later. Today pulls Daily + Today + this weekday.</p>
       </div>
 
       <div class="settings-section">
@@ -203,6 +203,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

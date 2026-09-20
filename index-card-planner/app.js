@@ -20,7 +20,9 @@
 
   var DEFAULT_TABS = [
     { id: "inbox", name: "Inbox", color: "#c4b8a8", hint: "Unfiled cards land here until you slide them behind a day." },
-    { id: "daily", name: "Daily", color: "#e07a5f", hint: "Routines you pull every morning." },
+    { id: "daily", name: "Daily", color: "#e07a5f", hint: "Every morning. Finished cards stay here, collapsed, until tomorrow." },
+    { id: "weekly", name: "Weekly", color: "#e07a9a", hint: "Once a week. When you finish one, it slides to Next until next week." },
+    { id: "monthly", name: "Monthly", color: "#9b8ec4", hint: "Once a month. Finished cards park in Later until next month." },
     { id: "today", name: "Today", color: "#f2cc8f", hint: "This day’s one-offs. Leftovers can move to tomorrow." },
     { id: "mon", name: "Mon", color: "#81b29a", weekday: 1, hint: "Cards you do on Mondays." },
     { id: "tue", name: "Tue", color: "#e07a9a", weekday: 2, hint: "Cards you do on Tuesdays." },
@@ -29,18 +31,27 @@
     { id: "fri", name: "Fri", color: "#9b8ec4", weekday: 5, hint: "Cards you do on Fridays." },
     { id: "sat", name: "Sat", color: "#f4a261", weekday: 6, hint: "Cards you do on Saturdays." },
     { id: "sun", name: "Sun", color: "#e76f51", weekday: 0, hint: "Cards you do on Sundays." },
-    { id: "next", name: "Next", color: "#5c9ead", hint: "Park it here for next week. Monday morning it moves to Inbox." },
-    { id: "later", name: "Later", color: "#b088c9", hint: "Someday / not this week." },
+    { id: "next", name: "Next", color: "#5c9ead", hint: "Next week, plus finished weekly cards waiting to come home on Monday." },
+    { id: "later", name: "Later", color: "#b088c9", hint: "Someday, plus finished monthly cards waiting for next month." },
     { id: "done", name: "Done", color: "#8a9a8a", hint: "Finished one-off cards. Clear them in Settings." },
   ];
+
+  var FREQ_SECTIONS = [
+    { id: "daily", label: "Daily" },
+    { id: "weekly", label: "Weekly" },
+    { id: "monthly", label: "Monthly" },
+    { id: "none", label: "Once" },
+  ];
+
+  var PARKING_TABS = { next: true, later: true, done: true };
 
   var REPEAT_LABEL = { none: "Once", daily: "Daily", weekly: "Weekly", monthly: "Monthly" };
 
   var ui = {
-    view: "today",
+    view: "box",
     pullIndex: 0,
     flipped: false,
-    selectedTab: "today",
+    selectedTab: "daily",
     editingId: null,
     draft: null,
     filingId: null,
@@ -98,6 +109,17 @@
     return CARD_COLORS[0];
   }
 
+  function isParkingTab(id) {
+    return !!PARKING_TABS[id];
+  }
+
+  function defaultHomeForRepeat(repeat) {
+    if (repeat === "daily") return "daily";
+    if (repeat === "weekly") return "weekly";
+    if (repeat === "monthly") return "monthly";
+    return "today";
+  }
+
   function tabById(data, id) {
     var i;
     for (i = 0; i < data.tabs.length; i++) {
@@ -127,12 +149,18 @@
     var c = raw && typeof raw === "object" ? raw : {};
     var repeat = c.repeat === "daily" || c.repeat === "weekly" || c.repeat === "monthly" ? c.repeat : "none";
     var color = colorById(c.color).id;
+    var tabId = typeof c.tabId === "string" && c.tabId ? c.tabId : "inbox";
+    var homeTabId = typeof c.homeTabId === "string" && c.homeTabId ? c.homeTabId : null;
+    if (!homeTabId) {
+      homeTabId = isParkingTab(tabId) ? defaultHomeForRepeat(repeat) : tabId;
+    }
     return {
       id: typeof c.id === "string" && c.id ? c.id : uid(),
       title: String(c.title || "").trim().slice(0, 140),
       notes: String(c.notes || "").trim().slice(0, 500),
       color: color,
-      tabId: typeof c.tabId === "string" && c.tabId ? c.tabId : "inbox",
+      tabId: tabId,
+      homeTabId: homeTabId,
       done: !!c.done,
       repeat: repeat,
       createdAt: typeof c.createdAt === "string" ? c.createdAt : new Date().toISOString(),
@@ -168,6 +196,17 @@
         });
       }
     });
+    var byId = {};
+    data.tabs.forEach(function (t) { byId[t.id] = t; });
+    var ordered = [];
+    DEFAULT_TABS.forEach(function (need) {
+      if (byId[need.id]) {
+        ordered.push(byId[need.id]);
+        delete byId[need.id];
+      }
+    });
+    Object.keys(byId).forEach(function (id) { ordered.push(byId[id]); });
+    data.tabs = ordered;
     data.cards = (Array.isArray(data.cards) ? data.cards : [])
       .map(normalizeCard)
       .filter(function (c) { return c.title; });
@@ -179,27 +218,38 @@
   function applyTime(data, when) {
     var today = dateKey(when);
     var rolledNext = false;
-    if (data.lastOpenDate && data.lastOpenDate !== today) {
-      var prev = parseDateKey(data.lastOpenDate);
-      if (prev && !sameWeek(prev, when)) {
-        data.cards.forEach(function (c) {
-          if (c.tabId === "next" && !c.done) {
-            c.tabId = "inbox";
-            rolledNext = true;
-          }
-        });
-      }
-    }
+    var prev = data.lastOpenDate ? parseDateKey(data.lastOpenDate) : null;
+    var newWeek = prev && data.lastOpenDate !== today && !sameWeek(prev, when);
+    var newMonth = prev && data.lastOpenDate !== today && !sameMonth(prev, when);
+
     data.cards.forEach(function (c) {
-      if (c.repeat === "none" || !c.done || !c.completedOn) return;
-      var doneAt = parseDateKey(c.completedOn);
-      if (!doneAt) {
+      if (newWeek && c.tabId === "next" && c.repeat !== "weekly") {
+        if (!c.done) {
+          c.tabId = "inbox";
+          rolledNext = true;
+        }
+      }
+
+      if (c.repeat === "none") return;
+
+      if (c.repeat === "daily" && c.done && c.completedOn !== today) {
         c.done = false;
+        c.completedOn = null;
         return;
       }
-      if (c.repeat === "daily" && c.completedOn !== today) c.done = false;
-      if (c.repeat === "weekly" && !sameWeek(doneAt, when)) c.done = false;
-      if (c.repeat === "monthly" && !sameMonth(doneAt, when)) c.done = false;
+
+      if (c.repeat === "weekly" && newWeek) {
+        c.done = false;
+        c.completedOn = null;
+        if (c.tabId === "next") c.tabId = c.homeTabId || "weekly";
+        return;
+      }
+
+      if (c.repeat === "monthly" && newMonth) {
+        c.done = false;
+        c.completedOn = null;
+        if (c.tabId === "later") c.tabId = c.homeTabId || "monthly";
+      }
     });
     data.lastOpenDate = today;
     data._rolledNext = rolledNext;
@@ -237,6 +287,7 @@
     var dayId = weekdayTabId(now);
     return state.cards
       .filter(function (c) {
+        if (c.done) return false;
         return c.tabId === "daily" || c.tabId === "today" || c.tabId === dayId;
       })
       .sort(function (a, b) {
@@ -361,6 +412,7 @@
   }
 
   function renderBox() {
+    document.body.classList.remove("hide-stage");
     var strip = document.getElementById("tabStrip");
     var dayId = weekdayTabId(now);
     strip.innerHTML = state.tabs.map(function (t) {
@@ -375,10 +427,6 @@
         "</button>"
       );
     }).join("");
-    var selectedChip = strip.querySelector(".tab-chip.on");
-    if (selectedChip && selectedChip.scrollIntoView) {
-      selectedChip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
-    }
 
     var tab = tabById(state, ui.selectedTab);
     var list = cardsInTab(tab.id);
@@ -390,20 +438,50 @@
     var pocketList = document.getElementById("pocketList");
     var pocketEmpty = document.getElementById("pocketEmpty");
     pocketEmpty.hidden = list.length > 0;
-    pocketList.innerHTML = list.map(function (c) {
-      var col = colorById(c.color);
-      return (
-        '<article class="mini-card" data-id="' + escapeHtml(c.id) + '" style="--card-bg:' + col.bg + ";--card-ink:" + col.ink + '">' +
-          '<button type="button" class="check' + (c.done ? " on" : "") + '" data-check="' + escapeHtml(c.id) + '" aria-label="Mark done">' +
-            '<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>' +
-          "</button>" +
-          '<button type="button" class="body" data-edit="' + escapeHtml(c.id) + '">' +
-            '<div class="title' + (c.done ? " done" : "") + '">' + escapeHtml(c.title) + "</div>" +
-            '<div class="meta">' + escapeHtml(REPEAT_LABEL[c.repeat] || "Once") + (c.notes ? " · notes" : "") + "</div>" +
-          "</button>" +
-        "</article>"
-      );
-    }).join("");
+    pocketList.innerHTML = renderPocketCards(list);
+  }
+
+  function renderPocketCards(list) {
+    var open = list.filter(function (c) { return !c.done; });
+    var done = list.filter(function (c) { return c.done; });
+    var html = "";
+    FREQ_SECTIONS.forEach(function (sec) {
+      var items = open.filter(function (c) { return c.repeat === sec.id; });
+      if (!items.length) return;
+      html += freqDivider(sec.label, items.length);
+      html += items.map(function (c) { return miniCardHtml(c, false); }).join("");
+    });
+    if (done.length) {
+      html += freqDivider("Done", done.length);
+      html += done.map(function (c) { return miniCardHtml(c, true); }).join("");
+    }
+    return html;
+  }
+
+  function freqDivider(label, count) {
+    return (
+      '<div class="freq-divider" role="presentation">' +
+        "<span>" + escapeHtml(label) + "</span>" +
+        '<span class="freq-n">' + count + "</span>" +
+      "</div>"
+    );
+  }
+
+  function miniCardHtml(c, compact) {
+    var col = colorById(c.color);
+    var cls = "mini-card" + (compact ? " compact" : "");
+    return (
+      '<article class="' + cls + '" data-id="' + escapeHtml(c.id) + '" style="--card-bg:' + col.bg + ";--card-ink:" + col.ink + '">' +
+        '<button type="button" class="check' + (c.done ? " on" : "") + '" data-check="' + escapeHtml(c.id) + '" aria-label="Mark done">' +
+          '<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>' +
+        "</button>" +
+        '<button type="button" class="body" data-edit="' + escapeHtml(c.id) + '">' +
+          '<span class="title' + (c.done ? " done" : "") + '">' + escapeHtml(c.title) + "</span>" +
+          '<span class="meta">' + escapeHtml(REPEAT_LABEL[c.repeat] || "Once") +
+            (!compact && c.notes ? " · notes" : "") + "</span>" +
+        "</button>" +
+      "</article>"
+    );
   }
 
   function render() {
@@ -424,11 +502,33 @@
   function toggleDone(id) {
     var card = findCard(id);
     if (!card) return;
-    card.done = !card.done;
-    card.completedOn = card.done ? dateKey(now) : null;
-    if (card.done && card.repeat === "none") {
+    if (card.done) {
+      card.done = false;
+      card.completedOn = null;
+      if (card.repeat === "weekly" && card.tabId === "next") {
+        card.tabId = card.homeTabId || "weekly";
+      } else if (card.repeat === "monthly" && card.tabId === "later") {
+        card.tabId = card.homeTabId || "monthly";
+      } else if (card.repeat === "none" && card.tabId === "done") {
+        card.tabId = card.homeTabId || "inbox";
+      }
+      persist();
+      return;
+    }
+
+    card.done = true;
+    card.completedOn = dateKey(now);
+    if (!isParkingTab(card.tabId)) card.homeTabId = card.tabId;
+
+    if (card.repeat === "none") {
       card.tabId = "done";
       toast("Filed to Done");
+    } else if (card.repeat === "weekly") {
+      card.tabId = "next";
+      toast("Filed to Next week");
+    } else if (card.repeat === "monthly") {
+      card.tabId = "later";
+      toast("Filed until next month");
     }
     persist();
   }
@@ -437,6 +537,7 @@
     var card = findCard(id);
     if (!card) return;
     card.tabId = tabId;
+    if (!isParkingTab(tabId)) card.homeTabId = tabId;
     if (tabId !== "done" && card.repeat === "none") {
       card.done = false;
       card.completedOn = null;
@@ -486,8 +587,13 @@
           notes: "",
           color: "cream",
           tabId: ui.view === "box" ? ui.selectedTab : "today",
-          repeat: ui.view === "box" && ui.selectedTab === "daily" ? "daily" : "none",
+          repeat: "none",
         };
+    if (!card) {
+      if (ui.draft.tabId === "daily") ui.draft.repeat = "daily";
+      if (ui.draft.tabId === "weekly") ui.draft.repeat = "weekly";
+      if (ui.draft.tabId === "monthly") ui.draft.repeat = "monthly";
+    }
     if (!card && ui.draft.tabId === "done") ui.draft.tabId = "today";
     document.getElementById("editorTitle").textContent = card ? "Edit card" : "New card";
     document.getElementById("cardTitleInput").value = ui.draft.title;
@@ -549,6 +655,7 @@
       existing.color = ui.draft.color;
       existing.tabId = ui.draft.tabId;
       existing.repeat = ui.draft.repeat;
+      if (!isParkingTab(ui.draft.tabId)) existing.homeTabId = ui.draft.tabId;
     } else {
       state.cards.push(normalizeCard({
         id: ui.draft.id,
@@ -597,7 +704,7 @@
     var samples = [
       { title: "Make the bed", color: "sage", tabId: "daily", repeat: "daily" },
       { title: "Write one task per card", color: "butter", tabId: "today", repeat: "none", notes: "That’s the whole system. File extras behind a weekday." },
-      { title: "Flip through today’s pull", color: "peach", tabId: weekdayTabId(now), repeat: "weekly" },
+      { title: "Flip through today’s pull", color: "peach", tabId: "weekly", repeat: "weekly" },
       { title: "Something I haven’t filed yet", color: "cream", tabId: "inbox", repeat: "none" },
       { title: "Plan next week on Sunday", color: "lilac", tabId: "next", repeat: "weekly" },
       { title: "A someday project", color: "sky", tabId: "later", repeat: "none", notes: "Park it here until it earns a day." },
@@ -771,6 +878,10 @@
       if (!btn) return;
       ui.selectedTab = btn.dataset.tab;
       renderBox();
+      var chip = document.querySelector('#tabStrip .tab-chip.on');
+      if (chip && chip.scrollIntoView) {
+        chip.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      }
     });
 
     document.getElementById("pocketList").addEventListener("click", function (e) {
@@ -793,7 +904,15 @@
       var btn = e.target.closest("[data-repeat]");
       if (!btn || !ui.draft) return;
       ui.draft.repeat = btn.dataset.repeat;
-      if (ui.draft.repeat === "daily" && ui.draft.tabId === "today") ui.draft.tabId = "daily";
+      if (ui.draft.repeat === "daily" && (ui.draft.tabId === "today" || ui.draft.tabId === "weekly" || ui.draft.tabId === "monthly")) {
+        ui.draft.tabId = "daily";
+      }
+      if (ui.draft.repeat === "weekly" && (ui.draft.tabId === "today" || ui.draft.tabId === "daily" || ui.draft.tabId === "monthly")) {
+        ui.draft.tabId = "weekly";
+      }
+      if (ui.draft.repeat === "monthly" && (ui.draft.tabId === "today" || ui.draft.tabId === "daily" || ui.draft.tabId === "weekly")) {
+        ui.draft.tabId = "monthly";
+      }
       renderRepeatSeg();
       renderFileChips();
     });
