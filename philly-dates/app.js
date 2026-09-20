@@ -923,6 +923,10 @@ function patchPlaceOrders(name, mutator) {
   var patch = { orders: orders };
   if (orders.some(orderHasContent)) patch.visited = true;
   setPlaceMeta(name, patch);
+  if (patch.visited) {
+    var visitedEl = document.getElementById('modal-visited');
+    if (visitedEl) visitedEl.checked = true;
+  }
   return getPlaceMeta(name).orders;
 }
 
