@@ -814,7 +814,7 @@ input:focus, textarea:focus {
 
 .toast {
   position: fixed;
-  bottom: calc(var(--nav-h) + 16px);
+  bottom: calc(var(--nav-h) + 80px);
   left: 50%;
   transform: translateX(-50%) translateY(12px);
   background: var(--desk);
