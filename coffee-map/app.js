@@ -14,6 +14,7 @@
   var toastTimer = null;
   var activePlaceId = null;
   var droppedPin = null;
+  var hereControl = null;
   var ui = {
     view: 'map',
     filter: 'all',
@@ -504,13 +505,59 @@
     if (!placesLayer) return;
     placesLayer.clearLayers();
     var data = loadData();
+    var hereActive = hereControl && hereControl.isActive();
     filteredPlaces(data).forEach(function (p) {
       var kind = p.status === 'been' ? 'been' : 'want';
       var label = p.status === 'been' ? '✓' : '•';
-      var marker = L.marker([p.lat, p.lng], { icon: pinIcon(kind, label), keyboard: true });
+      var dim = hereActive && hereControl && !hereControl.isWithin(p.lat, p.lng);
+      var marker = L.marker([p.lat, p.lng], {
+        icon: pinIcon(kind, label),
+        keyboard: true,
+        opacity: dim ? 0.32 : 1
+      });
+      if (dim) {
+        marker.on('add', function () {
+          var el = marker.getElement();
+          if (el) el.classList.add('pin-dim');
+        });
+      }
       marker.on('click', function () { openDetail(p.id); });
       placesLayer.addLayer(marker);
     });
+  }
+
+  function updateHereUi(state) {
+    var bar = document.getElementById('hereBar');
+    var btn = document.getElementById('hereBtn');
+    var label = document.getElementById('hereLabel');
+    var minutes = document.getElementById('hereMinutes');
+    var count = document.getElementById('hereCount');
+    var slider = document.getElementById('hereSlider');
+    if (!bar || !btn) return;
+    btn.disabled = !!(state && state.locating);
+    btn.textContent = '';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>' +
+      (state && state.locating ? 'Locating…' : 'Where am I') + '</span>';
+    if (!state || !state.active) {
+      bar.hidden = true;
+      document.body.classList.remove('here-open');
+      renderPlacesLayer();
+      return;
+    }
+    bar.hidden = false;
+    document.body.classList.add('here-open');
+    if (slider && Number(slider.value) !== state.minutes) slider.value = String(state.minutes);
+    if (label) label.textContent = PhillyWalkMap.formatWalkLabel(state.minutes);
+    if (minutes) minutes.textContent = state.minutes + ' min';
+    if (count) {
+      var n = hereControl ? hereControl.countWithin(filteredPlaces(loadData())) : 0;
+      count.textContent = n + ' place' + (n === 1 ? '' : 's') + ' inside this walk';
+    }
+    renderPlacesLayer();
+  }
+
+  function clearHere() {
+    if (hereControl) hereControl.clear();
   }
 
   function renderList() {
@@ -894,6 +941,7 @@
       btn.classList.toggle('active', on);
       btn.setAttribute('aria-selected', on ? 'true' : 'false');
     });
+    if (ui.view !== 'map') clearHere();
     if (ui.view === 'map' && map) {
       setTimeout(function () { map.invalidateSize(); }, 50);
     }
@@ -986,6 +1034,13 @@
     placesLayer = L.layerGroup().addTo(map);
     candidatesLayer = L.layerGroup().addTo(map);
 
+    if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.attachHereControl) {
+      hereControl = PhillyWalkMap.attachHereControl(map, {
+        onChange: updateHereUi,
+        onError: function (msg) { toast(msg); }
+      });
+    }
+
     var holdTimer = null;
     function startHold(latlng) {
       if (holdTimer) clearTimeout(holdTimer);
@@ -1076,6 +1131,27 @@
     document.querySelectorAll('.chip').forEach(function (chip) {
       chip.addEventListener('click', function () { setFilter(chip.getAttribute('data-filter')); });
     });
+    var hereBtn = document.getElementById('hereBtn');
+    if (hereBtn) {
+      hereBtn.addEventListener('click', function () {
+        if (!hereControl) {
+          toast('Location helper failed to load');
+          return;
+        }
+        hereControl.locate();
+      });
+    }
+    var hereClearBtn = document.getElementById('hereClearBtn');
+    if (hereClearBtn) {
+      hereClearBtn.addEventListener('click', function () { clearHere(); });
+    }
+    var hereSlider = document.getElementById('hereSlider');
+    if (hereSlider) {
+      hereSlider.addEventListener('input', function () {
+        if (!hereControl) return;
+        hereControl.setMinutes(hereSlider.value);
+      });
+    }
     document.getElementById('listSort').addEventListener('change', function () {
       ui.sort = document.getElementById('listSort').value;
       renderList();

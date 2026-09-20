@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <header class="top">
@@ -259,6 +259,18 @@
     <div class="city-map-viewport" id="city-map-viewport">
       <div id="city-map" class="city-map-leaflet" role="application" aria-label="Philadelphia map"></div>
     </div>
+    <div class="city-map-here-bar" id="city-map-here-bar" hidden>
+      <div class="city-map-here-top">
+        <p class="city-map-here-label" id="city-map-here-label">~800 m · 10 min walk</p>
+        <button type="button" class="text-btn" id="city-map-here-clear">Clear</button>
+      </div>
+      <label class="city-map-here-slider">
+        <span>Walk</span>
+        <input type="range" id="city-map-here-slider" min="5" max="25" step="1" value="10" />
+        <span id="city-map-here-minutes">10 min</span>
+      </label>
+      <p class="city-map-here-count" id="city-map-here-count"></p>
+    </div>
     <div class="city-map-popup" id="city-map-popup" hidden>
       <button type="button" class="modal-close" id="city-map-popup-close" aria-label="Close place">&times;</button>
       <h3 id="city-map-popup-name"></h3>
@@ -270,17 +282,19 @@
       <button type="button" class="btn btn-primary" id="city-map-popup-details">Details</button>
     </div>
     <div class="city-map-zoom">
+      <button type="button" id="city-map-here" aria-label="Where am I" title="Where am I">⌖</button>
       <button type="button" id="city-map-in" aria-label="Zoom in">+</button>
       <button type="button" id="city-map-out" aria-label="Zoom out">−</button>
     </div>
+    <div class="city-map-toast" id="city-map-toast" role="status" aria-live="polite" hidden></div>
   </div>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=3"></script>
-  <script src="app.js?v=13" defer></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=4"></script>
+  <script src="app.js?v=14" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

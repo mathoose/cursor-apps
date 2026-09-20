@@ -2552,6 +2552,57 @@ var cityMapOnlyOpen = document.getElementById('map-only-open');
 var cityMapPopup = document.getElementById('city-map-popup');
 var cityMapPopupName = '';
 var cityMapIgnoreClickUntil = 0;
+var cityMapHereControl = null;
+var cityMapToastTimer = null;
+
+function cityMapToast(msg) {
+  var el = document.getElementById('city-map-toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.hidden = false;
+  if (cityMapToastTimer) clearTimeout(cityMapToastTimer);
+  cityMapToastTimer = setTimeout(function() {
+    el.hidden = true;
+  }, 2800);
+}
+
+function updateCityMapHereUi(state) {
+  var bar = document.getElementById('city-map-here-bar');
+  var label = document.getElementById('city-map-here-label');
+  var minutes = document.getElementById('city-map-here-minutes');
+  var count = document.getElementById('city-map-here-count');
+  var slider = document.getElementById('city-map-here-slider');
+  var hereBtn = document.getElementById('city-map-here');
+  if (hereBtn) hereBtn.disabled = !!(state && state.locating);
+  if (!bar) return;
+  if (!state || !state.active) {
+    bar.hidden = true;
+    if (cityMapOverlay) cityMapOverlay.classList.remove('here-open');
+    renderCityMapPins();
+    return;
+  }
+  bar.hidden = false;
+  if (cityMapOverlay) cityMapOverlay.classList.add('here-open');
+  if (slider && Number(slider.value) !== state.minutes) slider.value = String(state.minutes);
+  if (label && typeof PhillyWalkMap !== 'undefined') {
+    label.textContent = PhillyWalkMap.formatWalkLabel(state.minutes);
+  }
+  if (minutes) minutes.textContent = state.minutes + ' min';
+  if (count && cityMapHereControl) {
+    var hideClosed = !!(cityMapOnlyOpen && cityMapOnlyOpen.checked);
+    var places = allMappedPlaces().filter(function(r) {
+      if (!hideClosed) return true;
+      return cityMapPinKind(r) !== 'closed';
+    });
+    var n = cityMapHereControl.countWithin(places);
+    count.textContent = n + ' place' + (n === 1 ? '' : 's') + ' inside this walk';
+  }
+  renderCityMapPins();
+}
+
+function clearCityMapHere() {
+  if (cityMapHereControl) cityMapHereControl.clear();
+}
 
 function cityMapPinKind(r) {
   if (isHappyHourNow(r)) return 'specials';
@@ -2605,6 +2656,12 @@ function ensureCityLeafletMap() {
     cityLeafletMap.createPane('pins');
     cityLeafletMap.getPane('pins').style.zIndex = 660;
   }
+  if (typeof PhillyWalkMap !== 'undefined' && PhillyWalkMap.attachHereControl && !cityMapHereControl) {
+    cityMapHereControl = PhillyWalkMap.attachHereControl(cityLeafletMap, {
+      onChange: updateCityMapHereUi,
+      onError: function(msg) { cityMapToast(msg); }
+    });
+  }
   cityLeafletMap.on('zoomend', updateCityMapZoomClass);
   cityLeafletMap.on('click', function(e) {
     if (Date.now() < cityMapIgnoreClickUntil) return;
@@ -2627,12 +2684,15 @@ function renderCityMapPins() {
     else if (kind === 'open') open += 1;
     else closed += 1;
     if (hideClosed && kind === 'closed') return;
+    var dim = cityMapHereControl && cityMapHereControl.isActive() &&
+      !cityMapHereControl.isWithin(r.lat, r.lng);
     var marker = L.circleMarker([r.lat, r.lng], {
       radius: 11,
       color: '#fff',
       weight: 2,
       fillColor: cityMapPinColor(kind),
-      fillOpacity: 1,
+      fillOpacity: dim ? 0.28 : 1,
+      opacity: dim ? 0.35 : 1,
       bubblingMouseEvents: false,
       pane: 'pins'
     });
@@ -2640,8 +2700,8 @@ function renderCityMapPins() {
       permanent: true,
       direction: 'right',
       offset: [10, 0],
-      className: 'city-map-tooltip',
-      opacity: 1,
+      className: 'city-map-tooltip' + (dim ? ' dim' : ''),
+      opacity: dim ? 0.35 : 1,
       interactive: true
     });
     marker.on('click', function() {
@@ -2709,6 +2769,7 @@ function openCityMap() {
 function closeCityMap() {
   if (!cityMapOverlay) return;
   closeCityMapPopup();
+  clearCityMapHere();
   cityMapOverlay.hidden = true;
   updateBodyModalClass();
 }
@@ -2736,6 +2797,27 @@ if (document.getElementById('city-map-in')) {
 if (document.getElementById('city-map-out')) {
   document.getElementById('city-map-out').addEventListener('click', function() {
     if (cityLeafletMap) cityLeafletMap.zoomOut();
+  });
+}
+if (document.getElementById('city-map-here')) {
+  document.getElementById('city-map-here').addEventListener('click', function() {
+    if (!cityMapHereControl) ensureCityLeafletMap();
+    if (!cityMapHereControl) {
+      cityMapToast('Location helper failed to load');
+      return;
+    }
+    cityMapHereControl.locate();
+  });
+}
+if (document.getElementById('city-map-here-clear')) {
+  document.getElementById('city-map-here-clear').addEventListener('click', function() {
+    clearCityMapHere();
+  });
+}
+if (document.getElementById('city-map-here-slider')) {
+  document.getElementById('city-map-here-slider').addEventListener('input', function() {
+    if (!cityMapHereControl) return;
+    cityMapHereControl.setMinutes(document.getElementById('city-map-here-slider').value);
   });
 }
 if (document.getElementById('city-map-popup-close')) {

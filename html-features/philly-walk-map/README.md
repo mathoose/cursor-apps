@@ -10,6 +10,7 @@ Shared map box for apps used while walking around Philadelphia. Coffee Map and P
 - West through **45th St**; east of the river (**not Camden**)
 - Includes **Brewerytown** around the Art Museum and the full **Navy Yard**
 - Leaflet OSM tiles + `maxBounds` helper
+- One-shot **Where am I** via `attachHereControl` / `locateOnce` (never `watchPosition`; coordinates are not stored)
 - Older hand-drawn Philly Dates art stays at [`philly-dates/city-map.svg`](../../philly-dates/city-map.svg) (archive only; not shown in the UI)
 
 ## When to use
@@ -27,9 +28,17 @@ PhillyWalkMap.applyLimits(map);
 PhillyWalkMap.fit(map);
 
 if (PhillyWalkMap.contains(lat, lng)) { /* keep this pin */ }
+
+var here = PhillyWalkMap.attachHereControl(map, {
+  onChange: function (s) { /* update slider label / dim pins */ },
+  onError: function (msg) { /* toast */ }
+});
+here.locate(); // one GPS fix
+here.setMinutes(15); // resize walk circle only
+here.clear(); // drop pin + circle
 ```
 
-`photonBbox()` is the same box for Photon searches.
+`photonBbox()` is the same box for Photon searches. Walk radius uses ~80 m/min (5–25 min slider).
 
 ## Source
 
