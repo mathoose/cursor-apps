@@ -20,7 +20,7 @@
     label: 'Philly walking map',
     bounds: B,
     center: { lat: 39.9526, lng: -75.1636 },
-    minZoom: 12,
+    minZoom: 13,
     defaultZoom: 13,
     tileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     tileAttribution: '&copy; OpenStreetMap',

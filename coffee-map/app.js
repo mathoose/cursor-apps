@@ -1018,13 +1018,12 @@
 
   function fitMapToPlaces(data) {
     if (!map) return;
-    if (typeof PhillyWalkMap !== 'undefined') {
-      PhillyWalkMap.fit(map, [48, 48]);
+    var pts = ((data && data.places) || []).map(function (p) { return [p.lat, p.lng]; });
+    if (pts.length) {
+      map.fitBounds(pts, { maxZoom: 14, padding: [36, 36] });
       return;
     }
-    if (!data || !data.places.length) return;
-    var b = L.latLngBounds(data.places.map(function (p) { return [p.lat, p.lng]; }));
-    map.fitBounds(b, { maxZoom: 14, padding: [60, 60] });
+    if (typeof PhillyWalkMap !== 'undefined') PhillyWalkMap.fit(map, [36, 36]);
   }
 
   function bind() {

@@ -2696,8 +2696,11 @@ function openCityMap() {
   requestAnimationFrame(function() {
     if (cityLeafletMap) {
       cityLeafletMap.invalidateSize();
-      if (typeof PhillyWalkMap !== 'undefined') PhillyWalkMap.fit(cityLeafletMap, [36, 36]);
-      else cityLeafletMap.setView([39.9526, -75.1636], 13);
+      if (typeof PhillyWalkMap !== 'undefined') {
+        var pts = allMappedPlaces().map(function(r) { return [r.lat, r.lng]; });
+        if (pts.length) cityLeafletMap.fitBounds(pts, { maxZoom: 14, padding: [28, 28] });
+        else PhillyWalkMap.fit(cityLeafletMap, [28, 28]);
+      } else cityLeafletMap.setView([39.9526, -75.1636], 13);
     }
   });
   updateBodyModalClass();
