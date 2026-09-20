@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-map-v7 -->
+<!-- build: coffee-map-v8 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body class="view-map">
   <header class="topbar">
@@ -131,9 +131,17 @@
       <label class="field-label" for="notesInput">Note</label>
       <textarea id="notesInput" rows="3" maxlength="400" placeholder="What you ordered, the vibe…"></textarea>
       <div class="detail-actions">
-        <a class="btn btn-primary" id="openIgBtn" target="_blank" rel="noopener" hidden>Open in Instagram</a>
-        <a class="btn btn-secondary" id="openSiteBtn" target="_blank" rel="noopener" hidden>Official site</a>
-        <a class="btn btn-secondary" id="openMapsBtn" target="_blank" rel="noopener" hidden>Directions</a>
+        <div class="detail-links">
+          <a class="ig-btn" id="openIgBtn" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="17.2" cy="6.8" r="1.15" fill="currentColor"/>
+            </svg>
+          </a>
+          <a class="btn btn-secondary" id="openSiteBtn" target="_blank" rel="noopener" hidden>Official site</a>
+          <a class="btn btn-secondary" id="openMapsBtn" target="_blank" rel="noopener" hidden>Directions</a>
+        </div>
         <button type="button" class="btn btn-danger" id="deletePlaceBtn">Delete</button>
       </div>
     </div>
@@ -168,6 +176,6 @@
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
