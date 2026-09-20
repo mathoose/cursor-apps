@@ -6,10 +6,11 @@ Shared map box for apps used while walking around Philadelphia. Coffee Map and P
 
 ### Approved
 
-- Walking box: **Oregon Ave** (south) → **Fishtown / Olde Kensington** (north)
+- Walking box: **Navy Yard** (south) → **Fishtown / Olde Kensington** (north)
 - West through **45th St**; east of the river (**not Camden**)
-- Includes **Brewerytown** around the Art Museum
+- Includes **Brewerytown** around the Art Museum and the full **Navy Yard**
 - Leaflet OSM tiles + `maxBounds` helper
+- Older hand-drawn Philly Dates art stays at [`philly-dates/city-map.svg`](../../philly-dates/city-map.svg) (archive only; not shown in the UI)
 
 ## When to use
 

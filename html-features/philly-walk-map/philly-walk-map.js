@@ -1,7 +1,7 @@
 /**
  * Shared Philadelphia walking-map box for Coffee Map, Philly Dates, and future apps.
  *
- * Walking around Philly: north of Oregon Ave, south of Fishtown / Olde Kensington,
+ * Walking around Philly: north of the Navy Yard, south of Fishtown / Olde Kensington,
  * west through 45th St, east of the river (not Camden), including Brewerytown
  * around the Art Museum.
  */
@@ -9,7 +9,7 @@
   'use strict';
 
   var B = {
-    south: 39.914,
+    south: 39.885,
     north: 39.984,
     west: -75.214,
     east: -75.118
