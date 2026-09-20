@@ -935,11 +935,6 @@ function applySettings(settings) {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
   var meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', dark ? '#1b5e20' : '#43a047');
-  var mapUrl = settings.mapUrl || DEFAULT_MAP_URL;
-  var mapBtn = document.getElementById('map-btn');
-  if (mapBtn) mapBtn.href = mapUrl;
-  var mapInput = document.getElementById('map-url-input');
-  if (mapInput) mapInput.value = mapUrl;
   var darkToggle = document.getElementById('dark-mode-toggle');
   if (darkToggle) darkToggle.checked = dark;
 }
@@ -982,6 +977,8 @@ function mergeOverrides(overrides) {
     if (o.hoursSource !== undefined) r.hoursSource = o.hoursSource;
     if (o.googlePlaceId !== undefined) r.googlePlaceId = o.googlePlaceId;
     if (o.googleMapsUri !== undefined) r.googleMapsUri = o.googleMapsUri;
+    if (o.lat !== undefined) r.lat = o.lat;
+    if (o.lng !== undefined) r.lng = o.lng;
     if (o.schedule !== undefined) {
       r.schedule = o.schedule;
       var idx = RESTAURANTS.indexOf(r);
@@ -1020,7 +1017,7 @@ function bootstrapData(allPlaces) {
 
 function startApp() {
   reconcileMenuPhotosFromIdb().finally(function() {
-  fetch('places.json?v=5')
+  fetch('places.json?v=6')
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
@@ -1437,6 +1434,11 @@ function formatModalMeta(r) {
   return parts.join(' \u00b7 ');
 }
 
+function isCityMapOpen() {
+  var el = document.getElementById('city-map-overlay');
+  return !!(el && !el.hidden);
+}
+
 function isModalOpen() {
   var pickerEl = document.getElementById('picker-modal');
   var settingsEl = document.getElementById('settings-modal');
@@ -1444,7 +1446,8 @@ function isModalOpen() {
   return modal.classList.contains('open')
     || (settingsEl && settingsEl.classList.contains('open'))
     || (pickerEl && pickerEl.classList.contains('open'))
-    || (quickAddEl && quickAddEl.classList.contains('open'));
+    || (quickAddEl && quickAddEl.classList.contains('open'))
+    || isCityMapOpen();
 }
 
 function updateBodyModalClass() {
@@ -1569,7 +1572,8 @@ modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     if (isQuickAddOpen()) closeQuickAdd();
-    else closeModal();
+    else if (modal.classList.contains('open')) closeModal();
+    else if (isCityMapOpen()) closeCityMap();
     closeSettings();
     closePickerModal();
   }
@@ -1609,15 +1613,6 @@ document.getElementById('dark-mode-toggle').addEventListener('change', function(
   state.settings.darkMode = this.checked;
   saveAppState(state);
   applySettings(state.settings);
-});
-document.getElementById('save-map-url').addEventListener('click', function() {
-  var url = document.getElementById('map-url-input').value.trim() || DEFAULT_MAP_URL;
-  var state = loadAppState();
-  if (!state.settings) state.settings = {};
-  state.settings.mapUrl = url;
-  saveAppState(state);
-  applySettings(state.settings);
-  showStatus('Map link saved.');
 });
 document.getElementById('clear-edits-btn').addEventListener('click', function() {
   if (!confirm('Clear all saved edits, menu photos, and imported Excel changes on this device?')) return;
@@ -2507,6 +2502,216 @@ if (document.getElementById('picker-view-details')) {
     openModal(pickerWinnerName);
   });
 }
+
+var CITY_MAP_WEST = -75.205;
+var CITY_MAP_EAST = -75.128;
+var CITY_MAP_SOUTH = 39.918;
+var CITY_MAP_NORTH = 39.985;
+var cityMapState = { scale: 1.7, x: 0, y: 0, min: 0.85, max: 4.5 };
+var cityMapOverlay = document.getElementById('city-map-overlay');
+var cityMapViewport = document.getElementById('city-map-viewport');
+var cityMapStage = document.getElementById('city-map-stage');
+var cityMapPinsEl = document.getElementById('city-map-pins');
+var cityMapOnlyOpen = document.getElementById('map-only-open');
+
+function cityMapPinKind(r) {
+  if (isHappyHourNow(r)) return 'specials';
+  if (isPlaceOpenNow(r)) return 'open';
+  return 'closed';
+}
+
+function cityMapLatLngToPct(lat, lng) {
+  return {
+    x: ((lng - CITY_MAP_WEST) / (CITY_MAP_EAST - CITY_MAP_WEST)) * 100,
+    y: ((CITY_MAP_NORTH - lat) / (CITY_MAP_NORTH - CITY_MAP_SOUTH)) * 100
+  };
+}
+
+function allMappedPlaces() {
+  return Object.keys(byName).map(function(name) { return byName[name]; }).filter(function(r) {
+    return typeof r.lat === 'number' && typeof r.lng === 'number'
+      && r.lat >= CITY_MAP_SOUTH && r.lat <= CITY_MAP_NORTH
+      && r.lng >= CITY_MAP_WEST && r.lng <= CITY_MAP_EAST;
+  });
+}
+
+function applyCityMapTransform() {
+  if (!cityMapStage) return;
+  cityMapStage.style.transform = 'translate(' + cityMapState.x + 'px,' + cityMapState.y + 'px) scale(' + cityMapState.scale + ')';
+}
+
+function cityMapFocus(lat, lng, scale) {
+  if (!cityMapViewport || !cityMapStage) return;
+  cityMapState.scale = Math.max(cityMapState.min, Math.min(cityMapState.max, scale));
+  var vp = cityMapViewport.getBoundingClientRect();
+  var w = cityMapStage.offsetWidth || 1400;
+  var h = cityMapStage.offsetHeight || 1750;
+  var pct = cityMapLatLngToPct(lat, lng);
+  cityMapState.x = vp.width / 2 - (w * pct.x / 100) * cityMapState.scale;
+  cityMapState.y = vp.height / 2 - (h * pct.y / 100) * cityMapState.scale;
+  applyCityMapTransform();
+}
+
+function renderCityMapPins() {
+  if (!cityMapPinsEl) return;
+  var places = allMappedPlaces();
+  var buckets = {};
+  var items = places.map(function(r) {
+    var pct = cityMapLatLngToPct(r.lat, r.lng);
+    var key = Math.round(pct.x * 2) + ',' + Math.round(pct.y * 2);
+    if (!buckets[key]) buckets[key] = 0;
+    var stack = buckets[key]++;
+    var angle = stack * 0.9;
+    var radius = stack ? 1.05 : 0;
+    return {
+      r: r,
+      x: pct.x + Math.cos(angle) * radius,
+      y: pct.y + Math.sin(angle) * radius,
+      kind: cityMapPinKind(r)
+    };
+  });
+  var specials = 0, open = 0, closed = 0;
+  cityMapPinsEl.innerHTML = items.map(function(item) {
+    if (item.kind === 'specials') specials += 1;
+    else if (item.kind === 'open') open += 1;
+    else closed += 1;
+    return '<button type="button" class="city-map-pin ' + item.kind + '" data-name="'
+      + escapeHtml(item.r.name) + '" style="left:' + item.x.toFixed(2) + '%;top:' + item.y.toFixed(2)
+      + '%" aria-label="' + escapeHtml(item.r.name) + ', ' + item.kind + '"></button>';
+  }).join('');
+  var countEl = document.getElementById('city-map-count');
+  if (countEl) {
+    countEl.textContent = specials + ' specials · ' + open + ' open · ' + closed + ' closed';
+  }
+  cityMapPinsEl.querySelectorAll('.city-map-pin').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openModal(btn.getAttribute('data-name'));
+    });
+  });
+}
+
+function openCityMap() {
+  if (!cityMapOverlay) return;
+  cityMapOverlay.hidden = false;
+  if (cityMapOnlyOpen) {
+    cityMapOverlay.classList.toggle('hide-closed', cityMapOnlyOpen.checked);
+  }
+  renderCityMapPins();
+  requestAnimationFrame(function() {
+    cityMapFocus(39.9526, -75.1636, 1.85);
+  });
+  updateBodyModalClass();
+}
+
+function closeCityMap() {
+  if (!cityMapOverlay) return;
+  cityMapOverlay.hidden = true;
+  updateBodyModalClass();
+}
+
+function cityMapZoomBy(factor, cx, cy) {
+  if (!cityMapViewport) return;
+  var vp = cityMapViewport.getBoundingClientRect();
+  if (cx == null) cx = vp.width / 2;
+  if (cy == null) cy = vp.height / 2;
+  var next = Math.max(cityMapState.min, Math.min(cityMapState.max, cityMapState.scale * factor));
+  var ratio = next / cityMapState.scale;
+  cityMapState.x = cx - (cx - cityMapState.x) * ratio;
+  cityMapState.y = cy - (cy - cityMapState.y) * ratio;
+  cityMapState.scale = next;
+  applyCityMapTransform();
+}
+
+function wireCityMapPanZoom() {
+  if (!cityMapViewport) return;
+  var dragging = false;
+  var lastX = 0, lastY = 0;
+  var pointers = {};
+  var pinchStartDist = 0;
+  var pinchStartScale = 1;
+
+  cityMapViewport.addEventListener('pointerdown', function(e) {
+    if (e.target.closest && e.target.closest('.city-map-pin')) return;
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    if (Object.keys(pointers).length === 1) {
+      dragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      cityMapViewport.classList.add('panning');
+      cityMapViewport.setPointerCapture(e.pointerId);
+    } else if (Object.keys(pointers).length === 2) {
+      dragging = false;
+      var pts = Object.keys(pointers).map(function(id) { return pointers[id]; });
+      var dx = pts[0].x - pts[1].x, dy = pts[0].y - pts[1].y;
+      pinchStartDist = Math.sqrt(dx * dx + dy * dy) || 1;
+      pinchStartScale = cityMapState.scale;
+    }
+  });
+  cityMapViewport.addEventListener('pointermove', function(e) {
+    if (!pointers[e.pointerId]) return;
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(pointers);
+    if (ids.length === 2) {
+      var a = pointers[ids[0]], b = pointers[ids[1]];
+      var dx = a.x - b.x, dy = a.y - b.y;
+      var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      var midX = (a.x + b.x) / 2 - cityMapViewport.getBoundingClientRect().left;
+      var midY = (a.y + b.y) / 2 - cityMapViewport.getBoundingClientRect().top;
+      var next = Math.max(cityMapState.min, Math.min(cityMapState.max, pinchStartScale * (dist / pinchStartDist)));
+      var ratio = next / cityMapState.scale;
+      cityMapState.x = midX - (midX - cityMapState.x) * ratio;
+      cityMapState.y = midY - (midY - cityMapState.y) * ratio;
+      cityMapState.scale = next;
+      applyCityMapTransform();
+      return;
+    }
+    if (!dragging) return;
+    cityMapState.x += e.clientX - lastX;
+    cityMapState.y += e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    applyCityMapTransform();
+  });
+  function endPointer(e) {
+    delete pointers[e.pointerId];
+    if (Object.keys(pointers).length < 2) pinchStartDist = 0;
+    if (!Object.keys(pointers).length) {
+      dragging = false;
+      cityMapViewport.classList.remove('panning');
+    }
+  }
+  cityMapViewport.addEventListener('pointerup', endPointer);
+  cityMapViewport.addEventListener('pointercancel', endPointer);
+  cityMapViewport.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    var rect = cityMapViewport.getBoundingClientRect();
+    cityMapZoomBy(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+}
+
+var mapBtn = document.getElementById('map-btn');
+if (mapBtn) {
+  mapBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    openCityMap();
+  });
+}
+if (document.getElementById('city-map-close')) {
+  document.getElementById('city-map-close').addEventListener('click', closeCityMap);
+}
+if (cityMapOnlyOpen) {
+  cityMapOnlyOpen.addEventListener('change', function() {
+    if (cityMapOverlay) cityMapOverlay.classList.toggle('hide-closed', cityMapOnlyOpen.checked);
+  });
+}
+if (document.getElementById('city-map-in')) {
+  document.getElementById('city-map-in').addEventListener('click', function() { cityMapZoomBy(1.2); });
+}
+if (document.getElementById('city-map-out')) {
+  document.getElementById('city-map-out').addEventListener('click', function() { cityMapZoomBy(1 / 1.2); });
+}
+wireCityMapPanZoom();
 
 startApp();
 })();

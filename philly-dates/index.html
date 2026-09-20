@@ -25,7 +25,7 @@
         <p class="sub">Happy hours · tap a name for details</p>
       </div>
       <div class="top-actions">
-        <a class="btn btn-map" id="map-btn" href="https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14" target="_blank" rel="noopener">Map</a>
+        <button type="button" class="btn btn-map" id="map-btn">Map</button>
         <button type="button" class="btn btn-icon" id="settings-btn" title="Settings" aria-label="Settings">⚙️</button>
       </div>
     </div>
@@ -206,12 +206,6 @@
           <label class="settings-row"><input type="checkbox" id="dark-mode-toggle" /> Night mode</label>
         </div>
         <div class="settings-section">
-          <h3>Map link</h3>
-          <input type="url" id="map-url-input" placeholder="Google My Maps URL" class="full" />
-          <p class="hint">Used by the Map button in the header.</p>
-          <button type="button" class="btn btn-primary" id="save-map-url">Save map link</button>
-        </div>
-        <div class="settings-section">
           <h3>Edit any place</h3>
           <select id="edit-any-select" class="full"><option value="">Choose a place…</option></select>
         </div>
@@ -247,10 +241,36 @@
     </div>
   </div>
 
+  <div class="city-map-overlay" id="city-map-overlay" hidden>
+    <div class="city-map-bar">
+      <button type="button" class="modal-close" id="city-map-close" aria-label="Close map">&times;</button>
+      <div class="city-map-bar-main">
+        <h2 id="city-map-title">Map</h2>
+        <p class="city-map-count" id="city-map-count"></p>
+        <label class="city-map-filter"><input type="checkbox" id="map-only-open" /> Only show open</label>
+      </div>
+    </div>
+    <div class="city-map-legend" aria-label="Pin colors">
+      <span><i class="pin-dot specials"></i> Specials</span>
+      <span><i class="pin-dot open"></i> Open</span>
+      <span><i class="pin-dot closed"></i> Closed</span>
+    </div>
+    <div class="city-map-viewport" id="city-map-viewport">
+      <div class="city-map-stage" id="city-map-stage">
+        <img src="city-map.svg" alt="Philadelphia streets and landmarks" class="city-map-art" draggable="false" />
+        <div class="city-map-pins" id="city-map-pins"></div>
+      </div>
+    </div>
+    <div class="city-map-zoom">
+      <button type="button" id="city-map-in" aria-label="Zoom in">+</button>
+      <button type="button" id="city-map-out" aria-label="Zoom out">−</button>
+    </div>
+  </div>
+
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
-  <script src="app.js?v=3" defer></script>
+  <script src="app.js?v=4" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
