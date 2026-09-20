@@ -69,7 +69,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJK_XHFpzHxokRvuQGqI_1pqY",
-    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM",
+    "lat": 39.95005,
+    "lng": -75.16255
   },
   {
     "name": "Mona",
@@ -134,7 +136,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJTVYdEy_GxokRqENH3p2Bvz0",
     "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 2:00 AM",
-    "menu_pdf": "https://monaphilly.com/wp-content/uploads/2026/02/MONA_HAPPYHOUR_2026.pdf"
+    "menu_pdf": "https://monaphilly.com/wp-content/uploads/2026/02/MONA_HAPPYHOUR_2026.pdf",
+    "lat": 39.95055,
+    "lng": -75.1622
   },
   {
     "name": "Vintage Wine Bar",
@@ -198,7 +202,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJaRhJXS_GxokRkFd27uuyrLY",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM",
+    "lat": 39.94985,
+    "lng": -75.1625
   },
   {
     "name": "Darling Jack's Tavern",
@@ -262,7 +268,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ09z2qQzHxokR-1gpzJ4Sgm0",
-    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM",
+    "lat": 39.95025,
+    "lng": -75.1625
   },
   {
     "name": "Moriarty's Irish Pub",
@@ -326,7 +334,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJC0BFAibGxokRr0Lx2noP0_s",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM",
+    "lat": 39.9489,
+    "lng": -75.1596
   },
   {
     "name": "Double Knot",
@@ -398,7 +408,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJBdUeZi_GxokR2uEUM6HYpJ4",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 4:00 PM – 12:00 AM; Sunday: 4:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 4:00 PM – 12:00 AM; Sunday: 4:00 – 10:00 PM",
+    "lat": 39.94995,
+    "lng": -75.16245
   },
   {
     "name": "The Bread Room",
@@ -441,7 +453,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJDe1yeODHxokRbVxNdGijrV8",
-    "hoursNote": "Monday: 7:00 AM – 4:00 PM; Tuesday: 7:00 AM – 4:00 PM; Wednesday: 7:00 AM – 4:00 PM; Thursday: 7:00 AM – 4:00 PM; Friday: 7:00 AM – 4:00 PM; Saturday: 9:00 AM – 3:00 PM; Sunday: 9:00 AM – 3:00 PM"
+    "hoursNote": "Monday: 7:00 AM – 4:00 PM; Tuesday: 7:00 AM – 4:00 PM; Wednesday: 7:00 AM – 4:00 PM; Thursday: 7:00 AM – 4:00 PM; Friday: 7:00 AM – 4:00 PM; Saturday: 9:00 AM – 3:00 PM; Sunday: 9:00 AM – 3:00 PM",
+    "lat": 39.9507,
+    "lng": -75.1552
   },
   {
     "name": "Botld",
@@ -497,7 +511,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJlzkAqpfHxokRt3GCWRx52-c",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 1:00 – 11:00 PM; Sunday: 1:00 – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 1:00 – 11:00 PM; Sunday: 1:00 – 9:00 PM",
+    "lat": 39.9501,
+    "lng": -75.1625
   },
   {
     "name": "Giuseppe & Sons",
@@ -569,7 +585,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJbYZ7rkTHxokRfhIPW-VgDb4",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM",
+    "lat": 39.9502,
+    "lng": -75.1667
   },
   {
     "name": "Harp & Crown",
@@ -637,7 +655,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJQa1JHDDGxokRGExiHLDYVOA",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 9:30 AM – 12:00 AM; Sunday: 9:30 AM – 3:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 9:30 AM – 12:00 AM; Sunday: 9:30 AM – 3:00 PM",
+    "lat": 39.95015,
+    "lng": -75.16685
   },
   {
     "name": "The black Sheep Pub & Restaurant",
@@ -647,7 +667,9 @@
     "social": "",
     "hh_menu": "https://theblacksheeppub.com/happy-hour/",
     "instagram": "https://www.instagram.com/theblacksheepphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9487,
+    "lng": -75.17
   },
   {
     "name": "Almyra Restaurant",
@@ -720,7 +742,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ1fT52CXHxokRKlMft3BN6zM",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM",
-    "menu_pdf": "https://www.almyrarestaurant.com/assets/pdfs/almyra-happy-hour-122025.pdf"
+    "menu_pdf": "https://www.almyrarestaurant.com/assets/pdfs/almyra-happy-hour-122025.pdf",
+    "lat": 39.9484,
+    "lng": -75.1688
   },
   {
     "name": "Midnight & The Wicked",
@@ -763,7 +787,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJo2Hq4i_GxokR8JmHsU-s45M",
-    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 2:00 AM",
+    "lat": 39.9502,
+    "lng": -75.1664
   },
   {
     "name": "Saigon Cafe",
@@ -802,7 +828,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJL94uciDHxokRyzsTW3GOWS8",
-    "hoursNote": "Monday: 8:30 AM – 7:00 PM; Tuesday: Closed; Wednesday: 8:30 AM – 7:00 PM; Thursday: 8:30 AM – 7:00 PM; Friday: 8:30 AM – 7:00 PM; Saturday: 8:30 AM – 4:00 PM; Sunday: 8:30 AM – 4:00 PM"
+    "hoursNote": "Monday: 8:30 AM – 7:00 PM; Tuesday: Closed; Wednesday: 8:30 AM – 7:00 PM; Thursday: 8:30 AM – 7:00 PM; Friday: 8:30 AM – 7:00 PM; Saturday: 8:30 AM – 4:00 PM; Sunday: 8:30 AM – 4:00 PM",
+    "lat": 39.9438,
+    "lng": -75.1678
   },
   {
     "name": "Pine Street Grill",
@@ -841,7 +869,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ42KJS6zHxokR8Diq_QRoC4k",
-    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM"
+    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 11:00 PM",
+    "lat": 39.9438,
+    "lng": -75.1788
   },
   {
     "name": "The Franklin Mortgage & Investment",
@@ -884,7 +914,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJlwYTlTDGxokR8h4PWNXFhTY",
-    "hoursNote": "Monday: 5:00 PM – 12:00 AM; Tuesday: 5:00 PM – 12:00 AM; Wednesday: 5:00 PM – 12:00 AM; Thursday: 5:00 PM – 12:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 12:00 AM"
+    "hoursNote": "Monday: 5:00 PM – 12:00 AM; Tuesday: 5:00 PM – 12:00 AM; Wednesday: 5:00 PM – 12:00 AM; Thursday: 5:00 PM – 12:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 12:00 AM",
+    "lat": 39.9486,
+    "lng": -75.171
   },
   {
     "name": "Ranstead Room",
@@ -923,7 +955,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJueM_GTfGxokRq_IKa4nOJi4",
-    "hoursNote": "Monday: 7:00 PM – 12:00 AM; Tuesday: 7:00 PM – 12:00 AM; Wednesday: 7:00 PM – 12:00 AM; Thursday: 7:00 PM – 2:00 AM; Friday: 7:00 PM – 2:00 AM; Saturday: 7:00 PM – 2:00 AM; Sunday: Closed"
+    "hoursNote": "Monday: 7:00 PM – 12:00 AM; Tuesday: 7:00 PM – 12:00 AM; Wednesday: 7:00 PM – 12:00 AM; Thursday: 7:00 PM – 2:00 AM; Friday: 7:00 PM – 2:00 AM; Saturday: 7:00 PM – 2:00 AM; Sunday: Closed",
+    "lat": 39.9512,
+    "lng": -75.1744
   },
   {
     "name": "Rosy's Taco Bar",
@@ -983,7 +1017,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJb3-BC6TJxokRsN76Mg--3s4",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM",
+    "lat": 39.9418,
+    "lng": -75.1522
   },
   {
     "name": "Human Robot",
@@ -1026,7 +1062,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJeb64ypzHxokR37gfkTbyOOA",
-    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 2:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 9:00 PM"
+    "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 2:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 9:00 PM",
+    "lat": 39.9291,
+    "lng": -75.1632
   },
   {
     "name": "Dance Robot",
@@ -1082,7 +1120,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ2R-jLADHxokRZFDwQebYLo0",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 10:30 AM – 2:00 PM, 4:00 PM – 12:00 AM; Sunday: 10:30 AM – 3:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 10:30 AM – 2:00 PM, 4:00 PM – 12:00 AM; Sunday: 10:30 AM – 3:00 PM",
+    "lat": 39.9502,
+    "lng": -75.1694
   },
   {
     "name": "Ambrosia",
@@ -1125,7 +1165,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJq6pFv0fGxokR2lNwZLzH4Es",
-    "hoursNote": "Monday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Tuesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Wednesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Thursday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Friday: 11:30 AM – 2:30 PM, 4:30 – 11:00 PM; Saturday: 11:00 AM – 2:00 PM, 4:30 – 11:00 PM; Sunday: 11:00 AM – 2:00 PM, 4:00 – 9:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Tuesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Wednesday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Thursday: 11:30 AM – 2:30 PM, 4:30 – 10:00 PM; Friday: 11:30 AM – 2:30 PM, 4:30 – 11:00 PM; Saturday: 11:00 AM – 2:00 PM, 4:30 – 11:00 PM; Sunday: 11:00 AM – 2:00 PM, 4:00 – 9:00 PM",
+    "lat": 39.9478,
+    "lng": -75.1808
   },
   {
     "name": "Dear Daphni",
@@ -1197,7 +1239,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJWeZiBmTHxokRNvlQNYx2GcY",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM",
+    "lat": 39.95,
+    "lng": -75.1745
   },
   {
     "name": "Enswell",
@@ -1261,7 +1305,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJc3Mxf-3HxokRJ4WamINbRd8",
-    "hoursNote": "Monday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Tuesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Wednesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Thursday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Friday: 7:00 AM – 3:00 PM, 4:30 – 10:30 PM; Saturday: 8:00 AM – 3:00 PM, 4:30 – 10:30 PM; Sunday: 8:00 AM – 3:00 PM, 4:30 – 9:00 PM"
+    "hoursNote": "Monday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Tuesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Wednesday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Thursday: 7:00 AM – 3:00 PM, 4:30 – 10:00 PM; Friday: 7:00 AM – 3:00 PM, 4:30 – 10:30 PM; Saturday: 8:00 AM – 3:00 PM, 4:30 – 10:30 PM; Sunday: 8:00 AM – 3:00 PM, 4:30 – 9:00 PM",
+    "lat": 39.9464,
+    "lng": -75.1672
   },
   {
     "name": "Wilder",
@@ -1325,7 +1371,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJrWKnrM3HxokRykMoFT3yhpk",
-    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 11:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 11:00 AM – 10:00 PM",
+    "lat": 39.9502,
+    "lng": -75.174
   },
   {
     "name": "Tequilas Restaurant",
@@ -1385,7 +1433,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJS0l86zrGxokRSmp9b6VRJT8",
-    "hoursNote": "Monday: 5:00 – 9:00 PM; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: 5:00 – 9:00 PM; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: Closed",
+    "lat": 39.9485,
+    "lng": -75.1678
   },
   {
     "name": "Brauhaus Schmitz",
@@ -1449,7 +1499,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJdaSbpyDGxokRte6dD4EqA_g",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 12:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 PM – 12:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 12:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 PM – 12:00 AM",
+    "lat": 39.94125,
+    "lng": -75.1558
   },
   {
     "name": "Lorenzo and Sons Pizza",
@@ -1492,7 +1544,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJAW_tWpnIxokRfoqs_RzGdog",
-    "hoursNote": "Monday: 11:00 AM – 1:00 AM; Tuesday: 11:00 AM – 1:00 AM; Wednesday: 11:00 AM – 1:00 AM; Thursday: 11:00 AM – 3:00 AM; Friday: 11:00 AM – 3:00 AM; Saturday: 11:00 AM – 3:00 AM; Sunday: 11:00 AM – 1:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 1:00 AM; Tuesday: 11:00 AM – 1:00 AM; Wednesday: 11:00 AM – 1:00 AM; Thursday: 11:00 AM – 3:00 AM; Friday: 11:00 AM – 3:00 AM; Saturday: 11:00 AM – 3:00 AM; Sunday: 11:00 AM – 1:00 AM",
+    "lat": 39.94115,
+    "lng": -75.1472
   },
   {
     "name": "O'Neals",
@@ -1535,7 +1589,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ39KMrXzIxokRxLLKJXv9YHA",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 9:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 9:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM",
+    "lat": 39.941,
+    "lng": -75.1468
   },
   {
     "name": "Cavannaugh's headhouse",
@@ -1578,7 +1634,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ57UlMJrIxokRzGoYl_rVe2k",
-    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
+    "lat": 39.9424,
+    "lng": -75.145
   },
   {
     "name": "Bridget Foy's",
@@ -1647,7 +1705,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ851bnZnIxokRFdlArxg6Yu4",
     "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: Closed; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 10:00 AM – 8:00 PM",
-    "menu_pdf": "https://bridgetfoys.com/wp-content/uploads/2025/09/happy-hour-template-1-1.pdf"
+    "menu_pdf": "https://bridgetfoys.com/wp-content/uploads/2025/09/happy-hour-template-1-1.pdf",
+    "lat": 39.9412,
+    "lng": -75.1455
   },
   {
     "name": "Paddy Whacks Irish sports pup",
@@ -1690,7 +1750,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJgUAenZnIxokRm0hnJ7GU2wg",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM",
+    "lat": 39.94125,
+    "lng": -75.1448
   },
   {
     "name": "Marsha's South Street",
@@ -1733,7 +1795,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ67AKcgDJxokRr1SrySYTiMo",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 10:00 PM",
+    "lat": 39.9412,
+    "lng": -75.1504
   },
   {
     "name": "Bistro Romano",
@@ -1768,7 +1832,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJUwU6IZrIxokRgX-V0_Y0eRM",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:45 – 9:00 PM; Thursday: 4:45 – 9:00 PM; Friday: 4:45 – 9:00 PM; Saturday: 4:45 – 9:00 PM; Sunday: 4:45 – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:45 – 9:00 PM; Thursday: 4:45 – 9:00 PM; Friday: 4:45 – 9:00 PM; Saturday: 4:45 – 9:00 PM; Sunday: 4:45 – 9:00 PM",
+    "lat": 39.9425,
+    "lng": -75.1448
   },
   {
     "name": "Bok Bar",
@@ -1803,7 +1869,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJY4BaiQPGxokRSJ2gJsmb6X0",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 11:00 PM; Thursday: 5:00 – 11:00 PM; Friday: 5:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 2:00 – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 11:00 PM; Thursday: 5:00 – 11:00 PM; Friday: 5:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 2:00 – 9:00 PM",
+    "lat": 39.9254,
+    "lng": -75.1599
   },
   {
     "name": "Ristorante Pesto",
@@ -1838,7 +1906,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ20IkHA_GxokRTNzdwP0rnJc",
-    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed",
+    "lat": 39.9264,
+    "lng": -75.1688
   },
   {
     "name": "Cafe y chocolate",
@@ -1881,7 +1951,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJtWb8cXTGxokRqG1W9mZLasY",
-    "hoursNote": "Monday: 9:00 AM – 5:00 PM; Tuesday: 9:00 AM – 5:00 PM; Wednesday: 9:00 AM – 5:00 PM; Thursday: 9:00 AM – 5:00 PM; Friday: 9:00 AM – 8:00 PM; Saturday: 9:00 AM – 8:00 PM; Sunday: 9:00 AM – 5:00 PM"
+    "hoursNote": "Monday: 9:00 AM – 5:00 PM; Tuesday: 9:00 AM – 5:00 PM; Wednesday: 9:00 AM – 5:00 PM; Thursday: 9:00 AM – 5:00 PM; Friday: 9:00 AM – 8:00 PM; Saturday: 9:00 AM – 8:00 PM; Sunday: 9:00 AM – 5:00 PM",
+    "lat": 39.9246,
+    "lng": -75.1726
   },
   {
     "name": "Next of Kin",
@@ -1924,7 +1996,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ41LekZ3JxokRilqTt09Daf0",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 – 10:00 PM",
+    "lat": 39.9718,
+    "lng": -75.1348
   },
   {
     "name": "Love and Honey Fried Chicken",
@@ -1967,7 +2041,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJJc2zzGjIxokRdJ_i0nDSpOA",
-    "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 9:00 PM; Saturday: 11:00 AM – 9:00 PM; Sunday: 11:00 AM – 9:00 PM"
+    "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 9:00 PM; Saturday: 11:00 AM – 9:00 PM; Sunday: 11:00 AM – 9:00 PM",
+    "lat": 39.9678,
+    "lng": -75.1412
   },
   {
     "name": "Percy Diner and Bar",
@@ -2023,7 +2099,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ0xr_Da_JxokRyInmnaaaX4g",
-    "hoursNote": "Monday: 9:00 AM – 3:00 PM; Tuesday: 9:00 AM – 3:00 PM; Wednesday: 9:00 AM – 3:00 PM; Thursday: 9:00 AM – 11:30 PM; Friday: 9:00 AM – 11:30 PM; Saturday: 9:00 AM – 11:30 PM; Sunday: 9:00 AM – 3:00 PM"
+    "hoursNote": "Monday: 9:00 AM – 3:00 PM; Tuesday: 9:00 AM – 3:00 PM; Wednesday: 9:00 AM – 3:00 PM; Thursday: 9:00 AM – 11:30 PM; Friday: 9:00 AM – 11:30 PM; Saturday: 9:00 AM – 11:30 PM; Sunday: 9:00 AM – 3:00 PM",
+    "lat": 39.9778,
+    "lng": -75.141
   },
   {
     "name": "Amy's Pastelillos",
@@ -2054,7 +2132,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJpZv9XADJxokRKniBluNUXhk",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 11:00 AM – 3:00 PM; Thursday: 11:00 AM – 3:00 PM; Friday: 11:00 AM – 3:00 PM; Saturday: 11:00 AM – 3:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 11:00 AM – 3:00 PM; Thursday: 11:00 AM – 3:00 PM; Friday: 11:00 AM – 3:00 PM; Saturday: 11:00 AM – 3:00 PM; Sunday: Closed",
+    "lat": 39.9768,
+    "lng": -75.1322
   },
   {
     "name": "Picnic",
@@ -2122,7 +2202,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJZcfPCwDJxokRdkFL1BVH-ts",
-    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 10:00 PM; Saturday: 12:00 – 10:00 PM; Sunday: 12:00 – 9:00 PM"
+    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 10:00 PM; Saturday: 12:00 – 10:00 PM; Sunday: 12:00 – 9:00 PM",
+    "lat": 39.9824,
+    "lng": -75.1278
   },
   {
     "name": "Front Street Cafe",
@@ -2186,7 +2268,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJXTNZXGnIxokRv7-nfbIT1-I",
-    "hoursNote": "Monday: 8:00 AM – 4:00 PM; Tuesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Wednesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Thursday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Friday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Saturday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Sunday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM"
+    "hoursNote": "Monday: 8:00 AM – 4:00 PM; Tuesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Wednesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Thursday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Friday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Saturday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Sunday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM",
+    "lat": 39.9698,
+    "lng": -75.1412
   },
   {
     "name": "Attico Rooftoop",
@@ -2234,7 +2318,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJY9gOcCXGxokR1H3ySEv8zag",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 11:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 11:00 PM",
+    "lat": 39.9488,
+    "lng": -75.1645
   },
   {
     "name": "Good dog bar",
@@ -2298,7 +2384,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJPzXhsjrGxokRfz0Y3386McU",
-    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM",
+    "lat": 39.9488,
+    "lng": -75.1665
   },
   {
     "name": "Square 1682",
@@ -2366,7 +2454,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJBzQZYzDGxokRZzPeP310hr8",
-    "hoursNote": "Monday: 7:00 AM – 9:30 PM; Tuesday: 7:00 AM – 9:30 PM; Wednesday: 7:00 AM – 9:30 PM; Thursday: 7:00 AM – 9:30 PM; Friday: 7:00 AM – 11:00 PM; Saturday: 8:00 AM – 11:00 PM; Sunday: 8:00 AM – 2:00 PM"
+    "hoursNote": "Monday: 7:00 AM – 9:30 PM; Tuesday: 7:00 AM – 9:30 PM; Wednesday: 7:00 AM – 9:30 PM; Thursday: 7:00 AM – 9:30 PM; Friday: 7:00 AM – 11:00 PM; Saturday: 8:00 AM – 11:00 PM; Sunday: 8:00 AM – 2:00 PM",
+    "lat": 39.9501,
+    "lng": -75.1698
   },
   {
     "name": "Cellar Dog",
@@ -2418,7 +2508,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJS36QLr3HxokRIXhbttziTmE",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: Closed",
+    "lat": 39.9479,
+    "lng": -75.1665
   },
   {
     "name": "El Camino",
@@ -2490,7 +2582,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJsRdhnm_IxokRcPl8adyBZos",
-    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM",
+    "lat": 39.9688,
+    "lng": -75.1418
   },
   {
     "name": "Murph's Bar (Fishtown)",
@@ -2554,7 +2648,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJxckCo2nIxokRj34J9koOHgc",
-    "hoursNote": "Monday: 1:00 PM – 2:00 AM; Tuesday: 1:00 PM – 2:00 AM; Wednesday: 1:00 PM – 2:00 AM; Thursday: 1:00 PM – 2:00 AM; Friday: 12:30 PM – 2:00 AM; Saturday: 12:30 PM – 2:00 AM; Sunday: 12:30 PM – 2:00 AM"
+    "hoursNote": "Monday: 1:00 PM – 2:00 AM; Tuesday: 1:00 PM – 2:00 AM; Wednesday: 1:00 PM – 2:00 AM; Thursday: 1:00 PM – 2:00 AM; Friday: 12:30 PM – 2:00 AM; Saturday: 12:30 PM – 2:00 AM; Sunday: 12:30 PM – 2:00 AM",
+    "lat": 39.9698,
+    "lng": -75.1342
   },
   {
     "name": "Loco Pez",
@@ -2623,7 +2719,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJk19TD-7HxokRZWWJCTH7Jgo",
     "hoursNote": "Monday: 12:00 – 10:00 PM; Tuesday: 12:00 – 10:00 PM; Wednesday: 12:00 – 10:00 PM; Thursday: 12:00 – 10:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 11:00 AM – 10:00 PM; Sunday: 11:00 AM – 10:00 PM",
-    "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPS-01-05-26_WEB.pdf"
+    "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPS-01-05-26_WEB.pdf",
+    "lat": 39.9438,
+    "lng": -75.1746
   },
   {
     "name": "Loco Pez (Fishtown)",
@@ -2692,7 +2790,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ_cOVHj_IxokRre9EPY1KNkY",
     "hoursNote": "Monday: 11:00 AM – 10:00 PM; Tuesday: 11:00 AM – 11:00 PM; Wednesday: 11:00 AM – 11:00 PM; Thursday: 11:00 AM – 11:00 PM; Friday: 11:00 AM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM",
-    "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPF_02-24-2025_WEB.pdf"
+    "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPF_02-24-2025_WEB.pdf",
+    "lat": 39.9782,
+    "lng": -75.1308
   },
   {
     "name": "Glory Beer and Kitchen",
@@ -2756,7 +2856,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ__9rZoXIxokRZXxPHOGFeVE",
-    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
+    "lat": 39.9486,
+    "lng": -75.1438
   },
   {
     "name": "Cuba Libre",
@@ -2824,7 +2926,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ_8Tvm4XIxokRBA-RzDneztg",
-    "hoursNote": "Monday: 4:00 – 9:00 PM; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 9:00 PM"
+    "hoursNote": "Monday: 4:00 – 9:00 PM; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 – 9:00 PM",
+    "lat": 39.9502,
+    "lng": -75.1438
   },
   {
     "name": "Khyber pass pub",
@@ -2888,7 +2992,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ6dM0coXIxokRzky__HwL7LU",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM",
+    "lat": 39.9498,
+    "lng": -75.1438
   },
   {
     "name": "Revolution House",
@@ -2940,7 +3046,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJt-KhkIXIxokRrDVlOQKbmJA",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 9:00 PM; Wednesday: 4:00 – 9:00 PM; Thursday: 4:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 9:00 PM",
+    "lat": 39.9499,
+    "lng": -75.145
   },
   {
     "name": "Sassafras Bar",
@@ -3000,7 +3108,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJVxCRc4XIxokRIQ9K6Vf7w9w",
-    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
+    "lat": 39.9498,
+    "lng": -75.1438
   },
   {
     "name": "JJ Bootleggers",
@@ -3052,7 +3162,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJQeTMeYXIxokRBSEd7jsg46U",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: Closed; Thursday: 6:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 1:00 PM – 2:00 AM; Sunday: 1:00 PM – 12:00 AM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: Closed; Thursday: 6:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 1:00 PM – 2:00 AM; Sunday: 1:00 PM – 12:00 AM",
+    "lat": 39.95,
+    "lng": -75.1438
   },
   {
     "name": "National Mechanics",
@@ -3116,7 +3228,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJOSWtVYTIxokRwl_XrRL1xz0",
-    "hoursNote": "Monday: 12:00 – 10:00 PM; Tuesday: 12:00 PM – 12:00 AM; Wednesday: 12:00 PM – 12:00 AM; Thursday: 12:00 PM – 12:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM"
+    "hoursNote": "Monday: 12:00 – 10:00 PM; Tuesday: 12:00 PM – 12:00 AM; Wednesday: 12:00 PM – 12:00 AM; Thursday: 12:00 PM – 12:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 12:00 AM",
+    "lat": 39.95,
+    "lng": -75.1462
   },
   {
     "name": "Spasso's Italian",
@@ -3172,7 +3286,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ6ZizgI_IxokRMfvmuRIZVKY",
-    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: 2:00 – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: 2:00 – 9:00 PM",
+    "lat": 39.9498,
+    "lng": -75.1418
   },
   {
     "name": "Umami",
@@ -3236,7 +3352,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJaZ9HQJPJxokRRb9EIqdwmJE",
-    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 4:30 – 10:00 PM; Sunday: 4:30 – 9:00 PM"
+    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 4:30 – 10:00 PM; Sunday: 4:30 – 9:00 PM",
+    "lat": 39.9489,
+    "lng": -75.1548
   },
   {
     "name": "Independence beer garden",
@@ -3292,7 +3410,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJNxESpoPIxokRs5NCI4-Aosc",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 10:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 10:00 PM",
+    "lat": 39.9502,
+    "lng": -75.1518
   },
   {
     "name": "Tuna Bar",
@@ -3348,7 +3468,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJlRh-K4bIxokRziis3VsBU48",
-    "hoursNote": "Monday: Closed; Tuesday: 1:30 – 10:00 PM; Wednesday: 1:30 – 10:00 PM; Thursday: 1:30 – 10:00 PM; Friday: 1:30 – 11:00 PM; Saturday: 1:30 – 11:00 PM; Sunday: 1:30 – 10:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 1:30 – 10:00 PM; Wednesday: 1:30 – 10:00 PM; Thursday: 1:30 – 10:00 PM; Friday: 1:30 – 11:00 PM; Saturday: 1:30 – 11:00 PM; Sunday: 1:30 – 10:00 PM",
+    "lat": 39.9548,
+    "lng": -75.1438
   },
   {
     "name": "Pearl and Mary Oyster Bar",
@@ -3420,7 +3542,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJYb8Jcm7HxokRX_i4HYRDat8",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM",
+    "lat": 39.9499,
+    "lng": -75.1626
   },
   {
     "name": "Village Whiskey",
@@ -3489,7 +3613,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJLfhKaTfGxokRiOZL6x398WY",
     "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: 11:30 AM – 10:00 PM",
-    "menu_pdf": "https://www.villagewhiskey.com/uploads/141814VWHappyHourMenu0326NoCropLines.pdf"
+    "menu_pdf": "https://www.villagewhiskey.com/uploads/141814VWHappyHourMenu0326NoCropLines.pdf",
+    "lat": 39.9499,
+    "lng": -75.1744
   },
   {
     "name": "QU Japan",
@@ -3554,7 +3680,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJTemwc0nHxokRo6NcdWhV_Fs",
     "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 10:30 PM; Saturday: 1:00 – 10:30 PM; Sunday: Closed",
-    "menu_pdf": "https://www.qujapanphl.com/_files/ugd/538020_08adf47c97be49dd825c24673c7ff96c.pdf"
+    "menu_pdf": "https://www.qujapanphl.com/_files/ugd/538020_08adf47c97be49dd825c24673c7ff96c.pdf",
+    "lat": 39.9532,
+    "lng": -75.1682
   },
   {
     "name": "The Lesiuer",
@@ -3610,7 +3738,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJx540zf_HxokRJFnX_eTNZoM",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: Closed",
+    "lat": 39.95022,
+    "lng": -75.16665
   },
   {
     "name": "Calandrino's old city vino",
@@ -3641,7 +3771,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJkxn6Sz7JxokRcVWev1tVtDI",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed",
+    "lat": 39.953,
+    "lng": -75.1438
   },
   {
     "name": "Tesiny",
@@ -3676,7 +3808,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJf8UroJXHxokR1toEZXXOcgs",
-    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed",
+    "lat": 39.9308,
+    "lng": -75.1568
   },
   {
     "name": "Indo Spice Restaurant",
@@ -3719,7 +3853,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJLV8I2eDHxokRrTmQFZ3cgls",
-    "hoursNote": "Monday: 11:00 AM – 8:00 PM; Tuesday: 11:00 AM – 8:00 PM; Wednesday: 11:00 AM – 8:00 PM; Thursday: 11:00 AM – 8:00 PM; Friday: 11:00 AM – 8:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 8:00 PM"
+    "hoursNote": "Monday: 11:00 AM – 8:00 PM; Tuesday: 11:00 AM – 8:00 PM; Wednesday: 11:00 AM – 8:00 PM; Thursday: 11:00 AM – 8:00 PM; Friday: 11:00 AM – 8:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 8:00 PM",
+    "lat": 39.9278,
+    "lng": -75.1688
   },
   {
     "name": "Drury Beer Garden (DBG)",
@@ -3783,7 +3919,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJjRxlbi_GxokR28nxL3vZcMY",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 1:00 AM; Thursday: 4:00 PM – 1:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 1:00 AM; Thursday: 4:00 PM – 1:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM",
+    "lat": 39.9502,
+    "lng": -75.1628
   },
   {
     "name": "Southgate",
@@ -3847,7 +3985,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJJSU8_DvGxokRFnFMWo2gJqI",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 2:00 – 11:00 PM; Sunday: 2:00 – 10:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 2:00 – 11:00 PM; Sunday: 2:00 – 10:00 PM",
+    "lat": 39.9438,
+    "lng": -75.171
   },
   {
     "name": "Amada Restaurant",
@@ -3916,7 +4056,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ2YytEYXIxokRxmFAvm4D_bs",
     "hoursNote": "Monday: 4:30 – 9:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 2:00 – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: 11:30 AM – 10:00 PM",
-    "menu_pdf": "https://www.amadarestaurant.com/uploads/114704AMAHappyHourMenu0726-nocrop.pdf"
+    "menu_pdf": "https://www.amadarestaurant.com/uploads/114704AMAHappyHourMenu0726-nocrop.pdf",
+    "lat": 39.9488,
+    "lng": -75.1448
   },
   {
     "name": "Butcher bar",
@@ -3980,7 +4122,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ_y2SCjfGxokR90VjOlsQLv0",
-    "hoursNote": "Monday: 3:00 – 9:30 PM; Tuesday: 3:00 – 9:30 PM; Wednesday: 11:30 AM – 9:30 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:30 AM – 11:00 PM; Sunday: 10:30 AM – 9:00 PM"
+    "hoursNote": "Monday: 3:00 – 9:30 PM; Tuesday: 3:00 – 9:30 PM; Wednesday: 11:30 AM – 9:30 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:30 AM – 11:00 PM; Sunday: 10:30 AM – 9:00 PM",
+    "lat": 39.952,
+    "lng": -75.1752
   },
   {
     "name": "SolarMyth",
@@ -4052,7 +4196,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJOboclhHHxokRr-cuioAhMS8",
-    "hoursNote": "Monday: 8:00 AM – 2:00 AM; Tuesday: 8:00 AM – 2:00 AM; Wednesday: 8:00 AM – 2:00 AM; Thursday: 8:00 AM – 2:00 AM; Friday: 8:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 8:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 8:00 AM – 2:00 AM; Tuesday: 8:00 AM – 2:00 AM; Wednesday: 8:00 AM – 2:00 AM; Thursday: 8:00 AM – 2:00 AM; Friday: 8:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 8:00 AM – 2:00 AM",
+    "lat": 39.9368,
+    "lng": -75.1668
   },
   {
     "name": "La llorona cantina mexicana",
@@ -4116,7 +4262,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ2xiTqBPHxokRZ8aDvFzoNvI",
-    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 2:00 PM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM",
+    "lat": 39.9288,
+    "lng": -75.1698
   },
   {
     "name": "Cantinas los caballitos",
@@ -4176,7 +4324,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJBUclNAXGxokRfGdQRhkXjWw",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:00 AM – 2:00 AM; Sunday: 10:00 AM – 2:00 AM",
+    "lat": 39.9302,
+    "lng": -75.1552
   },
   {
     "name": "Barcelona Wine Bar",
@@ -4241,7 +4391,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJZ1xhQgXGxokRKssMj6MaWdA",
     "hoursNote": "Monday: 4:00 – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 2:00 PM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 10:00 PM",
-    "menu_pdf": "https://barcelonawinebar.com/media/2-26-26-Passyunk-Happy-Hour.pdf"
+    "menu_pdf": "https://barcelonawinebar.com/media/2-26-26-Passyunk-Happy-Hour.pdf",
+    "lat": 39.9298,
+    "lng": -75.1548
   },
   {
     "name": "Pistolas del sur",
@@ -4305,7 +4457,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ_f_GIg_GxokReUHxNopKMwg",
-    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 12:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 10:30 AM – 2:00 AM; Sunday: 10:30 AM – 12:00 AM",
+    "lat": 39.9282,
+    "lng": -75.1538
   },
   {
     "name": "Fountain Porter",
@@ -4369,7 +4523,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJFauURRvGxokRg6DRHqbcPxk",
-    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
+    "lat": 39.9308,
+    "lng": -75.1598
   },
   {
     "name": "Sidecar",
@@ -4433,7 +4589,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJQ4HNIkDGxokRYxgH87uN53w",
-    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 12:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 12:00 AM; Tuesday: 11:00 AM – 12:00 AM; Wednesday: 11:00 AM – 12:00 AM; Thursday: 11:00 AM – 12:00 AM; Friday: 11:00 AM – 12:00 AM; Saturday: 11:00 AM – 12:00 AM; Sunday: 11:00 AM – 12:00 AM",
+    "lat": 39.937,
+    "lng": -75.178
   },
   {
     "name": "Fringe Bar",
@@ -4481,7 +4639,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ9wo1017JxokRJbagSCY1d_c",
-    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 9:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 9:00 PM",
+    "lat": 39.9548,
+    "lng": -75.1402
   },
   {
     "name": "Tamalex Bar and Grille",
@@ -4553,7 +4713,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJvSnqDHLJxokRSx_08nJY4uU",
-    "hoursNote": "Monday: 10:00 AM – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 10:00 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 11:00 PM"
+    "hoursNote": "Monday: 10:00 AM – 11:00 PM; Tuesday: 4:00 – 11:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 10:00 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 11:00 PM",
+    "lat": 39.9425,
+    "lng": -75.1448
   },
   {
     "name": "Han Dynasty",
@@ -4625,7 +4787,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJES72cYXIxokR911D5us7LDs",
-    "hoursNote": "Monday: 12:00 – 9:30 PM; Tuesday: 12:00 – 9:30 PM; Wednesday: 12:00 – 9:30 PM; Thursday: 12:00 – 9:30 PM; Friday: 12:00 – 11:30 PM; Saturday: 12:00 – 11:30 PM; Sunday: 12:00 – 9:30 PM"
+    "hoursNote": "Monday: 12:00 – 9:30 PM; Tuesday: 12:00 – 9:30 PM; Wednesday: 12:00 – 9:30 PM; Thursday: 12:00 – 9:30 PM; Friday: 12:00 – 11:30 PM; Saturday: 12:00 – 11:30 PM; Sunday: 12:00 – 9:30 PM",
+    "lat": 39.9486,
+    "lng": -75.1432
   },
   {
     "name": "Oyster House",
@@ -4677,7 +4841,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJz4hVGTDGxokRYnn8nCLNB3k",
-    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 9:00 PM; Wednesday: 11:30 AM – 9:00 PM; Thursday: 11:30 AM – 9:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 9:00 PM; Wednesday: 11:30 AM – 9:00 PM; Thursday: 11:30 AM – 9:00 PM; Friday: 11:30 AM – 10:00 PM; Saturday: 11:30 AM – 10:00 PM; Sunday: Closed",
+    "lat": 39.9502,
+    "lng": -75.1669
   },
   {
     "name": "El Rey",
@@ -4741,7 +4907,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ5-m_ETfGxokRlOaR-SV4jUU",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 12:00 – 11:00 PM; Sunday: 12:00 – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 12:00 – 11:00 PM; Sunday: 12:00 – 10:00 PM",
+    "lat": 39.952,
+    "lng": -75.1745
   },
   {
     "name": "Lion Sports Bar",
@@ -4809,7 +4977,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ13iIJjbHxokR6xtY5aE7n5g",
-    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 2:00 AM; Thursday: 3:00 PM – 2:00 AM; Friday: 3:00 PM – 2:00 AM; Saturday: 7:00 AM – 2:00 AM; Sunday: 7:00 AM – 12:00 AM"
+    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 2:00 AM; Thursday: 3:00 PM – 2:00 AM; Friday: 3:00 PM – 2:00 AM; Saturday: 7:00 AM – 2:00 AM; Sunday: 7:00 AM – 12:00 AM",
+    "lat": 39.9538,
+    "lng": -75.1578
   },
   {
     "name": "La Chinesca",
@@ -4877,7 +5047,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJe3UgJfDHxokR2xpaq9MHcrs",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 11:30 AM – 11:00 PM; Sunday: 11:30 AM – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 11:30 AM – 11:00 PM; Sunday: 11:30 AM – 10:00 PM",
+    "lat": 39.9615,
+    "lng": -75.1538
   },
   {
     "name": "Kelliann’s Bar & Grill",
@@ -4941,7 +5113,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJA3WZQNLHxokR29MODGXE9s0",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM",
+    "lat": 39.9615,
+    "lng": -75.1648
   },
   {
     "name": "Osteria",
@@ -5013,7 +5187,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJZUvdSdHHxokRQ7KBGh-BHr0",
-    "hoursNote": "Monday: 5:00 – 10:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: 4:00 – 9:00 PM"
+    "hoursNote": "Monday: 5:00 – 10:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: 4:00 – 9:00 PM",
+    "lat": 39.9628,
+    "lng": -75.1636
   },
   {
     "name": "The International",
@@ -5077,7 +5253,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJiZhG55zJxokRhLsO1VQRR60",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 10:00 PM",
+    "lat": 39.9762,
+    "lng": -75.141
   },
   {
     "name": "Via Locusta",
@@ -5149,7 +5327,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJX6c5BajHxokRW4G0y0ZU4q4",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM",
+    "lat": 39.9488,
+    "lng": -75.17
   },
   {
     "name": "Repes on the row",
@@ -5192,7 +5372,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJYz6DlZ_JxokRRQJ3Ah8FWTY",
-    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM"
+    "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
+    "lat": 39.931,
+    "lng": -75.145
   },
   {
     "name": "La jefe cafe",
@@ -5235,7 +5417,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJUceOdgDHxokRU5xBTGGuGlI",
-    "hoursNote": "Monday: 8:00 AM – 3:00 PM; Tuesday: 8:00 AM – 3:00 PM; Wednesday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Thursday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Friday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Saturday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Sunday: 8:00 AM – 3:00 PM, 5:00 – 10:00 PM"
+    "hoursNote": "Monday: 8:00 AM – 3:00 PM; Tuesday: 8:00 AM – 3:00 PM; Wednesday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Thursday: 8:00 AM – 3:00 PM, 5:00 PM – 12:00 AM; Friday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Saturday: 8:00 AM – 3:00 PM, 5:00 PM – 1:00 AM; Sunday: 8:00 AM – 3:00 PM, 5:00 – 10:00 PM",
+    "lat": 39.9482,
+    "lng": -75.168
   },
   {
     "name": "The love",
@@ -5278,7 +5462,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJicQ2ljDGxokRH_KV3ONo-B4",
-    "hoursNote": "Monday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Tuesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Wednesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Thursday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Friday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Tuesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Wednesday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Thursday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Friday: 11:30 AM – 2:00 PM, 5:00 – 10:00 PM; Saturday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM; Sunday: 10:00 AM – 2:00 PM, 5:00 – 10:00 PM",
+    "lat": 39.9499,
+    "lng": -75.1708
   },
   {
     "name": "Sofia corner cafe",
@@ -5321,7 +5507,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJPaix8ZDHxokR6k5M1RZT8Bc",
-    "hoursNote": "Monday: 8:00 AM – 5:00 PM; Tuesday: 8:00 AM – 5:00 PM; Wednesday: 8:00 AM – 5:00 PM; Thursday: 8:00 AM – 5:00 PM; Friday: 8:00 AM – 5:00 PM; Saturday: 8:00 AM – 5:00 PM; Sunday: 8:00 AM – 5:00 PM"
+    "hoursNote": "Monday: 8:00 AM – 5:00 PM; Tuesday: 8:00 AM – 5:00 PM; Wednesday: 8:00 AM – 5:00 PM; Thursday: 8:00 AM – 5:00 PM; Friday: 8:00 AM – 5:00 PM; Saturday: 8:00 AM – 5:00 PM; Sunday: 8:00 AM – 5:00 PM",
+    "lat": 39.9475,
+    "lng": -75.1596
   },
   {
     "name": "The black taxi",
@@ -5385,7 +5573,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJF8eQ1LfHxokRuT313ki9lOo",
-    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 8:00 AM – 2:00 AM; Sunday: 9:00 AM – 2:00 AM",
+    "lat": 39.967,
+    "lng": -75.1788
   },
   {
     "name": "Píer bar",
@@ -5449,7 +5639,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJRYW_gQDHxokReySs3qXwte8",
-    "hoursNote": "Monday: 7:00 AM – 10:00 PM; Tuesday: 7:00 AM – 10:00 PM; Wednesday: 7:00 AM – 10:00 PM; Thursday: 7:00 AM – 10:00 PM; Friday: 7:00 AM – 10:00 PM; Saturday: 7:00 AM – 10:00 PM; Sunday: 7:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 7:00 AM – 10:00 PM; Tuesday: 7:00 AM – 10:00 PM; Wednesday: 7:00 AM – 10:00 PM; Thursday: 7:00 AM – 10:00 PM; Friday: 7:00 AM – 10:00 PM; Saturday: 7:00 AM – 10:00 PM; Sunday: 7:00 AM – 10:00 PM",
+    "lat": 39.967,
+    "lng": -75.1748
   },
   {
     "name": "Ios Restobar",
@@ -5513,7 +5705,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ-XUcMADHxokRnU_hqdA1Eh4",
-    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 9:00 PM"
+    "hoursNote": "Monday: 12:00 – 9:00 PM; Tuesday: 12:00 – 9:00 PM; Wednesday: 12:00 – 9:00 PM; Thursday: 12:00 – 9:00 PM; Friday: 12:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 9:00 PM",
+    "lat": 39.967,
+    "lng": -75.1748
   },
   {
     "name": "The Dandelion",
@@ -5577,7 +5771,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJCQbEvTDGxokRneVcOpxMXDI",
-    "hoursNote": "Monday: 11:30 AM – 11:00 PM; Tuesday: 11:30 AM – 11:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 10:00 AM – 12:00 AM; Sunday: 10:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 11:00 PM; Tuesday: 11:30 AM – 11:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 10:00 AM – 12:00 AM; Sunday: 10:00 AM – 10:00 PM",
+    "lat": 39.9497,
+    "lng": -75.1712
   },
   {
     "name": "Standard tap",
@@ -5641,7 +5837,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJy468BGXIxokR5hLj9Fkmra4",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 11:00 PM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 11:00 PM",
+    "lat": 39.9638,
+    "lng": -75.1418
   },
   {
     "name": "Assembly rooftop lounge",
@@ -5705,7 +5903,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJr9JcrzPGxokRQbeKyGsjIYw",
-    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM"
+    "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM",
+    "lat": 39.9569,
+    "lng": -75.1708
   },
   {
     "name": "Cilantro",
@@ -5748,7 +5948,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJD1RTRAnJxokRQ7nFZza6Acw",
-    "hoursNote": "Monday: 12:00 – 11:00 PM; Tuesday: 12:00 – 11:00 PM; Wednesday: 12:00 – 11:00 PM; Thursday: 12:00 – 11:00 PM; Friday: 12:00 PM – 12:00 AM; Saturday: 9:00 AM – 12:00 AM; Sunday: 9:00 AM – 11:30 PM"
+    "hoursNote": "Monday: 12:00 – 11:00 PM; Tuesday: 12:00 – 11:00 PM; Wednesday: 12:00 – 11:00 PM; Thursday: 12:00 – 11:00 PM; Friday: 12:00 PM – 12:00 AM; Saturday: 9:00 AM – 12:00 AM; Sunday: 9:00 AM – 11:30 PM",
+    "lat": 39.941,
+    "lng": -75.1488
   },
   {
     "name": "The wayward",
@@ -5820,7 +6022,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ9wRce3rHxokRHnCgu3JGDwQ",
-    "hoursNote": "Monday: 6:30 – 10:00 AM, 11:00 AM – 5:00 PM; Tuesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Wednesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Thursday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Friday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Saturday: 6:30 AM – 10:00 PM; Sunday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM"
+    "hoursNote": "Monday: 6:30 – 10:00 AM, 11:00 AM – 5:00 PM; Tuesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Wednesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Thursday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Friday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Saturday: 6:30 AM – 10:00 PM; Sunday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM",
+    "lat": 39.9515,
+    "lng": -75.1608
   },
   {
     "name": "Figo",
@@ -5851,7 +6055,9 @@
         "start": "3:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9662,
+    "lng": -75.1418
   },
   {
     "name": "Superfolie",
@@ -5915,7 +6121,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJV7mDzCrHxokR54jPeQWwq9w",
-    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: Closed",
+    "lat": 39.9464,
+    "lng": -75.1678
   },
   {
     "name": "Cavannaughs Rittenhouse",
@@ -5979,7 +6187,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJy8i9uzDGxokRCudJzZJM-WA",
-    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM"
+    "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM",
+    "lat": 39.9502,
+    "lng": -75.1728
   },
   {
     "name": "Restaurant Aleksandar",
@@ -6039,7 +6249,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJSaJnTGTHxokRT0KFsXzvMVw",
-    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 11:00 PM; Saturday: 11:00 AM – 2:30 PM, 5:00 – 11:00 PM; Sunday: 11:00 AM – 2:30 PM"
+    "hoursNote": "Monday: Closed; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 11:00 PM; Saturday: 11:00 AM – 2:30 PM, 5:00 – 11:00 PM; Sunday: 11:00 AM – 2:30 PM",
+    "lat": 39.9498,
+    "lng": -75.1722
   },
   {
     "name": "DanDan Rittenhouse",
@@ -6111,7 +6323,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJLbw-DTDGxokR0hlDxRcMUso",
-    "hoursNote": "Monday: 11:00 AM – 10:00 PM; Tuesday: 11:00 AM – 10:00 PM; Wednesday: 11:00 AM – 10:00 PM; Thursday: 11:00 AM – 10:00 PM; Friday: 11:00 AM – 10:30 PM; Saturday: 11:30 AM – 10:30 PM; Sunday: 11:30 AM – 10:00 PM"
+    "hoursNote": "Monday: 11:00 AM – 10:00 PM; Tuesday: 11:00 AM – 10:00 PM; Wednesday: 11:00 AM – 10:00 PM; Thursday: 11:00 AM – 10:00 PM; Friday: 11:00 AM – 10:30 PM; Saturday: 11:30 AM – 10:30 PM; Sunday: 11:30 AM – 10:00 PM",
+    "lat": 39.9498,
+    "lng": -75.1679
   },
   {
     "name": "Hi-Lo taco",
@@ -6171,7 +6385,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJUw9aEB3JxokRrJVblg9lReI",
-    "hoursNote": "Monday: 11:00 AM – 2:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 11:00 PM; Saturday: 11:00 AM – 11:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: 11:00 AM – 2:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 11:00 PM; Saturday: 11:00 AM – 11:00 PM; Sunday: Closed",
+    "lat": 39.9489,
+    "lng": -75.1595
   },
   {
     "name": "Strangelove's",
@@ -6243,7 +6459,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJGbc0GCbGxokR5KZTCdW3Pyc",
-    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 12:00 AM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 1:00 – 10:00 PM"
+    "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 12:00 AM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 1:00 – 10:00 PM",
+    "lat": 39.9472,
+    "lng": -75.1598
   },
   {
     "name": "Walnut street cafe",
@@ -6308,7 +6526,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ6_xHq0jGxokR7ccgMwIHlns",
     "hoursNote": "Monday: 8:00 AM – 3:00 PM; Tuesday: 8:00 AM – 9:00 PM; Wednesday: 8:00 AM – 9:00 PM; Thursday: 8:00 AM – 9:00 PM; Friday: 8:00 AM – 10:00 PM; Saturday: 9:00 AM – 10:00 PM; Sunday: 9:00 AM – 3:00 PM",
-    "menu_pdf": "https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf"
+    "menu_pdf": "https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
+    "lat": 39.9504,
+    "lng": -75.1838
   },
   {
     "name": "Monks bar",
@@ -6351,7 +6571,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJo8Mj5DrGxokRzOysJp3HPrw",
-    "hoursNote": "Monday: 5:00 – 11:45 PM; Tuesday: 11:30 AM – 11:45 PM; Wednesday: 11:30 AM – 11:45 PM; Thursday: 11:30 AM – 11:45 PM; Friday: 11:30 AM – 11:45 PM; Saturday: 11:30 AM – 11:45 PM; Sunday: 11:30 AM – 11:45 PM"
+    "hoursNote": "Monday: 5:00 – 11:45 PM; Tuesday: 11:30 AM – 11:45 PM; Wednesday: 11:30 AM – 11:45 PM; Thursday: 11:30 AM – 11:45 PM; Friday: 11:30 AM – 11:45 PM; Saturday: 11:30 AM – 11:45 PM; Sunday: 11:30 AM – 11:45 PM",
+    "lat": 39.9477,
+    "lng": -75.168
   },
   {
     "name": "The lodge",
@@ -6403,7 +6625,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJiSh-wtjHxokRa3RjcqQ-2b8",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 8:00 PM"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 10:00 AM – 10:00 PM; Sunday: 10:00 AM – 8:00 PM",
+    "lat": 39.941,
+    "lng": -75.1598
   },
   {
     "name": "Louie Louie",
@@ -6472,7 +6696,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJXyrKehzHxokRyNnPbgANeEI",
     "hoursNote": "Monday: 11:00 AM – 9:00 PM; Tuesday: 11:00 AM – 9:00 PM; Wednesday: 11:00 AM – 9:00 PM; Thursday: 11:00 AM – 9:00 PM; Friday: 11:00 AM – 9:30 PM; Saturday: 10:00 AM – 9:30 PM; Sunday: 10:00 AM – 8:00 PM",
-    "menu_pdf": "https://louielouie.restaurant/admin/uploads/ll-happyhour_08-05-26_001.pdf"
+    "menu_pdf": "https://louielouie.restaurant/admin/uploads/ll-happyhour_08-05-26_001.pdf",
+    "lat": 39.9536,
+    "lng": -75.1948
   },
   {
     "name": "Saloon",
@@ -6511,7 +6737,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJsa4JeCDGxokRNQIGOE23MRg",
-    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed"
+    "hoursNote": "Monday: 5:00 – 9:30 PM; Tuesday: 5:00 – 9:30 PM; Wednesday: 5:00 – 9:30 PM; Thursday: 5:00 – 9:30 PM; Friday: 5:00 – 9:30 PM; Saturday: 5:00 – 9:30 PM; Sunday: Closed",
+    "lat": 39.9412,
+    "lng": -75.1548
   },
   {
     "name": "Helm",
@@ -6542,7 +6770,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJh-B-i3HIxokRNbVQ7LyouDY",
-    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 5:00 – 10:00 PM; Saturday: 5:00 – 10:00 PM; Sunday: Closed",
+    "lat": 39.9712,
+    "lng": -75.1458
   },
   {
     "name": "Agrícola",
@@ -6585,7 +6815,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJy5-OjRvGxokRwuWTYQcyAh4",
-    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM"
+    "hoursNote": "Monday: 12:00 PM – 2:00 AM; Tuesday: 12:00 PM – 2:00 AM; Wednesday: 12:00 PM – 2:00 AM; Thursday: 12:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM",
+    "lat": 39.9358,
+    "lng": -75.1598
   },
   {
     "name": "Terrain cafe",
@@ -6692,7 +6924,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJ6776_VnJxokRdL6426YG6k8",
-    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 12:00 AM; Thursday: 3:00 PM – 12:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 12:00 AM"
+    "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 12:00 AM; Thursday: 3:00 PM – 12:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 12:00 AM",
+    "lat": 39.9688,
+    "lng": -75.1348
   },
   {
     "name": "Casablanca",
@@ -6731,7 +6965,9 @@
     },
     "hoursSource": "google",
     "googlePlaceId": "ChIJfUvQQWrHxokRB4nd3ehfSbQ",
-    "hoursNote": "Monday: 2:00 – 10:00 PM; Tuesday: 2:00 – 10:00 PM; Wednesday: 2:00 – 10:00 PM; Thursday: 2:00 – 10:00 PM; Friday: 2:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed"
+    "hoursNote": "Monday: 2:00 – 10:00 PM; Tuesday: 2:00 – 10:00 PM; Wednesday: 2:00 – 10:00 PM; Thursday: 2:00 – 10:00 PM; Friday: 2:00 – 10:00 PM; Saturday: 2:00 – 10:00 PM; Sunday: Closed",
+    "lat": 39.9326,
+    "lng": -75.1608
   },
   {
     "name": "LMNO",
@@ -6762,7 +6998,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9772,
+    "lng": -75.141
   },
   {
     "name": "Middle child",
@@ -6772,7 +7010,9 @@
     "social": "https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
     "hh_menu": "https://middlechildphilly.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9468,
+    "lng": -75.1598
   },
   {
     "name": "Terra Grill",
@@ -6803,7 +7043,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9678,
+    "lng": -75.1448
   },
   {
     "name": "Fork restaurant",
@@ -6830,7 +7072,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9505,
+    "lng": -75.1462
   },
   {
     "name": "Madi's coffee roaster (the Curtis)",
@@ -6840,7 +7084,9 @@
     "social": "https://www.instagram.com/reel/DLfH4ggRIez/?igsh=MTJ5Y2JoN3NoMnQ3Ng==",
     "hh_menu": "https://madiscoffee.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9484,
+    "lng": -75.1522
   },
   {
     "name": "Balcony bar (Curtain Call)",
@@ -6864,7 +7110,9 @@
         "end": "6:30 PM"
       }
     },
-    "menu_pdf": "https://www.curtain-call-lounge.com/_files/ugd/87ec2a_db37ae1db8a54faca940426e78d1ecbf.pdf"
+    "menu_pdf": "https://www.curtain-call-lounge.com/_files/ugd/87ec2a_db37ae1db8a54faca940426e78d1ecbf.pdf",
+    "lat": 39.9468,
+    "lng": -75.1642
   },
   {
     "name": "48 record bar",
@@ -6874,7 +7122,9 @@
     "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
     "hh_menu": "https://www.48recordbar.com/",
     "instagram": "https://www.instagram.com/48recordbar/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9498,
+    "lng": -75.1438
   },
   {
     "name": "Doom",
@@ -6884,7 +7134,9 @@
     "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
     "hh_menu": "https://www.doom.bar/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9598,
+    "lng": -75.1508
   },
   {
     "name": "Poison heart",
@@ -6894,7 +7146,9 @@
     "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
     "hh_menu": "https://www.poisonheartbar.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9615,
+    "lng": -75.1568
   },
   {
     "name": "Mi vida",
@@ -6926,7 +7180,9 @@
         "end": "6:00 PM"
       }
     },
-    "menu_pdf": "https://www.mividamexico.com/wp-content/uploads/2026/06/Mi-Vida-Philly-Happy-Hour-1-up-6.25.26_web.pdf"
+    "menu_pdf": "https://www.mividamexico.com/wp-content/uploads/2026/06/Mi-Vida-Philly-Happy-Hour-1-up-6.25.26_web.pdf",
+    "lat": 39.9515,
+    "lng": -75.1608
   },
   {
     "name": "Piccolina",
@@ -6936,7 +7192,9 @@
     "social": "https://www.instagram.com/reel/DUnsffrgFsl/?igsh=MTk2cXQ0N21lZHBxZA==",
     "hh_menu": "https://www.piccolinaphl.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9488,
+    "lng": -75.1462
   },
   {
     "name": "Griddle and rice",
@@ -6946,7 +7204,9 @@
     "social": "https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
     "hh_menu": "https://www.griddlericephilly.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.921,
+    "lng": -75.1808
   },
   {
     "name": "Rhythm and spirits",
@@ -6977,7 +7237,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9542,
+    "lng": -75.1678
   },
   {
     "name": "Lucky duck",
@@ -7005,7 +7267,9 @@
         "end": "6:00 PM"
       }
     },
-    "menu_pdf": "https://www.luckyduckphl.com/s/HAPPY-HOUR-6X8_-09_03.pdf"
+    "menu_pdf": "https://www.luckyduckphl.com/s/HAPPY-HOUR-6X8_-09_03.pdf",
+    "lat": 39.9608,
+    "lng": -75.1369
   },
   {
     "name": "Leo",
@@ -7029,7 +7293,9 @@
         "end": "6:30 PM"
       }
     },
-    "menu_pdf": "https://www.leo-restaurant.com/_files/ugd/87ec2a_e0e339b52d884d83a057e5d77ff1f0ac.pdf"
+    "menu_pdf": "https://www.leo-restaurant.com/_files/ugd/87ec2a_e0e339b52d884d83a057e5d77ff1f0ac.pdf",
+    "lat": 39.9468,
+    "lng": -75.1642
   },
   {
     "name": "Watkins Drinkery",
@@ -7068,7 +7334,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.929,
+    "lng": -75.1598
   },
   {
     "name": "Stateside",
@@ -7091,7 +7359,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9318,
+    "lng": -75.1558
   },
   {
     "name": "Lucky 13 Pub",
@@ -7101,7 +7371,9 @@
     "social": "",
     "hh_menu": "https://lucky13pubphilly.com/philadelphia-lucky-13-pub-happy-hours-specials",
     "instagram": "https://www.instagram.com/lucky_13_pub_philly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.928,
+    "lng": -75.1626
   },
   {
     "name": "Honeysuckle",
@@ -7111,7 +7383,9 @@
     "social": "https://www.tiktok.com/t/ZP8gJhbMK/",
     "hh_menu": "https://www.honeysucklephl.com/",
     "instagram": "https://www.instagram.com/honeysuckle_restaurant/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9628,
+    "lng": -75.1636
   },
   {
     "name": "Aqimero",
@@ -7121,7 +7395,9 @@
     "social": "https://www.instagram.com/reel/DWwDOqODqr6/?igsh=MWpzZXRrbWRyNTE5Zg==",
     "hh_menu": "https://www.aqimero.com/socialhour",
     "instagram": "https://www.instagram.com/aqimero/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9514,
+    "lng": -75.1642
   },
   {
     "name": "Paffuto",
@@ -7131,7 +7407,9 @@
     "social": "https://www.instagram.com/reel/DVzK78hPjqZ/?igsh=MXZjamE5cXBmcDV0",
     "hh_menu": "https://www.paffutophl.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9378,
+    "lng": -75.1565
   },
   {
     "name": "Samurai Asian Fusion",
@@ -7141,7 +7419,9 @@
     "social": "https://samuraiasianfusion.com/menu.html?fbclid=PAZnRzaAQ_v3NleHRuA2FlbQIxMQBzcnRjBmFwcF9pZA8xMjQwMjQ1NzQyODc0MTQAAaejY1-kHXQnIs55O2UexqozOd72_gMuRgUAcdBtleztwJUMIXqGnWvclPrmeg_aem__7nKzRYoqiCdSelJRwXQ-g",
     "hh_menu": "https://samuraiasianfusion.com/menu.html",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9482,
+    "lng": -75.1658
   },
   {
     "name": "1 Tipping Place",
@@ -7168,7 +7448,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.952,
+    "lng": -75.1742
   },
   {
     "name": "El techo",
@@ -7191,7 +7473,9 @@
         "start": "4:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9517,
+    "lng": -75.171
   },
   {
     "name": "Bar 1010",
@@ -7218,7 +7502,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9618,
+    "lng": -75.1418
   },
   {
     "name": "The Rittenhouse",
@@ -7228,7 +7514,9 @@
     "social": "https://www.instagram.com/reel/DUPEVf1DXrn/?igsh=aGhzdzE4MmxsaHE5",
     "hh_menu": "https://www.lacroixrestaurant.com/menus",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9494,
+    "lng": -75.1728
   },
   {
     "name": "Drinkers pub",
@@ -7238,7 +7526,9 @@
     "social": "https://www.instagram.com/reel/DWrzbYWEcve/?igsh=MWw4dGw4ZXlsNjMwYg==",
     "hh_menu": "http://www.drinkersrittenhouse.com/",
     "instagram": "https://www.instagram.com/drinkerspub/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.952,
+    "lng": -75.1724
   },
   {
     "name": "Green Elephant",
@@ -7269,7 +7559,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.9482,
+    "lng": -75.1664
   },
   {
     "name": "El Vez",
@@ -7300,7 +7592,9 @@
         "start": "3:00 PM",
         "end": "5:00 PM"
       }
-    }
+    },
+    "lat": 39.95,
+    "lng": -75.1624
   },
   {
     "name": "Static",
@@ -7310,7 +7604,9 @@
     "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/static_phl/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9462,
+    "lng": -75.1608
   },
   {
     "name": "Homegrown 215",
@@ -7320,7 +7616,9 @@
     "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
     "hh_menu": "https://homegrown215.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.921,
+    "lng": -75.174
   },
   {
     "name": "Juana Tamala",
@@ -7330,7 +7628,9 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/JuanaTamale/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.928,
+    "lng": -75.1536
   },
   {
     "name": "Noir",
@@ -7361,7 +7661,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9284,
+    "lng": -75.154
   },
   {
     "name": "Stogie Joe's Tavern",
@@ -7371,7 +7673,9 @@
     "social": "",
     "hh_menu": "https://www.instagram.com/p/DXZcDgkk7dy/",
     "instagram": "https://www.instagram.com/stogiejoestavern/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.929,
+    "lng": -75.1542
   },
   {
     "name": "Ember and Ash",
@@ -7394,7 +7698,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9318,
+    "lng": -75.1562
   },
   {
     "name": "Superette",
@@ -7404,7 +7710,9 @@
     "social": "",
     "hh_menu": "https://www.superettephl.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9316,
+    "lng": -75.156
   },
   {
     "name": "Tiffin Indian cuisine",
@@ -7414,7 +7722,9 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9326,
+    "lng": -75.1598
   },
   {
     "name": "Pho 75",
@@ -7424,7 +7734,9 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9348,
+    "lng": -75.1602
   },
   {
     "name": "Garage",
@@ -7434,7 +7746,9 @@
     "social": "",
     "hh_menu": "https://www.garagephilly.com/passyunk",
     "instagram": "https://www.instagram.com/garagephilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9332,
+    "lng": -75.159
   },
   {
     "name": "Happy Birthday Bar",
@@ -7444,7 +7758,9 @@
     "social": "",
     "hh_menu": "",
     "instagram": "https://www.instagram.com/rayshappybirthdaybar/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9338,
+    "lng": -75.1585
   },
   {
     "name": "The Dive",
@@ -7483,7 +7799,9 @@
         "start": "5:00 PM",
         "end": "7:00 PM"
       }
-    }
+    },
+    "lat": 39.9378,
+    "lng": -75.1558
   },
   {
     "name": "Royal Tavern",
@@ -7493,7 +7811,9 @@
     "social": "",
     "hh_menu": "https://www.royaltavern.com/specials",
     "instagram": "https://www.instagram.com/royaltavern/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9376,
+    "lng": -75.156
   },
   {
     "name": "Grace and Proper",
@@ -7508,7 +7828,9 @@
         "start": "8:00 PM",
         "end": "12:00 AM"
       }
-    }
+    },
+    "lat": 39.9388,
+    "lng": -75.1565
   },
   {
     "name": "The continental",
@@ -7518,7 +7840,9 @@
     "social": "",
     "hh_menu": "https://continentalmartinibar.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9499,
+    "lng": -75.1436
   },
   {
     "name": "Stratus Lounge",
@@ -7528,7 +7852,9 @@
     "social": "",
     "hh_menu": "https://stratuslounge.com/events",
     "instagram": "https://www.instagram.com/stratusloungephl/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.949,
+    "lng": -75.1478
   },
   {
     "name": "Sunset Social/Cira Green",
@@ -7538,7 +7864,9 @@
     "social": "",
     "hh_menu": "https://www.sunsetsocialphl.com/",
     "instagram": "https://www.instagram.com/sunsetsocialphl/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9528,
+    "lng": -75.1855
   },
   {
     "name": "Mug Coffee",
@@ -7548,7 +7876,9 @@
     "social": "",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9492,
+    "lng": -75.2165
   },
   {
     "name": "Kanella Grill",
@@ -7558,7 +7888,9 @@
     "social": "",
     "hh_menu": "https://www.kanellarestaurant.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.946,
+    "lng": -75.158
   },
   {
     "name": "Giovanni's bar and grill",
@@ -7568,7 +7900,9 @@
     "social": "https://www.instagram.com/reel/DXIJfKkEfY8/?igsh=Mm50c2VvbmhpcWFk",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9548,
+    "lng": -75.1428
   },
   {
     "name": "Trattoria Carina",
@@ -7578,7 +7912,9 @@
     "social": "https://www.instagram.com/reel/DXIM5pUCKyF/?igsh=MW0wcHo2YmhxZ2RheA==",
     "hh_menu": "https://www.trattoriacarina.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.948,
+    "lng": -75.1788
   },
   {
     "name": "Mish Mish",
@@ -7610,7 +7946,9 @@
         "end": "7:00 PM"
       }
     },
-    "menu_pdf": "https://www.mishmishphilly.com/s/menu-template-SUNSHINE_HOUR_26-5akg.pdf"
+    "menu_pdf": "https://www.mishmishphilly.com/s/menu-template-SUNSHINE_HOUR_26-5akg.pdf",
+    "lat": 39.9296,
+    "lng": -75.161
   },
   {
     "name": "The Dutch",
@@ -7620,7 +7958,9 @@
     "social": "",
     "hh_menu": "https://thedutchphilly.com/",
     "instagram": "https://www.instagram.com/thedutchphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9302,
+    "lng": -75.1612
   },
   {
     "name": "El Chingon",
@@ -7630,7 +7970,9 @@
     "social": "",
     "hh_menu": "https://www.elchingonphilly.com/menu",
     "instagram": "https://www.instagram.com/elchingonphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9308,
+    "lng": -75.1598
   },
   {
     "name": "Topside Tavern",
@@ -7657,7 +7999,9 @@
         "start": "4:00 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "lat": 39.9518,
+    "lng": -75.1745
   },
   {
     "name": "Tempo",
@@ -7667,7 +8011,9 @@
     "social": "https://www.instagram.com/reel/DXSo2rjjiiL/?igsh=cTE0MXR5bTM4czZt",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.93,
+    "lng": -75.155
   },
   {
     "name": "Yamaga Kappo",
@@ -7677,7 +8023,9 @@
     "social": "https://www.tiktok.com/t/ZP8pm7NsM/",
     "hh_menu": "https://www.ykisushi.com/",
     "instagram": "https://www.instagram.com/yanaga_kappo_izakaya/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9638,
+    "lng": -75.1448
   },
   {
     "name": "Mawn",
@@ -7687,7 +8035,9 @@
     "social": "",
     "hh_menu": "https://mawnphilly.com/",
     "instagram": "https://www.instagram.com/mawnphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9398,
+    "lng": -75.1582
   },
   {
     "name": "Emmet",
@@ -7697,7 +8047,9 @@
     "social": "",
     "hh_menu": "https://www.emmettphilly.com/",
     "instagram": "https://www.instagram.com/emmettphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9695,
+    "lng": -75.1368
   },
   {
     "name": "Friday Saturday Sunday",
@@ -7707,7 +8059,9 @@
     "social": "",
     "hh_menu": "https://www.fridaysaturdaysunday.com/",
     "instagram": "https://www.instagram.com/friday.saturday.sunday/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9482,
+    "lng": -75.1762
   },
   {
     "name": "Her place",
@@ -7717,7 +8071,9 @@
     "social": "",
     "hh_menu": "https://www.herplacephilly.com/",
     "instagram": "https://www.instagram.com/herplacesupperclub/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9502,
+    "lng": -75.1702
   },
   {
     "name": "Kalaya",
@@ -7727,7 +8083,9 @@
     "social": "",
     "hh_menu": "https://kalayaphilly.com/",
     "instagram": "https://www.instagram.com/kalayaphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9762,
+    "lng": -75.1418
   },
   {
     "name": "Vernick Fish",
@@ -7758,7 +8116,9 @@
         "start": "4:30 PM",
         "end": "6:30 PM"
       }
-    }
+    },
+    "lat": 39.9552,
+    "lng": -75.1702
   },
   {
     "name": "Royal Izakaya and Omikase",
@@ -7768,7 +8128,9 @@
     "social": "",
     "hh_menu": "https://royalizakaya.com/",
     "instagram": "https://www.instagram.com/royal_izakaya/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9398,
+    "lng": -75.145
   },
   {
     "name": "Emelia",
@@ -7778,7 +8140,9 @@
     "social": "",
     "hh_menu": "https://www.emiliaphilly.com/",
     "instagram": "https://www.instagram.com/emiliaphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9822,
+    "lng": -75.1342
   },
   {
     "name": "Fiorella",
@@ -7788,7 +8152,9 @@
     "social": "",
     "hh_menu": "https://fiorellaphilly.com/",
     "instagram": "https://www.instagram.com/fiorellaphilly/",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9368,
+    "lng": -75.1565
   },
   {
     "name": "Kiddo restaurant",
@@ -7815,7 +8181,9 @@
         "start": "4:00 PM",
         "end": "6:00 PM"
       }
-    }
+    },
+    "lat": 39.944,
+    "lng": -75.1605
   },
   {
     "name": "Post haste",
@@ -7825,7 +8193,9 @@
     "social": "https://www.instagram.com/reel/DYfiqlHKhX8/?igsh=MWV6YmZzZGhmM2wxaA==",
     "hh_menu": "https://www.posthastephilly.com/",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9708,
+    "lng": -75.1348
   },
   {
     "name": "Picolina",
@@ -7835,7 +8205,9 @@
     "social": "https://www.instagram.com/reel/DYkVg87xOLA/?igsh=bHR1b3Rvd3ZiZHFl",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.94,
+    "lng": -75.1468
   },
   {
     "name": "Alice",
@@ -7845,6 +8217,8 @@
     "social": "https://www.instagram.com/reel/DYnRNpiKB1f/?igsh=MXYzNmo3dXRvbmdzOA==",
     "hh_menu": "",
     "instagram": "",
-    "schedule": {}
+    "schedule": {},
+    "lat": 39.9615,
+    "lng": -75.1548
   }
 ]
