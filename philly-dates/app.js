@@ -2592,6 +2592,10 @@ function ensureCityLeafletMap() {
     attribution: '&copy; OpenStreetMap'
   }).addTo(cityLeafletMap);
   cityMapMarkersLayer = L.layerGroup().addTo(cityLeafletMap);
+  if (!cityLeafletMap.getPane('pins')) {
+    cityLeafletMap.createPane('pins');
+    cityLeafletMap.getPane('pins').style.zIndex = 660;
+  }
   cityLeafletMap.on('zoomend', updateCityMapZoomClass);
   cityLeafletMap.on('click', function(e) {
     if (Date.now() < cityMapIgnoreClickUntil) return;
@@ -2620,7 +2624,8 @@ function renderCityMapPins() {
       weight: 2,
       fillColor: cityMapPinColor(kind),
       fillOpacity: 1,
-      bubblingMouseEvents: false
+      bubblingMouseEvents: false,
+      pane: 'pins'
     });
     marker.bindTooltip(r.name, {
       permanent: true,
@@ -2635,14 +2640,18 @@ function renderCityMapPins() {
       openCityMapPopup(r.name);
     });
     cityMapMarkersLayer.addLayer(marker);
-    var tip = marker.getTooltip();
-    if (tip && tip.getElement()) {
-      L.DomEvent.on(tip.getElement(), 'click', function(ev) {
-        L.DomEvent.stop(ev);
+    requestAnimationFrame(function() {
+      var tip = marker.getTooltip();
+      var tipEl = tip && tip.getElement();
+      if (!tipEl) return;
+      tipEl.style.pointerEvents = 'auto';
+      tipEl.addEventListener('click', function(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
         cityMapIgnoreClickUntil = Date.now() + 400;
         openCityMapPopup(r.name);
       });
-    }
+    });
   });
   var countEl = document.getElementById('city-map-count');
   if (countEl) {
