@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-map-v4 -->
+<!-- build: coffee-map-v6 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body class="view-map">
   <header class="topbar">
@@ -38,6 +38,22 @@
 
   <main>
     <div id="map" class="map" role="application" aria-label="Philadelphia coffee map"></div>
+    <button type="button" class="here-btn" id="hereBtn" aria-label="Where am I">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span>Where am I</span>
+    </button>
+    <div class="here-bar" id="hereBar" hidden>
+      <div class="here-bar-top">
+        <p class="here-label" id="hereLabel">~800 m · 10 min walk</p>
+        <button type="button" class="text-btn" id="hereClearBtn">Clear</button>
+      </div>
+      <label class="here-slider-label">
+        <span>Walk</span>
+        <input type="range" id="hereSlider" min="5" max="25" step="1" value="10" />
+        <span id="hereMinutes">10 min</span>
+      </label>
+      <p class="here-count" id="hereCount"></p>
+    </div>
     <section class="list-view" id="listView" hidden>
       <div class="list-toolbar">
         <span id="listCount">0 places</span>
@@ -150,7 +166,7 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=3"></script>
-  <script src="app.js?v=7"></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=4"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
