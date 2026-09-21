@@ -582,9 +582,34 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.mini-card.compact .meta {
+.mini-card .title-line {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+}
+.mini-card.compact .title-line {
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
+}
+.ago {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  opacity: 0.82;
+  white-space: nowrap;
   flex-shrink: 0;
-  margin: 0;
+}
+
+.mini-card.compact.weekly-rest {
+  opacity: var(--week-opacity, 0.7);
+}
+.mini-card.compact.weekly-rest .title.done {
+  opacity: 0.9;
 }
 
 .fab {
