@@ -1394,7 +1394,7 @@ function appleMapsUrl(r) {
   var lng = Number(r.lng);
   if (Number.isFinite(lat) && Number.isFinite(lng)) {
     var pin = name || [r.address, r.neighborhood, 'Philadelphia, PA'].filter(Boolean).join(', ') || 'Place';
-    return 'https://maps.apple.com/?ll=' + encodeURIComponent(lat + ',' + lng)
+    return 'https://maps.apple.com/?ll=' + lat + ',' + lng
       + '&q=' + encodeURIComponent(pin);
   }
   var q = [name, r.address, r.neighborhood, 'Philadelphia, PA'].filter(Boolean).join(', ');
