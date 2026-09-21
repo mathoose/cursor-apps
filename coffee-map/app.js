@@ -171,6 +171,63 @@
       .replace(/(coffee|cafe|cafes|roasters|roastery|labs|lab)/g, '');
   }
 
+  function personalSnapshot(p) {
+    if (!p) return null;
+    return {
+      status: p.status === 'been' ? 'been' : 'want',
+      rating: clampRating(p.rating),
+      price: clampPrice(p.price),
+      notes: String(p.notes || '').trim(),
+      visitedAt: p.visitedAt || null,
+      addedAt: p.addedAt || null,
+      instagramUrl: String(p.instagramUrl || '').trim()
+    };
+  }
+
+  function applyPersonal(place, personal) {
+    if (!place || !personal) return place;
+    place.status = personal.status === 'been' ? 'been' : 'want';
+    place.rating = clampRating(personal.rating);
+    place.price = clampPrice(personal.price);
+    place.notes = String(personal.notes || '').trim();
+    place.visitedAt = personal.visitedAt || (place.status === 'been' ? place.visitedAt : null);
+    if (personal.addedAt) place.addedAt = personal.addedAt;
+    return place;
+  }
+
+  function hasPersonalContent(personal) {
+    if (!personal) return false;
+    return personal.status === 'been' ||
+      personal.rating != null ||
+      personal.price != null ||
+      !!(personal.notes && personal.notes.trim());
+  }
+
+  /** Shared catalog row only — never carries ratings or visit state from places.json. */
+  function catalogFromSeed(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    return normalizePlace({
+      id: raw.id,
+      name: raw.name,
+      lat: raw.lat,
+      lng: raw.lng,
+      address: raw.address,
+      neighborhood: raw.neighborhood,
+      website: raw.website,
+      instagramUrl: raw.instagramUrl,
+      hours: raw.hours,
+      hoursNote: raw.hoursNote,
+      hoursSource: raw.hoursSource,
+      seeded: true,
+      status: 'want',
+      rating: null,
+      price: null,
+      notes: '',
+      visitedAt: null,
+      addedAt: raw.addedAt || new Date().toISOString()
+    });
+  }
+
   function namesFuzzy(a, b) {
     var x = nameKey(a);
     var y = nameKey(b);
@@ -185,55 +242,77 @@
     return (dlat * dlat + dlng * dlng) < 0.00000064;
   }
 
-  function applySeedCatalog(dest, seed) {
-    dest.name = seed.name;
-    dest.lat = seed.lat;
-    dest.lng = seed.lng;
-    dest.address = seed.address || dest.address;
-    dest.neighborhood = seed.neighborhood || dest.neighborhood;
-    dest.website = seed.website || '';
-    dest.instagramUrl = seed.instagramUrl || dest.instagramUrl || '';
-    dest.hours = seed.hours;
-    dest.hoursNote = seed.hoursNote || '';
-    dest.hoursSource = seed.hoursSource || '';
-    dest.seeded = true;
-    dest.id = seed.id;
-  }
-
+  /**
+   * Rebuild seeded cafes from the shared catalog every load.
+   * Personal ratings/notes/prices stay on-device and are re-applied by id
+   * (or by fuzzy match when the user added the same place themselves).
+   * New catalog cafes always appear unless the user hid that seed id.
+   */
   function mergeSeedIntoData(data, seeds) {
     data = normalizeData(data);
     var hidden = {};
     data.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
-    var byId = {};
-    data.places.forEach(function (p) { byId[p.id] = p; });
-    seeds.forEach(function (raw) {
-      var seed = normalizePlace(Object.assign({}, raw, { seeded: true, status: 'want' }));
+
+    var personalById = {};
+    var customPlaces = [];
+    data.places.forEach(function (p) {
+      if (!p) return;
+      personalById[p.id] = personalSnapshot(p);
+      if (!p.seeded) customPlaces.push(p);
+    });
+
+    var seedIds = {};
+    var nextPlaces = [];
+    var usedCustom = {};
+
+    (seeds || []).forEach(function (raw) {
+      var seed = catalogFromSeed(raw);
       if (!seed || hidden[seed.id]) return;
       if (typeof PhillyWalkMap !== 'undefined' && !PhillyWalkMap.contains(seed.lat, seed.lng)) return;
-      var existing = byId[seed.id];
-      if (!existing) {
-        existing = data.places.filter(function (p) {
-          return isNear(p, seed) && namesFuzzy(p.name, seed.name);
-        })[0];
-      }
-      if (existing) {
-        var oldId = existing.id;
-        applySeedCatalog(existing, seed);
-        if (oldId !== seed.id) {
-          delete byId[oldId];
-          byId[seed.id] = existing;
+      seedIds[seed.id] = true;
+
+      var customMatch = null;
+      var i;
+      for (i = 0; i < customPlaces.length; i++) {
+        var c = customPlaces[i];
+        if (usedCustom[c.id]) continue;
+        if (isNear(c, seed) && namesFuzzy(c.name, seed.name)) {
+          customMatch = c;
+          break;
         }
-      } else {
-        data.places.push(seed);
-        byId[seed.id] = seed;
       }
+
+      var personal = personalById[seed.id] || null;
+      if (!personal && customMatch) personal = personalById[customMatch.id] || personalSnapshot(customMatch);
+
+      var place = seed;
+      if (personal) applyPersonal(place, personal);
+      if (customMatch) {
+        usedCustom[customMatch.id] = true;
+        if (!place.instagramUrl && customMatch.instagramUrl) {
+          place.instagramUrl = customMatch.instagramUrl;
+        }
+      }
+      nextPlaces.push(place);
     });
-    if (typeof PhillyWalkMap !== 'undefined') {
-      data.places = data.places.filter(function (p) {
-        if (!p.seeded) return true;
-        return PhillyWalkMap.contains(p.lat, p.lng);
-      });
-    }
+
+    // Keep user-added places that are not in the shared catalog.
+    customPlaces.forEach(function (p) {
+      if (usedCustom[p.id]) return;
+      nextPlaces.push(normalizePlace(p));
+    });
+
+    // Former catalog pins removed from places.json: keep only if the user logged something.
+    data.places.forEach(function (p) {
+      if (!p || !p.seeded || seedIds[p.id] || hidden[p.id]) return;
+      if (usedCustom[p.id]) return;
+      var personal = personalById[p.id];
+      if (!hasPersonalContent(personal)) return;
+      var orphan = normalizePlace(Object.assign({}, p, { seeded: false }));
+      if (orphan) nextPlaces.push(orphan);
+    });
+
+    data.places = nextPlaces;
     return data;
   }
 
@@ -268,7 +347,7 @@
   }
 
   function loadSeed() {
-    return fetch('places.json?v=6')
+    return fetch('places.json?v=7')
       .then(function (r) { return r.ok ? r.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
