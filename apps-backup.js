@@ -34,6 +34,7 @@
     "index-card-planner": "Card Box",
     "fantasy-hub": "Fantasy Hub",
     "coffee-map": "Coffee Map",
+    "done-today": "Done Today",
   };
 
   var PHOTO_DATABASES = [
@@ -1444,9 +1445,97 @@
         return out;
       },
     },
+    "done-today": {
+      storageKey: "done-today-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("done-today-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || (!Array.isArray(p.catalog) && !Array.isArray(p.pending) && !Array.isArray(p.entries))) return null;
+          return {
+            version: p.version || 1,
+            catalog: Array.isArray(p.catalog) ? p.catalog : [],
+            pending: Array.isArray(p.pending) ? p.pending : [],
+            entries: Array.isArray(p.entries) ? p.entries : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || (!Array.isArray(slice.catalog) && !Array.isArray(slice.pending) && !Array.isArray(slice.entries))) return false;
+        return writeKey(
+          "done-today-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            catalog: Array.isArray(slice.catalog) ? slice.catalog : [],
+            pending: Array.isArray(slice.pending) ? slice.pending : [],
+            entries: Array.isArray(slice.entries) ? slice.entries : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && (Array.isArray(obj.catalog) || Array.isArray(obj.pending) || Array.isArray(obj.entries)));
+      },
+      summarize: function (slice) {
+        var c = slice.catalog ? slice.catalog.length : 0;
+        var e = slice.entries ? slice.entries.length : 0;
+        var p = slice.pending ? slice.pending.length : 0;
+        return c + " task" + (c === 1 ? "" : "s") + ", " + e + " done, " + p + " open";
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          catalog: (existing.catalog || []).slice(),
+          pending: (existing.pending || []).slice(),
+          entries: (existing.entries || []).slice(),
+        };
+        var catIds = {};
+        var catKeys = {};
+        out.catalog.forEach(function (c) {
+          if (!c) return;
+          if (c.id) catIds[c.id] = true;
+          if (c.title) catKeys[String(c.title).toLowerCase()] = c;
+        });
+        (incoming.catalog || []).forEach(function (c) {
+          if (!c || !c.title) return;
+          var key = String(c.title).toLowerCase();
+          if (catKeys[key]) {
+            var cur = catKeys[key];
+            if ((c.doneCount || 0) > (cur.doneCount || 0)) cur.doneCount = c.doneCount;
+            if (c.lastDoneDate && (!cur.lastDoneDate || c.lastDoneDate > cur.lastDoneDate)) {
+              cur.lastDoneDate = c.lastDoneDate;
+              cur.lastDoneAt = c.lastDoneAt;
+            }
+            return;
+          }
+          if (c.id && catIds[c.id]) return;
+          out.catalog.push(c);
+          if (c.id) catIds[c.id] = true;
+          catKeys[key] = c;
+        });
+        var pendingIds = {};
+        out.pending.forEach(function (p) { if (p && p.id) pendingIds[p.id] = true; });
+        (incoming.pending || []).forEach(function (p) {
+          if (!p || !p.id || pendingIds[p.id]) return;
+          out.pending.push(p);
+          pendingIds[p.id] = true;
+        });
+        var entryIds = {};
+        out.entries.forEach(function (e) { if (e && e.id) entryIds[e.id] = true; });
+        (incoming.entries || []).forEach(function (e) {
+          if (!e || !e.id || entryIds[e.id]) return;
+          out.entries.push(e);
+          entryIds[e.id] = true;
+        });
+        return out;
+      },
+    },
   };
-
-  /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
     var out = {
       version: slice.version || 6,
