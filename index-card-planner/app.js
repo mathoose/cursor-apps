@@ -20,7 +20,7 @@
 
   var DEFAULT_TABS = [
     { id: "inbox", name: "Inbox", color: "#c4b8a8", hint: "Unfiled cards land here until you slide them behind a day." },
-    { id: "daily", name: "Daily", color: "#e07a5f", hint: "Every morning. Finished cards stay here, collapsed, until tomorrow." },
+    { id: "daily", name: "Daily", color: "#e07a5f", hint: "Every morning. Finished dailies collapse until tomorrow. Weeklies stay collapsed and color back in over 7 days." },
     { id: "weekly", name: "Weekly", color: "#e07a9a", hint: "Once a week. Finished cards stay collapsed here and color back in over 7 days." },
     { id: "monthly", name: "Monthly", color: "#9b8ec4", hint: "Once a month. Finished cards park in Later until next month." },
     { id: "today", name: "Today", color: "#f2cc8f", hint: "This day’s one-offs. Leftovers can move to tomorrow." },
