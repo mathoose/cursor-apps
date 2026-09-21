@@ -56,6 +56,47 @@
     return Number.isInteger(n) ? ('$' + n) : ('$' + n.toFixed(2));
   }
 
+  function clampHappiness(n) {
+    return clampRating(n);
+  }
+
+  function normalizeOrder(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    return {
+      id: raw.id ? String(raw.id) : uid(),
+      name: String(raw.name || '').trim().slice(0, 80),
+      price: clampPrice(raw.price),
+      happiness: clampHappiness(raw.happiness)
+    };
+  }
+
+  function normalizeOrders(raw, legacyPrice) {
+    var list = Array.isArray(raw) ? raw.map(normalizeOrder).filter(Boolean) : [];
+    if (!list.length) {
+      var legacy = clampPrice(legacyPrice);
+      if (legacy != null) {
+        list.push({ id: uid(), name: '', price: legacy, happiness: null });
+      }
+    }
+    return list;
+  }
+
+  function ordersTotal(orders) {
+    var total = 0;
+    var any = false;
+    (orders || []).forEach(function (o) {
+      if (o && o.price != null) {
+        total += o.price;
+        any = true;
+      }
+    });
+    return any ? Math.round(total * 100) / 100 : null;
+  }
+
+  function orderHasContent(o) {
+    return !!(o && (o.name || o.price != null || o.happiness));
+  }
+
   function normalizeHours(raw) {
     if (!raw || typeof raw !== 'object') return null;
     var out = {};
@@ -105,7 +146,7 @@
       seeded: !!raw.seeded,
       status: status,
       rating: clampRating(raw.rating),
-      price: clampPrice(raw.price),
+      orders: normalizeOrders(raw.orders, raw.price),
       notes: String(raw.notes || '').trim(),
       addedAt: raw.addedAt || new Date().toISOString(),
       visitedAt: raw.visitedAt || (status === 'been' ? new Date().toISOString() : null)
@@ -589,8 +630,10 @@
       });
     } else if (ui.sort === 'price') {
       places.sort(function (a, b) {
-        var ap = a.price == null ? -1 : a.price;
-        var bp = b.price == null ? -1 : b.price;
+        var ap = ordersTotal(a.orders);
+        var bp = ordersTotal(b.orders);
+        if (ap == null) ap = -1;
+        if (bp == null) bp = -1;
         return bp - ap || a.name.localeCompare(b.name);
       });
     } else if (ui.sort === 'added') {
@@ -630,14 +673,17 @@
       var openHtml = open == null ? '' : (
         '<span class="' + (open ? 'open-pill' : 'closed-pill') + '">' + (open ? 'Open' : 'Closed') + '</span> '
       );
+      var total = ordersTotal(p.orders);
+      var orderCount = (p.orders || []).filter(orderHasContent).length;
       return '<button type="button" class="place-card ' + (p.status === 'been' ? 'been' : '') + '" data-id="' +
         escapeHtml(p.id) + '"><div class="name"><span class="name-text">' + escapeHtml(p.name) + '</span>' +
         (p.status === 'been' ? '<span class="been-pill">Been</span>' : '') +
         '</div>' +
         (metaBits.length || openHtml ? '<div class="meta">' + openHtml + escapeHtml(metaBits.join(' · ')) + '</div>' : '') +
-        ((p.rating || p.price != null) ? '<div class="card-stats">' +
+        ((p.rating || total != null || orderCount) ? '<div class="card-stats">' +
           (p.rating ? '<span class="stars-inline">' + starText(p.rating) + '</span>' : '') +
-          (p.price != null ? '<span class="price-pill">' + escapeHtml(formatPrice(p.price)) + '</span>' : '') +
+          (total != null ? '<span class="price-pill">' + escapeHtml(formatPrice(total)) + '</span>' : '') +
+          (orderCount ? '<span class="order-pill">' + orderCount + ' item' + (orderCount === 1 ? '' : 's') + '</span>' : '') +
           '</div>' : '') +
         '</button>';
     }).join('');
@@ -821,7 +867,7 @@
       instagramUrl: ig,
       status: 'want',
       rating: null,
-      price: null,
+      orders: [],
       notes: '',
       addedAt: new Date().toISOString()
     });
@@ -903,6 +949,60 @@
     row.innerHTML = html;
   }
 
+  function happinessButtonsHtml(orderId, happiness) {
+    var html = '';
+    var i;
+    for (i = 1; i <= 5; i++) {
+      html += '<button type="button" class="happy-star' + (happiness && i <= happiness ? ' on' : '') +
+        '" data-order-id="' + escapeHtml(orderId) + '" data-happy="' + i +
+        '" aria-label="' + i + ' happiness">' + (i <= (happiness || 0) ? '★' : '☆') + '</button>';
+    }
+    return html;
+  }
+
+  function renderOrders(orders) {
+    var list = document.getElementById('ordersList');
+    if (!list) return;
+    orders = orders || [];
+    if (!orders.length) {
+      list.innerHTML = '<p class="orders-empty">No items yet — add what you got.</p>';
+      return;
+    }
+    list.innerHTML = orders.map(function (o) {
+      return '<div class="order-row" data-order-id="' + escapeHtml(o.id) + '">' +
+        '<input type="text" class="order-name" data-order-id="' + escapeHtml(o.id) +
+        '" value="' + escapeHtml(o.name) + '" placeholder="Item name" maxlength="80" autocomplete="off" />' +
+        '<div class="order-price-row">' +
+        '<span class="price-prefix" aria-hidden="true">$</span>' +
+        '<input type="number" class="order-price" data-order-id="' + escapeHtml(o.id) +
+        '" inputmode="decimal" min="0" max="9999" step="0.01" placeholder="0.00" value="' +
+        (o.price != null ? escapeHtml(String(o.price)) : '') + '" />' +
+        '</div>' +
+        '<div class="order-happy" role="group" aria-label="Happiness">' + happinessButtonsHtml(o.id, o.happiness) + '</div>' +
+        '<button type="button" class="order-remove text-btn" data-order-id="' + escapeHtml(o.id) +
+        '" aria-label="Remove item">Remove</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function patchOrders(mutator) {
+    if (!activePlaceId) return null;
+    var cur = findPlace(activePlaceId);
+    if (!cur) return null;
+    var orders = (cur.orders || []).map(function (o) {
+      return { id: o.id, name: o.name, price: o.price, happiness: o.happiness };
+    });
+    mutator(orders);
+    var patch = { orders: orders };
+    if (orders.some(orderHasContent)) patch.status = 'been';
+    var updated = updatePlace(activePlaceId, patch);
+    if (updated) {
+      document.getElementById('statusWant').classList.toggle('on-want', updated.status !== 'been');
+      document.getElementById('statusBeen').classList.toggle('on-been', updated.status === 'been');
+    }
+    return updated;
+  }
+
   function openDetail(id) {
     var p = findPlace(id);
     if (!p) return;
@@ -926,10 +1026,7 @@
     document.getElementById('statusWant').classList.toggle('on-want', p.status !== 'been');
     document.getElementById('statusBeen').classList.toggle('on-been', p.status === 'been');
     document.getElementById('notesInput').value = p.notes || '';
-    var priceInput = document.getElementById('priceInput');
-    if (priceInput) {
-      priceInput.value = p.price != null ? String(p.price) : '';
-    }
+    renderOrders(p.orders);
     renderStars(p.rating);
     var ig = document.getElementById('openIgBtn');
     if (p.instagramUrl && isInstagramUrl(p.instagramUrl)) {
@@ -1236,36 +1333,97 @@
         updatePlace(activePlaceId, { notes: val });
       }, 250);
     });
-    var priceTimer = null;
-    var priceInput = document.getElementById('priceInput');
-    if (priceInput) {
-      function commitPrice(normalize) {
-        if (!activePlaceId) return;
-        var raw = document.getElementById('priceInput').value;
-        var price = clampPrice(raw);
-        var patch = { price: price };
-        if (price != null) patch.status = 'been';
-        var updated = updatePlace(activePlaceId, patch);
-        var el = document.getElementById('priceInput');
-        if (el && normalize) el.value = price != null ? String(price) : '';
-        if (updated) {
-          document.getElementById('statusWant').classList.toggle('on-want', updated.status !== 'been');
-          document.getElementById('statusBeen').classList.toggle('on-been', updated.status === 'been');
+    var orderTimers = {};
+    var ordersList = document.getElementById('ordersList');
+    var addOrderBtn = document.getElementById('addOrderBtn');
+    if (addOrderBtn) {
+      addOrderBtn.addEventListener('click', function () {
+        var updated = patchOrders(function (orders) {
+          orders.push({ id: uid(), name: '', price: null, happiness: null });
+        });
+        if (updated) renderOrders(updated.orders);
+        var list = document.getElementById('ordersList');
+        if (list) {
+          var input = list.querySelector('.order-row:last-child .order-name');
+          if (input) input.focus();
+        }
+      });
+    }
+    if (ordersList) {
+      ordersList.addEventListener('click', function (e) {
+        var removeBtn = e.target.closest('.order-remove');
+        if (removeBtn) {
+          var rid = removeBtn.getAttribute('data-order-id');
+          var updated = patchOrders(function (orders) {
+            for (var i = orders.length - 1; i >= 0; i--) {
+              if (orders[i].id === rid) orders.splice(i, 1);
+            }
+          });
+          if (updated) renderOrders(updated.orders);
+          else renderOrders([]);
+          return;
+        }
+        var happyBtn = e.target.closest('.happy-star');
+        if (happyBtn) {
+          var oid = happyBtn.getAttribute('data-order-id');
+          var n = Number(happyBtn.getAttribute('data-happy'));
+          var updatedHappy = patchOrders(function (orders) {
+            orders.forEach(function (o) {
+              if (o.id !== oid) return;
+              o.happiness = o.happiness === n ? null : n;
+            });
+          });
+          if (updatedHappy) renderOrders(updatedHappy.orders);
+        }
+      });
+      function commitOrderField(el, normalizePrice) {
+        if (!el || !activePlaceId) return;
+        var oid = el.getAttribute('data-order-id');
+        var updated = patchOrders(function (orders) {
+          orders.forEach(function (o) {
+            if (o.id !== oid) return;
+            if (el.classList.contains('order-name')) {
+              o.name = String(el.value || '').trim().slice(0, 80);
+            } else if (el.classList.contains('order-price')) {
+              o.price = clampPrice(el.value);
+            }
+          });
+        });
+        if (normalizePrice && el.classList.contains('order-price')) {
+          var cur = findPlace(activePlaceId);
+          var match = cur && (cur.orders || []).filter(function (o) { return o.id === oid; })[0];
+          el.value = match && match.price != null ? String(match.price) : '';
+        }
+        if (updated && el.classList.contains('order-name')) {
+          el.value = String(el.value || '').trim().slice(0, 80);
         }
       }
-      priceInput.addEventListener('input', function () {
-        if (!activePlaceId) return;
-        if (priceTimer) clearTimeout(priceTimer);
-        priceTimer = setTimeout(function () { commitPrice(false); }, 400);
+      ordersList.addEventListener('input', function (e) {
+        var el = e.target.closest('.order-name, .order-price');
+        if (!el) return;
+        var oid = el.getAttribute('data-order-id');
+        var key = oid + ':' + (el.classList.contains('order-price') ? 'price' : 'name');
+        if (orderTimers[key]) clearTimeout(orderTimers[key]);
+        orderTimers[key] = setTimeout(function () {
+          commitOrderField(el, false);
+        }, 350);
       });
-      priceInput.addEventListener('change', function () {
-        if (priceTimer) clearTimeout(priceTimer);
-        commitPrice(true);
+      ordersList.addEventListener('change', function (e) {
+        var el = e.target.closest('.order-name, .order-price');
+        if (!el) return;
+        var oid = el.getAttribute('data-order-id');
+        var key = oid + ':' + (el.classList.contains('order-price') ? 'price' : 'name');
+        if (orderTimers[key]) clearTimeout(orderTimers[key]);
+        commitOrderField(el, true);
       });
-      priceInput.addEventListener('blur', function () {
-        if (priceTimer) clearTimeout(priceTimer);
-        commitPrice(true);
-      });
+      ordersList.addEventListener('blur', function (e) {
+        var el = e.target.closest && e.target.closest('.order-name, .order-price');
+        if (!el) return;
+        var oid = el.getAttribute('data-order-id');
+        var key = oid + ':' + (el.classList.contains('order-price') ? 'price' : 'name');
+        if (orderTimers[key]) clearTimeout(orderTimers[key]);
+        commitOrderField(el, true);
+      }, true);
     }
     document.getElementById('deletePlaceBtn').addEventListener('click', function () {
       if (!activePlaceId) return;

@@ -580,33 +580,87 @@ textarea {
 }
 .star.on { color: #d97706; }
 
-.price-row {
+.orders-list {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.orders-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 10px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: #fff;
-  padding: 0 12px;
-  min-height: 44px;
+}
+.order-name {
+  grid-column: 1 / -1;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 2px 0;
+  min-width: 0;
+}
+.order-name:focus { outline: none; }
+.order-price-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.order-price-row .price-prefix {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.order-price {
+  width: 5.5rem;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 2px 0;
+}
+.order-price:focus { outline: none; }
+.order-happy {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  justify-self: end;
+}
+.happy-star {
+  border: none;
+  background: none;
+  padding: 2px 1px;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: #e7d5c5;
+  cursor: pointer;
+}
+.happy-star.on { color: #d97706; }
+.order-remove {
+  grid-column: 1 / -1;
+  justify-self: start;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.orders-add-btn {
+  width: 100%;
+  margin-bottom: 12px;
 }
 .price-prefix {
   font-weight: 700;
   color: var(--muted);
   font-size: 1rem;
-}
-.price-row input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 10px 0;
-  font-size: 1rem;
-  font-weight: 600;
-  min-width: 0;
-}
-.price-row input:focus {
-  outline: none;
 }
 .card-stats {
   display: flex;
@@ -615,7 +669,8 @@ textarea {
   margin-top: 4px;
   flex-wrap: wrap;
 }
-.price-pill {
+.price-pill,
+.order-pill {
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--ink);
