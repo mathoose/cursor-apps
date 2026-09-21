@@ -14,6 +14,7 @@
   var DURATION_OPTIONS = [
     { id: "instant", label: "Instant", minutes: 0 },
     { id: "15", label: "15m", minutes: 15 },
+    { id: "20", label: "20m", minutes: 20 },
     { id: "30", label: "30m", minutes: 30 },
     { id: "45", label: "45m", minutes: 45 },
     { id: "60", label: "1h", minutes: 60 },
@@ -920,6 +921,8 @@
       btn.classList.toggle("active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
+    var dateNav = document.getElementById("dateNav");
+    if (dateNav) dateNav.hidden = view === "history";
     var scroll = document.getElementById("timelineScroll");
     if (scroll) delete scroll.dataset.scrolled;
     renderAll();
@@ -1030,7 +1033,10 @@
       createdAt: new Date().toISOString(),
     });
     if (opts.pendingId) {
-      data.pending = data.pending.filter(function (p) { return p.id !== opts.pendingId; });
+      var pendingItem = findPending(opts.pendingId);
+      if (pendingItem && !(pendingItem.recurring && pendingItem.recurring.freq === "daily")) {
+        data.pending = data.pending.filter(function (p) { return p.id !== opts.pendingId; });
+      }
     }
     saveData();
   }
