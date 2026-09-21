@@ -60,6 +60,36 @@
     return clampRating(n);
   }
 
+  var ADDON_OPTIONS = [
+    { id: 'flavor', label: 'Flavor shots' },
+    { id: 'oat', label: 'Oat milk' },
+    { id: 'skim', label: 'Skim milk' }
+  ];
+
+  function normalizeAddonExtras(raw) {
+    var allowed = {};
+    ADDON_OPTIONS.forEach(function (o) { allowed[o.id] = true; });
+    var list = Array.isArray(raw) ? raw : [];
+    var out = [];
+    var seen = {};
+    list.forEach(function (id) {
+      id = String(id || '');
+      if (!allowed[id] || seen[id]) return;
+      seen[id] = true;
+      out.push(id);
+    });
+    return out;
+  }
+
+  function dollarText(level) {
+    level = clampRating(level);
+    if (!level) return '';
+    var s = '';
+    var i;
+    for (i = 1; i <= 5; i++) s += i <= level ? '$' : '';
+    return s;
+  }
+
   function normalizeOrder(raw) {
     if (!raw || typeof raw !== 'object') return null;
     return {
@@ -146,6 +176,8 @@
       seeded: !!raw.seeded,
       status: status,
       rating: clampRating(raw.rating),
+      priceLevel: clampRating(raw.priceLevel),
+      addonExtras: normalizeAddonExtras(raw.addonExtras),
       orders: normalizeOrders(raw.orders, raw.price),
       notes: String(raw.notes || '').trim(),
       addedAt: raw.addedAt || new Date().toISOString(),
@@ -217,7 +249,9 @@
     return {
       status: p.status === 'been' ? 'been' : 'want',
       rating: clampRating(p.rating),
-      price: clampPrice(p.price),
+      priceLevel: clampRating(p.priceLevel),
+      addonExtras: normalizeAddonExtras(p.addonExtras),
+      orders: normalizeOrders(p.orders, p.price),
       notes: String(p.notes || '').trim(),
       visitedAt: p.visitedAt || null,
       addedAt: p.addedAt || null,
@@ -229,7 +263,9 @@
     if (!place || !personal) return place;
     place.status = personal.status === 'been' ? 'been' : 'want';
     place.rating = clampRating(personal.rating);
-    place.price = clampPrice(personal.price);
+    place.priceLevel = clampRating(personal.priceLevel);
+    place.addonExtras = normalizeAddonExtras(personal.addonExtras);
+    place.orders = normalizeOrders(personal.orders, personal.price);
     place.notes = String(personal.notes || '').trim();
     place.visitedAt = personal.visitedAt || (place.status === 'been' ? place.visitedAt : null);
     if (personal.addedAt) place.addedAt = personal.addedAt;
@@ -240,6 +276,9 @@
     if (!personal) return false;
     return personal.status === 'been' ||
       personal.rating != null ||
+      personal.priceLevel != null ||
+      (personal.addonExtras && personal.addonExtras.length) ||
+      (personal.orders && personal.orders.some(orderHasContent)) ||
       personal.price != null ||
       !!(personal.notes && personal.notes.trim());
   }
@@ -262,6 +301,9 @@
       seeded: true,
       status: 'want',
       rating: null,
+      priceLevel: null,
+      addonExtras: [],
+      orders: [],
       price: null,
       notes: '',
       visitedAt: null,
@@ -707,6 +749,10 @@
       places.sort(function (a, b) {
         return (b.rating || 0) - (a.rating || 0) || a.name.localeCompare(b.name);
       });
+    } else if (ui.sort === 'priceLevel') {
+      places.sort(function (a, b) {
+        return (b.priceLevel || 0) - (a.priceLevel || 0) || a.name.localeCompare(b.name);
+      });
     } else if (ui.sort === 'price') {
       places.sort(function (a, b) {
         var ap = ordersTotal(a.orders);
@@ -754,15 +800,19 @@
       );
       var total = ordersTotal(p.orders);
       var orderCount = (p.orders || []).filter(orderHasContent).length;
+      var addonCount = (p.addonExtras || []).length;
+      var hasStats = p.rating || p.priceLevel || total != null || orderCount || addonCount;
       return '<button type="button" class="place-card ' + (p.status === 'been' ? 'been' : '') + '" data-id="' +
         escapeHtml(p.id) + '"><div class="name"><span class="name-text">' + escapeHtml(p.name) + '</span>' +
         (p.status === 'been' ? '<span class="been-pill">Been</span>' : '') +
         '</div>' +
         (metaBits.length || openHtml ? '<div class="meta">' + openHtml + escapeHtml(metaBits.join(' · ')) + '</div>' : '') +
-        ((p.rating || total != null || orderCount) ? '<div class="card-stats">' +
+        (hasStats ? '<div class="card-stats">' +
           (p.rating ? '<span class="stars-inline">' + starText(p.rating) + '</span>' : '') +
+          (p.priceLevel ? '<span class="dollars-inline">' + escapeHtml(dollarText(p.priceLevel)) + '</span>' : '') +
           (total != null ? '<span class="price-pill">' + escapeHtml(formatPrice(total)) + '</span>' : '') +
           (orderCount ? '<span class="order-pill">' + orderCount + ' item' + (orderCount === 1 ? '' : 's') + '</span>' : '') +
+          (addonCount ? '<span class="addon-pill">+' + addonCount + ' add-on' + (addonCount === 1 ? '' : 's') + '</span>' : '') +
           '</div>' : '') +
         '</button>';
     }).join('');
@@ -946,6 +996,8 @@
       instagramUrl: ig,
       status: 'want',
       rating: null,
+      priceLevel: null,
+      addonExtras: [],
       orders: [],
       notes: '',
       addedAt: new Date().toISOString()
@@ -1028,6 +1080,30 @@
     row.innerHTML = html;
   }
 
+  function renderDollars(level) {
+    var row = document.getElementById('dollarRow');
+    if (!row) return;
+    var html = '';
+    var i;
+    for (i = 1; i <= 5; i++) {
+      html += '<button type="button" class="dollar' + (level && i <= level ? ' on' : '') +
+        '" data-dollar="' + i + '" aria-label="' + i + ' dollar' + (i === 1 ? '' : 's') + '">$</button>';
+    }
+    row.innerHTML = html;
+  }
+
+  function renderAddonExtras(selected) {
+    var row = document.getElementById('addonExtras');
+    if (!row) return;
+    selected = normalizeAddonExtras(selected);
+    row.innerHTML = ADDON_OPTIONS.map(function (opt) {
+      var on = selected.indexOf(opt.id) >= 0;
+      return '<button type="button" class="addon-chip' + (on ? ' on' : '') +
+        '" data-addon="' + escapeHtml(opt.id) + '" aria-pressed="' + (on ? 'true' : 'false') + '">' +
+        escapeHtml(opt.label) + '</button>';
+    }).join('');
+  }
+
   function happinessButtonsHtml(orderId, happiness) {
     var html = '';
     var i;
@@ -1107,6 +1183,8 @@
     document.getElementById('notesInput').value = p.notes || '';
     renderOrders(p.orders);
     renderStars(p.rating);
+    renderDollars(p.priceLevel);
+    renderAddonExtras(p.addonExtras);
     var ig = document.getElementById('openIgBtn');
     if (p.instagramUrl && isInstagramUrl(p.instagramUrl)) {
       ig.hidden = false;
@@ -1403,6 +1481,37 @@
       updatePlace(activePlaceId, patch);
       openDetail(activePlaceId);
     });
+    var dollarRow = document.getElementById('dollarRow');
+    if (dollarRow) {
+      dollarRow.addEventListener('click', function (e) {
+        var btn = e.target.closest('.dollar');
+        if (!btn || !activePlaceId) return;
+        var n = Number(btn.getAttribute('data-dollar'));
+        var cur = findPlace(activePlaceId);
+        var priceLevel = cur && cur.priceLevel === n ? null : n;
+        var patch = { priceLevel: priceLevel };
+        if (priceLevel) patch.status = 'been';
+        updatePlace(activePlaceId, patch);
+        openDetail(activePlaceId);
+      });
+    }
+    var addonExtrasEl = document.getElementById('addonExtras');
+    if (addonExtrasEl) {
+      addonExtrasEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('.addon-chip');
+        if (!btn || !activePlaceId) return;
+        var id = btn.getAttribute('data-addon');
+        var cur = findPlace(activePlaceId);
+        var list = normalizeAddonExtras(cur && cur.addonExtras);
+        var i = list.indexOf(id);
+        if (i >= 0) list.splice(i, 1);
+        else list.push(id);
+        var patch = { addonExtras: list };
+        if (list.length) patch.status = 'been';
+        updatePlace(activePlaceId, patch);
+        openDetail(activePlaceId);
+      });
+    }
     var notesTimer = null;
     document.getElementById('notesInput').addEventListener('input', function () {
       if (!activePlaceId) return;
