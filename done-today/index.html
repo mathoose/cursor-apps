@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body class="view-today">
-  <!-- build: done-today-v3 -->
+  <!-- build: done-today-v4 -->
   <header class="app-header" id="appHeader">
     <div class="header-row">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
@@ -75,11 +75,21 @@
           </label>
           <div class="add-mode">
             <button type="button" class="mode-btn selected" data-mode="pending" id="modePending">Still to do</button>
+            <button type="button" class="mode-btn" data-mode="start" id="modeStart">Start timer</button>
             <button type="button" class="mode-btn" data-mode="done" id="modeDone">Mark done</button>
           </div>
         </div>
         <p class="suggest-hint" id="suggestHint">Suggested: 30 min · anytime</p>
       </form>
+
+      <div class="section-head" id="activeHead">
+        <h2>In progress</h2>
+        <span class="count" id="activeCount">0</span>
+      </div>
+      <ul class="item-list" id="activeList"></ul>
+      <div class="empty-state" id="activeEmpty" hidden>
+        <p>Start a timer when you begin something (laundry, cooking…) and add updates as you go.</p>
+      </div>
 
       <div class="section-head">
         <h2>Still need to do</h2>
@@ -194,6 +204,23 @@
     </div>
   </div>
 
+  <div class="overlay" id="updateOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="updateSheetTitle">Add update</h2>
+      <p class="settings-note" id="updateSheetSub"></p>
+      <div class="chip-row" id="updateSuggestChips" aria-label="Suggested updates"></div>
+      <label class="field">
+        <span>Update</span>
+        <input type="text" id="updateInput" maxlength="160" placeholder="Moved to dryer…" enterkeyhint="done" />
+      </label>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="updateSaveBtn">Add update</button>
+        <button type="button" class="btn btn-secondary" id="updateCloseBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -218,6 +245,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>

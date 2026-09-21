@@ -1483,7 +1483,8 @@
         var c = slice.catalog ? slice.catalog.length : 0;
         var e = slice.entries ? slice.entries.length : 0;
         var p = slice.pending ? slice.pending.length : 0;
-        return c + " task" + (c === 1 ? "" : "s") + ", " + e + " done, " + p + " open";
+        var running = (slice.pending || []).filter(function (item) { return item && item.timerStartedAt; }).length;
+        return c + " task" + (c === 1 ? "" : "s") + ", " + e + " done, " + p + " open" + (running ? ", " + running + " running" : "");
       },
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;

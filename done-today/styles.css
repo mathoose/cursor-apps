@@ -283,13 +283,15 @@ input {
   border-radius: 999px;
   padding: 3px;
   gap: 2px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 .mode-btn {
   border: none;
   background: transparent;
   border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 0.8rem;
+  padding: 7px 10px;
+  font-size: 0.75rem;
   font-weight: 650;
   color: var(--text-muted);
 }
@@ -349,6 +351,10 @@ input {
   gap: 8px 10px;
 }
 .item-card.pending { border-left: 4px solid var(--pending); }
+.item-card.active {
+  border-left: 4px solid #0ea5e9;
+  background: linear-gradient(180deg, #f0f9ff, var(--surface));
+}
 .item-card.done { border-left: 4px solid var(--done); }
 .item-main { min-width: 0; }
 .item-title {
@@ -361,6 +367,60 @@ input {
   margin: 4px 0 0;
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+.timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.82rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+.timer-badge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.55);
+  animation: pulse-dot 1.6s ease-out infinite;
+}
+@keyframes pulse-dot {
+  0% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+}
+.update-list {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.update-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.update-list .update-time {
+  color: var(--text-faint);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .item-actions {
   display: flex;
@@ -383,7 +443,16 @@ input {
   border-color: var(--accent);
   color: #fff;
 }
+.mini-btn.start {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #fff;
+}
 .mini-btn:active { transform: scale(0.97); }
+.tl-block.active-ghost {
+  background: linear-gradient(90deg, #38bdf8, #0284c7);
+  opacity: 0.9;
+}
 
 .item-range {
   grid-column: 1 / -1;

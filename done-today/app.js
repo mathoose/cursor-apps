@@ -51,12 +51,22 @@
     durationId: "30",
     windowId: "anytime",
     editing: null,
+    updatingId: null,
     historyQuery: "",
   };
 
   var data = loadData();
   var toastTimer = null;
   var dragState = null;
+  var tickTimer = null;
+
+  var UPDATE_HINTS = [
+    { re: /laundr|washer|dryer|wash/i, tips: ["Loaded washer", "Moved to dryer", "Folding", "Put away"] },
+    { re: /dish/i, tips: ["Started washing", "Unloading", "Put away"] },
+    { re: /cook|dinner|meal|bake/i, tips: ["Prepping", "On the stove", "In the oven", "Plating"] },
+    { re: /errand|shop|grocer/i, tips: ["Left home", "At the store", "Heading back"] },
+    { re: /clean|chore/i, tips: ["Started", "Halfway", "Finishing up"] },
+  ];
 
   function uid(prefix) {
     return (prefix || "id") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
@@ -123,6 +133,48 @@
     var m = min % 60;
     if (!m) return h + "h";
     return h + "h " + m + "m";
+  }
+
+  function formatElapsed(ms) {
+    ms = Math.max(0, ms || 0);
+    var totalSec = Math.floor(ms / 1000);
+    var h = Math.floor(totalSec / 3600);
+    var m = Math.floor((totalSec % 3600) / 60);
+    var s = totalSec % 60;
+    if (h > 0) return h + "h " + String(m).padStart(2, "0") + "m";
+    if (m > 0) return m + "m " + String(s).padStart(2, "0") + "s";
+    return s + "s";
+  }
+
+  function formatClockFromIso(iso) {
+    if (!iso) return "";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    return formatTime(d.getHours() * 60 + d.getMinutes());
+  }
+
+  function suggestUpdates(title) {
+    for (var i = 0; i < UPDATE_HINTS.length; i++) {
+      if (UPDATE_HINTS[i].re.test(title)) return UPDATE_HINTS[i].tips.slice();
+    }
+    return ["Started", "Update", "Almost done"];
+  }
+
+  function isRunning(item) {
+    return !!(item && item.timerStartedAt);
+  }
+
+  function activeItems() {
+    return data.pending
+      .filter(isRunning)
+      .slice()
+      .sort(function (a, b) {
+        return String(b.timerStartedAt).localeCompare(String(a.timerStartedAt));
+      });
+  }
+
+  function waitingPendingForDate(date) {
+    return pendingForDate(date).filter(function (p) { return !isRunning(p); });
   }
 
   function formatRelativeDay(isoOrKey) {
@@ -207,6 +259,19 @@
     };
   }
 
+  function normalizeUpdates(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter(function (u) { return u && normalizeTitle(u.text); })
+      .map(function (u) {
+        return {
+          id: u.id || uid("upd"),
+          text: normalizeTitle(u.text),
+          at: u.at || new Date().toISOString(),
+        };
+      });
+  }
+
   function normalizePending(it) {
     if (!it || !it.id || !normalizeTitle(it.title)) return null;
     var durationMin = it.durationMin === 0 || it.instant ? 0 : Math.max(0, Math.round(Number(it.durationMin) || 30));
@@ -221,6 +286,8 @@
       recurring: it.recurring && it.recurring.freq === "daily" ? { freq: "daily" } : null,
       date: it.date || todayKey(),
       createdAt: it.createdAt || new Date().toISOString(),
+      timerStartedAt: typeof it.timerStartedAt === "string" ? it.timerStartedAt : null,
+      updates: normalizeUpdates(it.updates),
     };
   }
 
@@ -243,6 +310,8 @@
       endMin: endMin,
       durationMin: Math.max(MIN_DURATION, endMin - startMin),
       createdAt: it.createdAt || new Date().toISOString(),
+      timerStartedAt: typeof it.timerStartedAt === "string" ? it.timerStartedAt : null,
+      updates: normalizeUpdates(it.updates),
     };
   }
 
@@ -509,6 +578,7 @@
   function pendingForDate(date) {
     return data.pending
       .filter(function (p) {
+        if (isRunning(p)) return false;
         if (p.date === date) return true;
         if (p.recurring && p.recurring.freq === "daily") {
           var doneSame = data.entries.some(function (e) {
@@ -544,8 +614,14 @@
     if (!hint) return;
     var dur = durationFromId(state.durationId);
     var win = windowFromId(state.windowId);
+    var modeLabel = state.addMode === "start"
+      ? "starts a timer now"
+      : state.addMode === "done"
+        ? "logs as done"
+        : "adds to still to do";
     hint.textContent = "Suggested: " + formatDuration(dur) + " · " + windowLabel(win)
-      + (document.getElementById("recurringDaily").checked ? " · daily" : "");
+      + (document.getElementById("recurringDaily").checked ? " · daily" : "")
+      + " · " + modeLabel;
   }
 
   function renderDateNav() {
@@ -631,7 +707,24 @@
     var date = state.selectedDate;
     var entries = entriesForDate(date);
     var pending = pendingForDate(date);
+    var active = activeItems().filter(function (p) {
+      return dateKey(new Date(p.timerStartedAt)) === date || date === todayKey();
+    });
     var html = "";
+
+    active.forEach(function (p) {
+      var start = new Date(p.timerStartedAt);
+      var startMin = start.getHours() * 60 + start.getMinutes();
+      var endMin = date === todayKey() ? Math.max(startMin + MIN_DURATION, nowMinutes()) : startMin + Math.max(p.durationMin || 30, MIN_DURATION);
+      var left = minToX(startMin);
+      var width = Math.max(28, minToX(endMin) - left);
+      html +=
+        '<div class="tl-block active-ghost" data-kind="pending" data-id="' + escapeHtml(p.id) + '" style="left:' + left + "px;width:" + width + 'px">' +
+          '<span class="range-handle left" data-handle="start"></span>' +
+          '<span class="tl-block-label range-mid" data-handle="move">' + escapeHtml(p.title) + "</span>" +
+          '<span class="range-handle right" data-handle="end"></span>' +
+        "</div>";
+    });
 
     pending.forEach(function (p) {
       ensurePendingPlacement(p);
@@ -659,7 +752,7 @@
 
     if (legend) {
       legend.innerHTML =
-        "<span>" + entries.length + " done · " + pending.length + " still open</span>" +
+        "<span>" + entries.length + " done · " + active.length + " running · " + pending.length + " open</span>" +
         "<span>" + formatTime(DAY_START) + " – " + formatTime(DAY_END) + "</span>";
     }
 
@@ -679,11 +772,66 @@
     }
   }
 
+  function updatesHtml(updates) {
+    if (!updates || !updates.length) return "";
+    return (
+      '<ul class="update-list">' +
+      updates.map(function (u) {
+        return (
+          "<li><span class=\"update-time\">" + escapeHtml(formatClockFromIso(u.at)) +
+          "</span><span>" + escapeHtml(u.text) + "</span></li>"
+        );
+      }).join("") +
+      "</ul>"
+    );
+  }
+
+  function renderActiveList() {
+    var list = document.getElementById("activeList");
+    var empty = document.getElementById("activeEmpty");
+    var count = document.getElementById("activeCount");
+    var head = document.getElementById("activeHead");
+    var items = activeItems();
+    if (count) count.textContent = String(items.length);
+    if (head) head.hidden = false;
+    if (!list) return;
+    if (!items.length) {
+      list.innerHTML = "";
+      if (empty) empty.hidden = state.view !== "today";
+      // Keep empty hint visible lightly when today and nothing running
+      if (empty) empty.hidden = true;
+      return;
+    }
+    if (empty) empty.hidden = true;
+    list.innerHTML = items.map(function (p) {
+      var started = new Date(p.timerStartedAt);
+      var elapsed = formatElapsed(Date.now() - started.getTime());
+      var startedLabel = formatClockFromIso(p.timerStartedAt);
+      return (
+        '<li class="item-card active" data-id="' + escapeHtml(p.id) + '">' +
+          '<div class="item-main">' +
+            '<p class="item-title">' + escapeHtml(p.title) + "</p>" +
+            '<p class="item-meta">Started ' + escapeHtml(startedLabel) +
+              (p.updates && p.updates.length ? " · " + p.updates.length + " update" + (p.updates.length === 1 ? "" : "s") : "") +
+            "</p>" +
+            '<div class="timer-badge" data-timer-for="' + escapeHtml(p.id) + '">' + escapeHtml(elapsed) + "</div>" +
+          "</div>" +
+          '<div class="item-actions">' +
+            '<button type="button" class="mini-btn primary" data-action="complete">Done</button>' +
+            '<button type="button" class="mini-btn" data-action="update">Update</button>' +
+            '<button type="button" class="mini-btn" data-action="edit">Edit</button>' +
+          "</div>" +
+          updatesHtml(p.updates) +
+        "</li>"
+      );
+    }).join("");
+  }
+
   function renderPendingList() {
     var list = document.getElementById("pendingList");
     var empty = document.getElementById("pendingEmpty");
     var count = document.getElementById("pendingCount");
-    var items = pendingForDate(state.selectedDate);
+    var items = waitingPendingForDate(state.selectedDate);
     if (count) count.textContent = String(items.length);
     if (!list) return;
     if (!items.length) {
@@ -711,6 +859,7 @@
               (p.recurring ? " · daily" : "") + escapeHtml(last) + "</p>" +
           "</div>" +
           '<div class="item-actions">' +
+            '<button type="button" class="mini-btn start" data-action="start">Start</button>' +
             '<button type="button" class="mini-btn primary" data-action="complete">Done</button>' +
             '<button type="button" class="mini-btn" data-action="edit">Edit</button>' +
           "</div>" +
@@ -765,16 +914,20 @@
       var lastNote = cat && cat.doneCount > 1
         ? " · done " + cat.doneCount + "×"
         : "";
+      var updateNote = e.updates && e.updates.length
+        ? " · " + e.updates.length + " update" + (e.updates.length === 1 ? "" : "s")
+        : "";
       return (
         '<li class="item-card done" data-id="' + escapeHtml(e.id) + '">' +
           '<div class="item-main">' +
             '<p class="item-title">' + escapeHtml(e.title) + "</p>" +
             '<p class="item-meta">' + escapeHtml(formatTime(e.startMin) + " – " + formatTime(e.endMin)) +
-              " · " + escapeHtml(formatDuration(e.durationMin)) + escapeHtml(lastNote) + "</p>" +
+              " · " + escapeHtml(formatDuration(e.durationMin)) + escapeHtml(lastNote) + escapeHtml(updateNote) + "</p>" +
           "</div>" +
           '<div class="item-actions">' +
             '<button type="button" class="mini-btn" data-action="edit-entry">Edit</button>' +
           "</div>" +
+          updatesHtml(e.updates) +
           '<div class="item-range" data-kind="entry" data-id="' + escapeHtml(e.id) + '">' +
             rangeScrubHtml(e.startMin, e.endMin) +
           "</div>" +
@@ -899,17 +1052,22 @@
     setChipSelection(document.getElementById("durationChips"), "data-duration", state.durationId);
     setChipSelection(document.getElementById("windowChips"), "data-window", state.windowId);
     document.getElementById("modePending").classList.toggle("selected", state.addMode === "pending");
+    document.getElementById("modeStart").classList.toggle("selected", state.addMode === "start");
     document.getElementById("modeDone").classList.toggle("selected", state.addMode === "done");
     updateSuggestHint();
     if (state.view === "today") {
+      renderActiveList();
       renderPendingList();
       renderDoneList();
       renderTimeline();
       paintInlineHourMarks();
+      ensureTick();
     } else if (state.view === "week") {
       renderWeek();
+      stopTick();
     } else {
       renderHistory();
+      stopTick();
     }
   }
 
@@ -989,7 +1147,7 @@
       toast("Logged as done");
     } else {
       var place = suggestedPlacement(durationMin || MIN_DURATION, win, state.selectedDate);
-      data.pending.unshift({
+      var pendingItem = {
         id: uid("todo"),
         catalogId: cat.id,
         title: cat.title,
@@ -1000,9 +1158,27 @@
         recurring: recurring,
         date: state.selectedDate,
         createdAt: new Date().toISOString(),
-      });
-      saveData();
-      toast("Added to still need to do");
+        timerStartedAt: null,
+        updates: [],
+      };
+      if (state.addMode === "start") {
+        var now = new Date();
+        pendingItem.timerStartedAt = now.toISOString();
+        pendingItem.startMin = now.getHours() * 60 + now.getMinutes();
+        pendingItem.endMin = pendingItem.startMin + Math.max(durationMin || MIN_DURATION, MIN_DURATION);
+        pendingItem.updates = [{
+          id: uid("upd"),
+          text: "Started",
+          at: pendingItem.timerStartedAt,
+        }];
+        data.pending.unshift(pendingItem);
+        saveData();
+        toast("Timer started");
+      } else {
+        data.pending.unshift(pendingItem);
+        saveData();
+        toast("Added to still need to do");
+      }
     }
 
     input.value = "";
@@ -1014,34 +1190,163 @@
   }
 
   function completeTask(opts) {
+    var pendingItem = opts.pendingId ? findPending(opts.pendingId) : null;
+    var updates = normalizeUpdates((pendingItem && pendingItem.updates) || opts.updates || []);
+    var timerStartedAt = (pendingItem && pendingItem.timerStartedAt) || opts.timerStartedAt || null;
     var durationMin = opts.durationMin > 0 ? opts.durationMin : MIN_DURATION;
-    var place = opts.startMin != null
-      ? { startMin: opts.startMin, endMin: opts.endMin || opts.startMin + durationMin }
-      : suggestedPlacement(durationMin, opts.window || { type: "anytime" }, opts.date || state.selectedDate);
+    var place;
+
+    if (timerStartedAt) {
+      var start = new Date(timerStartedAt);
+      var startMin = start.getHours() * 60 + start.getMinutes();
+      var elapsedMin = Math.max(MIN_DURATION, Math.round((Date.now() - start.getTime()) / 60000));
+      var endMin;
+      if (dateKey(start) === todayKey()) {
+        endMin = Math.max(startMin + MIN_DURATION, nowMinutes());
+        // Prefer real elapsed if user left it overnight-ish but same calendar day
+        endMin = Math.max(endMin, Math.min(1440, startMin + elapsedMin));
+      } else {
+        endMin = Math.min(1440, startMin + elapsedMin);
+        if (endMin <= startMin) endMin = 1440;
+      }
+      place = { startMin: startMin, endMin: endMin };
+      durationMin = endMin - startMin;
+    } else if (opts.startMin != null) {
+      place = { startMin: opts.startMin, endMin: opts.endMin || opts.startMin + durationMin };
+    } else {
+      place = suggestedPlacement(durationMin, opts.window || { type: "anytime" }, opts.date || state.selectedDate);
+    }
+
+    var entryDate = opts.date || state.selectedDate;
+    if (timerStartedAt) {
+      entryDate = dateKey(new Date(timerStartedAt));
+    }
+
     var cat = upsertCatalog(opts.title, {
       catalogId: opts.catalogId,
       durationMin: opts.durationMin,
       window: opts.window,
       markDone: true,
-      date: opts.date || state.selectedDate,
+      date: entryDate,
     });
     data.entries.push({
       id: uid("done"),
       catalogId: cat.id,
       title: cat.title,
-      date: opts.date || state.selectedDate,
+      date: entryDate,
       startMin: place.startMin,
       endMin: place.endMin,
       durationMin: Math.max(MIN_DURATION, place.endMin - place.startMin),
       createdAt: new Date().toISOString(),
+      timerStartedAt: timerStartedAt,
+      updates: updates,
     });
     if (opts.pendingId) {
-      var pendingItem = findPending(opts.pendingId);
-      if (pendingItem && !(pendingItem.recurring && pendingItem.recurring.freq === "daily")) {
+      if (pendingItem && pendingItem.recurring && pendingItem.recurring.freq === "daily") {
+        pendingItem.timerStartedAt = null;
+        pendingItem.updates = [];
+      } else {
         data.pending = data.pending.filter(function (p) { return p.id !== opts.pendingId; });
       }
     }
     saveData();
+  }
+
+  function startTimer(id) {
+    var item = findPending(id);
+    if (!item) return;
+    if (item.timerStartedAt) {
+      toast("Already running");
+      return;
+    }
+    var now = new Date();
+    item.timerStartedAt = now.toISOString();
+    item.startMin = now.getHours() * 60 + now.getMinutes();
+    item.endMin = item.startMin + Math.max(item.durationMin || MIN_DURATION, MIN_DURATION);
+    if (!Array.isArray(item.updates)) item.updates = [];
+    item.updates.push({
+      id: uid("upd"),
+      text: "Started",
+      at: item.timerStartedAt,
+    });
+    saveData();
+    toast("Timer started");
+    renderAll();
+  }
+
+  function openUpdateSheet(id) {
+    var item = findPending(id);
+    if (!item) return;
+    state.updatingId = id;
+    document.getElementById("updateSheetTitle").textContent = "Update · " + item.title;
+    document.getElementById("updateSheetSub").textContent = item.timerStartedAt
+      ? "Running " + formatElapsed(Date.now() - new Date(item.timerStartedAt).getTime())
+      : "Add a progress note";
+    document.getElementById("updateInput").value = "";
+    var chips = document.getElementById("updateSuggestChips");
+    chips.innerHTML = suggestUpdates(item.title).map(function (tip) {
+      return '<button type="button" class="chip" data-update-tip="' + escapeHtml(tip) + '">' + escapeHtml(tip) + "</button>";
+    }).join("");
+    document.getElementById("updateOverlay").hidden = false;
+    setTimeout(function () {
+      document.getElementById("updateInput").focus();
+    }, 50);
+  }
+
+  function closeUpdateSheet() {
+    state.updatingId = null;
+    document.getElementById("updateOverlay").hidden = true;
+  }
+
+  function saveUpdate(text) {
+    var item = findPending(state.updatingId);
+    if (!item) return;
+    text = normalizeTitle(text);
+    if (!text) {
+      toast("Type an update");
+      return;
+    }
+    if (!Array.isArray(item.updates)) item.updates = [];
+    item.updates.push({
+      id: uid("upd"),
+      text: text,
+      at: new Date().toISOString(),
+    });
+    if (!item.timerStartedAt) {
+      item.timerStartedAt = new Date().toISOString();
+    }
+    saveData();
+    closeUpdateSheet();
+    renderAll();
+    toast("Update added");
+  }
+
+  function refreshTimerBadges() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-timer-for]"), function (el) {
+      var id = el.getAttribute("data-timer-for");
+      var item = findPending(id);
+      if (!item || !item.timerStartedAt) return;
+      el.textContent = formatElapsed(Date.now() - new Date(item.timerStartedAt).getTime());
+    });
+  }
+
+  function ensureTick() {
+    if (tickTimer) return;
+    if (!activeItems().length) return;
+    tickTimer = setInterval(function () {
+      if (!activeItems().length) {
+        stopTick();
+        return;
+      }
+      refreshTimerBadges();
+    }, 1000);
+  }
+
+  function stopTick() {
+    if (tickTimer) {
+      clearInterval(tickTimer);
+      tickTimer = null;
+    }
   }
 
   function findPending(id) {
@@ -1448,6 +1753,10 @@
       state.addMode = "pending";
       renderAll();
     });
+    document.getElementById("modeStart").addEventListener("click", function () {
+      state.addMode = "start";
+      renderAll();
+    });
     document.getElementById("modeDone").addEventListener("click", function () {
       state.addMode = "done";
       renderAll();
@@ -1494,14 +1803,19 @@
       });
     });
 
-    document.getElementById("pendingList").addEventListener("click", function (e) {
+    function handlePendingCardAction(e) {
       var btn = e.target.closest("[data-action]");
       var card = e.target.closest(".item-card");
       if (!btn || !card) return;
       var id = card.getAttribute("data-id");
       var item = findPending(id);
       if (!item) return;
-      if (btn.getAttribute("data-action") === "complete") {
+      var action = btn.getAttribute("data-action");
+      if (action === "start") {
+        startTimer(id);
+      } else if (action === "update") {
+        openUpdateSheet(id);
+      } else if (action === "complete") {
         ensurePendingPlacement(item);
         completeTask({
           pendingId: item.id,
@@ -1513,11 +1827,34 @@
           endMin: item.endMin,
           date: state.selectedDate,
         });
-        toast("Nice — logged");
+        toast(item.timerStartedAt ? "Closed out — logged" : "Nice — logged");
         renderAll();
-      } else if (btn.getAttribute("data-action") === "edit") {
+      } else if (action === "edit") {
         openEdit("pending", id);
       }
+    }
+
+    document.getElementById("pendingList").addEventListener("click", handlePendingCardAction);
+    document.getElementById("activeList").addEventListener("click", handlePendingCardAction);
+
+    document.getElementById("updateSuggestChips").addEventListener("click", function (e) {
+      var tip = e.target.closest("[data-update-tip]");
+      if (!tip) return;
+      document.getElementById("updateInput").value = tip.getAttribute("data-update-tip");
+      document.getElementById("updateInput").focus();
+    });
+    document.getElementById("updateSaveBtn").addEventListener("click", function () {
+      saveUpdate(document.getElementById("updateInput").value);
+    });
+    document.getElementById("updateInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        saveUpdate(document.getElementById("updateInput").value);
+      }
+    });
+    document.getElementById("updateCloseBtn").addEventListener("click", closeUpdateSheet);
+    document.getElementById("updateOverlay").addEventListener("click", function (e) {
+      if (e.target.id === "updateOverlay") closeUpdateSheet();
     });
 
     document.getElementById("doneList").addEventListener("click", function (e) {
@@ -1647,6 +1984,10 @@
   // Seed a couple of examples on first launch so the UI isn’t empty.
   function maybeSeed() {
     if (data.catalog.length || data.pending.length || data.entries.length) return;
+    var laundry = upsertCatalog("Laundry", {
+      durationMin: 90,
+      window: windowFromId("anytime"),
+    });
     var grocery = upsertCatalog("Go to grocery store", {
       durationMin: 45,
       window: windowFromId("between13_16"),
@@ -1668,6 +2009,8 @@
       recurring: null,
       date: todayKey(),
       createdAt: new Date().toISOString(),
+      timerStartedAt: null,
+      updates: [],
     });
     var wPlace = suggestedPlacement(30, walk.defaultWindow, todayKey());
     data.pending.push({
@@ -1681,6 +2024,23 @@
       recurring: { freq: "daily" },
       date: todayKey(),
       createdAt: new Date().toISOString(),
+      timerStartedAt: null,
+      updates: [],
+    });
+    var lPlace = suggestedPlacement(90, laundry.defaultWindow, todayKey());
+    data.pending.push({
+      id: uid("todo"),
+      catalogId: laundry.id,
+      title: laundry.title,
+      durationMin: 90,
+      window: laundry.defaultWindow,
+      startMin: lPlace.startMin,
+      endMin: lPlace.endMin,
+      recurring: null,
+      date: todayKey(),
+      createdAt: new Date().toISOString(),
+      timerStartedAt: null,
+      updates: [],
     });
     saveData();
   }
