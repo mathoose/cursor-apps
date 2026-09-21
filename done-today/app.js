@@ -375,9 +375,12 @@
     }
 
     text = text.replace(/[()]/g, " ").replace(/\s+/g, " ").trim();
-    text = text.replace(/^(go to|do|finish)\s+/i, function (m) {
-      return m;
-    });
+    text = text
+      .replace(/\b(some\s*time\s+)?(between|from)\b/gi, " ")
+      .replace(/\b(morning|afternoon|evening|anytime|tonight)\b/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!text) text = normalizeTitle(raw).replace(/\([^)]*\)/g, "").replace(/\b(recurring\s+daily|every\s+day|daily|instant|morning|afternoon|evening|anytime|tonight)\b/gi, "").replace(/\s+/g, " ").trim() || "Task";
 
     var hint = suggestFromTitle(text);
     if (durationMin == null) durationMin = hint.duration;
