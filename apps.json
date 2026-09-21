@@ -29,7 +29,8 @@
       "draft-board": { "storageKey": "draft-board-v1" },
       "index-card-planner": { "storageKey": "index-card-planner-v1" },
       "fantasy-hub": { "storageKey": "fantasy-hub-v1" },
-      "coffee-map": { "storageKey": "coffee-map-v1" }
+      "coffee-map": { "storageKey": "coffee-map-v1" },
+      "done-today": { "storageKey": "done-today-v1" }
     }
   },
   "apps": [
@@ -180,6 +181,12 @@
       "name": "Card Box",
       "subtitle": "Index card planner",
       "storageKey": "index-card-planner-v1"
+    },
+    {
+      "id": "done-today",
+      "name": "Done Today",
+      "subtitle": "Journal & day timeline",
+      "storageKey": "done-today-v1"
     }
   ]
 }

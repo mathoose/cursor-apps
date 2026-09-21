@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Done Today</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Done Today" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f766e" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=4" />
+</head>
+<body class="view-today">
+  <!-- build: done-today-v4 -->
+  <header class="app-header" id="appHeader">
+    <div class="header-row">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <div class="header-titles">
+        <h1 id="headerTitle">Done Today</h1>
+        <p id="headerSubtitle">Journal what you did</p>
+      </div>
+      <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+    <div class="date-nav" id="dateNav">
+      <button type="button" class="icon-btn date-arrow" id="prevDayBtn" aria-label="Previous day">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="date-pill" id="datePill" aria-label="Jump to today"></button>
+      <button type="button" class="icon-btn date-arrow" id="nextDayBtn" aria-label="Next day">
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main-panel">
+    <section class="view active" id="viewToday" data-view="today">
+      <form class="add-card" id="addForm" autocomplete="off">
+        <label class="field-label" for="addInput">Add something</label>
+        <div class="add-row">
+          <input type="text" id="addInput" placeholder="Grocery run, night walk…" enterkeyhint="done" maxlength="140" />
+          <button type="submit" class="add-btn" aria-label="Add">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="suggest-list" id="suggestList" hidden></div>
+        <div class="chip-row" id="durationChips" aria-label="Duration">
+          <button type="button" class="chip" data-duration="instant">Instant</button>
+          <button type="button" class="chip" data-duration="15">15m</button>
+          <button type="button" class="chip" data-duration="20">20m</button>
+          <button type="button" class="chip selected" data-duration="30">30m</button>
+          <button type="button" class="chip" data-duration="45">45m</button>
+          <button type="button" class="chip" data-duration="60">1h</button>
+          <button type="button" class="chip" data-duration="90">1.5h</button>
+        </div>
+        <div class="chip-row" id="windowChips" aria-label="When">
+          <button type="button" class="chip selected" data-window="anytime">Anytime</button>
+          <button type="button" class="chip" data-window="morning">Morning</button>
+          <button type="button" class="chip" data-window="afternoon">Afternoon</button>
+          <button type="button" class="chip" data-window="evening">Evening</button>
+          <button type="button" class="chip" data-window="after20">After 8pm</button>
+          <button type="button" class="chip" data-window="between13_16">1–4pm</button>
+        </div>
+        <div class="add-options">
+          <label class="check-label">
+            <input type="checkbox" id="recurringDaily" />
+            Recurring daily
+          </label>
+          <div class="add-mode">
+            <button type="button" class="mode-btn selected" data-mode="pending" id="modePending">Still to do</button>
+            <button type="button" class="mode-btn" data-mode="start" id="modeStart">Start timer</button>
+            <button type="button" class="mode-btn" data-mode="done" id="modeDone">Mark done</button>
+          </div>
+        </div>
+        <p class="suggest-hint" id="suggestHint">Suggested: 30 min · anytime</p>
+      </form>
+
+      <div class="section-head" id="activeHead">
+        <h2>In progress</h2>
+        <span class="count" id="activeCount">0</span>
+      </div>
+      <ul class="item-list" id="activeList"></ul>
+      <div class="empty-state" id="activeEmpty" hidden>
+        <p>Start a timer when you begin something (laundry, cooking…) and add updates as you go.</p>
+      </div>
+
+      <div class="section-head">
+        <h2>Still need to do</h2>
+        <span class="count" id="pendingCount">0</span>
+      </div>
+      <ul class="item-list" id="pendingList"></ul>
+      <div class="empty-state" id="pendingEmpty" hidden>
+        <p>Nothing waiting. Add a task above, or mark something done as you go.</p>
+      </div>
+
+      <div class="section-head">
+        <h2>Done today</h2>
+        <span class="count" id="doneCount">0</span>
+      </div>
+      <div class="timeline-card">
+        <div class="timeline-legend" id="timelineLegend"></div>
+        <div class="timeline-scroll" id="timelineScroll">
+          <div class="timeline-track" id="timelineTrack">
+            <div class="timeline-hours" id="timelineHours"></div>
+            <div class="timeline-now" id="timelineNow" hidden></div>
+            <div class="timeline-blocks" id="timelineBlocks"></div>
+          </div>
+        </div>
+        <p class="timeline-help">Hold the middle of a block to slide it · drag either end to resize</p>
+      </div>
+      <ul class="item-list done-list" id="doneList"></ul>
+      <div class="empty-state" id="doneEmpty" hidden>
+        <p>No completions yet today. Mark something done to place it on the timeline.</p>
+      </div>
+    </section>
+
+    <section class="view" id="viewWeek" data-view="week">
+      <div class="section-head">
+        <h2>Week</h2>
+        <span class="count" id="weekLabel"></span>
+      </div>
+      <div class="week-grid" id="weekGrid"></div>
+      <div class="section-head">
+        <h2>This week’s journal</h2>
+      </div>
+      <ul class="item-list" id="weekJournal"></ul>
+      <div class="empty-state" id="weekEmpty" hidden>
+        <p>No entries this week yet.</p>
+      </div>
+    </section>
+
+    <section class="view" id="viewHistory" data-view="history">
+      <div class="search-row">
+        <input type="search" id="historySearch" placeholder="Search past tasks…" autocomplete="off" />
+      </div>
+      <div class="section-head">
+        <h2>Task catalog</h2>
+        <span class="count" id="catalogCount">0</span>
+      </div>
+      <ul class="item-list" id="catalogList"></ul>
+      <div class="empty-state" id="catalogEmpty" hidden>
+        <p>Tasks you add and complete build a catalog here — with last-done dates.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" role="tablist">
+    <button type="button" class="nav-btn active" data-view="today" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span class="nav-btn-label">Today</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="week" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>
+      <span class="nav-btn-label">Week</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="history" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span class="nav-btn-label">History</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="editOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="editTitle">Edit</h2>
+      <label class="field">
+        <span>Title</span>
+        <input type="text" id="editName" maxlength="140" />
+      </label>
+      <div class="chip-row" id="editDurationChips"></div>
+      <div class="chip-row" id="editWindowChips"></div>
+      <div class="range-edit" id="editRangeWrap">
+        <div class="range-meta">
+          <span id="editRangeLabel">9:00 – 9:30</span>
+          <span id="editDurationLabel">30 min</span>
+        </div>
+        <div class="range-scrub" id="editRangeScrub">
+          <div class="range-scrub-hours" id="editRangeHours"></div>
+          <div class="range-block" id="editRangeBlock">
+            <span class="range-handle left" data-handle="start"></span>
+            <span class="range-mid" data-handle="move"></span>
+            <span class="range-handle right" data-handle="end"></span>
+          </div>
+        </div>
+        <p class="timeline-help">Hold center to move · drag ends to shorten or lengthen</p>
+      </div>
+      <label class="check-label" id="editRecurringWrap">
+        <input type="checkbox" id="editRecurring" />
+        Recurring daily
+      </label>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="editSaveBtn">Save</button>
+        <button type="button" class="btn btn-secondary" id="editDoneBtn">Mark done now</button>
+        <button type="button" class="btn btn-danger" id="editDeleteBtn">Delete</button>
+        <button type="button" class="btn btn-secondary" id="editCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="updateOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="updateSheetTitle">Add update</h2>
+      <p class="settings-note" id="updateSheetSub"></p>
+      <div class="chip-row" id="updateSuggestChips" aria-label="Suggested updates"></div>
+      <label class="field">
+        <span>Update</span>
+        <input type="text" id="updateInput" maxlength="160" placeholder="Moved to dryer…" enterkeyhint="done" />
+      </label>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="updateSaveBtn">Add update</button>
+        <button type="button" class="btn btn-secondary" id="updateCloseBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">Exports include your task catalog, still-to-do list, and done journal. Unified Apps backup also covers this app.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
