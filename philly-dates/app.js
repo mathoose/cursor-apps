@@ -1235,7 +1235,7 @@ function bootstrapData(allPlaces) {
 
 function startApp() {
   reconcileMenuPhotosFromIdb().finally(function() {
-  fetch('places.json?v=7')
+  fetch('places.json?v=8')
     .then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
