@@ -264,8 +264,8 @@
     var newMonth = prev && data.lastOpenDate !== today && !sameMonth(prev, when);
 
     data.cards.forEach(function (c) {
-      if (c.repeat === "weekly" && c.tabId === "next") {
-        c.tabId = c.homeTabId && c.homeTabId !== "next" ? c.homeTabId : "daily";
+      if (c.repeat === "weekly" && c.done && c.tabId === "next") {
+        c.tabId = c.homeTabId && !isParkingTab(c.homeTabId) ? c.homeTabId : "daily";
       }
 
       if (newWeek && c.tabId === "next" && c.repeat !== "weekly") {
@@ -523,9 +523,10 @@
     var weeklyRest = compact && c.repeat === "weekly" && c.done;
     var progress = weeklyRest ? weeklyRestProgress(c) : 1;
     var daysAgo = weeklyRest ? daysBetween(c.completedOn, now) : 0;
-    var bg = weeklyRest ? mixHex("#f6efe2", col.bg, 0.28 + 0.72 * progress) : col.bg;
-    var ink = weeklyRest ? mixHex("#9a8870", col.ink, 0.28 + 0.72 * progress) : col.ink;
-    var opacity = weeklyRest ? (0.48 + 0.52 * progress) : "";
+    var mixT = 0.38 + 0.62 * progress;
+    var bg = weeklyRest ? mixHex("#f6efe2", col.bg, mixT) : col.bg;
+    var ink = weeklyRest ? mixHex("#9a8870", col.ink, mixT) : col.ink;
+    var opacity = weeklyRest ? (0.66 + 0.34 * progress) : "";
     var cls = "mini-card" + (compact ? " compact" : "") + (weeklyRest ? " weekly-rest" : "");
     var style = "--card-bg:" + bg + ";--card-ink:" + ink;
     if (weeklyRest) style += ";--week-opacity:" + opacity.toFixed(3);
