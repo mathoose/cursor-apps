@@ -582,9 +582,27 @@ input, textarea { font: inherit; color: inherit; -webkit-appearance: none; appea
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.mini-card.compact .meta {
-  flex-shrink: 0;
-  margin: 0;
+.mini-card .title-line {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+}
+.ago {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  opacity: 0.82;
+  margin-top: 1px;
+}
+
+.mini-card.compact.weekly-rest {
+  opacity: var(--week-opacity, 0.5);
+}
+.mini-card.compact.weekly-rest .title.done {
+  opacity: 0.88;
 }
 
 .fab {
