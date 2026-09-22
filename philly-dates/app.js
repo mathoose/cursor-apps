@@ -2958,6 +2958,76 @@ function openCityMapPopup(name) {
   cityMapPopup.hidden = false;
 }
 
+function cityMapSearchQuery() {
+  var el = document.getElementById('city-map-search');
+  return el ? String(el.value || '').trim().toLowerCase() : '';
+}
+
+function findMappedPlacesByQuery(q) {
+  q = String(q || '').trim().toLowerCase();
+  if (!q) return [];
+  var hideClosed = !!(cityMapOnlyOpen && cityMapOnlyOpen.checked);
+  return allMappedPlaces().filter(function(r) {
+    if (hideClosed && cityMapPinKind(r) === 'closed') return false;
+    var hay = (r.name + ' ' + (r.neighborhood || '') + ' ' + (r.address || '')).toLowerCase();
+    return hay.indexOf(q) >= 0;
+  }).slice(0, 8);
+}
+
+function clearCityMapSearchResults() {
+  var box = document.getElementById('city-map-search-results');
+  if (!box) return;
+  box.innerHTML = '';
+  box.hidden = true;
+}
+
+function renderCityMapSearchResults() {
+  var box = document.getElementById('city-map-search-results');
+  if (!box) return;
+  var q = cityMapSearchQuery();
+  if (!q) {
+    clearCityMapSearchResults();
+    return;
+  }
+  var hits = findMappedPlacesByQuery(q);
+  if (!hits.length) {
+    box.innerHTML = '<p class="city-map-search-empty">No mapped places match.</p>';
+    box.hidden = false;
+    return;
+  }
+  box.innerHTML = hits.map(function(r) {
+    return '<button type="button" class="city-map-search-hit" data-map-find="' + escapeHtml(r.name) + '">'
+      + '<span class="city-map-search-hit-name">' + escapeHtml(r.name) + '</span>'
+      + '<span class="city-map-search-hit-sub">' + escapeHtml(r.neighborhood || r.address || 'Philadelphia') + '</span>'
+      + '</button>';
+  }).join('');
+  box.hidden = false;
+  box.querySelectorAll('[data-map-find]').forEach(function(btn) {
+    btn.onclick = function() {
+      focusCityMapPlace(btn.getAttribute('data-map-find'));
+    };
+  });
+}
+
+function focusCityMapPlace(name) {
+  var r = byName[name];
+  if (!r || r.lat == null || r.lng == null) {
+    cityMapToast('No map pin for that place yet');
+    return;
+  }
+  ensureCityLeafletMap();
+  renderCityMapPins();
+  if (cityLeafletMap) {
+    var z = Math.max(cityLeafletMap.getZoom ? cityLeafletMap.getZoom() : 15, 16);
+    cityLeafletMap.setView([r.lat, r.lng], z);
+  }
+  var searchEl = document.getElementById('city-map-search');
+  if (searchEl) searchEl.value = r.name;
+  clearCityMapSearchResults();
+  openCityMapPopup(name);
+  cityMapToast('Found ' + r.name);
+}
+
 function closeCityMapPopup() {
   if (cityMapPopup) cityMapPopup.hidden = true;
   cityMapPopupName = '';
@@ -2969,12 +3039,27 @@ function openCityMap() {
   closeCityMapPopup();
   ensureCityLeafletMap();
   renderCityMapPins();
+  var mainSearch = document.getElementById('search');
+  var mapSearch = document.getElementById('city-map-search');
+  if (mapSearch && mainSearch && mainSearch.value && !mapSearch.value) {
+    mapSearch.value = mainSearch.value;
+  }
   requestAnimationFrame(function() {
     if (cityLeafletMap) {
       cityLeafletMap.invalidateSize();
-      if (typeof PhillyWalkMap !== 'undefined') {
-        var pts = allMappedPlaces().map(function(r) { return [r.lat, r.lng]; });
-        if (pts.length) cityLeafletMap.fitBounds(pts, { maxZoom: 14, padding: [28, 28] });
+      var q = cityMapSearchQuery();
+      var hits = q ? findMappedPlacesByQuery(q) : [];
+      if (hits.length === 1) {
+        focusCityMapPlace(hits[0].name);
+      } else if (hits.length > 1) {
+        renderCityMapSearchResults();
+        if (typeof PhillyWalkMap !== 'undefined') {
+          var pts = hits.map(function(r) { return [r.lat, r.lng]; });
+          cityLeafletMap.fitBounds(pts, { maxZoom: 15, padding: [36, 36] });
+        }
+      } else if (typeof PhillyWalkMap !== 'undefined') {
+        var allPts = allMappedPlaces().map(function(r) { return [r.lat, r.lng]; });
+        if (allPts.length) cityLeafletMap.fitBounds(allPts, { maxZoom: 14, padding: [28, 28] });
         else PhillyWalkMap.fit(cityLeafletMap, [28, 28]);
       } else cityLeafletMap.setView([39.9526, -75.1636], 13);
     }
@@ -2986,6 +3071,9 @@ function closeCityMap() {
   if (!cityMapOverlay) return;
   closeCityMapPopup();
   clearCityMapHere();
+  clearCityMapSearchResults();
+  var mapSearch = document.getElementById('city-map-search');
+  if (mapSearch) mapSearch.value = '';
   cityMapOverlay.hidden = true;
   updateBodyModalClass();
 }
@@ -3003,6 +3091,27 @@ if (document.getElementById('city-map-close')) {
 if (cityMapOnlyOpen) {
   cityMapOnlyOpen.addEventListener('change', function() {
     renderCityMapPins();
+    renderCityMapSearchResults();
+  });
+}
+var cityMapSearchEl = document.getElementById('city-map-search');
+if (cityMapSearchEl) {
+  cityMapSearchEl.addEventListener('input', function() {
+    renderCityMapSearchResults();
+  });
+  cityMapSearchEl.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    var hits = findMappedPlacesByQuery(cityMapSearchQuery());
+    if (hits.length) focusCityMapPlace(hits[0].name);
+    else cityMapToast('No mapped places match');
+  });
+}
+if (document.getElementById('city-map-search-results')) {
+  document.addEventListener('click', function(e) {
+    var wrap = document.querySelector('.city-map-search-wrap');
+    if (!wrap || wrap.contains(e.target)) return;
+    clearCityMapSearchResults();
   });
 }
 if (document.getElementById('city-map-in')) {

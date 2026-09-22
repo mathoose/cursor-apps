@@ -430,7 +430,7 @@
   }
 
   function loadSeed() {
-    return fetch('places.json?v=7')
+    return fetch('places.json?v=8')
       .then(function (r) { return r.ok ? r.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
