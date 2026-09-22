@@ -56,6 +56,8 @@
     historyQuery: "",
     boardDragId: null,
     boardDragGhost: null,
+    startPendingId: null,
+    startSheetMode: "now",
   };
 
   var data = loadData();
@@ -154,6 +156,25 @@
     var d = new Date(iso);
     if (isNaN(d.getTime())) return "";
     return formatTime(d.getHours() * 60 + d.getMinutes());
+  }
+
+  function timeInputValue(d) {
+    d = d || new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function minutesFromTimeInput(value) {
+    if (!value) return null;
+    var p = String(value).split(":");
+    return parseInt(p[0], 10) * 60 + parseInt(p[1] || "0", 10);
+  }
+
+  function isoFromDateKeyAndTime(key, timeValue) {
+    var d = parseDateKey(key);
+    var min = minutesFromTimeInput(timeValue);
+    if (min == null) return new Date().toISOString();
+    d.setHours(Math.floor(min / 60), min % 60, 0, 0);
+    return d.toISOString();
   }
 
   function suggestUpdates(title) {

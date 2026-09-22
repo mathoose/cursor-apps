@@ -277,6 +277,32 @@ input {
   height: 18px;
   accent-color: var(--accent);
 }
+.start-mode {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 12px;
+  background: #eef5f3;
+  border-radius: 999px;
+  padding: 3px;
+}
+.start-mode .mode-btn {
+  flex: 1;
+  text-align: center;
+}
+.field-optional {
+  font-weight: 500;
+  font-style: normal;
+  color: var(--text-faint);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.field input[type="time"] {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
 .add-mode {
   display: inline-flex;
   background: #eef5f3;

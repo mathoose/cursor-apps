@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body class="view-today">
-  <!-- build: done-today-v5 -->
+  <!-- build: done-today-v6 -->
   <header class="app-header" id="appHeader">
     <div class="header-row">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
@@ -211,6 +211,33 @@
     </div>
   </div>
 
+  <div class="overlay" id="startOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="startSheetTitle">Start task</h2>
+      <p class="settings-note" id="startSheetSub">When did you actually begin?</p>
+      <div class="start-mode">
+        <button type="button" class="mode-btn selected" data-start-mode="now" id="startModeNow">Now</button>
+        <button type="button" class="mode-btn" data-start-mode="earlier" id="startModeEarlier">Earlier time</button>
+      </div>
+      <div id="startEarlierFields" hidden>
+        <label class="field">
+          <span>Time started</span>
+          <input type="time" id="startTimeStarted" />
+        </label>
+        <label class="field">
+          <span>Time ended <em class="field-optional">(optional)</em></span>
+          <input type="time" id="startTimeEnded" />
+        </label>
+        <p class="settings-note" id="startSheetHint">Leave end blank to keep the timer running — elapsed time is counted from your start time until now.</p>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="startConfirmBtn">Start</button>
+        <button type="button" class="btn btn-secondary" id="startCloseBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay" id="updateOverlay" role="dialog" aria-modal="true" hidden>
     <div class="sheet">
       <div class="sheet-handle"></div>
@@ -252,6 +279,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
