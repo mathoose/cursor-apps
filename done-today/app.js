@@ -56,6 +56,8 @@
     historyQuery: "",
     boardDragId: null,
     boardDragGhost: null,
+    startPendingId: null,
+    startSheetMode: "now",
   };
 
   var data = loadData();
@@ -154,6 +156,25 @@
     var d = new Date(iso);
     if (isNaN(d.getTime())) return "";
     return formatTime(d.getHours() * 60 + d.getMinutes());
+  }
+
+  function timeInputValue(d) {
+    d = d || new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+  }
+
+  function minutesFromTimeInput(value) {
+    if (!value) return null;
+    var p = String(value).split(":");
+    return parseInt(p[0], 10) * 60 + parseInt(p[1] || "0", 10);
+  }
+
+  function isoFromDateKeyAndTime(key, timeValue) {
+    var d = parseDateKey(key);
+    var min = minutesFromTimeInput(timeValue);
+    if (min == null) return new Date().toISOString();
+    d.setHours(Math.floor(min / 60), min % 60, 0, 0);
+    return d.toISOString();
   }
 
   function suggestUpdates(title) {
@@ -958,6 +979,7 @@
           '<div class="item-main">' +
             '<p class="item-title">' + escapeHtml(p.title) + "</p>" +
             '<p class="item-meta">Started ' + escapeHtml(startedLabel) +
+              " · " + escapeHtml(elapsed) + " elapsed" +
               (p.updates && p.updates.length ? " · " + p.updates.length + " update" + (p.updates.length === 1 ? "" : "s") : "") +
             "</p>" +
             '<div class="timer-badge" data-timer-for="' + escapeHtml(p.id) + '">' + escapeHtml(elapsed) + "</div>" +
@@ -1299,23 +1321,12 @@
         timerStartedAt: null,
         updates: [],
       };
+      data.pending.unshift(pendingItem);
+      saveData();
       if (state.addMode === "start") {
-        var now = new Date();
-        pendingItem.timerStartedAt = now.toISOString();
-        pendingItem.scheduled = true;
-        pendingItem.startMin = now.getHours() * 60 + now.getMinutes();
-        pendingItem.endMin = pendingItem.startMin + Math.max(durationMin || MIN_DURATION, MIN_DURATION);
-        pendingItem.updates = [{
-          id: uid("upd"),
-          text: "Started",
-          at: pendingItem.timerStartedAt,
-        }];
-        data.pending.unshift(pendingItem);
-        saveData();
-        toast("Timer started");
+        openStartSheet(pendingItem.id);
+        toast("When did you start?");
       } else {
-        data.pending.unshift(pendingItem);
-        saveData();
         toast("Added to still need to do");
       }
     }
@@ -1338,18 +1349,22 @@
     if (timerStartedAt) {
       var start = new Date(timerStartedAt);
       var startMin = start.getHours() * 60 + start.getMinutes();
-      var elapsedMin = Math.max(MIN_DURATION, Math.round((Date.now() - start.getTime()) / 60000));
-      var endMin;
-      if (dateKey(start) === todayKey()) {
-        endMin = Math.max(startMin + MIN_DURATION, nowMinutes());
-        // Prefer real elapsed if user left it overnight-ish but same calendar day
-        endMin = Math.max(endMin, Math.min(1440, startMin + elapsedMin));
+      if (opts.useFixedRange && opts.startMin != null && opts.endMin != null) {
+        place = { startMin: opts.startMin, endMin: opts.endMin };
+        durationMin = Math.max(MIN_DURATION, place.endMin - place.startMin);
       } else {
-        endMin = Math.min(1440, startMin + elapsedMin);
-        if (endMin <= startMin) endMin = 1440;
+        var elapsedMin = Math.max(MIN_DURATION, Math.round((Date.now() - start.getTime()) / 60000));
+        var endMin;
+        if (dateKey(start) === todayKey()) {
+          endMin = Math.max(startMin + MIN_DURATION, nowMinutes());
+          endMin = Math.max(endMin, Math.min(1440, startMin + elapsedMin));
+        } else {
+          endMin = Math.min(1440, startMin + elapsedMin);
+          if (endMin <= startMin) endMin = 1440;
+        }
+        place = { startMin: startMin, endMin: endMin };
+        durationMin = endMin - startMin;
       }
-      place = { startMin: startMin, endMin: endMin };
-      durationMin = endMin - startMin;
     } else if (opts.startMin != null) {
       place = { startMin: opts.startMin, endMin: opts.endMin || opts.startMin + durationMin };
     } else {
@@ -1391,27 +1406,121 @@
     saveData();
   }
 
-  function startTimer(id) {
+  function applyInProgressStart(item, startedAtIso) {
+    var start = new Date(startedAtIso);
+    if (isNaN(start.getTime())) start = new Date();
+    item.timerStartedAt = start.toISOString();
+    item.scheduled = true;
+    item.startMin = start.getHours() * 60 + start.getMinutes();
+    item.endMin = item.startMin + Math.max(item.durationMin || MIN_DURATION, MIN_DURATION);
+    if (!Array.isArray(item.updates)) item.updates = [];
+    var hasStarted = item.updates.some(function (u) { return u.text === "Started"; });
+    if (!hasStarted) {
+      item.updates.push({
+        id: uid("upd"),
+        text: "Started",
+        at: item.timerStartedAt,
+      });
+    }
+    saveData();
+  }
+
+  function setStartSheetMode(mode) {
+    state.startSheetMode = mode === "earlier" ? "earlier" : "now";
+    document.getElementById("startModeNow").classList.toggle("selected", state.startSheetMode === "now");
+    document.getElementById("startModeEarlier").classList.toggle("selected", state.startSheetMode === "earlier");
+    document.getElementById("startEarlierFields").hidden = state.startSheetMode !== "earlier";
+    document.getElementById("startConfirmBtn").textContent = state.startSheetMode === "now" ? "Start now" : "Continue";
+    updateStartSheetPreview();
+  }
+
+  function updateStartSheetPreview() {
+    var hint = document.getElementById("startSheetHint");
+    if (!hint || state.startSheetMode !== "earlier") return;
+    var startIso = isoFromDateKeyAndTime(state.selectedDate, document.getElementById("startTimeStarted").value);
+    var elapsed = formatElapsed(Date.now() - new Date(startIso).getTime());
+    var endVal = document.getElementById("startTimeEnded").value;
+    if (endVal) {
+      hint.textContent = "Will log a finished session from your start and end times.";
+    } else {
+      hint.textContent = "No end time — timer keeps running (" + elapsed + " so far from that start).";
+    }
+  }
+
+  function openStartSheet(id) {
     var item = findPending(id);
     if (!item) return;
     if (item.timerStartedAt) {
       toast("Already running");
       return;
     }
-    var now = new Date();
-    item.timerStartedAt = now.toISOString();
-    item.scheduled = true;
-    item.startMin = now.getHours() * 60 + now.getMinutes();
-    item.endMin = item.startMin + Math.max(item.durationMin || MIN_DURATION, MIN_DURATION);
-    if (!Array.isArray(item.updates)) item.updates = [];
-    item.updates.push({
-      id: uid("upd"),
-      text: "Started",
-      at: item.timerStartedAt,
+    state.startPendingId = id;
+    document.getElementById("startSheetTitle").textContent = "Start · " + item.title;
+    document.getElementById("startSheetSub").textContent = "Pick now or when you actually started.";
+    document.getElementById("startTimeStarted").value = timeInputValue(new Date());
+    document.getElementById("startTimeEnded").value = "";
+    setStartSheetMode("now");
+    document.getElementById("startOverlay").hidden = false;
+  }
+
+  function closeStartSheet() {
+    state.startPendingId = null;
+    document.getElementById("startOverlay").hidden = true;
+  }
+
+  function confirmStartSheet() {
+    var item = findPending(state.startPendingId);
+    if (!item) {
+      closeStartSheet();
+      return;
+    }
+    var date = state.selectedDate;
+
+    if (state.startSheetMode === "now") {
+      applyInProgressStart(item, new Date().toISOString());
+      closeStartSheet();
+      toast("Timer started");
+      renderAll();
+      return;
+    }
+
+    var startIso = isoFromDateKeyAndTime(date, document.getElementById("startTimeStarted").value);
+    var endMin = minutesFromTimeInput(document.getElementById("startTimeEnded").value);
+    var startMin = minutesFromTimeInput(document.getElementById("startTimeStarted").value);
+
+    if (endMin == null || !document.getElementById("startTimeEnded").value) {
+      applyInProgressStart(item, startIso);
+      closeStartSheet();
+      toast("Timer from " + formatClockFromIso(startIso));
+      renderAll();
+      return;
+    }
+
+    if (endMin <= startMin) {
+      toast("End time must be after start");
+      return;
+    }
+
+    completeTask({
+      pendingId: item.id,
+      title: item.title,
+      catalogId: item.catalogId,
+      durationMin: endMin - startMin,
+      window: item.window,
+      date: date,
+      timerStartedAt: startIso,
+      startMin: startMin,
+      endMin: endMin,
+      useFixedRange: true,
+      updates: [{ id: uid("upd"), text: "Started", at: startIso }],
     });
-    saveData();
-    toast("Timer started");
+    closeStartSheet();
+    toast("Logged session");
     renderAll();
+  }
+
+  function startTimer(id) {
+    openStartSheet(id);
   }
 
   function openUpdateSheet(id) {
@@ -2067,6 +2176,20 @@
     document.getElementById("updateCloseBtn").addEventListener("click", closeUpdateSheet);
     document.getElementById("updateOverlay").addEventListener("click", function (e) {
       if (e.target.id === "updateOverlay") closeUpdateSheet();
+    });
+
+    document.getElementById("startModeNow").addEventListener("click", function () {
+      setStartSheetMode("now");
+    });
+    document.getElementById("startModeEarlier").addEventListener("click", function () {
+      setStartSheetMode("earlier");
+    });
+    document.getElementById("startTimeStarted").addEventListener("input", updateStartSheetPreview);
+    document.getElementById("startTimeEnded").addEventListener("input", updateStartSheetPreview);
+    document.getElementById("startConfirmBtn").addEventListener("click", confirmStartSheet);
+    document.getElementById("startCloseBtn").addEventListener("click", closeStartSheet);
+    document.getElementById("startOverlay").addEventListener("click", function (e) {
+      if (e.target.id === "startOverlay") closeStartSheet();
     });
 
     document.getElementById("doneList").addEventListener("click", function (e) {
