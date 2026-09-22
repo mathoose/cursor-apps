@@ -10,11 +10,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#071422" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: fh-v8-live-frac-proj -->
+  <!-- build: fh-v9-potential-moves -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body>
   <header class="app-header">
@@ -78,6 +78,18 @@
         </div>
         <div id="conflictList" class="rank-list"></div>
       </div>
+    </section>
+
+    <section class="view" id="viewMoves" data-view="moves">
+      <div class="card intro-card">
+        <p class="eyebrow">Potential moves</p>
+        <h2>Waiver ideas for this week</h2>
+        <p class="muted" id="movesIntro">Connect Sleeper and refresh. We match BDGE-style targets to who is actually free in each league.</p>
+      </div>
+      <div class="empty-state compact" id="movesEmpty" hidden>
+        <p>Connect Sleeper or load the sample, then tap refresh.</p>
+      </div>
+      <div id="movesList" class="move-list"></div>
     </section>
 
     <section class="view" id="viewAccounts" data-view="accounts">
@@ -161,6 +173,10 @@
       <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.6-7 10-7 10z"/></svg>
       <span>Root for</span>
     </button>
+    <button type="button" class="nav-btn" data-view="moves" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+      <span>Moves</span>
+    </button>
     <button type="button" class="nav-btn" data-view="accounts" role="tab" aria-selected="false">
       <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"/><path d="M4 20a8 8 0 0 1 16 0"/></svg>
       <span>Accounts</span>
@@ -182,6 +198,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js?v=33" defer></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
