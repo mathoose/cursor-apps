@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body class="view-today">
-  <!-- build: done-today-v4 -->
+  <!-- build: done-today-v5 -->
   <header class="app-header" id="appHeader">
     <div class="header-row">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
@@ -92,28 +92,35 @@
       </div>
 
       <div class="section-head">
-        <h2>Still need to do</h2>
+        <h2>Task board</h2>
         <span class="count" id="pendingCount">0</span>
       </div>
-      <ul class="item-list" id="pendingList"></ul>
+      <p class="board-hint">Drag a task onto the day schedule — evening tasks highlight the evening band.</p>
+      <ul class="item-list board-list" id="pendingList"></ul>
       <div class="empty-state" id="pendingEmpty" hidden>
-        <p>Nothing waiting. Add a task above, or mark something done as you go.</p>
+        <p>Nothing on the board. Add a task above, then drag it into a time slot.</p>
       </div>
 
       <div class="section-head">
-        <h2>Done today</h2>
-        <span class="count" id="doneCount">0</span>
+        <h2>Day schedule</h2>
+        <span class="count" id="scheduledCount">0</span>
       </div>
       <div class="timeline-card">
         <div class="timeline-legend" id="timelineLegend"></div>
         <div class="timeline-scroll" id="timelineScroll">
           <div class="timeline-track" id="timelineTrack">
+            <div class="timeline-bands" id="timelineBands"></div>
             <div class="timeline-hours" id="timelineHours"></div>
             <div class="timeline-now" id="timelineNow" hidden></div>
             <div class="timeline-blocks" id="timelineBlocks"></div>
           </div>
         </div>
-        <p class="timeline-help">Hold the middle of a block to slide it · drag either end to resize</p>
+        <p class="timeline-help">Drag from the board into a slot · hold block center to move · drag ends to resize</p>
+      </div>
+
+      <div class="section-head">
+        <h2>Done today</h2>
+        <span class="count" id="doneCount">0</span>
       </div>
       <ul class="item-list done-list" id="doneList"></ul>
       <div class="empty-state" id="doneEmpty" hidden>
@@ -245,6 +252,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

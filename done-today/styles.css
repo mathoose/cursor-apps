@@ -23,7 +23,7 @@
   --radius: 16px;
   --radius-sm: 10px;
   --nav-h: calc(64px + env(safe-area-inset-bottom));
-  --px-per-min: 1.65;
+  --px-per-min: 0.72;
   --day-start: 360;
   --day-span: 1020;
 }
@@ -563,9 +563,106 @@ input {
   margin-bottom: 8px;
   font-weight: 600;
 }
+.board-hint {
+  margin: -4px 2px 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+.board-list {
+  gap: 10px;
+}
+.board-chip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px 10px;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--pending);
+  touch-action: none;
+  cursor: grab;
+}
+.board-chip:active { cursor: grabbing; }
+.board-chip.dragging {
+  opacity: 0.55;
+  transform: scale(0.98);
+}
+.board-grip {
+  grid-row: 1 / span 2;
+  color: var(--text-faint);
+  font-size: 0.9rem;
+  letter-spacing: -0.12em;
+  padding-top: 4px;
+}
+.board-chip-main { min-width: 0; }
+.board-chip-actions {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.board-chip-actions .mini-btn {
+  flex: 1 1 auto;
+  min-width: 4.5rem;
+}
+
+.timeline-bands {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.tl-band {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px dashed rgba(148, 163, 184, 0.25);
+  opacity: 0.55;
+}
+.tl-band.highlight {
+  background: rgba(251, 191, 36, 0.28);
+  border-color: rgba(217, 119, 6, 0.65);
+  opacity: 1;
+  box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.35);
+}
+.tl-band.band-evening.highlight,
+.tl-band.band-after20.highlight {
+  background: rgba(167, 139, 250, 0.28);
+  border-color: rgba(109, 40, 217, 0.55);
+}
+.tl-band.band-morning.highlight {
+  background: rgba(251, 191, 36, 0.22);
+  border-color: rgba(217, 119, 6, 0.45);
+}
+.tl-band-label {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.62rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.tl-band.highlight .tl-band-label {
+  color: var(--text-muted);
+}
+.timeline-scroll.drop-target {
+  outline: 2px solid rgba(14, 165, 233, 0.45);
+  outline-offset: 2px;
+}
 .timeline-track {
   position: relative;
-  height: 88px;
+  height: 104px;
+}
+.timeline-scroll {
+  min-height: 112px;
 }
 .timeline-now {
   position: absolute;
