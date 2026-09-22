@@ -7,7 +7,8 @@
   var DAY_START = 360; // 6:00
   var DAY_END = 1380; // 23:00
   var DAY_SPAN = DAY_END - DAY_START;
-  var PX_PER_MIN = 1.65;
+  var PX_PER_MIN = 0.72;
+  var VISIBLE_HOURS_TARGET = 9;
   var MIN_DURATION = 5;
   var HOLD_MS = 180;
 
@@ -53,6 +54,8 @@
     editing: null,
     updatingId: null,
     historyQuery: "",
+    boardDragId: null,
+    boardDragGhost: null,
   };
 
   var data = loadData();
@@ -275,14 +278,48 @@
   function normalizePending(it) {
     if (!it || !it.id || !normalizeTitle(it.title)) return null;
     var durationMin = it.durationMin === 0 || it.instant ? 0 : Math.max(0, Math.round(Number(it.durationMin) || 30));
+    var win = normalizeWindow(it.window);
+    var scheduled = !!it.scheduled;
+    var startMin = typeof it.startMin === "number" ? it.startMin : null;
+    var endMin = typeof it.endMin === "number" ? it.endMin : null;
+    if (it.scheduled === undefined) {
+      if (it.timerStartedAt) {
+        scheduled = true;
+      } else if (typeof startMin === "number" && typeof endMin === "number") {
+        var bounds = windowBounds(win);
+        var dur = durationMin > 0 ? durationMin : MIN_DURATION;
+        var place = suggestedPlacement(dur, win, it.date || todayKey());
+        var mismatch = Math.abs(startMin - place.startMin) > 45;
+        if (win.type !== "anytime" && (startMin < bounds.lo - 30 || startMin > bounds.hi + 30)) {
+          scheduled = false;
+          startMin = null;
+          endMin = null;
+        } else if (mismatch && win.type !== "anytime") {
+          startMin = place.startMin;
+          endMin = place.endMin;
+          scheduled = true;
+        } else {
+          scheduled = true;
+        }
+      } else {
+        scheduled = false;
+        startMin = null;
+        endMin = null;
+      }
+    }
+    if (!scheduled) {
+      startMin = null;
+      endMin = null;
+    }
     return {
       id: it.id,
       catalogId: it.catalogId || null,
       title: normalizeTitle(it.title),
       durationMin: durationMin,
-      window: normalizeWindow(it.window),
-      startMin: typeof it.startMin === "number" ? it.startMin : null,
-      endMin: typeof it.endMin === "number" ? it.endMin : null,
+      window: win,
+      scheduled: scheduled,
+      startMin: startMin,
+      endMin: endMin,
       recurring: it.recurring && it.recurring.freq === "daily" ? { freq: "daily" } : null,
       date: it.date || todayKey(),
       createdAt: it.createdAt || new Date().toISOString(),
@@ -524,39 +561,92 @@
     return item;
   }
 
+  function windowBounds(win) {
+    win = normalizeWindow(win);
+    if (win.type === "between") {
+      return {
+        lo: win.startMin || DAY_START,
+        hi: win.endMin || DAY_END,
+      };
+    }
+    if (win.type === "after") {
+      return { lo: win.startMin || 0, hi: DAY_END };
+    }
+    if (win.type === "at") {
+      var at = win.startMin || DAY_START;
+      return { lo: at, hi: Math.min(1440, at + 120) };
+    }
+    return { lo: DAY_START, hi: DAY_END };
+  }
+
   function suggestedPlacement(durationMin, win, date) {
     durationMin = durationMin > 0 ? durationMin : MIN_DURATION;
     win = normalizeWindow(win);
+    var bounds = windowBounds(win);
+    var lo = bounds.lo;
+    var hi = bounds.hi;
     var start;
-    var end;
-    var now = date === todayKey() ? nowMinutes() : 540;
+    var now = date === todayKey() ? nowMinutes() : lo;
 
-    if (win.type === "after") {
-      start = Math.max(win.startMin || 0, date === todayKey() ? now : win.startMin || 0);
+    if (win.type === "anytime") {
+      if (date === todayKey()) {
+        start = round5(clamp(now, DAY_START, DAY_END - durationMin));
+      } else {
+        start = round5(lo + Math.max(0, Math.floor((hi - lo - durationMin) / 2)));
+      }
+    } else if (win.type === "after") {
+      start = date === todayKey() ? Math.max(lo, now) : lo;
       start = round5(start);
-    } else if (win.type === "between") {
-      var lo = win.startMin || DAY_START;
-      var hi = win.endMin || DAY_END;
-      var preferred = date === todayKey() ? clamp(now, lo, Math.max(lo, hi - durationMin)) : lo;
-      start = round5(preferred);
-      if (start + durationMin > hi) start = Math.max(lo, hi - durationMin);
     } else if (win.type === "at") {
-      start = win.startMin || now;
+      start = round5(win.startMin || lo);
     } else {
-      start = round5(clamp(now, DAY_START, DAY_END - durationMin));
+      if (now < lo) start = lo;
+      else if (now > hi - durationMin) start = Math.max(lo, hi - durationMin);
+      else start = now;
+      start = round5(start);
+      if (start + durationMin > hi) start = Math.max(lo, hi - durationMin);
     }
 
     start = clamp(start, 0, 1440 - durationMin);
-    end = start + durationMin;
-    return { startMin: start, endMin: end };
+    return { startMin: start, endMin: start + durationMin };
+  }
+
+  function isScheduledPending(item) {
+    return !!(item && item.scheduled && typeof item.startMin === "number" && typeof item.endMin === "number");
   }
 
   function ensurePendingPlacement(item) {
-    if (typeof item.startMin === "number" && typeof item.endMin === "number") return item;
-    var place = suggestedPlacement(item.durationMin || MIN_DURATION, item.window, item.date);
-    item.startMin = place.startMin;
-    item.endMin = item.durationMin > 0 ? place.endMin : place.startMin + MIN_DURATION;
+    if (!item) return item;
+    if (!isScheduledPending(item)) return item;
+    var dur = item.durationMin > 0 ? item.durationMin : MIN_DURATION;
+    if (item.endMin - item.startMin < MIN_DURATION) {
+      item.endMin = item.startMin + dur;
+    }
     return item;
+  }
+
+  function schedulePending(id, startMin, date) {
+    var item = findPending(id);
+    if (!item) return;
+    var dur = item.durationMin > 0 ? item.durationMin : MIN_DURATION;
+    var bounds = windowBounds(item.window);
+    startMin = round5(startMin);
+    startMin = clamp(startMin, bounds.lo, Math.max(bounds.lo, bounds.hi - dur));
+    startMin = clamp(startMin, DAY_START, 1440 - dur);
+    item.scheduled = true;
+    item.startMin = startMin;
+    item.endMin = startMin + dur;
+    if (date) item.date = date;
+    saveData();
+  }
+
+  function unschedulePending(id) {
+    var item = findPending(id);
+    if (!item || isRunning(item)) return;
+    item.scheduled = false;
+    item.startMin = null;
+    item.endMin = null;
+    saveData();
   }
 
   function matchCatalogSuggestions(query) {
@@ -588,12 +678,23 @@
         }
         return false;
       })
-      .map(function (p) {
-        return ensurePendingPlacement(Object.assign({}, p, { date: date }));
-      })
       .sort(function (a, b) {
-        return (a.startMin || 0) - (b.startMin || 0);
+        var as = isScheduledPending(a) ? a.startMin : 9999;
+        var bs = isScheduledPending(b) ? b.startMin : 9999;
+        return as - bs;
       });
+  }
+
+  function boardPendingForDate(date) {
+    return pendingForDate(date).filter(function (p) {
+      return !isRunning(p) && !isScheduledPending(p);
+    });
+  }
+
+  function scheduledPendingForDate(date) {
+    return pendingForDate(date).filter(function (p) {
+      return !isRunning(p) && isScheduledPending(p);
+    });
   }
 
   function entriesForDate(date) {
@@ -689,6 +790,41 @@
     return h12 + ampm;
   }
 
+  function renderTimelineBands(highlightWin) {
+    var bands = document.getElementById("timelineBands");
+    if (!bands) return;
+    var highlightId = highlightWin ? windowIdFromWindow(highlightWin) : null;
+    var defs = [
+      { id: "morning", lo: 420, hi: 720, label: "Morning" },
+      { id: "afternoon", lo: 720, hi: 1020, label: "Afternoon" },
+      { id: "evening", lo: 1020, hi: 1320, label: "Evening" },
+      { id: "between13_16", lo: 780, hi: 960, label: "1–4p" },
+      { id: "after20", lo: 1200, hi: DAY_END, label: "8p+" },
+    ];
+    bands.style.width = trackWidth() + "px";
+    bands.innerHTML = defs.map(function (d) {
+      var left = minToX(d.lo);
+      var width = Math.max(8, minToX(d.hi) - left);
+      var on = highlightId === d.id;
+      return (
+        '<div class="tl-band band-' + d.id + (on ? " highlight" : "") + '" style="left:' + left + "px;width:" + width + 'px" title="' + escapeHtml(d.label) + '">' +
+          '<span class="tl-band-label">' + escapeHtml(d.label) + "</span>" +
+        "</div>"
+      );
+    }).join("");
+  }
+
+  function scrollTimelineToMin(min, smooth) {
+    var scroll = document.getElementById("timelineScroll");
+    if (!scroll) return;
+    var target = Math.max(0, minToX(min) - scroll.clientWidth * 0.15);
+    if (smooth && scroll.scrollTo) {
+      scroll.scrollTo({ left: target, behavior: "smooth" });
+    } else {
+      scroll.scrollLeft = target;
+    }
+  }
+
   function renderTimeline() {
     var scroll = document.getElementById("timelineScroll");
     var track = document.getElementById("timelineTrack");
@@ -698,6 +834,12 @@
     var legend = document.getElementById("timelineLegend");
     if (!track || !blocks) return;
 
+    var dragItem = state.boardDragId ? findPending(state.boardDragId) : null;
+    renderTimelineBands(dragItem ? dragItem.window : null);
+    if (scroll) {
+      scroll.classList.toggle("drop-target", !!state.boardDragId);
+    }
+
     buildHourMarks(hours, "tl-hour");
     track.style.width = trackWidth() + "px";
     blocks.style.width = trackWidth() + "px";
@@ -706,7 +848,8 @@
 
     var date = state.selectedDate;
     var entries = entriesForDate(date);
-    var pending = pendingForDate(date);
+    var scheduled = scheduledPendingForDate(date);
+    var boardCount = boardPendingForDate(date).length;
     var active = activeItems().filter(function (p) {
       return dateKey(new Date(p.timerStartedAt)) === date || date === todayKey();
     });
@@ -717,7 +860,7 @@
       var startMin = start.getHours() * 60 + start.getMinutes();
       var endMin = date === todayKey() ? Math.max(startMin + MIN_DURATION, nowMinutes()) : startMin + Math.max(p.durationMin || 30, MIN_DURATION);
       var left = minToX(startMin);
-      var width = Math.max(28, minToX(endMin) - left);
+      var width = Math.max(36, minToX(endMin) - left);
       html +=
         '<div class="tl-block active-ghost" data-kind="pending" data-id="' + escapeHtml(p.id) + '" style="left:' + left + "px;width:" + width + 'px">' +
           '<span class="range-handle left" data-handle="start"></span>' +
@@ -726,10 +869,10 @@
         "</div>";
     });
 
-    pending.forEach(function (p) {
+    scheduled.forEach(function (p) {
       ensurePendingPlacement(p);
       var left = minToX(p.startMin);
-      var width = Math.max(28, minToX(p.endMin) - left);
+      var width = Math.max(36, minToX(p.endMin) - left);
       html +=
         '<div class="tl-block pending-ghost" data-kind="pending" data-id="' + escapeHtml(p.id) + '" style="left:' + left + "px;width:" + width + 'px">' +
           '<span class="range-handle left" data-handle="start"></span>' +
@@ -740,7 +883,7 @@
 
     entries.forEach(function (e) {
       var left = minToX(e.startMin);
-      var width = Math.max(28, minToX(e.endMin) - left);
+      var width = Math.max(36, minToX(e.endMin) - left);
       html +=
         '<div class="tl-block" data-kind="entry" data-id="' + escapeHtml(e.id) + '" style="left:' + left + "px;width:" + width + 'px">' +
           '<span class="range-handle left" data-handle="start"></span>' +
@@ -750,10 +893,13 @@
     });
     blocks.innerHTML = html;
 
+    var schedCount = document.getElementById("scheduledCount");
+    if (schedCount) schedCount.textContent = String(scheduled.length + active.length);
+
     if (legend) {
       legend.innerHTML =
-        "<span>" + entries.length + " done · " + active.length + " running · " + pending.length + " open</span>" +
-        "<span>" + formatTime(DAY_START) + " – " + formatTime(DAY_END) + "</span>";
+        "<span>" + entries.length + " done · " + scheduled.length + " scheduled · " + boardCount + " on board</span>" +
+        "<span>~" + VISIBLE_HOURS_TARGET + "h visible · swipe for full day</span>";
     }
 
     if (nowEl) {
@@ -766,8 +912,8 @@
     }
 
     if (scroll && !scroll.dataset.scrolled) {
-      var focus = date === todayKey() ? nowMinutes() : DAY_START + 180;
-      scroll.scrollLeft = Math.max(0, minToX(focus) - scroll.clientWidth * 0.3);
+      var focus = date === todayKey() ? nowMinutes() : DAY_START + 240;
+      scrollTimelineToMin(focus, false);
       scroll.dataset.scrolled = "1";
     }
   }
@@ -831,7 +977,7 @@
     var list = document.getElementById("pendingList");
     var empty = document.getElementById("pendingEmpty");
     var count = document.getElementById("pendingCount");
-    var items = waitingPendingForDate(state.selectedDate);
+    var items = boardPendingForDate(state.selectedDate);
     if (count) count.textContent = String(items.length);
     if (!list) return;
     if (!items.length) {
@@ -841,30 +987,22 @@
     }
     if (empty) empty.hidden = true;
     list.innerHTML = items.map(function (p) {
-      ensurePendingPlacement(p);
       var dur = p.durationMin > 0 ? formatDuration(p.durationMin) : "Instant";
       var when = windowLabel(p.window);
-      var last = "";
-      var cat = p.catalogId
-        ? data.catalog.find(function (c) { return c.id === p.catalogId; })
-        : findCatalogByTitle(p.title);
-      if (cat && (cat.lastDoneDate || cat.lastDoneAt)) {
-        last = " · last " + formatRelativeDay(cat.lastDoneDate || cat.lastDoneAt);
-      }
+      var bandId = windowIdFromWindow(p.window);
       return (
-        '<li class="item-card pending" data-id="' + escapeHtml(p.id) + '">' +
-          '<div class="item-main">' +
+        '<li class="board-chip pending" data-board-id="' + escapeHtml(p.id) + '" data-band="' + escapeHtml(bandId) + '">' +
+          '<span class="board-grip" aria-hidden="true">⋮⋮</span>' +
+          '<div class="board-chip-main">' +
             '<p class="item-title">' + escapeHtml(p.title) + "</p>" +
             '<p class="item-meta">' + escapeHtml(dur) + " · " + escapeHtml(when) +
-              (p.recurring ? " · daily" : "") + escapeHtml(last) + "</p>" +
+              (p.recurring ? " · daily" : "") + "</p>" +
           "</div>" +
-          '<div class="item-actions">' +
+          '<div class="board-chip-actions">' +
             '<button type="button" class="mini-btn start" data-action="start">Start</button>' +
+            '<button type="button" class="mini-btn" data-action="schedule">Place</button>' +
             '<button type="button" class="mini-btn primary" data-action="complete">Done</button>' +
             '<button type="button" class="mini-btn" data-action="edit">Edit</button>' +
-          "</div>" +
-          '<div class="item-range" data-kind="pending" data-id="' + escapeHtml(p.id) + '">' +
-            rangeScrubHtml(p.startMin, p.endMin) +
           "</div>" +
         "</li>"
       );
@@ -1146,15 +1284,15 @@
       });
       toast("Logged as done");
     } else {
-      var place = suggestedPlacement(durationMin || MIN_DURATION, win, state.selectedDate);
       var pendingItem = {
         id: uid("todo"),
         catalogId: cat.id,
         title: cat.title,
         durationMin: durationMin,
         window: win,
-        startMin: place.startMin,
-        endMin: durationMin > 0 ? place.endMin : place.startMin + MIN_DURATION,
+        scheduled: false,
+        startMin: null,
+        endMin: null,
         recurring: recurring,
         date: state.selectedDate,
         createdAt: new Date().toISOString(),
@@ -1164,6 +1302,7 @@
       if (state.addMode === "start") {
         var now = new Date();
         pendingItem.timerStartedAt = now.toISOString();
+        pendingItem.scheduled = true;
         pendingItem.startMin = now.getHours() * 60 + now.getMinutes();
         pendingItem.endMin = pendingItem.startMin + Math.max(durationMin || MIN_DURATION, MIN_DURATION);
         pendingItem.updates = [{
@@ -1261,6 +1400,7 @@
     }
     var now = new Date();
     item.timerStartedAt = now.toISOString();
+    item.scheduled = true;
     item.startMin = now.getHours() * 60 + now.getMinutes();
     item.endMin = item.startMin + Math.max(item.durationMin || MIN_DURATION, MIN_DURATION);
     if (!Array.isArray(item.updates)) item.updates = [];
@@ -1315,6 +1455,12 @@
     if (!item.timerStartedAt) {
       item.timerStartedAt = new Date().toISOString();
     }
+    if (!item.scheduled) {
+      var now = new Date();
+      item.scheduled = true;
+      item.startMin = now.getHours() * 60 + now.getMinutes();
+      item.endMin = item.startMin + Math.max(item.durationMin || MIN_DURATION, MIN_DURATION);
+    }
     saveData();
     closeUpdateSheet();
     renderAll();
@@ -1359,6 +1505,7 @@
     if (kind === "pending") {
       var p = findPending(id);
       if (!p) return;
+      p.scheduled = true;
       p.startMin = startMin;
       p.endMin = endMin;
       p.durationMin = p.durationMin === 0 ? 0 : endMin - startMin;
@@ -1379,15 +1526,17 @@
   function openEdit(kind, id) {
     var item = kind === "pending" ? findPending(id) : data.entries.find(function (x) { return x.id === id; });
     if (!item) return;
-    ensurePendingPlacement(item);
+    var place = isScheduledPending(item)
+      ? { startMin: item.startMin, endMin: item.endMin }
+      : suggestedPlacement(item.durationMin || MIN_DURATION, item.window, state.selectedDate);
     state.editing = {
       kind: kind,
       id: id,
       title: item.title,
       durationMin: item.durationMin,
       window: item.window || { type: "anytime" },
-      startMin: item.startMin,
-      endMin: item.endMin,
+      startMin: place.startMin,
+      endMin: place.endMin,
       recurring: !!(item.recurring && item.recurring.freq === "daily"),
       catalogId: item.catalogId || null,
     };
@@ -1448,6 +1597,7 @@
       p.window = normalizeWindow(ed.window);
       p.startMin = ed.startMin;
       p.endMin = ed.endMin;
+      p.scheduled = true;
       p.recurring = document.getElementById("editRecurring").checked ? { freq: "daily" } : null;
       var cat = upsertCatalog(title, {
         catalogId: p.catalogId,
@@ -1479,6 +1629,52 @@
   function closeEdit() {
     state.editing = null;
     document.getElementById("editOverlay").hidden = true;
+  }
+
+  function minFromTimelineClientX(clientX) {
+    var scroll = document.getElementById("timelineScroll");
+    if (!scroll) return DAY_START;
+    var rect = scroll.getBoundingClientRect();
+    var x = clientX - rect.left + scroll.scrollLeft;
+    return clamp(xToMin(x), DAY_START, DAY_END - MIN_DURATION);
+  }
+
+  function beginBoardDrag(e, id) {
+    var item = findPending(id);
+    if (!item || isRunning(item)) return;
+    e.preventDefault();
+    state.boardDragId = id;
+    var chip = e.target.closest("[data-board-id]");
+    if (chip) chip.classList.add("dragging");
+    scrollTimelineToMin(windowBounds(item.window).lo, true);
+    renderTimeline();
+
+    function move() {
+      renderTimeline();
+    }
+    function up(ev) {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      if (chip) chip.classList.remove("dragging");
+      var dropId = state.boardDragId;
+      state.boardDragId = null;
+      var scroll = document.getElementById("timelineScroll");
+      if (dropId && scroll) {
+        var rect = scroll.getBoundingClientRect();
+        var inside = ev.clientX >= rect.left - 8 && ev.clientX <= rect.right + 8 &&
+          ev.clientY >= rect.top - 8 && ev.clientY <= rect.bottom + 8;
+        if (inside) {
+          schedulePending(dropId, minFromTimelineClientX(ev.clientX), state.selectedDate);
+          scrollTimelineToMin(findPending(dropId).startMin, true);
+          toast("Dropped on schedule");
+        }
+      }
+      renderAll();
+    }
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
   }
 
   function bindRangeDrag(root) {
@@ -1530,9 +1726,11 @@
     } else if (kind === "pending") {
       var p = findPending(id);
       if (!p) return;
+      if (!isScheduledPending(p)) return;
       ensurePendingPlacement(p);
       startMin = p.startMin;
       endMin = p.endMin;
+      p.scheduled = true;
     } else {
       var ent = data.entries.find(function (x) { return x.id === id; });
       if (!ent) return;
@@ -1805,28 +2003,36 @@
 
     function handlePendingCardAction(e) {
       var btn = e.target.closest("[data-action]");
-      var card = e.target.closest(".item-card");
+      var card = e.target.closest(".item-card, .board-chip");
       if (!btn || !card) return;
-      var id = card.getAttribute("data-id");
+      var id = card.getAttribute("data-id") || card.getAttribute("data-board-id");
       var item = findPending(id);
       if (!item) return;
       var action = btn.getAttribute("data-action");
       if (action === "start") {
         startTimer(id);
+      } else if (action === "schedule") {
+        var place = suggestedPlacement(item.durationMin || MIN_DURATION, item.window, state.selectedDate);
+        schedulePending(id, place.startMin, state.selectedDate);
+        scrollTimelineToMin(place.startMin, true);
+        toast("Placed in " + windowLabel(item.window));
+        renderAll();
       } else if (action === "update") {
         openUpdateSheet(id);
       } else if (action === "complete") {
-        ensurePendingPlacement(item);
-        completeTask({
+        var opts = {
           pendingId: item.id,
           title: item.title,
           catalogId: item.catalogId,
           durationMin: item.durationMin || MIN_DURATION,
           window: item.window,
-          startMin: item.startMin,
-          endMin: item.endMin,
           date: state.selectedDate,
-        });
+        };
+        if (isScheduledPending(item)) {
+          opts.startMin = item.startMin;
+          opts.endMin = item.endMin;
+        }
+        completeTask(opts);
         toast(item.timerStartedAt ? "Closed out — logged" : "Nice — logged");
         renderAll();
       } else if (action === "edit") {
@@ -1835,6 +2041,12 @@
     }
 
     document.getElementById("pendingList").addEventListener("click", handlePendingCardAction);
+    document.getElementById("pendingList").addEventListener("pointerdown", function (e) {
+      if (e.target.closest("button")) return;
+      var chip = e.target.closest("[data-board-id]");
+      if (!chip) return;
+      beginBoardDrag(e, chip.getAttribute("data-board-id"));
+    });
     document.getElementById("activeList").addEventListener("click", handlePendingCardAction);
 
     document.getElementById("updateSuggestChips").addEventListener("click", function (e) {
@@ -1997,45 +2209,45 @@
       window: windowFromId("after20"),
       recurring: { freq: "daily" },
     });
-    var gPlace = suggestedPlacement(45, grocery.defaultWindow, todayKey());
     data.pending.push({
       id: uid("todo"),
       catalogId: grocery.id,
       title: grocery.title,
       durationMin: 45,
       window: grocery.defaultWindow,
-      startMin: gPlace.startMin,
-      endMin: gPlace.endMin,
+      scheduled: false,
+      startMin: null,
+      endMin: null,
       recurring: null,
       date: todayKey(),
       createdAt: new Date().toISOString(),
       timerStartedAt: null,
       updates: [],
     });
-    var wPlace = suggestedPlacement(30, walk.defaultWindow, todayKey());
     data.pending.push({
       id: uid("todo"),
       catalogId: walk.id,
       title: walk.title,
       durationMin: 30,
       window: walk.defaultWindow,
-      startMin: wPlace.startMin,
-      endMin: wPlace.endMin,
+      scheduled: false,
+      startMin: null,
+      endMin: null,
       recurring: { freq: "daily" },
       date: todayKey(),
       createdAt: new Date().toISOString(),
       timerStartedAt: null,
       updates: [],
     });
-    var lPlace = suggestedPlacement(90, laundry.defaultWindow, todayKey());
     data.pending.push({
       id: uid("todo"),
       catalogId: laundry.id,
       title: laundry.title,
       durationMin: 90,
       window: laundry.defaultWindow,
-      startMin: lPlace.startMin,
-      endMin: lPlace.endMin,
+      scheduled: false,
+      startMin: null,
+      endMin: null,
       recurring: null,
       date: todayKey(),
       createdAt: new Date().toISOString(),
