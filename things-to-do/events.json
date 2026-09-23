@@ -1,0 +1,459 @@
+[
+  {
+    "id": "rittenhouse-art-2026",
+    "title": "Rittenhouse Square Fine Art Show",
+    "startDate": "2026-09-18",
+    "endDate": "2026-09-20",
+    "startTime": "11:00",
+    "endTime": "18:00",
+    "hours": "Fri–Sat 11am–6pm, Sun 11am–5pm",
+    "description": "Free outdoor show with 145 artists. 99th year.",
+    "url": "https://www.rittenhousesquareart.com/",
+    "locations": [
+      { "name": "Rittenhouse Square", "address": "1800 Walnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "evil-genius-family-fest-2026",
+    "title": "Evil Genius Family Fun Fest",
+    "startDate": "2026-09-19",
+    "endDate": "2026-09-19",
+    "startTime": "12:00",
+    "endTime": "18:00",
+    "hours": "Noon–6pm",
+    "description": "Free Fishtown block party. Street closed. Kids play, DJ, crafts, vendors, food.",
+    "url": "https://evilgeniusbeer.com/calendar/",
+    "locations": [
+      { "name": "Evil Genius Beer Company", "address": "1700 N Front St, Philadelphia, PA 19122" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-09-20",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-09-20",
+    "endDate": "2026-09-20",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Car-free blocks for walking, outdoor dining, and shopping. Live music 10:30am–4:30pm. Eagles broadcast in the Fulton Fun Zone at 1pm.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "delaware-river-festival-2026",
+    "title": "Delaware River Festival",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "10:00",
+    "endTime": "16:00",
+    "hours": "10am–4pm",
+    "description": "Free, rain or shine. RiverLink ferry between the two waterfronts, pedal boats, crafts, and wildlife programs.",
+    "url": "https://www.delawareriverfest.org/festival-details",
+    "locations": [
+      { "name": "Penn's Landing", "address": "211 S Christopher Columbus Blvd, Philadelphia, PA 19106" },
+      { "name": "Wiggins Park", "address": "2 Riverside Dr, Camden, NJ 08103" }
+    ]
+  },
+  {
+    "id": "linvilla-apple-festival-2026",
+    "title": "Linvilla Orchards Apple Festival",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "08:00",
+    "endTime": "18:00",
+    "hours": "8am–6pm",
+    "description": "Free admission and parking. Cider doughnuts, pies, Pumpkinland, hayrides, corn maze. Rain date Sun Sep 27. Some attractions ticketed.",
+    "url": "https://www.linvilla.com/family-fun/apple-festival",
+    "locations": [
+      { "name": "Linvilla Orchards", "address": "137 W Knowlton Rd, Media, PA 19063" }
+    ]
+  },
+  {
+    "id": "south-street-fall-fest-2026",
+    "title": "South Street Fall Fest / Oktoberfest",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "19:00",
+    "hours": "Noon–7pm (Oktoberfest on the 700 block until 8pm)",
+    "description": "Free eight-block street fest. Queen & Rook Fantasy Faire on the 100 block. Brauhaus Schmitz Oktoberfest on the 700 block.",
+    "url": "https://southstreet.com/events/fall-fest-2026/",
+    "locations": [
+      { "name": "South Street, Front to 8th", "address": "South St & S 4th St, Philadelphia, PA 19147" },
+      { "name": "Brauhaus Schmitz Oktoberfest", "address": "718 South St, Philadelphia, PA 19147" }
+    ]
+  },
+  {
+    "id": "chinatown-mid-autumn-2026",
+    "title": "Chinatown Mid-Autumn Festival",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "20:00",
+    "hours": "Noon–8pm (lantern parade around 7pm)",
+    "description": "Free 31st annual street festival. Lion dances, opera, martial arts, mooncake contest, evening lantern parade.",
+    "url": "https://www.aaunited.org/maf",
+    "locations": [
+      { "name": "10th Street near the Friendship Gate", "address": "10th St & Arch St, Philadelphia, PA 19107" }
+    ]
+  },
+  {
+    "id": "new-hope-arts-crafts-2026",
+    "title": "New Hope Arts & Crafts Festival",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "Sat 10am–5pm, Sun 10am–4pm",
+    "description": "$5 donation. Rain or shine. 160+ juried artists. Free shuttle to downtown New Hope.",
+    "url": "https://www.visitnewhope.com/new-hope-arts-crafts/",
+    "locations": [
+      { "name": "New Hope-Solebury High School", "address": "180 W Bridge St, New Hope, PA 18938" }
+    ]
+  },
+  {
+    "id": "chestnut-hill-fall-arts-2026",
+    "title": "Chestnut Hill Fall for the Arts",
+    "startDate": "2026-09-27",
+    "endDate": "2026-09-27",
+    "startTime": "11:00",
+    "endTime": "17:00",
+    "hours": "11am–5pm",
+    "description": "Free. 300+ artists, live music, food along Germantown Ave. Rain date reported as Sun Oct 11.",
+    "url": "https://chestnuthillpa.com/fall-for-the-arts-festival/",
+    "locations": [
+      { "name": "Germantown Ave, Chestnut Hill", "address": "8400 Germantown Ave, Philadelphia, PA 19118" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-09-27",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-09-27",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Car-free Center City blocks. Mini golf, live music, Music Play Patrol, Curtis Institute brass.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "fleurs-de-villes-lynnewood-2026",
+    "title": "Fleurs de Villes: The Gilded Age",
+    "startDate": "2026-09-25",
+    "endDate": "2026-10-04",
+    "startTime": "10:00",
+    "endTime": "18:00",
+    "hours": "10am–6pm daily (last entry 5pm)",
+    "description": "Lynnewood Hall opens to the public for the first time in 80+ years. Floral mannequins inspired by HBO’s The Gilded Age. Tickets from $30.50.",
+    "url": "https://lynnewoodhallpreservation.org/events/fleurs-de-villes/",
+    "locations": [
+      { "name": "Lynnewood Hall", "address": "920 Spring Ave, Elkins Park, PA 19027" }
+    ]
+  },
+  {
+    "id": "3dprintopia-2026",
+    "title": "3DPrintopia",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "Sat 10am–5pm, Sun 10am–4pm",
+    "description": "Maker show in Convention Center Hall F. Vendors, demos, 3D-printed derby. Kids 17 and under free. Tickets on Eventbrite.",
+    "url": "https://3dprintopia.com/",
+    "locations": [
+      { "name": "Pennsylvania Convention Center, Hall F", "address": "1101 Arch St, Philadelphia, PA 19107" }
+    ]
+  },
+  {
+    "id": "yards-oktoberfest-2026",
+    "title": "Yards Oktoberfest",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "16:00",
+    "hours": "Noon–4pm",
+    "description": "21+. German-style beers, food, live music, stein-holding and costume contests. GA $30 includes a stein and one fill.",
+    "url": "https://yardsbrewing.com/",
+    "locations": [
+      { "name": "Yards Brewing Company", "address": "500 Spring Garden St, Philadelphia, PA 19123" }
+    ]
+  },
+  {
+    "id": "market-of-the-macabre-2026",
+    "title": "Market of the Macabre",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "17:00",
+    "hours": "Noon–5pm",
+    "description": "100+ vendors of art, oddities, and antiques throughout Laurel Hill East. $5 advance / $10 at the gate. Kids 5 and under free.",
+    "url": "https://thelaurelhill.org/",
+    "locations": [
+      { "name": "Laurel Hill East", "address": "3822 Ridge Ave, Philadelphia, PA 19132" }
+    ]
+  },
+  {
+    "id": "drexel-vintage-flea-2026",
+    "title": "Drexel Vintage & Antique Flea Market",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "08:00",
+    "endTime": "17:00",
+    "hours": "8am–5pm",
+    "description": "Free. Vintage clothing, records, furniture, jewelry. Rain date Sunday.",
+    "url": "https://drexel.edu/",
+    "locations": [
+      { "name": "Drexel University", "address": "3400 Lancaster Ave, Philadelphia, PA 19104" }
+    ]
+  },
+  {
+    "id": "when-harry-met-sally-inn-yard-2026",
+    "title": "When Harry Met Sally — outdoor movie",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "19:30",
+    "endTime": "21:30",
+    "hours": "Around dusk",
+    "description": "Free Parks & Rec neighborhood screening at Inn Yard Park. Bring a blanket.",
+    "url": "https://www.phila.gov/departments/philadelphia-parks-recreation/",
+    "locations": [
+      { "name": "Inn Yard Park", "address": "1101 N American St, Philadelphia, PA 19123" }
+    ]
+  },
+  {
+    "id": "festival-of-festivals-2026",
+    "title": "Festival of Festivals",
+    "startDate": "2026-09-27",
+    "endDate": "2026-09-27",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "11am–4pm",
+    "description": "Free day at Cherry Street Pier. Food, music, art, local vendors, and a kids’ zone. Registration encouraged.",
+    "url": "https://www.cherrystreetpier.com/",
+    "locations": [
+      { "name": "Cherry Street Pier", "address": "121 N Columbus Blvd, Philadelphia, PA 19106" }
+    ]
+  },
+  {
+    "id": "longwood-festival-of-fountains-2026",
+    "title": "Longwood Gardens Festival of Fountains",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "21:00",
+    "hours": "Daytime shows plus evening shows Fri–Sun",
+    "description": "Final weekend. 1,700 fountain jets set to music. Timed tickets required. Evening shows may cancel in severe weather.",
+    "url": "https://longwoodgardens.org/events-performances/events/festival-fountains",
+    "locations": [
+      { "name": "Longwood Gardens", "address": "1001 Longwood Rd, Kennett Square, PA 19348" }
+    ]
+  },
+  {
+    "id": "ghostbusters-sunset-social-2026",
+    "title": "Ghostbusters at Sunset Social",
+    "startDate": "2026-09-30",
+    "endDate": "2026-09-30",
+    "startTime": "18:00",
+    "endTime": "20:30",
+    "hours": "6pm on the 60ft rooftop screen",
+    "description": "Free final outdoor film of the season. Food and drinks for purchase. Dogs and kids welcome. Blankets ok, no personal chairs.",
+    "url": "https://www.sunsetsocialphl.com/movie-nights",
+    "locations": [
+      { "name": "Sunset Social at Cira Green", "address": "129 S 30th St, Philadelphia, PA 19104" }
+    ]
+  },
+  {
+    "id": "roxtoberfest-2026",
+    "title": "Roxtoberfest",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "12:00",
+    "endTime": "18:00",
+    "hours": "Noon–6pm",
+    "description": "Free Roxborough street fest. Live music, beer gardens, vendors, pet costume contest.",
+    "url": "https://roxtoberfest.brightrtravel.com/",
+    "locations": [
+      { "name": "Ridge Ave, Lyceum to Leverington", "address": "Ridge Ave & Lyceum Ave, Philadelphia, PA 19128" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-10-04",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-10-04",
+    "endDate": "2026-10-04",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Car-free Center City blocks. Live music 10:30am–4:30pm. Eagles broadcast in the Fulton Fun Zone at 1pm.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "armory-oktoberfest-2026",
+    "title": "23rd Street Armory Oktoberfest",
+    "startDate": "2026-10-09",
+    "endDate": "2026-10-10",
+    "startTime": "19:30",
+    "endTime": "23:30",
+    "hours": "Fri 7:30–11:30pm · Sat 1–5pm and 7:30–11:30pm",
+    "description": "Ticketed, 21+. Brauhaus Schmitz at the Armory. GA from about $35 includes entry and a 1L beer.",
+    "url": "https://brauhausschmitz.com/oktoberfest/",
+    "locations": [
+      { "name": "23rd Street Armory", "address": "22 S 23rd St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "made-in-phila-fall-2026",
+    "title": "Made in Philadelphia Fall Market",
+    "startDate": "2026-10-09",
+    "endDate": "2026-10-11",
+    "startTime": "12:00",
+    "endTime": "20:00",
+    "hours": "Fri–Sat 12–8pm, Sun 12–6pm",
+    "description": "Free 10th-anniversary market. 50+ local artisans, food, beer garden. Pet-friendly.",
+    "url": "https://www.madeinphila.com/",
+    "locations": [
+      { "name": "Dilworth Park", "address": "1 S 15th St, Philadelphia, PA 19102" }
+    ]
+  },
+  {
+    "id": "ourfest-2026",
+    "title": "OURfest (Gayborhood Block Party)",
+    "startDate": "2026-10-11",
+    "endDate": "2026-10-11",
+    "startTime": "12:00",
+    "endTime": "18:00",
+    "hours": "Noon–6pm",
+    "description": "Free festival and resource fair after the National Coming Out Day parade. Vendors, performances, food.",
+    "url": "https://phillygaycalendar.com/ourfest/",
+    "locations": [
+      { "name": "12th & Locust", "address": "12th St & Locust St, Philadelphia, PA 19107" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-10-11",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-10-11",
+    "endDate": "2026-10-11",
+    "startTime": "09:30",
+    "endTime": "17:00",
+    "hours": "9:30am–5pm",
+    "description": "Starts 30 minutes early for the Eagles London game broadcast. Same car-free Walnut / 18th route.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "manayunk-fall-fest-2026",
+    "title": "Manayunk Fall Fest",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-17",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "11am–4pm",
+    "description": "Free. Vendors, food trucks, live music, mac-and-cheese crawl along Main Street.",
+    "url": "https://manayunk.com/mnyk-events/manayunk-fall-fest/",
+    "locations": [
+      { "name": "Main Street, Manayunk", "address": "4400 Main St, Philadelphia, PA 19127" }
+    ]
+  },
+  {
+    "id": "east-fallsfest-2026",
+    "title": "East FallsFest",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-17",
+    "startTime": "11:00",
+    "endTime": "17:00",
+    "hours": "11am–5pm",
+    "description": "Live music, kids activities, food, beer garden.",
+    "url": "https://discovereastfalls.org/fallsfest/",
+    "locations": [
+      { "name": "Ridge Ave & Midvale Ave", "address": "Ridge Ave & Midvale Ave, Philadelphia, PA 19129" }
+    ]
+  },
+  {
+    "id": "philly-coffee-festival-2026",
+    "title": "Philly Coffee Festival",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-18",
+    "startTime": "09:00",
+    "endTime": "16:30",
+    "hours": "Early 9–10am, GA 10am–1pm, afternoon 1:30–4:30pm",
+    "description": "Tickets about $25–$73. 20+ specialty roasters, tastings, food, live music.",
+    "url": "https://www.phillycoffeefestival.com/",
+    "locations": [
+      { "name": "23rd Street Armory", "address": "22 S 23rd St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-10-18",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-10-18",
+    "endDate": "2026-10-18",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Car-free Center City blocks. Live music 10:30am–4:30pm. Eagles broadcast in the Fulton Fun Zone at 1pm.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "east-passyunk-fall-fest-2026",
+    "title": "East Passyunk Fall Fest",
+    "startDate": "2026-10-25",
+    "endDate": "2026-10-25",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "Typical hours 11am–4pm",
+    "description": "Listed as Oct 25. Official pages still showed the 2025 Saturday date — 2026 is a Sunday and not fully confirmed. Usually live music, pumpkin carving, trick-or-treating, dog costume contest.",
+    "url": "https://www.visiteastpassyunk.com/fallfest",
+    "locations": [
+      { "name": "East Passyunk Avenue", "address": "East Passyunk Ave & Tasker St, Philadelphia, PA 19148" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-10-25",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-10-25",
+    "endDate": "2026-10-25",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Halloween Sunday. Pumpkin painting, monster making, trick-or-treat trail, marching band.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  },
+  {
+    "id": "open-streets-2026-12-06",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-12-06",
+    "endDate": "2026-12-06",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am–5pm",
+    "description": "Winter Open Streets on the usual Walnut / 18th route. Rain or shine, no rain date. Walk bikes through the zone.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      { "name": "Walnut St, Broad to 19th", "address": "Walnut St & S 18th St, Philadelphia, PA 19103" },
+      { "name": "18th St, Chestnut to Locust", "address": "S 18th St & Chestnut St, Philadelphia, PA 19103" }
+    ]
+  }
+]

@@ -35,6 +35,7 @@
     "fantasy-hub": "Fantasy Hub",
     "coffee-map": "Coffee Map",
     "done-today": "Done Today",
+    "things-to-do": "Things To Do",
   };
 
   var PHOTO_DATABASES = [
@@ -1532,6 +1533,87 @@
           if (!e || !e.id || entryIds[e.id]) return;
           out.entries.push(e);
           entryIds[e.id] = true;
+        });
+        return out;
+      },
+    },
+    "things-to-do": {
+      storageKey: "things-to-do-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("things-to-do-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.events)) return null;
+          return {
+            version: p.version || 1,
+            events: p.events,
+            overrides: p.overrides && typeof p.overrides === "object" ? p.overrides : {},
+            hiddenSeedIds: Array.isArray(p.hiddenSeedIds) ? p.hiddenSeedIds : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.events)) return false;
+        return writeKey(
+          "things-to-do-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            events: slice.events,
+            overrides: slice.overrides && typeof slice.overrides === "object" ? slice.overrides : {},
+            hiddenSeedIds: Array.isArray(slice.hiddenSeedIds) ? slice.hiddenSeedIds : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && Array.isArray(obj.events));
+      },
+      summarize: function (slice) {
+        var n = slice.events ? slice.events.length : 0;
+        var hidden = slice.hiddenSeedIds ? slice.hiddenSeedIds.length : 0;
+        return n + " event" + (n === 1 ? "" : "s") + (hidden ? ", " + hidden + " hidden" : "");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          events: (existing.events || []).slice(),
+          overrides: Object.assign({}, existing.overrides || {}),
+          hiddenSeedIds: (existing.hiddenSeedIds || []).slice(),
+        };
+        var ids = {};
+        out.events.forEach(function (event) {
+          if (event && event.id) ids[event.id] = event;
+        });
+        (incoming.events || []).forEach(function (event) {
+          if (!event || !event.id) return;
+          if (ids[event.id]) {
+            if (new Date(event.updatedAt || 0) > new Date(ids[event.id].updatedAt || 0)) {
+              Object.assign(ids[event.id], event);
+            }
+            return;
+          }
+          out.events.push(event);
+          ids[event.id] = event;
+        });
+        Object.keys(incoming.overrides || {}).forEach(function (id) {
+          var cur = out.overrides[id];
+          var next = incoming.overrides[id];
+          if (!next) return;
+          if (!cur || new Date(next.updatedAt || 0) > new Date(cur.updatedAt || 0)) {
+            out.overrides[id] = next;
+          }
+        });
+        var hidden = {};
+        out.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+        (incoming.hiddenSeedIds || []).forEach(function (id) {
+          if (!id || hidden[id]) return;
+          out.hiddenSeedIds.push(id);
+          hidden[id] = true;
         });
         return out;
       },

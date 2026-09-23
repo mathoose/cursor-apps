@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Things To Do</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Things To Do" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3d4f4a" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <!-- build: things-to-do-v1 -->
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Things To Do</h1>
+      <p id="headerSub">The file cabinet</p>
+    </div>
+    <button type="button" class="icon-btn" id="jumpWeekBtn" aria-label="Jump to this week">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="addBtn" aria-label="Add a thing">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <main class="main-panel">
+    <div class="search-wrap">
+      <label class="visually-hidden" for="searchInput">Search events</label>
+      <input type="search" id="searchInput" placeholder="Search the files…" autocomplete="off" enterkeyhint="search" />
+    </div>
+
+    <div class="cabinet" id="cabinet" aria-label="Filing cabinet"></div>
+    <div class="empty-state" id="emptyState" hidden>
+      <p>Nothing filed yet.<br />Tap <strong>+</strong> when you come across something.</p>
+    </div>
+  </main>
+
+  <div class="overlay" id="eventSheetOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet sheet-tall">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="eventSheetTitle">File a thing</h2>
+      <form id="eventForm" autocomplete="off">
+        <div class="field">
+          <label class="field-label" for="titleInput">What</label>
+          <input type="text" id="titleInput" maxlength="120" placeholder="South Street Fall Fest" required />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="startDateInput">Starts</label>
+            <input type="date" id="startDateInput" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="endDateInput">Ends</label>
+            <input type="date" id="endDateInput" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="field-label" for="startTimeInput">From</label>
+            <input type="time" id="startTimeInput" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="endTimeInput">To</label>
+            <input type="time" id="endTimeInput" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="hoursInput">Hours note <span class="optional">(optional)</span></label>
+          <input type="text" id="hoursInput" maxlength="160" placeholder="Sat 10am–5pm, Sun 10am–4pm" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="descInput">Small description</label>
+          <textarea id="descInput" rows="3" maxlength="500" placeholder="Free street fest. Rain or shine."></textarea>
+        </div>
+        <div class="field">
+          <label class="field-label" for="urlInput">Event homepage</label>
+          <input type="url" id="urlInput" placeholder="https://" inputmode="url" />
+        </div>
+        <div class="field">
+          <label class="field-label">Locations</label>
+          <div id="locationRows"></div>
+          <button type="button" class="btn btn-secondary btn-sm" id="addLocationBtn">+ Another location</button>
+        </div>
+        <div class="sheet-actions">
+          <button type="button" class="btn btn-danger" id="deleteEventBtn" hidden>Remove</button>
+          <button type="button" class="btn btn-secondary" id="eventSheetCancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="eventSheetSave">File it</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>Data</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">Your added and edited events stay on this phone. New seed events from app updates still appear.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
