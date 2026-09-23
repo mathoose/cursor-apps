@@ -548,8 +548,8 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   left: 0; right: 0; bottom: 0;
   z-index: 30;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
   padding: 8px 10px calc(8px + var(--safe-bottom));
   background: rgba(7, 20, 34, 0.94);
   border-top: 1px solid var(--line);
@@ -570,14 +570,51 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   font-weight: 700;
 }
 .nav-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.9;
   stroke-linejoin: round;
 }
 .nav-btn.active { background: rgba(245, 213, 110, 0.16); color: var(--gold); }
+
+.move-list { display: grid; gap: 10px; }
+.move-league { margin-bottom: 0; }
+.move-needs { margin: 8px 0 10px; font-size: 0.82rem; }
+.move-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.move-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(94, 234, 212, 0.12);
+  color: var(--mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.78rem;
+}
+.move-name { margin: 0; font-weight: 800; font-size: 0.9rem; }
+.move-sub { margin: 2px 0 0; font-size: 0.72rem; color: var(--muted); }
+.move-proj {
+  text-align: right;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.move-proj span {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--faint);
+}
 
 .overlay {
   position: fixed;

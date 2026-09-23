@@ -2,7 +2,7 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "8 · Sep 20, 2026";
+  var APP_VERSION = "9 · Sep 22, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
@@ -18,6 +18,25 @@
   };
   var ESPN_POS = { 1: "QB", 2: "RB", 3: "WR", 4: "TE", 5: "K", 16: "DEF" };
   var ESPN_BENCH = { 20: 1, 21: 1, 22: 1 };
+
+  /** Curated weekly adds (BDGE / consensus). Key: season-week */
+  var WAIVER_GUIDES = {
+    "2026-3": {
+      label: "Week 3 · BDGE injury fallout",
+      video: "https://youtu.be/2mJvnvcjBN8",
+      note: "Daniels, Williams, and Dart injuries opened the QB wire. Boston and Gadsden are the headline skill adds.",
+      picks: [
+        { tier: "bid", pos: "QB", names: ["Jared Goff", "Tyler Shough", "Bryce Young"], why: "Startable streamers with Daniels / Williams / Dart out" },
+        { tier: "bid", pos: "QB", names: ["Marcus Mariota"], why: "Commanders starter while Jayden Daniels is out" },
+        { tier: "bid", pos: "WR", names: ["Denzel Boston", "Tre Tucker", "Rashod Bateman"], why: "Full routes / short-term WR1 roles" },
+        { tier: "add", pos: "RB", names: ["Jonah Coleman", "Tank Bigsby", "Emanuel Wilson"], why: "Backfield injuries (Denver, Philly, Seattle)" },
+        { tier: "add", pos: "TE", names: ["Oronde Gadsden", "Dalton Schultz"], why: "Njoku / Kolar IR opens Chargers TE" },
+        { tier: "later", pos: "WR", names: ["Devaughn Vele", "Dontayvion Wicks", "Romeo Doubs"], why: "BDGE: fine adds, not must-bid" }
+      ]
+    }
+  };
+
+  var INJURY_NEED = { Out: 1, Doubtful: 1, IR: 1, PUP: 1, Susp: 1, Questionable: 2 };
 
   var state = defaultState();
   var nflState = { week: 1, season: "2026", display_week: 1 };
@@ -269,6 +288,165 @@
     return null;
   }
 
+  function waiverGuideKey(season, week) {
+    return String(season) + "-" + String(week);
+  }
+
+  function getWaiverGuide(season, week) {
+    return WAIVER_GUIDES[waiverGuideKey(season, week)] || null;
+  }
+
+  function findSleeperIdByName(name) {
+    if (!name || !sleeperPlayers) return null;
+    var want = normName(name);
+    var hit = null;
+    Object.keys(sleeperPlayers).some(function (id) {
+      var p = sleeperPlayers[id];
+      if (!p || !p.name) return false;
+      if (normName(p.name) === want) {
+        hit = String(id);
+        return true;
+      }
+      return false;
+    });
+    if (hit) return hit;
+    var parts = String(name).trim().split(/\s+/);
+    var last = parts.length ? parts[parts.length - 1] : "";
+    if (!last) return null;
+    Object.keys(sleeperPlayers).some(function (id) {
+      var p = sleeperPlayers[id];
+      if (!p || !p.name) return false;
+      if (normName(p.name).indexOf(normName(last)) >= 0 && normName(p.name).indexOf(normName(parts[0] || "")) >= 0) {
+        hit = String(id);
+        return true;
+      }
+      return false;
+    });
+    return hit;
+  }
+
+  function rosterNeedsFromStarters(starterIds) {
+    var needs = {};
+    (starterIds || []).forEach(function (id) {
+      if (!id || id === "0") return;
+      var meta = sleeperPlayers && sleeperPlayers[id];
+      if (!meta) return;
+      var pos = meta.pos || "";
+      var inj = meta.injury || meta.injury_status || "";
+      var level = INJURY_NEED[inj];
+      if (!level) return;
+      if (pos === "QB" && level >= 1) needs.QB = Math.max(needs.QB || 0, 3);
+      else if (pos === "QB" && level === 2) needs.QB = Math.max(needs.QB || 0, 2);
+      else if (level === 1) needs[pos] = Math.max(needs[pos] || 0, 2);
+      else if (level === 2) needs[pos] = Math.max(needs[pos] || 0, 1);
+    });
+    return needs;
+  }
+
+  function loadSleeperPotentialMoves(league, week, projMap, scoringSettings) {
+    var guide = getWaiverGuide(currentSeason(), week);
+    if (!guide) {
+      return Promise.resolve({
+        platform: "sleeper",
+        leagueId: league.id,
+        leagueName: league.name,
+        week: week,
+        teamName: league.teamName || "You",
+        guide: null,
+        needs: [],
+        adds: [],
+        taken: []
+      });
+    }
+    return Promise.all([
+      fetchJson(SLEEPER + "/league/" + league.id),
+      fetchJson(SLEEPER + "/league/" + league.id + "/rosters"),
+      fetchJson(SLEEPER + "/league/" + league.id + "/users"),
+      fetchJson(SLEEPER + "/players/nfl/trending/add?lookback_hours=72&limit=40")
+    ]).then(function (parts) {
+      var scoringSettings = parts[0].data && parts[0].data.scoring_settings;
+      var rosters = Array.isArray(parts[1].data) ? parts[1].data : [];
+      var users = Array.isArray(parts[2].data) ? parts[2].data : [];
+      var trending = Array.isArray(parts[3].data) ? parts[3].data : [];
+      var trendSet = {};
+      trending.forEach(function (row) { if (row && row.player_id) trendSet[String(row.player_id)] = true; });
+
+      var userById = {};
+      users.forEach(function (u) { userById[String(u.user_id)] = u; });
+
+      var rostered = {};
+      var myRoster = null;
+      rosters.forEach(function (r) {
+        (r.players || []).forEach(function (id) { rostered[String(id)] = true; });
+        if (league.rosterId != null && Number(r.roster_id) === Number(league.rosterId)) myRoster = r;
+        else if (myRoster == null && state.sleeper.userId) {
+          var owner = String(r.owner_id || "");
+          var cos = (r.co_owners || []).map(String);
+          if (owner === state.sleeper.userId || cos.indexOf(state.sleeper.userId) >= 0) myRoster = r;
+        }
+      });
+      if (!myRoster) throw new Error("Could not find your roster in " + league.name);
+
+      var meUser = userById[String(myRoster.owner_id)] || {};
+      league.teamName = (meUser.metadata && meUser.metadata.team_name) || meUser.display_name || league.teamName || "You";
+
+      var starterIds = (myRoster.starters || []).filter(function (id) { return id && id !== "0"; });
+      var needsMap = rosterNeedsFromStarters(starterIds);
+      var needsList = Object.keys(needsMap).map(function (pos) {
+        return { pos: pos, urgency: needsMap[pos] };
+      }).sort(function (a, b) { return b.urgency - a.urgency; });
+
+      var adds = [];
+      var taken = [];
+      (guide.picks || []).forEach(function (group) {
+        (group.names || []).forEach(function (name) {
+          var id = findSleeperIdByName(name);
+          if (!id) return;
+          var p = sleeperPlayer(id);
+          if (!p) return;
+          var stats = projMap && projMap[id];
+          var proj = sleeperProjPts(stats, scoringSettings);
+          var row = {
+            id: id,
+            name: p.name,
+            pos: p.pos,
+            team: p.team,
+            projected: proj,
+            tier: group.tier,
+            why: group.why,
+            posGroup: group.pos,
+            trending: !!trendSet[id],
+            available: !rostered[id]
+          };
+          if (rostered[id]) taken.push(row);
+          else adds.push(row);
+        });
+      });
+
+      function scoreAdd(a) {
+        var needBoost = (needsMap[a.pos] || 0) * 10;
+        if (a.pos === "QB" && needsMap.QB) needBoost += 15;
+        var tierBoost = a.tier === "bid" ? 8 : a.tier === "add" ? 4 : 0;
+        var trendBoost = a.trending ? 2 : 0;
+        return needBoost + tierBoost + trendBoost + (a.projected || 0);
+      }
+      adds.sort(function (a, b) { return scoreAdd(b) - scoreAdd(a); });
+      taken.sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+
+      return {
+        platform: "sleeper",
+        leagueId: league.id,
+        leagueName: league.name,
+        week: week,
+        teamName: league.teamName || "You",
+        guide: guide,
+        needs: needsList,
+        adds: adds.slice(0, 12),
+        taken: taken.slice(0, 8)
+      };
+    });
+  }
+
   function loadSleeperProjections(season, week) {
     var key = String(season) + "-" + String(week);
     if (sleeperProjCache.key === key && sleeperProjCache.map) return Promise.resolve(sleeperProjCache.map);
@@ -449,7 +627,8 @@
       out[id] = {
         name: p.full_name || [p.first_name, p.last_name].filter(Boolean).join(" ") || id,
         pos: p.position || "",
-        team: p.team || ""
+        team: p.team || "",
+        injury: p.injury_status || ""
       };
     });
     return out;
@@ -1192,6 +1371,8 @@
       };
     }
 
+    var guide = getWaiverGuide(currentSeason(), week) || WAIVER_GUIDES["2026-3"];
+
     return {
       week: week,
       season: currentSeason(),
@@ -1218,6 +1399,24 @@
         }),
         decorateMatchup({ platform: "sleeper", leagueId: "demo-work", leagueName: "Work League", week: week, mine: side("Mathoose", l2Mine, l2MineBench), opp: side("Waiver Wire FC", l2Opp, l2OppBench) }),
         decorateMatchup({ platform: "espn", leagueId: "demo-keep", leagueName: "Thursday Keepers", week: week, mine: side("Keep the Receipts", l3Mine, l3MineBench), opp: side("Sunday Scaries", l3Opp, l3OppBench) })
+      ],
+      potentialMoves: [
+        {
+          platform: "sleeper",
+          leagueId: "demo-beta",
+          leagueName: "Beta League",
+          week: week,
+          teamName: "Mathoose",
+          guide: guide,
+          needs: [{ pos: "QB", urgency: 3 }],
+          adds: [
+            { name: "Jared Goff", pos: "QB", team: "DET", projected: 18.0, tier: "bid", why: "Startable streamer while Daniels is out", trending: true, available: true },
+            { name: "Tyler Shough", pos: "QB", team: "NO", projected: 17.4, tier: "bid", why: "Saints starter with upside", trending: true, available: true },
+            { name: "Marcus Mariota", pos: "QB", team: "WAS", projected: 12.6, tier: "bid", why: "Commanders starter while Daniels is out", trending: false, available: true },
+            { name: "Denzel Boston", pos: "WR", team: "CLE", projected: 9.3, tier: "bid", why: "Full route share in Cleveland", trending: true, available: true }
+          ],
+          taken: [{ name: "Bryce Young", pos: "QB", team: "CAR", projected: 16.2, tier: "bid", why: "Startable streamer", trending: false, available: false }]
+        }
       ]
     };
   }
@@ -1348,7 +1547,23 @@
             return { ok: false, error: league.error, league: league.name, platform: "espn" };
           }));
         });
-        return Promise.all(jobs).then(function (rows) {
+        var moveJobs = [];
+        enabledSleeper().forEach(function (league) {
+          moveJobs.push(loadSleeperPotentialMoves(league, week, projMap, null).catch(function (err) {
+            return {
+              platform: "sleeper",
+              leagueId: league.id,
+              leagueName: league.name,
+              week: week,
+              error: err.message || "Moves failed",
+              adds: [],
+              needs: []
+            };
+          }));
+        });
+        return Promise.all([Promise.all(jobs), Promise.all(moveJobs)]).then(function (both) {
+          var rows = both[0];
+          var moves = both[1] || [];
           var matchups = [];
           var errors = [];
           rows.forEach(function (row) {
@@ -1361,7 +1576,8 @@
             demo: false,
             generatedAt: new Date().toISOString(),
             errors: errors,
-            matchups: matchups
+            matchups: matchups,
+            potentialMoves: moves
           };
           state.lastSync = state.snapshot.generatedAt;
           persist();
@@ -1591,6 +1807,68 @@
       benchBlock + "</div>";
   }
 
+  function renderMoves() {
+    var snap = snapshot();
+    var box = el("movesList");
+    var empty = el("movesEmpty");
+    var intro = el("movesIntro");
+    var moves = snap.potentialMoves || [];
+    if (!hasAccounts() || (!moves.length && !snap.demo)) {
+      empty.hidden = false;
+      box.innerHTML = "";
+      return;
+    }
+    empty.hidden = true;
+    var guide = getWaiverGuide(snap.season || currentSeason(), snap.week || currentWeek());
+    if (guide) {
+      intro.textContent = guide.label + ". Targets marked free in each league — refresh after waivers run.";
+    } else {
+      intro.textContent = "No curated guide for this week yet. Refresh pulls free agents and trending adds when a guide exists.";
+    }
+    box.innerHTML = moves.map(function (block) {
+      if (block.error) {
+        return '<div class="error-card">' + escapeHtml(block.leagueName + ": " + block.error) + "</div>";
+      }
+      var needHtml = (block.needs || []).length
+        ? '<p class="move-needs"><span class="eyebrow warn">Needs</span> ' +
+          escapeHtml(block.needs.map(function (n) { return n.pos + (n.urgency >= 3 ? " (urgent)" : ""); }).join(", ")) +
+          "</p>"
+        : '<p class="move-needs muted">No flagged starter injuries — adds are upside only.</p>';
+      var addRows = (block.adds || []).map(function (a, i) {
+        var tags = [];
+        if (a.tier === "bid") tags.push("priority bid");
+        if (a.trending) tags.push("trending");
+        return (
+          '<article class="move-row">' +
+            '<div class="move-rank">' + (i + 1) + "</div>" +
+            "<div>" +
+              '<p class="move-name">' + escapeHtml(a.name) + "</p>" +
+              '<p class="move-sub">' + escapeHtml((a.pos || "") + (a.team ? " · " + a.team : "") + " · " + (a.why || "")) +
+                (tags.length ? " · " + tags.join(", ") : "") + "</p>" +
+            "</div>" +
+            '<div class="move-proj">' + (a.projected != null ? fmtPts(a.projected) : "—") +
+              "<span>proj wk " + escapeHtml(String(block.week || "")) + "</span></div>" +
+          "</article>"
+        );
+      }).join("");
+      var taken = (block.taken || []).slice(0, 4).map(function (t) {
+        return escapeHtml(t.name) + (t.pos ? " (" + t.pos + ")" : "");
+      }).join(", ");
+      return (
+        '<div class="card move-league">' +
+          '<div class="score-top">' +
+            '<h3 class="league-name">' + escapeHtml(block.leagueName || "League") + "</h3>" +
+            '<span class="platform sleeper">Sleeper</span>' +
+          "</div>" +
+          '<p class="muted tight">' + escapeHtml(block.teamName || "Your team") + "</p>" +
+          needHtml +
+          (addRows || '<p class="muted">No listed targets are free in this league.</p>') +
+          (taken ? '<p class="hint">Already rostered here: ' + taken + "</p>" : "") +
+        "</div>"
+      );
+    }).join("");
+  }
+
   function renderRoots() {
     var snap = snapshot();
     var empty = el("rootsEmpty");
@@ -1762,6 +2040,7 @@
     renderHeader();
     renderScores();
     renderRoots();
+    renderMoves();
     renderAccounts();
     stampVersion();
   }
