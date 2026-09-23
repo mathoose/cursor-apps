@@ -267,21 +267,20 @@
   function groupCabinet(events) {
     var months = {};
     events.forEach(function (event) {
-      var monthSeen = {};
-      var weekSeen = {};
+      var seen = {};
       eachDate(event.startDate, event.endDate, function (date) {
         var mk = monthKey(date);
         var wk = weekKey(date);
-        if (!months[mk]) months[mk] = { key: mk, date: new Date(date.getFullYear(), date.getMonth(), 1), weeks: {} };
-        if (!monthSeen[mk]) {
-          monthSeen[mk] = true;
-          months[mk].count = (months[mk].count || 0) + 1;
+        var key = mk + "|" + wk;
+        if (seen[key]) return;
+        seen[key] = true;
+        if (!months[mk]) months[mk] = { key: mk, date: new Date(date.getFullYear(), date.getMonth(), 1), weeks: {}, count: 0 };
+        if (!seen[mk]) {
+          seen[mk] = true;
+          months[mk].count += 1;
         }
-        if (!months[mk].weeks[wk]) months[mk].weeks[wk] = { key: wk, events: [], ids: {} };
-        if (!weekSeen[wk]) {
-          weekSeen[wk] = true;
-          months[mk].weeks[wk].events.push(event);
-        }
+        if (!months[mk].weeks[wk]) months[mk].weeks[wk] = { key: wk, events: [] };
+        months[mk].weeks[wk].events.push(event);
       });
     });
     return Object.keys(months).sort().map(function (mk) {
@@ -322,7 +321,7 @@
     els.headerSub.textContent = events.length ? events.length + " filed things" : "The file cabinet";
     els.emptyState.hidden = months.length > 0;
     els.cabinet.hidden = months.length === 0;
-    els.cabinet.innerHTML = months.map(renderMonth).join("");
+    els.cabinet.innerHTML = '<div class="cabinet-lid"><strong>File cabinet</strong><span>' + events.length + " files</span></div>" + months.map(renderMonth).join("");
   }
 
   function renderMonth(month) {
@@ -481,6 +480,10 @@
     } else {
       var created = normalizeEvent(Object.assign({}, payload, { id: uid(), source: "user", createdAt: nowIso() }), "user");
       state.events.push(created);
+      searchQuery = "";
+      if (els.searchInput) els.searchInput.value = "";
+      openMonths = {};
+      openWeeks = {};
       openMonths[created.startDate.slice(0, 7)] = true;
       var start = parseDate(created.startDate);
       if (start) openWeeks[weekKey(start)] = true;
@@ -609,7 +612,7 @@
   }
 
   function loadSeed() {
-    return fetch("events.json?v=1")
+    return fetch("events.json?v=2")
       .then(function (res) { return res.ok ? res.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
