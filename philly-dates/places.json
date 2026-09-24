@@ -9336,5 +9336,71 @@
     "hoursNote": "Kitchen Mon\u2013Fri 5\u201310 \u00b7 Sat 3\u201310 (Instagram); HH Mon\u2013Fri 5\u20136 PDF",
     "lat": 39.941739,
     "lng": -75.154209
+  },
+  {
+    "name": "Harper's Garden",
+    "address": "31 S 18th St, Philadelphia, PA 19103",
+    "neighborhood": "Rittenhouse",
+    "description": "Happy hour is bar seating only\n* Contemporary Italian bar + restaurant with open-air garden patio off Rittenhouse\n* Bubbles & Frites: bottle of bubbly + endless crispy frites with chef-curated dipping sauces (price unconfirmed on the official site)\n* https://www.instagram.com/reel/DdovxsypqkQ/\n* Deals (Mon\u2013Fri 4 PM\u20136 PM): Main-bar only weekdays; HH drink/food prices unconfirmed on the official site.",
+    "social": "https://www.instagram.com/reel/DdovxsypqkQ/",
+    "hh_menu": "https://www.harpersgardenphilly.com/menus",
+    "instagram": "https://www.instagram.com/harpersgarden215/",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "2:30 PM"
+      },
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "googlePlaceId": "ChIJ9f8_GjTGxokRajjkD00E80Y",
+    "hoursNote": "Mon\u2013Fri 11:30 AM\u201312 AM \u00b7 Sat 10 AM\u201312 AM \u00b7 Sun 10 AM\u20132:30 PM (kitchen closes 10 PM Mon\u2013Sat; bar til midnight)",
+    "lat": 39.9523,
+    "lng": -75.1698
   }
 ]
