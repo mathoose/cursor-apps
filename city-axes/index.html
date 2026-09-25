@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<!-- build: city-axes-v1 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>City Axes</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="City Axes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#14532d" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="topbar">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="topbar-titles">
+      <h1>City Axes</h1>
+      <p class="sub">City Hall is (0, 0) · Market is x · Broad is y</p>
+    </div>
+  </header>
+
+  <main>
+    <div id="map" class="map" role="application" aria-label="Philadelphia grid from City Hall"></div>
+    <div class="legend" aria-hidden="true">
+      <span><i class="swatch market"></i>x Market</span>
+      <span><i class="swatch broad"></i>y Broad</span>
+    </div>
+    <button type="button" class="here-btn" id="hereBtn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span id="hereBtnLabel">Where am I</span>
+    </button>
+
+    <section class="sheet" id="sheet" aria-label="Grid shift">
+      <div class="mode" role="tablist" aria-label="Which point the map sets">
+        <button type="button" class="mode-btn on" id="modeStart" role="tab" aria-selected="true">Start</button>
+        <button type="button" class="mode-btn" id="modeEnd" role="tab" aria-selected="false">End</button>
+        <button type="button" class="swap-btn" id="swapBtn">Swap</button>
+      </div>
+
+      <div class="point-list">
+        <div class="point on" id="startPoint">
+          <button type="button" class="point-body" id="startBody"></button>
+          <button type="button" class="point-clear" id="startClear" hidden>Clear</button>
+        </div>
+        <div class="point" id="endPoint">
+          <button type="button" class="point-body" id="endBody"></button>
+          <button type="button" class="point-clear" id="endClear" hidden>Clear</button>
+        </div>
+      </div>
+
+      <div class="change" id="change" hidden>
+        <div class="deltas">
+          <div class="delta market">
+            <p class="delta-k">Δx</p>
+            <p class="delta-n" id="dxN">0</p>
+            <p class="delta-w" id="dxW">on Market</p>
+          </div>
+          <div class="delta broad">
+            <p class="delta-k">Δy</p>
+            <p class="delta-n" id="dyN">0</p>
+            <p class="delta-w" id="dyW">on Broad</p>
+          </div>
+        </div>
+        <p class="dirs" id="dirLine"></p>
+        <p class="meta" id="metaLine"></p>
+        <div class="order" role="group" aria-label="Order of the two shifts">
+          <button type="button" class="chip on" id="orderX">Market first</button>
+          <button type="button" class="chip" id="orderY">Broad first</button>
+        </div>
+      </div>
+
+      <label class="search-label" for="searchInput">Search a place</label>
+      <input type="search" id="searchInput" placeholder="Cafes, dates, landmarks" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <div class="results" id="results" hidden></div>
+
+      <div class="layers" role="group" aria-label="Pins from other maps">
+        <button type="button" class="chip on" id="layerLandmarks" aria-pressed="true">Landmarks</button>
+        <button type="button" class="chip" id="layerCafes" aria-pressed="false">Cafes</button>
+        <button type="button" class="chip" id="layerDates" aria-pressed="false">Dates</button>
+      </div>
+      <p class="hint" id="loadHint">Landmarks are on the map. Cafes and dates load from the other apps.</p>
+      <p class="hint">One block is a Center City block, about 450 ft, measured along Market and along Broad.</p>
+      <p class="sr-only" id="live" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
