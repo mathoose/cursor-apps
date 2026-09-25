@@ -60,6 +60,7 @@
   var slotTouched = { start: false, end: false };
   var map = null;
   var axisLayer = null;
+  var tickLayer = null;
   var routeLayer = null;
   var pinGroups = {};
   var ignoreMapClickUntil = 0;
@@ -367,6 +368,7 @@
       document.getElementById("dirLine").textContent = d.sentence;
       document.getElementById("metaLine").textContent = d.meta;
       change.hidden = false;
+      if (sheet) sheet.scrollTop = 0;
     } else {
       change.hidden = true;
     }
@@ -427,11 +429,11 @@
       interactive: false
     }).addTo(axisLayer);
 
-    L.marker(fromXY(7 * BLOCK_M, 1.6 * BLOCK_M), {
+    L.marker(fromXY(15 * BLOCK_M, 2.4 * BLOCK_M), {
       interactive: false,
       icon: markerIcon("axis-tag market", "<span>x Market</span>")
     }).addTo(axisLayer);
-    L.marker(fromXY(1.8 * BLOCK_M, 7 * BLOCK_M), {
+    L.marker(fromXY(2.6 * BLOCK_M, 15 * BLOCK_M), {
       interactive: false,
       icon: markerIcon("axis-tag broad", "<span>y Broad</span>")
     }).addTo(axisLayer);
@@ -461,8 +463,15 @@
       }).addTo(axisLayer);
     }
 
+    drawTicks();
+  }
+
+  function drawTicks() {
+    if (!tickLayer || !map) return;
+    tickLayer.clearLayers();
+    var step = map.getZoom() >= 15 ? 10 : 20;
     var b;
-    for (b = -80; b <= 80; b += 10) {
+    for (b = -80; b <= 80; b += step) {
       if (b === 0) continue;
       addTick(b, 0, "x");
       addTick(0, b, "y");
@@ -483,7 +492,7 @@
         iconSize: [36, 16],
         iconAnchor: anchor
       })
-    }).addTo(axisLayer);
+    }).addTo(tickLayer);
   }
 
   function endpointMarker(point, fill) {
@@ -507,14 +516,10 @@
       var A = [state.start.lat, state.start.lng];
       var C = [corner.lat, corner.lng];
       var B = [state.end.lat, state.end.lng];
-      var xColor = "#15803d";
-      var yColor = "#1d4ed8";
-      var firstColor = state.xFirst ? xColor : yColor;
-      var secondColor = state.xFirst ? yColor : xColor;
-      L.polyline([A, C], { color: "#ffffff", weight: 8, opacity: 0.95, interactive: false }).addTo(routeLayer);
-      L.polyline([C, B], { color: "#ffffff", weight: 8, opacity: 0.95, interactive: false }).addTo(routeLayer);
-      L.polyline([A, C], { color: firstColor, weight: 4, opacity: 1, interactive: false }).addTo(routeLayer);
-      L.polyline([C, B], { color: secondColor, weight: 4, opacity: 1, interactive: false }).addTo(routeLayer);
+      L.polyline([A, C], { color: "#ffffff", weight: 10, opacity: 0.95, interactive: false }).addTo(routeLayer);
+      L.polyline([C, B], { color: "#ffffff", weight: 10, opacity: 0.95, interactive: false }).addTo(routeLayer);
+      L.polyline([A, C], { color: "#c2410c", weight: 5, opacity: 1, interactive: false }).addTo(routeLayer);
+      L.polyline([C, B], { color: "#c2410c", weight: 5, opacity: 1, interactive: false }).addTo(routeLayer);
       L.circleMarker(C, {
         radius: 5,
         color: "#ffffff",
@@ -709,7 +714,9 @@
     PhillyWalkMap.bindZoomLabels(map);
     PhillyWalkMap.fit(map, [28, 28]);
     axisLayer = L.layerGroup().addTo(map);
+    tickLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
+    map.on("zoomend", drawTicks);
     pinGroups.landmark = L.layerGroup().addTo(map);
     pinGroups.cafe = L.layerGroup().addTo(map);
     pinGroups.date = L.layerGroup().addTo(map);

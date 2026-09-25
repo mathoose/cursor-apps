@@ -205,7 +205,8 @@ main { position: relative; height: 100dvh; }
   min-height: var(--tap);
 }
 .point-k {
-  display: block;
+  display: inline;
+  margin-right: 6px;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -213,8 +214,8 @@ main { position: relative; height: 100dvh; }
   color: var(--muted);
 }
 .point-name {
-  display: block;
-  font-size: 0.98rem;
+  display: inline;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
@@ -241,9 +242,7 @@ main { position: relative; height: 100dvh; }
 }
 
 .change {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
+  margin-bottom: 8px;
 }
 .deltas {
   display: grid;

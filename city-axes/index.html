@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v1 -->
+<!-- build: city-axes-v2 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="topbar">
@@ -46,17 +46,6 @@
         <button type="button" class="swap-btn" id="swapBtn">Swap</button>
       </div>
 
-      <div class="point-list">
-        <div class="point on" id="startPoint">
-          <button type="button" class="point-body" id="startBody"></button>
-          <button type="button" class="point-clear" id="startClear" hidden>Clear</button>
-        </div>
-        <div class="point" id="endPoint">
-          <button type="button" class="point-body" id="endBody"></button>
-          <button type="button" class="point-clear" id="endClear" hidden>Clear</button>
-        </div>
-      </div>
-
       <div class="change" id="change" hidden>
         <div class="deltas">
           <div class="delta market">
@@ -75,6 +64,17 @@
         <div class="order" role="group" aria-label="Order of the two shifts">
           <button type="button" class="chip on" id="orderX">Market first</button>
           <button type="button" class="chip" id="orderY">Broad first</button>
+        </div>
+      </div>
+
+      <div class="point-list">
+        <div class="point on" id="startPoint">
+          <button type="button" class="point-body" id="startBody"></button>
+          <button type="button" class="point-clear" id="startClear" hidden>Clear</button>
+        </div>
+        <div class="point" id="endPoint">
+          <button type="button" class="point-body" id="endBody"></button>
+          <button type="button" class="point-clear" id="endClear" hidden>Clear</button>
         </div>
       </div>
 
@@ -100,6 +100,6 @@
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
