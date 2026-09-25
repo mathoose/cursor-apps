@@ -34,6 +34,7 @@
     "index-card-planner": "Card Box",
     "fantasy-hub": "Fantasy Hub",
     "coffee-map": "Coffee Map",
+    "city-axes": "City Axes",
     "done-today": "Done Today",
     "things-to-do": "Things To Do",
   };
@@ -1616,6 +1617,76 @@
           hidden[id] = true;
         });
         return out;
+      },
+    },
+    "city-axes": {
+      storageKey: "city-axes-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("city-axes-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object") return null;
+          if (!p.start && !p.end && p.xFirst !== false && !(p.layers && (p.layers.cafes || p.layers.dates || p.layers.landmarks === false))) {
+            return null;
+          }
+          return {
+            version: 1,
+            xFirst: p.xFirst !== false,
+            start: p.start || null,
+            end: p.end || null,
+            layers: {
+              landmarks: !p.layers || p.layers.landmarks !== false,
+              cafes: !!(p.layers && p.layers.cafes),
+              dates: !!(p.layers && p.layers.dates),
+            },
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice !== "object") return false;
+        return writeKey(
+          "city-axes-v1",
+          JSON.stringify({
+            version: 1,
+            xFirst: slice.xFirst !== false,
+            start: slice.start || null,
+            end: slice.end || null,
+            layers: {
+              landmarks: !slice.layers || slice.layers.landmarks !== false,
+              cafes: !!(slice.layers && slice.layers.cafes),
+              dates: !!(slice.layers && slice.layers.dates),
+            },
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && obj.version === 1 && !Array.isArray(obj.places) && !Array.isArray(obj.events) && (obj.start || obj.end || typeof obj.xFirst === "boolean"));
+      },
+      summarize: function (slice) {
+        var bits = [];
+        if (slice.start) bits.push("start");
+        if (slice.end) bits.push("end");
+        if (!bits.length) return "Axis preference saved";
+        return "Saved " + bits.join(" and ");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        return {
+          version: 1,
+          xFirst: typeof incoming.xFirst === "boolean" ? incoming.xFirst : existing.xFirst !== false,
+          start: incoming.start || existing.start || null,
+          end: incoming.end || existing.end || null,
+          layers: {
+            landmarks: incoming.layers ? incoming.layers.landmarks !== false : existing.layers ? existing.layers.landmarks !== false : true,
+            cafes: incoming.layers ? !!incoming.layers.cafes : !!(existing.layers && existing.layers.cafes),
+            dates: incoming.layers ? !!incoming.layers.dates : !!(existing.layers && existing.layers.dates),
+          },
+        };
       },
     },
   };

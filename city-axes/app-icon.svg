@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="City Axes icon">
+  <rect width="180" height="180" rx="42" fill="#14532d"/>
+  <rect x="16" y="16" width="148" height="148" rx="32" fill="#166534"/>
+  <line x1="30" y1="80.5" x2="150" y2="99.5" stroke="#4ade80" stroke-width="14" stroke-linecap="round"/>
+  <line x1="80.6" y1="149.3" x2="99.4" y2="30.7" stroke="#93c5fd" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="90" cy="90" r="16" fill="#f8fafc"/>
+  <circle cx="90" cy="90" r="6" fill="#14532d"/>
+</svg>
