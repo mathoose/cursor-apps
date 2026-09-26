@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v8 -->
+<!-- build: city-axes-v9 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="vendor/leaflet.css?v=8" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 <body class="sheet-collapsed">
   <header class="topbar">
@@ -30,9 +30,10 @@
 
   <main>
     <div id="map" class="map" role="application" aria-label="Philadelphia grid from City Hall"></div>
-    <div class="legend" aria-hidden="true">
+    <div class="legend">
       <span><i class="swatch market"></i>x Market</span>
       <span><i class="swatch broad"></i>y Broad</span>
+      <button type="button" class="map-style-btn" id="mapStyleBtn" aria-pressed="false">Poster map</button>
     </div>
     <button type="button" class="here-btn" id="hereBtn">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
@@ -111,6 +112,6 @@
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
   <script src="philly-hoods.js?v=2"></script>
   <script src="export-share.js?v=5"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
