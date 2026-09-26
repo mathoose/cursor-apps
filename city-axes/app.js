@@ -330,6 +330,22 @@
     });
   }
 
+  function syncMapView(animate) {
+    if (!map) return;
+    map.invalidateSize(true);
+    drawAxes();
+    if (state.start && state.end) frameRoute();
+    else if (state.start || state.end) frameRoute();
+    else fitRegion(animate !== false);
+  }
+
+  function scheduleMapRefresh() {
+    if (!map) return;
+    syncMapView(false);
+    setTimeout(function () { syncMapView(false); }, 80);
+    setTimeout(function () { syncMapView(false); }, 350);
+  }
+
   function setSheetCollapsed(collapsed) {
     document.body.classList.toggle("sheet-collapsed", collapsed);
     var btn = document.getElementById("sheetToggle");
@@ -340,8 +356,7 @@
     syncSheetHeight();
     if (map) {
       requestAnimationFrame(function () {
-        if (state.start && state.end) frameRoute();
-        else fitRegion(false);
+        scheduleMapRefresh();
       });
     }
   }
@@ -715,6 +730,7 @@
     if (typeof PhillyHoods === "undefined" || !PhillyHoods.getLoaded()) return;
     var geo = PhillyHoods.getLoaded();
     var z = map ? map.getZoom() : 13;
+    try {
     L.geoJSON(geo, {
       interactive: false,
       style: function (feat) {
@@ -743,6 +759,9 @@
         }).addTo(neighborhoodLayer);
       }
     }).addTo(neighborhoodLayer);
+    } catch (err) {
+      console.warn("City Axes: neighborhood layer skipped", err);
+    }
   }
 
   function endpointMarker(point, fill) {
@@ -975,7 +994,11 @@
     drawNeighborhoods();
     map.on("zoomend", function () {
       drawTicks();
+      drawNeighborhoods();
       if (state.layers.landmarks) drawPinGroup("landmark");
+    });
+    map.whenReady(function () {
+      scheduleMapRefresh();
     });
     if (map.zoomControl && map.zoomControl.setPosition) {
       map.zoomControl.setPosition("topright");
@@ -1098,20 +1121,26 @@
       return;
     }
     buildMap();
-    drawAxes();
     bindUi();
     mountExportShare();
     if (typeof PhillyHoods !== "undefined") {
       PhillyHoods.load().then(function () {
         drawNeighborhoods();
+        scheduleMapRefresh();
       });
     }
     loadCatalog();
     renderSheet();
     syncSheetHeight();
-    if (state.start && state.end) renderRoute(true);
-    else if (state.start || state.end) frameRoute();
-    else fitRegion(false);
+    renderRoute(false);
+    scheduleMapRefresh();
+    window.addEventListener("load", scheduleMapRefresh);
+    window.addEventListener("orientationchange", function () {
+      setTimeout(scheduleMapRefresh, 200);
+    });
+    window.addEventListener("pageshow", function (ev) {
+      if (ev.persisted) scheduleMapRefresh();
+    });
     if (/exportSamples=1/.test(location.search)) runExportSamples();
   }
 
