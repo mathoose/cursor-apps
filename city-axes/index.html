@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v9 -->
+<!-- build: city-axes-v10 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,9 +15,9 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="vendor/leaflet.css?v=8" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
-<body class="sheet-collapsed">
+<body class="sheet-compact">
   <header class="topbar">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -49,6 +49,7 @@
           <button type="button" class="swap-btn" id="swapBtn">Swap</button>
           <button type="button" class="clear-all-btn" id="clearAllBtn">Clear</button>
         </div>
+        <button type="button" class="export-toolbar-btn" id="exportCardBtn" hidden>Share image</button>
         <button type="button" class="sheet-toggle" id="sheetToggle" aria-expanded="false">Show panel</button>
       </div>
 
@@ -70,7 +71,6 @@
         <div class="order" role="group" aria-label="Order of the two shifts">
           <button type="button" class="chip on" id="orderX">East–west first</button>
           <button type="button" class="chip" id="orderY">North–south first</button>
-          <button type="button" class="chip export-btn" id="exportCardBtn" hidden>Share image</button>
         </div>
         <p class="transform-line" id="transformLine" hidden></p>
       </div>
@@ -101,6 +101,10 @@
       </div>
       <p class="sr-only" id="live" aria-live="polite"></p>
     </section>
+    <div class="sheet-hidden-bar" id="sheetHiddenBar" hidden>
+      <button type="button" class="export-toolbar-btn" id="exportHiddenBtn" hidden>Share image</button>
+      <button type="button" class="sheet-reveal" id="sheetReveal">Show panel</button>
+    </div>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -112,6 +116,6 @@
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
   <script src="philly-hoods.js?v=2"></script>
   <script src="export-share.js?v=5"></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>
