@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v4 -->
+<!-- build: city-axes-v6 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body class="sheet-collapsed">
   <header class="topbar">
@@ -69,7 +69,9 @@
         <div class="order" role="group" aria-label="Order of the two shifts">
           <button type="button" class="chip on" id="orderX">East–west first</button>
           <button type="button" class="chip" id="orderY">North–south first</button>
+          <button type="button" class="chip export-btn" id="exportCardBtn" hidden>Share image</button>
         </div>
+        <p class="transform-line" id="transformLine" hidden></p>
       </div>
 
       <div class="sheet-details" id="sheetDetails">
@@ -107,6 +109,8 @@
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=4"></script>
+  <script src="philly-hoods.js?v=2"></script>
+  <script src="export-share.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
