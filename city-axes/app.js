@@ -74,6 +74,7 @@
     start: null,
     end: null,
     locating: false,
+    mapStyle: "streets",
     layers: { landmarks: true, cafes: false, dates: false },
     query: ""
   };
@@ -90,7 +91,12 @@
   var axisLayer = null;
   var tickLayer = null;
   var neighborhoodLayer = null;
+  var waterLayer = null;
+  var hoodGeoLayer = null;
   var routeLayer = null;
+  var basemapStyleKey = "";
+  var mapRefreshTimer = null;
+  var hoodCanvasRenderer = null;
 
   var MAP_TILE_URLS = [
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -224,13 +230,15 @@
     var start = persistable(state.start);
     var end = persistable(state.end);
     var layersDefault = state.layers.landmarks && !state.layers.cafes && !state.layers.dates;
-    if (!start && !end && state.xFirst && layersDefault) {
+    var styleDefault = state.mapStyle === "streets";
+    if (!start && !end && state.xFirst && layersDefault && styleDefault) {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
       return;
     }
     var payload = {
       version: 1,
       xFirst: !!state.xFirst,
+      mapStyle: state.mapStyle === "poster" ? "poster" : "streets",
       start: start,
       end: end,
       layers: {
@@ -385,8 +393,11 @@
     tileLayer.addTo(map);
   }
 
-  function drawVectorBasemap() {
+  function drawVectorBasemap(force) {
     if (!basemapLayer || !map) return;
+    var key = state.mapStyle;
+    if (!force && key === basemapStyleKey) return;
+    basemapStyleKey = key;
     basemapLayer.clearLayers();
     if (typeof PhillyWalkMap === "undefined") return;
     var b = PhillyWalkMap.bounds;
@@ -396,18 +407,21 @@
       [b.north, b.east],
       [b.north, b.west]
     ];
+    var poster = state.mapStyle === "poster";
     L.polygon(region, {
-      color: "rgba(255,255,255,0.55)",
-      weight: 1,
-      fillColor: "#e8f0eb",
+      color: poster ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.55)",
+      weight: poster ? 2 : 1,
+      fillColor: poster ? "#e8b84a" : "#e8f0eb",
       fillOpacity: 1,
       interactive: false,
       pane: "vectorBasemapPane"
     }).addTo(basemapLayer);
 
+    if (poster) return;
+
     var renderer = L.canvas({ padding: 0.5 });
     var gridStyle = {
-      color: "rgba(20, 36, 27, 0.13)",
+      color: "rgba(20, 36, 27, 0.11)",
       weight: 1,
       opacity: 1,
       interactive: false,
@@ -415,7 +429,7 @@
       pane: "vectorBasemapPane"
     };
     var block;
-    for (block = -55; block <= 55; block++) {
+    for (block = -55; block <= 55; block += 5) {
       var xM = block * BLOCK_M;
       var a = fromXY(xM, -55 * BLOCK_M);
       var c = fromXY(xM, 55 * BLOCK_M);
@@ -431,8 +445,6 @@
     if (!map) return;
     map.invalidateSize(true);
     ensureMapView();
-    drawVectorBasemap();
-    drawAxes();
     if (state.start && state.end) frameRoute();
     else if (state.start || state.end) frameRoute();
     else fitRegion(animate !== false);
@@ -441,9 +453,52 @@
 
   function scheduleMapRefresh() {
     if (!map) return;
-    syncMapView(false);
-    setTimeout(function () { syncMapView(false); }, 80);
-    setTimeout(function () { syncMapView(false); }, 350);
+    if (mapRefreshTimer) clearTimeout(mapRefreshTimer);
+    mapRefreshTimer = setTimeout(function () {
+      mapRefreshTimer = null;
+      syncMapView(false);
+    }, 60);
+  }
+
+  function clearHoodLayers() {
+    hoodGeoLayer = null;
+    if (neighborhoodLayer) neighborhoodLayer.clearLayers();
+    if (waterLayer) waterLayer.clearLayers();
+  }
+
+  function hoodLabelRank(feature) {
+    var rings = typeof PhillyHoods !== "undefined" ? PhillyHoods.ringsOf(feature) : [];
+    return rings[0] ? rings[0].length : 0;
+  }
+
+  function applyMapStyle() {
+    document.body.classList.toggle("map-poster", state.mapStyle === "poster");
+    var btn = document.getElementById("mapStyleBtn");
+    if (btn) {
+      btn.classList.toggle("on", state.mapStyle === "poster");
+      btn.setAttribute("aria-pressed", state.mapStyle === "poster" ? "true" : "false");
+      btn.textContent = state.mapStyle === "poster" ? "Street map" : "Poster map";
+    }
+    if (!map) return;
+    if (state.mapStyle === "poster") {
+      if (tileLayer && map.hasLayer(tileLayer)) map.removeLayer(tileLayer);
+    } else if (tileLayer && !map.hasLayer(tileLayer)) {
+      tileLayer.addTo(map);
+    }
+    drawVectorBasemap(true);
+    clearHoodLayers();
+    if (state.mapStyle === "poster" && typeof PhillyHoods !== "undefined") {
+      PhillyHoods.load().then(function () {
+        drawNeighborhoods(true);
+      });
+    }
+  }
+
+  function toggleMapStyle() {
+    state.mapStyle = state.mapStyle === "poster" ? "streets" : "poster";
+    save();
+    applyMapStyle();
+    scheduleMapRefresh();
   }
 
   function setSheetCollapsed(collapsed) {
@@ -825,41 +880,65 @@
     }).addTo(tickLayer);
   }
 
-  function drawNeighborhoods() {
-    if (!neighborhoodLayer) return;
-    neighborhoodLayer.clearLayers();
+  function drawNeighborhoods(force) {
+    if (!neighborhoodLayer || !waterLayer) return;
+    if (state.mapStyle !== "poster") {
+      clearHoodLayers();
+      return;
+    }
+    if (!force && hoodGeoLayer) return;
     if (typeof PhillyHoods === "undefined" || !PhillyHoods.getLoaded()) return;
     var geo = PhillyHoods.getLoaded();
     var z = map ? map.getZoom() : 13;
+    clearHoodLayers();
+    if (!hoodCanvasRenderer) hoodCanvasRenderer = L.canvas({ padding: 0.5 });
     try {
-    L.geoJSON(geo, {
-      interactive: false,
-      style: function (feat) {
-        var name = feat.properties && feat.properties.name;
-        return {
-          color: "rgba(255,255,255,0.75)",
-          weight: 1.4,
-          fillColor: PhillyHoods.fillForName(name, "other"),
-          fillOpacity: z >= 14 ? 0.38 : z >= 12 ? 0.24 : 0.14
-        };
-      },
-      onEachFeature: function (feat, layer) {
-        if (z < 13) return;
-        var name = feat.properties && feat.properties.name;
-        if (!name) return;
-        var c = PhillyHoods.labelPointForFeature(feat);
-        if (!c) return;
-        L.marker([c.lat, c.lng], {
-          interactive: false,
-          icon: L.divIcon({
-            className: "hood-label",
-            html: "<span>" + esc(name) + "</span>",
-            iconSize: [140, 24],
-            iconAnchor: [70, 12]
-          })
-        }).addTo(neighborhoodLayer);
+      waterLayer.clearLayers();
+      L.geoJSON(PhillyHoods.WATER_FEATURES, {
+        interactive: false,
+        style: {
+          color: "rgba(255,255,255,0.65)",
+          weight: 1.5,
+          fillColor: PhillyHoods.HOOD_FILL.water,
+          fillOpacity: 1
+        }
+      }).addTo(waterLayer);
+
+      var ranked = geo.features.slice().sort(function (a, b) {
+        return hoodLabelRank(b) - hoodLabelRank(a);
+      });
+      var labelNames = {};
+      if (z >= 14) {
+        ranked.slice(0, 28).forEach(function (f) {
+          var n = f.properties && f.properties.name;
+          if (n) labelNames[n] = true;
+        });
       }
-    }).addTo(neighborhoodLayer);
+
+      hoodGeoLayer = L.geoJSON(geo, {
+        interactive: false,
+        style: function (feat) {
+          var name = feat.properties && feat.properties.name;
+          return {
+            color: "rgba(255,255,255,0.92)",
+            weight: 1.6,
+            fillColor: PhillyHoods.fillForName(name, "other"),
+            fillOpacity: 0.92,
+            renderer: hoodCanvasRenderer
+          };
+        },
+        onEachFeature: function (feat, layer) {
+          var name = feat.properties && feat.properties.name;
+          if (!name || !labelNames[name]) return;
+          layer.bindTooltip(esc(name), {
+            permanent: true,
+            direction: "center",
+            className: "poster-hood-tip",
+            opacity: 1,
+            interactive: false
+          });
+        }
+      }).addTo(neighborhoodLayer);
     } catch (err) {
       console.warn("City Axes: neighborhood layer skipped", err);
     }
@@ -1082,8 +1161,7 @@
       maxZoom: 19,
       minZoom: PhillyWalkMap.minZoom,
       maxBounds: PhillyWalkMap.panLatLngBounds(),
-      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity,
-      preferCanvas: true
+      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity
     });
     map.createPane("vectorBasemapPane");
     map.getPane("vectorBasemapPane").style.zIndex = 250;
@@ -1097,14 +1175,17 @@
     PhillyWalkMap.ensurePinPane(map);
     PhillyWalkMap.bindZoomLabels(map);
     basemapLayer = L.layerGroup().addTo(map);
+    waterLayer = L.layerGroup().addTo(map);
     neighborhoodLayer = L.layerGroup().addTo(map);
     axisLayer = L.layerGroup().addTo(map);
     tickLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
-    drawNeighborhoods();
+    drawVectorBasemap(true);
+    drawAxes();
+    applyMapStyle();
     map.on("zoomend", function () {
       drawTicks();
-      drawNeighborhoods();
+      if (state.mapStyle === "poster") drawNeighborhoods(true);
       if (state.layers.landmarks) drawPinGroup("landmark");
     });
     map.whenReady(function () {
@@ -1179,6 +1260,8 @@
     document.getElementById("layerLandmarks").addEventListener("click", function () { toggleLayer("landmarks"); });
     document.getElementById("layerCafes").addEventListener("click", function () { toggleLayer("cafes"); });
     document.getElementById("layerDates").addEventListener("click", function () { toggleLayer("dates"); });
+    var mapStyleBtn = document.getElementById("mapStyleBtn");
+    if (mapStyleBtn) mapStyleBtn.addEventListener("click", toggleMapStyle);
     var exportBtn = document.getElementById("exportCardBtn");
     if (exportBtn) {
       exportBtn.addEventListener("click", function () {
@@ -1225,6 +1308,9 @@
         state.layers.cafes = !!savedRaw.layers.cafes;
         state.layers.dates = !!savedRaw.layers.dates;
       }
+      if (savedRaw.mapStyle === "poster" || savedRaw.mapStyle === "streets") {
+        state.mapStyle = savedRaw.mapStyle;
+      }
     }
     if (typeof L === "undefined" || typeof PhillyWalkMap === "undefined") {
       toast("The map could not load. Check your connection and reopen.");
@@ -1233,12 +1319,6 @@
     buildMap();
     bindUi();
     mountExportShare();
-    if (typeof PhillyHoods !== "undefined") {
-      PhillyHoods.load().then(function () {
-        drawNeighborhoods();
-        scheduleMapRefresh();
-      });
-    }
     loadCatalog();
     renderSheet();
     syncSheetHeight();
