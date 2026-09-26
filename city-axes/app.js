@@ -41,6 +41,30 @@
     { id: "fishtown", name: "Fishtown", neighborhood: "Fishtown", lat: 39.9692, lng: -75.134 }
   ];
 
+  var ZONE_PALETTE = [
+    "#dbeafe", "#dcfce7", "#fce7f3", "#fef3c7", "#e0e7ff", "#ffedd5",
+    "#ccfbf1", "#fae8ff", "#fee2e2", "#ecfccb", "#cffafe", "#f3e8ff",
+    "#fed7aa", "#d1fae5", "#e2e8f0", "#fde68a", "#fbcfe8", "#bfdbfe"
+  ];
+
+  var NEIGHBORHOOD_ZONES = (function () {
+    var seen = {};
+    var out = [];
+    LANDMARKS.forEach(function (lm) {
+      var name = lm.neighborhood || lm.name;
+      if (seen[name]) return;
+      seen[name] = true;
+      out.push({
+        name: name,
+        lat: lm.lat,
+        lng: lm.lng,
+        radiusM: 780,
+        color: ZONE_PALETTE[out.length % ZONE_PALETTE.length]
+      });
+    });
+    return out;
+  })();
+
   var SOURCE_LABEL = { landmark: "Landmark", cafe: "Cafe", date: "Date" };
   var SOURCE_COLOR = { landmark: "#14532d", cafe: "#c2410c", date: "#9f1239" };
 
@@ -61,6 +85,7 @@
   var map = null;
   var axisLayer = null;
   var tickLayer = null;
+  var neighborhoodLayer = null;
   var routeLayer = null;
   var pinGroups = {};
   var ignoreMapClickUntil = 0;
@@ -110,6 +135,12 @@
     var s = v.toFixed(1);
     if (s.slice(-2) === ".0") s = s.slice(0, -2);
     return s;
+  }
+
+  function blocksLabel(n) {
+    var s = formatBlocks(n);
+    var v = parseFloat(s, 10);
+    return s + (v === 1 ? " block" : " blocks");
   }
 
   function formatSigned(n) {
@@ -354,15 +385,34 @@
   function travelSummary(dx, dy) {
     var parts = [];
     if (Math.abs(dy) >= 0.05) {
-      parts.push(cardinalDir(dy, "y") + " " + formatBlocks(dy) + " blocks");
+      parts.push(cardinalDir(dy, "y") + " " + blocksLabel(dy));
     }
     if (Math.abs(dx) >= 0.05) {
-      var ew = cardinalDir(dx, "x") + " " + formatBlocks(dx) + " blocks";
+      var ew = cardinalDir(dx, "x") + " " + blocksLabel(dx);
       if (parts.length) ew = "and to the " + ew;
       else ew = "to the " + ew;
       parts.push(ew);
     }
     return parts.join(" ");
+  }
+
+  function capitalizeWord(s) {
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  }
+
+  function movementPoetry(dx, dy, startYBlocks) {
+    var lines = [];
+    if (Math.abs(dy) >= 0.05) {
+      var yLand = axisLandmark(dy, "y", startYBlocks);
+      lines.push(capitalizeWord(cardinalDir(dy, "y")) + (yLand ? " · " + yLand : ""));
+    }
+    if (Math.abs(dx) >= 0.05) {
+      var xLand = axisLandmark(dx, "x", startYBlocks);
+      var bit = "To the " + cardinalDir(dx, "x") + " · across Broad from where you are";
+      if (xLand) bit += " · " + xLand;
+      lines.push(bit);
+    }
+    return lines.join("\n");
   }
 
   function landmarkSummary(dx, dy, startYBlocks) {
@@ -383,11 +433,12 @@
     var card = axis === "x" ? ("to the " + cardinalDir(blocks, "x")) : cardinalDir(blocks, "y");
     var land = axisLandmark(blocks, axis, startYBlocks);
     var meters = Math.abs(blocks) * BLOCK_M;
-    var dist = formatBlocks(blocks) + " blocks (" + formatDist(meters) + ")";
+    var dist = blocksLabel(blocks) + " (" + formatDist(meters) + ")";
     return card + " " + dist + (land ? " \u00b7 " + land : "");
   }
 
-  function describeChange(a, b) {
+  function describeChange(a, b, opts) {
+    opts = opts || {};
     var A = blocksOf(a.lat, a.lng);
     var B = blocksOf(b.lat, b.lng);
     var dx = round1(B.x - A.x);
@@ -396,8 +447,9 @@
     var landmarks = landmarkSummary(dx, dy, A.y);
     var xLeg = orderedLegPhrase(dx, "x", A.y);
     var yLeg = orderedLegPhrase(dy, "y", A.y);
-    var first = state.xFirst ? xLeg : yLeg;
-    var second = state.xFirst ? yLeg : xLeg;
+    var xFirst = typeof opts.xFirst === "boolean" ? opts.xFirst : state.xFirst;
+    var first = xFirst ? xLeg : yLeg;
+    var second = xFirst ? yLeg : xLeg;
     var sentence;
     if (summary && landmarks) {
       sentence = "Go " + summary + " \u2014 " + landmarks + ".";
@@ -421,10 +473,11 @@
     return { dx: dx, dy: dy, sentence: sentence, meta: meta };
   }
 
-  function cornerOf(a, b) {
+  function cornerOf(a, b, xFirst) {
     var A = toXY(a.lat, a.lng);
     var B = toXY(b.lat, b.lng);
-    return state.xFirst ? fromXY(B.x, A.y) : fromXY(A.x, B.y);
+    var xf = typeof xFirst === "boolean" ? xFirst : state.xFirst;
+    return xf ? fromXY(B.x, A.y) : fromXY(A.x, B.y);
   }
 
   function fillPointBody(el, slot, point) {
@@ -463,18 +516,31 @@
       document.getElementById("dxN").textContent = formatSigned(d.dx);
       document.getElementById("dyN").textContent = formatSigned(d.dy);
       var startBlocks = blocksOf(state.start.lat, state.start.lng);
+      var endBlocks = blocksOf(state.end.lat, state.end.lng);
       document.getElementById("dxW").textContent = shiftWords(d.dx, "x", startBlocks.y);
       document.getElementById("dyW").textContent = shiftWords(d.dy, "y", startBlocks.y);
       document.getElementById("dirLine").textContent = d.sentence;
       document.getElementById("metaLine").textContent = d.meta;
+      var transformEl = document.getElementById("transformLine");
+      if (transformEl) {
+        transformEl.textContent =
+          "(x, y) = (" + formatSigned(startBlocks.x) + ", " + formatSigned(startBlocks.y) + ") \u2192 (" +
+          formatSigned(endBlocks.x) + ", " + formatSigned(endBlocks.y) + ")  \u00b7  " +
+          movementPoetry(d.dx, d.dy, startBlocks.y).replace(/\n/g, "  \u00b7  ");
+        transformEl.hidden = false;
+      }
       change.hidden = false;
       if (sheet) sheet.scrollTop = 0;
     } else {
       change.hidden = true;
+      var transformElOff = document.getElementById("transformLine");
+      if (transformElOff) transformElOff.hidden = true;
     }
     syncChips();
     var clearAllBtn = document.getElementById("clearAllBtn");
     if (clearAllBtn) clearAllBtn.disabled = !state.start && !state.end;
+    var exportBtn = document.getElementById("exportCardBtn");
+    if (exportBtn) exportBtn.hidden = !(state.start && state.end);
     requestAnimationFrame(syncSheetHeight);
   }
 
@@ -568,11 +634,20 @@
     drawTicks();
   }
 
+  function tickStepForZoom() {
+    if (!map) return 10;
+    var z = map.getZoom();
+    if (z >= 15) return 5;
+    if (z >= 13) return 10;
+    return 20;
+  }
+
   function drawTicks() {
     if (!tickLayer || !map) return;
     tickLayer.clearLayers();
-    var step = map.getZoom() >= 15 ? 10 : 20;
+    var step = tickStepForZoom();
     var b;
+    addTick(0, 0, "origin");
     for (b = -80; b <= 80; b += step) {
       if (b === 0) continue;
       addTick(b, 0, "x");
@@ -580,21 +655,94 @@
     }
   }
 
+  function tickSegment(xBlocks, yBlocks, axis) {
+    var cx = xBlocks * BLOCK_M;
+    var cy = yBlocks * BLOCK_M;
+    var half = 28;
+    if (axis === "origin") return null;
+    if (axis === "x") {
+      return [fromXY(cx, cy - half), fromXY(cx, cy + half)];
+    }
+    return [fromXY(cx - half, cy), fromXY(cx + half, cy)];
+  }
+
   function addTick(xBlocks, yBlocks, axis) {
     var ll = fromXY(xBlocks * BLOCK_M, yBlocks * BLOCK_M);
-    if (!inRegion(ll.lat, ll.lng)) return;
+    if (!inRegion(ll.lat, ll.lng) && axis !== "origin") return;
+    if (axis === "origin") {
+      var seg0 = tickSegment(0, 0, "x");
+      if (seg0) {
+        L.polyline(seg0, { color: "#14532d", weight: 2, opacity: 0.85, interactive: false }).addTo(tickLayer);
+        L.polyline(tickSegment(0, 0, "y"), { color: "#14532d", weight: 2, opacity: 0.85, interactive: false }).addTo(tickLayer);
+      }
+      L.marker([ORIGIN.lat, ORIGIN.lng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: "axis-tick origin",
+          html: "<span>0</span>",
+          iconSize: [24, 20],
+          iconAnchor: [12, 10]
+        })
+      }).addTo(tickLayer);
+      return;
+    }
+    var seg = tickSegment(xBlocks, yBlocks, axis);
+    if (seg) {
+      L.polyline(seg, {
+        color: axis === "x" ? "#15803d" : "#1d4ed8",
+        weight: 3,
+        opacity: 0.9,
+        interactive: false
+      }).addTo(tickLayer);
+    }
     var n = xBlocks || yBlocks;
     var label = (n > 0 ? "+" : "\u2212") + Math.abs(n);
-    var anchor = axis === "x" ? [18, 20] : [0, 9];
+    var anchor = axis === "x" ? [18, 22] : [4, 9];
     L.marker([ll.lat, ll.lng], {
       interactive: false,
       icon: L.divIcon({
-        className: "axis-tick",
+        className: "axis-tick" + (axis === "x" ? " market" : " broad"),
         html: "<span>" + label + "</span>",
-        iconSize: [36, 16],
+        iconSize: [36, 18],
         iconAnchor: anchor
       })
     }).addTo(tickLayer);
+  }
+
+  function drawNeighborhoods() {
+    if (!neighborhoodLayer) return;
+    neighborhoodLayer.clearLayers();
+    if (typeof PhillyHoods === "undefined" || !PhillyHoods.getLoaded()) return;
+    var geo = PhillyHoods.getLoaded();
+    var z = map ? map.getZoom() : 13;
+    L.geoJSON(geo, {
+      interactive: false,
+      style: function (feat) {
+        var name = feat.properties && feat.properties.name;
+        return {
+          color: "rgba(255,255,255,0.75)",
+          weight: 1.4,
+          fillColor: PhillyHoods.fillForName(name, "other"),
+          fillOpacity: z >= 14 ? 0.38 : z >= 12 ? 0.24 : 0.14
+        };
+      },
+      onEachFeature: function (feat, layer) {
+        if (z < 13) return;
+        var name = feat.properties && feat.properties.name;
+        if (!name) return;
+        var c = PhillyHoods.labelPointForFeature(feat);
+        if (!c) return;
+        L.marker([c.lat, c.lng], {
+          interactive: false,
+          icon: L.divIcon({
+            className: "hood-label",
+            html: "<span>" + esc(name) + "</span>",
+            iconSize: [140, 24],
+            iconAnchor: [70, 12]
+          })
+        }).addTo(neighborhoodLayer);
+      }
+    }).addTo(neighborhoodLayer);
   }
 
   function endpointMarker(point, fill) {
@@ -820,9 +968,11 @@
     PhillyWalkMap.applyLimits(map);
     PhillyWalkMap.ensurePinPane(map);
     PhillyWalkMap.bindZoomLabels(map);
+    neighborhoodLayer = L.layerGroup().addTo(map);
     axisLayer = L.layerGroup().addTo(map);
     tickLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
+    drawNeighborhoods();
     map.on("zoomend", function () {
       drawTicks();
       if (state.layers.landmarks) drawPinGroup("landmark");
@@ -896,6 +1046,28 @@
     document.getElementById("layerLandmarks").addEventListener("click", function () { toggleLayer("landmarks"); });
     document.getElementById("layerCafes").addEventListener("click", function () { toggleLayer("cafes"); });
     document.getElementById("layerDates").addEventListener("click", function () { toggleLayer("dates"); });
+    var exportBtn = document.getElementById("exportCardBtn");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", function () {
+        if (!state.start || !state.end) {
+          toast("Set a start and end first");
+          return;
+        }
+        if (typeof CityAxesExport === "undefined") {
+          toast("Export is not available");
+          return;
+        }
+        exportBtn.disabled = true;
+        toast("Building share image\u2026");
+        CityAxesExport.exportCurrentRoute(state).then(function () {
+          toast("Direction card saved — check Photos or Downloads");
+        }).catch(function () {
+          toast("Could not create image");
+        }).finally(function () {
+          exportBtn.disabled = false;
+        });
+      });
+    }
     if (typeof ResizeObserver !== "undefined") {
       var observer = new ResizeObserver(syncSheetHeight);
       observer.observe(sheet);
@@ -928,12 +1100,66 @@
     buildMap();
     drawAxes();
     bindUi();
+    mountExportShare();
+    if (typeof PhillyHoods !== "undefined") {
+      PhillyHoods.load().then(function () {
+        drawNeighborhoods();
+      });
+    }
     loadCatalog();
     renderSheet();
     syncSheetHeight();
     if (state.start && state.end) renderRoute(true);
     else if (state.start || state.end) frameRoute();
     else fitRegion(false);
+    if (/exportSamples=1/.test(location.search)) runExportSamples();
+  }
+
+  function mountExportShare() {
+    if (typeof CityAxesExport === "undefined") return;
+    CityAxesExport.mount({
+      BLOCK_M: BLOCK_M,
+      ORIGIN: ORIGIN,
+      X_HAT: X_HAT,
+      Y_HAT: Y_HAT,
+      LANDMARKS: LANDMARKS,
+      NEIGHBORHOOD_ZONES: NEIGHBORHOOD_ZONES,
+      toXY: toXY,
+      fromXY: fromXY,
+      blocksOf: blocksOf,
+      formatSigned: formatSigned,
+      describeChange: describeChange,
+      cornerOf: cornerOf,
+      movementPoetry: movementPoetry
+    });
+  }
+
+  function runExportSamples() {
+    if (typeof CityAxesExport === "undefined") return;
+    mountExportShare();
+    var samples = [
+      {
+        name: "pennsport-to-queen-village",
+        start: { label: "Dropped pin", lat: 39.928, lng: -75.152 },
+        end: { label: "Queen Village", lat: 39.9368, lng: -75.1485 },
+        xFirst: true
+      },
+      {
+        name: "pennsport-to-reading-terminal",
+        start: { label: "Pennsport", lat: 39.9258, lng: -75.149 },
+        end: { label: "Reading Terminal Market", lat: 39.95334, lng: -75.15955 },
+        xFirst: true
+      }
+    ];
+    window.__cityAxesSampleDataUrls = {};
+    window.__cityAxesSampleReady = false;
+    Promise.all(samples.map(function (s) {
+      return CityAxesExport.renderSample(s.name, s.start, s.end, s.xFirst).then(function (canvas) {
+        if (canvas) window.__cityAxesSampleDataUrls[s.name] = canvas.toDataURL("image/png");
+      });
+    })).then(function () {
+      window.__cityAxesSampleReady = true;
+    });
   }
 
   if (document.readyState === "loading") {

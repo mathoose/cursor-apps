@@ -347,7 +347,53 @@ body.sheet-collapsed .sheet-toggle {
   color: var(--muted);
   font-size: 0.8rem;
 }
-.order { display: flex; gap: 8px; margin-top: 10px; }
+.order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.export-btn {
+  background: #14532d;
+  color: #f8fafc;
+  border-color: #14532d;
+}
+.export-btn[hidden] { display: none !important; }
+
+.transform-line {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.leaflet-tooltip.hood-label {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.hood-label span {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(247, 250, 248, 0.88);
+  color: #14241b;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow: none;
+  box-shadow: 0 1px 4px rgba(20, 36, 27, 0.12);
+}
+.leaflet-tooltip.hood-label::before { display: none; }
+
+.axis-tick.origin span {
+  color: #14532d;
+  font-weight: 800;
+}
+.axis-tick.market span { color: #14532d; }
+.axis-tick.broad span { color: #1e3a8a; }
 .chip {
   padding: 0 12px;
   color: var(--muted);
