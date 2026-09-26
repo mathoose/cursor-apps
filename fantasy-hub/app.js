@@ -2,8 +2,9 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "9 · Sep 22, 2026";
+  var APP_VERSION = "10 · Sep 26, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
+  var LOST_WIN_PCT = 0.2;
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
   var SLEEPER_PROJ = "https://api.sleeper.app/projections/nfl";
@@ -51,6 +52,8 @@
       version: 1,
       demo: false,
       includeBench: false,
+      rootAgainstMedian: true,
+      rootHideLost: false,
       weekOverride: null,
       sleeper: { username: "", userId: "", displayName: "", leagues: [] },
       espn: { leagues: [] },
@@ -95,6 +98,8 @@
     if (!raw || typeof raw !== "object") return base;
     base.demo = !!raw.demo;
     base.includeBench = !!raw.includeBench;
+    base.rootAgainstMedian = raw.rootAgainstMedian !== false;
+    base.rootHideLost = !!raw.rootHideLost;
     base.weekOverride = typeof raw.weekOverride === "number" ? raw.weekOverride : null;
     base.lastSync = typeof raw.lastSync === "string" ? raw.lastSync : null;
     base.snapshot = raw.snapshot && typeof raw.snapshot === "object" ? raw.snapshot : null;
@@ -1641,7 +1646,8 @@
       league: matchup.leagueName,
       platform: matchup.platform,
       points: Number(player.points || 0),
-      starter: !!player.starter
+      starter: !!player.starter,
+      winPct: matchup.mine && matchup.mine.winPct != null ? Number(matchup.mine.winPct) : null
     });
   }
 
@@ -1875,16 +1881,17 @@
     var happyBox = el("happyList");
     var conflictBlock = el("conflictBlock");
     var conflictList = el("conflictList");
-    var medianBlock = el("medianRootBlock");
-    var medianList = el("medianRootList");
+    var againstBlock = el("againstRootBlock");
     if (!hasAccounts() || !(snap.matchups || []).length) {
       empty.hidden = false;
       happyBox.innerHTML = "";
       conflictBlock.hidden = true;
-      if (medianBlock) medianBlock.hidden = true;
+      if (againstBlock) againstBlock.hidden = true;
+      syncRootToggles();
       return;
     }
     empty.hidden = true;
+    syncRootToggles();
     var board = buildRootBoard(snap.matchups, state.includeBench);
     el("rootIntro").textContent = state.includeBench
       ? "Your rostered players who are not on an opponent in any connected league. Ranked by how many of your teams they help, then their points this week."
@@ -1898,44 +1905,149 @@
     } else {
       conflictBlock.hidden = true;
     }
-    renderMedianRoots(snap.matchups || []);
+    renderAgainstRoots(snap.matchups || []);
   }
 
-  function renderMedianRoots(matchups) {
-    var medianBlock = el("medianRootBlock");
-    var medianList = el("medianRootList");
-    var medianIntro = el("medianRootIntro");
-    if (!medianBlock || !medianList) return;
-    var rows = [];
-    matchups.forEach(function (m) {
-      if (!m.medianWin || !m.median || !(m.median.rootAgainst || []).length) return;
+  function syncRootToggles() {
+    var med = el("rootAgainstMedian");
+    var lost = el("rootHideLost");
+    if (med) med.checked = !!state.rootAgainstMedian;
+    if (lost) lost.checked = !!state.rootHideLost;
+  }
+
+  function matchupIsLost(m) {
+    var winPct = m && m.mine && m.mine.winPct;
+    return winPct != null && !isNaN(Number(winPct)) && Number(winPct) < LOST_WIN_PCT;
+  }
+
+  function buildAgainstRootRows(matchups) {
+    var map = {};
+    function addRow(opts) {
+      var player = opts.player;
+      if (!player || !player.name) return;
+      var key = playerKey(player) + "|" + opts.league;
+      if (!map[key]) {
+        map[key] = {
+          key: key,
+          player: player,
+          league: opts.league,
+          teamName: opts.teamName || "",
+          teamRank: opts.teamRank,
+          winPct: opts.winPct,
+          projected: opts.projected,
+          points: opts.points,
+          sources: [],
+          inTopHalf: opts.inTopHalf,
+          onBubble: opts.onBubble
+        };
+      } else if (player.name && map[key].player.name.indexOf("Player ") === 0) {
+        map[key].player = player;
+      }
+      if (opts.source && map[key].sources.indexOf(opts.source) < 0) {
+        map[key].sources.push(opts.source);
+      }
+      if (opts.teamRank != null && map[key].teamRank == null) map[key].teamRank = opts.teamRank;
+      if (opts.winPct != null) map[key].winPct = opts.winPct;
+      if (opts.projected != null && (map[key].projected == null || opts.projected > map[key].projected)) {
+        map[key].projected = opts.projected;
+      }
+      if (opts.points != null && (map[key].points == null || opts.points > map[key].points)) {
+        map[key].points = opts.points;
+      }
+      if (opts.inTopHalf != null) map[key].inTopHalf = opts.inTopHalf;
+      if (opts.onBubble) map[key].onBubble = true;
+    }
+
+    (matchups || []).forEach(function (m) {
+      if (!m || !m.opp) return;
+      var lost = matchupIsLost(m);
+      if (!(state.rootHideLost && lost)) {
+        playersForSide(m.opp, false).forEach(function (p) {
+          addRow({
+            source: "h2h",
+            player: p,
+            league: m.leagueName,
+            teamName: m.opp.teamName || "Opponent",
+            winPct: m.mine && m.mine.winPct,
+            projected: p.projected,
+            points: p.points
+          });
+        });
+      }
+      if (!state.rootAgainstMedian || !m.medianWin || !m.median) return;
+      // Median foes still matter even if H2H looks lost — unless already-lost hides the whole league.
+      if (state.rootHideLost && lost) return;
       (m.median.rootAgainst || []).forEach(function (item) {
-        rows.push({
+        if (!item || !item.player) return;
+        addRow({
+          source: "median",
+          player: item.player,
           league: m.leagueName,
-          topSlots: m.median.topSlots,
-          medianProjected: m.median.medianProjected,
-          item: item
+          teamName: item.teamName,
+          teamRank: item.teamRank,
+          winPct: m.mine && m.mine.winPct,
+          projected: item.projected != null ? item.projected : item.player.projected,
+          points: item.points != null ? item.points : item.player.points,
+          inTopHalf: item.inTopHalf,
+          onBubble: item.onBubble
         });
       });
     });
+
+    var rows = Object.keys(map).map(function (k) { return map[k]; });
+    rows.sort(function (a, b) {
+      var ap = a.projected;
+      var bp = b.projected;
+      if (ap == null && bp == null) return (b.points || 0) - (a.points || 0);
+      if (ap == null) return 1;
+      if (bp == null) return -1;
+      if (bp !== ap) return bp - ap;
+      return String(a.player.name || "").localeCompare(String(b.player.name || ""));
+    });
+    return rows;
+  }
+
+  function renderAgainstRoots(matchups) {
+    var againstBlock = el("againstRootBlock");
+    var againstList = el("againstRootList");
+    var againstIntro = el("againstRootIntro");
+    if (!againstBlock || !againstList) return;
+    var rows = buildAgainstRootRows(matchups);
+    var hasMedianLeague = (matchups || []).some(function (m) { return m && m.medianWin && m.median; });
+    againstBlock.hidden = false;
+    if (againstIntro) {
+      var bits = ["Direct opponents"];
+      if (state.rootAgainstMedian && hasMedianLeague) bits.push("median bubble");
+      if (state.rootHideLost) bits.push("hiding leagues under 20% win");
+      againstIntro.textContent = bits.join(" · ") + ".";
+    }
     if (!rows.length) {
-      medianBlock.hidden = true;
-      medianList.innerHTML = "";
+      againstList.innerHTML = '<div class="empty-state compact"><p>' +
+        (state.rootHideLost
+          ? "Nothing left to root against — every opposing slate is under 20% win, or Median is off."
+          : (state.rootAgainstMedian
+            ? "No opposing starters to fade this week."
+            : "Turn on Median to include bubble foes, or connect a league with an opponent.")) +
+        "</p></div>";
       return;
     }
-    medianBlock.hidden = false;
-    if (medianIntro) {
-      medianIntro.textContent = "Starters on bubble teams fighting for the top-half median win. Root against big projected games that could push you out — or keep a rival in.";
-    }
-    medianList.innerHTML = rows.map(function (row, i) {
-      return medianRootCard(row, i + 1);
+    againstList.innerHTML = rows.map(function (row, i) {
+      return againstRootCard(row, i + 1);
     }).join("");
   }
 
-  function medianRootCard(row, n) {
-    var p = row.item.player || {};
-    var tag = row.item.inTopHalf ? "above line" : "below line";
-    if (row.item.onBubble) tag = "bubble · " + tag;
+  function againstRootCard(row, n) {
+    var p = row.player || {};
+    var tags = [];
+    if (row.sources.indexOf("h2h") >= 0) tags.push("H2H");
+    if (row.sources.indexOf("median") >= 0) {
+      var med = row.onBubble ? "median bubble" : "median";
+      if (row.inTopHalf) med += " · above line";
+      else if (row.inTopHalf === false) med += " · below line";
+      tags.push(med);
+    }
+    if (row.winPct != null) tags.push(fmtPct(row.winPct) + " your win");
+    var teamBit = (row.teamRank != null ? "#" + row.teamRank + " " : "") + (row.teamName || "Opponent");
     return (
       '<article class="rank-card against">' +
         '<div class="rank-num">' + n + "</div>" +
@@ -1943,30 +2055,46 @@
           '<p class="rank-name">' + escapeHtml(p.name || "Player") + "</p>" +
           '<p class="rank-sub">' + escapeHtml(
             (p.pos || "") + (p.team ? " · " + p.team : "") +
-            " · #" + row.item.teamRank + " " + row.item.teamName +
-            " · " + row.league + " · " + tag
+            " · " + teamBit +
+            " · " + row.league +
+            (tags.length ? " · " + tags.join(" · ") : "")
           ) + "</p>" +
         "</div>" +
-        '<div class="rank-pts">' + fmtPts(row.item.projected != null ? row.item.projected : row.item.points) +
-          "<span>" + (row.item.projected != null ? "proj" : "pts") + " against</span>" +
+        '<div class="rank-pts">' + fmtPts(row.projected != null ? row.projected : row.points) +
+          "<span>" + (row.projected != null ? "proj" : "pts") + " against</span>" +
         "</div>" +
       "</article>"
     );
   }
 
+  function leagueWinLabel(entry) {
+    if (!entry) return "";
+    var base = entry.league || "";
+    if (entry.winPct == null || isNaN(Number(entry.winPct))) return base;
+    return base + " (" + fmtPct(entry.winPct) + " win)";
+  }
+
   function rankCard(row, n, conflict) {
     var p = row.player;
-    var help = unique(row.mine.map(function (x) { return x.league; }));
-    var hurt = unique(row.opp.map(function (x) { return x.league; }));
+    var help = unique((row.mine || []).map(leagueWinLabel).filter(Boolean));
+    var hurt = unique((row.opp || []).map(leagueWinLabel).filter(Boolean));
     var sub = conflict
       ? "Helps " + help.join(", ") + " · hurts " + hurt.join(", ")
       : (row.leagues > 1 ? row.leagues + " of your lineups" : help[0] || "Your lineup");
+    var soft = false;
+    if (conflict) {
+      // Hurt side(s) where you're already crushing — OK if they score a little.
+      soft = (row.opp || []).some(function (x) {
+        return x.winPct != null && Number(x.winPct) >= 0.85;
+      });
+    }
     return (
-      '<article class="rank-card' + (conflict ? " conflict" : "") + '">' +
+      '<article class="rank-card' + (conflict ? " conflict" : "") + (soft ? " soft-hurt" : "") + '">' +
         '<div class="rank-num">' + n + "</div>" +
         "<div>" +
           '<p class="rank-name">' + escapeHtml(p.name) + "</p>" +
           '<p class="rank-sub">' + escapeHtml((p.pos || "") + (p.team ? " · " + p.team : "") + " · " + sub) + "</p>" +
+          (soft ? '<p class="rank-note">Hurt league already ~safe — OK if they chip in</p>' : "") +
         "</div>" +
         '<div class="rank-pts">' + fmtPts(row.myPoints) +
           "<span>" + (conflict ? "net " + fmtPts(row.myPoints - row.oppPoints) : "pts for you") + "</span>" +
@@ -2085,6 +2213,8 @@
     existing.espn.leagues = mergeLeagues(existing.espn.leagues, incoming.espn.leagues);
     if (incoming.snapshot) existing.snapshot = incoming.snapshot;
     existing.includeBench = incoming.includeBench;
+    existing.rootAgainstMedian = incoming.rootAgainstMedian !== false;
+    existing.rootHideLost = !!incoming.rootHideLost;
     existing.demo = incoming.demo || existing.demo;
     return existing;
   }
@@ -2160,6 +2290,17 @@
       persist();
       renderRoots();
     });
+    function bindRootToggle(id, key) {
+      var node = el(id);
+      if (!node) return;
+      node.addEventListener("change", function () {
+        state[key] = node.checked;
+        persist();
+        renderRoots();
+      });
+    }
+    bindRootToggle("rootAgainstMedian", "rootAgainstMedian");
+    bindRootToggle("rootHideLost", "rootHideLost");
     el("exportJsonBtn").addEventListener("click", exportJson);
     el("importJsonFile").addEventListener("change", function (e) {
       importJson(e.target.files && e.target.files[0]);
