@@ -508,8 +508,19 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
   font-weight: 800;
 }
 .rank-card.conflict .rank-num { background: rgba(251, 191, 36, 0.12); color: var(--warn); }
+.rank-card.soft-hurt { border: 1px solid rgba(74, 222, 128, 0.22); }
+.rank-card.against .rank-num {
+  background: rgba(251, 113, 133, 0.14);
+  color: var(--loss);
+}
 .rank-name { margin: 0; font-weight: 800; }
 .rank-sub { margin: 2px 0 0; font-size: 0.75rem; color: var(--muted); }
+.rank-note {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--win);
+}
 .rank-pts {
   text-align: right;
   font-weight: 800;
@@ -523,6 +534,17 @@ textarea:focus { outline: 2px solid rgba(94, 234, 212, 0.45); outline-offset: 1p
 }
 .section-head { margin-top: 8px; }
 .section-head h3 { margin: 0; }
+.root-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+.check-row.compact {
+  margin: 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
 
 .league-item {
   display: flex;
