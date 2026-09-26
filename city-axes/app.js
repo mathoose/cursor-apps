@@ -83,10 +83,20 @@
   var savedRaw = null;
   var slotTouched = { start: false, end: false };
   var map = null;
+  var tileLayer = null;
+  var tileSourceIndex = 0;
+  var tileErrorCount = 0;
+  var basemapLayer = null;
   var axisLayer = null;
   var tickLayer = null;
   var neighborhoodLayer = null;
   var routeLayer = null;
+
+  var MAP_TILE_URLS = [
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png"
+  ];
   var pinGroups = {};
   var ignoreMapClickUntil = 0;
   var toastTimer = null;
@@ -330,13 +340,103 @@
     });
   }
 
+  function mapViewValid() {
+    if (!map || typeof PhillyWalkMap === "undefined") return false;
+    var c = map.getCenter();
+    var z = map.getZoom();
+    if (!c || !isFinite(c.lat) || !isFinite(c.lng) || !isFinite(z) || z < PhillyWalkMap.minZoom) {
+      return false;
+    }
+    return PhillyWalkMap.contains(c.lat, c.lng);
+  }
+
+  function ensureMapView() {
+    if (!map || typeof PhillyWalkMap === "undefined") return;
+    if (mapViewValid()) return;
+    map.setView(
+      [PhillyWalkMap.center.lat, PhillyWalkMap.center.lng],
+      PhillyWalkMap.defaultZoom,
+      { animate: false }
+    );
+  }
+
+  function attachTileLayer(urlIndex) {
+    if (!map || typeof L === "undefined") return;
+    tileSourceIndex = urlIndex;
+    tileErrorCount = 0;
+    if (tileLayer) {
+      map.removeLayer(tileLayer);
+      tileLayer = null;
+    }
+    var url = MAP_TILE_URLS[urlIndex];
+    tileLayer = L.tileLayer(url, {
+      maxZoom: 19,
+      subdomains: url.indexOf("{s}") >= 0 ? "abc" : "",
+      attribution: "&copy; OpenStreetMap",
+      crossOrigin: true
+    });
+    tileLayer.on("tileerror", function () {
+      tileErrorCount += 1;
+      if (tileErrorCount >= 4 && tileSourceIndex + 1 < MAP_TILE_URLS.length) {
+        attachTileLayer(tileSourceIndex + 1);
+        toast("Map tiles: trying alternate source\u2026");
+      }
+    });
+    tileLayer.addTo(map);
+  }
+
+  function drawVectorBasemap() {
+    if (!basemapLayer || !map) return;
+    basemapLayer.clearLayers();
+    if (typeof PhillyWalkMap === "undefined") return;
+    var b = PhillyWalkMap.bounds;
+    var region = [
+      [b.south, b.west],
+      [b.south, b.east],
+      [b.north, b.east],
+      [b.north, b.west]
+    ];
+    L.polygon(region, {
+      color: "rgba(255,255,255,0.55)",
+      weight: 1,
+      fillColor: "#e8f0eb",
+      fillOpacity: 1,
+      interactive: false,
+      pane: "vectorBasemapPane"
+    }).addTo(basemapLayer);
+
+    var renderer = L.canvas({ padding: 0.5 });
+    var gridStyle = {
+      color: "rgba(20, 36, 27, 0.13)",
+      weight: 1,
+      opacity: 1,
+      interactive: false,
+      renderer: renderer,
+      pane: "vectorBasemapPane"
+    };
+    var block;
+    for (block = -55; block <= 55; block++) {
+      var xM = block * BLOCK_M;
+      var a = fromXY(xM, -55 * BLOCK_M);
+      var c = fromXY(xM, 55 * BLOCK_M);
+      L.polyline([[a.lat, a.lng], [c.lat, c.lng]], gridStyle).addTo(basemapLayer);
+      var yM = block * BLOCK_M;
+      var d = fromXY(-55 * BLOCK_M, yM);
+      var e = fromXY(55 * BLOCK_M, yM);
+      L.polyline([[d.lat, d.lng], [e.lat, e.lng]], gridStyle).addTo(basemapLayer);
+    }
+  }
+
   function syncMapView(animate) {
     if (!map) return;
     map.invalidateSize(true);
+    ensureMapView();
+    drawVectorBasemap();
     drawAxes();
     if (state.start && state.end) frameRoute();
     else if (state.start || state.end) frameRoute();
     else fitRegion(animate !== false);
+    ensureMapView();
   }
 
   function scheduleMapRefresh() {
@@ -593,6 +693,7 @@
   }
 
   function drawAxes() {
+    if (!axisLayer) return;
     axisLayer.clearLayers();
     var market = ray(X_HAT, -1).reverse().concat([[ORIGIN.lat, ORIGIN.lng]], ray(X_HAT, 1));
     var broad = ray(Y_HAT, -1).reverse().concat([[ORIGIN.lat, ORIGIN.lng]], ray(Y_HAT, 1));
@@ -981,12 +1082,21 @@
       maxZoom: 19,
       minZoom: PhillyWalkMap.minZoom,
       maxBounds: PhillyWalkMap.panLatLngBounds(),
-      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity
+      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity,
+      preferCanvas: true
     });
-    PhillyWalkMap.addTiles(map);
+    map.createPane("vectorBasemapPane");
+    map.getPane("vectorBasemapPane").style.zIndex = 250;
+    attachTileLayer(0);
+    map.setView(
+      [PhillyWalkMap.center.lat, PhillyWalkMap.center.lng],
+      PhillyWalkMap.defaultZoom,
+      { animate: false }
+    );
     PhillyWalkMap.applyLimits(map);
     PhillyWalkMap.ensurePinPane(map);
     PhillyWalkMap.bindZoomLabels(map);
+    basemapLayer = L.layerGroup().addTo(map);
     neighborhoodLayer = L.layerGroup().addTo(map);
     axisLayer = L.layerGroup().addTo(map);
     tickLayer = L.layerGroup().addTo(map);
