@@ -268,6 +268,51 @@
     save();
     renderSheet();
     renderRoute(false);
+    if (!state.start && !state.end) fitRegion(true);
+  }
+
+  function clearAll() {
+    slotTouched.start = true;
+    slotTouched.end = true;
+    state.start = null;
+    state.end = null;
+    state.mode = "start";
+    framedKey = "";
+    searchInput.value = "";
+    state.query = "";
+    renderResults();
+    save();
+    renderSheet();
+    renderRoute(false);
+    fitRegion(true);
+    toast("Cleared — tap the map for a new start");
+  }
+
+  function fitRegion(animate) {
+    if (!map || typeof PhillyWalkMap === "undefined") return;
+    var padBottom = sheetHeight() + 24;
+    map.fitBounds(PhillyWalkMap.latLngBounds(), {
+      paddingTopLeft: [20, 76],
+      paddingBottomRight: [20, padBottom],
+      maxZoom: 12,
+      animate: !!animate
+    });
+  }
+
+  function setSheetCollapsed(collapsed) {
+    document.body.classList.toggle("sheet-collapsed", collapsed);
+    var btn = document.getElementById("sheetToggle");
+    if (btn) {
+      btn.textContent = collapsed ? "Show panel" : "More map";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    }
+    syncSheetHeight();
+    if (map) {
+      requestAnimationFrame(function () {
+        if (state.start && state.end) frameRoute();
+        else fitRegion(false);
+      });
+    }
   }
 
   function swapSlots() {
@@ -286,18 +331,60 @@
     return blocks > 0 ? "north" : "south";
   }
 
-  function legPhrase(blocks, axis) {
+  function axisLandmark(blocks, axis, startYBlocks) {
     if (Math.abs(blocks) < 0.05) return null;
-    var dir = cardinalDir(blocks, axis);
-    var meters = Math.abs(blocks) * BLOCK_M;
-    return dir + " " + formatBlocks(blocks) + " blocks (" + formatDist(meters) + ")";
+    if (axis === "x") {
+      return blocks > 0 ? "towards the Delaware River" : "towards the Schuylkill";
+    }
+    if (blocks > 0) {
+      return startYBlocks < 0 ? "towards City Hall" : "towards North Philadelphia";
+    }
+    return startYBlocks > 0 ? "towards City Hall" : "towards South Philadelphia";
   }
 
-  function shiftWords(blocks, axis) {
+  function shiftWords(blocks, axis, startYBlocks) {
     if (Math.abs(blocks) < 0.05) {
       return axis === "x" ? "no east\u2013west shift" : "no north\u2013south shift";
     }
-    return cardinalDir(blocks, axis);
+    var card = axis === "x" ? ("to the " + cardinalDir(blocks, "x")) : cardinalDir(blocks, "y");
+    var land = axisLandmark(blocks, axis, startYBlocks);
+    return land ? card + " \u00b7 " + land : card;
+  }
+
+  function travelSummary(dx, dy) {
+    var parts = [];
+    if (Math.abs(dy) >= 0.05) {
+      parts.push(cardinalDir(dy, "y") + " " + formatBlocks(dy) + " blocks");
+    }
+    if (Math.abs(dx) >= 0.05) {
+      var ew = cardinalDir(dx, "x") + " " + formatBlocks(dx) + " blocks";
+      if (parts.length) ew = "and to the " + ew;
+      else ew = "to the " + ew;
+      parts.push(ew);
+    }
+    return parts.join(" ");
+  }
+
+  function landmarkSummary(dx, dy, startYBlocks) {
+    var parts = [];
+    if (Math.abs(dy) >= 0.05) {
+      var yLand = axisLandmark(dy, "y", startYBlocks);
+      if (yLand) parts.push(yLand);
+    }
+    if (Math.abs(dx) >= 0.05) {
+      var xLand = axisLandmark(dx, "x", startYBlocks);
+      if (xLand) parts.push(xLand);
+    }
+    return parts.join(" and ");
+  }
+
+  function orderedLegPhrase(blocks, axis, startYBlocks) {
+    if (Math.abs(blocks) < 0.05) return null;
+    var card = axis === "x" ? ("to the " + cardinalDir(blocks, "x")) : cardinalDir(blocks, "y");
+    var land = axisLandmark(blocks, axis, startYBlocks);
+    var meters = Math.abs(blocks) * BLOCK_M;
+    var dist = formatBlocks(blocks) + " blocks (" + formatDist(meters) + ")";
+    return card + " " + dist + (land ? " \u00b7 " + land : "");
   }
 
   function describeChange(a, b) {
@@ -305,14 +392,24 @@
     var B = blocksOf(b.lat, b.lng);
     var dx = round1(B.x - A.x);
     var dy = round1(B.y - A.y);
-    var xLeg = legPhrase(dx, "x");
-    var yLeg = legPhrase(dy, "y");
+    var summary = travelSummary(dx, dy);
+    var landmarks = landmarkSummary(dx, dy, A.y);
+    var xLeg = orderedLegPhrase(dx, "x", A.y);
+    var yLeg = orderedLegPhrase(dy, "y", A.y);
     var first = state.xFirst ? xLeg : yLeg;
     var second = state.xFirst ? yLeg : xLeg;
     var sentence;
-    if (first && second) sentence = "Go " + first + ", then " + second + ".";
-    else if (first || second) sentence = "Go " + (first || second) + ".";
-    else sentence = "You are already on the same grid point.";
+    if (summary && landmarks) {
+      sentence = "Go " + summary + " \u2014 " + landmarks + ".";
+    } else if (summary) {
+      sentence = "Go " + summary + ".";
+    } else if (first && second) {
+      sentence = "Go " + first + ", then " + second + ".";
+    } else if (first || second) {
+      sentence = "Go " + (first || second) + ".";
+    } else {
+      sentence = "You are already on the same grid point.";
+    }
     var gridM = (Math.abs(dx) + Math.abs(dy)) * BLOCK_M;
     var straight = (typeof PhillyWalkMap !== "undefined" && PhillyWalkMap.haversineMeters)
       ? PhillyWalkMap.haversineMeters(a.lat, a.lng, b.lat, b.lng)
@@ -365,8 +462,9 @@
       var d = describeChange(state.start, state.end);
       document.getElementById("dxN").textContent = formatSigned(d.dx);
       document.getElementById("dyN").textContent = formatSigned(d.dy);
-      document.getElementById("dxW").textContent = shiftWords(d.dx, "x");
-      document.getElementById("dyW").textContent = shiftWords(d.dy, "y");
+      var startBlocks = blocksOf(state.start.lat, state.start.lng);
+      document.getElementById("dxW").textContent = shiftWords(d.dx, "x", startBlocks.y);
+      document.getElementById("dyW").textContent = shiftWords(d.dy, "y", startBlocks.y);
       document.getElementById("dirLine").textContent = d.sentence;
       document.getElementById("metaLine").textContent = d.meta;
       change.hidden = false;
@@ -375,6 +473,8 @@
       change.hidden = true;
     }
     syncChips();
+    var clearAllBtn = document.getElementById("clearAllBtn");
+    if (clearAllBtn) clearAllBtn.disabled = !state.start && !state.end;
     requestAnimationFrame(syncSheetHeight);
   }
 
@@ -551,11 +651,11 @@
       map.fitBounds(L.latLngBounds(pts), {
         paddingTopLeft: [28, 96],
         paddingBottomRight: [28, padBottom],
-        maxZoom: 16,
+        maxZoom: 13,
         animate: true
       });
     } else if (pts.length === 1) {
-      var z = Math.max(map.getZoom(), 15);
+      var z = Math.min(Math.max(map.getZoom(), 12), 13);
       var projected = map.project(pts[0], z);
       projected.y += (sheetHeight() / 2) - 20;
       map.setView(map.unproject(projected, z), z, { animate: true });
@@ -569,15 +669,21 @@
     if (!state.layers[source === "landmark" ? "landmarks" : source === "cafe" ? "cafes" : "dates"]) return;
     catalog.forEach(function (p) {
       if (p.source !== source) return;
-      var marker = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
+      var pinOpts = {
         fillColor: SOURCE_COLOR[source],
         radius: source === "landmark" ? 9 : 8,
-        label: p.name,
         onClick: function () {
           ignoreMapClickUntil = Date.now() + 450;
           setSlot(state.mode, pointFromPlace(p));
         }
-      });
+      };
+      if (source === "landmark") {
+        pinOpts.label = p.neighborhood || p.name;
+        pinOpts.labelClass = "city-axes-landmark-label";
+      } else if (map && map.getZoom() >= (PhillyWalkMap.labelZoom || 15)) {
+        pinOpts.label = p.name;
+      }
+      var marker = PhillyWalkMap.addCirclePin([p.lat, p.lng], pinOpts);
       if (marker) marker.addTo(group);
     });
   }
@@ -704,7 +810,7 @@
 
   function buildMap() {
     map = L.map("map", {
-      zoomControl: false,
+      zoomControl: true,
       maxZoom: 19,
       minZoom: PhillyWalkMap.minZoom,
       maxBounds: PhillyWalkMap.panLatLngBounds(),
@@ -714,11 +820,16 @@
     PhillyWalkMap.applyLimits(map);
     PhillyWalkMap.ensurePinPane(map);
     PhillyWalkMap.bindZoomLabels(map);
-    PhillyWalkMap.fit(map, [28, 28]);
     axisLayer = L.layerGroup().addTo(map);
     tickLayer = L.layerGroup().addTo(map);
     routeLayer = L.layerGroup().addTo(map);
-    map.on("zoomend", drawTicks);
+    map.on("zoomend", function () {
+      drawTicks();
+      if (state.layers.landmarks) drawPinGroup("landmark");
+    });
+    if (map.zoomControl && map.zoomControl.setPosition) {
+      map.zoomControl.setPosition("topright");
+    }
     pinGroups.landmark = L.layerGroup().addTo(map);
     pinGroups.cafe = L.layerGroup().addTo(map);
     pinGroups.date = L.layerGroup().addTo(map);
@@ -741,6 +852,10 @@
     document.getElementById("startClear").addEventListener("click", function () { clearSlot("start"); });
     document.getElementById("endClear").addEventListener("click", function () { clearSlot("end"); });
     document.getElementById("swapBtn").addEventListener("click", swapSlots);
+    document.getElementById("clearAllBtn").addEventListener("click", clearAll);
+    document.getElementById("sheetToggle").addEventListener("click", function () {
+      setSheetCollapsed(!document.body.classList.contains("sheet-collapsed"));
+    });
     document.getElementById("orderX").addEventListener("click", function () {
       state.xFirst = true;
       framedKey = "";
@@ -816,6 +931,9 @@
     loadCatalog();
     renderSheet();
     syncSheetHeight();
+    if (state.start && state.end) renderRoute(true);
+    else if (state.start || state.end) frameRoute();
+    else fitRegion(false);
   }
 
   if (document.readyState === "loading") {
