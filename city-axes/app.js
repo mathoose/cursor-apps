@@ -281,21 +281,23 @@
     renderRoute(true);
   }
 
+  function cardinalDir(blocks, axis) {
+    if (axis === "x") return blocks > 0 ? "east" : "west";
+    return blocks > 0 ? "north" : "south";
+  }
+
   function legPhrase(blocks, axis) {
     if (Math.abs(blocks) < 0.05) return null;
-    var dir = axis === "x" ? (blocks > 0 ? "east" : "west") : (blocks > 0 ? "north" : "south");
-    var street = axis === "x" ? "Market" : "Broad";
+    var dir = cardinalDir(blocks, axis);
     var meters = Math.abs(blocks) * BLOCK_M;
-    return dir + " " + formatBlocks(blocks) + " blocks on " + street + " (" + formatDist(meters) + ")";
+    return dir + " " + formatBlocks(blocks) + " blocks (" + formatDist(meters) + ")";
   }
 
   function shiftWords(blocks, axis) {
     if (Math.abs(blocks) < 0.05) {
       return axis === "x" ? "no east\u2013west shift" : "no north\u2013south shift";
     }
-    var dir = axis === "x" ? (blocks > 0 ? "east" : "west") : (blocks > 0 ? "north" : "south");
-    var street = axis === "x" ? "on Market" : "on Broad";
-    return dir + " " + street;
+    return cardinalDir(blocks, axis);
   }
 
   function describeChange(a, b) {

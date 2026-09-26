@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v2 -->
+<!-- build: city-axes-v3 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -51,19 +51,19 @@
           <div class="delta market">
             <p class="delta-k">Δx</p>
             <p class="delta-n" id="dxN">0</p>
-            <p class="delta-w" id="dxW">on Market</p>
+            <p class="delta-w" id="dxW">east / west</p>
           </div>
           <div class="delta broad">
             <p class="delta-k">Δy</p>
             <p class="delta-n" id="dyN">0</p>
-            <p class="delta-w" id="dyW">on Broad</p>
+            <p class="delta-w" id="dyW">north / south</p>
           </div>
         </div>
         <p class="dirs" id="dirLine"></p>
         <p class="meta" id="metaLine"></p>
         <div class="order" role="group" aria-label="Order of the two shifts">
-          <button type="button" class="chip on" id="orderX">Market first</button>
-          <button type="button" class="chip" id="orderY">Broad first</button>
+          <button type="button" class="chip on" id="orderX">East–west first</button>
+          <button type="button" class="chip" id="orderY">North–south first</button>
         </div>
       </div>
 
@@ -100,6 +100,6 @@
   <script src="../apps-shell.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
