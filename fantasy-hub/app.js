@@ -2,9 +2,10 @@
   "use strict";
 
   var APP_ID = "fantasy-hub";
-  var APP_VERSION = "10 · Sep 26, 2026";
+  var APP_VERSION = "11 · Sep 27, 2026";
   var STORAGE_KEY = "fantasy-hub-v1";
   var LOST_WIN_PCT = 0.2;
+  var STALE_MS = 45 * 1000;
   var PLAYERS_DB = "fantasy-hub-players-v1";
   var SLEEPER = "https://api.sleeper.app/v1";
   var SLEEPER_PROJ = "https://api.sleeper.app/projections/nfl";
@@ -198,6 +199,7 @@
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
     document.body.setAttribute("data-view", name);
+    if (name === "scores" || name === "roots") maybeRefreshIfStale();
   }
 
   function fmtPts(n) {
@@ -452,11 +454,13 @@
     });
   }
 
-  function loadSleeperProjections(season, week) {
+  function loadSleeperProjections(season, week, force) {
     var key = String(season) + "-" + String(week);
-    if (sleeperProjCache.key === key && sleeperProjCache.map) return Promise.resolve(sleeperProjCache.map);
+    if (!force && sleeperProjCache.key === key && sleeperProjCache.map) {
+      return Promise.resolve(sleeperProjCache.map);
+    }
     var url = SLEEPER_PROJ + "/" + season + "/" + week +
-      "?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF";
+      "?season_type=regular&position[]=QB&position[]=RB&position[]=WR&position[]=TE&position[]=K&position[]=DEF&_=" + Date.now();
     return fetchJson(url).then(function (res) {
       var map = {};
       var rows = Array.isArray(res.data) ? res.data : [];
@@ -497,12 +501,12 @@
     return Math.max(0, Math.min(1, remSec / 3600));
   }
 
-  function loadSleeperGameStatus(season, week) {
+  function loadSleeperGameStatus(season, week, force) {
     var key = String(season) + "-" + String(week);
-    if (sleeperGameStatusCache.key === key && sleeperGameStatusCache.map) {
+    if (!force && sleeperGameStatusCache.key === key && sleeperGameStatusCache.map) {
       return Promise.resolve(sleeperGameStatusCache.map);
     }
-    return fetchJson(SLEEPER + "/scores/nfl/regular/" + season + "/" + week).then(function (res) {
+    return fetchJson(SLEEPER + "/scores/nfl/regular/" + season + "/" + week + "?_=" + Date.now()).then(function (res) {
       var map = {};
       var rows = Array.isArray(res.data) ? res.data : [];
       rows.forEach(function (g) {
@@ -608,7 +612,8 @@
   }
 
   function fetchJson(url, opts) {
-    return fetch(url, opts || {}).then(function (res) {
+    opts = Object.assign({ cache: "no-store" }, opts || {});
+    return fetch(url, opts).then(function (res) {
       return res.text().then(function (text) {
         var data = null;
         try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
@@ -618,7 +623,7 @@
   }
 
   function loadNflState() {
-    return fetchJson(SLEEPER + "/state/nfl").then(function (res) {
+    return fetchJson(SLEEPER + "/state/nfl?_=" + Date.now()).then(function (res) {
       if (res.ok && res.data) nflState = res.data;
       return nflState;
     }).catch(function () { return nflState; });
@@ -717,11 +722,12 @@
   }
 
   function loadSleeperMatchup(league, week, projMap, gameStatusMap) {
+    var bust = "?_=" + Date.now();
     return Promise.all([
-      fetchJson(SLEEPER + "/league/" + league.id),
-      fetchJson(SLEEPER + "/league/" + league.id + "/users"),
-      fetchJson(SLEEPER + "/league/" + league.id + "/rosters"),
-      fetchJson(SLEEPER + "/league/" + league.id + "/matchups/" + week)
+      fetchJson(SLEEPER + "/league/" + league.id + bust),
+      fetchJson(SLEEPER + "/league/" + league.id + "/users" + bust),
+      fetchJson(SLEEPER + "/league/" + league.id + "/rosters" + bust),
+      fetchJson(SLEEPER + "/league/" + league.id + "/matchups/" + week + bust)
     ]).then(function (parts) {
       var info = parts[0].data || {};
       var users = Array.isArray(parts[1].data) ? parts[1].data : [];
@@ -852,7 +858,7 @@
     var rootAgainst = [];
     foeTeams.forEach(function (team) {
       (team.starters || []).forEach(function (p) {
-        if (!p) return;
+        if (!p || p.starter === false) return;
         rootAgainst.push({
           player: p,
           teamName: team.teamName,
@@ -1468,6 +1474,7 @@
       if (team.isMine) return;
       if (team.rank < bubbleStart || team.rank > bubbleEnd) return;
       (team.starters || []).forEach(function (p) {
+        if (!p || p.starter === false) return;
         rootAgainst.push({
           player: p,
           teamName: team.teamName,
@@ -1517,6 +1524,9 @@
   function refreshAll() {
     var week = currentWeek();
     el("refreshBtn").classList.add("busy");
+    // Always refetch live board pieces — in-memory caches were keeping Sunday scores stale.
+    sleeperProjCache = { key: "", map: null };
+    sleeperGameStatusCache = { key: "", map: null };
     return loadNflState().then(function () {
       week = currentWeek();
       if (state.demo && !enabledSleeper().length && !enabledEspn().length) {
@@ -1528,8 +1538,8 @@
       var needPlayers = enabledSleeper().length > 0;
       return Promise.all([
         needPlayers ? loadSleeperPlayers(false) : Promise.resolve(null),
-        needPlayers ? loadSleeperProjections(currentSeason(), week) : Promise.resolve({}),
-        needPlayers ? loadSleeperGameStatus(currentSeason(), week) : Promise.resolve({})
+        needPlayers ? loadSleeperProjections(currentSeason(), week, true) : Promise.resolve({}),
+        needPlayers ? loadSleeperGameStatus(currentSeason(), week, true) : Promise.resolve({})
       ]).then(function (parts) {
         var projMap = parts[1] || {};
         var gameStatusMap = parts[2] || {};
@@ -1594,6 +1604,13 @@
       el("refreshBtn").classList.remove("busy");
       renderAll();
     });
+  }
+
+  function maybeRefreshIfStale() {
+    if (!hasAccounts() || state.demo) return;
+    if (el("refreshBtn") && el("refreshBtn").classList.contains("busy")) return;
+    var last = state.lastSync ? Date.parse(state.lastSync) : 0;
+    if (!last || Date.now() - last >= STALE_MS) refreshAll();
   }
 
   function snapshot() {
@@ -1922,9 +1939,23 @@
 
   function buildAgainstRootRows(matchups) {
     var map = {};
+    // Split-root players (help + hurt) stay on Split only — never also on Root against.
+    var splitKeys = {};
+    buildRootBoard(matchups || [], !!state.includeBench).conflicted.forEach(function (row) {
+      splitKeys[row.key] = true;
+    });
+
+    function isAgainstEligible(player) {
+      if (!player || !player.name) return false;
+      // Root against is starters-only (bench never counts, even if Root-for includes bench).
+      if (player.starter === false) return false;
+      if (splitKeys[playerKey(player)]) return false;
+      return true;
+    }
+
     function addRow(opts) {
       var player = opts.player;
-      if (!player || !player.name) return;
+      if (!isAgainstEligible(player)) return;
       var key = playerKey(player) + "|" + opts.league;
       if (!map[key]) {
         map[key] = {
@@ -1962,6 +1993,7 @@
       if (!m || !m.opp) return;
       var lost = matchupIsLost(m);
       if (!(state.rootHideLost && lost)) {
+        // Always starters — never opp bench.
         playersForSide(m.opp, false).forEach(function (p) {
           addRow({
             source: "h2h",
@@ -1979,6 +2011,7 @@
       if (state.rootHideLost && lost) return;
       (m.median.rootAgainst || []).forEach(function (item) {
         if (!item || !item.player) return;
+        if (item.player.starter === false) return;
         addRow({
           source: "median",
           player: item.player,
@@ -2301,6 +2334,11 @@
     }
     bindRootToggle("rootAgainstMedian", "rootAgainstMedian");
     bindRootToggle("rootHideLost", "rootHideLost");
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") maybeRefreshIfStale();
+    });
+    window.addEventListener("pageshow", maybeRefreshIfStale);
+    window.addEventListener("focus", maybeRefreshIfStale);
     el("exportJsonBtn").addEventListener("click", exportJson);
     el("importJsonFile").addEventListener("change", function (e) {
       importJson(e.target.files && e.target.files[0]);
