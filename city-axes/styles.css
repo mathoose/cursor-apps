@@ -91,9 +91,6 @@ main { position: relative; height: 100dvh; }
   background: #d7e3dc;
 }
 
-body.map-poster .map {
-  background: #e8b84a;
-}
 
 #map.leaflet-container {
   width: 100%;
@@ -123,16 +120,24 @@ body.map-poster .map {
   font-weight: 650;
 }
 
-.map-style-btn {
+.hoods-toggle {
   border: 1px solid var(--border);
   color: var(--ink);
   cursor: pointer;
   padding: 0 12px;
 }
-.map-style-btn.on {
+.hoods-toggle.on {
   background: #4c1d95;
   border-color: #4c1d95;
   color: #faf5ff;
+}
+
+body.map-hoods-on .leaflet-tile-pane {
+  opacity: 0.18;
+}
+
+body.map-hoods-on .map {
+  background: #e8b84a;
 }
 .swatch {
   width: 14px;
@@ -337,15 +342,20 @@ body.sheet-collapsed .sheet-toggle {
   line-height: 1.25;
 }
 
-.leaflet-container:not(.zoomed-in) .philly-pin-label.city-axes-landmark-label {
+.leaflet-container.zoomed-in .philly-pin-label.city-axes-landmark-label {
   display: block !important;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   opacity: 0.92;
 }
 
-.leaflet-container.zoomed-in .philly-pin-label.city-axes-landmark-label {
-  font-size: 11px;
+body.map-hoods-on .philly-pin-label.city-axes-landmark-label {
+  display: none !important;
+}
+
+body.map-hoods-on .philly-pin-dot {
+  opacity: 0.85;
+  transform: scale(0.85);
 }
 
 .leaflet-top.leaflet-right {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v10 -->
+<!-- build: city-axes-v11 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="vendor/leaflet.css?v=8" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body class="sheet-compact">
   <header class="topbar">
@@ -33,7 +33,7 @@
     <div class="legend">
       <span><i class="swatch market"></i>x Market</span>
       <span><i class="swatch broad"></i>y Broad</span>
-      <button type="button" class="map-style-btn" id="mapStyleBtn" aria-pressed="false">Poster map</button>
+      <button type="button" class="hoods-toggle" id="layerHoodsMap" aria-pressed="false">Neighborhoods</button>
     </div>
     <button type="button" class="here-btn" id="hereBtn">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
@@ -91,12 +91,13 @@
       <input type="search" id="searchInput" placeholder="Cafes, dates, landmarks" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" />
       <div class="results" id="results" hidden></div>
 
-      <div class="layers" role="group" aria-label="Pins from other maps">
+      <div class="layers" role="group" aria-label="Map layers">
+        <button type="button" class="chip" id="layerHoods" aria-pressed="false">Neighborhoods</button>
         <button type="button" class="chip on" id="layerLandmarks" aria-pressed="true">Landmarks</button>
         <button type="button" class="chip" id="layerCafes" aria-pressed="false">Cafes</button>
         <button type="button" class="chip" id="layerDates" aria-pressed="false">Dates</button>
       </div>
-      <p class="hint" id="loadHint">Landmarks are on the map. Cafes and dates load from the other apps.</p>
+      <p class="hint" id="loadHint">Turn on Neighborhoods for shaded hoods (walk region). Landmarks are dots only in that mode. Cafes and dates load from the other apps.</p>
       <p class="hint">One block is a Center City block, about 450 ft, measured along Market and along Broad.</p>
       </div>
       <p class="sr-only" id="live" aria-live="polite"></p>
@@ -116,6 +117,6 @@
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
   <script src="philly-hoods.js?v=2"></script>
   <script src="export-share.js?v=5"></script>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
