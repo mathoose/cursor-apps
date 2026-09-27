@@ -75,6 +75,7 @@
     end: null,
     locating: false,
     mapStyle: "streets",
+    sheet: "compact",
     layers: { landmarks: true, cafes: false, dates: false },
     query: ""
   };
@@ -196,8 +197,24 @@
     toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2800);
   }
 
+  function sheetLevel() {
+    if (document.body.classList.contains("sheet-hidden")) return "hidden";
+    if (document.body.classList.contains("sheet-full")) return "full";
+    return "compact";
+  }
+
   function sheetHeight() {
-    return sheet ? sheet.offsetHeight : 280;
+    if (document.body.classList.contains("sheet-hidden")) return 0;
+    return sheet ? sheet.offsetHeight : 118;
+  }
+
+  function mapPadding() {
+    var top = 92;
+    var bottom = Math.max(20, sheetHeight() + 20);
+    return {
+      paddingTopLeft: [24, top],
+      paddingBottomRight: [24, bottom]
+    };
   }
 
   function syncSheetHeight() {
@@ -231,7 +248,8 @@
     var end = persistable(state.end);
     var layersDefault = state.layers.landmarks && !state.layers.cafes && !state.layers.dates;
     var styleDefault = state.mapStyle === "streets";
-    if (!start && !end && state.xFirst && layersDefault && styleDefault) {
+    var sheetDefault = state.sheet === "compact";
+    if (!start && !end && state.xFirst && layersDefault && styleDefault && sheetDefault) {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
       return;
     }
@@ -239,6 +257,7 @@
       version: 1,
       xFirst: !!state.xFirst,
       mapStyle: state.mapStyle === "poster" ? "poster" : "streets",
+      sheet: state.sheet === "full" || state.sheet === "hidden" ? state.sheet : "compact",
       start: start,
       end: end,
       layers: {
@@ -339,10 +358,10 @@
 
   function fitRegion(animate) {
     if (!map || typeof PhillyWalkMap === "undefined") return;
-    var padBottom = sheetHeight() + 24;
+    var pad = mapPadding();
     map.fitBounds(PhillyWalkMap.latLngBounds(), {
-      paddingTopLeft: [20, 76],
-      paddingBottomRight: [20, padBottom],
+      paddingTopLeft: pad.paddingTopLeft,
+      paddingBottomRight: pad.paddingBottomRight,
       maxZoom: 12,
       animate: !!animate
     });
@@ -487,7 +506,7 @@
     }
     drawVectorBasemap(true);
     clearHoodLayers();
-    if (state.mapStyle === "poster" && typeof PhillyHoods !== "undefined") {
+    if (typeof PhillyHoods !== "undefined") {
       PhillyHoods.load().then(function () {
         drawNeighborhoods(true);
       });
@@ -501,19 +520,93 @@
     scheduleMapRefresh();
   }
 
-  function setSheetCollapsed(collapsed) {
-    document.body.classList.toggle("sheet-collapsed", collapsed);
-    var btn = document.getElementById("sheetToggle");
-    if (btn) {
-      btn.textContent = collapsed ? "Show panel" : "More map";
-      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  function applySheetClasses() {
+    document.body.classList.remove("sheet-collapsed", "sheet-compact", "sheet-full", "sheet-hidden");
+    if (state.sheet === "hidden") {
+      document.body.classList.add("sheet-hidden");
+    } else if (state.sheet === "full") {
+      document.body.classList.add("sheet-full");
+    } else {
+      document.body.classList.add("sheet-compact");
     }
+    var btn = document.getElementById("sheetToggle");
+    var reveal = document.getElementById("sheetReveal");
+    if (btn) {
+      if (state.sheet === "hidden") {
+        btn.textContent = "Show panel";
+        btn.setAttribute("aria-expanded", "false");
+      } else if (state.sheet === "compact") {
+        btn.textContent = "Show panel";
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        btn.textContent = "More map";
+        btn.setAttribute("aria-expanded", "true");
+      }
+    }
+    var hiddenBar = document.getElementById("sheetHiddenBar");
+    if (hiddenBar) hiddenBar.hidden = state.sheet !== "hidden";
+  }
+
+  function setSheetLevel(level) {
+    if (level !== "hidden" && level !== "full" && level !== "compact") level = "compact";
+    if (state.sheet === level) return;
+    state.sheet = level;
+    framedKey = "";
+    applySheetClasses();
+    save();
     syncSheetHeight();
     if (map) {
       requestAnimationFrame(function () {
-        scheduleMapRefresh();
+        syncMapView(false);
+        if (state.start || state.end) renderRoute(true);
+        else fitRegion(false);
       });
     }
+  }
+
+  function cycleSheetToggle() {
+    if (state.sheet === "hidden") setSheetLevel("compact");
+    else if (state.sheet === "compact") setSheetLevel("full");
+    else setSheetLevel("compact");
+  }
+
+  function bindSheetDrag() {
+    var grab = document.querySelector(".sheet-grab");
+    if (!grab || !sheet) return;
+    var startY = 0;
+    var dragging = false;
+    function onStart(y) {
+      dragging = true;
+      startY = y;
+    }
+    function onEnd(y) {
+      if (!dragging) return;
+      dragging = false;
+      var dy = y - startY;
+      if (dy > 56) {
+        if (state.sheet === "full") setSheetLevel("compact");
+        else if (state.sheet === "compact") setSheetLevel("hidden");
+      } else if (dy < -48) {
+        if (state.sheet === "compact") setSheetLevel("full");
+        else if (state.sheet === "hidden") setSheetLevel("compact");
+      }
+    }
+    grab.addEventListener("touchstart", function (e) {
+      if (!e.touches[0]) return;
+      onStart(e.touches[0].clientY);
+    }, { passive: true });
+    grab.addEventListener("touchend", function (e) {
+      var t = e.changedTouches[0];
+      if (t) onEnd(t.clientY);
+    });
+    grab.addEventListener("mousedown", function (e) {
+      onStart(e.clientY);
+      function up(ev) {
+        onEnd(ev.clientY);
+        window.removeEventListener("mouseup", up);
+      }
+      window.addEventListener("mouseup", up);
+    });
   }
 
   function swapSlots() {
@@ -709,8 +802,11 @@
     syncChips();
     var clearAllBtn = document.getElementById("clearAllBtn");
     if (clearAllBtn) clearAllBtn.disabled = !state.start && !state.end;
+    var hasRoute = !!(state.start && state.end);
     var exportBtn = document.getElementById("exportCardBtn");
-    if (exportBtn) exportBtn.hidden = !(state.start && state.end);
+    var exportHidden = document.getElementById("exportHiddenBtn");
+    if (exportBtn) exportBtn.hidden = !hasRoute;
+    if (exportHidden) exportHidden.hidden = !hasRoute;
     requestAnimationFrame(syncSheetHeight);
   }
 
@@ -882,33 +978,34 @@
 
   function drawNeighborhoods(force) {
     if (!neighborhoodLayer || !waterLayer) return;
-    if (state.mapStyle !== "poster") {
-      clearHoodLayers();
-      return;
-    }
-    if (!force && hoodGeoLayer) return;
     if (typeof PhillyHoods === "undefined" || !PhillyHoods.getLoaded()) return;
-    var geo = PhillyHoods.getLoaded();
     var z = map ? map.getZoom() : 13;
+    var poster = state.mapStyle === "poster";
+    var zBucket = z >= 14 ? "14" : z >= 12 ? "12" : "10";
+    var styleKey = poster ? "poster-" + zBucket : "streets-" + zBucket;
+    if (!force && hoodGeoLayer && hoodGeoLayer.__styleKey === styleKey) return;
+    var geo = PhillyHoods.getLoaded();
     clearHoodLayers();
     if (!hoodCanvasRenderer) hoodCanvasRenderer = L.canvas({ padding: 0.5 });
     try {
       waterLayer.clearLayers();
-      L.geoJSON(PhillyHoods.WATER_FEATURES, {
-        interactive: false,
-        style: {
-          color: "rgba(255,255,255,0.65)",
-          weight: 1.5,
-          fillColor: PhillyHoods.HOOD_FILL.water,
-          fillOpacity: 1
-        }
-      }).addTo(waterLayer);
+      if (poster) {
+        L.geoJSON(PhillyHoods.WATER_FEATURES, {
+          interactive: false,
+          style: {
+            color: "rgba(255,255,255,0.65)",
+            weight: 1.5,
+            fillColor: PhillyHoods.HOOD_FILL.water,
+            fillOpacity: 1
+          }
+        }).addTo(waterLayer);
+      }
 
       var ranked = geo.features.slice().sort(function (a, b) {
         return hoodLabelRank(b) - hoodLabelRank(a);
       });
       var labelNames = {};
-      if (z >= 14) {
+      if (poster && z >= 14) {
         ranked.slice(0, 28).forEach(function (f) {
           var n = f.properties && f.properties.name;
           if (n) labelNames[n] = true;
@@ -919,15 +1016,25 @@
         interactive: false,
         style: function (feat) {
           var name = feat.properties && feat.properties.name;
+          if (poster) {
+            return {
+              color: "rgba(255,255,255,0.92)",
+              weight: 1.6,
+              fillColor: PhillyHoods.fillForName(name, "other"),
+              fillOpacity: 0.92,
+              renderer: hoodCanvasRenderer
+            };
+          }
           return {
-            color: "rgba(255,255,255,0.92)",
-            weight: 1.6,
+            color: "rgba(255,255,255,0.55)",
+            weight: 1,
             fillColor: PhillyHoods.fillForName(name, "other"),
-            fillOpacity: 0.92,
+            fillOpacity: z >= 14 ? 0.34 : z >= 12 ? 0.26 : 0.18,
             renderer: hoodCanvasRenderer
           };
         },
         onEachFeature: function (feat, layer) {
+          if (!poster) return;
           var name = feat.properties && feat.properties.name;
           if (!name || !labelNames[name]) return;
           layer.bindTooltip(esc(name), {
@@ -939,6 +1046,7 @@
           });
         }
       }).addTo(neighborhoodLayer);
+      hoodGeoLayer.__styleKey = styleKey;
     } catch (err) {
       console.warn("City Axes: neighborhood layer skipped", err);
     }
@@ -993,18 +1101,18 @@
     var key = pts.map(function (p) { return p[0].toFixed(5) + "," + p[1].toFixed(5); }).join("|") + (state.xFirst ? ":x" : ":y");
     if (key === framedKey) return;
     framedKey = key;
-    var padBottom = sheetHeight() + 28;
+    var pad = mapPadding();
     if (pts.length >= 2) {
       map.fitBounds(L.latLngBounds(pts), {
-        paddingTopLeft: [28, 96],
-        paddingBottomRight: [28, padBottom],
-        maxZoom: 13,
+        paddingTopLeft: pad.paddingTopLeft,
+        paddingBottomRight: pad.paddingBottomRight,
+        maxZoom: 14,
         animate: true
       });
     } else if (pts.length === 1) {
       var z = Math.min(Math.max(map.getZoom(), 12), 13);
       var projected = map.project(pts[0], z);
-      projected.y += (sheetHeight() / 2) - 20;
+      projected.y += sheetHeight() * 0.35;
       map.setView(map.unproject(projected, z), z, { animate: true });
     }
   }
@@ -1185,7 +1293,7 @@
     applyMapStyle();
     map.on("zoomend", function () {
       drawTicks();
-      if (state.mapStyle === "poster") drawNeighborhoods(true);
+      drawNeighborhoods(true);
       if (state.layers.landmarks) drawPinGroup("landmark");
     });
     map.whenReady(function () {
@@ -1217,9 +1325,12 @@
     document.getElementById("endClear").addEventListener("click", function () { clearSlot("end"); });
     document.getElementById("swapBtn").addEventListener("click", swapSlots);
     document.getElementById("clearAllBtn").addEventListener("click", clearAll);
-    document.getElementById("sheetToggle").addEventListener("click", function () {
-      setSheetCollapsed(!document.body.classList.contains("sheet-collapsed"));
-    });
+    document.getElementById("sheetToggle").addEventListener("click", cycleSheetToggle);
+    var sheetReveal = document.getElementById("sheetReveal");
+    if (sheetReveal) {
+      sheetReveal.addEventListener("click", function () { setSheetLevel("compact"); });
+    }
+    bindSheetDrag();
     document.getElementById("orderX").addEventListener("click", function () {
       state.xFirst = true;
       framedKey = "";
@@ -1262,28 +1373,29 @@
     document.getElementById("layerDates").addEventListener("click", function () { toggleLayer("dates"); });
     var mapStyleBtn = document.getElementById("mapStyleBtn");
     if (mapStyleBtn) mapStyleBtn.addEventListener("click", toggleMapStyle);
-    var exportBtn = document.getElementById("exportCardBtn");
-    if (exportBtn) {
-      exportBtn.addEventListener("click", function () {
-        if (!state.start || !state.end) {
-          toast("Set a start and end first");
-          return;
-        }
-        if (typeof CityAxesExport === "undefined") {
-          toast("Export is not available");
-          return;
-        }
-        exportBtn.disabled = true;
-        toast("Building share image\u2026");
-        CityAxesExport.exportCurrentRoute(state).then(function () {
-          toast("Direction card saved — check Photos or Downloads");
-        }).catch(function () {
-          toast("Could not create image");
-        }).finally(function () {
-          exportBtn.disabled = false;
-        });
+    function runExport(btn) {
+      if (!state.start || !state.end) {
+        toast("Set a start and end first");
+        return;
+      }
+      if (typeof CityAxesExport === "undefined") {
+        toast("Export is not available");
+        return;
+      }
+      btn.disabled = true;
+      toast("Building share image\u2026");
+      CityAxesExport.exportCurrentRoute(state).then(function () {
+        toast("Direction card saved — check Photos or Downloads");
+      }).catch(function () {
+        toast("Could not create image");
+      }).finally(function () {
+        btn.disabled = false;
       });
     }
+    var exportBtn = document.getElementById("exportCardBtn");
+    if (exportBtn) exportBtn.addEventListener("click", function () { runExport(exportBtn); });
+    var exportHidden = document.getElementById("exportHiddenBtn");
+    if (exportHidden) exportHidden.addEventListener("click", function () { runExport(exportHidden); });
     if (typeof ResizeObserver !== "undefined") {
       var observer = new ResizeObserver(syncSheetHeight);
       observer.observe(sheet);
@@ -1311,7 +1423,11 @@
       if (savedRaw.mapStyle === "poster" || savedRaw.mapStyle === "streets") {
         state.mapStyle = savedRaw.mapStyle;
       }
+      if (savedRaw.sheet === "full" || savedRaw.sheet === "hidden" || savedRaw.sheet === "compact") {
+        state.sheet = savedRaw.sheet;
+      }
     }
+    applySheetClasses();
     if (typeof L === "undefined" || typeof PhillyWalkMap === "undefined") {
       toast("The map could not load. Check your connection and reopen.");
       return;
@@ -1319,6 +1435,13 @@
     buildMap();
     bindUi();
     mountExportShare();
+    if (typeof PhillyHoods !== "undefined") {
+      window.setTimeout(function () {
+        PhillyHoods.load().then(function () {
+          drawNeighborhoods(true);
+        });
+      }, 400);
+    }
     loadCatalog();
     renderSheet();
     syncSheetHeight();

@@ -186,15 +186,73 @@ body.map-poster .map {
   -webkit-overflow-scrolling: touch;
 }
 
+body.sheet-compact .sheet,
 body.sheet-collapsed .sheet {
   max-height: none;
   overflow: visible;
   padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
 }
 
+body.sheet-compact #change,
+body.sheet-compact .sheet-details,
+body.sheet-compact .order,
 body.sheet-collapsed .sheet-details,
 body.sheet-collapsed .order {
   display: none;
+}
+
+body.sheet-hidden .sheet {
+  transform: translateY(calc(100% + 12px));
+  pointer-events: none;
+  visibility: hidden;
+}
+
+body.sheet-hidden .sheet-hidden-bar {
+  display: flex;
+}
+
+.sheet-hidden-bar {
+  display: none;
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 46;
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+}
+
+.sheet-reveal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(247, 250, 248, 0.97);
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(20, 36, 27, 0.18);
+}
+
+.sheet-hidden-bar .export-toolbar-btn {
+  min-height: 44px;
+  box-shadow: 0 4px 16px rgba(20, 36, 27, 0.18);
+}
+
+body.sheet-hidden .here-btn {
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+body.sheet-hidden {
+  --sheet-h: 0px;
+}
+
+body.sheet-compact {
+  --sheet-h: 118px;
 }
 
 .sheet-grab {
@@ -203,6 +261,8 @@ body.sheet-collapsed .order {
   margin: 2px auto 8px;
   border-radius: 999px;
   background: var(--border);
+  touch-action: none;
+  cursor: grab;
 }
 
 .sheet-toolbar {
@@ -218,6 +278,19 @@ body.sheet-collapsed .order {
   margin-bottom: 0;
 }
 
+.export-toolbar-btn {
+  flex-shrink: 0;
+  border: 1px solid #14532d;
+  background: #14532d;
+  color: #f8fafc;
+  border-radius: 12px;
+  min-height: 40px;
+  padding: 0 12px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+.export-toolbar-btn[hidden] { display: none !important; }
+
 .sheet-toggle {
   flex-shrink: 0;
   border: 1px solid var(--border);
@@ -230,6 +303,7 @@ body.sheet-collapsed .order {
   color: var(--muted);
 }
 
+body.sheet-compact .sheet-toggle,
 body.sheet-collapsed .sheet-toggle {
   color: var(--ink);
   border-color: var(--ink);
