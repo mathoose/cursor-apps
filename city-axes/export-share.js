@@ -87,18 +87,23 @@
     var maxX = xy[0].x;
     var minY = xy[0].y;
     var maxY = xy[0].y;
+    minX = Math.min(minX, 0);
+    maxX = Math.max(maxX, 0);
+    minY = Math.min(minY, 0);
+    maxY = Math.max(maxY, 0);
     xy.forEach(function (p) {
       minX = Math.min(minX, p.x);
       maxX = Math.max(maxX, p.x);
       minY = Math.min(minY, p.y);
       maxY = Math.max(maxY, p.y);
     });
-    var spanX = Math.max(maxX - minX, deps.BLOCK_M * 5);
-    var spanY = Math.max(maxY - minY, deps.BLOCK_M * 5);
-    spanX = Math.min(spanX, deps.BLOCK_M * 42);
-    spanY = Math.min(spanY, deps.BLOCK_M * 42);
-    var cx = (minX + maxX) / 2;
-    var cy = (minY + maxY) / 2;
+    var spanX = Math.max(maxX - minX, deps.BLOCK_M * 14);
+    var spanY = Math.max(maxY - minY, deps.BLOCK_M * 14);
+    spanX = Math.min(spanX, deps.BLOCK_M * 52);
+    spanY = Math.min(spanY, deps.BLOCK_M * 52);
+    /* Anchor export on City Hall (0, 0) so x Market / y Broad cross Center City on the card. */
+    var cx = 0;
+    var cy = 0;
     var scale = Math.min((mapW - pad * 2) / spanX, (mapH - pad * 2) / spanY);
     function projLatLng(lat, lng) {
       var p = deps.toXY(lat, lng);
@@ -344,7 +349,6 @@
       return proj(ll.lat, ll.lng);
     }
 
-    drawBlockStreetGrid(ctx, projM, mapW, mapH);
     if (geo) {
       var bounds = viewLatLngBounds(view, mapW, mapH, view.pad);
       drawPosterNeighborhoods(ctx, geo, proj, payload.hoodStart, payload.hoodEnd, bounds);
