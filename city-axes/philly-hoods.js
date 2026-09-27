@@ -134,7 +134,10 @@
   function fillForName(name, role) {
     if (role === "start") return HOOD_FILL.start;
     if (role === "end") return HOOD_FILL.end;
-    var hues = ["#6d74b8", "#8288c9", "#959bd4", "#767dc0", "#8b91cc", "#7077bd"];
+    var hues = [
+      "#5c63a8", "#6a71b5", "#787fc2", "#868dcf", "#5e65ab", "#6c73b8",
+      "#7a81c5", "#6970b2", "#777ebf", "#858ccc", "#636aa5", "#7178b2"
+    ];
     return hues[hashName(name) % hues.length];
   }
 
