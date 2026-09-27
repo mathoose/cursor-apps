@@ -417,46 +417,8 @@
     if (!force && key === basemapStyleKey) return;
     basemapStyleKey = key;
     basemapLayer.clearLayers();
-    if (typeof PhillyWalkMap === "undefined") return;
-    var b = PhillyWalkMap.bounds;
-    var region = [
-      [b.south, b.west],
-      [b.south, b.east],
-      [b.north, b.east],
-      [b.north, b.west]
-    ];
-    var poster = state.layers.hoods;
-    L.polygon(region, {
-      color: poster ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.55)",
-      weight: poster ? 2 : 1,
-      fillColor: poster ? "#e8b84a" : "#e8f0eb",
-      fillOpacity: 1,
-      interactive: false,
-      pane: "vectorBasemapPane"
-    }).addTo(basemapLayer);
-
-    if (poster) return;
-
-    var renderer = L.canvas({ padding: 0.5 });
-    var gridStyle = {
-      color: "rgba(20, 36, 27, 0.11)",
-      weight: 1,
-      opacity: 1,
-      interactive: false,
-      renderer: renderer,
-      pane: "vectorBasemapPane"
-    };
-    var block;
-    for (block = -55; block <= 55; block += 5) {
-      var xM = block * BLOCK_M;
-      var a = fromXY(xM, -55 * BLOCK_M);
-      var c = fromXY(xM, 55 * BLOCK_M);
-      L.polyline([[a.lat, a.lng], [c.lat, c.lng]], gridStyle).addTo(basemapLayer);
-      var yM = block * BLOCK_M;
-      var d = fromXY(-55 * BLOCK_M, yM);
-      var e = fromXY(55 * BLOCK_M, yM);
-      L.polyline([[d.lat, d.lng], [e.lat, e.lng]], gridStyle).addTo(basemapLayer);
-    }
+    /* Streets: no fill/grid overlay — OSM tiles must stay visible (canvas grid was a white sheet on iOS). */
+    if (!state.layers.hoods) return;
   }
 
   function syncMapView(animate) {
@@ -1033,6 +995,7 @@
         style: function (feat) {
           var name = feat.properties && feat.properties.name;
           return {
+            pane: "hoodPane",
             color: "rgba(255,255,255,0.95)",
             weight: 1.8,
             fillColor: PhillyHoods.fillForName(name, "other"),
