@@ -617,6 +617,31 @@ main {
 .badge.manga { background: var(--manga-soft); color: var(--manga); }
 .badge.comic { background: var(--comic-soft); color: var(--comic); }
 .badge.completed { background: rgba(255,255,255,0.06); color: var(--text-faint); }
+.badge.paid { background: var(--accent-soft); color: var(--accent); }
+.badge.ads { background: var(--warn-soft); color: var(--warn); }
+.badge.for-shows { background: var(--show-soft); color: var(--show); }
+.badge.for-books { background: var(--book-soft); color: var(--book); }
+.badge.cancelled { background: rgba(240, 113, 120, 0.12); color: var(--danger); }
+
+.subs-summary {
+  margin: 0 0 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.sub-card.cancelled {
+  opacity: 0.72;
+}
+.sub-dates {
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+.sub-dates span {
+  display: block;
+  margin-top: 2px;
+}
+.sub-dates .cancelled-line { color: var(--danger); }
 
 .reminder-row { display: flex; gap: 6px; align-items: stretch; }
 .reminder-card {
@@ -840,6 +865,7 @@ main {
   gap: 10px;
 }
 .field-row[hidden] { display: none !important; }
+.field[hidden] { display: none !important; }
 .field-label {
   display: block;
   margin-bottom: 6px;
@@ -866,6 +892,7 @@ main {
   padding: 12px 14px;
   outline: none;
 }
+.field input[type="date"] { color-scheme: dark; }
 .field textarea { min-height: 64px; resize: vertical; }
 .field input:focus,
 .field select:focus,

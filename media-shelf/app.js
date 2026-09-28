@@ -35,11 +35,17 @@
     quickLogKind: null,
     quickLogId: null,
     quickLogShelf: "active",
+    quickLogSubId: null,
     quickAddKind: null,
     quickAddShelf: "active",
     showType: "binge",
     bookType: "book",
     subscriptionKind: "streaming",
+    subFor: "shows",
+    subAccessPaid: true,
+    subAccessAds: false,
+    subStatus: "active",
+    subFilters: { active: true, cancelled: false, shows: true, books: true },
     selectedDays: [],
     calendarMonth: null,
     selectedDate: null,
@@ -140,17 +146,56 @@
     };
   }
 
+  function dateOnly(raw) {
+    if (!raw) return null;
+    var s = String(raw);
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+    return null;
+  }
+
+  function normalizeAccess(raw) {
+    if (raw === "ads") return "ads";
+    if (raw === "both" || raw === "paid-ads") return "both";
+    if (Array.isArray(raw)) {
+      var hasPaid = raw.indexOf("paid") >= 0 || raw.indexOf("payment") >= 0;
+      var hasAds = raw.indexOf("ads") >= 0;
+      if (hasPaid && hasAds) return "both";
+      if (hasAds) return "ads";
+      return "paid";
+    }
+    return "paid";
+  }
+
+  function normalizeForMedia(raw, kind) {
+    if (raw === "books" || raw === "both" || raw === "shows") return raw;
+    if (raw === "reading") return "books";
+    if (kind === "reading") return "books";
+    return "shows";
+  }
+
   function normalizeSubscription(raw) {
     if (!raw || !raw.name) return null;
     var cost = raw.cost;
     if (cost != null && cost !== "") cost = parseFloat(cost);
     else cost = null;
+    var forMedia = normalizeForMedia(raw.forMedia, raw.kind);
+    var kind = raw.kind === "channel" ? "channel" : raw.kind === "reading" ? "reading" : "streaming";
+    if (forMedia === "books") kind = "reading";
+    var active = raw.active !== false;
+    if (raw.active == null && raw.cancelledSince) active = false;
+    if (raw.active === false) active = false;
+    var subscribedSince = dateOnly(raw.subscribedSince) || dateOnly(raw.createdAt);
+    var cancelledSince = active ? null : (dateOnly(raw.cancelledSince) || dateOnly(raw.updatedAt));
     return {
       id: raw.id || uid(),
       name: String(raw.name).trim(),
-      kind: raw.kind === "channel" ? "channel" : "streaming",
-      active: raw.active !== false,
+      kind: kind,
+      forMedia: forMedia,
+      access: normalizeAccess(raw.access),
+      active: active,
       cost: cost != null && !isNaN(cost) ? cost : null,
+      subscribedSince: subscribedSince,
+      cancelledSince: cancelledSince,
       notes: raw.notes ? String(raw.notes) : "",
       createdAt: raw.createdAt || new Date().toISOString(),
       updatedAt: raw.updatedAt || new Date().toISOString(),
@@ -176,6 +221,7 @@
       shelf: shelf,
       notes: raw.notes ? String(raw.notes) : "",
       lastComment: raw.lastComment ? String(raw.lastComment) : "",
+      subscriptionId: raw.subscriptionId || null,
       createdAt: raw.createdAt || new Date().toISOString(),
       updatedAt: raw.updatedAt || new Date().toISOString(),
     };
@@ -251,6 +297,18 @@
 
   function getSubscription(id) {
     return state.subscriptions.find(function (s) { return s.id === id; }) || null;
+  }
+
+  function subscriptionName(id) {
+    var sub = id ? getSubscription(id) : null;
+    return sub ? sub.name : "";
+  }
+
+  function subMatchesScope(sub, scope) {
+    if (!sub) return false;
+    if (scope === "shows") return sub.forMedia !== "books";
+    if (scope === "books") return sub.forMedia !== "shows";
+    return true;
   }
 
   function dateStr(d) {
@@ -529,6 +587,7 @@
         progress: progressLabel(showOrBook, true),
         meta: formatDaysSince(showOrBook.lastWatchedAt),
         comment: showOrBook.lastComment || "",
+        subName: subscriptionName(showOrBook.subscriptionId),
         activityAt: itemActivityAt(showOrBook),
         overdue: getShowOverdueDays(showOrBook, new Date()) > 0,
         inProgress: isWatchingEpisode(showOrBook),
@@ -544,6 +603,7 @@
       progress: bookProgressLabel(showOrBook),
       meta: formatDaysSince(showOrBook.lastReadAt),
       comment: showOrBook.lastComment || "",
+      subName: subscriptionName(showOrBook.subscriptionId),
       activityAt: itemActivityAt(showOrBook),
       overdue: false,
       inProgress: false,
@@ -727,6 +787,7 @@
     metaParts.push('<span class="kind-tag">' + escapeHtml(mediaTypeLabel(item.mediaType)) + "</span>");
     if (item.overdue) metaParts.push("Behind");
     else metaParts.push(escapeHtml(item.meta));
+    if (item.subName) metaParts.push(escapeHtml(item.subName));
     if (item.comment) {
       metaParts.push('<span class="comment-preview">“' + escapeHtml(item.comment.length > 40 ? item.comment.slice(0, 40) + "…" : item.comment) + '”</span>');
     }
@@ -767,16 +828,67 @@
     );
   }
 
+  function accessLabel(access) {
+    if (access === "ads") return "Ads";
+    if (access === "both") return "Payment + ads";
+    return "Payment";
+  }
+
+  function forMediaLabel(forMedia) {
+    if (forMedia === "books") return "Books";
+    if (forMedia === "both") return "Shows & books";
+    return "Shows";
+  }
+
+  function formatSinceDate(isoDate) {
+    if (!isoDate) return "";
+    var d = parseDate(String(isoDate).length === 10 ? isoDate + "T12:00:00" : isoDate);
+    if (!d) return "";
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function subUsageText(id) {
+    var shows = state.shows.filter(function (s) { return s.subscriptionId === id; }).length;
+    var books = state.books.filter(function (b) { return b.subscriptionId === id; }).length;
+    var parts = [];
+    if (shows) parts.push(shows + (shows === 1 ? " show" : " shows"));
+    if (books) parts.push(books + (books === 1 ? " book" : " books"));
+    return parts.join(" · ");
+  }
+
+  function filteredSubscriptions() {
+    var f = ui.subFilters;
+    return state.subscriptions.filter(function (sub) {
+      var statusOn = (sub.active && f.active) || (!sub.active && f.cancelled);
+      if (!statusOn) return false;
+      var showsOn = f.shows && sub.forMedia !== "books";
+      var booksOn = f.books && sub.forMedia !== "shows";
+      return showsOn || booksOn;
+    }).sort(function (a, b) {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
   function renderSubscriptionCard(sub) {
-    var badgeClass = sub.active ? "airing" : "completed";
-    var badgeText = sub.active ? "Active" : "Inactive";
-    var kindLabel = sub.kind === "channel" ? "Channel" : "Streaming";
-    var cost = sub.cost != null ? "<span>$" + sub.cost.toFixed(2) + "/mo</span>" : "";
+    var badges = "";
+    badges += '<span class="badge ' + (sub.forMedia === "books" ? "for-books" : "for-shows") + '">' + escapeHtml(forMediaLabel(sub.forMedia)) + "</span>";
+    if (sub.access === "ads" || sub.access === "both") badges += '<span class="badge ads">Ads</span>';
+    if (sub.access === "paid" || sub.access === "both") badges += '<span class="badge paid">Payment</span>';
+    if (!sub.active) badges += '<span class="badge cancelled">Cancelled</span>';
+    var kindLabel = sub.kind === "channel" ? "Channel" : sub.kind === "reading" ? "Reading" : "Streaming";
+    var cost = sub.access !== "ads" && sub.cost != null ? " · $" + sub.cost.toFixed(2) + "/mo" : "";
+    var usage = subUsageText(sub.id);
+    var dates = "";
+    if (sub.subscribedSince) dates += "<span>Subscribed since " + escapeHtml(formatSinceDate(sub.subscribedSince)) + "</span>";
+    if (!sub.active && sub.cancelledSince) dates += '<span class="cancelled-line">Cancelled since ' + escapeHtml(formatSinceDate(sub.cancelledSince)) + "</span>";
     var notes = sub.notes ? '<p class="sub-notes">' + escapeHtml(sub.notes) + "</p>" : "";
     return (
-      '<button type="button" class="media-card sub-card" data-subscription-id="' + escapeHtml(sub.id) + '">' +
-      '<div class="media-card-top"><h3>' + escapeHtml(sub.name) + '</h3><span class="badge ' + badgeClass + '">' + badgeText + "</span></div>" +
-      '<div class="media-meta"><span>' + kindLabel + "</span>" + cost + "</div>" +
+      '<button type="button" class="media-card sub-card' + (sub.active ? "" : " cancelled") + '" data-subscription-id="' + escapeHtml(sub.id) + '">' +
+      '<div class="media-card-top"><h3>' + escapeHtml(sub.name) + "</h3></div>" +
+      '<div class="media-meta">' + badges + "</div>" +
+      '<div class="media-meta"><span>' + kindLabel + cost + (usage ? " · " + escapeHtml(usage) : "") + "</span></div>" +
+      (dates ? '<div class="sub-dates">' + dates + "</div>" : "") +
       notes +
       "</button>"
     );
@@ -877,17 +989,37 @@
     touchLastOpen();
   }
 
+  function renderSubs() {
+    var list = filteredSubscriptions();
+    var wrap = document.getElementById("subsList");
+    var empty = document.getElementById("subsEmpty");
+    var summary = document.getElementById("subsSummary");
+    if (!wrap) return;
+    wrap.innerHTML = list.map(renderSubscriptionCard).join("");
+    if (empty) empty.hidden = list.length > 0;
+    if (!summary) return;
+    var activePaid = list.filter(function (s) {
+      return s.active && s.access !== "ads" && s.cost != null;
+    });
+    var total = activePaid.reduce(function (sum, s) { return sum + s.cost; }, 0);
+    var activeCount = list.filter(function (s) { return s.active; }).length;
+    if (!list.length) {
+      summary.hidden = true;
+      summary.textContent = "";
+      return;
+    }
+    var text = activeCount + (activeCount === 1 ? " active" : " active");
+    if (total > 0) text += " · $" + total.toFixed(2) + "/mo";
+    summary.hidden = false;
+    summary.textContent = text;
+  }
+
   function render() {
     var reminders = collectReminders();
     renderHome();
     renderCalendar();
 
-    var streaming = state.subscriptions.filter(function (s) { return s.kind === "streaming"; });
-    var channels = state.subscriptions.filter(function (s) { return s.kind === "channel"; });
-    document.getElementById("subsStreaming").innerHTML = streaming.map(renderSubscriptionCard).join("");
-    document.getElementById("subsStreamingEmpty").hidden = streaming.length > 0;
-    document.getElementById("subsChannels").innerHTML = channels.map(renderSubscriptionCard).join("");
-    document.getElementById("subsChannelsEmpty").hidden = channels.length > 0;
+    renderSubs();
 
     var badge = document.getElementById("calendarBadge");
     if (reminders.badgeCount > 0) {
@@ -900,6 +1032,7 @@
     updateFabVisibility();
     populateReminderShowSelect();
     populateSubscriptionSelect();
+    populateBookSubscriptionSelect();
     if (ui.gateVisible) renderConsumeGate();
   }
 
@@ -1022,7 +1155,7 @@
     var titles = {
       home: ["Media Shelf", "Shows, books & manga"],
       calendar: ["Calendar", "Episodes & reminders"],
-      subscriptions: ["Subscriptions", "Streaming & channels"],
+      subscriptions: ["Subscriptions", "Payment, ads, and dates"],
     };
     var t = titles[view] || titles.home;
     document.getElementById("headerTitle").textContent = t[0];
@@ -1047,6 +1180,34 @@
     document.querySelectorAll("#" + containerId + " .shelf-chip").forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.shelf === shelf);
     });
+  }
+
+  function renderQuickLogSubs() {
+    var wrap = document.getElementById("quickLogSubs");
+    if (!wrap) return;
+    var scope = ui.quickLogKind === "book" ? "books" : "shows";
+    var list = state.subscriptions.filter(function (s) { return subMatchesScope(s, scope); });
+    var html = '<button type="button" class="shelf-chip' + (!ui.quickLogSubId ? " active" : "") + '" data-sub-id="">None</button>';
+    list.forEach(function (s) {
+      var on = ui.quickLogSubId === s.id ? " active" : "";
+      var label = s.name + (s.active ? "" : " · cancelled");
+      html += '<button type="button" class="shelf-chip' + on + '" data-sub-id="' + escapeHtml(s.id) + '">' + escapeHtml(label) + "</button>";
+    });
+    html += '<button type="button" class="shelf-chip" data-sub-add="1">+ New</button>';
+    wrap.innerHTML = html;
+  }
+
+  function assignQuickLogSub(id) {
+    ui.quickLogSubId = id || null;
+    var item = ui.quickLogKind === "show" ? getShow(ui.quickLogId) : getBook(ui.quickLogId);
+    if (item) {
+      item.subscriptionId = ui.quickLogSubId;
+      item.updatedAt = new Date().toISOString();
+      save();
+    }
+    renderQuickLogSubs();
+    var sub = id ? getSubscription(id) : null;
+    showToast(sub ? "On " + sub.name : "Subscription cleared");
   }
 
   function openQuickLog(kind, id) {
@@ -1076,6 +1237,7 @@
       document.getElementById("qlComment").value = "";
       startBtn.hidden = isWatchingEpisode(show) || show.shelf === "done";
       startBtn.textContent = "Mark in progress";
+      ui.quickLogSubId = show.subscriptionId || null;
     } else {
       var book = getBook(id);
       if (!book) return;
@@ -1095,8 +1257,10 @@
       document.getElementById("qlPage").value = book.page > 0 ? String(book.page) : "";
       document.getElementById("qlComment").value = "";
       startBtn.hidden = true;
+      ui.quickLogSubId = book.subscriptionId || null;
     }
     setShelfChips("quickLogShelf", ui.quickLogShelf);
+    renderQuickLogSubs();
     openOverlay("quickLogOverlay");
   }
 
@@ -1137,6 +1301,7 @@
         applyShelfToItem(show, "done", "show");
       }
       show.updatedAt = new Date().toISOString();
+      show.subscriptionId = ui.quickLogSubId || null;
       closeOverlay("quickLogOverlay");
       dismissGate();
       save();
@@ -1161,6 +1326,7 @@
       applyShelfToItem(book, "done", "book");
     }
     book.updatedAt = new Date().toISOString();
+    book.subscriptionId = ui.quickLogSubId || null;
     closeOverlay("quickLogOverlay");
     dismissGate();
     save();
@@ -1417,6 +1583,7 @@
     document.getElementById("bookTotalChapters").value = book && book.totalChapters != null ? String(book.totalChapters) : "";
     document.getElementById("bookTotalPages").value = book && book.totalPages != null ? String(book.totalPages) : "";
     document.getElementById("bookNotes").value = book ? book.notes : "";
+    populateBookSubscriptionSelect(book ? book.subscriptionId : "");
     document.querySelectorAll("#bookTypeSeg button").forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.type === ui.bookType);
     });
@@ -1449,6 +1616,7 @@
       totalChapters: totalCh === "" ? null : parseInt(totalCh, 10),
       totalPages: totalPg === "" ? null : parseInt(totalPg, 10),
       notes: document.getElementById("bookNotes").value.trim(),
+      subscriptionId: document.getElementById("bookSubscription").value || null,
       shelf: existing ? existing.shelf : "active",
       status: existing ? existing.status : "reading",
       lastComment: existing ? existing.lastComment : "",
@@ -1470,31 +1638,69 @@
     save();
   }
 
-  function populateSubscriptionSelect(selectedId) {
-    var sel = document.getElementById("showSubscription");
+  function fillSubSelect(sel, scope, selectedId) {
     if (!sel) return;
     var val = selectedId != null ? selectedId : sel.value;
-    var active = state.subscriptions.filter(function (s) { return s.active; });
+    var list = state.subscriptions.filter(function (s) { return subMatchesScope(s, scope); });
     sel.innerHTML = '<option value="">None</option>' +
-      active.map(function (s) {
-        var label = s.name + (s.kind === "channel" ? " (TV)" : "");
-        return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(label) + "</option>";
+      list.map(function (s) {
+        var bits = [s.name];
+        if (s.access === "ads") bits.push("ads");
+        else if (s.access === "both") bits.push("payment + ads");
+        if (!s.active) bits.push("cancelled");
+        return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(bits.join(" · ")) + "</option>";
       }).join("");
     sel.value = val || "";
   }
 
+  function populateSubscriptionSelect(selectedId) {
+    fillSubSelect(document.getElementById("showSubscription"), "shows", selectedId);
+  }
+
+  function populateBookSubscriptionSelect(selectedId) {
+    fillSubSelect(document.getElementById("bookSubscription"), "books", selectedId);
+  }
+
+  function syncSubscriptionFormUI() {
+    document.querySelectorAll("#subscriptionForChips .shelf-chip").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.for === ui.subFor);
+    });
+    document.querySelectorAll("#subscriptionAccessChips .shelf-chip").forEach(function (btn) {
+      var on = btn.dataset.access === "paid" ? ui.subAccessPaid : ui.subAccessAds;
+      btn.classList.toggle("active", on);
+    });
+    document.querySelectorAll("#subscriptionStatusChips .shelf-chip").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.status === ui.subStatus);
+    });
+    document.querySelectorAll("#subscriptionKindSeg button").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.kind === ui.subscriptionKind);
+    });
+    var kindField = document.getElementById("subscriptionKindField");
+    if (kindField) kindField.hidden = ui.subFor === "books";
+    var costField = document.getElementById("subscriptionCostField");
+    if (costField) costField.hidden = !ui.subAccessPaid;
+    var cancelledField = document.getElementById("subscriptionCancelledField");
+    if (cancelledField) cancelledField.hidden = ui.subStatus !== "cancelled";
+  }
+
   function resetSubscriptionForm(sub) {
     ui.editingSubscriptionId = sub ? sub.id : null;
-    ui.subscriptionKind = sub ? sub.kind : "streaming";
+    ui.subscriptionKind = sub && sub.kind === "channel" ? "channel" : "streaming";
+    var loggingBook = false;
+    var ql = document.getElementById("quickLogOverlay");
+    if (!sub && ql && ql.classList.contains("open") && ui.quickLogKind === "book") loggingBook = true;
+    ui.subFor = sub ? (sub.forMedia || "shows") : (loggingBook ? "books" : "shows");
+    ui.subAccessPaid = sub ? sub.access !== "ads" : true;
+    ui.subAccessAds = sub ? sub.access === "ads" || sub.access === "both" : false;
+    ui.subStatus = sub && sub.active === false ? "cancelled" : "active";
     document.getElementById("subscriptionFormTitle").textContent = sub ? "Edit subscription" : "Add subscription";
     document.getElementById("subscriptionName").value = sub ? sub.name : "";
     document.getElementById("subscriptionCost").value = sub && sub.cost != null ? String(sub.cost) : "";
     document.getElementById("subscriptionNotes").value = sub ? sub.notes : "";
-    document.getElementById("subscriptionActive").checked = sub ? sub.active !== false : true;
+    document.getElementById("subscriptionSince").value = sub && sub.subscribedSince ? sub.subscribedSince : dateStr(new Date());
+    document.getElementById("subscriptionCancelled").value = sub && sub.cancelledSince ? sub.cancelledSince : dateStr(new Date());
     document.getElementById("subscriptionDeleteBtn").hidden = !sub;
-    document.querySelectorAll("#subscriptionKindSeg button").forEach(function (btn) {
-      btn.classList.toggle("active", btn.dataset.kind === ui.subscriptionKind);
-    });
+    syncSubscriptionFormUI();
   }
 
   function openSubscriptionForm(sub) {
@@ -1505,37 +1711,79 @@
     }, 280);
   }
 
+  function currentAccess() {
+    if (ui.subAccessPaid && ui.subAccessAds) return "both";
+    if (ui.subAccessAds) return "ads";
+    return "paid";
+  }
+
+  function currentForMedia() {
+    if (ui.subFor === "books" || ui.subFor === "both") return ui.subFor;
+    return "shows";
+  }
+
   function saveSubscriptionForm() {
     var name = document.getElementById("subscriptionName").value.trim();
     if (!name) {
       showToast("Enter a name");
       return;
     }
+    if (!ui.subFor) {
+      showToast("Pick shows, books, or both");
+      return;
+    }
+    if (!ui.subAccessPaid && !ui.subAccessAds) {
+      showToast("Pick payment, ads, or both");
+      return;
+    }
+    var since = document.getElementById("subscriptionSince").value;
+    if (!since) {
+      showToast("Pick subscribed since");
+      return;
+    }
+    var active = ui.subStatus !== "cancelled";
+    var cancelled = active ? null : (document.getElementById("subscriptionCancelled").value || dateStr(new Date()));
     var costVal = document.getElementById("subscriptionCost").value;
+    var forMedia = currentForMedia();
+    var kind = forMedia === "books" ? "reading" : ui.subscriptionKind;
+    var existing = ui.editingSubscriptionId ? getSubscription(ui.editingSubscriptionId) : null;
     var payload = {
       id: ui.editingSubscriptionId || uid(),
       name: name,
-      kind: ui.subscriptionKind,
-      active: document.getElementById("subscriptionActive").checked,
-      cost: costVal === "" ? null : parseFloat(costVal),
+      kind: kind,
+      forMedia: forMedia,
+      access: currentAccess(),
+      active: active,
+      cost: !ui.subAccessPaid || costVal === "" ? null : parseFloat(costVal),
+      subscribedSince: since,
+      cancelledSince: cancelled,
       notes: document.getElementById("subscriptionNotes").value.trim(),
-      createdAt: new Date().toISOString(),
+      createdAt: existing ? existing.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
+    var saved = normalizeSubscription(payload);
     if (ui.editingSubscriptionId) {
-      var existing = getSubscription(ui.editingSubscriptionId);
-      if (existing) payload.createdAt = existing.createdAt;
       state.subscriptions = state.subscriptions.map(function (s) {
-        return s.id === ui.editingSubscriptionId ? normalizeSubscription(payload) : s;
+        return s.id === ui.editingSubscriptionId ? saved : s;
       });
       showToast("Subscription updated");
     } else {
-      state.subscriptions.unshift(normalizeSubscription(payload));
+      state.subscriptions.unshift(saved);
       showToast("Subscription added");
+      var ql = document.getElementById("quickLogOverlay");
+      if (ql && ql.classList.contains("open")) {
+        var scope = ui.quickLogKind === "book" ? "books" : "shows";
+        if (subMatchesScope(saved, scope)) {
+          ui.quickLogSubId = saved.id;
+          var item = ui.quickLogKind === "show" ? getShow(ui.quickLogId) : getBook(ui.quickLogId);
+          if (item) item.subscriptionId = saved.id;
+        }
+      }
     }
     closeOverlay("subscriptionFormOverlay");
     save();
+    renderQuickLogSubs();
   }
 
   function deleteSubscription() {
@@ -1546,8 +1794,13 @@
     state.shows.forEach(function (show) {
       if (show.subscriptionId === ui.editingSubscriptionId) show.subscriptionId = null;
     });
+    state.books.forEach(function (book) {
+      if (book.subscriptionId === ui.editingSubscriptionId) book.subscriptionId = null;
+    });
+    if (ui.quickLogSubId === ui.editingSubscriptionId) ui.quickLogSubId = null;
     closeOverlay("subscriptionFormOverlay");
     save();
+    renderQuickLogSubs();
     showToast("Deleted");
   }
 
@@ -1852,9 +2105,52 @@
       var btn = e.target.closest("button[data-kind]");
       if (!btn) return;
       ui.subscriptionKind = btn.dataset.kind;
-      document.querySelectorAll("#subscriptionKindSeg button").forEach(function (b) {
-        b.classList.toggle("active", b === btn);
-      });
+      syncSubscriptionFormUI();
+    });
+    document.getElementById("subscriptionForChips").addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-for]");
+      if (!chip) return;
+      ui.subFor = chip.dataset.for;
+      syncSubscriptionFormUI();
+    });
+    document.getElementById("subscriptionAccessChips").addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-access]");
+      if (!chip) return;
+      if (chip.dataset.access === "paid") ui.subAccessPaid = !ui.subAccessPaid;
+      else ui.subAccessAds = !ui.subAccessAds;
+      if (!ui.subAccessPaid && !ui.subAccessAds) {
+        if (chip.dataset.access === "paid") ui.subAccessPaid = true;
+        else ui.subAccessAds = true;
+      }
+      syncSubscriptionFormUI();
+    });
+    document.getElementById("subscriptionStatusChips").addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-status]");
+      if (!chip) return;
+      ui.subStatus = chip.dataset.status;
+      if (ui.subStatus === "cancelled" && !document.getElementById("subscriptionCancelled").value) {
+        document.getElementById("subscriptionCancelled").value = dateStr(new Date());
+      }
+      syncSubscriptionFormUI();
+    });
+    document.getElementById("subFilters").addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-sub-filter]");
+      if (!chip) return;
+      var key = chip.dataset.subFilter;
+      ui.subFilters[key] = !ui.subFilters[key];
+      chip.classList.toggle("active", ui.subFilters[key]);
+      chip.setAttribute("aria-pressed", ui.subFilters[key] ? "true" : "false");
+      renderSubs();
+    });
+    document.getElementById("quickLogSubs").addEventListener("click", function (e) {
+      var add = e.target.closest("[data-sub-add]");
+      if (add) {
+        openSubscriptionForm(null);
+        return;
+      }
+      var chip = e.target.closest("[data-sub-id]");
+      if (!chip) return;
+      assignQuickLogSub(chip.dataset.subId || null);
     });
 
     document.getElementById("calPrevBtn").addEventListener("click", function () {
