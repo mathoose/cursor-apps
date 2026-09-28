@@ -43,6 +43,7 @@
   var editingDraft = null;
   var editingPrinterId = null;
   var sendTargetItemId = null;
+  var pendingSliceItemId = null;
   var pendingReprintItemId = null;
   var fcpUiBound = false;
   var filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
@@ -787,14 +788,51 @@
     askWillPrintAgain(item);
   }
 
-  function markSliced(itemId) {
+  function markSliced(itemId, printerId) {
     var item = getItem(itemId);
     if (!item) return;
     item.status = 'ready';
     item.waitlistReason = '';
+    if (printerId) item.printerId = printerId;
     item.updatedAt = new Date().toISOString();
     saveState();
     showToast('On deck');
+  }
+
+  function openSlicePrinterModal(itemId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    if (!state.printers.length) {
+      showToast('Add a printer first', { error: true });
+      setView('printers');
+      openPrinterEditor(null);
+      return;
+    }
+    pendingSliceItemId = itemId;
+    var lead = document.getElementById('sliceModalLead');
+    if (lead) lead.textContent = 'Which printer will “' + item.title + '” print on?';
+    var list = document.getElementById('slicePrinterList');
+    if (list) {
+      list.innerHTML = '';
+      state.printers.forEach(function (p) {
+        var current = item.printerId === p.id;
+        var btn = el('button', {
+          type: 'button',
+          class: 'slice-printer-btn' + (current ? ' current' : ''),
+          onClick: function () {
+            markSliced(pendingSliceItemId, p.id);
+            pendingSliceItemId = null;
+            closeModal('sliceModal');
+            render();
+          }
+        });
+        btn.appendChild(el('span', { text: p.name }));
+        if (p.model) btn.appendChild(el('span', { class: 'slice-printer-meta', text: p.model }));
+        else if (current) btn.appendChild(el('span', { class: 'slice-printer-meta', text: 'Already planned' }));
+        list.appendChild(btn);
+      });
+    }
+    openModal('sliceModal');
   }
 
   function startTimer(opts) {
@@ -1429,12 +1467,11 @@
       var actions = el('div', { class: 'item-actions' });
       actions.appendChild(el('button', {
         type: 'button',
-        class: 'item-action-btn primary',
+        class: 'item-action-btn',
         text: 'Sliced',
         onClick: function (e) {
           e.stopPropagation();
-          markSliced(item.id);
-          render();
+          openSlicePrinterModal(item.id);
         }
       }));
       if (item.status !== 'waitlisted' && item.status !== 'again') {
@@ -2674,11 +2711,9 @@
       editingDraft.waitlistReason = document.getElementById('itemWaitlistReason').value;
       editingDraft.paid = document.getElementById('itemPaid').checked;
       editingDraft.ams = document.getElementById('itemAms').checked;
-      editingDraft.status = 'ready';
       if (!updateItemFromDraft()) return;
       closeModal('itemModal');
-      render();
-      showToast('On deck');
+      openSlicePrinterModal(editingItemId);
     });
     document.getElementById('itemSaveBtn').addEventListener('click', function () {
       editingDraft.title = document.getElementById('itemTitle').value;
@@ -2730,6 +2765,16 @@
       closeModal('sendModal');
       render();
       showToast('Print started');
+    });
+
+    function dismissSlicePrompt() {
+      pendingSliceItemId = null;
+      closeModal('sliceModal');
+    }
+    document.getElementById('sliceModalClose').addEventListener('click', dismissSlicePrompt);
+    document.getElementById('sliceCancel').addEventListener('click', dismissSlicePrompt);
+    document.getElementById('sliceModal').addEventListener('click', function (e) {
+      if (e.target.id === 'sliceModal') dismissSlicePrompt();
     });
 
     function dismissReprintPrompt() {

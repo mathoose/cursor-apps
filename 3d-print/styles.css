@@ -816,6 +816,37 @@ main {
   color: var(--accent-dark);
 }
 
+.slice-printer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.slice-printer-btn {
+  width: 100%;
+  text-align: left;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.slice-printer-btn:active {
+  transform: scale(0.99);
+}
+.slice-printer-btn.current {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.slice-printer-meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
 .empty-state {
   text-align: center;
   padding: 28px 16px;
