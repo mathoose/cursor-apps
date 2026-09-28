@@ -722,10 +722,25 @@
     saveState();
   }
 
-  function itemHasRunningTimer(itemId) {
-    return state.timers.some(function (t) {
+  function getRunningTimer(itemId) {
+    return state.timers.find(function (t) {
       return t.status === 'running' && t.itemId === itemId;
-    });
+    }) || null;
+  }
+
+  function itemHasRunningTimer(itemId) {
+    return !!getRunningTimer(itemId);
+  }
+
+  function timerProgress(timer) {
+    var ends = new Date(timer.endsAt).getTime();
+    var starts = new Date(timer.startedAt).getTime();
+    var remaining = ends - Date.now();
+    var total = Math.max(ends - starts, 1);
+    return {
+      remaining: remaining,
+      progress: Math.max(0, Math.min(1, 1 - remaining / total))
+    };
   }
 
   function toggleItemDone(id) {
@@ -1362,11 +1377,14 @@
   }
 
   function renderItemRow(item) {
+    var runningTimer = getRunningTimer(item.id);
+    var isPrinting = !!runningTimer;
     var row = el('div', {
       class: 'item' +
         (item.status === 'done' ? ' done' : '') +
         itemRowPriorityClass(item.priority) +
-        (item.status === 'ready' ? ' status-ready' : '') +
+        (isPrinting ? ' status-printing' : '') +
+        (item.status === 'ready' && !isPrinting ? ' status-ready' : '') +
         (item.status === 'waitlisted' ? ' status-waitlisted' : '') +
         (item.status === 'again' ? ' status-again' : ''),
       dataset: { id: item.id }
@@ -1393,10 +1411,14 @@
     body.appendChild(titleRow);
 
     var meta = el('div', { class: 'item-meta' });
-    meta.appendChild(el('span', {
-      class: 'pill status-' + item.status,
-      text: STATUS_LABELS[item.status] || item.status
-    }));
+    if (isPrinting) {
+      meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
+    } else {
+      meta.appendChild(el('span', {
+        class: 'pill status-' + item.status,
+        text: STATUS_LABELS[item.status] || item.status
+      }));
+    }
     meta.appendChild(el('span', { class: 'pill', text: plateProgressText(item) }));
     if (item.printerId) {
       var pr = getPrinter(item.printerId);
@@ -1421,11 +1443,45 @@
     if (item.status === 'waitlisted' && item.waitlistReason) {
       body.appendChild(el('div', { class: 'item-wait-reason', text: item.waitlistReason }));
     }
-    if (itemHasRunningTimer(item.id)) {
-      meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
-    }
 
-    if (item.status !== 'done' && item.status !== 'ready') {
+    if (isPrinting) {
+      var stats = timerProgress(runningTimer);
+      var progressWrap = el('div', { class: 'item-print-progress' });
+      var progressTop = el('div', { class: 'item-print-progress-top' });
+      progressTop.appendChild(el('span', { class: 'item-print-label', text: 'Time left' }));
+      progressTop.appendChild(el('span', {
+        class: 'item-print-time' + (stats.remaining < 0 ? ' overdue' : ''),
+        text: stats.remaining < 0 ? '+' + formatDuration(-stats.remaining) : formatDuration(stats.remaining)
+      }));
+      progressWrap.appendChild(progressTop);
+      var bar = el('div', { class: 'timer-bar' });
+      bar.appendChild(el('span', { style: 'width:' + (stats.progress * 100) + '%' }));
+      progressWrap.appendChild(bar);
+      body.appendChild(progressWrap);
+      var printActions = el('div', { class: 'item-actions' });
+      printActions.appendChild(el('button', {
+        type: 'button',
+        class: 'item-action-btn primary',
+        text: 'Done',
+        onClick: function (e) {
+          e.stopPropagation();
+          finishTimer(runningTimer.id, false);
+          render();
+          showToast('Print logged');
+        }
+      }));
+      printActions.appendChild(el('button', {
+        type: 'button',
+        class: 'item-action-btn',
+        text: 'Cancel',
+        onClick: function (e) {
+          e.stopPropagation();
+          finishTimer(runningTimer.id, true);
+          render();
+        }
+      }));
+      body.appendChild(printActions);
+    } else if (item.status !== 'done' && item.status !== 'ready') {
       var actions = el('div', { class: 'item-actions' });
       actions.appendChild(el('button', {
         type: 'button',
@@ -1449,7 +1505,7 @@
         }));
       }
       body.appendChild(actions);
-    } else if (item.status === 'ready' && !itemHasRunningTimer(item.id)) {
+    } else if (item.status === 'ready') {
       var readyActions = el('div', { class: 'item-actions' });
       readyActions.appendChild(el('button', {
         type: 'button',
@@ -1480,6 +1536,10 @@
   function itemMatchesFilters(item) {
     if (state.statusFilter === 'all') {
       if (item.status === 'done') return false;
+    } else if (state.statusFilter === 'printing') {
+      if (!itemHasRunningTimer(item.id)) return false;
+    } else if (state.statusFilter === 'ready') {
+      if (item.status !== 'ready' || itemHasRunningTimer(item.id)) return false;
     } else if (item.status !== state.statusFilter) {
       return false;
     }
@@ -1534,8 +1594,17 @@
         html: '<p>Nothing in the queue yet.<br />Add a model above — high priority jumps to the top.</p>'
       }));
     } else if (open.length && state.statusFilter === 'all') {
+      var printing = open.filter(function (t) { return itemHasRunningTimer(t.id); });
+      if (printing.length) {
+        container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
+        var printingList = el('div', { class: 'item-list' });
+        printing.forEach(function (t) { printingList.appendChild(renderItemRow(t)); });
+        container.appendChild(printingList);
+      }
       OPEN_STATUS_ORDER.forEach(function (status) {
-        var group = open.filter(function (t) { return t.status === status; });
+        var group = open.filter(function (t) {
+          return t.status === status && !itemHasRunningTimer(t.id);
+        });
         if (!group.length) return;
         container.appendChild(el('div', { class: 'queue-group-label', text: STATUS_LABELS[status] }));
         var list = el('div', { class: 'item-list' });
@@ -2829,9 +2898,9 @@
   function startTicker() {
     clearInterval(tickTimer);
     tickTimer = setInterval(function () {
-      if (currentView === 'printers' && state.timers.some(function (t) { return t.status === 'running'; })) {
-        renderPrinters();
-      }
+      if (!state.timers.some(function (t) { return t.status === 'running'; })) return;
+      if (currentView === 'printers') renderPrinters();
+      else renderQueue();
     }, 1000);
   }
 
