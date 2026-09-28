@@ -54,7 +54,8 @@
     categoryAdding: false,
     plateCount: 1,
     paid: false,
-    ams: false
+    ams: false,
+    printerId: null
   };
   var editorCategoryAdding = false;
   var bulkPlateCategorySelected = new Set();
@@ -1204,6 +1205,46 @@
     container.appendChild(scroll);
   }
 
+  function renderPrinterChipRow(container, getSelectedId, setSelectedId, onUpdate, opts) {
+    if (!container) return;
+    opts = opts || {};
+    container.innerHTML = '';
+    var labelText = opts.label;
+    if (labelText) {
+      container.appendChild(el('span', { class: 'quick-add-categories-label', text: labelText }));
+    }
+    var scroll = el('div', { class: 'category-chip-scroll' });
+    if (!state.printers.length) {
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip category-chip-add',
+        text: 'Add printer',
+        onClick: function () {
+          setView('printers');
+          openPrinterEditor(null);
+        }
+      }));
+      container.appendChild(scroll);
+      return;
+    }
+    var selected = getSelectedId();
+    state.printers.forEach(function (p) {
+      var on = selected === p.id;
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip' + (on ? ' selected' : ''),
+        text: p.name,
+        'aria-pressed': on ? 'true' : 'false',
+        onClick: function () {
+          setSelectedId(on ? null : p.id);
+          if (onUpdate) onUpdate();
+          renderPrinterChipRow(container, getSelectedId, setSelectedId, onUpdate, opts);
+        }
+      }));
+    });
+    container.appendChild(scroll);
+  }
+
   function captureAddSelections() {
     return {
       priority: quickUi.priority || 0,
@@ -1211,7 +1252,8 @@
       ams: !!quickUi.ams,
       plateCount: Math.max(1, quickUi.plateCount || 1),
       categoryIds: Array.from(quickUi.categories),
-      filamentColorIds: Array.from(quickUi.filament)
+      filamentColorIds: Array.from(quickUi.filament),
+      printerId: quickUi.printerId || null
     };
   }
 
@@ -1230,6 +1272,7 @@
     quickUi.categories = new Set(cats.filter(function (id) { return !!getCategory(id); }));
     var fils = Array.isArray(sel.filamentColorIds) ? sel.filamentColorIds : [];
     quickUi.filament = new Set(fils.filter(function (id) { return !!getFilamentColor(id); }));
+    quickUi.printerId = sel.printerId && getPrinter(sel.printerId) ? sel.printerId : null;
   }
 
   function resetQuickAddSelections() {
@@ -1240,6 +1283,7 @@
     quickUi.filament.clear();
     quickUi.plateCount = 1;
     quickUi.categoryAdding = false;
+    quickUi.printerId = null;
   }
 
   function readQuickAddFormIntoUi() {
@@ -1299,6 +1343,13 @@
       document.getElementById('quickFilamentColors'),
       function () { return quickUi.filament; },
       persistQuickAddIfKeeping
+    );
+    renderPrinterChipRow(
+      document.getElementById('quickPrinters'),
+      function () { return quickUi.printerId; },
+      function (id) { quickUi.printerId = id || null; },
+      persistQuickAddIfKeeping,
+      { label: 'Print on' }
     );
     syncQuickAddForm();
   }
@@ -1400,7 +1451,7 @@
     meta.appendChild(el('span', { class: 'pill', text: plateProgressText(item) }));
     if (item.printerId) {
       var pr = getPrinter(item.printerId);
-      if (pr) meta.appendChild(el('span', { class: 'pill', text: pr.name }));
+      if (pr) meta.appendChild(el('span', { class: 'pill printer', text: pr.name }));
     }
     (item.categoryIds || []).forEach(function (id) {
       var cat = getCategory(id);
@@ -1791,6 +1842,7 @@
     syncWaitlistField();
     renderEditorFilament();
     renderEditorCategories();
+    renderEditorPrinters();
     renderEditorPlates();
     openModal('itemModal');
     if (opts.focusWaitlist) {
@@ -1821,6 +1873,17 @@
   function syncWaitlistField() {
     var field = document.getElementById('waitlistReasonField');
     if (field) field.hidden = editingDraft.status !== 'waitlisted';
+  }
+
+  function renderEditorPrinters() {
+    if (!editingDraft) return;
+    renderPrinterChipRow(
+      document.getElementById('itemPrinters'),
+      function () { return editingDraft.printerId || null; },
+      function (id) { editingDraft.printerId = id || null; },
+      function () {},
+      { label: '' }
+    );
   }
 
   function renderEditorFilament() {
@@ -2404,7 +2467,8 @@
         filamentColorIds: filamentColorIds,
         categoryIds: categoryIds,
         plateCount: plateCount,
-        plates: makePlates(plateCount, categoryIds)
+        plates: makePlates(plateCount, categoryIds),
+        printerId: quickUi.printerId || null
       });
       filamentColorIds.forEach(recordFilamentColorUse);
       titleInput.value = '';
