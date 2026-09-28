@@ -645,6 +645,7 @@ main {
 .item.prio-2:not(.done) { background: var(--p2-soft); border-color: var(--p2-border); }
 .item.prio-1:not(.done) { background: var(--p1-soft); border-color: var(--p1-border); }
 .item.status-ready:not(.done) { box-shadow: inset 3px 0 0 var(--ready); }
+.item.status-printing:not(.done) { box-shadow: inset 3px 0 0 var(--accent); }
 .item.status-waitlisted:not(.done) { box-shadow: inset 3px 0 0 var(--wait); }
 .item.status-again:not(.done) { box-shadow: inset 3px 0 0 var(--again); }
 
@@ -961,6 +962,34 @@ main {
   height: 100%;
   background: linear-gradient(90deg, #fb923c, #ea580c);
   border-radius: inherit;
+}
+
+.item-print-progress {
+  margin-top: 8px;
+}
+.item-print-progress-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.item-print-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--accent-dark);
+}
+.item-print-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+}
+.item-print-time.overdue { color: var(--danger); }
+.item-print-progress .timer-bar {
+  margin-top: 6px;
+  height: 8px;
 }
 
 .bottom-nav {
