@@ -717,6 +717,7 @@ main {
 .pill.status-queued { background: var(--accent-soft); color: var(--accent-dark); border-color: #fed7aa; }
 .pill.status-again { background: var(--again-soft); color: var(--again); border-color: #99f6e4; }
 .pill.printing { background: #fff7ed; color: var(--accent-dark); border-color: #fdba74; }
+.pill.printer { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 .pill.link {
   color: var(--accent-dark);
   text-decoration: none;
