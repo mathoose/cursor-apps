@@ -1461,13 +1461,7 @@
     });
     document.getElementById("layerHoods").addEventListener("click", toggleHoodsLayer);
     var layerHoodsMap = document.getElementById("layerHoodsMap");
-    if (layerHoodsMap) {
-      layerHoodsMap.addEventListener("click", toggleHoodsLayer);
-      layerHoodsMap.addEventListener("touchend", function (e) {
-        e.preventDefault();
-        toggleHoodsLayer(e);
-      });
-    }
+    if (layerHoodsMap) layerHoodsMap.addEventListener("click", toggleHoodsLayer);
     document.getElementById("viewDirections").addEventListener("click", function () { setAppView("directions"); });
     document.getElementById("viewSearch").addEventListener("click", function () { setAppView("search"); });
     document.getElementById("clearSearchBtn").addEventListener("click", clearSearchPoint);
