@@ -69,10 +69,12 @@
   var SOURCE_COLOR = { landmark: "#14532d", cafe: "#c2410c", date: "#9f1239" };
 
   var state = {
+    appView: "directions",
     mode: "start",
     xFirst: true,
     start: null,
     end: null,
+    searchPoint: null,
     locating: false,
     sheet: "compact",
     layers: { hoods: false, landmarks: true, cafes: false, dates: false },
@@ -248,16 +250,20 @@
     var layersDefault = state.layers.landmarks && !state.layers.cafes && !state.layers.dates;
     var layersHoodDefault = !state.layers.hoods;
     var sheetDefault = state.sheet === "compact";
-    if (!start && !end && state.xFirst && layersDefault && layersHoodDefault && sheetDefault) {
+    var viewDefault = state.appView === "directions";
+    var searchDefault = !state.searchPoint;
+    if (!start && !end && state.xFirst && layersDefault && layersHoodDefault && sheetDefault && viewDefault && searchDefault) {
       try { localStorage.removeItem(STORAGE_KEY); } catch (e) { /* ignore */ }
       return;
     }
     var payload = {
       version: 1,
+      appView: state.appView === "search" ? "search" : "directions",
       xFirst: !!state.xFirst,
       sheet: state.sheet === "full" || state.sheet === "hidden" ? state.sheet : "compact",
       start: start,
       end: end,
+      searchPoint: persistable(state.searchPoint),
       layers: {
         hoods: !!state.layers.hoods,
         landmarks: !!state.layers.landmarks,
@@ -287,6 +293,44 @@
       var end = materialize(savedRaw.end);
       if (end) state.end = end;
     }
+    if (savedRaw.searchPoint && !state.searchPoint) {
+      var sp = materialize(savedRaw.searchPoint);
+      if (sp) state.searchPoint = sp;
+    }
+  }
+
+  function isSearchView() {
+    return state.appView === "search";
+  }
+
+  function applyAppViewUi() {
+    document.body.classList.toggle("app-view-search", isSearchView());
+    document.body.classList.toggle("app-view-directions", !isSearchView());
+    var vd = document.getElementById("viewDirections");
+    var vs = document.getElementById("viewSearch");
+    if (vd) {
+      vd.classList.toggle("on", !isSearchView());
+      vd.setAttribute("aria-selected", !isSearchView() ? "true" : "false");
+    }
+    if (vs) {
+      vs.classList.toggle("on", isSearchView());
+      vs.setAttribute("aria-selected", isSearchView() ? "true" : "false");
+    }
+    var label = document.getElementById("searchInputLabel");
+    if (label) {
+      label.textContent = isSearchView() ? "Find a place on the grid" : "Search a place";
+    }
+  }
+
+  function setAppView(view) {
+    view = view === "search" ? "search" : "directions";
+    if (state.appView === view) return;
+    state.appView = view;
+    framedKey = "";
+    save();
+    applyAppViewUi();
+    renderSheet();
+    renderMapOverlay(true);
   }
 
   function pointFromPlace(p) {
@@ -311,6 +355,30 @@
     renderSheet();
   }
 
+  function setSearchPoint(point) {
+    if (point && !inRegion(point.lat, point.lng)) {
+      toast("That spot is outside this Philadelphia region.");
+      return;
+    }
+    state.searchPoint = point;
+    save();
+    renderSheet();
+    renderMapOverlay(true);
+  }
+
+  function clearSearchPoint() {
+    state.searchPoint = null;
+    save();
+    renderSheet();
+    renderMapOverlay(false);
+    if (!state.searchPoint) fitRegion(true);
+  }
+
+  function setMapTarget(point) {
+    if (isSearchView()) setSearchPoint(point);
+    else setSlot(state.mode, point);
+  }
+
   function setSlot(slot, point) {
     if (point && !inRegion(point.lat, point.lng)) {
       toast("That spot is outside this Philadelphia region.");
@@ -322,7 +390,7 @@
     else if (point && slot === "end" && !state.start) setMode("start");
     save();
     renderSheet();
-    renderRoute(true);
+    renderMapOverlay(true);
     if (live) {
       var text = document.getElementById("dirLine");
       live.textContent = text && !document.getElementById("change").hidden ? text.textContent : "";
@@ -334,7 +402,7 @@
     state[slot] = null;
     save();
     renderSheet();
-    renderRoute(false);
+    renderMapOverlay(false);
     if (!state.start && !state.end) fitRegion(true);
   }
 
@@ -350,7 +418,7 @@
     renderResults();
     save();
     renderSheet();
-    renderRoute(false);
+    renderMapOverlay(false);
     fitRegion(true);
     toast("Cleared — tap the map for a new start");
   }
@@ -482,12 +550,15 @@
     }
   }
 
-  function toggleHoodsLayer() {
+  function toggleHoodsLayer(ev) {
+    if (ev && ev.stopPropagation) ev.stopPropagation();
+    if (ev && ev.preventDefault) ev.preventDefault();
     state.layers.hoods = !state.layers.hoods;
     save();
     applyHoodLayer();
     scheduleMapRefresh();
     drawTicks();
+    toast(state.layers.hoods ? "Neighborhoods on" : "Neighborhoods off");
   }
 
   function applySheetClasses() {
@@ -528,7 +599,7 @@
     if (map) {
       requestAnimationFrame(function () {
         syncMapView(false);
-        if (state.start || state.end) renderRoute(true);
+        if (state.start || state.end || state.searchPoint) renderMapOverlay(true);
         else fitRegion(false);
       });
     }
@@ -587,7 +658,7 @@
     state.end = tmp;
     save();
     renderSheet();
-    renderRoute(true);
+    renderMapOverlay(true);
   }
 
   function cardinalDir(blocks, axis) {
@@ -728,7 +799,31 @@
       '<span class="point-words">' + esc(sideWords(b.x, b.y)) + "</span>";
   }
 
+  function fillSearchSpotBody() {
+    var el = document.getElementById("searchSpotBody");
+    var clearBtn = document.getElementById("searchSpotClear");
+    if (!el) return;
+    if (!state.searchPoint) {
+      el.innerHTML =
+        '<span class="spot-k">Grid position</span>' +
+        '<span class="spot-name">Tap the map, search, or Where am I</span>' +
+        '<span class="spot-words">Coordinates are blocks from City Hall along Market (x) and Broad (y).</span>';
+      if (clearBtn) clearBtn.hidden = true;
+      return;
+    }
+    var p = state.searchPoint;
+    var b = blocksOf(p.lat, p.lng);
+    el.innerHTML =
+      '<span class="spot-k">Grid position</span>' +
+      '<span class="spot-name">' + esc(p.label) + "</span>" +
+      '<span class="spot-xy">(x, y) = (' + formatSigned(b.x) + ", " + formatSigned(b.y) + ")</span>" +
+      '<span class="spot-words">' + esc(sideWords(b.x, b.y)) + "</span>";
+    if (clearBtn) clearBtn.hidden = false;
+  }
+
   function renderSheet() {
+    applyAppViewUi();
+    fillSearchSpotBody();
     document.getElementById("modeStart").classList.toggle("on", state.mode === "start");
     document.getElementById("modeEnd").classList.toggle("on", state.mode === "end");
     document.getElementById("modeStart").setAttribute("aria-selected", state.mode === "start" ? "true" : "false");
@@ -744,7 +839,7 @@
     searchInput.placeholder = state.mode === "start" ? "Search a start" : "Search an end";
 
     var change = document.getElementById("change");
-    if (state.start && state.end) {
+    if (!isSearchView() && state.start && state.end) {
       var d = describeChange(state.start, state.end);
       document.getElementById("dxN").textContent = formatSigned(d.dx);
       document.getElementById("dyN").textContent = formatSigned(d.dy);
@@ -772,11 +867,8 @@
     syncChips();
     var clearAllBtn = document.getElementById("clearAllBtn");
     if (clearAllBtn) clearAllBtn.disabled = !state.start && !state.end;
-    var hasRoute = !!(state.start && state.end);
-    var exportBtn = document.getElementById("exportCardBtn");
-    var exportHidden = document.getElementById("exportHiddenBtn");
-    if (exportBtn) exportBtn.hidden = !hasRoute;
-    if (exportHidden) exportHidden.hidden = !hasRoute;
+    var clearSearchBtn = document.getElementById("clearSearchBtn");
+    if (clearSearchBtn) clearSearchBtn.disabled = !state.searchPoint;
     requestAnimationFrame(syncSheetHeight);
   }
 
@@ -1031,6 +1123,31 @@
     });
   }
 
+  function renderMapOverlay(fit) {
+    if (isSearchView()) renderSearchMap(fit);
+    else renderRoute(fit);
+  }
+
+  function renderSearchMap(fit) {
+    if (!routeLayer) return;
+    routeLayer.clearLayers();
+    if (state.searchPoint) {
+      endpointMarker(state.searchPoint, "#1d4ed8").addTo(routeLayer);
+    }
+    if (fit) frameSearchPoint();
+  }
+
+  function frameSearchPoint() {
+    if (!map || !state.searchPoint) return;
+    var key = "search:" + state.searchPoint.lat.toFixed(5) + "," + state.searchPoint.lng.toFixed(5);
+    if (key === framedKey) return;
+    framedKey = key;
+    var z = Math.min(Math.max(map.getZoom(), 13), 14);
+    var projected = map.project([state.searchPoint.lat, state.searchPoint.lng], z);
+    projected.y += sheetHeight() * 0.3;
+    map.setView(map.unproject(projected, z), z, { animate: true });
+  }
+
   function renderRoute(fit) {
     if (!routeLayer) return;
     routeLayer.clearLayers();
@@ -1097,7 +1214,7 @@
         radius: source === "landmark" ? 9 : 8,
         onClick: function () {
           ignoreMapClickUntil = Date.now() + 450;
-          setSlot(state.mode, pointFromPlace(p));
+          setMapTarget(pointFromPlace(p));
         }
       };
       if (source === "landmark") {
@@ -1178,7 +1295,7 @@
     applySaved();
     renderPins();
     renderSheet();
-    renderRoute(!!(state.start || state.end));
+    renderMapOverlay(!!(state.start || state.end || state.searchPoint));
 
     var hint = document.getElementById("loadHint");
     var cafesP = fetch("../coffee-map/places.json").then(function (r) { return r.ok ? r.json() : []; });
@@ -1198,7 +1315,7 @@
       applySaved();
       renderPins();
       renderSheet();
-      renderRoute(!!(state.start || state.end));
+      renderMapOverlay(!!(state.start || state.end || state.searchPoint));
       var cafeN = catalog.filter(function (p) { return p.source === "cafe"; }).length;
       var dateN = catalog.filter(function (p) { return p.source === "date"; }).length;
       hint.textContent = cafeN + " cafes and " + dateN + " dates from the other maps, plus landmarks. Turn a layer on to see its pins.";
@@ -1224,7 +1341,9 @@
         toast("You are outside this Philadelphia region.");
         return;
       }
-      setSlot("start", { kind: "here", lat: fix.lat, lng: fix.lng, label: "Where I am" });
+      var herePt = { kind: "here", lat: fix.lat, lng: fix.lng, label: "Where I am" };
+      if (isSearchView()) setSearchPoint(herePt);
+      else setSlot("start", herePt);
     }, function (err) {
       state.locating = false;
       hereBtn.disabled = false;
@@ -1279,7 +1398,7 @@
     pinGroups.date = L.layerGroup().addTo(map);
     map.on("click", function (e) {
       if (Date.now() < ignoreMapClickUntil) return;
-      setSlot(state.mode, {
+      setMapTarget({
         kind: "pin",
         lat: e.latlng.lat,
         lng: e.latlng.lng,
@@ -1308,14 +1427,14 @@
       framedKey = "";
       save();
       renderSheet();
-      renderRoute(true);
+      renderMapOverlay(true);
     });
     document.getElementById("orderY").addEventListener("click", function () {
       state.xFirst = false;
       framedKey = "";
       save();
       renderSheet();
-      renderRoute(true);
+      renderMapOverlay(true);
     });
     hereBtn.addEventListener("click", locateHere);
     searchInput.addEventListener("input", function () {
@@ -1338,37 +1457,24 @@
       state.query = "";
       renderResults();
       searchInput.blur();
-      setSlot(state.mode, pointFromPlace(place));
+      setMapTarget(pointFromPlace(place));
     });
     document.getElementById("layerHoods").addEventListener("click", toggleHoodsLayer);
     var layerHoodsMap = document.getElementById("layerHoodsMap");
-    if (layerHoodsMap) layerHoodsMap.addEventListener("click", toggleHoodsLayer);
+    if (layerHoodsMap) {
+      layerHoodsMap.addEventListener("click", toggleHoodsLayer);
+      layerHoodsMap.addEventListener("touchend", function (e) {
+        e.preventDefault();
+        toggleHoodsLayer(e);
+      });
+    }
+    document.getElementById("viewDirections").addEventListener("click", function () { setAppView("directions"); });
+    document.getElementById("viewSearch").addEventListener("click", function () { setAppView("search"); });
+    document.getElementById("clearSearchBtn").addEventListener("click", clearSearchPoint);
+    document.getElementById("searchSpotClear").addEventListener("click", clearSearchPoint);
     document.getElementById("layerLandmarks").addEventListener("click", function () { toggleLayer("landmarks"); });
     document.getElementById("layerCafes").addEventListener("click", function () { toggleLayer("cafes"); });
     document.getElementById("layerDates").addEventListener("click", function () { toggleLayer("dates"); });
-    function runExport(btn) {
-      if (!state.start || !state.end) {
-        toast("Set a start and end first");
-        return;
-      }
-      if (typeof CityAxesExport === "undefined") {
-        toast("Export is not available");
-        return;
-      }
-      btn.disabled = true;
-      toast("Building share image\u2026");
-      CityAxesExport.exportCurrentRoute(state).then(function () {
-        toast("Direction card saved — check Photos or Downloads");
-      }).catch(function () {
-        toast("Could not create image");
-      }).finally(function () {
-        btn.disabled = false;
-      });
-    }
-    var exportBtn = document.getElementById("exportCardBtn");
-    if (exportBtn) exportBtn.addEventListener("click", function () { runExport(exportBtn); });
-    var exportHidden = document.getElementById("exportHiddenBtn");
-    if (exportHidden) exportHidden.addEventListener("click", function () { runExport(exportHidden); });
     if (typeof ResizeObserver !== "undefined") {
       var observer = new ResizeObserver(syncSheetHeight);
       observer.observe(sheet);
@@ -1400,19 +1506,22 @@
       if (savedRaw.sheet === "full" || savedRaw.sheet === "hidden" || savedRaw.sheet === "compact") {
         state.sheet = savedRaw.sheet;
       }
+      if (savedRaw.appView === "search" || savedRaw.appView === "directions") {
+        state.appView = savedRaw.appView;
+      }
     }
     applySheetClasses();
+    applyAppViewUi();
     if (typeof L === "undefined" || typeof PhillyWalkMap === "undefined") {
       toast("The map could not load. Check your connection and reopen.");
       return;
     }
     buildMap();
     bindUi();
-    mountExportShare();
     loadCatalog();
     renderSheet();
     syncSheetHeight();
-    renderRoute(false);
+    renderMapOverlay(false);
     scheduleMapRefresh();
     window.addEventListener("load", scheduleMapRefresh);
     window.addEventListener("orientationchange", function () {
@@ -1420,54 +1529,6 @@
     });
     window.addEventListener("pageshow", function (ev) {
       if (ev.persisted) scheduleMapRefresh();
-    });
-    if (/exportSamples=1/.test(location.search)) runExportSamples();
-  }
-
-  function mountExportShare() {
-    if (typeof CityAxesExport === "undefined") return;
-    CityAxesExport.mount({
-      BLOCK_M: BLOCK_M,
-      ORIGIN: ORIGIN,
-      X_HAT: X_HAT,
-      Y_HAT: Y_HAT,
-      LANDMARKS: LANDMARKS,
-      NEIGHBORHOOD_ZONES: NEIGHBORHOOD_ZONES,
-      toXY: toXY,
-      fromXY: fromXY,
-      blocksOf: blocksOf,
-      formatSigned: formatSigned,
-      describeChange: describeChange,
-      cornerOf: cornerOf,
-      movementPoetry: movementPoetry
-    });
-  }
-
-  function runExportSamples() {
-    if (typeof CityAxesExport === "undefined") return;
-    mountExportShare();
-    var samples = [
-      {
-        name: "pennsport-to-queen-village",
-        start: { label: "Dropped pin", lat: 39.928, lng: -75.152 },
-        end: { label: "Queen Village", lat: 39.9368, lng: -75.1485 },
-        xFirst: true
-      },
-      {
-        name: "pennsport-to-reading-terminal",
-        start: { label: "Pennsport", lat: 39.9258, lng: -75.149 },
-        end: { label: "Reading Terminal Market", lat: 39.95334, lng: -75.15955 },
-        xFirst: true
-      }
-    ];
-    window.__cityAxesSampleDataUrls = {};
-    window.__cityAxesSampleReady = false;
-    Promise.all(samples.map(function (s) {
-      return CityAxesExport.renderSample(s.name, s.start, s.end, s.xFirst).then(function (canvas) {
-        if (canvas) window.__cityAxesSampleDataUrls[s.name] = canvas.toDataURL("image/png");
-      });
-    })).then(function () {
-      window.__cityAxesSampleReady = true;
     });
   }
 

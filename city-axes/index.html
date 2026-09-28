@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: city-axes-v12 -->
+<!-- build: city-axes-v13 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,9 +15,9 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="vendor/leaflet.css?v=8" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=5" />
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
-<body class="sheet-compact">
+<body class="sheet-compact app-view-directions">
   <header class="topbar">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -30,9 +30,9 @@
 
   <main>
     <div id="map" class="map" role="application" aria-label="Philadelphia grid from City Hall"></div>
-    <div class="legend">
-      <span><i class="swatch market"></i>x Market</span>
-      <span><i class="swatch broad"></i>y Broad</span>
+    <div class="map-chips" aria-label="Map options">
+      <span class="map-chip-label"><i class="swatch market"></i>x Market</span>
+      <span class="map-chip-label"><i class="swatch broad"></i>y Broad</span>
       <button type="button" class="hoods-toggle" id="layerHoodsMap" aria-pressed="false">Neighborhoods</button>
     </div>
     <button type="button" class="here-btn" id="hereBtn">
@@ -42,18 +42,26 @@
 
     <section class="sheet" id="sheet" aria-label="Grid shift">
       <div class="sheet-grab" aria-hidden="true"></div>
+      <div class="app-view-switch" role="tablist" aria-label="Search or directions">
+        <button type="button" class="view-btn on" id="viewDirections" role="tab" aria-selected="true">Directions</button>
+        <button type="button" class="view-btn" id="viewSearch" role="tab" aria-selected="false">Search</button>
+      </div>
       <div class="sheet-toolbar">
-        <div class="mode" role="tablist" aria-label="Which point the map sets">
-          <button type="button" class="mode-btn on" id="modeStart" role="tab" aria-selected="true">Start</button>
-          <button type="button" class="mode-btn" id="modeEnd" role="tab" aria-selected="false">End</button>
-          <button type="button" class="swap-btn" id="swapBtn">Swap</button>
-          <button type="button" class="clear-all-btn" id="clearAllBtn">Clear</button>
+        <div class="directions-only toolbar-row">
+          <div class="mode" role="tablist" aria-label="Which point the map sets">
+            <button type="button" class="mode-btn on" id="modeStart" role="tab" aria-selected="true">Start</button>
+            <button type="button" class="mode-btn" id="modeEnd" role="tab" aria-selected="false">End</button>
+            <button type="button" class="swap-btn" id="swapBtn">Swap</button>
+            <button type="button" class="clear-all-btn" id="clearAllBtn">Clear</button>
+          </div>
         </div>
-        <button type="button" class="export-toolbar-btn" id="exportCardBtn" hidden>Share image</button>
+        <div class="search-only toolbar-row">
+          <button type="button" class="clear-all-btn" id="clearSearchBtn">Clear spot</button>
+        </div>
         <button type="button" class="sheet-toggle" id="sheetToggle" aria-expanded="false">Show panel</button>
       </div>
 
-      <div class="change" id="change" hidden>
+      <div class="change directions-only" id="change" hidden>
         <div class="deltas">
           <div class="delta market">
             <p class="delta-k">Δx</p>
@@ -75,8 +83,13 @@
         <p class="transform-line" id="transformLine" hidden></p>
       </div>
 
+      <div class="search-only search-spot" id="searchSpotPanel">
+        <button type="button" class="search-spot-body" id="searchSpotBody">Tap the map for a spot</button>
+        <button type="button" class="point-clear" id="searchSpotClear" hidden>Clear</button>
+      </div>
+
       <div class="sheet-details" id="sheetDetails">
-      <div class="point-list">
+      <div class="point-list directions-only">
         <div class="point on" id="startPoint">
           <button type="button" class="point-body" id="startBody"></button>
           <button type="button" class="point-clear" id="startClear" hidden>Clear</button>
@@ -87,8 +100,8 @@
         </div>
       </div>
 
-      <label class="search-label" for="searchInput">Search a place</label>
-      <input type="search" id="searchInput" placeholder="Cafes, dates, landmarks" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <label class="search-label" for="searchInput" id="searchInputLabel">Search a place</label>
+      <input type="search" id="searchInput" placeholder="Landmarks, cafes, dates" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false" />
       <div class="results" id="results" hidden></div>
 
       <div class="layers" role="group" aria-label="Map layers">
@@ -97,13 +110,11 @@
         <button type="button" class="chip" id="layerCafes" aria-pressed="false">Cafes</button>
         <button type="button" class="chip" id="layerDates" aria-pressed="false">Dates</button>
       </div>
-      <p class="hint" id="loadHint">Turn on Neighborhoods for shaded hoods (walk region). Landmarks are dots only in that mode. Cafes and dates load from the other apps.</p>
-      <p class="hint">One block is a Center City block, about 450 ft, measured along Market and along Broad.</p>
+      <p class="hint" id="loadHint">Search: one spot and its (x, y) from City Hall. Directions: start → end shifts. Neighborhoods is a map toggle (top chips).</p>
       </div>
       <p class="sr-only" id="live" aria-live="polite"></p>
     </section>
     <div class="sheet-hidden-bar" id="sheetHiddenBar" hidden>
-      <button type="button" class="export-toolbar-btn" id="exportHiddenBtn" hidden>Share image</button>
       <button type="button" class="sheet-reveal" id="sheetReveal">Show panel</button>
     </div>
   </main>
@@ -116,7 +127,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
   <script src="philly-hoods.js?v=3"></script>
-  <script src="export-share.js?v=5"></script>
-  <script src="app.js?v=11"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>

@@ -97,34 +97,51 @@ main { position: relative; height: 100dvh; }
   height: 100%;
 }
 
-.legend {
+.map-chips {
   position: absolute;
   top: calc(68px + env(safe-area-inset-top, 0px));
   left: 12px;
+  right: 56px;
   z-index: 45;
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 68px);
   pointer-events: none;
 }
-.legend span,
-.map-style-btn {
+
+.map-chip-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
+  height: 32px;
   padding: 0 10px 0 8px;
   border-radius: 999px;
   background: rgba(247, 250, 248, 0.94);
   box-shadow: 0 2px 8px rgba(20, 36, 27, 0.1);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 650;
+  pointer-events: none;
 }
 
 .hoods-toggle {
-  border: 1px solid var(--border);
-  color: var(--ink);
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
   padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(247, 250, 248, 0.97);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(20, 36, 27, 0.12);
+  font-size: 0.72rem;
+  font-weight: 700;
+  pointer-events: auto;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 46;
 }
 .hoods-toggle.on {
   background: #4c1d95;
@@ -243,9 +260,47 @@ body.sheet-hidden .sheet-hidden-bar {
   box-shadow: 0 4px 16px rgba(20, 36, 27, 0.18);
 }
 
-.sheet-hidden-bar .export-toolbar-btn {
+.search-spot {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.search-spot-body {
+  flex: 1;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px 12px;
   min-height: 44px;
-  box-shadow: 0 4px 16px rgba(20, 36, 27, 0.18);
+}
+.search-spot-body .spot-k {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.search-spot-body .spot-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.search-spot-body .spot-xy {
+  display: block;
+  margin-top: 4px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+.search-spot-body .spot-words {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 body.sheet-hidden .here-btn {
@@ -270,33 +325,51 @@ body.sheet-compact {
   cursor: grab;
 }
 
+.app-view-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.view-btn {
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+.view-btn.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #f8fafc;
+}
+
+body.app-view-search .directions-only { display: none !important; }
+body.app-view-directions .search-only { display: none !important; }
+
 .sheet-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 8px;
 }
 
-.sheet-toolbar .mode {
-  flex: 1;
+.toolbar-row {
+  flex: 1 1 200px;
   min-width: 0;
+}
+
+.sheet-toolbar .mode {
   margin-bottom: 0;
 }
 
-.export-toolbar-btn {
-  flex-shrink: 0;
-  border: 1px solid #14532d;
-  background: #14532d;
-  color: #f8fafc;
-  border-radius: 12px;
-  min-height: 40px;
-  padding: 0 12px;
-  font-weight: 700;
-  font-size: 0.78rem;
-}
-.export-toolbar-btn[hidden] { display: none !important; }
-
 .sheet-toggle {
+  flex: 0 0 auto;
+  margin-left: auto;
   flex-shrink: 0;
   border: 1px solid var(--border);
   background: #fff;
@@ -316,10 +389,13 @@ body.sheet-collapsed .sheet-toggle {
 
 .mode {
   display: grid;
-  grid-template-columns: 1fr 1fr auto auto;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 6px;
   margin-bottom: 8px;
 }
+.mode .swap-btn { grid-column: 1; }
+.mode .clear-all-btn { grid-column: 2; }
 .mode-btn, .swap-btn, .clear-all-btn, .chip, .point-clear {
   border: 1px solid var(--border);
   background: #fff;
