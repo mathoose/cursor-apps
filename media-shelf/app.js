@@ -41,8 +41,7 @@
     showType: "binge",
     bookType: "book",
     subscriptionKind: "streaming",
-    subForShows: true,
-    subForBooks: false,
+    subFor: "shows",
     subAccessPaid: true,
     subAccessAds: false,
     subStatus: "active",
@@ -1663,11 +1662,8 @@
   }
 
   function syncSubscriptionFormUI() {
-    var shows = ui.subForShows;
-    var books = ui.subForBooks;
     document.querySelectorAll("#subscriptionForChips .shelf-chip").forEach(function (btn) {
-      var on = btn.dataset.for === "shows" ? shows : books;
-      btn.classList.toggle("active", on);
+      btn.classList.toggle("active", btn.dataset.for === ui.subFor);
     });
     document.querySelectorAll("#subscriptionAccessChips .shelf-chip").forEach(function (btn) {
       var on = btn.dataset.access === "paid" ? ui.subAccessPaid : ui.subAccessAds;
@@ -1680,7 +1676,7 @@
       btn.classList.toggle("active", btn.dataset.kind === ui.subscriptionKind);
     });
     var kindField = document.getElementById("subscriptionKindField");
-    if (kindField) kindField.hidden = !shows;
+    if (kindField) kindField.hidden = ui.subFor === "books";
     var costField = document.getElementById("subscriptionCostField");
     if (costField) costField.hidden = !ui.subAccessPaid;
     var cancelledField = document.getElementById("subscriptionCancelledField");
@@ -1693,9 +1689,7 @@
     var loggingBook = false;
     var ql = document.getElementById("quickLogOverlay");
     if (!sub && ql && ql.classList.contains("open") && ui.quickLogKind === "book") loggingBook = true;
-    ui.subForShows = sub ? sub.forMedia !== "books" : !loggingBook;
-    ui.subForBooks = sub ? sub.forMedia !== "shows" : loggingBook;
-    if (!ui.subForShows && !ui.subForBooks) ui.subForShows = true;
+    ui.subFor = sub ? (sub.forMedia || "shows") : (loggingBook ? "books" : "shows");
     ui.subAccessPaid = sub ? sub.access !== "ads" : true;
     ui.subAccessAds = sub ? sub.access === "ads" || sub.access === "both" : false;
     ui.subStatus = sub && sub.active === false ? "cancelled" : "active";
@@ -1724,8 +1718,7 @@
   }
 
   function currentForMedia() {
-    if (ui.subForShows && ui.subForBooks) return "both";
-    if (ui.subForBooks) return "books";
+    if (ui.subFor === "books" || ui.subFor === "both") return ui.subFor;
     return "shows";
   }
 
@@ -1735,7 +1728,7 @@
       showToast("Enter a name");
       return;
     }
-    if (!ui.subForShows && !ui.subForBooks) {
+    if (!ui.subFor) {
       showToast("Pick shows, books, or both");
       return;
     }
@@ -2117,12 +2110,7 @@
     document.getElementById("subscriptionForChips").addEventListener("click", function (e) {
       var chip = e.target.closest("[data-for]");
       if (!chip) return;
-      if (chip.dataset.for === "shows") ui.subForShows = !ui.subForShows;
-      else ui.subForBooks = !ui.subForBooks;
-      if (!ui.subForShows && !ui.subForBooks) {
-        if (chip.dataset.for === "shows") ui.subForShows = true;
-        else ui.subForBooks = true;
-      }
+      ui.subFor = chip.dataset.for;
       syncSubscriptionFormUI();
     });
     document.getElementById("subscriptionAccessChips").addEventListener("click", function (e) {

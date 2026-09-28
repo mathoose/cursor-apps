@@ -892,6 +892,7 @@ main {
   padding: 12px 14px;
   outline: none;
 }
+.field input[type="date"] { color-scheme: dark; }
 .field textarea { min-height: 64px; resize: vertical; }
 .field input:focus,
 .field select:focus,
