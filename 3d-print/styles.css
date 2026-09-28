@@ -17,6 +17,8 @@
   --ready-soft: #eff6ff;
   --wait: #7c3aed;
   --wait-soft: #f5f3ff;
+  --again: #0f766e;
+  --again-soft: #f0fdfa;
   --p3: #dc2626;
   --p2: #f59e0b;
   --p1: #16a34a;
@@ -363,6 +365,44 @@ main {
   outline: none;
 }
 
+.keep-selections-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.keep-selections-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+.keep-setting-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.keep-setting-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+.queue-group-label {
+  margin: 14px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+}
+.queue-group-label:first-child { margin-top: 0; }
 .quick-add-filament {
   display: flex;
   align-items: flex-start;
@@ -606,6 +646,7 @@ main {
 .item.prio-1:not(.done) { background: var(--p1-soft); border-color: var(--p1-border); }
 .item.status-ready:not(.done) { box-shadow: inset 3px 0 0 var(--ready); }
 .item.status-waitlisted:not(.done) { box-shadow: inset 3px 0 0 var(--wait); }
+.item.status-again:not(.done) { box-shadow: inset 3px 0 0 var(--again); }
 
 .item-check {
   flex-shrink: 0;
@@ -674,6 +715,8 @@ main {
 .pill.status-ready { background: var(--ready-soft); color: var(--ready); border-color: #bfdbfe; }
 .pill.status-waitlisted { background: var(--wait-soft); color: var(--wait); border-color: #ddd6fe; }
 .pill.status-queued { background: var(--accent-soft); color: var(--accent-dark); border-color: #fed7aa; }
+.pill.status-again { background: var(--again-soft); color: var(--again); border-color: #99f6e4; }
+.pill.printing { background: #fff7ed; color: var(--accent-dark); border-color: #fdba74; }
 .pill.link {
   color: var(--accent-dark);
   text-decoration: none;
@@ -1122,6 +1165,11 @@ main {
   border-color: var(--ready);
   background: var(--ready-soft);
   color: var(--ready);
+}
+.status-btn.selected[data-status="again"] {
+  border-color: var(--again);
+  background: var(--again-soft);
+  color: var(--again);
 }
 .status-btn.selected[data-status="done"] {
   border-color: var(--success);

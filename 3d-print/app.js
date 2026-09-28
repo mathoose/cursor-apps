@@ -12,9 +12,11 @@
   var STATUS_LABELS = {
     queued: 'To print',
     waitlisted: 'Waitlisted',
-    ready: 'Ready',
+    ready: 'On deck',
+    again: 'Will print again',
     done: 'Done'
   };
+  var OPEN_STATUS_ORDER = ['ready', 'queued', 'waitlisted', 'again'];
 
   var state = {
     version: SCHEMA_VERSION,
@@ -27,6 +29,8 @@
     filamentColorSortAt: 0,
     statusFilter: 'all',
     categoryFilter: 'all',
+    keepAddSelections: false,
+    lastAddSelections: null,
     itemSort: 'custom'
   };
 
@@ -39,6 +43,7 @@
   var editingDraft = null;
   var editingPrinterId = null;
   var sendTargetItemId = null;
+  var pendingReprintItemId = null;
   var fcpUiBound = false;
   var filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
 
@@ -47,7 +52,9 @@
     categories: new Set(),
     filament: new Set(),
     categoryAdding: false,
-    plateCount: 1
+    plateCount: 1,
+    paid: false,
+    ams: false
   };
   var editorCategoryAdding = false;
   var bulkPlateCategorySelected = new Set();
@@ -524,7 +531,9 @@
         filamentColorSortAt: state.filamentColorSortAt,
         statusFilter: state.statusFilter,
         categoryFilter: state.categoryFilter,
-        itemSort: state.itemSort
+        itemSort: state.itemSort,
+        keepAddSelections: !!state.keepAddSelections,
+        lastAddSelections: state.lastAddSelections
       }));
     } catch (e) {
       console.error(e);
@@ -553,6 +562,10 @@
       if (typeof parsed.statusFilter === 'string') state.statusFilter = parsed.statusFilter;
       if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
       state.itemSort = normalizeItemSort(parsed.itemSort);
+      state.keepAddSelections = !!parsed.keepAddSelections;
+      if (parsed.lastAddSelections && typeof parsed.lastAddSelections === 'object') {
+        state.lastAddSelections = parsed.lastAddSelections;
+      }
       ensureItemSortOrders();
       ensureFilamentColors();
       maybeReorderFilamentColors();
@@ -709,18 +722,79 @@
     saveState();
   }
 
+  function itemHasRunningTimer(itemId) {
+    return state.timers.some(function (t) {
+      return t.status === 'running' && t.itemId === itemId;
+    });
+  }
+
   function toggleItemDone(id) {
     var item = getItem(id);
     if (!item) return;
     if (item.status === 'done') {
       item.status = 'queued';
-    } else {
-      item.status = 'done';
-      item.waitlistReason = '';
+      item.updatedAt = new Date().toISOString();
+      repositionItemByPriority(item);
+      saveState();
+      return;
     }
+    closeOutItem(item);
+  }
+
+  function cloneItemForReprint(item) {
+    return {
+      title: item.title,
+      notes: item.notes || '',
+      link: item.link || '',
+      priority: item.priority || 0,
+      status: 'again',
+      paid: !!item.paid,
+      ams: !!item.ams,
+      filamentColorIds: (item.filamentColorIds || []).slice(),
+      categoryIds: (item.categoryIds || []).slice(),
+      plateCount: item.plateCount || 1,
+      plates: (item.plates || []).map(function (p) {
+        return normalizePlate({
+          name: p.name,
+          done: false,
+          categoryIds: p.categoryIds,
+          filamentColorIds: p.filamentColorIds
+        });
+      }),
+      printerId: item.printerId || null,
+      estimatedMinutes: item.estimatedMinutes
+    };
+  }
+
+  function askWillPrintAgain(item) {
+    if (!item) return;
+    pendingReprintItemId = item.id;
+    var lead = document.getElementById('reprintLead');
+    if (lead) lead.textContent = 'Add “' + item.title + '” to Will print again?';
+    openModal('reprintModal');
+  }
+
+  function closeOutItem(item) {
+    if (!item) return;
+    item.status = 'done';
+    item.waitlistReason = '';
     item.updatedAt = new Date().toISOString();
     repositionItemByPriority(item);
+    state.timers = state.timers.filter(function (t) {
+      return !(t.status === 'running' && t.itemId === item.id);
+    });
     saveState();
+    askWillPrintAgain(item);
+  }
+
+  function markSliced(itemId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    item.status = 'ready';
+    item.waitlistReason = '';
+    item.updatedAt = new Date().toISOString();
+    saveState();
+    showToast('On deck');
   }
 
   function startTimer(opts) {
@@ -741,7 +815,6 @@
     if (opts.itemId) {
       var item = getItem(opts.itemId);
       if (item) {
-        item.status = 'ready';
         item.printerId = opts.printerId || item.printerId;
         item.estimatedMinutes = minutes;
         item.updatedAt = new Date().toISOString();
@@ -754,7 +827,7 @@
   function finishTimer(timerId, cancelled) {
     var timer = state.timers.find(function (t) { return t.id === timerId; });
     if (!timer) return;
-    timer.status = cancelled ? 'cancelled' : 'finished';
+    state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
     if (!cancelled) {
       state.history.unshift(normalizeHistory({
         printerId: timer.printerId,
@@ -766,35 +839,13 @@
       }));
       if (timer.itemId) {
         var item = getItem(timer.itemId);
-        if (item) {
-          item.status = 'done';
-          item.updatedAt = new Date().toISOString();
-          repositionItemByPriority(item);
+        if (item && item.status !== 'done') {
+          closeOutItem(item);
+          return;
         }
       }
     }
-    state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
     saveState();
-  }
-
-  function markReadyAndMaybeTimer(opts) {
-    var item = getItem(opts.itemId);
-    if (!item) return;
-    item.status = 'ready';
-    item.waitlistReason = '';
-    item.printerId = opts.printerId || null;
-    item.estimatedMinutes = opts.durationMinutes || null;
-    item.updatedAt = new Date().toISOString();
-    if (opts.startTimer && opts.durationMinutes) {
-      startTimer({
-        printerId: opts.printerId,
-        itemId: item.id,
-        itemTitle: item.title,
-        durationMinutes: opts.durationMinutes
-      });
-    } else {
-      saveState();
-    }
   }
 
   // ---- Filament color picker (HSV) ----
@@ -1153,21 +1204,103 @@
     container.appendChild(scroll);
   }
 
+  function captureAddSelections() {
+    return {
+      priority: quickUi.priority || 0,
+      paid: !!quickUi.paid,
+      ams: !!quickUi.ams,
+      plateCount: Math.max(1, quickUi.plateCount || 1),
+      categoryIds: Array.from(quickUi.categories),
+      filamentColorIds: Array.from(quickUi.filament)
+    };
+  }
+
+  function persistLastAddSelections() {
+    state.lastAddSelections = captureAddSelections();
+  }
+
+  function applyLastAddSelections() {
+    var sel = state.lastAddSelections;
+    if (!sel || typeof sel !== 'object') return;
+    quickUi.priority = [0, 1, 2, 3].indexOf(sel.priority) >= 0 ? sel.priority : 0;
+    quickUi.paid = !!sel.paid;
+    quickUi.ams = !!sel.ams;
+    quickUi.plateCount = Math.max(1, Math.min(99, parseInt(sel.plateCount, 10) || 1));
+    var cats = Array.isArray(sel.categoryIds) ? sel.categoryIds : [];
+    quickUi.categories = new Set(cats.filter(function (id) { return !!getCategory(id); }));
+    var fils = Array.isArray(sel.filamentColorIds) ? sel.filamentColorIds : [];
+    quickUi.filament = new Set(fils.filter(function (id) { return !!getFilamentColor(id); }));
+  }
+
+  function resetQuickAddSelections() {
+    quickUi.priority = 0;
+    quickUi.paid = false;
+    quickUi.ams = false;
+    quickUi.categories.clear();
+    quickUi.filament.clear();
+    quickUi.plateCount = 1;
+    quickUi.categoryAdding = false;
+  }
+
+  function readQuickAddFormIntoUi() {
+    var paid = document.getElementById('quickPaid');
+    var ams = document.getElementById('quickAms');
+    if (paid) quickUi.paid = paid.checked;
+    if (ams) quickUi.ams = ams.checked;
+    var plate = document.getElementById('quickPlateCount');
+    if (plate) quickUi.plateCount = Math.max(1, Math.min(99, parseInt(plate.value, 10) || 1));
+  }
+
+  function setKeepAddSelections(on) {
+    state.keepAddSelections = !!on;
+    readQuickAddFormIntoUi();
+    if (state.keepAddSelections) persistLastAddSelections();
+    saveState();
+    syncKeepAddSelectionUi();
+  }
+
+  function syncKeepAddSelectionUi() {
+    var addBox = document.getElementById('keepAddSelections');
+    var setBox = document.getElementById('keepAddSelectionsSetting');
+    if (addBox) addBox.checked = !!state.keepAddSelections;
+    if (setBox) setBox.checked = !!state.keepAddSelections;
+  }
+
+  function syncQuickAddForm() {
+    document.querySelectorAll('#quickPriority .quick-prio-btn').forEach(function (b) {
+      var on = parseInt(b.dataset.prio, 10) === (quickUi.priority || 0);
+      b.classList.toggle('selected', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var paid = document.getElementById('quickPaid');
+    var ams = document.getElementById('quickAms');
+    if (paid) paid.checked = !!quickUi.paid;
+    if (ams) ams.checked = !!quickUi.ams;
+    var plateInput = document.getElementById('quickPlateCount');
+    if (plateInput) plateInput.value = String(quickUi.plateCount || 1);
+    syncKeepAddSelectionUi();
+  }
+
+  function persistQuickAddIfKeeping() {
+    if (!state.keepAddSelections) return;
+    persistLastAddSelections();
+    saveState();
+  }
+
   function renderQuickAddControls() {
     renderCategoryChipRow(
       document.getElementById('quickCategories'),
       function () { return quickUi.categories; },
       function () { return quickUi.categoryAdding; },
       function (v) { quickUi.categoryAdding = v; },
-      function () {}
+      persistQuickAddIfKeeping
     );
     renderFilamentColorRow(
       document.getElementById('quickFilamentColors'),
       function () { return quickUi.filament; },
-      function () {}
+      persistQuickAddIfKeeping
     );
-    var plateInput = document.getElementById('quickPlateCount');
-    if (plateInput) plateInput.value = String(quickUi.plateCount);
+    syncQuickAddForm();
   }
 
   function appendItemMarks(parent, item) {
@@ -1234,7 +1367,8 @@
         (item.status === 'done' ? ' done' : '') +
         itemRowPriorityClass(item.priority) +
         (item.status === 'ready' ? ' status-ready' : '') +
-        (item.status === 'waitlisted' ? ' status-waitlisted' : ''),
+        (item.status === 'waitlisted' ? ' status-waitlisted' : '') +
+        (item.status === 'again' ? ' status-again' : ''),
       dataset: { id: item.id }
     });
 
@@ -1287,19 +1421,23 @@
     if (item.status === 'waitlisted' && item.waitlistReason) {
       body.appendChild(el('div', { class: 'item-wait-reason', text: item.waitlistReason }));
     }
+    if (itemHasRunningTimer(item.id)) {
+      meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
+    }
 
     if (item.status !== 'done' && item.status !== 'ready') {
       var actions = el('div', { class: 'item-actions' });
       actions.appendChild(el('button', {
         type: 'button',
         class: 'item-action-btn primary',
-        text: 'Sliced & sent',
+        text: 'Sliced',
         onClick: function (e) {
           e.stopPropagation();
-          openSendModal(item.id);
+          markSliced(item.id);
+          render();
         }
       }));
-      if (item.status !== 'waitlisted') {
+      if (item.status !== 'waitlisted' && item.status !== 'again') {
         actions.appendChild(el('button', {
           type: 'button',
           class: 'item-action-btn',
@@ -1311,15 +1449,15 @@
         }));
       }
       body.appendChild(actions);
-    } else if (item.status === 'ready') {
+    } else if (item.status === 'ready' && !itemHasRunningTimer(item.id)) {
       var readyActions = el('div', { class: 'item-actions' });
       readyActions.appendChild(el('button', {
         type: 'button',
         class: 'item-action-btn primary',
-        text: 'Start timer',
+        text: 'Start print',
         onClick: function (e) {
           e.stopPropagation();
-          openSendModal(item.id, { timerOnly: true });
+          openStartPrintModal(item.id);
         }
       }));
       body.appendChild(readyActions);
@@ -1395,6 +1533,15 @@
         class: 'empty-state',
         html: '<p>Nothing in the queue yet.<br />Add a model above — high priority jumps to the top.</p>'
       }));
+    } else if (open.length && state.statusFilter === 'all') {
+      OPEN_STATUS_ORDER.forEach(function (status) {
+        var group = open.filter(function (t) { return t.status === status; });
+        if (!group.length) return;
+        container.appendChild(el('div', { class: 'queue-group-label', text: STATUS_LABELS[status] }));
+        var list = el('div', { class: 'item-list' });
+        group.forEach(function (t) { list.appendChild(renderItemRow(t)); });
+        container.appendChild(list);
+      });
     } else if (open.length) {
       var list = el('div', { class: 'item-list' });
       open.forEach(function (t) { list.appendChild(renderItemRow(t)); });
@@ -1667,6 +1814,8 @@
     document.querySelectorAll('#itemStatusPicker .status-btn').forEach(function (btn) {
       btn.classList.toggle('selected', btn.dataset.status === editingDraft.status);
     });
+    var box = document.getElementById('itemReadyActions');
+    if (box) box.hidden = editingDraft.status === 'ready' || editingDraft.status === 'done';
   }
 
   function syncWaitlistField() {
@@ -1758,8 +1907,7 @@
     });
   }
 
-  function openSendModal(itemId, opts) {
-    opts = opts || {};
+  function openStartPrintModal(itemId) {
     sendTargetItemId = itemId;
     var item = getItem(itemId);
     if (!item) return;
@@ -1777,11 +1925,7 @@
       select.appendChild(opt);
     });
     document.getElementById('sendDuration').value = item.estimatedMinutes || '';
-    document.getElementById('sendStartTimer').checked = !!opts.timerOnly || true;
-    document.getElementById('sendModalLead').textContent = opts.timerOnly
-      ? 'Start a timer for “‘ + item.title + ’”.'
-      : 'Mark “‘ + item.title + ’” as sliced & sent to a printer.';
-    document.getElementById('sendConfirm').textContent = opts.timerOnly ? 'Start timer' : 'Mark ready';
+    document.getElementById('sendModalLead').textContent = 'Begin “' + item.title + '” and start a timer.';
     openModal('sendModal');
   }
 
@@ -1947,6 +2091,12 @@
       state.filamentColors = Array.isArray(slice.filamentColors)
         ? slice.filamentColors.map(normalizeFilamentColorDef)
         : [];
+      if (typeof slice.itemSort === 'string') state.itemSort = normalizeItemSort(slice.itemSort);
+      if (typeof slice.keepAddSelections === 'boolean') state.keepAddSelections = slice.keepAddSelections;
+      if (slice.lastAddSelections && typeof slice.lastAddSelections === 'object') {
+        state.lastAddSelections = slice.lastAddSelections;
+      }
+      if (state.keepAddSelections) applyLastAddSelections();
     } else {
       var catMap = {};
       (slice.categories || []).forEach(function (c) {
@@ -2176,39 +2326,57 @@
   }
 
   function wireQuickAdd() {
-    var selectedPrio = 0;
     var prioBtns = document.querySelectorAll('#quickPriority .quick-prio-btn');
     prioBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var p = parseInt(btn.dataset.prio, 10);
         if (btn.classList.contains('selected')) {
-          selectedPrio = 0;
           quickUi.priority = 0;
-          prioBtns.forEach(function (b) {
-            b.classList.remove('selected');
-            b.setAttribute('aria-pressed', 'false');
-          });
-          return;
+        } else {
+          quickUi.priority = p;
         }
-        selectedPrio = p;
-        quickUi.priority = p;
-        prioBtns.forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('selected', on);
-          b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
+        syncQuickAddForm();
+        if (state.keepAddSelections) {
+          persistLastAddSelections();
+          saveState();
+        }
       });
     });
 
     function bumpPlates(delta) {
       quickUi.plateCount = Math.max(1, Math.min(99, (quickUi.plateCount || 1) + delta));
       document.getElementById('quickPlateCount').value = String(quickUi.plateCount);
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
     }
     document.getElementById('quickPlateMinus').addEventListener('click', function () { bumpPlates(-1); });
     document.getElementById('quickPlatePlus').addEventListener('click', function () { bumpPlates(1); });
     document.getElementById('quickPlateCount').addEventListener('change', function () {
       quickUi.plateCount = Math.max(1, Math.min(99, parseInt(this.value, 10) || 1));
       this.value = String(quickUi.plateCount);
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('quickPaid').addEventListener('change', function () {
+      quickUi.paid = this.checked;
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('quickAms').addEventListener('change', function () {
+      quickUi.ams = this.checked;
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('keepAddSelections').addEventListener('change', function () {
+      setKeepAddSelections(this.checked);
     });
 
     function submit() {
@@ -2221,16 +2389,18 @@
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
+      readQuickAddFormIntoUi();
       var filamentColorIds = Array.from(quickUi.filament);
       var categoryIds = Array.from(quickUi.categories);
       var plateCount = quickUi.plateCount || 1;
-      var prio = selectedPrio;
+      var prio = quickUi.priority || 0;
       addItem({
         title: title,
         link: link,
         priority: prio,
-        paid: document.getElementById('quickPaid').checked,
-        ams: document.getElementById('quickAms').checked,
+        status: 'queued',
+        paid: !!quickUi.paid,
+        ams: !!quickUi.ams,
         filamentColorIds: filamentColorIds,
         categoryIds: categoryIds,
         plateCount: plateCount,
@@ -2239,17 +2409,8 @@
       filamentColorIds.forEach(recordFilamentColorUse);
       titleInput.value = '';
       linkInput.value = '';
-      selectedPrio = 0;
-      quickUi.priority = 0;
-      prioBtns.forEach(function (b) {
-        b.classList.remove('selected');
-        b.setAttribute('aria-pressed', 'false');
-      });
-      document.getElementById('quickPaid').checked = false;
-      document.getElementById('quickAms').checked = false;
-      quickUi.categories.clear();
-      quickUi.filament.clear();
-      quickUi.plateCount = 1;
+      persistLastAddSelections();
+      if (!state.keepAddSelections) resetQuickAddSelections();
       saveState();
       render();
       showToast(prio >= 2 ? 'Added near the top' : 'Added');
@@ -2353,8 +2514,11 @@
         filamentColorSortAt: 0,
         statusFilter: 'all',
         categoryFilter: 'all',
+        keepAddSelections: false,
+        lastAddSelections: null,
         itemSort: 'custom'
       };
+      resetQuickAddSelections();
       ensureFilamentColors();
       saveState();
       closeModal('settingsModal');
@@ -2499,18 +2663,22 @@
       renderEditorPlates();
       showToast('Added ' + names.length + ' plate' + (names.length === 1 ? '' : 's'));
     });
+    document.getElementById('keepAddSelectionsSetting').addEventListener('change', function () {
+      setKeepAddSelections(this.checked);
+    });
     document.getElementById('markReadyBtn').addEventListener('click', function () {
-      if (!editingItemId) return;
-      // Persist draft fields into draft object first
+      if (!editingItemId || !editingDraft) return;
       editingDraft.title = document.getElementById('itemTitle').value;
       editingDraft.link = document.getElementById('itemLink').value;
       editingDraft.notes = document.getElementById('itemNotes').value;
       editingDraft.waitlistReason = document.getElementById('itemWaitlistReason').value;
       editingDraft.paid = document.getElementById('itemPaid').checked;
       editingDraft.ams = document.getElementById('itemAms').checked;
+      editingDraft.status = 'ready';
       if (!updateItemFromDraft()) return;
       closeModal('itemModal');
-      openSendModal(editingItemId);
+      render();
+      showToast('On deck');
     });
     document.getElementById('itemSaveBtn').addEventListener('click', function () {
       editingDraft.title = document.getElementById('itemTitle').value;
@@ -2544,24 +2712,44 @@
     document.getElementById('sendConfirm').addEventListener('click', function () {
       var printerId = document.getElementById('sendPrinterSelect').value;
       var minutes = parseInt(document.getElementById('sendDuration').value, 10);
-      var start = document.getElementById('sendStartTimer').checked;
+      var item = getItem(sendTargetItemId);
       if (!printerId) {
         showToast('Pick a printer', { error: true });
         return;
       }
-      if (start && (!minutes || minutes < 1)) {
+      if (!minutes || minutes < 1) {
         showToast('Enter print time in minutes', { error: true });
         return;
       }
-      markReadyAndMaybeTimer({
+      startTimer({
         itemId: sendTargetItemId,
+        itemTitle: item ? item.title : '',
         printerId: printerId,
-        durationMinutes: minutes || null,
-        startTimer: start && minutes > 0
+        durationMinutes: minutes
       });
       closeModal('sendModal');
       render();
-      showToast(start ? 'Ready — timer started' : 'Marked ready');
+      showToast('Print started');
+    });
+
+    function dismissReprintPrompt() {
+      pendingReprintItemId = null;
+      closeModal('reprintModal');
+    }
+    document.getElementById('reprintModalClose').addEventListener('click', dismissReprintPrompt);
+    document.getElementById('reprintNoBtn').addEventListener('click', dismissReprintPrompt);
+    document.getElementById('reprintYesBtn').addEventListener('click', function () {
+      var item = getItem(pendingReprintItemId);
+      pendingReprintItemId = null;
+      if (item) {
+        addItem(cloneItemForReprint(item));
+        showToast('Added to Will print again');
+      }
+      closeModal('reprintModal');
+      render();
+    });
+    document.getElementById('reprintModal').addEventListener('click', function (e) {
+      if (e.target.id === 'reprintModal') dismissReprintPrompt();
     });
 
     // Printer modal
@@ -2648,6 +2836,7 @@
   }
 
   loadState();
+  if (state.keepAddSelections) applyLastAddSelections();
   wireUi();
   render();
   startTicker();

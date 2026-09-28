@@ -1185,6 +1185,9 @@
             filamentColorSortAt: typeof p.filamentColorSortAt === "number" ? p.filamentColorSortAt : 0,
             statusFilter: typeof p.statusFilter === "string" ? p.statusFilter : "all",
             categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
+            itemSort: typeof p.itemSort === "string" ? p.itemSort : "custom",
+            keepAddSelections: !!p.keepAddSelections,
+            lastAddSelections: p.lastAddSelections && typeof p.lastAddSelections === "object" ? p.lastAddSelections : null,
           };
         } catch (e) {
           return null;
@@ -1205,6 +1208,9 @@
             filamentColorSortAt: typeof slice.filamentColorSortAt === "number" ? slice.filamentColorSortAt : 0,
             statusFilter: typeof slice.statusFilter === "string" ? slice.statusFilter : "all",
             categoryFilter: typeof slice.categoryFilter === "string" ? slice.categoryFilter : "all",
+            itemSort: typeof slice.itemSort === "string" ? slice.itemSort : "custom",
+            keepAddSelections: !!slice.keepAddSelections,
+            lastAddSelections: slice.lastAddSelections && typeof slice.lastAddSelections === "object" ? slice.lastAddSelections : null,
           })
         );
       },
@@ -1230,6 +1236,9 @@
           filamentColorSortAt: existing.filamentColorSortAt || 0,
           statusFilter: existing.statusFilter || "all",
           categoryFilter: existing.categoryFilter || "all",
+          itemSort: existing.itemSort || incoming.itemSort || "custom",
+          keepAddSelections: !!(existing.keepAddSelections || incoming.keepAddSelections),
+          lastAddSelections: existing.lastAddSelections || incoming.lastAddSelections || null,
         };
         var itemIds = {};
         out.items.forEach(function (it) { itemIds[it.id] = true; });
