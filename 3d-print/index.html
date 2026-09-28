@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <header class="app-header">
@@ -36,9 +36,10 @@
           <span class="list-filter-label">Status</span>
           <select id="statusFilter" class="list-filter-select" aria-label="Filter by status">
             <option value="all">All open</option>
+            <option value="ready">On deck</option>
             <option value="queued">To print</option>
             <option value="waitlisted">Waitlisted</option>
-            <option value="ready">Ready</option>
+            <option value="again">Will print again</option>
             <option value="done">Done</option>
           </select>
         </div>
@@ -104,6 +105,10 @@
           <span class="quick-add-categories-label">Filament</span>
           <div class="filament-color-scroll" id="quickFilamentColors"></div>
         </div>
+        <label class="keep-selections-row">
+          <input type="checkbox" id="keepAddSelections" />
+          <span>Keep selections for the next add</span>
+        </label>
       </div>
 
       <div id="queueList"></div>
@@ -134,7 +139,7 @@
         </div>
         <div id="timerList"></div>
         <div class="empty-state" id="timerEmpty" hidden>
-          <p>No running timers.<br />Start one from a ready item or a printer.</p>
+          <p>No running timers.<br />Start one from an on-deck item or a printer.</p>
         </div>
       </div>
 
@@ -200,7 +205,8 @@
           <div class="status-picker" id="itemStatusPicker">
             <button type="button" class="status-btn" data-status="queued">To print</button>
             <button type="button" class="status-btn" data-status="waitlisted">Waitlisted</button>
-            <button type="button" class="status-btn" data-status="ready">Ready</button>
+            <button type="button" class="status-btn" data-status="ready">On deck</button>
+            <button type="button" class="status-btn" data-status="again">Will print again</button>
             <button type="button" class="status-btn" data-status="done">Done</button>
           </div>
         </div>
@@ -265,8 +271,9 @@
           <textarea id="itemNotes" placeholder="Slice notes, supports, etc."></textarea>
         </div>
         <div class="field" id="itemReadyActions">
-          <label class="field-label">Ready to print</label>
-          <button type="button" class="btn btn-primary" id="markReadyBtn" style="width:100%">Sliced &amp; sent to printer…</button>
+          <label class="field-label">On deck</label>
+          <button type="button" class="btn btn-primary" id="markReadyBtn" style="width:100%">Mark sliced — on deck</button>
+          <p class="field-hint" style="margin-top:8px">Sliced items wait on deck. Start a print later — slicing does not start a timer.</p>
         </div>
       </div>
       <div class="modal-footer">
@@ -303,18 +310,18 @@
     </div>
   </div>
 
-  <!-- Send to printer / start timer -->
+  <!-- Start print / timer -->
   <div class="modal-backdrop" id="sendModal" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-handle"></div>
       <div class="modal-header">
-        <div class="modal-title">Sliced &amp; sent</div>
+        <div class="modal-title">Start print</div>
         <button type="button" class="icon-btn" id="sendModalClose" aria-label="Close">
           <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
         </button>
       </div>
       <div class="modal-body">
-        <p class="modal-lead" id="sendModalLead">Mark this item ready and optionally start a timer.</p>
+        <p class="modal-lead" id="sendModalLead">Begin this on-deck print and set a timer.</p>
         <div class="field">
           <label class="field-label" for="sendPrinterSelect">Printer</label>
           <select id="sendPrinterSelect"></select>
@@ -323,14 +330,30 @@
           <label class="field-label" for="sendDuration">Print time (minutes)</label>
           <input type="number" id="sendDuration" min="1" max="10080" inputmode="numeric" placeholder="e.g. 180" />
         </div>
-        <label class="check-row">
-          <input type="checkbox" id="sendStartTimer" checked />
-          <span>Start timer now</span>
-        </label>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn" id="sendCancel">Cancel</button>
-        <button type="button" class="btn btn-primary" id="sendConfirm">Mark ready</button>
+        <button type="button" class="btn btn-primary" id="sendConfirm">Start print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Will print again -->
+  <div class="modal-backdrop" id="reprintModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Print finished</div>
+        <button type="button" class="icon-btn" id="reprintModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="reprintLead">Add this to Will print again?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="reprintNoBtn">No</button>
+        <button type="button" class="btn btn-primary" id="reprintYesBtn">Add to Will print again</button>
       </div>
     </div>
   </div>
@@ -481,6 +504,16 @@
         </div>
         <div class="settings-row">
           <div>
+            <div class="settings-label">Keep add selections</div>
+            <div class="settings-sub">Reuse priority, filament, AMS, paid, plates, and categories on the next add.</div>
+          </div>
+          <label class="keep-setting-toggle">
+            <input type="checkbox" id="keepAddSelectionsSetting" />
+            <span>On</span>
+          </label>
+        </div>
+        <div class="settings-row">
+          <div>
             <div class="settings-label">Manage categories</div>
             <div class="settings-sub">Reorder or delete categories.</div>
           </div>
@@ -561,6 +594,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
