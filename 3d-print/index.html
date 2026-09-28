@@ -279,7 +279,7 @@
         <div class="field" id="itemReadyActions">
           <label class="field-label">On deck</label>
           <button type="button" class="btn btn-primary" id="markReadyBtn" style="width:100%">Mark sliced — on deck</button>
-          <p class="field-hint" style="margin-top:8px">Sliced items wait on deck. Start a print later — slicing does not start a timer.</p>
+          <p class="field-hint" style="margin-top:8px">You’ll pick a printer, then it waits on deck. Start print is when the timer starts.</p>
         </div>
       </div>
       <div class="modal-footer">
@@ -340,6 +340,26 @@
       <div class="modal-footer">
         <button type="button" class="btn" id="sendCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="sendConfirm">Start print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sliced — pick printer -->
+  <div class="modal-backdrop" id="sliceModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Sliced</div>
+        <button type="button" class="icon-btn" id="sliceModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="sliceModalLead">Which printer will this print on?</p>
+        <div id="slicePrinterList" class="slice-printer-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="sliceCancel">Cancel</button>
       </div>
     </div>
   </div>
