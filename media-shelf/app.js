@@ -6,8 +6,9 @@
   var GATE_MS = 60 * 60 * 1000;
   var DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAY_LABELS_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  var SHELF_ORDER = ["up-next", "alone", "active", "shelved", "done"];
+  var SHELF_ORDER = ["want-to-start", "up-next", "alone", "active", "shelved", "done"];
   var SHELF_LABELS = {
+    "want-to-start": "Want to start",
     "up-next": "Up next",
     alone: "Alone",
     active: "Active",
@@ -26,7 +27,7 @@
 
   var ui = {
     view: "home",
-    homeShelves: { active: true, "up-next": true, alone: true, shelved: false, done: false },
+    homeShelves: { active: true, "want-to-start": true, "up-next": true, alone: true, shelved: false, done: false },
     homeTypes: { show: true, book: true, manga: true },
     editingShowId: null,
     editingBookId: null,
@@ -83,12 +84,13 @@
 
   function inferShelfFromLegacy(status, kind) {
     if (status === "completed") return "done";
-    if (status === "paused" || status === "planning") return "shelved";
+    if (status === "planning") return "want-to-start";
+    if (status === "paused") return "shelved";
     return "active";
   }
 
   function normalizeShelf(raw, status, kind) {
-    var allowed = ["active", "up-next", "alone", "shelved", "done"];
+    var allowed = ["active", "up-next", "alone", "shelved", "done", "want-to-start"];
     if (raw && allowed.indexOf(raw) >= 0) return raw;
     return inferShelfFromLegacy(status, kind);
   }
@@ -96,7 +98,25 @@
   function statusFromShelf(shelf, kind) {
     if (shelf === "done") return kind === "show" ? "completed" : "completed";
     if (shelf === "shelved") return kind === "show" ? "paused" : "paused";
+    if (shelf === "want-to-start") return "planning";
     return kind === "show" ? "watching" : "reading";
+  }
+
+  /** Full seasons finished; optional last episode in the next season. */
+  function progressFromSeasonsWatched(fullSeasons, lastEpisodeInCurrent) {
+    var full = Math.max(0, parseInt(fullSeasons, 10) || 0);
+    var lastEp = Math.max(0, parseInt(lastEpisodeInCurrent, 10) || 0);
+    if (lastEp > 0) return { season: full + 1, episode: lastEp };
+    if (full > 0) return { season: full + 1, episode: 0 };
+    return { season: 1, episode: 0 };
+  }
+
+  function seasonsWatchedFromProgress(season, episode) {
+    var s = Math.max(1, parseInt(season, 10) || 1);
+    var e = Math.max(0, parseInt(episode, 10) || 0);
+    if (e > 0) return { full: s - 1, partial: e };
+    if (s > 1) return { full: s - 1, partial: 0 };
+    return { full: 0, partial: 0 };
   }
 
   function normalizeShow(raw) {
@@ -519,6 +539,12 @@
     if (show.episode === 0) {
       var startText = epShort(next.season, next.episode);
       if (compact && next.season === (show.season || 1)) startText = "E" + next.episode;
+      if (show.season > 1 && compact) {
+        return (show.season - 1) + " seasons · → " + startText;
+      }
+      if (show.season > 1) {
+        return (show.season - 1) + " seasons done · → " + startText;
+      }
       return "→ " + startText;
     }
     if (compact) {
@@ -562,7 +588,7 @@
 
   function getShowOverdueDays(show, asOf) {
     if (!show || show.type !== "airing" || !show.schedule.length) return 0;
-    if (show.shelf === "shelved" || show.shelf === "done") return 0;
+    if (show.shelf === "shelved" || show.shelf === "done" || show.shelf === "want-to-start") return 0;
     if (isCaughtUp(show, asOf)) return 0;
     var missed = getLatestDueAirDate(show, asOf);
     if (!missed) return 0;
@@ -625,7 +651,13 @@
   function filterUnified(items) {
     var shelves = ui.homeShelves;
     var types = ui.homeTypes;
-    var anyShelf = shelves.active || shelves["up-next"] || shelves.alone || shelves.shelved || shelves.done;
+    var anyShelf =
+      shelves.active ||
+      shelves["want-to-start"] ||
+      shelves["up-next"] ||
+      shelves.alone ||
+      shelves.shelved ||
+      shelves.done;
     var anyType = types.show || types.book || types.manga;
     return items.filter(function (item) {
       if (anyShelf && !shelves[item.shelf || "active"]) return false;
@@ -1284,7 +1316,7 @@
       if (!show) return;
       var season = parseInt(document.getElementById("qlSeason").value, 10) || 1;
       var episode = parseInt(document.getElementById("qlEpisode").value, 10) || 0;
-      if (episode < 1 && shelf !== "shelved" && shelf !== "done") {
+      if (episode < 1 && shelf !== "shelved" && shelf !== "done" && shelf !== "want-to-start") {
         showToast("Enter an episode");
         return;
       }
@@ -1381,11 +1413,19 @@
     openQuickLog("book", id);
   }
 
+  function syncQuickAddShowProgress() {
+    var progress = document.getElementById("quickAddShowProgress");
+    if (!progress) return;
+    var isShow = ui.quickAddKind === "show";
+    var want = ui.quickAddShelf === "want-to-start";
+    progress.hidden = !isShow || want;
+  }
+
   function openQuickAdd(kind) {
     ui.quickAddKind = kind;
     ui.quickAddShelf = "active";
     var titles = {
-      show: ["New show", "Just a title — tweak details later"],
+      show: ["New show", "Title + how far you are (optional)"],
       book: ["New book", "Add it in one tap"],
       manga: ["New manga", "Add it in one tap"],
       comic: ["New comic", "Add it in one tap"],
@@ -1397,7 +1437,12 @@
     document.getElementById("quickAddAuthor").value = "";
     document.getElementById("quickAddAuthorField").hidden = kind === "show";
     document.getElementById("quickAddMoreBtn").hidden = false;
+    var swEl = document.getElementById("quickAddSeasonsWatched");
+    var leEl = document.getElementById("quickAddLastEpisode");
+    if (swEl) swEl.value = "0";
+    if (leEl) leEl.value = "";
     setShelfChips("quickAddShelf", "active");
+    syncQuickAddShowProgress();
     openOverlay("quickAddOverlay");
     setTimeout(function () {
       document.getElementById("quickAddName").focus();
@@ -1414,12 +1459,19 @@
     var now = new Date().toISOString();
 
     if (ui.quickAddKind === "show") {
+      var prog =
+        shelf === "want-to-start"
+          ? { season: 1, episode: 0 }
+          : progressFromSeasonsWatched(
+              document.getElementById("quickAddSeasonsWatched").value,
+              document.getElementById("quickAddLastEpisode").value
+            );
       var show = normalizeShow({
         id: uid(),
         title: title,
         type: "binge",
-        season: 1,
-        episode: 0,
+        season: prog.season,
+        episode: prog.episode,
         shelf: shelf,
         status: statusFromShelf(shelf, "show"),
         createdAt: now,
@@ -1430,7 +1482,7 @@
       dismissGate();
       save();
       showToast("Added");
-      openQuickLog("show", show.id);
+      if (shelf !== "want-to-start") openQuickLog("show", show.id);
       return;
     }
 
@@ -1477,12 +1529,14 @@
 
   function resetShowForm(show) {
     ui.editingShowId = show ? show.id : null;
+    ui.draftShowShelf = show && show.shelf ? show.shelf : "active";
     ui.showType = show ? show.type : "binge";
     ui.selectedDays = show && show.schedule ? show.schedule.map(function (s) { return s.day; }) : [];
     document.getElementById("showFormTitle").textContent = show ? "Edit show" : "Add show";
     document.getElementById("showTitle").value = show ? show.title : "";
-    document.getElementById("showSeason").value = show ? String(show.season) : "1";
-    document.getElementById("showEpisode").value = show ? String(show.episode) : "0";
+    var sw = show ? seasonsWatchedFromProgress(show.season, show.episode) : { full: 0, partial: 0 };
+    document.getElementById("showSeasonsWatched").value = String(sw.full);
+    document.getElementById("showPartialEpisode").value = sw.partial > 0 ? String(sw.partial) : "";
     document.getElementById("showTotalEpisodes").value = show && show.totalEpisodes != null ? String(show.totalEpisodes) : "";
     document.getElementById("showTotalSeasons").value = show && show.totalSeasons != null ? String(show.totalSeasons) : "";
     document.getElementById("showNotes").value = show ? show.notes : "";
@@ -1527,19 +1581,23 @@
     var totalEp = document.getElementById("showTotalEpisodes").value;
     var totalSeas = document.getElementById("showTotalSeasons").value;
     var existing = ui.editingShowId ? getShow(ui.editingShowId) : null;
+    var prog = progressFromSeasonsWatched(
+      document.getElementById("showSeasonsWatched").value,
+      document.getElementById("showPartialEpisode").value
+    );
     var payload = {
       id: ui.editingShowId || uid(),
       title: title,
       type: ui.showType,
-      season: parseInt(document.getElementById("showSeason").value, 10) || 1,
-      episode: parseInt(document.getElementById("showEpisode").value, 10) || 0,
+      season: prog.season,
+      episode: prog.episode,
       totalEpisodes: totalEp === "" ? null : parseInt(totalEp, 10),
       totalSeasons: totalSeas === "" ? null : parseInt(totalSeas, 10),
       schedule: schedule,
       subscriptionId: document.getElementById("showSubscription").value || null,
       notes: document.getElementById("showNotes").value.trim(),
-      shelf: existing ? existing.shelf : "active",
-      status: existing ? existing.status : "watching",
+      shelf: existing ? existing.shelf : ui.draftShowShelf || "active",
+      status: existing ? existing.status : statusFromShelf(ui.draftShowShelf || "active", "show"),
       lastComment: existing ? existing.lastComment : "",
       lastWatchedAt: existing ? existing.lastWatchedAt : null,
       watchingSeason: existing ? existing.watchingSeason : null,
@@ -1959,7 +2017,25 @@
       var author = document.getElementById("quickAddAuthor").value.trim();
       closeOverlay("quickAddOverlay");
       if (ui.quickAddKind === "show") {
-        openShowForm(title ? { title: title, type: "binge", season: 1, episode: 0, shelf: ui.quickAddShelf } : null);
+        var shelf = ui.quickAddShelf || "active";
+        var prog =
+          shelf === "want-to-start"
+            ? { season: 1, episode: 0 }
+            : progressFromSeasonsWatched(
+                document.getElementById("quickAddSeasonsWatched").value,
+                document.getElementById("quickAddLastEpisode").value
+              );
+        openShowForm(
+          title
+            ? {
+                title: title,
+                type: "binge",
+                season: prog.season,
+                episode: prog.episode,
+                shelf: shelf,
+              }
+            : null
+        );
         if (title) document.getElementById("showTitle").value = title;
       } else {
         var type = ui.quickAddKind === "manga" ? "manga" : ui.quickAddKind === "comic" ? "comic" : "book";
@@ -1975,6 +2051,7 @@
       if (!chip) return;
       ui.quickAddShelf = chip.dataset.shelf;
       setShelfChips("quickAddShelf", ui.quickAddShelf);
+      syncQuickAddShowProgress();
     });
 
     document.querySelectorAll("#homeShelfFilters .chip").forEach(function (chip) {
