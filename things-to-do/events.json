@@ -89,12 +89,12 @@
   {
     "id": "chinatown-mid-autumn-2026",
     "title": "Chinatown Mid-Autumn Festival",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-26",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
     "startTime": "12:00",
     "endTime": "20:00",
     "hours": "Noon–8pm (lantern parade around 7pm)",
-    "description": "Free 31st annual street festival. Lion dances, opera, martial arts, mooncake contest, evening lantern parade.",
+    "description": "Free 31st annual street festival, postponed from Sep 26 for weather. Lion dances, opera, martial arts, mooncake contest, evening lantern parade.",
     "url": "https://www.aaunited.org/maf",
     "locations": [
       { "name": "10th Street near the Friendship Gate", "address": "10th St & Arch St, Philadelphia, PA 19107" }
@@ -117,12 +117,12 @@
   {
     "id": "chestnut-hill-fall-arts-2026",
     "title": "Chestnut Hill Fall for the Arts",
-    "startDate": "2026-09-27",
-    "endDate": "2026-09-27",
+    "startDate": "2026-10-11",
+    "endDate": "2026-10-11",
     "startTime": "11:00",
     "endTime": "17:00",
     "hours": "11am–5pm",
-    "description": "Free. 300+ artists, live music, food along Germantown Ave. Rain date reported as Sun Oct 11.",
+    "description": "Free rain-date Sunday. 250+ artists, live music, Makers Village demos along Germantown Ave (Willow Grove to Rex). Originally Sep 27.",
     "url": "https://chestnuthillpa.com/fall-for-the-arts-festival/",
     "locations": [
       { "name": "Germantown Ave, Chestnut Hill", "address": "8400 Germantown Ave, Philadelphia, PA 19118" }
@@ -270,6 +270,20 @@
     ]
   },
   {
+    "id": "cityside-pumpkin-patch-2026",
+    "title": "Cityside Pumpkin Patch",
+    "startDate": "2026-10-01",
+    "endDate": "2026-11-01",
+    "startTime": "12:00",
+    "endTime": "22:00",
+    "hours": "Daily timed 2-hour slots, usually noon–10pm; book ahead",
+    "description": "10,000+ pumpkins on the Liberty Point rooftop. Pumpkin smashing, scarecrow archery, haunted photo ops, carnival games, fall cocktails. From $13.90; ages 3+ need a ticket. No pets.",
+    "url": "https://citysidepumpkinpatch.com/philly",
+    "locations": [
+      { "name": "Liberty Point at Penn's Landing", "address": "211 S Christopher Columbus Blvd, Philadelphia, PA 19106" }
+    ]
+  },
+  {
     "id": "roxtoberfest-2026",
     "title": "Roxtoberfest",
     "startDate": "2026-10-03",
@@ -357,7 +371,7 @@
   },
   {
     "id": "manayunk-fall-fest-2026",
-    "title": "Manayunk Fall Fest",
+    "title": "Manayunk Fall Festival",
     "startDate": "2026-10-17",
     "endDate": "2026-10-17",
     "startTime": "11:00",
@@ -381,6 +395,21 @@
     "url": "https://discovereastfalls.org/fallsfest/",
     "locations": [
       { "name": "Ridge Ave & Midvale Ave", "address": "Ridge Ave & Midvale Ave, Philadelphia, PA 19129" }
+    ]
+  },
+  {
+    "id": "fantasy-faire-block-party-2026",
+    "title": "Queen & Rook Fantasy Faire Block Party",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-17",
+    "startTime": "12:00",
+    "endTime": "20:00",
+    "hours": "Noon–8pm",
+    "description": "Free Renaissance-style block party on the 100 block. 40+ fantasy vendors, sword fighting, fire performers, tarot, costumes encouraged. Listed on @bon_nappetit for Oct 17 — confirm with Queen & Rook if weather shifted again.",
+    "url": "https://www.queenandrookcafe.com/events/",
+    "locations": [
+      { "name": "100 block of South Street", "address": "100 S 2nd St, Philadelphia, PA 19147" },
+      { "name": "Queen & Rook Game Cafe", "address": "123 South St, Philadelphia, PA 19147" }
     ]
   },
   {
@@ -415,15 +444,15 @@
   {
     "id": "east-passyunk-fall-fest-2026",
     "title": "East Passyunk Fall Fest",
-    "startDate": "2026-10-25",
-    "endDate": "2026-10-25",
+    "startDate": "2026-10-31",
+    "endDate": "2026-10-31",
     "startTime": "11:00",
     "endTime": "16:00",
-    "hours": "Typical hours 11am–4pm",
-    "description": "Listed as Oct 25. Official pages still showed the 2025 Saturday date — 2026 is a Sunday and not fully confirmed. Usually live music, pumpkin carving, trick-or-treating, dog costume contest.",
-    "url": "https://www.visiteastpassyunk.com/fallfest",
+    "hours": "11am–4pm",
+    "description": "Halloween Saturday on the Avenue. 80+ vendor market, pumpkin carving, live music, kid and dog costume contests, Creepy Crawl trick-or-treating between Morris and Dickinson.",
+    "url": "https://www.visiteastpassyunk.com/fall-on-the-avenue",
     "locations": [
-      { "name": "East Passyunk Avenue", "address": "East Passyunk Ave & Tasker St, Philadelphia, PA 19148" }
+      { "name": "East Passyunk Ave, Morris to Dickinson", "address": "East Passyunk Ave & Morris St, Philadelphia, PA 19148" }
     ]
   },
   {
