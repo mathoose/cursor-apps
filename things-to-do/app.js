@@ -173,7 +173,15 @@
     data.events.forEach(function (event) { have[event.id] = true; });
     seeds.forEach(function (seed) {
       var clean = normalizeEvent(Object.assign({}, seed, { source: "seed" }), "seed");
-      if (!clean || hidden[clean.id] || have[clean.id]) return;
+      if (!clean || hidden[clean.id]) return;
+      if (have[clean.id]) {
+        data.events.forEach(function (event) {
+          if (event.id === clean.id && event.source === "seed" && !data.overrides[clean.id]) {
+            Object.assign(event, clean, { source: "seed" });
+          }
+        });
+        return;
+      }
       data.events.push(clean);
       have[clean.id] = true;
     });
@@ -612,7 +620,7 @@
   }
 
   function loadSeed() {
-    return fetch("events.json?v=2")
+    return fetch("events.json?v=3")
       .then(function (res) { return res.ok ? res.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
