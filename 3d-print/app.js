@@ -1541,11 +1541,137 @@
     return svg;
   }
 
+  function itemReorderGroupKey(item) {
+    if (!item) return '';
+    if (itemHasRunningTimer(item.id)) return 'printing';
+    return item.status;
+  }
+
+  function itemsShareReorderGroup(a, b) {
+    return itemReorderGroupKey(a) === itemReorderGroupKey(b);
+  }
+
+  function getAllOpenItemsSorted() {
+    return sortItemsForView(state.items.filter(function (t) { return t.status !== 'done'; }));
+  }
+
+  function getViewOpenItems() {
+    return getAllOpenItemsSorted().filter(itemMatchesFilters);
+  }
+
+  function reorderOpenItem(draggedId, targetId) {
+    if (!draggedId || !targetId || draggedId === targetId) return false;
+    var dragged = getItem(draggedId);
+    var target = getItem(targetId);
+    if (!dragged || !target || !itemsShareReorderGroup(dragged, target)) return false;
+    var allOpen = getAllOpenItemsSorted();
+    var viewOpen = allOpen.filter(itemMatchesFilters);
+    var from = viewOpen.findIndex(function (t) { return t.id === draggedId; });
+    var to = viewOpen.findIndex(function (t) { return t.id === targetId; });
+    if (from < 0 || to < 0) return false;
+    var moved = viewOpen.splice(from, 1)[0];
+    viewOpen.splice(to, 0, moved);
+    var slots = [];
+    allOpen.forEach(function (t, idx) {
+      if (itemMatchesFilters(t)) slots.push(idx);
+    });
+    slots.forEach(function (slotIdx, i) {
+      allOpen[slotIdx] = viewOpen[i];
+    });
+    allOpen.forEach(function (t, i) { t.sortOrder = i; });
+    state.itemSort = 'custom';
+    saveState();
+    return true;
+  }
+
+  function attachItemListDragReorder(listEl) {
+    if (!listEl || listEl.dataset.dragBound === '1') return;
+    listEl.dataset.dragBound = '1';
+    var pressTimer = null;
+    var dragId = null;
+    var dragEl = null;
+    var activePointerId = null;
+
+    function clearPress() {
+      if (pressTimer) clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+
+    function resetDrag() {
+      clearPress();
+      if (dragEl) dragEl.classList.remove('item-lifted');
+      listEl.querySelectorAll('.item-drag-over').forEach(function (n) {
+        n.classList.remove('item-drag-over');
+      });
+      dragId = null;
+      dragEl = null;
+      activePointerId = null;
+    }
+
+    listEl.addEventListener('pointerdown', function (e) {
+      if (dragId) return;
+      var row = e.target.closest('.item');
+      if (!row || !listEl.contains(row)) return;
+      if (e.target.closest('.item-check, .item-action-btn, .item-edit-btn, .pill.link, a, button')) return;
+      if (!e.target.closest('.item-drag-handle, .item-body')) return;
+      var item = getItem(row.dataset.id);
+      if (!item || item.status === 'done') return;
+      clearPress();
+      activePointerId = e.pointerId;
+      pressTimer = setTimeout(function () {
+        pressTimer = null;
+        dragId = row.dataset.id;
+        dragEl = row;
+        row.classList.add('item-lifted');
+        try { row.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      }, 380);
+    });
+
+    listEl.addEventListener('pointermove', function (e) {
+      if (pressTimer && e.pointerId === activePointerId) clearPress();
+      if (!dragId) return;
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      var row = hit && hit.closest ? hit.closest('.item') : null;
+      listEl.querySelectorAll('.item-drag-over').forEach(function (n) {
+        n.classList.remove('item-drag-over');
+      });
+      if (row && listEl.contains(row) && itemsShareReorderGroup(getItem(dragId), getItem(row.dataset.id))) {
+        row.classList.add('item-drag-over');
+      }
+    });
+
+    function endDrag(e) {
+      if (!dragId) {
+        clearPress();
+        return;
+      }
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      var row = hit && hit.closest ? hit.closest('.item') : null;
+      var targetId = row && listEl.contains(row) ? row.dataset.id : null;
+      var fromId = dragId;
+      resetDrag();
+      if (targetId && reorderOpenItem(fromId, targetId)) {
+        render();
+      }
+    }
+
+    listEl.addEventListener('pointerup', endDrag);
+    listEl.addEventListener('pointercancel', resetDrag);
+  }
+
+  function appendItemList(parent, items) {
+    var list = el('div', { class: 'item-list' });
+    items.forEach(function (t) { list.appendChild(renderItemRow(t)); });
+    parent.appendChild(list);
+    if (items.length > 1) attachItemListDragReorder(list);
+    return list;
+  }
+
   function renderItemRow(item) {
     var runningTimer = getRunningTimer(item.id);
     var isPrinting = !!runningTimer;
     var row = el('div', {
-      class: 'item' +
+      class: 'item item-compact' +
         (item.status === 'done' ? ' done' : '') +
         itemRowPriorityClass(item.priority) +
         (isPrinting ? ' status-printing' : '') +
@@ -1554,6 +1680,15 @@
         (item.status === 'again' ? ' status-again' : ''),
       dataset: { id: item.id }
     });
+
+    if (item.status !== 'done') {
+      var handle = el('div', {
+        class: 'item-drag-handle',
+        'aria-label': 'Hold and drag to reorder',
+        html: '<svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M3 6h.01M3 12h.01M3 18h.01"/></svg>'
+      });
+      row.appendChild(handle);
+    }
 
     var check = el('div', {
       class: 'item-check ' + priorityClass(item.priority) + (item.status === 'done' ? ' checked' : ''),
@@ -1576,13 +1711,16 @@
     body.appendChild(titleRow);
 
     var meta = el('div', { class: 'item-meta' });
-    if (isPrinting) {
-      meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
-    } else {
-      meta.appendChild(el('span', {
-        class: 'pill status-' + item.status,
-        text: STATUS_LABELS[item.status] || item.status
-      }));
+    var showStatusPill = isPrinting || item.status !== 'queued';
+    if (showStatusPill) {
+      if (isPrinting) {
+        meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
+      } else {
+        meta.appendChild(el('span', {
+          class: 'pill status-' + item.status,
+          text: STATUS_LABELS[item.status] || item.status
+        }));
+      }
     }
     meta.appendChild(el('span', { class: 'pill', text: plateProgressText(item) }));
     if (item.printerId) {
@@ -1761,9 +1899,8 @@
       var printing = open.filter(function (t) { return itemHasRunningTimer(t.id); });
       if (printing.length) {
         container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
-        var printingList = el('div', { class: 'item-list' });
-        printing.forEach(function (t) { printingList.appendChild(renderItemRow(t)); });
-        container.appendChild(printingList);
+        container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
+        appendItemList(container, printing);
       }
       OPEN_STATUS_ORDER.forEach(function (status) {
         var group = open.filter(function (t) {
@@ -1771,14 +1908,10 @@
         });
         if (!group.length) return;
         container.appendChild(el('div', { class: 'queue-group-label', text: STATUS_LABELS[status] }));
-        var list = el('div', { class: 'item-list' });
-        group.forEach(function (t) { list.appendChild(renderItemRow(t)); });
-        container.appendChild(list);
+        appendItemList(container, group);
       });
     } else if (open.length) {
-      var list = el('div', { class: 'item-list' });
-      open.forEach(function (t) { list.appendChild(renderItemRow(t)); });
-      container.appendChild(list);
+      appendItemList(container, open);
     }
 
     if (state.statusFilter === 'all' && done.length) {
@@ -1794,9 +1927,7 @@
       summary.appendChild(el('span', { class: 'count', text: String(done.length) }));
       container.appendChild(summary);
       if (doneExpanded) {
-        var doneList = el('div', { class: 'item-list' });
-        done.forEach(function (t) { doneList.appendChild(renderItemRow(t)); });
-        container.appendChild(doneList);
+        appendItemList(container, done);
       }
     } else if (state.statusFilter === 'done') {
       if (!done.length) {
@@ -1805,9 +1936,7 @@
           html: '<p>No completed prints yet.</p>'
         }));
       } else {
-        var onlyDone = el('div', { class: 'item-list' });
-        done.forEach(function (t) { onlyDone.appendChild(renderItemRow(t)); });
-        container.appendChild(onlyDone);
+        appendItemList(container, done);
       }
     }
   }
