@@ -45,6 +45,8 @@
   var sendTargetItemId = null;
   var pendingSliceItemId = null;
   var pendingReprintItemId = null;
+  var pendingRatingHistoryId = null;
+  var pendingRatingSelection = 0;
   var fcpUiBound = false;
   var filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
 
@@ -313,6 +315,11 @@
   }
 
   function normalizeHistory(h) {
+    var rating = null;
+    if (typeof h.rating === 'number') {
+      var r = Math.round(h.rating);
+      if (r >= 1 && r <= 5) rating = r;
+    }
     return {
       id: h.id || uid('hx'),
       printerId: h.printerId || null,
@@ -320,8 +327,17 @@
       itemTitle: h.itemTitle || 'Print',
       startedAt: h.startedAt || null,
       finishedAt: h.finishedAt || new Date().toISOString(),
-      durationMinutes: h.durationMinutes != null ? Math.max(0, parseInt(h.durationMinutes, 10) || 0) : null
+      durationMinutes: h.durationMinutes != null ? Math.max(0, parseInt(h.durationMinutes, 10) || 0) : null,
+      rating: rating
     };
+  }
+
+  function formatStarRating(rating) {
+    if (!rating || rating < 1) return '';
+    var n = Math.min(5, Math.max(1, Math.round(rating)));
+    var out = '';
+    for (var i = 1; i <= 5; i++) out += i <= n ? '★' : '☆';
+    return out;
   }
 
   function normalizeCategory(c) {
@@ -791,7 +807,7 @@
     openModal('reprintModal');
   }
 
-  function closeOutItem(item) {
+  function markItemDone(item) {
     if (!item) return;
     item.status = 'done';
     item.waitlistReason = '';
@@ -800,8 +816,64 @@
     state.timers = state.timers.filter(function (t) {
       return !(t.status === 'running' && t.itemId === item.id);
     });
+  }
+
+  function syncPrintRatingStars(n) {
+    pendingRatingSelection = n;
+    document.querySelectorAll('#printRatingStars .print-rating-star').forEach(function (btn) {
+      var v = parseInt(btn.dataset.stars, 10);
+      var on = n > 0 && v <= n;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var cont = document.getElementById('printRatingContinue');
+    if (cont) cont.disabled = n < 1;
+  }
+
+  function openPrintRatingModal(item) {
+    if (!item) return;
+    pendingReprintItemId = item.id;
+    pendingRatingSelection = 0;
+    var lead = document.getElementById('printRatingLead');
+    if (lead) lead.textContent = 'How did “' + item.title + '” turn out?';
+    syncPrintRatingStars(0);
+    openModal('printRatingModal');
+  }
+
+  function applyPrintRatingAndContinue() {
+    if (pendingRatingHistoryId && pendingRatingSelection >= 1) {
+      var hx = state.history.find(function (h) { return h.id === pendingRatingHistoryId; });
+      if (hx) hx.rating = pendingRatingSelection;
+    }
+    var itemId = pendingReprintItemId;
+    pendingRatingHistoryId = null;
+    pendingRatingSelection = 0;
     saveState();
-    askWillPrintAgain(item);
+    closeModal('printRatingModal');
+    askWillPrintAgain(getItem(itemId));
+  }
+
+  function skipPrintRating() {
+    pendingRatingHistoryId = null;
+    pendingRatingSelection = 0;
+    closeModal('printRatingModal');
+    askWillPrintAgain(getItem(pendingReprintItemId));
+  }
+
+  function closeOutItem(item) {
+    if (!item) return;
+    var entry = normalizeHistory({
+      printerId: item.printerId,
+      itemId: item.id,
+      itemTitle: item.title,
+      finishedAt: new Date().toISOString(),
+      durationMinutes: item.estimatedMinutes
+    });
+    state.history.unshift(entry);
+    pendingRatingHistoryId = entry.id;
+    markItemDone(item);
+    saveState();
+    openPrintRatingModal(item);
   }
 
   function markSliced(itemId, printerId) {
@@ -883,18 +955,22 @@
     if (!timer) return;
     state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
     if (!cancelled) {
-      state.history.unshift(normalizeHistory({
+      var entry = normalizeHistory({
         printerId: timer.printerId,
         itemId: timer.itemId,
         itemTitle: timer.itemTitle || (getItem(timer.itemId) || {}).title || 'Print',
         startedAt: timer.startedAt,
         finishedAt: new Date().toISOString(),
         durationMinutes: timer.durationMinutes
-      }));
+      });
+      state.history.unshift(entry);
+      pendingRatingHistoryId = entry.id;
       if (timer.itemId) {
         var item = getItem(timer.itemId);
         if (item && item.status !== 'done') {
-          closeOutItem(item);
+          markItemDone(item);
+          saveState();
+          openPrintRatingModal(item);
           return;
         }
       }
@@ -1883,11 +1959,13 @@
           var row = el('div', { class: 'history-row' });
           var info = el('div', { class: 'printer-info' });
           info.appendChild(el('div', { class: 'printer-name', text: h.itemTitle || 'Print' }));
+          var stars = formatStarRating(h.rating);
           info.appendChild(el('div', {
             class: 'printer-meta',
             text: [
               printer ? printer.name : 'Unknown printer',
               h.durationMinutes != null ? h.durationMinutes + ' min' : null,
+              stars || null,
               formatWhen(h.finishedAt)
             ].filter(Boolean).join(' · ')
           }));
@@ -2910,8 +2988,21 @@
       if (e.target.id === 'sliceModal') dismissSlicePrompt();
     });
 
+    document.querySelectorAll('#printRatingStars .print-rating-star').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        syncPrintRatingStars(parseInt(btn.dataset.stars, 10));
+      });
+    });
+    document.getElementById('printRatingContinue').addEventListener('click', applyPrintRatingAndContinue);
+    document.getElementById('printRatingSkip').addEventListener('click', skipPrintRating);
+    document.getElementById('printRatingModalClose').addEventListener('click', skipPrintRating);
+    document.getElementById('printRatingModal').addEventListener('click', function (e) {
+      if (e.target.id === 'printRatingModal') skipPrintRating();
+    });
+
     function dismissReprintPrompt() {
       pendingReprintItemId = null;
+      pendingRatingHistoryId = null;
       closeModal('reprintModal');
     }
     document.getElementById('reprintModalClose').addEventListener('click', dismissReprintPrompt);
