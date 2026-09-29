@@ -1,6 +1,6 @@
 # Philly walking map
 
-Shared map box **and pins** for apps used while walking around Philadelphia. Coffee Map and Philly Dates load `philly-walk-map.js` + `philly-walk-map.css` so they stay on the same streets and look the same.
+Shared map box **and pins** for apps used while walking around Philadelphia. Coffee Map, Philly Dates, and City Axes load `philly-walk-map.js` + `philly-walk-map.css` so they stay on the same streets and look the same.
 
 ## Status
 

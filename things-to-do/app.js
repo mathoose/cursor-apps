@@ -175,8 +175,8 @@
       var clean = normalizeEvent(Object.assign({}, seed, { source: "seed" }), "seed");
       if (!clean || hidden[clean.id]) return;
       if (have[clean.id]) {
-        state.events.forEach(function (event) {
-          if (event.id === clean.id && event.source === "seed" && !state.overrides[clean.id]) {
+        data.events.forEach(function (event) {
+          if (event.id === clean.id && event.source === "seed" && !data.overrides[clean.id]) {
             Object.assign(event, clean, { source: "seed" });
           }
         });

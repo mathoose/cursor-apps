@@ -303,6 +303,70 @@
     background: var(--surface);
     outline: none;
   }
+  .quick-add-save-settings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .quick-add-save-settings-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .quick-add-save-settings-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .quick-add-save-settings-hint {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    line-height: 1.25;
+  }
+  .save-settings-toggle {
+    position: relative;
+    display: block;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+  .save-settings-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .save-settings-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: var(--border-strong);
+    transition: background 0.2s;
+  }
+  .save-settings-toggle input:checked + .save-settings-toggle-track {
+    background: var(--accent);
+  }
+  .save-settings-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+  .save-settings-toggle input:checked ~ .save-settings-toggle-thumb {
+    transform: translateX(20px);
+  }
   .quick-add-filament {
     display: flex;
     align-items: flex-start;
@@ -2181,6 +2245,17 @@
         <span class="quick-add-categories-label">Filament</span>
         <div class="filament-color-scroll" id="listFilamentColors"></div>
       </div>
+      <div class="quick-add-save-settings">
+        <div class="quick-add-save-settings-text">
+          <span class="quick-add-save-settings-label">Save settings</span>
+          <span class="quick-add-save-settings-hint">Keep priority &amp; categories for the next task</span>
+        </div>
+        <label class="save-settings-toggle" title="Keep priority and categories after adding">
+          <input type="checkbox" id="listQuickSaveSettings" aria-label="Save settings">
+          <span class="save-settings-toggle-track"></span>
+          <span class="save-settings-toggle-thumb"></span>
+        </label>
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -2228,6 +2303,17 @@
         </div>
       </div>
       <div class="quick-add-categories" id="inboxQuickCategories"></div>
+      <div class="quick-add-save-settings">
+        <div class="quick-add-save-settings-text">
+          <span class="quick-add-save-settings-label">Save settings</span>
+          <span class="quick-add-save-settings-hint">Keep priority &amp; categories for the next task</span>
+        </div>
+        <label class="save-settings-toggle" title="Keep priority and categories after adding">
+          <input type="checkbox" id="inboxQuickSaveSettings" aria-label="Save settings">
+          <span class="save-settings-toggle-track"></span>
+          <span class="save-settings-toggle-thumb"></span>
+        </label>
+      </div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -2826,7 +2912,8 @@ let state = {
   matrixFilter: 'all',
   categoryFilter: 'all',
   amsFilter: 'all',
-  taskSort: 'custom'
+  taskSort: 'custom',
+  quickAddSaveSettings: { list: false, inbox: false }
 };
 
 const quickAddCategoryUi = {
@@ -2946,6 +3033,14 @@ function loadState() {
       state.amsFilter = parsed.amsFilter;
     }
     state.taskSort = normalizeTaskSort(parsed.taskSort);
+    if (parsed.quickAddSaveSettings && typeof parsed.quickAddSaveSettings === 'object') {
+      if (typeof parsed.quickAddSaveSettings.list === 'boolean') {
+        state.quickAddSaveSettings.list = parsed.quickAddSaveSettings.list;
+      }
+      if (typeof parsed.quickAddSaveSettings.inbox === 'boolean') {
+        state.quickAddSaveSettings.inbox = parsed.quickAddSaveSettings.inbox;
+      }
+    }
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -3842,7 +3937,8 @@ function saveState() {
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter,
       amsFilter: state.amsFilter,
-      taskSort: state.taskSort
+      taskSort: state.taskSort,
+      quickAddSaveSettings: state.quickAddSaveSettings
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -6724,10 +6820,11 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId, categoryUiKey) {
+  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, saveSettingsInputId, getListId, categoryUiKey) {
     const titleInput = document.getElementById(titleInputId);
     const linkInput = document.getElementById(linkInputId);
     const btn = document.getElementById(btnId);
+    const saveSettingsInput = document.getElementById(saveSettingsInputId);
     const prioRow = document.getElementById(prioRowId);
     const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
     const amsInput = prioRow.querySelector('.quick-ams-input');
@@ -6779,6 +6876,14 @@ function wireQuickAdds() {
       });
     });
 
+    if (saveSettingsInput) {
+      saveSettingsInput.checked = !!state.quickAddSaveSettings[categoryUiKey];
+      saveSettingsInput.addEventListener('change', () => {
+        state.quickAddSaveSettings[categoryUiKey] = saveSettingsInput.checked;
+        saveState();
+      });
+    }
+
     const submit = () => {
       const title = titleInput.value.trim();
       if (!title) return;
@@ -6802,13 +6907,16 @@ function wireQuickAdds() {
         filamentColorIds
       });
       filamentColorIds.forEach(id => recordFilamentColorUse(id));
+      const keepSettings = saveSettingsInput && saveSettingsInput.checked;
       titleInput.value = '';
       linkInput.value = '';
-      resetPrio();
-      resetAms();
-      resetPaid();
-      resetCategories();
-      resetFilament();
+      if (!keepSettings) {
+        resetPrio();
+        resetAms();
+        resetPaid();
+        resetCategories();
+        resetFilament();
+      }
       render();
     };
     btn.addEventListener('click', submit);
@@ -6816,8 +6924,8 @@ function wireQuickAdds() {
     linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
   }
 
-  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox', 'inbox');
-  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId, 'list');
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', 'inboxQuickSaveSettings', () => 'inbox', 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', 'listQuickSaveSettings', () => state.activeListId, 'list');
 }
 
 function wireDateNav() {
