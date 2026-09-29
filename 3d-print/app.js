@@ -1899,7 +1899,6 @@
       var printing = open.filter(function (t) { return itemHasRunningTimer(t.id); });
       if (printing.length) {
         container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
-        container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
         appendItemList(container, printing);
       }
       OPEN_STATUS_ORDER.forEach(function (status) {
