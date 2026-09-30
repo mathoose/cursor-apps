@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="app-header">
@@ -365,6 +365,33 @@
     </div>
   </div>
 
+  <!-- Print rating -->
+  <div class="modal-backdrop" id="printRatingModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Print finished</div>
+        <button type="button" class="icon-btn" id="printRatingModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="printRatingLead">How did this print turn out?</p>
+        <div class="print-rating-stars" id="printRatingStars" role="radiogroup" aria-label="Rate this print out of 5">
+          <button type="button" class="print-rating-star" data-stars="1" aria-label="1 star">★</button>
+          <button type="button" class="print-rating-star" data-stars="2" aria-label="2 stars">★</button>
+          <button type="button" class="print-rating-star" data-stars="3" aria-label="3 stars">★</button>
+          <button type="button" class="print-rating-star" data-stars="4" aria-label="4 stars">★</button>
+          <button type="button" class="print-rating-star" data-stars="5" aria-label="5 stars">★</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="printRatingSkip">Skip</button>
+        <button type="button" class="btn btn-primary" id="printRatingContinue" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Will print again -->
   <div class="modal-backdrop" id="reprintModal" role="dialog" aria-modal="true">
     <div class="modal">
@@ -621,6 +648,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
