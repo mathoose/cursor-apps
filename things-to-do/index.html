@@ -3,31 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-  <title>Things To Do</title>
+  <title>Dates</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Things To Do" />
+  <meta name="apple-mobile-web-app-title" content="Dates" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#3d4f4a" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
-  <!-- build: things-to-do-v3 -->
+  <!-- build: things-to-do-v4 -->
   <header class="app-header">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     <div class="header-titles">
-      <h1>Things To Do</h1>
-      <p id="headerSub">The file cabinet</p>
+      <h1>Dates</h1>
+      <p id="headerSub">Activities &amp; food</p>
     </div>
     <button type="button" class="icon-btn" id="jumpWeekBtn" aria-label="Jump to this week">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
     </button>
-    <button type="button" class="icon-btn" id="addBtn" aria-label="Add a thing">
+    <button type="button" class="icon-btn" id="addBtn" aria-label="Add a date idea">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
     </button>
     <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
@@ -36,25 +36,47 @@
   </header>
 
   <main class="main-panel">
+    <nav class="section-tabs" aria-label="Date sections">
+      <button type="button" class="section-tab on" data-section="activities" id="tabActivities">Activities</button>
+      <button type="button" class="section-tab" data-section="food" id="tabFood">Food &amp; drink</button>
+    </nav>
+
     <div class="search-wrap">
-      <label class="visually-hidden" for="searchInput">Search events</label>
-      <input type="search" id="searchInput" placeholder="Search the files…" autocomplete="off" enterkeyhint="search" />
+      <label class="visually-hidden" for="searchInput">Search</label>
+      <input type="search" id="searchInput" placeholder="Search…" autocomplete="off" enterkeyhint="search" />
     </div>
 
-    <div class="cabinet" id="cabinet" aria-label="Filing cabinet"></div>
+    <div class="food-filters" id="foodFilters" hidden>
+      <label class="quick-filter">
+        <input type="checkbox" id="filterHhNowSoon" />
+        Happy hour now or soon
+      </label>
+      <p class="filter-hint">Happy hours from your Philly Dates list — no map here.</p>
+    </div>
+
+    <div class="food-panel" id="foodPanel" hidden aria-label="Food and drink"></div>
+
+    <div class="cabinet" id="cabinet" aria-label="Activities filing cabinet"></div>
     <div class="empty-state" id="emptyState" hidden>
-      <p>Nothing filed yet.<br />Tap <strong>+</strong> when you come across something.</p>
+      <p>Nothing filed yet.<br />Tap <strong>+</strong> when you find an activity or send a link.</p>
     </div>
   </main>
 
   <div class="overlay" id="eventSheetOverlay" role="dialog" aria-modal="true" hidden>
     <div class="sheet sheet-tall">
       <div class="sheet-handle"></div>
-      <h2 class="sheet-title" id="eventSheetTitle">File a thing</h2>
+      <h2 class="sheet-title" id="eventSheetTitle">File an activity</h2>
       <form id="eventForm" autocomplete="off">
         <div class="field">
+          <label class="field-label" for="categoryInput">Section</label>
+          <select id="categoryInput">
+            <option value="activity">Activities</option>
+            <option value="food-drink">Food &amp; drink</option>
+          </select>
+        </div>
+        <div class="field">
           <label class="field-label" for="titleInput">What</label>
-          <input type="text" id="titleInput" maxlength="120" placeholder="South Street Fall Fest" required />
+          <input type="text" id="titleInput" maxlength="120" placeholder="Spooky mini golf" required />
         </div>
         <div class="field-row">
           <div class="field">
@@ -78,15 +100,19 @@
         </div>
         <div class="field">
           <label class="field-label" for="hoursInput">Hours note <span class="optional">(optional)</span></label>
-          <input type="text" id="hoursInput" maxlength="160" placeholder="Sat 10am–5pm, Sun 10am–4pm" />
+          <input type="text" id="hoursInput" maxlength="160" placeholder="Daily 10am–10pm; $15 adults" />
         </div>
         <div class="field">
           <label class="field-label" for="descInput">Small description</label>
-          <textarea id="descInput" rows="3" maxlength="500" placeholder="Free street fest. Rain or shine."></textarea>
+          <textarea id="descInput" rows="3" maxlength="500" placeholder="Official details, price, rain policy…"></textarea>
         </div>
         <div class="field">
-          <label class="field-label" for="urlInput">Event homepage</label>
+          <label class="field-label" for="urlInput">Official site</label>
           <input type="url" id="urlInput" placeholder="https://" inputmode="url" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="sourceUrlInput">Source link <span class="optional">(Reel, TikTok…)</span></label>
+          <input type="url" id="sourceUrlInput" placeholder="https://instagram.com/reel/…" inputmode="url" />
         </div>
         <div class="field">
           <label class="field-label">Locations</label>
@@ -96,9 +122,21 @@
         <div class="sheet-actions">
           <button type="button" class="btn btn-danger" id="deleteEventBtn" hidden>Remove</button>
           <button type="button" class="btn btn-secondary" id="eventSheetCancel">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="eventSheetSave">File it</button>
+          <button type="submit" class="btn btn-primary" id="eventSheetSave">Save</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="overlay" id="placeSheetOverlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="placeSheetTitle">Place</h2>
+      <p class="place-meta" id="placeSheetMeta"></p>
+      <p class="place-hh" id="placeSheetHh"></p>
+      <div class="place-desc" id="placeSheetDesc"></div>
+      <div class="place-links" id="placeSheetLinks"></div>
+      <button type="button" class="btn btn-secondary" id="placeSheetClose">Close</button>
     </div>
   </div>
 
@@ -115,7 +153,7 @@
             <input type="file" id="importJsonFile" accept=".json,application/json" />
           </label>
         </div>
-        <p class="settings-note">Your added and edited events stay on this phone. New seed events from app updates still appear.</p>
+        <p class="settings-note">Your edits stay on this phone. Happy hours read from Philly Dates; activity seeds update with app versions.</p>
       </div>
       <button type="button" class="btn btn-secondary" id="settingsCloseBtn">Close</button>
     </div>
@@ -126,6 +164,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
