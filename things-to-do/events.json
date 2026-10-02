@@ -14,7 +14,8 @@
         "name": "Rittenhouse Square",
         "address": "1800 Walnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "evil-genius-family-fest-2026",
@@ -31,7 +32,8 @@
         "name": "Evil Genius Beer Company",
         "address": "1700 N Front St, Philadelphia, PA 19122"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-09-20",
@@ -52,7 +54,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "fleurs-de-villes-lynnewood-2026",
@@ -69,7 +72,8 @@
         "name": "Lynnewood Hall",
         "address": "920 Spring Ave, Elkins Park, PA 19027"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "3dprintopia-2026",
@@ -86,7 +90,8 @@
         "name": "Pennsylvania Convention Center, Hall F",
         "address": "1101 Arch St, Philadelphia, PA 19107"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "delaware-river-festival-2026",
@@ -107,7 +112,8 @@
         "name": "Wiggins Park",
         "address": "2 Riverside Dr, Camden, NJ 08103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "drexel-vintage-flea-2026",
@@ -124,7 +130,8 @@
         "name": "Drexel University",
         "address": "3400 Lancaster Ave, Philadelphia, PA 19104"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "linvilla-apple-festival-2026",
@@ -141,7 +148,8 @@
         "name": "Linvilla Orchards",
         "address": "137 W Knowlton Rd, Media, PA 19063"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "longwood-festival-of-fountains-2026",
@@ -158,7 +166,8 @@
         "name": "Longwood Gardens",
         "address": "1001 Longwood Rd, Kennett Square, PA 19348"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "market-of-the-macabre-2026",
@@ -175,7 +184,8 @@
         "name": "Laurel Hill East",
         "address": "3822 Ridge Ave, Philadelphia, PA 19132"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "new-hope-arts-crafts-2026",
@@ -192,7 +202,8 @@
         "name": "New Hope-Solebury High School",
         "address": "180 W Bridge St, New Hope, PA 18938"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "south-street-fall-fest-2026",
@@ -213,7 +224,8 @@
         "name": "Brauhaus Schmitz Oktoberfest",
         "address": "718 South St, Philadelphia, PA 19147"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "when-harry-met-sally-inn-yard-2026",
@@ -230,7 +242,8 @@
         "name": "Inn Yard Park",
         "address": "1101 N American St, Philadelphia, PA 19123"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "yards-oktoberfest-2026",
@@ -247,7 +260,8 @@
         "name": "Yards Brewing Company",
         "address": "500 Spring Garden St, Philadelphia, PA 19123"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "festival-of-festivals-2026",
@@ -264,7 +278,8 @@
         "name": "Cherry Street Pier",
         "address": "121 N Columbus Blvd, Philadelphia, PA 19106"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-09-27",
@@ -285,7 +300,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "ghostbusters-sunset-social-2026",
@@ -302,7 +318,8 @@
         "name": "Sunset Social at Cira Green",
         "address": "129 S 30th St, Philadelphia, PA 19104"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "cityside-pumpkin-patch-2026",
@@ -318,6 +335,26 @@
       {
         "name": "Liberty Point at Penn's Landing",
         "address": "211 S Christopher Columbus Blvd, Philadelphia, PA 19106"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "franklin-square-spooky-mini-golf-2026",
+    "title": "Franklin Square Spooky Mini Golf",
+    "category": "activity",
+    "startDate": "2026-10-01",
+    "endDate": "2026-11-01",
+    "startTime": "10:00",
+    "endTime": "22:00",
+    "hours": "Daily 10am\u201310pm; calmer 10am\u20135pm, spooky effects 5\u201310pm",
+    "description": "Philly landmark mini golf with Halloween d\u00e9cor at Franklin Square. Adults $15, children 3\u201312 $12 (2 and under free with paid adult). Timed tickets required Fri\u2013Sun nights \u2014 buy ahead. Boo-zy Bar Thu\u2013Sun 5\u20139pm nearby.",
+    "url": "https://historicphiladelphia.org/events/spooky-mini-golf/",
+    "sourceUrl": "https://www.instagram.com/reel/Dd7nIJmq4-r/",
+    "locations": [
+      {
+        "name": "Franklin Square",
+        "address": "200 N 6th St, Philadelphia, PA 19106"
       }
     ]
   },
@@ -337,7 +374,8 @@
         "name": "Blanche A. Nixon / Cobbs Creek Library",
         "address": "5800 Cobbs Creek Pkwy, Philadelphia, PA 19143"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "black-farmers-nightmarket-2026",
@@ -355,7 +393,8 @@
         "name": "Freedom Greens and Garden",
         "address": "Kingsessing, Philadelphia, PA 19142"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "chinatown-mid-autumn-2026",
@@ -373,7 +412,8 @@
         "address": "10th St & Arch St, Philadelphia, PA 19107"
       }
     ],
-    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/"
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "category": "activity"
   },
   {
     "id": "clark-park-jam-2026",
@@ -391,7 +431,8 @@
         "name": "Clark Park",
         "address": "4498 Chester Ave, Philadelphia, PA 19104"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "evil-genius-15th-anniversary-2026",
@@ -409,7 +450,8 @@
         "name": "Evil Genius Beer Company",
         "address": "1700 N Front St, Philadelphia, PA 19122"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "eastern-state-firstival-2026",
@@ -427,7 +469,8 @@
         "name": "Eastern State Penitentiary",
         "address": "2027 Fairmount Ave, Philadelphia, PA 19130"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "flax-to-linen-fdr-2026",
@@ -445,7 +488,8 @@
         "name": "FDR Park Learning Garden",
         "address": "1500 Pattison Ave, Philadelphia, PA 19145"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "penn-treaty-horror-double-2026",
@@ -463,7 +507,8 @@
         "name": "Penn Treaty Park",
         "address": "1341 N Delaware Ave, Philadelphia, PA 19125"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "mushroom-walk-cobbs-creek-2026",
@@ -481,7 +526,8 @@
         "name": "Cobb's Creek Community Environmental Center",
         "address": "700 Cobbs Creek Pkwy, Philadelphia, PA 19139"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "old-city-creative-block-party-2026",
@@ -499,7 +545,8 @@
         "name": "N 3rd St, Arch to Race",
         "address": "N 3rd St & Arch St, Philadelphia, PA 19106"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "pppa-championship-2026",
@@ -517,7 +564,8 @@
         "name": "Headhouse Plaza",
         "address": "S 2nd St & South St, Philadelphia, PA 19147"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "roxtoberfest-2026",
@@ -534,7 +582,8 @@
         "name": "Ridge Ave, Lyceum to Leverington",
         "address": "Ridge Ave & Lyceum Ave, Philadelphia, PA 19128"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "william-still-hike-2026",
@@ -552,7 +601,8 @@
         "name": "Sheep Barn near Ridgeland Mansion",
         "address": "4100 Chamounix Dr, Philadelphia, PA 19131"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-04",
@@ -573,7 +623,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "armory-oktoberfest-2026",
@@ -590,7 +641,8 @@
         "name": "23rd Street Armory",
         "address": "22 S 23rd St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "made-in-phila-fall-2026",
@@ -607,7 +659,8 @@
         "name": "Dilworth Park",
         "address": "1 S 15th St, Philadelphia, PA 19102"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "chestnut-hill-fall-arts-2026",
@@ -624,7 +677,8 @@
         "name": "Germantown Ave, Chestnut Hill",
         "address": "8400 Germantown Ave, Philadelphia, PA 19118"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "ourfest-2026",
@@ -641,7 +695,8 @@
         "name": "12th & Locust",
         "address": "12th St & Locust St, Philadelphia, PA 19107"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-11",
@@ -662,7 +717,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "east-fallsfest-2026",
@@ -679,7 +735,8 @@
         "name": "Ridge Ave & Midvale Ave",
         "address": "Ridge Ave & Midvale Ave, Philadelphia, PA 19129"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "manayunk-fall-fest-2026",
@@ -696,7 +753,8 @@
         "name": "Main Street, Manayunk",
         "address": "4400 Main St, Philadelphia, PA 19127"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "philly-coffee-festival-2026",
@@ -713,7 +771,8 @@
         "name": "23rd Street Armory",
         "address": "22 S 23rd St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "fantasy-faire-block-party-2026",
@@ -734,7 +793,8 @@
         "name": "Queen & Rook Game Cafe",
         "address": "123 South St, Philadelphia, PA 19147"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-18",
@@ -755,7 +815,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-25",
@@ -776,7 +837,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "east-passyunk-fall-fest-2026",
@@ -793,7 +855,8 @@
         "name": "East Passyunk Ave, Morris to Dickinson",
         "address": "East Passyunk Ave & Morris St, Philadelphia, PA 19148"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-12-06",
@@ -814,6 +877,7 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   }
 ]

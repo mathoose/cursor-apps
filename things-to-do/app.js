@@ -16,6 +16,13 @@
   var searchQuery = "";
   var toastTimer = null;
   var els = {};
+  var activeTab = "activities";
+  var filterHhNowSoon = false;
+  var hhPlaces = [];
+  var placesLoaded = false;
+  var HH_SOON_MIN = 120;
+  var UI_PREFS_KEY = "dates-app-ui-v1";
+  var DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   function uid() {
     return "evt-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
@@ -77,6 +84,108 @@
       .replace(/"/g, "&quot;");
   }
 
+  function loadUiPrefs() {
+    try {
+      var raw = localStorage.getItem(UI_PREFS_KEY);
+      if (!raw) return;
+      var p = JSON.parse(raw);
+      if (p.activeTab === "food" || p.activeTab === "activities") activeTab = p.activeTab;
+      filterHhNowSoon = !!p.filterHhNowSoon;
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveUiPrefs() {
+    try {
+      localStorage.setItem(UI_PREFS_KEY, JSON.stringify({ activeTab: activeTab, filterHhNowSoon: filterHhNowSoon }));
+    } catch (e) { /* ignore */ }
+  }
+
+  function parseTime(t) {
+    if (!t) return NaN;
+    var m = String(t).match(/(\d{1,2})(?::(\d{2}))?\s*(AM|PM)/i);
+    if (!m) return NaN;
+    var h = +m[1];
+    var min = m[2] ? +m[2] : 0;
+    if (m[3].toUpperCase() === "PM" && h !== 12) h += 12;
+    if (m[3].toUpperCase() === "AM" && h === 12) h = 0;
+    return h * 60 + min;
+  }
+
+  function getTodayDayName() {
+    return DAY_NAMES[new Date().getDay()];
+  }
+
+  function getNowSlot() {
+    var d = new Date();
+    return Math.floor((d.getHours() * 60 + d.getMinutes()) / 30) * 30;
+  }
+
+  function isActiveSchedule(r, day, slot) {
+    var s = r.schedule && r.schedule[day];
+    if (!s || !s.start || !s.end) return false;
+    return parseTime(s.start) <= slot && slot < parseTime(s.end);
+  }
+
+  function isHappyHourNow(r) {
+    var day = getTodayDayName();
+    return !!(r.schedule && r.schedule[day] && isActiveSchedule(r, day, getNowSlot()));
+  }
+
+  function isHappyHourSoon(r) {
+    if (isHappyHourNow(r)) return true;
+    var day = getTodayDayName();
+    var s = r.schedule && r.schedule[day];
+    if (!s || !s.start || !s.end) return false;
+    var now = getNowSlot();
+    var start = parseTime(s.start);
+    var end = parseTime(s.end);
+    if (isNaN(start) || isNaN(end)) return false;
+    if (now >= end) return false;
+    if (now < start && start - now <= HH_SOON_MIN) return true;
+    return false;
+  }
+
+  function formatTodayHappyHourRange(r) {
+    var day = getTodayDayName();
+    var s = r.schedule && r.schedule[day];
+    if (!s || !s.start || !s.end) return "None today";
+    return s.start + " – " + s.end;
+  }
+
+  function hhStatusLabel(r) {
+    if (isHappyHourNow(r)) return { cls: "hh-now", badge: "Now", text: "Happy hour now" };
+    if (isHappyHourSoon(r)) return { cls: "hh-soon", badge: "Soon", text: "Starts soon today" };
+    return { cls: "", badge: "", text: formatTodayHappyHourRange(r) };
+  }
+
+  function placeMatchesSearch(r) {
+    var q = searchQuery.trim().toLowerCase();
+    if (!q) return true;
+    var hay = [r.name, r.neighborhood, r.address, r.description].join(" ").toLowerCase();
+    return hay.indexOf(q) !== -1;
+  }
+
+  function placesWithHappyHourToday() {
+    var day = getTodayDayName();
+    return hhPlaces.filter(function (r) {
+      return r.schedule && r.schedule[day] && placeMatchesSearch(r);
+    }).sort(function (a, b) {
+      var aNow = isHappyHourNow(a) ? 0 : isHappyHourSoon(a) ? 1 : 2;
+      var bNow = isHappyHourNow(b) ? 0 : isHappyHourSoon(b) ? 1 : 2;
+      if (aNow !== bNow) return aNow - bNow;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function formatPlaceDescription(text) {
+    if (!text || !text.trim()) return "<p>No notes yet.</p>";
+    var lines = text.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    var show = lines.slice(0, 6).map(function (l) {
+      return "<p>" + escapeHtml(l.replace(/^\*\s*/, "")) + "</p>";
+    }).join("");
+    return show || "<p>No notes yet.</p>";
+  }
+
   function defaultData() {
     return { version: 1, events: [], overrides: {}, hiddenSeedIds: [] };
   }
@@ -135,6 +244,7 @@
       description: String(event.description || "").trim().slice(0, 500),
       url: String(event.url || "").trim(),
       sourceUrl: String(event.sourceUrl || "").trim(),
+      category: event.category === "food-drink" ? "food-drink" : "activity",
       locations: locations,
       source: event.source || fallbackSource || "user",
       createdAt: event.createdAt || nowIso(),
@@ -189,13 +299,15 @@
     return data;
   }
 
-  function visibleEvents() {
+  function visibleEvents(forCategory) {
     var hidden = {};
     state.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
     var query = searchQuery.trim().toLowerCase();
     return state.events.filter(function (event) {
       if (!event || hidden[event.id]) return false;
       var merged = applyOverride(event);
+      if (forCategory === "activity" && merged.category === "food-drink") return false;
+      if (forCategory === "food-drink" && merged.category !== "food-drink") return false;
       if (!query) return true;
       var hay = [merged.title, merged.description, merged.hours, merged.url, merged.sourceUrl].concat(
         (merged.locations || []).map(function (loc) { return loc.name + " " + loc.address; })
@@ -320,17 +432,139 @@
     }
   }
 
-  function render() {
-    var events = visibleEvents().sort(function (a, b) {
+  function updateSectionUi() {
+    var food = activeTab === "food";
+    if (els.foodPanel) els.foodPanel.hidden = !food;
+    if (els.foodFilters) els.foodFilters.hidden = !food;
+    if (els.jumpWeekBtn) els.jumpWeekBtn.hidden = food;
+    document.querySelectorAll(".section-tab").forEach(function (btn) {
+      btn.classList.toggle("on", btn.getAttribute("data-section") === activeTab);
+    });
+    if (els.filterHhNowSoon) els.filterHhNowSoon.checked = filterHhNowSoon;
+  }
+
+  function setActiveTab(tab) {
+    activeTab = tab === "food" ? "food" : "activities";
+    saveUiPrefs();
+    updateSectionUi();
+    render();
+  }
+
+  function renderPlaceCard(r) {
+    var status = hhStatusLabel(r);
+    var sub = [r.neighborhood, r.address].filter(Boolean).join(" · ");
+    return (
+      '<button type="button" class="place-card ' + status.cls + '" data-place="' + escapeHtml(r.name) + '">' +
+        '<span class="place-name">' + escapeHtml(r.name) +
+          (status.badge ? '<span class="hh-badge' + (status.badge === "Soon" ? " soon" : "") + '">' + status.badge + "</span>" : "") +
+        "</span>" +
+        (sub ? '<span class="place-sub">' + escapeHtml(sub) + "</span>" : "") +
+        '<span class="place-hh-line">' + escapeHtml(status.text === "Happy hour now" ? formatTodayHappyHourRange(r) : status.text) + "</span>" +
+      "</button>"
+    );
+  }
+
+  function renderFoodPanel() {
+    if (!els.foodPanel) return;
+    var allToday = placesWithHappyHourToday();
+    var filtered = filterHhNowSoon ? allToday.filter(isHappyHourSoon) : allToday;
+    var highlight = filterHhNowSoon ? [] : allToday.filter(isHappyHourSoon);
+    var highlightNames = {};
+    highlight.forEach(function (r) { highlightNames[r.name] = true; });
+    var restList = filterHhNowSoon ? filtered : allToday.filter(function (r) { return !highlightNames[r.name]; });
+    var foodDates = visibleEvents("food-drink").sort(function (a, b) {
+      if (a.startDate !== b.startDate) return a.startDate < b.startDate ? -1 : 1;
+      return (a.startTime || "").localeCompare(b.startTime || "");
+    });
+    var html = "";
+    if (!placesLoaded) {
+      html = '<p class="filter-hint">Loading happy hours…</p>';
+    } else if (!allToday.length && !foodDates.length) {
+      html = '<p class="empty-state">No food &amp; drink matches today. Try another day in Philly Dates or turn off the filter.</p>';
+    } else {
+      if (highlight.length && !filterHhNowSoon) {
+        html += '<div class="hh-highlight"><h3 class="food-section-title">Happy hour now or soon</h3>' +
+          highlight.map(renderPlaceCard).join("") + "</div>";
+      }
+      if (restList.length) {
+        html += '<h3 class="food-section-title">' + (filterHhNowSoon ? "Happy hour now or soon" : "All happy hours today") + "</h3>" +
+          restList.map(renderPlaceCard).join("");
+      } else if (filterHhNowSoon) {
+        html += '<p class="filter-hint">Nothing in the next couple hours. Showing other days in Philly Dates.</p>';
+      }
+      if (foodDates.length) {
+        html += '<h3 class="food-section-title" style="margin-top:16px">Food &amp; drink dates</h3>' +
+          foodDates.map(renderEvent).join("");
+      }
+    }
+    els.foodPanel.innerHTML = html;
+    els.headerSub.textContent = placesLoaded
+      ? (filterHhNowSoon ? filtered.length : allToday.length) + " happy hour" + ((filterHhNowSoon ? filtered.length : allToday.length) === 1 ? "" : "s") + " today"
+      : "Food & drink";
+    els.emptyState.hidden = true;
+    els.cabinet.hidden = true;
+  }
+
+  function renderActivities() {
+    var events = visibleEvents("activity").sort(function (a, b) {
       if (a.startDate !== b.startDate) return a.startDate < b.startDate ? -1 : 1;
       return (a.startTime || "").localeCompare(b.startTime || "");
     });
     var months = groupCabinet(events);
     ensureOpenDefaults(months);
-    els.headerSub.textContent = events.length ? events.length + " filed things" : "The file cabinet";
+    els.headerSub.textContent = events.length ? events.length + " activities" : "Activities";
     els.emptyState.hidden = months.length > 0;
     els.cabinet.hidden = months.length === 0;
-    els.cabinet.innerHTML = '<div class="cabinet-lid"><strong>File cabinet</strong><span>' + events.length + " files</span></div>" + months.map(renderMonth).join("");
+    if (els.foodPanel) els.foodPanel.hidden = true;
+    els.cabinet.innerHTML = '<div class="cabinet-lid"><strong>Activities</strong><span>' + events.length + " dates</span></div>" + months.map(renderMonth).join("");
+  }
+
+  function render() {
+    updateSectionUi();
+    if (activeTab === "food") {
+      renderFoodPanel();
+      return;
+    }
+    renderActivities();
+  }
+
+  function openPlaceSheet(name) {
+    var r = null;
+    for (var i = 0; i < hhPlaces.length; i++) {
+      if (hhPlaces[i].name === name) { r = hhPlaces[i]; break; }
+    }
+    if (!r || !els.placeSheetOverlay) return;
+    els.placeSheetTitle.textContent = r.name;
+    els.placeSheetMeta.textContent = [r.neighborhood, r.address].filter(Boolean).join(" · ");
+    var hhLine = formatTodayHappyHourRange(r);
+    if (isHappyHourNow(r)) hhLine += " · now";
+    else if (isHappyHourSoon(r)) hhLine += " · starting soon";
+    els.placeSheetHh.textContent = "Happy hour today: " + hhLine;
+    els.placeSheetDesc.innerHTML = formatPlaceDescription(r.description);
+    var links = [];
+    if (r.hh_menu) links.push('<a href="' + escapeHtml(r.hh_menu) + '" target="_blank" rel="noopener noreferrer">Happy hour menu →</a>');
+    if (r.menu_pdf) links.push('<a href="' + escapeHtml(r.menu_pdf) + '" target="_blank" rel="noopener noreferrer">Menu PDF →</a>');
+    if (r.instagram) links.push('<a href="' + escapeHtml(r.instagram) + '" target="_blank" rel="noopener noreferrer">Instagram →</a>');
+    links.push('<a href="../philly-dates/index.html">Open in Philly Dates →</a>');
+    els.placeSheetLinks.innerHTML = links.join("");
+    els.placeSheetOverlay.hidden = false;
+  }
+
+  function closePlaceSheet() {
+    if (els.placeSheetOverlay) els.placeSheetOverlay.hidden = true;
+  }
+
+  function loadPlaces() {
+    return fetch("../philly-dates/places.json?v=15")
+      .then(function (res) { return res.ok ? res.json() : []; })
+      .catch(function () { return []; })
+      .then(function (list) {
+        hhPlaces = (Array.isArray(list) ? list : []).filter(function (p) {
+          return p && p.name && p.schedule && Object.keys(p.schedule).length;
+        });
+        placesLoaded = true;
+        render();
+      });
   }
 
   function renderMonth(month) {
@@ -341,7 +575,7 @@
       '<section class="month-drawer" data-month="' + escapeHtml(month.key) + '">' +
         '<button type="button" class="drawer-face' + (open ? " open" : "") + (current ? " current" : "") + '" data-toggle-month="' + escapeHtml(month.key) + '">' +
           '<span class="brass-plate">' + escapeHtml(MONTHS_SHORT[month.date.getMonth()]) + "</span>" +
-          '<span class="drawer-label"><span class="name">' + escapeHtml(label) + '</span><span class="meta">' + month.count + " thing" + (month.count === 1 ? "" : "s") + "</span></span>" +
+          '<span class="drawer-label"><span class="name">' + escapeHtml(label) + '</span><span class="meta">' + month.count + " date" + (month.count === 1 ? "" : "s") + "</span></span>" +
           '<svg class="drawer-chevron" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>' +
         "</button>" +
         '<div class="drawer-body' + (open ? " open" : "") + '">' +
@@ -431,7 +665,9 @@
 
   function openEventSheet(event) {
     editingId = event ? event.id : null;
-    els.eventSheetTitle.textContent = event ? "Edit thing" : "File a thing";
+    var defaultCategory = activeTab === "food" ? "food-drink" : "activity";
+    els.eventSheetTitle.textContent = event ? "Edit date" : (defaultCategory === "food-drink" ? "Add food & drink date" : "Add activity");
+    if (els.categoryInput) els.categoryInput.value = event ? event.category : defaultCategory;
     els.titleInput.value = event ? event.title : "";
     els.startDateInput.value = event ? event.startDate : todayKey();
     els.endDateInput.value = event ? event.endDate : "";
@@ -440,6 +676,7 @@
     els.hoursInput.value = event ? event.hours : "";
     els.descInput.value = event ? event.description : "";
     els.urlInput.value = event ? event.url : "";
+    if (els.sourceUrlInput) els.sourceUrlInput.value = event ? (event.sourceUrl || "") : "";
     els.locationRows.innerHTML = "";
     var locs = event && event.locations && event.locations.length ? event.locations : [{ name: "", address: "" }];
     locs.forEach(addLocationRow);
@@ -477,6 +714,8 @@
       hours: els.hoursInput.value,
       description: els.descInput.value,
       url: els.urlInput.value,
+      sourceUrl: els.sourceUrlInput ? els.sourceUrlInput.value : "",
+      category: els.categoryInput ? els.categoryInput.value : "activity",
       locations: readLocations(),
       updatedAt: nowIso()
     };
@@ -499,7 +738,7 @@
       openMonths[created.startDate.slice(0, 7)] = true;
       var start = parseDate(created.startDate);
       if (start) openWeeks[weekKey(start)] = true;
-      toast("Filed");
+      toast("Saved");
     }
     saveData();
     closeEventSheet();
@@ -606,7 +845,7 @@
         var parsed = JSON.parse(reader.result);
         var slice = extractImportData(parsed);
         if (!slice) {
-          toast("No Things To Do data in file");
+          toast("No Dates data in file");
           return;
         }
         state = mergeData(state, slice);
@@ -624,7 +863,7 @@
   }
 
   function loadSeed() {
-    return fetch("events.json?v=4")
+    return fetch("events.json?v=5")
       .then(function (res) { return res.ok ? res.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
@@ -640,8 +879,10 @@
   function cacheElements() {
     [
       "headerSub", "jumpWeekBtn", "addBtn", "settingsBtn", "searchInput", "cabinet", "emptyState",
-      "eventSheetOverlay", "eventSheetTitle", "eventForm", "titleInput", "startDateInput", "endDateInput",
-      "startTimeInput", "endTimeInput", "hoursInput", "descInput", "urlInput", "locationRows",
+      "foodPanel", "foodFilters", "filterHhNowSoon", "tabActivities", "tabFood",
+      "placeSheetOverlay", "placeSheetTitle", "placeSheetMeta", "placeSheetHh", "placeSheetDesc", "placeSheetLinks", "placeSheetClose",
+      "eventSheetOverlay", "eventSheetTitle", "eventForm", "categoryInput", "titleInput", "startDateInput", "endDateInput",
+      "startTimeInput", "endTimeInput", "hoursInput", "descInput", "urlInput", "sourceUrlInput", "locationRows",
       "addLocationBtn", "deleteEventBtn", "eventSheetCancel", "eventSheetSave",
       "settingsOverlay", "settingsCloseBtn", "exportJsonBtn", "importJsonFile", "toast"
     ].forEach(function (id) { els[id] = document.getElementById(id); });
@@ -649,6 +890,35 @@
 
   function bindEvents() {
     els.addBtn.addEventListener("click", function () { openEventSheet(null); });
+    document.querySelectorAll(".section-tab").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        setActiveTab(btn.getAttribute("data-section"));
+      });
+    });
+    if (els.filterHhNowSoon) {
+      els.filterHhNowSoon.addEventListener("change", function () {
+        filterHhNowSoon = els.filterHhNowSoon.checked;
+        saveUiPrefs();
+        render();
+      });
+    }
+    if (els.foodPanel) {
+      els.foodPanel.addEventListener("click", function (e) {
+        var card = e.target.closest("[data-place]");
+        if (card) openPlaceSheet(card.getAttribute("data-place"));
+        var editBtn = e.target.closest("[data-edit]");
+        if (editBtn) {
+          var ev = findEvent(editBtn.getAttribute("data-edit"));
+          if (ev) openEventSheet(ev);
+        }
+      });
+    }
+    if (els.placeSheetClose) els.placeSheetClose.addEventListener("click", closePlaceSheet);
+    if (els.placeSheetOverlay) {
+      els.placeSheetOverlay.addEventListener("click", function (e) {
+        if (e.target === els.placeSheetOverlay) closePlaceSheet();
+      });
+    }
     els.jumpWeekBtn.addEventListener("click", jumpToThisWeek);
     els.settingsBtn.addEventListener("click", function () { els.settingsOverlay.hidden = false; });
     els.settingsCloseBtn.addEventListener("click", function () { els.settingsOverlay.hidden = true; });
@@ -704,8 +974,14 @@
     });
   }
 
+  loadUiPrefs();
   cacheElements();
   bindEvents();
+  updateSectionUi();
   render();
   loadSeed();
+  loadPlaces();
+  setInterval(function () {
+    if (activeTab === "food" && placesLoaded) renderFoodPanel();
+  }, 60000);
 })();
