@@ -134,6 +134,7 @@
       hours: String(event.hours || "").trim().slice(0, 160),
       description: String(event.description || "").trim().slice(0, 500),
       url: String(event.url || "").trim(),
+      sourceUrl: String(event.sourceUrl || "").trim(),
       locations: locations,
       source: event.source || fallbackSource || "user",
       createdAt: event.createdAt || nowIso(),
