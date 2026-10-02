@@ -620,7 +620,7 @@
   }
 
   function loadSeed() {
-    return fetch("events.json?v=3")
+    return fetch("events.json?v=4")
       .then(function (res) { return res.ok ? res.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
