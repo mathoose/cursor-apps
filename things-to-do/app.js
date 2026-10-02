@@ -197,7 +197,7 @@
       if (!event || hidden[event.id]) return false;
       var merged = applyOverride(event);
       if (!query) return true;
-      var hay = [merged.title, merged.description, merged.hours, merged.url].concat(
+      var hay = [merged.title, merged.description, merged.hours, merged.url, merged.sourceUrl].concat(
         (merged.locations || []).map(function (loc) { return loc.name + " " + loc.address; })
       ).join(" ").toLowerCase();
       return hay.indexOf(query) !== -1;
@@ -377,7 +377,10 @@
       );
     }).join("");
     var link = event.url
-      ? '<a class="event-link" href="' + escapeHtml(event.url) + '" target="_blank" rel="noopener noreferrer">Event homepage →</a>'
+      ? '<a class="event-link" href="' + escapeHtml(event.url) + '" target="_blank" rel="noopener noreferrer">Official site →</a>'
+      : "";
+    var source = event.sourceUrl
+      ? '<a class="event-link" href="' + escapeHtml(event.sourceUrl) + '" target="_blank" rel="noopener noreferrer">Source post →</a>'
       : "";
     return (
       '<article class="event-card' + (isPast(event) ? " past" : "") + '" data-event-id="' + escapeHtml(event.id) + '">' +
@@ -390,7 +393,7 @@
         '<p class="event-when">' + escapeHtml(formatWhen(event)) + "</p>" +
         (event.description ? '<p class="event-desc">' + escapeHtml(event.description) + "</p>" : "") +
         (locs ? '<div class="event-locations">' + locs + "</div>" : "") +
-        link +
+        link + source +
       "</article>"
     );
   }
