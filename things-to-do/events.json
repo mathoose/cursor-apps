@@ -14,7 +14,8 @@
         "name": "Rittenhouse Square",
         "address": "1800 Walnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "evil-genius-family-fest-2026",
@@ -31,7 +32,8 @@
         "name": "Evil Genius Beer Company",
         "address": "1700 N Front St, Philadelphia, PA 19122"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-09-20",
@@ -52,7 +54,44 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "fleurs-de-villes-lynnewood-2026",
+    "title": "Fleurs de Villes: The Gilded Age",
+    "startDate": "2026-09-25",
+    "endDate": "2026-10-04",
+    "startTime": "10:00",
+    "endTime": "18:00",
+    "hours": "10am\u20136pm daily (last entry 5pm)",
+    "description": "Lynnewood Hall opens to the public for the first time in 80+ years. Floral mannequins inspired by HBO\u2019s The Gilded Age. Tickets from $30.50.",
+    "url": "https://lynnewoodhallpreservation.org/events/fleurs-de-villes/",
+    "locations": [
+      {
+        "name": "Lynnewood Hall",
+        "address": "920 Spring Ave, Elkins Park, PA 19027"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "3dprintopia-2026",
+    "title": "3DPrintopia",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "Sat 10am\u20135pm, Sun 10am\u20134pm",
+    "description": "Maker show in Convention Center Hall F. Vendors, demos, 3D-printed derby. Kids 17 and under free. Tickets on Eventbrite.",
+    "url": "https://3dprintopia.com/",
+    "locations": [
+      {
+        "name": "Pennsylvania Convention Center, Hall F",
+        "address": "1101 Arch St, Philadelphia, PA 19107"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "delaware-river-festival-2026",
@@ -73,7 +112,26 @@
         "name": "Wiggins Park",
         "address": "2 Riverside Dr, Camden, NJ 08103"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "drexel-vintage-flea-2026",
+    "title": "Drexel Vintage & Antique Flea Market",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "08:00",
+    "endTime": "17:00",
+    "hours": "8am\u20135pm",
+    "description": "Free. Vintage clothing, records, furniture, jewelry. Rain date Sunday.",
+    "url": "https://drexel.edu/",
+    "locations": [
+      {
+        "name": "Drexel University",
+        "address": "3400 Lancaster Ave, Philadelphia, PA 19104"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "linvilla-apple-festival-2026",
@@ -90,7 +148,62 @@
         "name": "Linvilla Orchards",
         "address": "137 W Knowlton Rd, Media, PA 19063"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "longwood-festival-of-fountains-2026",
+    "title": "Longwood Gardens Festival of Fountains",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "21:00",
+    "hours": "Daytime shows plus evening shows Fri\u2013Sun",
+    "description": "Final weekend. 1,700 fountain jets set to music. Timed tickets required. Evening shows may cancel in severe weather.",
+    "url": "https://longwoodgardens.org/events-performances/events/festival-fountains",
+    "locations": [
+      {
+        "name": "Longwood Gardens",
+        "address": "1001 Longwood Rd, Kennett Square, PA 19348"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "market-of-the-macabre-2026",
+    "title": "Market of the Macabre",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "17:00",
+    "hours": "Noon\u20135pm",
+    "description": "100+ vendors of art, oddities, and antiques throughout Laurel Hill East. $5 advance / $10 at the gate. Kids 5 and under free.",
+    "url": "https://thelaurelhill.org/",
+    "locations": [
+      {
+        "name": "Laurel Hill East",
+        "address": "3822 Ridge Ave, Philadelphia, PA 19132"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "new-hope-arts-crafts-2026",
+    "title": "New Hope Arts & Crafts Festival",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "Sat 10am\u20135pm, Sun 10am\u20134pm",
+    "description": "$5 donation. Rain or shine. 160+ juried artists. Free shuttle to downtown New Hope.",
+    "url": "https://www.visitnewhope.com/new-hope-arts-crafts/",
+    "locations": [
+      {
+        "name": "New Hope-Solebury High School",
+        "address": "180 W Bridge St, New Hope, PA 18938"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "south-street-fall-fest-2026",
@@ -111,7 +224,120 @@
         "name": "Brauhaus Schmitz Oktoberfest",
         "address": "718 South St, Philadelphia, PA 19147"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "when-harry-met-sally-inn-yard-2026",
+    "title": "When Harry Met Sally \u2014 outdoor movie",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "19:30",
+    "endTime": "21:30",
+    "hours": "Around dusk",
+    "description": "Free Parks & Rec neighborhood screening at Inn Yard Park. Bring a blanket.",
+    "url": "https://www.phila.gov/departments/philadelphia-parks-recreation/",
+    "locations": [
+      {
+        "name": "Inn Yard Park",
+        "address": "1101 N American St, Philadelphia, PA 19123"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "yards-oktoberfest-2026",
+    "title": "Yards Oktoberfest",
+    "startDate": "2026-09-26",
+    "endDate": "2026-09-26",
+    "startTime": "12:00",
+    "endTime": "16:00",
+    "hours": "Noon\u20134pm",
+    "description": "21+. German-style beers, food, live music, stein-holding and costume contests. GA $30 includes a stein and one fill.",
+    "url": "https://yardsbrewing.com/",
+    "locations": [
+      {
+        "name": "Yards Brewing Company",
+        "address": "500 Spring Garden St, Philadelphia, PA 19123"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "festival-of-festivals-2026",
+    "title": "Festival of Festivals",
+    "startDate": "2026-09-27",
+    "endDate": "2026-09-27",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "11am\u20134pm",
+    "description": "Free day at Cherry Street Pier. Food, music, art, local vendors, and a kids\u2019 zone. Registration encouraged.",
+    "url": "https://www.cherrystreetpier.com/",
+    "locations": [
+      {
+        "name": "Cherry Street Pier",
+        "address": "121 N Columbus Blvd, Philadelphia, PA 19106"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "open-streets-2026-09-27",
+    "title": "Open Streets: West Walnut",
+    "startDate": "2026-09-27",
+    "endDate": "2026-09-27",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "10am\u20135pm",
+    "description": "Car-free Center City blocks. Mini golf, live music, Music Play Patrol, Curtis Institute brass.",
+    "url": "https://centercityphila.org/explore/open-streets-ww/",
+    "locations": [
+      {
+        "name": "Walnut St, Broad to 19th",
+        "address": "Walnut St & S 18th St, Philadelphia, PA 19103"
+      },
+      {
+        "name": "18th St, Chestnut to Locust",
+        "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "ghostbusters-sunset-social-2026",
+    "title": "Ghostbusters at Sunset Social",
+    "startDate": "2026-09-30",
+    "endDate": "2026-09-30",
+    "startTime": "18:00",
+    "endTime": "20:30",
+    "hours": "6pm on the 60ft rooftop screen",
+    "description": "Free final outdoor film of the season. Food and drinks for purchase. Dogs and kids welcome. Blankets ok, no personal chairs.",
+    "url": "https://www.sunsetsocialphl.com/movie-nights",
+    "locations": [
+      {
+        "name": "Sunset Social at Cira Green",
+        "address": "129 S 30th St, Philadelphia, PA 19104"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "cityside-pumpkin-patch-2026",
+    "title": "Cityside Pumpkin Patch",
+    "startDate": "2026-10-01",
+    "endDate": "2026-11-01",
+    "startTime": "12:00",
+    "endTime": "22:00",
+    "hours": "Daily timed 2-hour slots, usually noon\u201310pm; book ahead",
+    "description": "10,000+ pumpkins on the Liberty Point rooftop. Pumpkin smashing, scarecrow archery, haunted photo ops, carnival games, fall cocktails. From $13.90; ages 3+ need a ticket. No pets.",
+    "url": "https://citysidepumpkinpatch.com/philly",
+    "locations": [
+      {
+        "name": "Liberty Point at Penn's Landing",
+        "address": "211 S Christopher Columbus Blvd, Philadelphia, PA 19106"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "franklin-square-spooky-mini-golf-2026",
@@ -133,6 +359,44 @@
     ]
   },
   {
+    "id": "bee-roles-candle-making-2026",
+    "title": "Bee Roles and Candle-Making",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "14:00",
+    "endTime": "15:30",
+    "hours": "2\u20133:30pm; ages 8+",
+    "description": "Learn how a honey bee colony works, make a beeswax candle, and visit a live observation hive with Miss Honey.",
+    "url": "https://www.freelibrary.org/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Blanche A. Nixon / Cobbs Creek Library",
+        "address": "5800 Cobbs Creek Pkwy, Philadelphia, PA 19143"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "black-farmers-nightmarket-2026",
+    "title": "Black Farmers Night Market",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "18:00",
+    "endTime": "21:00",
+    "hours": "6\u20139pm",
+    "description": "Evening market celebrating Black healers, artisans, and creatives. Vendors, seasonal tastings, wellness, live art, writing workshop, DJ Reezy with live violin.",
+    "url": "https://www.getfreshdaily.com/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Freedom Greens and Garden",
+        "address": "Kingsessing, Philadelphia, PA 19142"
+      }
+    ],
+    "category": "activity"
+  },
+  {
     "id": "chinatown-mid-autumn-2026",
     "title": "Chinatown Mid-Autumn Festival",
     "startDate": "2026-10-03",
@@ -140,239 +404,168 @@
     "startTime": "12:00",
     "endTime": "20:00",
     "hours": "Noon\u20138pm (lantern parade around 7pm)",
-    "description": "Free 31st annual street festival, postponed from Sep 26 for weather. Lion dances, opera, martial arts, mooncake contest, evening lantern parade.",
+    "description": "Free 31st annual street festival, postponed from Sep 26 for weather. Lion dances, opera, martial arts, mooncake contest, evening lantern parade. Listed on @phl_events Oct 3 free events.",
     "url": "https://www.aaunited.org/maf",
     "locations": [
       {
         "name": "10th Street near the Friendship Gate",
         "address": "10th St & Arch St, Philadelphia, PA 19107"
       }
-    ]
+    ],
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "category": "activity"
   },
   {
-    "id": "new-hope-arts-crafts-2026",
-    "title": "New Hope Arts & Crafts Festival",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-27",
-    "startTime": "10:00",
-    "endTime": "17:00",
-    "hours": "Sat 10am\u20135pm, Sun 10am\u20134pm",
-    "description": "$5 donation. Rain or shine. 160+ juried artists. Free shuttle to downtown New Hope.",
-    "url": "https://www.visitnewhope.com/new-hope-arts-crafts/",
-    "locations": [
-      {
-        "name": "New Hope-Solebury High School",
-        "address": "180 W Bridge St, New Hope, PA 18938"
-      }
-    ]
-  },
-  {
-    "id": "chestnut-hill-fall-arts-2026",
-    "title": "Chestnut Hill Fall for the Arts",
-    "startDate": "2026-10-11",
-    "endDate": "2026-10-11",
-    "startTime": "11:00",
-    "endTime": "17:00",
-    "hours": "11am\u20135pm",
-    "description": "Free rain-date Sunday. 250+ artists, live music, Makers Village demos along Germantown Ave (Willow Grove to Rex). Originally Sep 27.",
-    "url": "https://chestnuthillpa.com/fall-for-the-arts-festival/",
-    "locations": [
-      {
-        "name": "Germantown Ave, Chestnut Hill",
-        "address": "8400 Germantown Ave, Philadelphia, PA 19118"
-      }
-    ]
-  },
-  {
-    "id": "open-streets-2026-09-27",
-    "title": "Open Streets: West Walnut",
-    "startDate": "2026-09-27",
-    "endDate": "2026-09-27",
-    "startTime": "10:00",
-    "endTime": "17:00",
-    "hours": "10am\u20135pm",
-    "description": "Car-free Center City blocks. Mini golf, live music, Music Play Patrol, Curtis Institute brass.",
-    "url": "https://centercityphila.org/explore/open-streets-ww/",
-    "locations": [
-      {
-        "name": "Walnut St, Broad to 19th",
-        "address": "Walnut St & S 18th St, Philadelphia, PA 19103"
-      },
-      {
-        "name": "18th St, Chestnut to Locust",
-        "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
-      }
-    ]
-  },
-  {
-    "id": "fleurs-de-villes-lynnewood-2026",
-    "title": "Fleurs de Villes: The Gilded Age",
-    "startDate": "2026-09-25",
-    "endDate": "2026-10-04",
-    "startTime": "10:00",
+    "id": "clark-park-jam-2026",
+    "title": "Clark Park Jam",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "12:00",
     "endTime": "18:00",
-    "hours": "10am\u20136pm daily (last entry 5pm)",
-    "description": "Lynnewood Hall opens to the public for the first time in 80+ years. Floral mannequins inspired by HBO\u2019s The Gilded Age. Tickets from $30.50.",
-    "url": "https://lynnewoodhallpreservation.org/events/fleurs-de-villes/",
+    "hours": "Noon\u20136pm; RSVP required",
+    "description": "Free outdoor house music day presented by Soundwave Market. DJ JVMZ and House Guests crew (What Qino, TGroove, Big Queso, Cowa.land).",
+    "url": "https://orixa.fm/event/clark-park-jam-a-day-of-groovy-soulful-house-music-presented-by-soundwave-market/36480",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
     "locations": [
       {
-        "name": "Lynnewood Hall",
-        "address": "920 Spring Ave, Elkins Park, PA 19027"
+        "name": "Clark Park",
+        "address": "4498 Chester Ave, Philadelphia, PA 19104"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
-    "id": "3dprintopia-2026",
-    "title": "3DPrintopia",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-27",
-    "startTime": "10:00",
-    "endTime": "17:00",
-    "hours": "Sat 10am\u20135pm, Sun 10am\u20134pm",
-    "description": "Maker show in Convention Center Hall F. Vendors, demos, 3D-printed derby. Kids 17 and under free. Tickets on Eventbrite.",
-    "url": "https://3dprintopia.com/",
-    "locations": [
-      {
-        "name": "Pennsylvania Convention Center, Hall F",
-        "address": "1101 Arch St, Philadelphia, PA 19107"
-      }
-    ]
-  },
-  {
-    "id": "yards-oktoberfest-2026",
-    "title": "Yards Oktoberfest",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-26",
-    "startTime": "12:00",
-    "endTime": "16:00",
-    "hours": "Noon\u20134pm",
-    "description": "21+. German-style beers, food, live music, stein-holding and costume contests. GA $30 includes a stein and one fill.",
-    "url": "https://yardsbrewing.com/",
-    "locations": [
-      {
-        "name": "Yards Brewing Company",
-        "address": "500 Spring Garden St, Philadelphia, PA 19123"
-      }
-    ]
-  },
-  {
-    "id": "market-of-the-macabre-2026",
-    "title": "Market of the Macabre",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-26",
-    "startTime": "12:00",
-    "endTime": "17:00",
-    "hours": "Noon\u20135pm",
-    "description": "100+ vendors of art, oddities, and antiques throughout Laurel Hill East. $5 advance / $10 at the gate. Kids 5 and under free.",
-    "url": "https://thelaurelhill.org/",
-    "locations": [
-      {
-        "name": "Laurel Hill East",
-        "address": "3822 Ridge Ave, Philadelphia, PA 19132"
-      }
-    ]
-  },
-  {
-    "id": "drexel-vintage-flea-2026",
-    "title": "Drexel Vintage & Antique Flea Market",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-26",
-    "startTime": "08:00",
-    "endTime": "17:00",
-    "hours": "8am\u20135pm",
-    "description": "Free. Vintage clothing, records, furniture, jewelry. Rain date Sunday.",
-    "url": "https://drexel.edu/",
-    "locations": [
-      {
-        "name": "Drexel University",
-        "address": "3400 Lancaster Ave, Philadelphia, PA 19104"
-      }
-    ]
-  },
-  {
-    "id": "when-harry-met-sally-inn-yard-2026",
-    "title": "When Harry Met Sally \u2014 outdoor movie",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-26",
-    "startTime": "19:30",
-    "endTime": "21:30",
-    "hours": "Around dusk",
-    "description": "Free Parks & Rec neighborhood screening at Inn Yard Park. Bring a blanket.",
-    "url": "https://www.phila.gov/departments/philadelphia-parks-recreation/",
-    "locations": [
-      {
-        "name": "Inn Yard Park",
-        "address": "1101 N American St, Philadelphia, PA 19123"
-      }
-    ]
-  },
-  {
-    "id": "festival-of-festivals-2026",
-    "title": "Festival of Festivals",
-    "startDate": "2026-09-27",
-    "endDate": "2026-09-27",
+    "id": "evil-genius-15th-anniversary-2026",
+    "title": "Evil Genius 15th Anniversary Block Party",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
     "startTime": "11:00",
-    "endTime": "16:00",
-    "hours": "11am\u20134pm",
-    "description": "Free day at Cherry Street Pier. Food, music, art, local vendors, and a kids\u2019 zone. Registration encouraged.",
-    "url": "https://www.cherrystreetpier.com/",
-    "locations": [
-      {
-        "name": "Cherry Street Pier",
-        "address": "121 N Columbus Blvd, Philadelphia, PA 19106"
-      }
-    ]
-  },
-  {
-    "id": "longwood-festival-of-fountains-2026",
-    "title": "Longwood Gardens Festival of Fountains",
-    "startDate": "2026-09-26",
-    "endDate": "2026-09-27",
-    "startTime": "10:00",
-    "endTime": "21:00",
-    "hours": "Daytime shows plus evening shows Fri\u2013Sun",
-    "description": "Final weekend. 1,700 fountain jets set to music. Timed tickets required. Evening shows may cancel in severe weather.",
-    "url": "https://longwoodgardens.org/events-performances/events/festival-fountains",
-    "locations": [
-      {
-        "name": "Longwood Gardens",
-        "address": "1001 Longwood Rd, Kennett Square, PA 19348"
-      }
-    ]
-  },
-  {
-    "id": "ghostbusters-sunset-social-2026",
-    "title": "Ghostbusters at Sunset Social",
-    "startDate": "2026-09-30",
-    "endDate": "2026-09-30",
-    "startTime": "18:00",
-    "endTime": "20:30",
-    "hours": "6pm on the 60ft rooftop screen",
-    "description": "Free final outdoor film of the season. Food and drinks for purchase. Dogs and kids welcome. Blankets ok, no personal chairs.",
-    "url": "https://www.sunsetsocialphl.com/movie-nights",
-    "locations": [
-      {
-        "name": "Sunset Social at Cira Green",
-        "address": "129 S 30th St, Philadelphia, PA 19104"
-      }
-    ]
-  },
-  {
-    "id": "cityside-pumpkin-patch-2026",
-    "title": "Cityside Pumpkin Patch",
-    "startDate": "2026-10-01",
-    "endDate": "2026-11-01",
-    "startTime": "12:00",
     "endTime": "22:00",
-    "hours": "Daily timed 2-hour slots, usually noon\u201310pm; book ahead",
-    "description": "10,000+ pumpkins on the Liberty Point rooftop. Pumpkin smashing, scarecrow archery, haunted photo ops, carnival games, fall cocktails. From $13.90; ages 3+ need a ticket. No pets.",
-    "url": "https://citysidepumpkinpatch.com/philly",
+    "hours": "11am\u201310pm",
+    "description": "All-ages Fishtown block party on Front St. Live music (Wheatus headliner), two beer releases, pay-as-you-go food, ~50 vendor market. Dogs welcome.",
+    "url": "https://evilgeniusbeer.com/calendar/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
     "locations": [
       {
-        "name": "Liberty Point at Penn's Landing",
-        "address": "211 S Christopher Columbus Blvd, Philadelphia, PA 19106"
+        "name": "Evil Genius Beer Company",
+        "address": "1700 N Front St, Philadelphia, PA 19122"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "eastern-state-firstival-2026",
+    "title": "Firstival at Eastern State Penitentiary",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "10:00",
+    "endTime": "17:00",
+    "hours": "Free admission 10am\u20135pm; special program 11am\u20132pm",
+    "description": "Free day exploring America\u2019s first penitentiary. Orchestra 2001, Poet Laureate Raina J. Le\u00f3n, art with Cody Stuhltrager, community fair. Part of 52 Weeks of Firsts.",
+    "url": "https://easternstate.org/events/series/a-timeforliberty-our-shared-history-our-shared-future/52-weeks-of-firsts",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Eastern State Penitentiary",
+        "address": "2027 Fairmount Ave, Philadelphia, PA 19130"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "flax-to-linen-fdr-2026",
+    "title": "Flax to Linen Demonstration",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "10:00",
+    "endTime": "13:00",
+    "hours": "10am\u20131pm",
+    "description": "PA Flax Project and Friends of FDR Park show traditional hand processing from homegrown flax to spinnable linen at the Learning Garden. All ages.",
+    "url": "https://www.fdrpark.org/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "FDR Park Learning Garden",
+        "address": "1500 Pattison Ave, Philadelphia, PA 19145"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "penn-treaty-horror-double-2026",
+    "title": "Horror Double Feature at Penn Treaty Park",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "18:00",
+    "endTime": "21:00",
+    "hours": "Around 6\u20139pm",
+    "description": "Free outdoor cult classics by Secret Handshake Vintage: Halloween III and Texas Chainsaw Massacre: The Next Generation. Communal waterfront movie night.",
+    "url": "https://www.phila.gov/parks-and-recreation/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Penn Treaty Park",
+        "address": "1341 N Delaware Ave, Philadelphia, PA 19125"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "mushroom-walk-cobbs-creek-2026",
+    "title": "Mushroom Walk at Cobb\u2019s Creek",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "11:00",
+    "endTime": "13:00",
+    "hours": "11am\u20131pm",
+    "description": "Free guided fungi stroll with Mycology Club volunteers. Closed shoes and pants; kids and leashed dogs welcome.",
+    "url": "https://www.phila.gov/parks-and-recreation/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Cobb's Creek Community Environmental Center",
+        "address": "700 Cobbs Creek Pkwy, Philadelphia, PA 19139"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "old-city-creative-block-party-2026",
+    "title": "Old City Creative Block Party",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "11:00",
+    "endTime": "18:00",
+    "hours": "11am\u20136pm",
+    "description": "DesignPhiladelphia street festival on N 3rd (Arch to Race). Live demos, workshops, music, BARPHA exhibition, Museum for Art in Wood and neighbors outdoors.",
+    "url": "https://festival.designphiladelphia.org/events/old-city-creative-block-party",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "N 3rd St, Arch to Race",
+        "address": "N 3rd St & Arch St, Philadelphia, PA 19106"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "pppa-championship-2026",
+    "title": "Philadelphia Parallel Parking Association Championship",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "13:00",
+    "endTime": "16:00",
+    "hours": "1\u20134pm; rain date Sat Oct 10",
+    "description": "Free to watch. ~15\u201320 drivers, three skill events plus finals. Winner gets $76 and curb trophy; livestream on @philaparallelparking. Kids practice area and PPPA merch.",
+    "url": "https://philaparallelparking.org/championship",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Headhouse Plaza",
+        "address": "S 2nd St & South St, Philadelphia, PA 19147"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "roxtoberfest-2026",
@@ -389,7 +582,27 @@
         "name": "Ridge Ave, Lyceum to Leverington",
         "address": "Ridge Ave & Lyceum Ave, Philadelphia, PA 19128"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "william-still-hike-2026",
+    "title": "Walking in William Still\u2019s Steps",
+    "startDate": "2026-10-03",
+    "endDate": "2026-10-03",
+    "startTime": "10:00",
+    "endTime": "14:00",
+    "hours": "Hike 10am\u20131pm; optional conversation & refreshments 1\u20132pm",
+    "description": "Free 3.5-mile Underground Railroad history loop in West Fairmount Park. Ridgeland, Boelsen Cottage, Belmont Mansion. Family-friendly; kids 10+ with adult; sturdy shoes for hilly dirt.",
+    "url": "https://myphillypark.org/bl_events/walking-in-william-stills-steps-guided-hike-community-conversation/",
+    "sourceUrl": "https://www.instagram.com/p/Dd-Y8ylDYEX/",
+    "locations": [
+      {
+        "name": "Sheep Barn near Ridgeland Mansion",
+        "address": "4100 Chamounix Dr, Philadelphia, PA 19131"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-04",
@@ -410,7 +623,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "armory-oktoberfest-2026",
@@ -427,7 +641,8 @@
         "name": "23rd Street Armory",
         "address": "22 S 23rd St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "made-in-phila-fall-2026",
@@ -444,7 +659,26 @@
         "name": "Dilworth Park",
         "address": "1 S 15th St, Philadelphia, PA 19102"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "chestnut-hill-fall-arts-2026",
+    "title": "Chestnut Hill Fall for the Arts",
+    "startDate": "2026-10-11",
+    "endDate": "2026-10-11",
+    "startTime": "11:00",
+    "endTime": "17:00",
+    "hours": "11am\u20135pm",
+    "description": "Free rain-date Sunday. 250+ artists, live music, Makers Village demos along Germantown Ave (Willow Grove to Rex). Originally Sep 27.",
+    "url": "https://chestnuthillpa.com/fall-for-the-arts-festival/",
+    "locations": [
+      {
+        "name": "Germantown Ave, Chestnut Hill",
+        "address": "8400 Germantown Ave, Philadelphia, PA 19118"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "ourfest-2026",
@@ -461,7 +695,8 @@
         "name": "12th & Locust",
         "address": "12th St & Locust St, Philadelphia, PA 19107"
       }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-11",
@@ -482,24 +717,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
-  },
-  {
-    "id": "manayunk-fall-fest-2026",
-    "title": "Manayunk Fall Festival",
-    "startDate": "2026-10-17",
-    "endDate": "2026-10-17",
-    "startTime": "11:00",
-    "endTime": "16:00",
-    "hours": "11am\u20134pm",
-    "description": "Free. Vendors, food trucks, live music, mac-and-cheese crawl along Main Street.",
-    "url": "https://manayunk.com/mnyk-events/manayunk-fall-fest/",
-    "locations": [
-      {
-        "name": "Main Street, Manayunk",
-        "address": "4400 Main St, Philadelphia, PA 19127"
-      }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "east-fallsfest-2026",
@@ -516,7 +735,44 @@
         "name": "Ridge Ave & Midvale Ave",
         "address": "Ridge Ave & Midvale Ave, Philadelphia, PA 19129"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "manayunk-fall-fest-2026",
+    "title": "Manayunk Fall Festival",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-17",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "11am\u20134pm",
+    "description": "Free. Vendors, food trucks, live music, mac-and-cheese crawl along Main Street.",
+    "url": "https://manayunk.com/mnyk-events/manayunk-fall-fest/",
+    "locations": [
+      {
+        "name": "Main Street, Manayunk",
+        "address": "4400 Main St, Philadelphia, PA 19127"
+      }
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "philly-coffee-festival-2026",
+    "title": "Philly Coffee Festival",
+    "startDate": "2026-10-17",
+    "endDate": "2026-10-18",
+    "startTime": "09:00",
+    "endTime": "16:30",
+    "hours": "Early 9\u201310am, GA 10am\u20131pm, afternoon 1:30\u20134:30pm",
+    "description": "Tickets about $25\u2013$73. 20+ specialty roasters, tastings, food, live music.",
+    "url": "https://www.phillycoffeefestival.com/",
+    "locations": [
+      {
+        "name": "23rd Street Armory",
+        "address": "22 S 23rd St, Philadelphia, PA 19103"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "fantasy-faire-block-party-2026",
@@ -537,24 +793,8 @@
         "name": "Queen & Rook Game Cafe",
         "address": "123 South St, Philadelphia, PA 19147"
       }
-    ]
-  },
-  {
-    "id": "philly-coffee-festival-2026",
-    "title": "Philly Coffee Festival",
-    "startDate": "2026-10-17",
-    "endDate": "2026-10-18",
-    "startTime": "09:00",
-    "endTime": "16:30",
-    "hours": "Early 9\u201310am, GA 10am\u20131pm, afternoon 1:30\u20134:30pm",
-    "description": "Tickets about $25\u2013$73. 20+ specialty roasters, tastings, food, live music.",
-    "url": "https://www.phillycoffeefestival.com/",
-    "locations": [
-      {
-        "name": "23rd Street Armory",
-        "address": "22 S 23rd St, Philadelphia, PA 19103"
-      }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-18",
@@ -575,24 +815,8 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
-  },
-  {
-    "id": "east-passyunk-fall-fest-2026",
-    "title": "East Passyunk Fall Fest",
-    "startDate": "2026-10-31",
-    "endDate": "2026-10-31",
-    "startTime": "11:00",
-    "endTime": "16:00",
-    "hours": "11am\u20134pm",
-    "description": "Halloween Saturday on the Avenue. 80+ vendor market, pumpkin carving, live music, kid and dog costume contests, Creepy Crawl trick-or-treating between Morris and Dickinson.",
-    "url": "https://www.visiteastpassyunk.com/fall-on-the-avenue",
-    "locations": [
-      {
-        "name": "East Passyunk Ave, Morris to Dickinson",
-        "address": "East Passyunk Ave & Morris St, Philadelphia, PA 19148"
-      }
-    ]
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-10-25",
@@ -613,7 +837,26 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
+  },
+  {
+    "id": "east-passyunk-fall-fest-2026",
+    "title": "East Passyunk Fall Fest",
+    "startDate": "2026-10-31",
+    "endDate": "2026-10-31",
+    "startTime": "11:00",
+    "endTime": "16:00",
+    "hours": "11am\u20134pm",
+    "description": "Halloween Saturday on the Avenue. 80+ vendor market, pumpkin carving, live music, kid and dog costume contests, Creepy Crawl trick-or-treating between Morris and Dickinson.",
+    "url": "https://www.visiteastpassyunk.com/fall-on-the-avenue",
+    "locations": [
+      {
+        "name": "East Passyunk Ave, Morris to Dickinson",
+        "address": "East Passyunk Ave & Morris St, Philadelphia, PA 19148"
+      }
+    ],
+    "category": "activity"
   },
   {
     "id": "open-streets-2026-12-06",
@@ -634,6 +877,7 @@
         "name": "18th St, Chestnut to Locust",
         "address": "S 18th St & Chestnut St, Philadelphia, PA 19103"
       }
-    ]
+    ],
+    "category": "activity"
   }
 ]

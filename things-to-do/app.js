@@ -614,7 +614,7 @@
       ? '<a class="event-link" href="' + escapeHtml(event.url) + '" target="_blank" rel="noopener noreferrer">Official site →</a>'
       : "";
     var source = event.sourceUrl
-      ? '<a class="event-link" href="' + escapeHtml(event.sourceUrl) + '" target="_blank" rel="noopener noreferrer">Source link →</a>'
+      ? '<a class="event-link" href="' + escapeHtml(event.sourceUrl) + '" target="_blank" rel="noopener noreferrer">Source post →</a>'
       : "";
     return (
       '<article class="event-card' + (isPast(event) ? " past" : "") + '" data-event-id="' + escapeHtml(event.id) + '">' +
@@ -863,7 +863,7 @@
   }
 
   function loadSeed() {
-    return fetch("events.json?v=4")
+    return fetch("events.json?v=5")
       .then(function (res) { return res.ok ? res.json() : []; })
       .catch(function () { return []; })
       .then(function (list) {
