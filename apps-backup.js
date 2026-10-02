@@ -36,7 +36,7 @@
     "coffee-map": "Coffee Map",
     "city-axes": "City Axes",
     "done-today": "Done Today",
-    "things-to-do": "Things To Do",
+    "things-to-do": "Dates",
   };
 
   var PHOTO_DATABASES = [

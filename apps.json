@@ -74,8 +74,8 @@
     },
     {
       "id": "things-to-do",
-      "name": "Things To Do",
-      "subtitle": "File upcoming events",
+      "name": "Dates",
+      "subtitle": "Activities & happy hours",
       "storageKey": "things-to-do-v1"
     },
     {
