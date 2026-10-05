@@ -1988,6 +1988,140 @@
     font-size: 0.9rem;
   }
 
+  .task-block { display: flex; flex-direction: column; }
+  .task-block.expanded .task {
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .task-expand-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-top: 0;
+    border: none;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .task-expand-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.15s;
+  }
+  .task-expand-btn.open svg { transform: rotate(180deg); }
+  .task-expand-btn:active { background: var(--border); color: var(--accent); }
+  .task-subtasks-panel {
+    padding: 6px 10px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .task-subtasks-heading {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+  .task-subtasks-list { display: flex; flex-direction: column; gap: 4px; }
+  .task-subtasks-hint {
+    margin: 4px 0 0;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+  .task-subtask-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .task-subtask-row.done { opacity: 0.65; }
+  .task-subtask-row.done .subtask-check {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .task-subtask-row.done .subtask-check svg { opacity: 1; }
+  .task-subtask-row.done .subtask-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+  .task-subtask-row.dragging {
+    opacity: 0.75;
+    box-shadow: var(--shadow);
+  }
+  .task-subtask-row.drag-slot-glow {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .task-subtask-drag {
+    width: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px 0;
+    flex-shrink: 0;
+    cursor: grab;
+    touch-action: none;
+  }
+  .task-subtask-drag span {
+    display: block;
+    height: 2px;
+    background: var(--text-faint);
+    border-radius: 1px;
+  }
+  .task-subtask-row .subtask-check {
+    width: 18px;
+    height: 18px;
+  }
+  .task-subtask-row .subtask-title {
+    flex: 1;
+    font-size: 0.85rem;
+    min-width: 0;
+    word-wrap: break-word;
+  }
+  .task-subtask-add {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .task-subtask-add input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.88rem;
+    padding: 4px 2px;
+  }
+  .task-subtask-add input::placeholder { color: var(--text-faint); }
+  .task-subtasks-list-draggable { position: relative; }
+  .subtask-drop-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 2;
+  }
+  .subtask-drop-indicator.on { opacity: 1; }
+
   /* ---------- Toast / undo ---------- */
   .toast {
     position: fixed;
@@ -2942,6 +3076,8 @@ let taskPhotoThumbCache = {};
 let taskPhotoThumbPending = {};
 let taskModalPhotoUrl = null;
 let pendingNewTaskPhotoBlob = null;
+let expandedTaskSubtasks = new Set();
+let pendingSubtaskInputFocus = null;
 
 const FITNESS_SUGGESTIONS = ['Push-ups', 'Squats', 'Sit-ups', 'Plank (sec)', 'Pull-ups', 'Steps'];
 const BULLET_SUGGESTIONS = ['Coffee', 'Water (cups)', 'Greek yogurt', 'Fruit', 'Veggies', 'Snack'];
@@ -3154,10 +3290,11 @@ function normalizeTask(t) {
     ams: !!t.ams,
     filamentColorIds: filamentColorIds,
     categoryIds: normalizeCategoryIds(t.categoryIds),
-    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
+    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map((s, i) => ({
       id: s.id || uid(),
       title: s.title || '',
-      done: !!s.done
+      done: !!s.done,
+      sortOrder: typeof s.sortOrder === 'number' ? s.sortOrder : i
     })) : [],
     createdAt: t.createdAt || new Date().toISOString(),
     updatedAt: t.updatedAt || new Date().toISOString(),
@@ -4724,6 +4861,315 @@ function taskHasSecondaryMeta(task, opts) {
   return false;
 }
 
+function ensureSubtaskSortOrders(task) {
+  if (!task || !Array.isArray(task.subtasks)) return;
+  task.subtasks.forEach(function (s, i) {
+    if (typeof s.sortOrder !== 'number') s.sortOrder = i;
+  });
+}
+
+function getSortedSubtasks(task) {
+  if (!task || !Array.isArray(task.subtasks)) return [];
+  ensureSubtaskSortOrders(task);
+  return task.subtasks.slice().sort(function (a, b) {
+    return a.sortOrder - b.sortOrder;
+  });
+}
+
+function toggleTaskSubtasksExpanded(taskId) {
+  if (expandedTaskSubtasks.has(taskId)) expandedTaskSubtasks.delete(taskId);
+  else expandedTaskSubtasks.add(taskId);
+  render();
+}
+
+function addSubtasksToTask(taskId, titles) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task) return;
+  if (!Array.isArray(task.subtasks)) task.subtasks = [];
+  ensureSubtaskSortOrders(task);
+  let next = task.subtasks.length;
+  titles.forEach(function (title) {
+    const t = (title || '').trim();
+    if (!t) return;
+    task.subtasks.push({ id: uid(), title: t, done: false, sortOrder: next++ });
+  });
+  expandedTaskSubtasks.add(taskId);
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function toggleSubtaskOnTask(taskId, subId) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  const sub = task.subtasks.find(function (s) { return s.id === subId; });
+  if (!sub) return;
+  sub.done = !sub.done;
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function deleteSubtaskFromTask(taskId, subId) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  task.subtasks = task.subtasks.filter(function (s) { return s.id !== subId; });
+  ensureSubtaskSortOrders(task);
+  task.subtasks.forEach(function (s, i) { s.sortOrder = i; });
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function moveSubtaskToIndex(taskId, subId, newIndex) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  const subs = getSortedSubtasks(task);
+  const idx = subs.findIndex(function (s) { return s.id === subId; });
+  if (idx < 0 || newIndex < 0 || newIndex >= subs.length || newIndex === idx) return;
+  const moved = subs.splice(idx, 1)[0];
+  subs.splice(newIndex, 0, moved);
+  subs.forEach(function (s, i) { s.sortOrder = i; });
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function taskExpandChevronSvg() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M6 9l6 6 6-6');
+  svg.appendChild(path);
+  return svg;
+}
+
+function renderInlineSubtaskRow(taskId, sub) {
+  const row = el('div', {
+    class: 'task-subtask-row' + (sub.done ? ' done' : ''),
+    dataset: { subtaskRow: sub.id }
+  });
+  const handle = el('div', {
+    class: 'task-subtask-drag',
+    dataset: { subtaskDragHandle: sub.id },
+    'aria-label': 'Drag to reorder step'
+  });
+  for (let i = 0; i < 3; i++) handle.appendChild(el('span'));
+  row.appendChild(handle);
+  const check = el('div', {
+    class: 'subtask-check',
+    onClick: function (e) {
+      e.stopPropagation();
+      toggleSubtaskOnTask(taskId, sub.id);
+    }
+  });
+  check.appendChild(taskCheckmark());
+  row.appendChild(check);
+  row.appendChild(el('div', { class: 'subtask-title', text: sub.title }));
+  row.appendChild(el('button', {
+    type: 'button',
+    class: 'subtask-del',
+    'aria-label': 'Remove step',
+    html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>',
+    onClick: function (e) {
+      e.stopPropagation();
+      deleteSubtaskFromTask(taskId, sub.id);
+    }
+  }));
+  return row;
+}
+
+function buildTaskSubtasksPanel(task) {
+  const panel = el('div', { class: 'task-subtasks-panel' });
+  panel.appendChild(el('div', { class: 'task-subtasks-heading', text: 'Steps to complete' }));
+  const sorted = getSortedSubtasks(task);
+  const list = el('div', {
+    class: 'task-subtasks-list' + (sorted.length ? ' task-subtasks-list-draggable' : ''),
+    dataset: { subtaskList: task.id }
+  });
+  sorted.forEach(function (sub) {
+    list.appendChild(renderInlineSubtaskRow(task.id, sub));
+  });
+  panel.appendChild(list);
+  if (sorted.length > 1) {
+    panel.appendChild(el('p', { class: 'task-subtasks-hint', text: 'Hold ≡ to reorder steps.' }));
+  }
+  const addWrap = el('div', { class: 'task-subtask-add' });
+  const input = el('input', {
+    type: 'text',
+    id: 'subtask-inline-input-' + task.id,
+    placeholder: 'Add step… (Enter for each; paste multiple lines)',
+    autocomplete: 'off'
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const raw = input.value;
+    if (!raw.trim()) return;
+    pendingSubtaskInputFocus = task.id;
+    addSubtasksToTask(task.id, [raw.trim()]);
+  });
+  input.addEventListener('paste', function (e) {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (!text || text.indexOf('\n') < 0) return;
+    e.preventDefault();
+    const lines = text.split(/\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!lines.length) return;
+    pendingSubtaskInputFocus = task.id;
+    addSubtasksToTask(task.id, lines);
+  });
+  addWrap.appendChild(input);
+  panel.appendChild(addWrap);
+  return panel;
+}
+
+function focusPendingSubtaskInput() {
+  if (!pendingSubtaskInputFocus) return;
+  const id = pendingSubtaskInputFocus;
+  pendingSubtaskInputFocus = null;
+  const input = document.getElementById('subtask-inline-input-' + id);
+  if (input) input.focus();
+}
+
+function bindSubtaskListDrag(listEl, taskId) {
+  if (!listEl || !taskId) return;
+  const rows = listEl.querySelectorAll('.task-subtask-row[data-subtask-row]');
+  if (!rows.length) return;
+  listEl.classList.add('task-subtasks-list-draggable');
+  let indicator = listEl.querySelector('.subtask-drop-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'subtask-drop-indicator';
+    listEl.insertBefore(indicator, listEl.firstChild);
+  }
+  let dragId = null;
+  let dragFromIdx = -1;
+  let holdTimer = null;
+  let dragging = false;
+  let dropIdx = -1;
+
+  function getRows() {
+    return Array.prototype.slice.call(listEl.querySelectorAll('.task-subtask-row[data-subtask-row]'));
+  }
+
+  function clearDragUi() {
+    dragging = false;
+    dragId = null;
+    dragFromIdx = -1;
+    dropIdx = -1;
+    document.body.classList.remove('task-drag-active');
+    indicator.classList.remove('on');
+    listEl.querySelectorAll('.drag-slot-glow, .dragging').forEach(function (el) {
+      el.classList.remove('drag-slot-glow', 'dragging');
+    });
+    document.removeEventListener('pointermove', onDocPointerMove);
+    document.removeEventListener('pointerup', onDocPointerUp);
+    document.removeEventListener('pointercancel', onDocPointerUp);
+  }
+
+  function updateDropUi(idx) {
+    dropIdx = idx;
+    const rowEls = getRows();
+    rowEls.forEach(function (el) { el.classList.remove('drag-slot-glow'); });
+    if (idx < 0 || idx > rowEls.length) {
+      indicator.classList.remove('on');
+      return;
+    }
+    const above = rowEls[Math.max(0, idx - 1)];
+    const below = rowEls[Math.min(rowEls.length - 1, idx)];
+    if (above) above.classList.add('drag-slot-glow');
+    if (below && below !== above) below.classList.add('drag-slot-glow');
+    const ref = rowEls[idx] || rowEls[rowEls.length - 1];
+    if (ref) {
+      const top = ref.offsetTop + (idx >= rowEls.length ? ref.offsetHeight : 0);
+      indicator.style.top = top + 'px';
+      indicator.classList.add('on');
+    }
+  }
+
+  function dropIndexFromY(clientY) {
+    const rowEls = getRows();
+    for (let i = 0; i < rowEls.length; i++) {
+      const rect = rowEls[i].getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (clientY < mid) return i;
+    }
+    return rowEls.length;
+  }
+
+  function startDrag(id) {
+    const rowEls = getRows();
+    dragId = id;
+    dragFromIdx = rowEls.findIndex(function (el) {
+      return el.getAttribute('data-subtask-row') === id;
+    });
+    dragging = true;
+    document.body.classList.add('task-drag-active');
+    rowEls.forEach(function (el) {
+      if (el.getAttribute('data-subtask-row') === id) el.classList.add('dragging');
+    });
+    document.addEventListener('pointermove', onDocPointerMove, { passive: false });
+    document.addEventListener('pointerup', onDocPointerUp);
+    document.addEventListener('pointercancel', onDocPointerUp);
+  }
+
+  function onMove(clientY) {
+    if (!dragging) return;
+    updateDropUi(dropIndexFromY(clientY));
+  }
+
+  function onDocPointerMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    onMove(e.clientY);
+  }
+
+  function onDocPointerUp() {
+    onEnd();
+  }
+
+  function onEnd() {
+    clearTimeout(holdTimer);
+    if (!dragging || !dragId) {
+      clearDragUi();
+      return;
+    }
+    const target = dropIdx < 0 ? dragFromIdx : dropIdx;
+    const id = dragId;
+    const fromIdx = dragFromIdx;
+    clearDragUi();
+    if (target !== fromIdx) moveSubtaskToIndex(taskId, id, target);
+  }
+
+  listEl.querySelectorAll('[data-subtask-drag-handle]').forEach(function (handle) {
+    const id = handle.getAttribute('data-subtask-drag-handle');
+    handle.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(function () {
+        startDrag(id);
+        updateDropUi(dragFromIdx);
+      }, 250);
+    }, { passive: false });
+    handle.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      e.preventDefault();
+      onMove(e.clientY);
+    });
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+  });
+}
+
+function bindAllSubtaskListDrags(rootEl) {
+  if (!rootEl) return;
+  rootEl.querySelectorAll('[data-subtask-list]').forEach(function (listEl) {
+    bindSubtaskListDrag(listEl, listEl.getAttribute('data-subtask-list'));
+  });
+}
+
 function renderTaskRow(task, opts) {
   opts = opts || {};
   const overdue = task.dueDate && !task.completed && diffDays(task.dueDate) < 0;
@@ -4732,6 +5178,22 @@ function renderTaskRow(task, opts) {
     dataset: { id: task.id, taskRow: task.id }
   });
   appendTaskDragHandle(row, task);
+  const inlineSubtasks = !!opts.inlineSubtasks;
+  const subtasksExpanded = inlineSubtasks && expandedTaskSubtasks.has(task.id);
+  if (inlineSubtasks) {
+    const expandBtn = el('button', {
+      class: 'task-expand-btn' + (subtasksExpanded ? ' open' : ''),
+      type: 'button',
+      'aria-expanded': subtasksExpanded ? 'true' : 'false',
+      'aria-label': subtasksExpanded ? 'Hide steps to complete' : 'Show steps to complete',
+      onClick: function (e) {
+        e.stopPropagation();
+        toggleTaskSubtasksExpanded(task.id);
+      }
+    });
+    expandBtn.appendChild(taskExpandChevronSvg());
+    row.appendChild(expandBtn);
+  }
   const check = el('div', {
     class: 'task-check ' + priorityClass(task.priority),
     onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
@@ -4771,7 +5233,11 @@ function renderTaskRow(task, opts) {
   if (meta.childNodes.length) body.appendChild(meta);
   row.appendChild(body);
   row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
-  return row;
+  if (!inlineSubtasks) return row;
+  const block = el('div', { class: 'task-block' + (subtasksExpanded ? ' expanded' : '') });
+  block.appendChild(row);
+  if (subtasksExpanded) block.appendChild(buildTaskSubtasksPanel(task));
+  return block;
 }
 
 function emptyState(emoji, message) {
@@ -5175,9 +5641,10 @@ function renderListsView() {
   }
   if (open.length) {
     const list = el('div', { class: 'task-list' });
-    open.forEach((t) => list.appendChild(renderTaskRow(t)));
+    open.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
     container.appendChild(list);
     bindTaskListDrag(list);
+    bindAllSubtaskListDrags(list);
   }
   if (done.length) {
     const summary = el("button", {
@@ -5194,11 +5661,13 @@ function renderListsView() {
     container.appendChild(summary);
     if (listsCompletedExpanded) {
       const list = el("div", { class: "task-list" });
-      done.forEach((t) => list.appendChild(renderTaskRow(t)));
+      done.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
       container.appendChild(list);
       bindTaskListDrag(list);
+      bindAllSubtaskListDrags(list);
     }
   }
+  focusPendingSubtaskInput();
   syncQuickAddPrinterControls();
   syncListToolbar();
 }
@@ -5226,9 +5695,11 @@ function renderInbox() {
   }
   const list = el('div', { class: 'task-list' });
   const sorted = sortTasksForView(tasks);
-  sorted.forEach((t) => list.appendChild(renderTaskRow(t)));
+  sorted.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
   container.appendChild(list);
   bindTaskListDrag(list);
+  bindAllSubtaskListDrags(list);
+  focusPendingSubtaskInput();
 }
 
 function renderTaskCategorySelect() {
@@ -5325,7 +5796,9 @@ function openTaskEditor(taskId) {
 function renderSubtasks() {
   const list = document.getElementById('subtasksList');
   list.innerHTML = '';
-  editingTaskDraft.subtasks.forEach((sub, idx) => {
+  ensureSubtaskSortOrders(editingTaskDraft);
+  getSortedSubtasks(editingTaskDraft).forEach((sub) => {
+    const idx = editingTaskDraft.subtasks.findIndex(function (s) { return s.id === sub.id; });
     const row = el('div', { class: 'subtask' + (sub.done ? ' done' : '') });
     const check = el('div', {
       class: 'subtask-check',
@@ -7090,7 +7563,8 @@ function wireTaskEditor() {
     if (e.key === 'Enter') {
       const v = subInput.value.trim();
       if (!v) return;
-      editingTaskDraft.subtasks.push({ id: uid(), title: v, done: false });
+      const next = editingTaskDraft.subtasks.length;
+      editingTaskDraft.subtasks.push({ id: uid(), title: v, done: false, sortOrder: next });
       subInput.value = '';
       renderSubtasks();
     }
