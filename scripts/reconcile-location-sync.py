@@ -20,6 +20,9 @@ MANUAL = {
     "Vintage Wine Bar": (39.9518337, -75.1615194),
     "Darling Jack's Tavern": (39.9514387, -75.1616194),
     "Double Knot": (39.9519337, -75.1614194),
+    # Same Sansom row as Harp & Crown; OSM has no named POI for Giuseppe / Lesiuer.
+    "Giuseppe & Sons": (39.9506117, -75.16726),
+    "The Lesiuer": (39.9506117, -75.16722),
 }
 
 # Photon mis-parsed "South St" / moved too far — restore pre-sync pins from report.

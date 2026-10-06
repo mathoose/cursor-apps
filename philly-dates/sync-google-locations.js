@@ -19,12 +19,13 @@
  *   node sync-google-locations.js --all          # text-search missing googlePlaceId (google only)
  *   node sync-google-locations.js --limit 20
  *   node sync-google-locations.js --report /tmp/location-sync-report.json
+ *   node sync-google-locations.js --align-osm --provider photon --threshold 3
+ *   node sync-google-locations.js --catalog coffee --align-osm --provider photon
  */
 const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PLACES_PATH = path.join(__dirname, 'places.json');
 const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
 const PHOTON_CACHE_PATH = path.join(ROOT, 'scripts', 'location-photon-cache.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
@@ -54,6 +55,39 @@ const onlyIdx = args.indexOf('--only');
 const onlyNames = onlyIdx >= 0
   ? args[onlyIdx + 1].split(',').map(function(s) { return s.trim(); }).filter(Boolean)
   : null;
+const catalogIdx = args.indexOf('--catalog');
+const catalogArg = catalogIdx >= 0 ? args[catalogIdx + 1] : 'drinks';
+const alignOsm = args.includes('--align-osm');
+
+var POI_OSM_VALUES = {
+  restaurant: 1,
+  bar: 1,
+  pub: 1,
+  cafe: 1,
+  coffee_shop: 1,
+  fast_food: 1,
+  biergarten: 1,
+  food_court: 1,
+  brewery: 1,
+  wine: 1,
+  nightclub: 1,
+  ice_cream: 1
+};
+
+function catalogPaths(cat) {
+  if (cat === 'coffee') {
+    return {
+      placesPath: path.join(ROOT, 'coffee-map', 'places.json'),
+      mirrorPath: null,
+      label: 'coffee-map'
+    };
+  }
+  return {
+    placesPath: path.join(__dirname, 'places.json'),
+    mirrorPath: DRINKS_PATH,
+    label: 'philly-dates / coffee-drinks-map'
+  };
+}
 
 function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
@@ -99,6 +133,25 @@ function streetFromAddress(addr) {
   return m ? m[1] : s;
 }
 
+function normalizeName(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/&/g, ' and ')
+    .replace(/[''`]/g, '')
+    .replace(/\b(the|philly|philadelphia)\b/g, '')
+    .replace(/[^a-z0-9]+/g, '')
+    .trim();
+}
+
+function namesMatch(a, b) {
+  a = normalizeName(a);
+  b = normalizeName(b);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  if (a.length >= 5 && b.length >= 5 && (a.indexOf(b) >= 0 || b.indexOf(a) >= 0)) return true;
+  return false;
+}
+
 function scorePhotonFeature(feat, place) {
   var props = feat.properties || {};
   var score = 0;
@@ -106,8 +159,13 @@ function scorePhotonFeature(feat, place) {
   var wantStreet = normalizeStreet(streetFromAddress(place.address));
   var gotHouse = props.housenumber ? String(props.housenumber) : '';
   var gotStreet = normalizeStreet(props.street || '');
+  if (props.name && namesMatch(props.name, place.name)) score += 40;
+  if (POI_OSM_VALUES[props.osm_value]) score += 28;
+  else if (props.osm_value === 'residential' || props.osm_value === 'apartments' || props.osm_value === 'commercial') {
+    score -= 25;
+  }
   if (wantHouse && gotHouse === wantHouse) score += 20;
-  else if (wantHouse && gotHouse) score -= 5;
+  else if (wantHouse && gotHouse) score -= 8;
   if (wantStreet && gotStreet && (gotStreet.indexOf(wantStreet) >= 0 || wantStreet.indexOf(gotStreet) >= 0)) {
     score += 12;
   }
@@ -124,11 +182,22 @@ function buildQuery(place) {
   return parts.join(', ');
 }
 
+function cleanAddress(addr) {
+  return String(addr || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+}
+
 function photonQuery(place) {
   if (place.address && String(place.address).trim()) {
-    return String(place.address).trim() + ', Philadelphia, PA';
+    return cleanAddress(place.address) + ', Philadelphia, PA';
   }
   return buildQuery(place);
+}
+
+function photonBias(place) {
+  var lat = Number(place.lat);
+  var lng = Number(place.lng);
+  if (isFinite(lat) && isFinite(lng) && contains(lat, lng)) return { lat: lat, lng: lng };
+  return null;
 }
 
 async function textSearch(query) {
@@ -218,36 +287,50 @@ function savePhotonCache(cache) {
   fs.writeFileSync(PHOTON_CACHE_PATH, JSON.stringify(cache, null, 2) + '\n');
 }
 
-async function photonFetch(q, cache) {
-  if (cache && cache[q]) {
-    return cache[q].features || [];
+async function photonFetch(q, cache, bias) {
+  var cacheKey = q + (bias ? ('@' + bias.lat + ',' + bias.lng) : '');
+  if (cache && cache[cacheKey]) {
+    return cache[cacheKey].features || [];
   }
-  var url = 'https://photon.komoot.io/api/?' + new URLSearchParams({
-    q: q,
-    limit: '8',
-    bbox: PHOTON_BBOX
-  }).toString();
+  var params = { q: q, limit: '12', bbox: PHOTON_BBOX };
+  if (bias) {
+    params.lat = String(bias.lat);
+    params.lon = String(bias.lng);
+  }
+  var url = 'https://photon.komoot.io/api/?' + new URLSearchParams(params).toString();
   var res = await fetch(url, { signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error('Photon failed (' + res.status + ')');
   var data = await res.json();
   var feats = data.features || [];
-  if (cache) cache[q] = { features: feats, at: new Date().toISOString().slice(0, 10) };
+  if (cache) cache[cacheKey] = { features: feats, at: new Date().toISOString().slice(0, 10) };
   return feats;
 }
 
 function pickBestPhoton(feats, place) {
   if (!feats.length) return null;
+  var pool = feats;
+  if (alignOsm) {
+    var poiNamed = feats.filter(function(f) {
+      var p = f.properties || {};
+      return POI_OSM_VALUES[p.osm_value] && p.name && namesMatch(p.name, place.name);
+    });
+    if (poiNamed.length) pool = poiNamed;
+  }
   var best = null;
   var bestScore = -Infinity;
-  for (var i = 0; i < feats.length; i++) {
-    var sc = scorePhotonFeature(feats[i], place);
+  for (var i = 0; i < pool.length; i++) {
+    var sc = scorePhotonFeature(pool[i], place);
     if (sc > bestScore) {
       bestScore = sc;
-      best = feats[i];
+      best = pool[i];
     }
   }
+  var props = best && best.properties ? best.properties : {};
+  var poiNameMatch = !!(props.name && namesMatch(props.name, place.name) && POI_OSM_VALUES[props.osm_value]);
+  var minScore = alignOsm ? (poiNameMatch ? 35 : 18) : 8;
+  if (bestScore < minScore) return null;
   var wantHouse = houseNumberFromAddress(place.address);
-  if (wantHouse && bestScore < 12) {
+  if (!alignOsm && wantHouse && bestScore < 12) {
     var anyExactHouse = feats.some(function(f) {
       var hn = f.properties && f.properties.housenumber;
       return hn && String(hn) === wantHouse;
@@ -257,26 +340,37 @@ function pickBestPhoton(feats, place) {
     } else {
       return null;
     }
-  } else if (!wantHouse && bestScore < 5) {
+  } else if (!alignOsm && !wantHouse && bestScore < 5) {
     return null;
   }
   var coords = best.geometry.coordinates;
   var lat = Number(coords[1]);
   var lng = Number(coords[0]);
   if (!isFinite(lat) || !isFinite(lng) || !contains(lat, lng)) return null;
-  return { lat: lat, lng: lng, source: 'photon-osm', score: bestScore };
+  if (alignOsm && !poiNameMatch) return null;
+  return {
+    lat: lat,
+    lng: lng,
+    source: poiNameMatch ? 'osm-poi' : 'photon-osm',
+    score: bestScore,
+    poiNameMatch: poiNameMatch,
+    osmName: props.name || ''
+  };
 }
 
 async function photonGeocode(place, cache) {
-  var queries = [photonQuery(place)];
-  if (place.address && place.name) {
+  var bias = photonBias(place);
+  var queries = [];
+  if (place.name && place.address) {
     queries.push(place.name + ', ' + photonQuery(place));
   }
+  if (place.name) queries.push(place.name + ', Philadelphia, PA');
+  queries.push(photonQuery(place));
   for (var qi = 0; qi < queries.length; qi++) {
-    var feats = await photonFetch(queries[qi], cache);
+    var feats = await photonFetch(queries[qi], cache, qi > 0 ? bias : null);
     var hit = pickBestPhoton(feats, place);
     if (hit) return hit;
-    if (!cache[queries[qi]]) await sleep(80);
+    await sleep(60);
   }
   return null;
 }
@@ -297,7 +391,9 @@ function shouldUpdate(place, hit) {
     return { ok: true, distanceM: null };
   }
   var d = haversineMeters(oldLat, oldLng, hit.lat, hit.lng);
-  if (d < thresholdM) return { ok: false, reason: 'within ' + thresholdM + 'm (' + Math.round(d) + 'm)', distanceM: d };
+  var minMove = thresholdM;
+  if (alignOsm && hit.poiNameMatch) minMove = Math.min(thresholdM, 3);
+  if (d < minMove) return { ok: false, reason: 'within ' + minMove + 'm (' + Math.round(d) + 'm)', distanceM: d };
   if (d > maxMoveM) return { ok: false, reason: 'move too large (' + Math.round(d) + 'm > ' + maxMoveM + 'm)', distanceM: d };
   return { ok: true, distanceM: d };
 }
@@ -317,9 +413,9 @@ function applyLocation(place, hit) {
   return prev;
 }
 
-function copyToDrinks(places) {
-  if (!fs.existsSync(path.dirname(DRINKS_PATH))) return;
-  fs.writeFileSync(DRINKS_PATH, JSON.stringify(places, null, 2) + '\n');
+function mirrorCatalog(places, mirrorPath) {
+  if (!mirrorPath || !fs.existsSync(path.dirname(mirrorPath))) return;
+  fs.writeFileSync(mirrorPath, JSON.stringify(places, null, 2) + '\n');
 }
 
 async function main() {
@@ -329,7 +425,8 @@ async function main() {
     process.exit(1);
   }
 
-  var places = JSON.parse(fs.readFileSync(PLACES_PATH, 'utf8'));
+  var paths = catalogPaths(catalogArg);
+  var places = JSON.parse(fs.readFileSync(paths.placesPath, 'utf8'));
   var todo = places.slice();
   if (onlyNames && onlyNames.length) {
     var set = {};
@@ -338,10 +435,13 @@ async function main() {
   }
   if (isFinite(limit)) todo = todo.slice(0, limit);
 
-  console.log((dryRun ? '[dry-run] ' : '') + 'Location sync (' + provider + ', threshold ' + thresholdM + 'm) for ' +
+  console.log((dryRun ? '[dry-run] ' : '') + 'Location sync (' + paths.label + ', ' + provider +
+    (alignOsm ? ', align OSM POI' : '') + ', threshold ' + thresholdM + 'm) for ' +
     todo.length + ' places…\n');
 
   var report = {
+    catalog: catalogArg,
+    alignOsm: alignOsm,
     provider: provider,
     thresholdM: thresholdM,
     dryRun: dryRun,
@@ -383,7 +483,8 @@ async function main() {
       } else {
         var prev = { lat: place.lat, lng: place.lng };
         var dist = decision.distanceM != null ? Math.round(decision.distanceM) : null;
-        console.log('UPDATE' + (dist != null ? ' ~' + dist + 'm' : '') + ' → ' + hit.lat + ', ' + hit.lng);
+        console.log('UPDATE' + (dist != null ? ' ~' + dist + 'm' : '') +
+          (hit.osmName ? ' [' + hit.osmName + ']' : '') + ' → ' + hit.lat + ', ' + hit.lng);
         if (!dryRun) applyLocation(place, hit);
         report.updated.push({
           name: place.name,
@@ -407,8 +508,8 @@ async function main() {
   if (photonCache) savePhotonCache(photonCache);
 
   if (!dryRun && updated > 0) {
-    fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-    if (!skipDrinks) copyToDrinks(places);
+    fs.writeFileSync(paths.placesPath, JSON.stringify(places, null, 2) + '\n');
+    if (!skipDrinks && paths.mirrorPath) mirrorCatalog(places, paths.mirrorPath);
   }
 
   if (reportPath) {
@@ -421,7 +522,9 @@ async function main() {
   console.log('  unchanged/skipped:', unchanged);
   console.log('  errors:', errors);
   if (dryRun && updated) console.log('\nRe-run without --dry-run to save.');
-  else if (!dryRun && updated && !skipDrinks) console.log('\nMirrored to coffee-drinks-map/drinks.json');
+  else if (!dryRun && updated && !skipDrinks && paths.mirrorPath) {
+    console.log('\nMirrored to coffee-drinks-map/drinks.json');
+  }
 }
 
 main().catch(function(e) {

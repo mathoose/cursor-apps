@@ -12,7 +12,13 @@ Happy-hour and bar pins use `lat` / `lng` in `places.json`. Addresses and hours 
    ```
    Uses Google Place Details `location` for each stored Place ID.
 
-2. **No API key (OSM Photon, address-based):**
+2. **Align pins with OSM map labels (restaurant/bar POI nodes):**
+   ```bash
+   ./scripts/align-all-map-pins.sh
+   ```
+   Uses `--align-osm` (named `restaurant` / `bar` / `pub` / `cafe` in OpenStreetMap). Updates even small offsets (~3 m) when the POI name matches your catalog.
+
+3. **No API key (OSM Photon, address-based):**
    ```bash
    ./scripts/sync-drink-catalog-locations.sh
    ```

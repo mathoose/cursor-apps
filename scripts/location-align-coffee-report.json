@@ -1,0 +1,611 @@
+{
+  "catalog": "coffee",
+  "alignOsm": true,
+  "provider": "photon",
+  "thresholdM": 3,
+  "dryRun": false,
+  "updated": [
+    {
+      "name": "Ants Pants Cafe",
+      "distanceM": 12,
+      "from": {
+        "lat": 39.94515,
+        "lng": -75.179081
+      },
+      "to": {
+        "lat": 39.945254,
+        "lng": -75.179073
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Chapterhouse Cafe",
+      "distanceM": 5,
+      "from": {
+        "lat": 39.941928,
+        "lng": -75.157415
+      },
+      "to": {
+        "lat": 39.9419244,
+        "lng": -75.1573574
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Coffee Zeit",
+      "distanceM": 12,
+      "from": {
+        "lat": 39.953769,
+        "lng": -75.144493
+      },
+      "to": {
+        "lat": 39.953875,
+        "lng": -75.144476
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Function Coffee Labs",
+      "distanceM": 5,
+      "from": {
+        "lat": 39.937869,
+        "lng": -75.159555
+      },
+      "to": {
+        "lat": 39.9378953,
+        "lng": -75.1596055
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Greenstreet Coffee",
+      "distanceM": 26,
+      "from": {
+        "lat": 39.935452,
+        "lng": -75.168619
+      },
+      "to": {
+        "lat": 39.9354813,
+        "lng": -75.1689241
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Herman's Coffee",
+      "distanceM": 27,
+      "from": {
+        "lat": 39.931238,
+        "lng": -75.149964
+      },
+      "to": {
+        "lat": 39.9313733,
+        "lng": -75.149696
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Hive Café",
+      "distanceM": 63,
+      "from": {
+        "lat": 39.932381,
+        "lng": -75.168109
+      },
+      "to": {
+        "lat": 39.9318357,
+        "lng": -75.1683178
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Jiggy Coffee",
+      "distanceM": 3,
+      "from": {
+        "lat": 39.944626,
+        "lng": -75.158356
+      },
+      "to": {
+        "lat": 39.9446544,
+        "lng": -75.1583518
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Menagerie Coffee — Northern Liberties",
+      "distanceM": 11,
+      "from": {
+        "lat": 39.965404,
+        "lng": -75.142694
+      },
+      "to": {
+        "lat": 39.9653686,
+        "lng": -75.1425732
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Mr. Rabbit Coffee",
+      "distanceM": 9,
+      "from": {
+        "lat": 39.948878,
+        "lng": -75.179185
+      },
+      "to": {
+        "lat": 39.9488663,
+        "lng": -75.1790781
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "One Shot Coffee",
+      "distanceM": 8,
+      "from": {
+        "lat": 39.967725,
+        "lng": -75.140667
+      },
+      "to": {
+        "lat": 39.9676543,
+        "lng": -75.1406947
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "OX Coffee",
+      "distanceM": 6,
+      "from": {
+        "lat": 39.940953,
+        "lng": -75.147886
+      },
+      "to": {
+        "lat": 39.9409857,
+        "lng": -75.1478313
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Rally",
+      "distanceM": 11,
+      "from": {
+        "lat": 39.941233,
+        "lng": -75.153958
+      },
+      "to": {
+        "lat": 39.9412814,
+        "lng": -75.1540685
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Sandpiper Cafe",
+      "distanceM": 48,
+      "from": {
+        "lat": 39.944052,
+        "lng": -75.169449
+      },
+      "to": {
+        "lat": 39.9440567,
+        "lng": -75.1700119
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Shot Tower Coffee",
+      "distanceM": 3,
+      "from": {
+        "lat": 39.937595,
+        "lng": -75.153205
+      },
+      "to": {
+        "lat": 39.9376248,
+        "lng": -75.1532065
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Together Skateboarding",
+      "distanceM": 6,
+      "from": {
+        "lat": 39.975991,
+        "lng": -75.179856
+      },
+      "to": {
+        "lat": 39.9759916,
+        "lng": -75.1799224
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Ultimo Coffee — Grad Hospital",
+      "distanceM": 6,
+      "from": {
+        "lat": 39.942603,
+        "lng": -75.17902
+      },
+      "to": {
+        "lat": 39.9425483,
+        "lng": -75.17904
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Vernick Coffee Bar",
+      "distanceM": 32,
+      "from": {
+        "lat": 39.954978,
+        "lng": -75.170403
+      },
+      "to": {
+        "lat": 39.95477,
+        "lng": -75.170148
+      },
+      "source": "osm-poi"
+    },
+    {
+      "name": "Vessel Coffee Collective",
+      "distanceM": 12,
+      "from": {
+        "lat": 39.981646,
+        "lng": -75.127225
+      },
+      "to": {
+        "lat": 39.9815836,
+        "lng": -75.1273402
+      },
+      "source": "osm-poi"
+    }
+  ],
+  "skipped": [
+    {
+      "name": "Ace Outpost",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "B2 Cafe",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Bean2Bean Cafe",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Benna's Cafe",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Brown Street Coffee",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Café Tolia",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Cake & Joe — Pennsport",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Cambridge Street Coffee House",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Chibanos",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Coffee Cream & Dreams",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Cuor di Caffè",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Drip Vietnamese Cafe",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Elixr Coffee — 12th St",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Elixr Coffee — 16th & Market",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Elixr Coffee — Center City",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Elixr Coffee — West Philly",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Enswell",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Flores Coffee Shop",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Forin — Coral St",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Forin — South St",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Gleaner's Cafe",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Good Karma Cafe — Society Hill",
+      "reason": "move too large (1972m > 1200m)",
+      "distanceM": 1972
+    },
+    {
+      "name": "Grindcore House",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Ground Up Cafe & Coffee",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Habitat Coffee",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Hannah K Cafe",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Haraz Coffee House — Fishtown",
+      "reason": "move too large (5104m > 1200m)",
+      "distanceM": 5104
+    },
+    {
+      "name": "K'Far",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "La Colombe — Fishtown",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "La Colombe — Rittenhouse",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "La Jefa",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "La Maison Jaune",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "La Petite Tasse",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Little Susie's — Bella Vista",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Little Susie's — Front St",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Little Susie's — Old City",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Little Susie's — Point Breeze",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Lucky Goat Coffee House",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Madis Coffee — The Curtis",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Madis Coffee — University City",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Menagerie Coffee — Old City",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Milkcrate Cafe — Fishtown",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Milkcrate Cafe — West Philly",
+      "reason": "move too large (7396m > 1200m)",
+      "distanceM": 7396
+    },
+    {
+      "name": "Mug Coffee & Clay",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Musette — Fairmount",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Nook Bakery & Coffee Bar",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Old City Coffee",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Palm Vintage",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "ReAnimator — Fishtown",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "ReAnimator — South Kensington",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Rebel & Wolf Cafe",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Rowhome Coffee — Fitler Square",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Schmaltz",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Schmear — Passyunk",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Solar Myth",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Thank You Thank You",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "the daily.",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "The Ground — Rittenhouse",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "The Ground — The Gotham",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Three Graces Coffee Co.",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Twisted Grounds",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Two Eagles Cafe",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Two Persons",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Valerio Coffee — Fishtown",
+      "reason": "no geocode result"
+    },
+    {
+      "name": "Vibrant Coffee — City Hall",
+      "reason": "within 3m (0m)",
+      "distanceM": 0
+    },
+    {
+      "name": "Vibrant Coffee — Lombard",
+      "reason": "move too large (1294m > 1200m)",
+      "distanceM": 1294
+    },
+    {
+      "name": "Vibrant Coffee — Rittenhouse",
+      "reason": "no geocode result"
+    }
+  ],
+  "errors": [
+    {
+      "name": "Madis Coffee — Center City",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Peddler Coffee",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Persimmon Coffee",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "ReAnimator — South Philly",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Red Hook Coffee",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Ringo Coffee & Donuts",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — Brewerytown",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — East Passyunk",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — Lombard",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — Midtown Village",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — Olde Kensington",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Rival Bros — Sansom",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Suprema Coffee Roastery",
+      "error": "Photon failed (503)"
+    },
+    {
+      "name": "Warehouse Cafe",
+      "error": "Photon failed (503)"
+    }
+  ]
+}
