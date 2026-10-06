@@ -20,8 +20,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PLACES_PATH = path.join(__dirname, 'places.json');
-const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const PLACES_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DELAY_MS = 250;
@@ -301,9 +300,6 @@ async function main() {
   }
 
   fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-  if (fs.existsSync(path.dirname(DRINKS_PATH))) {
-    fs.writeFileSync(DRINKS_PATH, JSON.stringify(places, null, 2) + '\n');
-  }
   console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated,', locationsUpdated, 'pins updated.');
 }
 

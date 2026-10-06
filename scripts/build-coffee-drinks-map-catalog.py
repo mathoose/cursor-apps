@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build coffee-drinks-map/drinks.json and coffee.json from master lists + OSM candidates."""
+"""One-off / refresh: merge OSM candidates into coffee-drinks-map catalogs.
+
+Canonical data for agents and the live app is coffee-drinks-map/drinks.json and coffee.json.
+Legacy philly-dates/places.json and coffee-map/places.json are archived (launcher hidden).
+"""
 from __future__ import annotations
 
 import json

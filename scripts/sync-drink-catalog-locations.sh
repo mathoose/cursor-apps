@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sync bar/restaurant map pins from philly-dates/places.json (source of truth).
+# Sync bar/restaurant map pins in coffee-drinks-map/drinks.json (canonical catalog).
 # Uses Google Places when GOOGLE_PLACES_API_KEY is set; otherwise OSM Photon by address.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
