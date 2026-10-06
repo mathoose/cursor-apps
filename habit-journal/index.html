@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v76 -->
+  <!-- build: hj-today-version-v77 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3604,7 +3604,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v76 · Oct 6, 2026";
+  let habitJournalVersionText = "v77 · Oct 6, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -4104,8 +4104,10 @@
         const on = habit.excludeDays.indexOf(day) >= 0;
         btn.classList.toggle("on", on);
         btn.setAttribute("aria-pressed", String(on));
-        if (activeTab === "habits") renderHabits();
-        else render();
+        if (activeTab === "habits") {
+          if (document.getElementById("habitsFilteredList")) refreshHabitsFilteredList();
+          else renderHabits();
+        } else render();
       };
     });
   }
@@ -9682,6 +9684,337 @@
     }
   }
 
+  function renderHabitCompactRow(habit, isHiddenSection) {
+    const expanded = habitsExpandedId === habit.id;
+    const accent = habitAccentColor(habit);
+    let row =
+      '<div class="habit-compact-row' +
+      (habit.hidden ? " is-hidden-row" : "") +
+      '" data-habit="' +
+      habit.id +
+      '" style="--habit-accent:' +
+      accent +
+      '">';
+    row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
+    row +=
+      '<span class="habit-compact-swatch" aria-hidden="true" style="background:' +
+      accent +
+      '"></span>';
+    row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
+    row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
+    row +=
+      '<button type="button" class="habit-compact-chevron" data-habit-toggle="' +
+      habit.id +
+      '" aria-label="Expand ' +
+      escapeHtml(habit.name) +
+      '">' +
+      (expanded ? "▲" : "▼") +
+      "</button>";
+    row += "</div>";
+    row += '<div class="habit-compact-body"' + (expanded ? "" : " hidden") + ">";
+    row += '<div class="habit-row">';
+    row +=
+      '<input type="text" value="' +
+      escapeHtml(habit.name) +
+      '" data-name="' +
+      habit.id +
+      '" maxlength="40" />';
+    row += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+    row += '<div class="habit-meta-row">';
+    row += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
+    state.categories.forEach(function (cat) {
+      row +=
+        '<option value="' +
+        cat.id +
+        '"' +
+        (habit.category === cat.id ? " selected" : "") +
+        ">" +
+        escapeHtml(cat.label) +
+        "</option>";
+    });
+    row += "</select>";
+    row += renderDailyWhenSelectHtml("", habit.dailyWhen, 'class="habit-cat-select" data-daily-when="' + habit.id + '"');
+    row +=
+      '<button type="button" class="habit-pin-btn' +
+      (habit.pinned ? " on" : "") +
+      '" data-pin="' +
+      habit.id +
+      '">' +
+      (habit.pinned ? "★ Pinned" : "☆ Pin") +
+      "</button>";
+    row +=
+      '<button type="button" class="habit-hide-btn' +
+      (habit.hidden ? " on" : "") +
+      '" data-hide="' +
+      habit.id +
+      '" aria-pressed="' +
+      !!habit.hidden +
+      '">' +
+      (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
+      "</button>";
+    row += "</div>";
+    row +=
+      '<div class="plot-color-row"><span>Plot color</span><input type="color" value="' +
+      getGraphHabitColor(habit.id) +
+      '" data-plot-color="' +
+      habit.id +
+      '" aria-label="Plot color for ' +
+      escapeHtml(habit.name) +
+      '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
+      habit.id +
+      '">Auto</button></div>';
+    row +=
+      '<div class="plot-color-row"><span>Plot scale</span>' +
+      '<select class="habit-cat-select" data-plot-scale="' +
+      habit.id +
+      '">' +
+      '<option value="zero"' +
+      (habit.plotScale === "min" ? "" : " selected") +
+      ">From 0</option>" +
+      '<option value="min"' +
+      (habit.plotScale === "min" ? " selected" : "") +
+      ">Lowest = 0%</option></select></div>";
+    row += '<div class="habit-settings">';
+    row += '<div class="type-row">';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "counter" ? " on" : "") +
+      '" data-type="counter" data-hid="' +
+      habit.id +
+      '">Counter</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "number" ? " on" : "") +
+      '" data-type="number" data-hid="' +
+      habit.id +
+      '">Number</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "yesno" ? " on" : "") +
+      '" data-type="yesno" data-hid="' +
+      habit.id +
+      '">Yes / No</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "time" ? " on" : "") +
+      '" data-type="time" data-hid="' +
+      habit.id +
+      '">Time</button>';
+    row += "</div>";
+    if (habit.type === "counter") {
+      row +=
+        '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
+        MAX_STEP +
+        '" value="' +
+        habit.step +
+        '" data-step="' +
+        habit.id +
+        '" /><span class="hint" style="margin:0">max ' +
+        MAX_STEP +
+        "</span></div>";
+      if (isStepsHabitName(habit.name)) {
+        row +=
+          '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
+      }
+    } else if (habit.type === "yesno") {
+      row += renderExcludeDaysHtml(habit);
+    }
+    row += '<div class="legend">' + renderLegend(habit) + "</div>";
+    row += "</div></div></div>";
+    return row;
+  }
+
+  function buildHabitsFilteredListHtml() {
+    const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
+    const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
+    const filteredVisible = visibleHabits.filter(habitMatchesHabitsListFilter);
+    const filteredHidden = hiddenHabits.filter(habitMatchesHabitsListFilter);
+    const filterActive =
+      habitsListQuery.trim() !== "" || (habitsListCategory && habitsListCategory !== "all");
+    let html = "";
+    if (filterActive) {
+      html +=
+        '<p class="habits-filter-meta">Showing ' +
+        (filteredVisible.length + filteredHidden.length) +
+        " of " +
+        state.habits.length +
+        " habits</p>";
+    }
+    filteredVisible.forEach(function (habit) {
+      html += renderHabitCompactRow(habit, false);
+    });
+    if (!filteredVisible.length && !filteredHidden.length && state.habits.length) {
+      html += '<p class="hint">No habits match your search — try another name or category.</p>';
+    }
+    if (filteredHidden.length) {
+      html += '<div class="habits-hidden-section">';
+      html +=
+        '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
+        filteredHidden.length +
+        ")</p>";
+      filteredHidden.forEach(function (habit) {
+        html += renderHabitCompactRow(habit, true);
+      });
+      html += "</div>";
+    }
+    return html;
+  }
+
+  function bindHabitsCompactRowInteractions(scope) {
+    if (!scope) return;
+    bindExcludeDays(scope);
+    scope.querySelectorAll("[data-habit-toggle]").forEach(function (el) {
+      el.onclick = function (e) {
+        e.stopPropagation();
+        const id = el.getAttribute("data-habit-toggle");
+        habitsExpandedId = habitsExpandedId === id ? null : id;
+        refreshHabitsFilteredList();
+      };
+    });
+    scope.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
+        if (!confirm("Remove this habit and all its dots?")) return;
+        const id = btn.dataset.del;
+        logHabitChange(id, "delete");
+        state.habits = state.habits.filter(function (h) { return h.id !== id; });
+        Object.keys(state.cells).forEach(function (k) {
+          if (k.indexOf(id + "-") === 0) delete state.cells[k];
+        });
+        deleteCellNotesForHabit(id);
+        save(); render();
+      };
+    });
+    scope.querySelectorAll("[data-name]").forEach(function (inp) {
+      function syncName() {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
+        if (h) { h.name = inp.value.trim() || "Habit"; save(); }
+      }
+      inp.onchange = syncName;
+      inp.onblur = syncName;
+    });
+    scope.querySelectorAll(".type-pill").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
+        if (!h) return;
+        const prevType = h.type;
+        h.type = btn.dataset.type;
+        if (h.type === "counter") {
+          if (prevType === "time" || prevType === "number" || !h.step) {
+            h.step = 1;
+          }
+          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+          delete h.excludeDays;
+        } else if (h.type === "number") {
+          h.step = 1;
+          delete h.excludeDays;
+        } else if (h.type === "time") {
+          h.step = 1;
+          delete h.excludeDays;
+        } else if (h.type === "yesno") {
+          if (!h.excludeDays) h.excludeDays = [];
+        }
+        save(); render();
+      };
+    });
+    scope.querySelectorAll("[data-step]").forEach(function (inp) {
+      inp.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
+        if (!h) return;
+        h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
+        save();
+        render();
+      };
+    });
+    function syncTimeStepInputs(habitId) {
+      const h = state.habits.find(function (x) { return x.id === habitId; });
+      if (!h || h.type !== "time") return;
+      const minInp = scope.querySelector('[data-step-min="' + habitId + '"]');
+      const secInp = scope.querySelector('[data-step-sec="' + habitId + '"]');
+      h.step = readTimeStepFromFields(minInp, secInp);
+      save();
+      render();
+    }
+    scope.querySelectorAll("[data-step-min]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-min"));
+      };
+    });
+    scope.querySelectorAll("[data-step-sec]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-sec"));
+      };
+    });
+    scope.querySelectorAll("[data-cat]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.dataset.cat; });
+        if (h) {
+          h.category = normalizeCategory(sel.value);
+          save(); render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-daily-when]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-daily-when"); });
+        if (h) {
+          applyDailyWhen(h, { dailyWhen: sel.value });
+          save();
+          render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-pin]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.pin; });
+        if (h) {
+          h.pinned = !h.pinned;
+          save(); render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-hide]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
+        if (h) setHabitHidden(h.id, !h.hidden);
+      };
+    });
+    scope.querySelectorAll("[data-plot-color]").forEach(function (inp) {
+      inp.onchange = function () {
+        const id = inp.getAttribute("data-plot-color");
+        if (!setHabitPlotColor(id, inp.value)) return;
+        render();
+      };
+    });
+    scope.querySelectorAll("[data-plot-color-reset]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-plot-color-reset");
+        if (!setHabitPlotColor(id, null)) return;
+        toast("Plot color set to auto");
+        render();
+      };
+    });
+    scope.querySelectorAll("[data-plot-scale]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-plot-scale"); });
+        if (!h) return;
+        applyPlotScale(h, { plotScale: sel.value });
+        save();
+        render();
+      };
+    });
+  }
+
+  function refreshHabitsFilteredList() {
+    const mount = document.getElementById("habitsFilteredList");
+    if (!mount) {
+      if (activeTab === "habits") renderHabits();
+      return;
+    }
+    mount.innerHTML = buildHabitsFilteredListHtml();
+    bindHabitsCompactRowInteractions(mount);
+  }
+
   function renderHabits() {
     const root = document.getElementById("panelHabits");
     const meta = readMeta() || {};
@@ -9834,180 +10167,7 @@
     html +=
       '<button type="button" class="btn btn-primary add-habit-plus-btn" id="addHabit" aria-label="Add habit">+</button></div>';
 
-    function renderHabitCompactRow(habit, isHiddenSection) {
-      const expanded = habitsExpandedId === habit.id;
-      const accent = habitAccentColor(habit);
-      let row =
-        '<div class="habit-compact-row' +
-        (habit.hidden ? " is-hidden-row" : "") +
-        '" data-habit="' +
-        habit.id +
-        '" style="--habit-accent:' +
-        accent +
-        '">';
-      row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
-      row +=
-        '<span class="habit-compact-swatch" aria-hidden="true" style="background:' +
-        accent +
-        '"></span>';
-      row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
-      row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
-      row +=
-        '<button type="button" class="habit-compact-chevron" data-habit-toggle="' +
-        habit.id +
-        '" aria-label="Expand ' +
-        escapeHtml(habit.name) +
-        '">' +
-        (expanded ? "▲" : "▼") +
-        "</button>";
-      row += "</div>";
-      row += '<div class="habit-compact-body"' + (expanded ? "" : " hidden") + ">";
-      row += '<div class="habit-row">';
-      row +=
-        '<input type="text" value="' +
-        escapeHtml(habit.name) +
-        '" data-name="' +
-        habit.id +
-        '" maxlength="40" />';
-      row += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
-      row += '<div class="habit-meta-row">';
-      row += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
-      state.categories.forEach(function (cat) {
-        row +=
-          '<option value="' +
-          cat.id +
-          '"' +
-          (habit.category === cat.id ? " selected" : "") +
-          ">" +
-          escapeHtml(cat.label) +
-          "</option>";
-      });
-      row += "</select>";
-      row += renderDailyWhenSelectHtml("", habit.dailyWhen, 'class="habit-cat-select" data-daily-when="' + habit.id + '"');
-      row +=
-        '<button type="button" class="habit-pin-btn' +
-        (habit.pinned ? " on" : "") +
-        '" data-pin="' +
-        habit.id +
-        '">' +
-        (habit.pinned ? "★ Pinned" : "☆ Pin") +
-        "</button>";
-      row +=
-        '<button type="button" class="habit-hide-btn' +
-        (habit.hidden ? " on" : "") +
-        '" data-hide="' +
-        habit.id +
-        '" aria-pressed="' +
-        !!habit.hidden +
-        '">' +
-        (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
-        "</button>";
-      row += "</div>";
-      row +=
-        '<div class="plot-color-row"><span>Plot color</span><input type="color" value="' +
-        getGraphHabitColor(habit.id) +
-        '" data-plot-color="' +
-        habit.id +
-        '" aria-label="Plot color for ' +
-        escapeHtml(habit.name) +
-        '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
-        habit.id +
-        '">Auto</button></div>';
-      row +=
-        '<div class="plot-color-row"><span>Plot scale</span>' +
-        '<select class="habit-cat-select" data-plot-scale="' +
-        habit.id +
-        '">' +
-        '<option value="zero"' +
-        (habit.plotScale === "min" ? "" : " selected") +
-        ">From 0</option>" +
-        '<option value="min"' +
-        (habit.plotScale === "min" ? " selected" : "") +
-        ">Lowest = 0%</option></select></div>";
-      row += '<div class="habit-settings">';
-      row += '<div class="type-row">';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "counter" ? " on" : "") +
-        '" data-type="counter" data-hid="' +
-        habit.id +
-        '">Counter</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "number" ? " on" : "") +
-        '" data-type="number" data-hid="' +
-        habit.id +
-        '">Number</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "yesno" ? " on" : "") +
-        '" data-type="yesno" data-hid="' +
-        habit.id +
-        '">Yes / No</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "time" ? " on" : "") +
-        '" data-type="time" data-hid="' +
-        habit.id +
-        '">Time</button>';
-      row += "</div>";
-      if (habit.type === "counter") {
-        row +=
-          '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
-          MAX_STEP +
-          '" value="' +
-          habit.step +
-          '" data-step="' +
-          habit.id +
-          '" /><span class="hint" style="margin:0">max ' +
-          MAX_STEP +
-          "</span></div>";
-        if (isStepsHabitName(habit.name)) {
-          row +=
-            '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
-        }
-      } else if (habit.type === "yesno") {
-        row += renderExcludeDaysHtml(habit);
-      }
-      row += '<div class="legend">' + renderLegend(habit) + "</div>";
-      row += "</div></div></div>";
-      return row;
-    }
-
-    const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
-    const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
-    const filteredVisible = visibleHabits.filter(habitMatchesHabitsListFilter);
-    const filteredHidden = hiddenHabits.filter(habitMatchesHabitsListFilter);
-    const filterActive =
-      habitsListQuery.trim() !== "" || (habitsListCategory && habitsListCategory !== "all");
-    if (filterActive) {
-      html +=
-        '<p class="habits-filter-meta">Showing ' +
-        (filteredVisible.length + filteredHidden.length) +
-        " of " +
-        state.habits.length +
-        " habits</p>";
-    }
-
-    filteredVisible.forEach(function (habit) {
-      html += renderHabitCompactRow(habit, false);
-    });
-
-    if (!filteredVisible.length && !filteredHidden.length && state.habits.length) {
-      html += '<p class="hint">No habits match your search — try another name or category.</p>';
-    }
-
-    if (filteredHidden.length) {
-      html += '<div class="habits-hidden-section">';
-      html +=
-        '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
-        filteredHidden.length +
-        ")</p>";
-      filteredHidden.forEach(function (habit) {
-        html += renderHabitCompactRow(habit, true);
-      });
-      html += "</div>";
-    }
+    html += '<div id="habitsFilteredList">' + buildHabitsFilteredListHtml() + "</div>";
 
     html += '<div class="habits-danger-bar">';
     html +=
@@ -10025,14 +10185,15 @@
     root.innerHTML = html;
 
     bindDataActions(root);
-    bindExcludeDays(root);
+    const habitsListMount = document.getElementById("habitsFilteredList");
+    if (habitsListMount) bindHabitsCompactRowInteractions(habitsListMount);
 
     const habitsSearchInp = document.getElementById("habitsListSearch");
     if (habitsSearchInp) {
       habitsSearchInp.oninput = function () {
         habitsListQuery = habitsSearchInp.value;
         persistHabitsListFilter();
-        renderHabits();
+        refreshHabitsFilteredList();
       };
     }
     const habitsCatFil = document.getElementById("habitsListCategory");
@@ -10040,7 +10201,7 @@
       habitsCatFil.onchange = function () {
         habitsListCategory = habitsCatFil.value || "all";
         persistHabitsListFilter();
-        renderHabits();
+        refreshHabitsFilteredList();
       };
     }
 
@@ -10064,15 +10225,6 @@
         renderHabits();
       };
     }
-
-    root.querySelectorAll("[data-habit-toggle]").forEach(function (el) {
-      el.onclick = function (e) {
-        e.stopPropagation();
-        const id = el.getAttribute("data-habit-toggle");
-        habitsExpandedId = habitsExpandedId === id ? null : id;
-        renderHabits();
-      };
-    });
 
     document.getElementById("habitsCatToggle").onclick = function () {
       habitsCatPanelOpen = !habitsCatPanelOpen;
@@ -10101,30 +10253,6 @@
         delete state.categoryColors[id];
         if (!save()) return;
         toast("Reset " + categoryLabel(id) + " color");
-        render();
-      };
-    });
-    root.querySelectorAll("[data-plot-color]").forEach(function (inp) {
-      inp.onchange = function () {
-        const id = inp.getAttribute("data-plot-color");
-        if (!setHabitPlotColor(id, inp.value)) return;
-        render();
-      };
-    });
-    root.querySelectorAll("[data-plot-color-reset]").forEach(function (btn) {
-      btn.onclick = function () {
-        const id = btn.getAttribute("data-plot-color-reset");
-        if (!setHabitPlotColor(id, null)) return;
-        toast("Plot color set to auto");
-        render();
-      };
-    });
-    root.querySelectorAll("[data-plot-scale]").forEach(function (sel) {
-      sel.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-plot-scale"); });
-        if (!h) return;
-        applyPlotScale(h, { plotScale: sel.value });
-        save();
         render();
       };
     });
@@ -10239,124 +10367,6 @@
         if (e.key === "Enter") { e.preventDefault(); addNewHabit(); }
       };
     }
-
-    root.querySelectorAll("[data-del]").forEach(function (btn) {
-      btn.onclick = function () {
-        if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
-        if (!confirm("Remove this habit and all its dots?")) return;
-        const id = btn.dataset.del;
-        logHabitChange(id, "delete");
-        state.habits = state.habits.filter(function (h) { return h.id !== id; });
-        Object.keys(state.cells).forEach(function (k) {
-          if (k.indexOf(id + "-") === 0) delete state.cells[k];
-        });
-        deleteCellNotesForHabit(id);
-        save(); render();
-      };
-    });
-
-    root.querySelectorAll("[data-name]").forEach(function (inp) {
-      function syncName() {
-        const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
-        if (h) { h.name = inp.value.trim() || "Habit"; save(); }
-      }
-      inp.onchange = syncName;
-      inp.onblur = syncName;
-    });
-
-    root.querySelectorAll(".type-pill").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
-        if (!h) return;
-        const prevType = h.type;
-        h.type = btn.dataset.type;
-        if (h.type === "counter") {
-          if (prevType === "time" || prevType === "number" || !h.step) {
-            h.step = 1;
-          }
-          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
-          delete h.excludeDays;
-        } else if (h.type === "number") {
-          h.step = 1;
-          delete h.excludeDays;
-        } else if (h.type === "time") {
-          h.step = 1;
-          delete h.excludeDays;
-        } else if (h.type === "yesno") {
-          if (!h.excludeDays) h.excludeDays = [];
-        }
-        save(); render();
-      };
-    });
-
-    root.querySelectorAll("[data-step]").forEach(function (inp) {
-      inp.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
-        if (!h) return;
-        h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
-        save();
-        render();
-      };
-    });
-
-    function syncTimeStepInputs(habitId) {
-      const h = state.habits.find(function (x) { return x.id === habitId; });
-      if (!h || h.type !== "time") return;
-      const minInp = root.querySelector('[data-step-min="' + habitId + '"]');
-      const secInp = root.querySelector('[data-step-sec="' + habitId + '"]');
-      h.step = readTimeStepFromFields(minInp, secInp);
-      save();
-      render();
-    }
-
-    root.querySelectorAll("[data-step-min]").forEach(function (inp) {
-      inp.onchange = function () {
-        syncTimeStepInputs(inp.getAttribute("data-step-min"));
-      };
-    });
-    root.querySelectorAll("[data-step-sec]").forEach(function (inp) {
-      inp.onchange = function () {
-        syncTimeStepInputs(inp.getAttribute("data-step-sec"));
-      };
-    });
-
-    root.querySelectorAll("[data-cat]").forEach(function (sel) {
-      sel.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === sel.dataset.cat; });
-        if (h) {
-          h.category = normalizeCategory(sel.value);
-          save(); render();
-        }
-      };
-    });
-
-    root.querySelectorAll("[data-daily-when]").forEach(function (sel) {
-      sel.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-daily-when"); });
-        if (h) {
-          applyDailyWhen(h, { dailyWhen: sel.value });
-          save();
-          render();
-        }
-      };
-    });
-
-    root.querySelectorAll("[data-pin]").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.pin; });
-        if (h) {
-          h.pinned = !h.pinned;
-          save(); render();
-        }
-      };
-    });
-
-    root.querySelectorAll("[data-hide]").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
-        if (h) setHabitHidden(h.id, !h.hidden);
-      };
-    });
   }
 
   function renderLog() {
