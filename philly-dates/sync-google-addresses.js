@@ -21,8 +21,7 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PLACES_PATH = path.join(__dirname, 'places.json');
-const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const PLACES_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DELAY_MS = 250;
 
@@ -236,9 +235,6 @@ async function main() {
 
   if (!dryRun && updated > 0) {
     fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-    if (fs.existsSync(path.dirname(DRINKS_PATH))) {
-      fs.writeFileSync(DRINKS_PATH, JSON.stringify(places, null, 2) + '\n');
-    }
   }
 
   console.log('\nSummary:');
@@ -246,7 +242,7 @@ async function main() {
   console.log('  unchanged:', unchanged);
   console.log('  skipped/not found:', notFound);
   console.log('  errors:', errors);
-  if (dryRun && updated) console.log('\nRe-run without --dry-run to save places.json');
+  if (dryRun && updated) console.log('\nRe-run without --dry-run to save coffee-drinks-map/drinks.json');
 }
 
 main().catch(function(e) {

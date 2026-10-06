@@ -7,7 +7,8 @@
  * Fallback: Photon address geocode (OSM) when --provider photon or --provider auto
  * without an API key.
  *
- * Updates philly-dates/places.json and mirrors to coffee-drinks-map/drinks.json.
+ * Updates coffee-drinks-map/drinks.json or coffee.json (canonical catalogs).
+ * Legacy philly-dates/places.json and coffee-map/places.json are archived — not written.
  *
  * Requires GOOGLE_PLACES_API_KEY (or GOOGLE_MAPS_API_KEY) for --provider google.
  *
@@ -27,6 +28,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const COFFEE_PATH = path.join(ROOT, 'coffee-drinks-map', 'coffee.json');
 const PHOTON_CACHE_PATH = path.join(ROOT, 'scripts', 'location-photon-cache.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DELAY_MS = 250;
@@ -77,15 +79,15 @@ var POI_OSM_VALUES = {
 function catalogPaths(cat) {
   if (cat === 'coffee') {
     return {
-      placesPath: path.join(ROOT, 'coffee-map', 'places.json'),
+      placesPath: COFFEE_PATH,
       mirrorPath: null,
-      label: 'coffee-map'
+      label: 'coffee-drinks-map (coffee)'
     };
   }
   return {
-    placesPath: path.join(__dirname, 'places.json'),
-    mirrorPath: DRINKS_PATH,
-    label: 'philly-dates / coffee-drinks-map'
+    placesPath: DRINKS_PATH,
+    mirrorPath: null,
+    label: 'coffee-drinks-map (drinks)'
   };
 }
 
@@ -522,9 +524,6 @@ async function main() {
   console.log('  unchanged/skipped:', unchanged);
   console.log('  errors:', errors);
   if (dryRun && updated) console.log('\nRe-run without --dry-run to save.');
-  else if (!dryRun && updated && !skipDrinks && paths.mirrorPath) {
-    console.log('\nMirrored to coffee-drinks-map/drinks.json');
-  }
 }
 
 main().catch(function(e) {

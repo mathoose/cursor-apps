@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PLACES = ROOT / "philly-dates" / "places.json"
 DRINKS = ROOT / "coffee-drinks-map" / "drinks.json"
 REPORT = ROOT / "scripts" / "location-sync-report.json"
 
@@ -36,7 +35,7 @@ REVERT_FROM_REPORT = {
 
 
 def main() -> None:
-    places = json.loads(PLACES.read_text(encoding="utf-8"))
+    places = json.loads(DRINKS.read_text(encoding="utf-8"))
     report = json.loads(REPORT.read_text(encoding="utf-8"))
     by_name = {u["name"]: u for u in report.get("updated", [])}
 
@@ -55,7 +54,6 @@ def main() -> None:
             p.pop("locationSource", None)
             p.pop("locationSyncedAt", None)
 
-    PLACES.write_text(json.dumps(places, indent=2) + "\n", encoding="utf-8")
     DRINKS.write_text(json.dumps(places, indent=2) + "\n", encoding="utf-8")
     print("Reconciled", len(MANUAL), "manual fixes and", len(REVERT_FROM_REPORT), "reverts.")
 

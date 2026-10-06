@@ -52,3 +52,12 @@ Before **removing or simplifying** an existing user-facing interaction (tap cycl
 ## Habit Journal — syntax check
 
 After editing `habit-journal/index.html`, run `./scripts/verify-habit-journal-js.sh` before pushing. A syntax error in the inline script blanks the entire app.
+
+## Coffee & Drinks map (canonical)
+
+**Philly Dates** and **Coffee Map** are launcher-hidden (archived). Do not bump or edit them for map/pin work unless the user asks to un-archive.
+
+- **App:** `coffee-drinks-map/`
+- **Catalogs:** `coffee-drinks-map/drinks.json`, `coffee-drinks-map/coffee.json`
+- **Pin/address/hours tooling:** `philly-dates/sync-google-locations.js`, `sync-google-addresses.js`, `fetch-google-hours.js` (they write the coffee-drinks catalogs), `scripts/align-all-map-pins.sh`, `scripts/sync-drink-catalog-locations.sh`
+- **Docs:** `coffee-drinks-map/LOCATIONS.md`

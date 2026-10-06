@@ -1,6 +1,6 @@
 {
   "title": "Mathoose's apps",
-  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board"],
+  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board", "philly-dates", "coffee-map"],
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
