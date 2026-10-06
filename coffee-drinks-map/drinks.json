@@ -600,8 +600,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJbYZ7rkTHxokRfhIPW-VgDb4",
     "hoursNote": "Monday: 4:00\u2009\u2013\u200910:00\u202fPM; Tuesday: 4:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 4:00\u2009\u2013\u200910:00\u202fPM; Thursday: 4:00\u2009\u2013\u200910:00\u202fPM; Friday: 4:00\u2009\u2013\u200911:00\u202fPM; Saturday: 4:00\u2009\u2013\u200911:00\u202fPM; Sunday: 4:00\u2009\u2013\u200910:00\u202fPM",
-    "lat": 39.9502,
-    "lng": -75.1667
+    "lat": 39.950612,
+    "lng": -75.16726,
+    "locationSource": "photon-osm-manual",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Harp & Crown",
@@ -670,8 +672,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJQa1JHDDGxokRGExiHLDYVOA",
     "hoursNote": "Monday: 4:00\u2009\u2013\u200910:00\u202fPM; Tuesday: 4:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 4:00\u2009\u2013\u200911:00\u202fPM; Thursday: 4:00\u2009\u2013\u200911:00\u202fPM; Friday: 4:00\u202fPM\u2009\u2013\u200912:00\u202fAM; Saturday: 9:30\u202fAM\u2009\u2013\u200912:00\u202fAM; Sunday: 9:30\u202fAM\u2009\u2013\u20093:00\u202fPM",
-    "lat": 39.95015,
-    "lng": -75.16685
+    "lat": 39.95054,
+    "lng": -75.16686,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "The black Sheep Pub & Restaurant",
@@ -1402,9 +1406,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJrWKnrM3HxokRykMoFT3yhpk",
     "hoursNote": "Monday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Tuesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Wednesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Thursday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Friday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Saturday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM",
-    "lat": 39.951495,
-    "lng": -75.174088,
-    "locationSource": "photon-osm",
+    "lat": 39.951443,
+    "lng": -75.174049,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -1581,9 +1585,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJAW_tWpnIxokRfoqs_RzGdog",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20091:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u20091:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u20091:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u20093:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20093:00\u202fAM; Saturday: 11:00\u202fAM\u2009\u2013\u20093:00\u202fAM; Sunday: 11:00\u202fAM\u2009\u2013\u20091:00\u202fAM",
-    "lat": 39.941585,
-    "lng": -75.147875,
-    "locationSource": "photon-osm",
+    "lat": 39.941549,
+    "lng": -75.147882,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -1746,9 +1750,9 @@
     "googlePlaceId": "ChIJ851bnZnIxokRFdlArxg6Yu4",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Tuesday: Closed; Wednesday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Thursday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Friday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Saturday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 10:00\u202fAM\u2009\u2013\u20098:00\u202fPM",
     "menu_pdf": "https://bridgetfoys.com/wp-content/uploads/2025/09/happy-hour-template-1-1.pdf",
-    "lat": 39.946999,
-    "lng": -75.146542,
-    "locationSource": "photon-osm",
+    "lat": 39.941126,
+    "lng": -75.145883,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -1916,8 +1920,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJY4BaiQPGxokRSJ2gJsmb6X0",
     "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00\u2009\u2013\u200911:00\u202fPM; Thursday: 5:00\u2009\u2013\u200911:00\u202fPM; Friday: 5:00\u202fPM\u2009\u2013\u200912:00\u202fAM; Saturday: 2:00\u202fPM\u2009\u2013\u200912:00\u202fAM; Sunday: 2:00\u2009\u2013\u20099:00\u202fPM",
-    "lat": 39.9254,
-    "lng": -75.1599
+    "lat": 39.92542,
+    "lng": -75.159874,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Ristorante Pesto",
@@ -1998,8 +2004,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJtWb8cXTGxokRqG1W9mZLasY",
     "hoursNote": "Monday: 9:00\u202fAM\u2009\u2013\u20095:00\u202fPM; Tuesday: 9:00\u202fAM\u2009\u2013\u20095:00\u202fPM; Wednesday: 9:00\u202fAM\u2009\u2013\u20095:00\u202fPM; Thursday: 9:00\u202fAM\u2009\u2013\u20095:00\u202fPM; Friday: 9:00\u202fAM\u2009\u2013\u20098:00\u202fPM; Saturday: 9:00\u202fAM\u2009\u2013\u20098:00\u202fPM; Sunday: 9:00\u202fAM\u2009\u2013\u20095:00\u202fPM",
-    "lat": 39.9246,
-    "lng": -75.1726
+    "lat": 39.924649,
+    "lng": -75.172647,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Next of Kin",
@@ -2255,8 +2263,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJZcfPCwDJxokRdkFL1BVH-ts",
     "hoursNote": "Monday: 5:00\u2009\u2013\u20099:30\u202fPM; Tuesday: 5:00\u2009\u2013\u20099:30\u202fPM; Wednesday: 5:00\u2009\u2013\u20099:30\u202fPM; Thursday: 5:00\u2009\u2013\u20099:30\u202fPM; Friday: 5:00\u2009\u2013\u200910:00\u202fPM; Saturday: 12:00\u2009\u2013\u200910:00\u202fPM; Sunday: 12:00\u2009\u2013\u20099:00\u202fPM",
-    "lat": 39.9824,
-    "lng": -75.1278
+    "lat": 39.98222,
+    "lng": -75.127601,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Front Street Cafe",
@@ -2439,8 +2449,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJPzXhsjrGxokRfz0Y3386McU",
     "hoursNote": "Monday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 11:30\u202fAM\u2009\u2013\u20092:00\u202fAM",
-    "lat": 39.9488,
-    "lng": -75.1665
+    "lat": 39.948788,
+    "lng": -75.16632,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Square 1682",
@@ -2637,9 +2649,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJsRdhnm_IxokRcPl8adyBZos",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 10:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 10:00\u202fAM\u2009\u2013\u200912:00\u202fAM",
-    "lat": 39.967356,
-    "lng": -75.140618,
-    "locationSource": "photon-osm",
+    "lat": 39.96727,
+    "lng": -75.140207,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -2778,9 +2790,9 @@
     "googlePlaceId": "ChIJk19TD-7HxokRZWWJCTH7Jgo",
     "hoursNote": "Monday: 12:00\u2009\u2013\u200910:00\u202fPM; Tuesday: 12:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 12:00\u2009\u2013\u200910:00\u202fPM; Thursday: 12:00\u2009\u2013\u200910:00\u202fPM; Friday: 12:00\u2009\u2013\u200910:00\u202fPM; Saturday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM",
     "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPS-01-05-26_WEB.pdf",
-    "lat": 39.943903,
-    "lng": -75.175464,
-    "locationSource": "photon-osm",
+    "lat": 39.943909,
+    "lng": -75.175384,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -2851,9 +2863,9 @@
     "googlePlaceId": "ChIJ_cOVHj_IxokRre9EPY1KNkY",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Tuesday: 11:00\u202fAM\u2009\u2013\u200911:00\u202fPM; Wednesday: 11:00\u202fAM\u2009\u2013\u200911:00\u202fPM; Thursday: 11:00\u202fAM\u2009\u2013\u200911:00\u202fPM; Friday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Saturday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Sunday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM",
     "menu_pdf": "https://locopez.com/wp-content/uploads/2024/03/LPF_02-24-2025_WEB.pdf",
-    "lat": 39.976867,
-    "lng": -75.127128,
-    "locationSource": "photon-osm",
+    "lat": 39.976827,
+    "lng": -75.127226,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -3179,9 +3191,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJVxCRc4XIxokRIQ9K6Vf7w9w",
     "hoursNote": "Monday: 4:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Tuesday: 4:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Wednesday: 12:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Thursday: 12:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Friday: 12:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Saturday: 12:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Sunday: 12:00\u202fPM\u2009\u2013\u20092:00\u202fAM",
-    "lat": 39.948834,
-    "lng": -75.144108,
-    "locationSource": "photon-osm",
+    "lat": 39.9488,
+    "lng": -75.144112,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -3621,8 +3633,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJYb8Jcm7HxokRX_i4HYRDat8",
     "hoursNote": "Monday: 4:00\u2009\u2013\u200910:00\u202fPM; Tuesday: 4:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 4:00\u2009\u2013\u200911:00\u202fPM; Thursday: 4:00\u2009\u2013\u200911:00\u202fPM; Friday: 4:00\u202fPM\u2009\u2013\u200912:00\u202fAM; Saturday: 11:30\u202fAM\u2009\u2013\u200912:00\u202fAM; Sunday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM",
-    "lat": 39.9499,
-    "lng": -75.1626
+    "lat": 39.949747,
+    "lng": -75.162104,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Village Whiskey",
@@ -3692,9 +3706,9 @@
     "googlePlaceId": "ChIJLfhKaTfGxokRiOZL6x398WY",
     "hoursNote": "Monday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Tuesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Wednesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Thursday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Friday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Saturday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM",
     "menu_pdf": "https://www.villagewhiskey.com/uploads/141814VWHappyHourMenu0326NoCropLines.pdf",
-    "lat": 39.951439,
-    "lng": -75.173848,
-    "locationSource": "photon-osm",
+    "lat": 39.951393,
+    "lng": -75.173783,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -3761,8 +3775,10 @@
     "googlePlaceId": "ChIJTemwc0nHxokRo6NcdWhV_Fs",
     "hoursNote": "Monday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Tuesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Wednesday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Thursday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Friday: 11:30\u202fAM\u2009\u2013\u200910:30\u202fPM; Saturday: 1:00\u2009\u2013\u200910:30\u202fPM; Sunday: Closed",
     "menu_pdf": "https://www.qujapanphl.com/_files/ugd/538020_08adf47c97be49dd825c24673c7ff96c.pdf",
-    "lat": 39.9532,
-    "lng": -75.1682
+    "lat": 39.953477,
+    "lng": -75.168208,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "The Lesiuer",
@@ -3819,8 +3835,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJx540zf_HxokRJFnX_eTNZoM",
     "hoursNote": "Monday: Closed; Tuesday: 4:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 4:00\u2009\u2013\u200910:00\u202fPM; Thursday: 4:00\u2009\u2013\u200910:00\u202fPM; Friday: 4:00\u2009\u2013\u200911:00\u202fPM; Saturday: 4:00\u2009\u2013\u200911:00\u202fPM; Sunday: Closed",
-    "lat": 39.95022,
-    "lng": -75.16665
+    "lat": 39.950612,
+    "lng": -75.16722,
+    "locationSource": "photon-osm-manual",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Calandrino's old city vino",
@@ -3852,9 +3870,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJkxn6Sz7JxokRcVWev1tVtDI",
     "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 5:00\u2009\u2013\u200910:00\u202fPM; Thursday: 5:00\u2009\u2013\u200910:00\u202fPM; Friday: 5:00\u2009\u2013\u200910:00\u202fPM; Saturday: 2:00\u2009\u2013\u200910:00\u202fPM; Sunday: Closed",
-    "lat": 39.952349,
-    "lng": -75.143492,
-    "locationSource": "photon-osm",
+    "lat": 39.95233,
+    "lng": -75.143346,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4141,8 +4159,10 @@
     "googlePlaceId": "ChIJ2YytEYXIxokRxmFAvm4D_bs",
     "hoursNote": "Monday: 4:30\u2009\u2013\u20099:00\u202fPM; Tuesday: 5:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 5:00\u2009\u2013\u200910:00\u202fPM; Thursday: 5:00\u2009\u2013\u200910:00\u202fPM; Friday: 2:00\u2009\u2013\u200910:00\u202fPM; Saturday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM",
     "menu_pdf": "https://www.amadarestaurant.com/uploads/114704AMAHappyHourMenu0726-nocrop.pdf",
-    "lat": 39.9488,
-    "lng": -75.1448
+    "lat": 39.948566,
+    "lng": -75.144837,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Butcher bar",
@@ -4207,8 +4227,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ_y2SCjfGxokR90VjOlsQLv0",
     "hoursNote": "Monday: 3:00\u2009\u2013\u20099:30\u202fPM; Tuesday: 3:00\u2009\u2013\u20099:30\u202fPM; Wednesday: 11:30\u202fAM\u2009\u2013\u20099:30\u202fPM; Thursday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Friday: 11:30\u202fAM\u2009\u2013\u200911:00\u202fPM; Saturday: 10:30\u202fAM\u2009\u2013\u200911:00\u202fPM; Sunday: 10:30\u202fAM\u2009\u2013\u20099:00\u202fPM",
-    "lat": 39.952,
-    "lng": -75.1752
+    "lat": 39.952124,
+    "lng": -75.174893,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "SolarMyth",
@@ -4281,8 +4303,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJOboclhHHxokRr-cuioAhMS8",
     "hoursNote": "Monday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM",
-    "lat": 39.9368,
-    "lng": -75.1668
+    "lat": 39.936842,
+    "lng": -75.16658,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "La llorona cantina mexicana",
@@ -4413,7 +4437,7 @@
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 10:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 10:00\u202fAM\u2009\u2013\u20092:00\u202fAM",
     "lat": 39.928914,
     "lng": -75.164378,
-    "locationSource": "photon-osm",
+    "locationSource": "photon-osm-manual",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4482,7 +4506,7 @@
     "menu_pdf": "https://barcelonawinebar.com/media/2-26-26-Passyunk-Happy-Hour.pdf",
     "lat": 39.928085,
     "lng": -75.165332,
-    "locationSource": "photon-osm",
+    "locationSource": "photon-osm-manual",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4736,9 +4760,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ9wo1017JxokRJbagSCY1d_c",
     "hoursNote": "Monday: Closed; Tuesday: 5:00\u2009\u2013\u20099:00\u202fPM; Wednesday: 5:00\u2009\u2013\u20099:00\u202fPM; Thursday: 5:00\u2009\u2013\u20099:00\u202fPM; Friday: 5:00\u202fPM\u2009\u2013\u20092:00\u202fAM; Saturday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM",
-    "lat": 39.953294,
-    "lng": -75.14046,
-    "locationSource": "photon-osm",
+    "lat": 39.953372,
+    "lng": -75.140413,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4888,9 +4912,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJES72cYXIxokR911D5us7LDs",
     "hoursNote": "Monday: 12:00\u2009\u2013\u20099:30\u202fPM; Tuesday: 12:00\u2009\u2013\u20099:30\u202fPM; Wednesday: 12:00\u2009\u2013\u20099:30\u202fPM; Thursday: 12:00\u2009\u2013\u20099:30\u202fPM; Friday: 12:00\u2009\u2013\u200911:30\u202fPM; Saturday: 12:00\u2009\u2013\u200911:30\u202fPM; Sunday: 12:00\u2009\u2013\u20099:30\u202fPM",
-    "lat": 39.948068,
-    "lng": -75.14303,
-    "locationSource": "photon-osm",
+    "lat": 39.948164,
+    "lng": -75.143003,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4944,8 +4968,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJz4hVGTDGxokRYnn8nCLNB3k",
     "hoursNote": "Monday: Closed; Tuesday: 11:30\u202fAM\u2009\u2013\u20099:00\u202fPM; Wednesday: 11:30\u202fAM\u2009\u2013\u20099:00\u202fPM; Thursday: 11:30\u202fAM\u2009\u2013\u20099:00\u202fPM; Friday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Saturday: 11:30\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: Closed",
-    "lat": 39.9502,
-    "lng": -75.1669
+    "lat": 39.950302,
+    "lng": -75.166539,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "El Rey",
@@ -5220,9 +5246,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJA3WZQNLHxokR29MODGXE9s0",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM",
-    "lat": 39.963104,
-    "lng": -75.164512,
-    "locationSource": "photon-osm",
+    "lat": 39.963026,
+    "lng": -75.164511,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -5296,9 +5322,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJZUvdSdHHxokRQ7KBGh-BHr0",
     "hoursNote": "Monday: 5:00\u2009\u2013\u200910:00\u202fPM; Tuesday: 5:00\u2009\u2013\u200910:00\u202fPM; Wednesday: 5:00\u2009\u2013\u200910:00\u202fPM; Thursday: 5:00\u2009\u2013\u200910:00\u202fPM; Friday: 4:00\u2009\u2013\u200910:00\u202fPM; Saturday: 4:00\u2009\u2013\u200910:00\u202fPM; Sunday: 4:00\u2009\u2013\u20099:00\u202fPM",
-    "lat": 39.965,
-    "lng": -75.161769,
-    "locationSource": "photon-osm",
+    "lat": 39.964982,
+    "lng": -75.161107,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -5694,9 +5720,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJF8eQ1LfHxokRuT313ki9lOo",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 8:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 9:00\u202fAM\u2009\u2013\u20092:00\u202fAM",
-    "lat": 39.96874,
-    "lng": -75.178198,
-    "locationSource": "photon-osm",
+    "lat": 39.968784,
+    "lng": -75.17817,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -6384,9 +6410,9 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJSaJnTGTHxokRT0KFsXzvMVw",
     "hoursNote": "Monday: Closed; Tuesday: 5:00\u2009\u2013\u20099:00\u202fPM; Wednesday: 5:00\u2009\u2013\u20099:00\u202fPM; Thursday: 5:00\u2009\u2013\u20099:00\u202fPM; Friday: 5:00\u2009\u2013\u200911:00\u202fPM; Saturday: 11:00\u202fAM\u2009\u2013\u20092:30\u202fPM, 5:00\u2009\u2013\u200911:00\u202fPM; Sunday: 11:00\u202fAM\u2009\u2013\u20092:30\u202fPM",
-    "lat": 39.951341,
-    "lng": -75.170556,
-    "locationSource": "photon-osm",
+    "lat": 39.950952,
+    "lng": -75.172266,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -6524,8 +6550,10 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJUw9aEB3JxokRrJVblg9lReI",
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fPM; Tuesday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Wednesday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Thursday: 11:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Friday: 11:00\u202fAM\u2009\u2013\u200911:00\u202fPM; Saturday: 11:00\u202fAM\u2009\u2013\u200911:00\u202fPM; Sunday: Closed",
-    "lat": 39.9489,
-    "lng": -75.1595
+    "lat": 39.948863,
+    "lng": -75.159579,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Strangelove's",
@@ -6667,9 +6695,9 @@
     "googlePlaceId": "ChIJ6_xHq0jGxokR7ccgMwIHlns",
     "hoursNote": "Monday: 8:00\u202fAM\u2009\u2013\u20093:00\u202fPM; Tuesday: 8:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Wednesday: 8:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Thursday: 8:00\u202fAM\u2009\u2013\u20099:00\u202fPM; Friday: 8:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Saturday: 9:00\u202fAM\u2009\u2013\u200910:00\u202fPM; Sunday: 9:00\u202fAM\u2009\u2013\u20093:00\u202fPM",
     "menu_pdf": "https://cdn.prod.website-files.com/61d890136985adc7f0f85ff6/69f0f448f345068a384439ed_WSC%20GH%20MASTER.pdf",
-    "lat": 39.95199,
-    "lng": -75.183888,
-    "locationSource": "photon-osm",
+    "lat": 39.951961,
+    "lng": -75.183796,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7153,8 +7181,10 @@
         "end": "6:00 PM"
       }
     },
-    "lat": 39.9772,
-    "lng": -75.141
+    "lat": 39.976171,
+    "lng": -75.133711,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Middle child",
@@ -7165,8 +7195,10 @@
     "hh_menu": "https://middlechildphilly.com/",
     "instagram": "",
     "schedule": {},
-    "lat": 39.9468,
-    "lng": -75.1598
+    "lat": 39.947181,
+    "lng": -75.159472,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Terra Grill",
@@ -7357,8 +7389,10 @@
     "hh_menu": "https://www.piccolinaphl.com/",
     "instagram": "",
     "schedule": {},
-    "lat": 39.9488,
-    "lng": -75.1462
+    "lat": 39.948774,
+    "lng": -75.146128,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Griddle and rice",
@@ -7504,8 +7538,8 @@
       }
     },
     "lat": 39.927959,
-    "lng": -75.162076,
-    "locationSource": "photon-osm",
+    "lng": -75.162035,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7530,9 +7564,9 @@
         "end": "7:00 PM"
       }
     },
-    "lat": 39.930252,
-    "lng": -75.163262,
-    "locationSource": "photon-osm",
+    "lat": 39.930194,
+    "lng": -75.163222,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7544,9 +7578,9 @@
     "hh_menu": "https://lucky13pubphilly.com/philadelphia-lucky-13-pub-happy-hours-specials",
     "instagram": "https://www.instagram.com/lucky_13_pub_philly/",
     "schedule": {},
-    "lat": 39.92717,
-    "lng": -75.167124,
-    "locationSource": "photon-osm",
+    "lat": 39.927148,
+    "lng": -75.167028,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7683,9 +7717,9 @@
         "end": "6:00 PM"
       }
     },
-    "lat": 39.961972,
-    "lng": -75.140867,
-    "locationSource": "photon-osm",
+    "lat": 39.961967,
+    "lng": -75.140963,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7852,9 +7886,9 @@
         "end": "7:00 PM"
       }
     },
-    "lat": 39.926324,
-    "lng": -75.167428,
-    "locationSource": "photon-osm",
+    "lat": 39.926299,
+    "lng": -75.167499,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -7998,8 +8032,10 @@
     "hh_menu": "https://www.garagephilly.com/passyunk",
     "instagram": "https://www.instagram.com/garagephilly/",
     "schedule": {},
-    "lat": 39.9332,
-    "lng": -75.159
+    "lat": 39.933468,
+    "lng": -75.158742,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Happy Birthday Bar",
@@ -8010,8 +8046,10 @@
     "hh_menu": "",
     "instagram": "https://www.instagram.com/rayshappybirthdaybar/",
     "schedule": {},
-    "lat": 39.9338,
-    "lng": -75.1585
+    "lat": 39.934112,
+    "lng": -75.158493,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "The Dive",
@@ -8226,9 +8264,9 @@
     "hh_menu": "https://thedutchphilly.com/",
     "instagram": "https://www.instagram.com/thedutchphilly/",
     "schedule": {},
-    "lat": 39.929862,
-    "lng": -75.162883,
-    "locationSource": "photon-osm",
+    "lat": 39.929865,
+    "lng": -75.162992,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -8335,9 +8373,9 @@
     "hh_menu": "https://www.fridaysaturdaysunday.com/",
     "instagram": "https://www.instagram.com/friday.saturday.sunday/",
     "schedule": {},
-    "lat": 39.948931,
-    "lng": -75.175932,
-    "locationSource": "photon-osm",
+    "lat": 39.94895,
+    "lng": -75.176039,
+    "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -9028,8 +9066,10 @@
     },
     "hoursSource": "official",
     "hoursNote": "Mon\u2013Wed 4\u201310 \u00b7 Thu 4\u201311 \u00b7 Fri\u2013Sat 12\u201311 \u00b7 Sun 12\u201310",
-    "lat": 39.92863,
-    "lng": -75.165139
+    "lat": 39.928721,
+    "lng": -75.165125,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Triangle Tavern",
@@ -9093,8 +9133,10 @@
     },
     "hoursSource": "official",
     "hoursNote": "Bar noon\u20132am Mon\u2013Fri \u00b7 11am\u20132am Sat\u2013Sun \u00b7 kitchen until 1am",
-    "lat": 39.932346,
-    "lng": -75.161113
+    "lat": 39.932265,
+    "lng": -75.161064,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "name": "Le Virt\u00f9",
@@ -9642,7 +9684,9 @@
     "hoursSource": "official",
     "googlePlaceId": "ChIJ9f8_GjTGxokRajjkD00E80Y",
     "hoursNote": "Mon\u2013Fri 11:30 AM\u201312 AM \u00b7 Sat 10 AM\u201312 AM \u00b7 Sun 10 AM\u20132:30 PM (kitchen closes 10 PM Mon\u2013Sat; bar til midnight)",
-    "lat": 39.9523,
-    "lng": -75.1698
+    "lat": 39.952318,
+    "lng": -75.169769,
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   }
 ]

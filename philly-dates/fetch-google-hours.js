@@ -10,6 +10,7 @@
  *   node fetch-google-hours.js           # fetch missing hours only
  *   node fetch-google-hours.js --force   # re-fetch all
  *   node fetch-google-hours.js --limit 5 # test on first 5
+ *   node fetch-google-hours.js --only "Barcelona Wine Bar,Cantinas los caballitos" --force
  *
  * Billing: each place uses ~2 calls (Text Search + Place Details with
  * regularOpeningHours). Google offers free monthly tiers; see:
@@ -18,7 +19,9 @@
 const fs = require('fs');
 const path = require('path');
 
+const ROOT = path.join(__dirname, '..');
 const PLACES_PATH = path.join(__dirname, 'places.json');
+const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DELAY_MS = 250;
@@ -27,6 +30,10 @@ const args = process.argv.slice(2);
 const force = args.includes('--force');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : Infinity;
+const onlyIdx = args.indexOf('--only');
+const onlyNames = onlyIdx >= 0
+  ? args[onlyIdx + 1].split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+  : null;
 
 function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
@@ -238,9 +245,16 @@ async function main() {
   }
 
   var places = JSON.parse(fs.readFileSync(PLACES_PATH, 'utf8'));
-  var todo = places.filter(function(p) {
-    return force || p.hoursSource !== 'google' || !p.hours;
-  });
+  var todo;
+  if (onlyNames && onlyNames.length) {
+    var set = {};
+    onlyNames.forEach(function(n) { set[n] = true; });
+    todo = places.filter(function(p) { return set[p.name]; });
+  } else {
+    todo = places.filter(function(p) {
+      return force || p.hoursSource !== 'google' || !p.hours;
+    });
+  }
   if (isFinite(limit)) todo = todo.slice(0, limit);
 
   console.log('Fetching Google hours for', todo.length, 'of', places.length, 'places…');
@@ -287,6 +301,9 @@ async function main() {
   }
 
   fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
+  if (fs.existsSync(path.dirname(DRINKS_PATH))) {
+    fs.writeFileSync(DRINKS_PATH, JSON.stringify(places, null, 2) + '\n');
+  }
   console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated,', locationsUpdated, 'pins updated.');
 }
 

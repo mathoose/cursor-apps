@@ -12,6 +12,9 @@ REPORT = ROOT / "scripts" / "location-sync-report.json"
 
 # Verified OSM building points (Photon housenumber match).
 MANUAL = {
+    # Passyunk (plan examples): building / OSM POI coords
+    "Barcelona Wine Bar": (39.9280849, -75.1653322),
+    "Cantinas los caballitos": (39.9289141, -75.1643785),
     "La Chinesca": (39.9614216, -75.156005),
     "Poison heart": (39.961903, -75.1540675),
     "Alice": (39.9619369, -75.1558934),
@@ -20,6 +23,9 @@ MANUAL = {
     "Vintage Wine Bar": (39.9518337, -75.1615194),
     "Darling Jack's Tavern": (39.9514387, -75.1616194),
     "Double Knot": (39.9519337, -75.1614194),
+    # Same Sansom row as Harp & Crown; OSM has no named POI for Giuseppe / Lesiuer.
+    "Giuseppe & Sons": (39.9506117, -75.16726),
+    "The Lesiuer": (39.9506117, -75.16722),
 }
 
 # Photon mis-parsed "South St" / moved too far — restore pre-sync pins from report.

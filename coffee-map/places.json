@@ -46,8 +46,8 @@
     "name": "Ants Pants Cafe",
     "neighborhood": "Graduate Hospital",
     "address": "2212 South St, Philadelphia, PA 19146",
-    "lat": 39.94515,
-    "lng": -75.179081,
+    "lat": 39.945254,
+    "lng": -75.179073,
     "website": "https://antspantscafe.com/",
     "instagramUrl": "https://www.instagram.com/antspantscafe/",
     "hoursSource": "official",
@@ -81,7 +81,9 @@
         "open": "8:00 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "b2-cafe",
@@ -379,8 +381,8 @@
     "name": "Chapterhouse Cafe",
     "neighborhood": "Bella Vista",
     "address": "620 S 9th St, Philadelphia, PA 19147",
-    "lat": 39.941928,
-    "lng": -75.157415,
+    "lat": 39.941924,
+    "lng": -75.157357,
     "website": "https://chapterhousecafe.wordpress.com/",
     "instagramUrl": "https://www.instagram.com/chapterhousecafe/",
     "hoursSource": "listing",
@@ -414,7 +416,9 @@
         "open": "7:00 AM",
         "close": "8:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "chibanos",
@@ -503,8 +507,8 @@
     "name": "Coffee Zeit",
     "neighborhood": "Old City",
     "address": "246 Race St, Philadelphia, PA 19106",
-    "lat": 39.953769,
-    "lng": -75.144493,
+    "lat": 39.953875,
+    "lng": -75.144476,
     "website": "https://coffeezeit.net/",
     "instagramUrl": "https://www.instagram.com/coffeezeitphl/",
     "hoursSource": "google",
@@ -537,7 +541,9 @@
         "open": "9:00 AM",
         "close": "4:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "cuor-di-caffe",
@@ -971,8 +977,8 @@
     "name": "Function Coffee Labs",
     "neighborhood": "Bella Vista",
     "address": "1001 S 10th St, Philadelphia, PA 19147",
-    "lat": 39.937869,
-    "lng": -75.159555,
+    "lat": 39.937895,
+    "lng": -75.159605,
     "website": "https://www.functioncoffeelabs.com/",
     "instagramUrl": "https://www.instagram.com/functioncoffeelabs/",
     "hoursSource": "official",
@@ -1006,7 +1012,9 @@
         "open": "7:30 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "gleaners",
@@ -1097,8 +1105,8 @@
     "name": "Greenstreet Coffee",
     "neighborhood": "Point Breeze",
     "address": "1207 S 15th St, Philadelphia, PA 19146",
-    "lat": 39.935452,
-    "lng": -75.168619,
+    "lat": 39.935481,
+    "lng": -75.168924,
     "website": "https://www.greenstreetcoffee.com/pages/visit-us",
     "instagramUrl": "https://www.instagram.com/greenstreetcoffeeco/",
     "hoursSource": "official",
@@ -1132,7 +1140,9 @@
         "open": "7:30 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "grindcore-house",
@@ -1347,8 +1357,8 @@
     "name": "Herman's Coffee",
     "neighborhood": "Pennsport",
     "address": "1313 S 3rd St, Philadelphia, PA 19147",
-    "lat": 39.931238,
-    "lng": -75.149964,
+    "lat": 39.931373,
+    "lng": -75.149696,
     "website": "https://www.hermanscoffee.com/",
     "instagramUrl": "https://www.instagram.com/hermanscoffee/",
     "hoursSource": "official",
@@ -1392,15 +1402,17 @@
         "open2": "6:00 PM",
         "close2": "11:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "hive-cafe",
     "name": "Hive Café",
     "neighborhood": "Point Breeze",
     "address": "1444 S Broad St, Philadelphia, PA 19146",
-    "lat": 39.932381,
-    "lng": -75.168109,
+    "lat": 39.931836,
+    "lng": -75.168318,
     "website": "https://hive-cafe.square.site/",
     "instagramUrl": "https://www.instagram.com/hivecafephilly/",
     "hoursSource": "listing",
@@ -1434,15 +1446,17 @@
         "open": "9:00 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "jiggy-coffee",
     "name": "Jiggy Coffee",
     "neighborhood": "Washington Square West",
     "address": "1000 Pine St, Philadelphia, PA 19107",
-    "lat": 39.944626,
-    "lng": -75.158356,
+    "lat": 39.944654,
+    "lng": -75.158352,
     "website": "http://jiggycoffee.com/",
     "instagramUrl": "https://www.instagram.com/jiggycoffee/",
     "hoursSource": "official",
@@ -1475,7 +1489,9 @@
         "open": "8:00 AM",
         "close": "2:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "kfar",
@@ -2068,8 +2084,8 @@
     "name": "Menagerie Coffee — Northern Liberties",
     "neighborhood": "Northern Liberties",
     "address": "908 N 3rd St, Philadelphia, PA 19123",
-    "lat": 39.965404,
-    "lng": -75.142694,
+    "lat": 39.965369,
+    "lng": -75.142573,
     "website": "https://www.menageriecoffee.com/",
     "instagramUrl": "https://www.instagram.com/menageriecoffee/",
     "hoursSource": "official",
@@ -2103,7 +2119,9 @@
         "open": "8:00 AM",
         "close": "5:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "menagerie-old-city",
@@ -2236,8 +2254,8 @@
     "name": "Mr. Rabbit Coffee",
     "neighborhood": "Fitler Square",
     "address": "2301 Spruce St, Philadelphia, PA 19103",
-    "lat": 39.948878,
-    "lng": -75.179185,
+    "lat": 39.948866,
+    "lng": -75.179078,
     "website": "",
     "instagramUrl": "https://www.instagram.com/mrrabbitcoffee/",
     "hoursSource": "listing",
@@ -2271,7 +2289,9 @@
         "open": "7:00 AM",
         "close": "4:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "mug-coffee-clay",
@@ -2444,8 +2464,8 @@
     "name": "One Shot Coffee",
     "neighborhood": "Northern Liberties",
     "address": "217 W George St, Philadelphia, PA 19123",
-    "lat": 39.967725,
-    "lng": -75.140667,
+    "lat": 39.967654,
+    "lng": -75.140695,
     "website": "https://oneshotcoffeecafe.com/",
     "instagramUrl": "https://www.instagram.com/oneshotcoffeecafe/",
     "hoursSource": "official",
@@ -2479,15 +2499,17 @@
         "open": "8:00 AM",
         "close": "4:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "ox-coffee",
     "name": "OX Coffee",
     "neighborhood": "Queen Village",
     "address": "616 S 3rd St, Philadelphia, PA 19147",
-    "lat": 39.940953,
-    "lng": -75.147886,
+    "lat": 39.940986,
+    "lng": -75.147831,
     "website": "https://www.oxcoffee.com/",
     "instagramUrl": "https://www.instagram.com/oxcoffee/",
     "hoursSource": "official",
@@ -2521,7 +2543,9 @@
         "open": "8:00 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "palm-vintage",
@@ -2668,8 +2692,8 @@
     "name": "Rally",
     "neighborhood": "Bella Vista",
     "address": "701 S 7th St, Philadelphia, PA 19147",
-    "lat": 39.941233,
-    "lng": -75.153958,
+    "lat": 39.941281,
+    "lng": -75.154068,
     "website": "https://www.heyrally.com/",
     "instagramUrl": "https://www.instagram.com/heyrally/",
     "hoursSource": "press",
@@ -2703,7 +2727,9 @@
         "open": "7:30 AM",
         "close": "5:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "reanimator-fishtown",
@@ -3254,8 +3280,8 @@
     "name": "Sandpiper Cafe",
     "neighborhood": "Graduate Hospital",
     "address": "1640 South St, Philadelphia, PA 19146",
-    "lat": 39.944052,
-    "lng": -75.169449,
+    "lat": 39.944057,
+    "lng": -75.170012,
     "website": "https://sandpiperphilly.com/",
     "instagramUrl": "https://www.instagram.com/sandpiper.philly/",
     "hoursSource": "press",
@@ -3289,7 +3315,9 @@
         "open": "7:00 AM",
         "close": "4:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "schmaltz",
@@ -3377,8 +3405,8 @@
     "name": "Shot Tower Coffee",
     "neighborhood": "Queen Village",
     "address": "542 Christian St, Philadelphia, PA 19147",
-    "lat": 39.937595,
-    "lng": -75.153205,
+    "lat": 39.937625,
+    "lng": -75.153206,
     "website": "http://www.shottowercoffee.com/",
     "instagramUrl": "https://www.instagram.com/shottowercoffee/",
     "hoursSource": "official",
@@ -3412,7 +3440,9 @@
         "open": "8:00 AM",
         "close": "4:30 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "solar-myth",
@@ -3713,8 +3743,8 @@
     "name": "Together Skateboarding",
     "neighborhood": "Strawberry Mansion",
     "address": "1301 N 27th St, Philadelphia, PA 19121",
-    "lat": 39.975991,
-    "lng": -75.179856,
+    "lat": 39.975992,
+    "lng": -75.179922,
     "website": "https://www.togetherphilly.com/",
     "instagramUrl": "https://www.instagram.com/togetherphilly/",
     "hoursSource": "listing",
@@ -3748,7 +3778,9 @@
         "open": "8:00 AM",
         "close": "2:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "twisted-grounds",
@@ -3880,8 +3912,8 @@
     "name": "Ultimo Coffee — Grad Hospital",
     "neighborhood": "Graduate Hospital",
     "address": "2149 Catharine St, Philadelphia, PA 19146",
-    "lat": 39.942603,
-    "lng": -75.17902,
+    "lat": 39.942548,
+    "lng": -75.17904,
     "website": "https://www.ultimocoffee.com/",
     "instagramUrl": "https://www.instagram.com/ultimocoffee/",
     "hoursSource": "google",
@@ -3915,7 +3947,9 @@
         "open": "8:00 AM",
         "close": "6:00 PM"
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "valerio-fishtown",
@@ -3964,8 +3998,8 @@
     "name": "Vernick Coffee Bar",
     "neighborhood": "Logan Square",
     "address": "1800 Arch St 2nd floor, Philadelphia, PA 19103",
-    "lat": 39.954978,
-    "lng": -75.170403,
+    "lat": 39.95477,
+    "lng": -75.170148,
     "website": "https://www.vernickcoffeebar.com/",
     "instagramUrl": "https://www.instagram.com/vernickcoffeebar/",
     "hoursSource": "official",
@@ -3997,15 +4031,17 @@
       "Sunday": {
         "closed": true
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "vessel",
     "name": "Vessel Coffee Collective",
     "neighborhood": "Fishtown",
     "address": "2401 Frankford Ave, Philadelphia, PA 19125",
-    "lat": 39.981646,
-    "lng": -75.127225,
+    "lat": 39.981584,
+    "lng": -75.12734,
     "website": "https://vesselcoffeeco.com/",
     "instagramUrl": "https://www.instagram.com/vesselcoffeeco/",
     "hoursSource": "official",
@@ -4038,7 +4074,9 @@
       "Sunday": {
         "closed": true
       }
-    }
+    },
+    "locationSource": "osm-poi",
+    "locationSyncedAt": "2026-10-06"
   },
   {
     "id": "vibrant-city-hall",

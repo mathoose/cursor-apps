@@ -5,5 +5,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 REPORT="${ROOT}/scripts/location-sync-report.json"
 cd "$ROOT/philly-dates"
-node sync-google-locations.js --provider auto --threshold 50 --report "$REPORT" "$@"
+node sync-google-locations.js --provider auto --threshold 75 --report "$REPORT" "$@"
+# For label-aligned pins on the OSM basemap, run: ./scripts/align-all-map-pins.sh
 echo "Report: $REPORT"
