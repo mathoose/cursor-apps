@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!-- build: coffee-drinks-map-v1 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Coffee & Drinks</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Coffee & Drinks" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1c1917" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <section id="screen-home" class="screen screen-home">
+    <header class="home-header">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <h1>Philly map</h1>
+      <p class="sub">Coffee shops &amp; bars · shared catalog</p>
+    </header>
+    <div class="home-actions">
+      <button type="button" class="home-btn home-btn-coffee" id="pick-coffee">
+        <span class="home-btn-icon" aria-hidden="true">☕</span>
+        <span class="home-btn-label">Coffee</span>
+        <span class="home-btn-hint">Cafes &amp; roasters</span>
+      </button>
+      <button type="button" class="home-btn home-btn-drinks" id="pick-drinks">
+        <span class="home-btn-icon" aria-hidden="true">🍺</span>
+        <span class="home-btn-label">Drinks</span>
+        <span class="home-btn-hint">Bars, breweries &amp; happy hours</span>
+      </button>
+    </div>
+    <p class="home-foot" id="home-status" aria-live="polite"></p>
+  </section>
+
+  <section id="screen-coffee" class="screen" hidden>
+    <header class="topbar topbar-coffee">
+      <button type="button" class="icon-btn" id="coffee-back" aria-label="Back">←</button>
+      <div class="topbar-titles">
+        <h1>Coffee</h1>
+        <p class="sub" id="coffee-sub">Loading…</p>
+      </div>
+    </header>
+    <main class="map-main">
+      <div id="map-coffee" class="map" role="application" aria-label="Coffee map"></div>
+      <button type="button" class="here-btn" id="here-coffee" aria-label="Where am I">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      </button>
+    </main>
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn on" data-coffee-view="map">Map</button>
+      <button type="button" class="nav-btn" data-coffee-view="list">List</button>
+    </nav>
+    <div class="list-panel" id="coffee-list-panel" hidden>
+      <input type="search" id="coffee-search" placeholder="Search cafes…" autocomplete="off" />
+      <div class="place-list" id="coffee-list"></div>
+    </div>
+  </section>
+
+  <section id="screen-drinks" class="screen" hidden>
+    <header class="topbar topbar-drinks">
+      <button type="button" class="icon-btn" id="drinks-back" aria-label="Back">←</button>
+      <div class="topbar-titles">
+        <h1>Drinks</h1>
+        <p class="sub" id="drinks-sub">Loading…</p>
+      </div>
+      <button type="button" class="btn btn-schedule" id="open-schedule">Active happy hours</button>
+    </header>
+    <main class="map-main">
+      <div id="map-drinks" class="map" role="application" aria-label="Drinks map"></div>
+      <button type="button" class="here-btn" id="here-drinks" aria-label="Where am I">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+      </button>
+    </main>
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn on" data-drinks-view="map">Map</button>
+      <button type="button" class="nav-btn" data-drinks-view="list">List</button>
+    </nav>
+    <div class="list-panel" id="drinks-list-panel" hidden>
+      <input type="search" id="drinks-search" placeholder="Search bars…" autocomplete="off" />
+      <div class="place-list" id="drinks-list"></div>
+    </div>
+  </section>
+
+  <section id="screen-schedule" class="screen screen-schedule" hidden>
+    <header class="topbar topbar-drinks">
+      <button type="button" class="icon-btn" id="schedule-back" aria-label="Back to map">←</button>
+      <div class="topbar-titles">
+        <h1>Happy hours</h1>
+        <p class="sub">Highlighted = active at selected time</p>
+      </div>
+    </header>
+    <div class="schedule-toolbar">
+      <label class="quick-filter"><input type="checkbox" id="filter-hh-now" checked /> Happy hour right now</label>
+      <div class="filters">
+        <label>Neighborhood
+          <select id="neighborhood"><option value="">All neighborhoods</option></select>
+        </label>
+        <label>Day
+          <select id="day"></select>
+        </label>
+        <label>Time
+          <select id="time"></select>
+        </label>
+      </div>
+      <input type="search" id="schedule-search" placeholder="Search by name…" autocomplete="off" />
+      <div class="summary" id="summary"></div>
+      <div class="grid-wrap">
+        <table id="grid"><thead></thead><tbody></tbody></table>
+      </div>
+      <div class="legend">
+        <span><span class="swatch on"></span> Happy hour</span>
+        <span><span class="swatch now"></span> Selected time</span>
+        <span><span class="swatch off"></span> Off</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="overlay" id="detail-overlay" role="dialog" aria-modal="true" hidden>
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="detail-name">Place</h2>
+        <button type="button" class="text-btn" id="detail-close">Close</button>
+      </div>
+      <p class="detail-meta" id="detail-meta"></p>
+      <p class="detail-desc" id="detail-desc"></p>
+      <div class="detail-links" id="detail-links"></div>
+      <a class="btn btn-primary maps-link" id="detail-maps" target="_blank" rel="noopener">Open in Maps</a>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
+  <script src="app.js?v=1" defer></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
