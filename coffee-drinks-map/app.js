@@ -54,7 +54,22 @@
     document.querySelectorAll('.screen').forEach(function (s) {
       s.hidden = s.id !== id;
     });
+    var screen = document.getElementById(id);
+    document.body.classList.toggle('on-map', !!(screen && screen.classList.contains('screen-map')));
     window.scrollTo(0, 0);
+  }
+
+  /* apps-shell inserts the version footer after the first <main>, which lives inside a hidden screen. */
+  function hoistVersionFooter() {
+    var footer = document.querySelector('.app-version-footer');
+    if (footer && footer.parentNode !== document.body) document.body.appendChild(footer);
+    return !!footer;
+  }
+  if (!hoistVersionFooter() && typeof MutationObserver !== 'undefined') {
+    var footerObserver = new MutationObserver(function () {
+      if (hoistVersionFooter()) footerObserver.disconnect();
+    });
+    footerObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
 
   function parseTime(t) {
