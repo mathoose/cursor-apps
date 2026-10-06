@@ -41,7 +41,7 @@ const searchAll = args.includes('--all');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : Infinity;
 const threshIdx = args.indexOf('--threshold');
-const thresholdM = threshIdx >= 0 ? parseFloat(args[threshIdx + 1]) : 50;
+const thresholdM = threshIdx >= 0 ? parseFloat(args[threshIdx + 1]) : 75;
 const maxMoveIdx = args.indexOf('--max-move');
 const maxMoveM = args.includes('--allow-large-moves')
   ? Infinity

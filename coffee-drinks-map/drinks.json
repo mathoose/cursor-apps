@@ -4437,7 +4437,7 @@
     "hoursNote": "Monday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Tuesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Wednesday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Thursday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Friday: 11:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Saturday: 10:00\u202fAM\u2009\u2013\u20092:00\u202fAM; Sunday: 10:00\u202fAM\u2009\u2013\u20092:00\u202fAM",
     "lat": 39.928914,
     "lng": -75.164378,
-    "locationSource": "photon-osm",
+    "locationSource": "photon-osm-manual",
     "locationSyncedAt": "2026-10-06"
   },
   {
@@ -4504,9 +4504,9 @@
     "googlePlaceId": "ChIJZ1xhQgXGxokRKssMj6MaWdA",
     "hoursNote": "Monday: 4:00\u2009\u2013\u200911:00\u202fPM; Tuesday: 4:00\u2009\u2013\u200911:00\u202fPM; Wednesday: 4:00\u2009\u2013\u200911:00\u202fPM; Thursday: 4:00\u2009\u2013\u200911:00\u202fPM; Friday: 2:00\u202fPM\u2009\u2013\u200912:00\u202fAM; Saturday: 11:00\u202fAM\u2009\u2013\u200912:00\u202fAM; Sunday: 11:00\u202fAM\u2009\u2013\u200910:00\u202fPM",
     "menu_pdf": "https://barcelonawinebar.com/media/2-26-26-Passyunk-Happy-Hour.pdf",
-    "lat": 39.928138,
-    "lng": -75.165264,
-    "locationSource": "osm-poi",
+    "lat": 39.928085,
+    "lng": -75.165332,
+    "locationSource": "photon-osm-manual",
     "locationSyncedAt": "2026-10-06"
   },
   {

@@ -4,7 +4,8 @@ Happy-hour and bar pins use `lat` / `lng` in `places.json`. Addresses and hours 
 
 ## Recommended workflow
 
-1. **Best accuracy (118+ places with `googlePlaceId`):**
+1. **Best accuracy (118+ places with `googlePlaceId`):**  
+   `sync-google-addresses.js` also refreshes pins when it fetches Google details (same key).
    ```bash
    export GOOGLE_PLACES_API_KEY=your_key
    cd philly-dates

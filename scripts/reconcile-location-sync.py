@@ -12,6 +12,9 @@ REPORT = ROOT / "scripts" / "location-sync-report.json"
 
 # Verified OSM building points (Photon housenumber match).
 MANUAL = {
+    # Passyunk (plan examples): building / OSM POI coords
+    "Barcelona Wine Bar": (39.9280849, -75.1653322),
+    "Cantinas los caballitos": (39.9289141, -75.1643785),
     "La Chinesca": (39.9614216, -75.156005),
     "Poison heart": (39.961903, -75.1540675),
     "Alice": (39.9619369, -75.1558934),
