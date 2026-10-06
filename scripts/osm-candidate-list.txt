@@ -1,0 +1,338 @@
+coffee 174
+beer 160
+===== beer
+bar   | 12 Steps Down | 831 Christian Street |  | 
+pub   | 2637brew | 2637 West Girard Avenue |  | 
+bar   | 619 |  |  | 
+bar   | 7th & Kaighn Lounge |  |  | 
+bar   | ASCII Cup XLI | 1501 Spruce Street |  | 
+brewe | After Midnight Brewing |  |  | 
+bar   | Ajax Hall |  |  | 
+pub   | Bar Ly | 101 North 11th Street |  | 
+bar   | Bar210 | 210 West Rittenhouse Square |  | 
+bar   | Barcade | 1326 Chestnut Street |  | 
+bar   | Bardot | 447 Poplar Street |  | 
+bar   | Bender City | 2831 South 17th Street |  | 
+bar   | Blue Bird Distilling - Center City Tasting Room |  |  | 
+bar   | Bonner's Irish Pub | 120 South 23rd Street |  | 
+bar   | Bonnie's Capistrano Bar | 1503 South 13th Street |  | 
+bar   | Bourbon & Branch | 705 North 2nd Street |  | 
+bar   | Brasil's Nightclub | 112 Chestnut Street |  | 
+bar   | Brewery ARS | 1927-1929 West Passyunk Avenue |  | 
+pub   | Broad Street Bullies Pub |  |  | 
+pub   | Brownie's Pub | 48 South 2nd Street |  | 
+bar   | Brü Craft & Wurst | 1318 Chestnut Street | german | 
+bar   | Buffalo Billiards | 118 Chestnut Street |  | 
+bar   | Bulletin Bar | 3025 Market Street |  | 
+brewe | Cartesian Brewing | 1326 East Passyunk Avenue |  | 
+pub   | Cherry Street Tavern | 129 North 22nd Street |  | 
+bar   | Chickie's and Pete's | 1526 Packer Avenue | american | Chickie's and Pete's
+bar   | Cleavers | 108 South 18th Street |  | 
+brewe | Commonwealth Ciders |  |  | 
+pub   | Con Murphy's | 1700 Benjamin Franklin Parkway |  | 
+bar   | Copabanana | 344 South Street |  | 
+bar   | Crabby Cafe & Sports Bar | 1050 North Hancock Street |  | 
+pub   | Craft Hall | 901 North Delaware Avenue |  | 
+bar   | Dahlak |  |  | 
+bar   | Devil's Alley Bar & Grill | 1907 Chestnut Street |  | 
+bar   | Devil's Den |  |  | 
+bar   | Dirty Franks | Pine Street |  | 
+pub   | Dock Street Brewery South | 2118 Washington Avenue |  | 
+bar   | El Cacique Lounge | 524 W Street |  | 
+bar   | Emily's |  |  | 
+bar   | Evil Genius Beer Company | 1727 North Front Street |  | 
+pub   | Fado | 1500 Locust Street |  | 
+pub   | Fergie's Pub | 1214 Sansom Street |  | 
+bar   | Fieldhouse Philadelphia |  |  | 
+pub   | Finn McCools Ale House | 118 South 12th Street |  | 
+bar   | Finnigan's Wake | 537 North 3rd Street |  | 
+bar   | Flynn's Bar |  |  | 
+pub   | Frankford Hall | 1210 Frankford Avenue |  | 
+bar   | Garage Fishtown | 100 East Girard Avenue |  | 
+bar   | Good Good Things | 11 South 21st Street |  | 
+bar   | Good Good Things Bar | 11 South 21st Street |  | 
+pub   | Grace Tavern |  |  | 
+pub   | Green Room | 1940 Green Street |  | 
+bar   | Green Tree Tavern |  |  | 
+bar   | Grumpy's Tavern | 1525 South 9th Street |  | 
+bar   | Gunner's Run | 1001 North 2nd Street |  | 
+pub   | Hilltown Tavern Fairmount | 795 North 24th Street |  | 
+bar   | Howl at the Moon | 258 South 15th Street |  | 
+bar   | Human Robot |  |  | 
+pub   | Human Robot |  |  | 
+pub   | Human Robot Girard | 2711 West Girard Avenue | snack | 
+bar   | Interstate Drafthouse | 1235 East Palmer Street | american | 
+pub   | Iron Hill Brewery | 1150 Market Street |  | 
+pub   | JD McGillicuddy's | 421 North 7th Street |  | 
+bar   | JJ Mallons | 1155 North Front Street |  | 
+bar   | Joe Herman's Bar |  |  | 
+bar   | Johnny Brenda's Tavern | 1201 Frankford Avenue |  | 
+bar   | KTV | 1025 Arch Street |  | 
+pub   | Kite and Key | 1836 Callowhill Street |  | 
+bar   | Kraftwork | 541 East Girard Avenue |  | 
+pub   | Les n Doreen's Happy Tap | thompson and susquahana |  | 
+bar   | Libertad Lounge |  |  | 
+pub   | Local 44 | 4333 Spruce Street |  | 
+bar   | Love City Brewing | 1023 Hamilton Street |  | 
+bar   | Lucky Strike | 1336 Chestnut Street |  | 
+pub   | Lucky's Last Chance | 848 South 2nd Street |  | 
+brewe | Mainstay Independent Brewing Company | 901 North Delaware Avenue |  | 
+pub   | McGillin's Olde Ale House | 1310 Drury Street |  | 
+pub   | McKennas |  |  | 
+pub   | Mcdaniels |  |  | 
+bar   | Meetinghouse | 2331 East Cumberland Street |  | 
+bar   | MilkBoy South Street | 401 South Street |  | 
+pub   | Millcreek Tavern | 4200 Chester Avenue |  | 
+bar   | Misconduct Tavern | 1511 Locust Street |  | 
+bar   | Mix Bar & Grill | 2101 Chestnut Street |  | 
+bar   | Monkey Club | 2101 East York Street |  | 
+bar   | North Bowl | 909 North 2nd Street |  | 
+bar   | Nut Hut Saloon |  |  | 
+bar   | Off Broadway Lounge | 521 Spruce Street |  | 
+bierg | Old City Beer Garden | 240 Market Street |  | 
+bar   | Ortlieb's Lounge | 847 North 3rd Street |  | 
+bar   | Oscar's Tavern | 1524 Sansom Street |  | 
+pub   | Other Half Brewing | 1002 Canal Street |  | 
+bierg | PHS Pop Up Garden | 1438 South Street |  | 
+pub   | Paddy’s | 228 Race Street |  | 
+brewe | Philadelphia Brewing Company | 2440 Frankford Avenue |  | 
+bar   | Philadelphia Brewing Company Peacock Room Bar & Garden |  |  | 
+bar   | Philadelphia Distilling |  |  | 
+bar   | Philadium Tavern | 1631 Packer Avenue |  | 
+bar   | Point Breeze Brewing |  |  | 
+bar   | Ponder | 2532 Coral Street |  | 
+pub   | Prime Fusion Afro Grill and Lounge | 2425 Grays Ferry Avenue |  | 
+pub   | Prohibition Taproom | 501 North 13th Street | american;burger;fish_and_chips;sandwich | 
+bar   | Pub On Passyunk East | 1501 East Passyunk Avenue |  | 
+pub   | Pub Webb | 1527 Cecil B Moore Avenue |  | 
+bar   | Punch Buggy Brewing Company | 1445 North American Street |  | 
+bar   | R&D Cocktail Bar | 1206 Frankford Avenue |  | 
+bar   | Red Lounge | 1100 Washington Avenue |  | 
+bar   | Rodin Garden Bar |  |  | 
+pub   | Rotten Ralph's Pub & Eatery | 201 Chestnut Street |  | 
+pub   | Rybrew | 2600 West Girard Avenue |  | 
+pub   | Sammy's Sports Bar | 5000 Market Street |  | 
+pub   | Second District Brewing Company | 1939 South Bancroft Street |  | 
+bar   | Señor Baynard's Bar & Grill | 1216 South 17th Street |  | 
+bar   | Sit on It Bar | 1901 South 19th Street |  | 
+bar   | Smokey Joe's |  |  | 
+bar   | Society Commons | 1 Dock Street | american | 
+bar   | Sophie's Tavern | 699 Central Avenue |  | 
+pub   | St. Stephen's Green | 1701 Green Street |  | 
+bar   | State Bar | 226 State Street |  | 
+bar   | Stateside Urbancraft Vodka Tasting Room | 1700 North Hancock Street |  | 
+bar   | Supérette | 1540 East Passyunk Avenue | french | 
+bar   | Tango |  |  | 
+bar   | Tap Room on 19th | 2400 South 19th Street |  | 
+pub   | Tapster | 1601 Sansom Street |  | 
+bar   | Tempo | 3601 Market Street |  | 
+pub   | Ten Stone | 2063 South 21st Street | american | 
+bar   | The 700 | 700 North 2nd Street |  | 
+bar   | The Druid's Keep | 149 Brown Street |  | 
+bar   | The El Bar | 1356 North Front Street |  | 
+bar   | The Fairmount Tavern | 1700 Fairmount Avenue |  | 
+pub   | The Fairview Philly | 601 North 21st Street |  | 
+bar   | The Fire | 412 West Girard Avenue |  | 
+bar   | The Library Bar | 210 West Rittenhouse Square |  | 
+bar   | The Living Room Lounge | 3600 Sansom Street |  | 
+bar   | The Lost Bar | 2442 Frankford Avenue |  | 
+pub   | The Monto | 226 Market Street |  | 
+bar   | The Olde Bar | 125 Walnut Street |  | 
+pub   | The Plough & the Stars | 123 Chestnut Street |  | 
+pub   | The Post | 129 South 30th Street |  | 
+pub   | The Station Bar & Grill | 1550 McKean Street |  | 
+bar   | The Trestle Inn | 339 North 11th Street |  | 
+bar   | The Victor Pub | 1 Market Street |  | 
+pub   | The Wishing Well | 767 South 9th Street |  | 
+pub   | Tir na nOg | 1600 Arch Street |  | 
+bar   | Tradesman's | 1322 Chestnut Street |  | 
+bar   | Triple Bottom Brewing | 915 Spring Garden Street |  | 
+brewe | Two Robbers Spirits Company |  |  | 
+bar   | U-Bahn | 1320 Chestnut Street |  | 
+bar   | Ubar | 1220 Locust Street |  | 
+bar   | Urban Saloon | 2120 Fairmount Avenue |  | 
+bar   | Val's Lesbian Bar | 605 South 3rd Street |  | 
+pub   | Varga | 941 Spruce Street |  | 
+pub   | Victory Beer Hall | 1100 Pattison Avenue |  | 
+bar   | Vikings High School Club |  |  | 
+bierg | Walnut Garden | 1708 Walnut Street |  | 
+pub   | Watusi Pub | 4600 Walnut Street |  | 
+pub   | Wissahickon Brewing Co | 1526 North American Street |  | 
+bar   | Woody's Bar | 202 South 13th Street |  | 
+bar   | Writer's Block Rehab | 1342 Cypress Street |  | 
+bar   | Yards Brewing Company | 500 Spring Garden Street |  | 
+===== coffee
+cafe  | 3J's Cafe | 317 Market Street |  | 
+cafe  | A La Mousse | 145 North 11th Street | coffee_shop;tea;bubble_tea;dessert | 
+cafe  | Alchemy Coffee | 119 South 21st Street | coffee_shop | 
+cafe  | Alchemy Coffee | 2300 Market Street | coffee_shop | 
+cafe  | Alif Brew & Mini Market | 4501 Baltimore Avenue | coffee_shop | 
+cafe  | Almaz Cafe | 140 South 20th Street |  | 
+cafe  | Anthony's Italian Coffee & Chocolate House | 903 South 9th Street | coffee_shop | 
+cafe  | Aroma Bakery & Coffee | 160 North 3rd Street | breakfast;coffee_shop;tea | 
+cafe  | Avril 50 | 3406 Sansom Street | coffee_shop | 
+cafe  | Bagels & Co. | 1526 Sansom Street | coffee_shop | Bagels & Co.
+cafe  | Balcony Café | 2600 Benjamin Franklin Parkway |  | 
+cafe  | Bambu |  | vietnamese;bubble_tea | Bambu
+cafe  | Black Turtle Coffee | 2100 Chestnut Street | coffee_shop | 
+cafe  | Bluestone Lane | 1717 Arch Street | coffee_shop | Bluestone Lane
+cafe  | Boba King | 3200 Chestnut Street | bubble_tea | 
+cafe  | Bridge Cafe |  | sandwich | 
+cafe  | Buzz Cafe | 1800 North Howard Street | coffee_shop | 
+cafe  | Cafe Crema | 100 South Broadway | breakfast;coffee_shop;sandwich | 
+cafe  | Cafe Excellence |  |  | 
+cafe  | Cafe La Maude | 816 North 4th Street | french;lebanese | 
+cafe  | Cafe Ole | 147 North 3rd Street |  | 
+cafe  | Cafe Pendawa |  |  | 
+cafe  | Cafe Square One | 311 Market Street |  | 
+cafe  | Cafe Square One |  |  | 
+cafe  | Cafe Walnut | 703 Walnut Street | coffee_shop | 
+cafe  | Cafe Ynez | 2025 Washington Avenue | mexican | 
+cafe  | Café Lutecia | 2301 Lombard Street |  | 
+cafe  | Capital One Cafe | 135 South 17th Street | coffee_shop;tea | 
+cafe  | Capriccio Cafe and Bar at Cret Park | 110 North 16th Street | coffee_shop | 
+cafe  | Chicha San Chen |  | bubble_tea | Chicha San Chen
+cafe  | Chicha San Chen | 932 | bubble_tea | Chicha San Chen
+cafe  | Cinemug | 1607 South Broad Street |  | 
+cafe  | Cloud Coffee |  | coffee_shop | 
+cafe  | Coffee House Too |  |  | 
+cafe  | Coffee Tea & Company | 301 Market Street | coffee_shop | 
+cafe  | Corner Bakery | 3737 Market Street | coffee_shop | Corner Bakery
+cafe  | Cosmic Cafe | 1 Boathouse Row |  | 
+cafe  | Cour di Cafe |  |  | 
+cafe  | Customs Coffee House (Double Shots) | 211 Chestnut Street | coffee_shop;sandwich | 
+cafe  | Di Bruno Bros. Cafe |  |  | 
+cafe  | Dilworth Park Café | 1400 John F. Kennedy Boulevard |  | 
+cafe  | Disguiser Game Lounge | 3617 Lancaster Avenue |  | 
+cafe  | Divine Lorraine Hotel | 699 North Broad Street |  | 
+cafe  | Dolce & Caffe | 708 North 2nd Street | coffee_shop;italian | 
+cafe  | Eggcellent Cafe | 113 Chestnut Street |  | 
+cafe  | Es Cafe Lounge | 1447 North American Street |  | 
+cafe  | Essen Bakery | 1437 East Passyunk Avenue | bakery | 
+cafe  | FRIEDA | 320 Walnut Street | coffee_shop;bakery | 
+cafe  | Federal Donuts & Chicken |  | chicken;donut | 
+cafe  | Fitz on 4th | 743 South 4th Street |  | 
+cafe  | Fitzwater Cafe | 728 South 7th Street |  | 
+cafe  | Get a Gato Cat Café | 638 Christian Street | coffee_shop;donut | 
+cafe  | Global Crepes Local Shakes | 1309 South 9th Street | crepe | 
+cafe  | Golden Donuts |  |  | 
+cafe  | Gong Cha | 3925 Walnut Street | bubble_tea | Gong Cha
+cafe  | Good Karma Café | 2319 Walnut Street | coffee_shop | 
+cafe  | Green Eggs Cafe | 1306 Dickinson Street | breakfast | 
+cafe  | Green Line Cafe |  | coffee_shop | 
+cafe  | Green Line Cafe | 4426 Locust Street | coffee_shop | 
+cafe  | Green Line Cafe | 3649 Lancaster Avenue | coffee_shop;sandwich | 
+cafe  | Green Line Cafe | 4239 Baltimore Avenue | coffee_shop | 
+cafe  | Greenland Café | North 9th Street |  | 
+cafe  | Gryphon Cafe |  |  | 
+cafe  | Haraz Coffee House | 3421 Chestnut Street | coffee_shop | 
+cafe  | Hibiscus Juice & Smoothies |  |  | 
+cafe  | Higher Grounds Cafe | 631 North 3rd Street |  | 
+cafe  | ICI Macarons & Cafe | 230 Arch Street | macaron;pastry;coffee | 
+cafe  | Independence Mall Cafe | 50 North Independence Mall East |  | 
+cafe  | Jacob's Cafe |  |  | 
+cafe  | Kaffa Crossing | 4423 Chestnut Street | ethiopian | 
+cafe  | Kayuh Bicycles | 1900 West Girard Avenue |  | 
+cafe  | Knockbox Cafe | 405 South 45th Street |  | 
+cafe  | Konditori | 40 South 17th Street | coffee_shop | 
+cafe  | Kung Fu Tea | 1006 Arch Street | bubble_tea | Kung Fu Tea
+cafe  | Kung Fu Tea | 2000 Hamilton Street | bubble_tea | Kung Fu Tea
+cafe  | Kung Fu Tea | 3175 John F. Kennedy Boulevard | bubble_tea | Kung Fu Tea
+cafe  | La Colombe Coffee Roasters |  | coffee_shop | La Colombe Coffee Roasters
+cafe  | Last Drop Cafe | 1300 Pine Street |  | 
+cafe  | Le Cat Cafe | 2713 Cambridge Street |  | 
+cafe  | Le Pain Quotidien | 1425 Walnut Street | coffee_shop | Le Pain Quotidien
+cafe  | Le Pain Quotidien | 801 Walnut Street | coffee_shop | Le Pain Quotidien
+cafe  | Leotah's Place | 2033 East York Street | coffee_shop | 
+cafe  | Little Susie's Coffee & Pie | 1754 South Chadwick Street |  | 
+cafe  | Little Susie's Coffee & Pie | 105 South 2nd Street | ice_cream;coffee_shop | 
+cafe  | Loretta's | 410 South 2nd Street |  | 
+cafe  | Luck You | 3737 Lancaster Avenue | coffee_shop;tea;japanese | 
+cafe  | Lucky Cup Cafe |  |  | 
+cafe  | Lulu |  |  | 
+cafe  | MOTW Coffee | 2101 Market Street | coffee_shop;yemeni | 
+cafe  | Madison K Cookies | 800 North 2nd Street | dessert;cookie | 
+cafe  | Mango Mango Dessert | 1013 Cherry Street | asian;dessert | Mango Mango Dessert
+cafe  | Matcha Panda | 202 North 9th Street | bubble_tea;cake;ice_cream | 
+cafe  | Matcha Panda | 2033 Chestnut Street | coffee_shop | 
+cafe  | Metropolitan Bakery | 51 North 12th Street | coffee_shop;salad;local;bakery;dessert | 
+cafe  | Mighty Bread |  |  | 
+cafe  | Milk and Honey Cafe | 518 South 4th Street |  | 
+cafe  | Milkcrate Cafe & Vinyl | 4435 Baltimore Avenue | coffee_shop | 
+cafe  | Miller's Twist | 51 North 12th Street | pretzel | 
+cafe  | Miucha |  |  | 
+cafe  | Molly Tea |  | bubble_tea | 
+cafe  | Mr. 8 Cafe |  |  | 
+cafe  | Mr. Wish | 216 North 10th Street | bubble_tea | 
+cafe  | Munchie’s Cafe | Chestnut Street |  | 
+cafe  | Nourish | 177 West Girard Avenue | american | 
+cafe  | OCF Coffee House | 1745 South Street | coffee_shop | 
+cafe  | Olivier Cafe | 50 South 3rd Street |  | 
+cafe  | Paris Baguette | 923 Arch Street |  | Paris Baguette
+cafe  | Philadelphia Java Co. |  |  | 
+cafe  | Prince Tea House | 203 North 9th Street | tea | 
+cafe  | Queen & Rook Game Cafe | 123 South Street | american;pizza | 
+cafe  | RIM Cafe | 1172 South 9th Street |  | 
+cafe  | Ray’s Cafe & Tea House | 141 North 9th Street |  | 
+cafe  | ReAnimator Coffee | 4705 Pine Street | coffee_shop;pastry | 
+cafe  | Red Parasol Cafe | 220 Market Street | coffee_shop | 
+cafe  | Richie's Cafe | 1801 North 10th Street | coffee_shop;panini;waffle;soup | 
+cafe  | Richie's Cafe | 1802 North Warnock Street | coffee_shop;panini;waffle | 
+cafe  | Saxby's Coffee | 234 South 11th Street | coffee_shop | 
+cafe  | Saxbys | 4000 Locust Street | coffee_shop | 
+cafe  | Saxbys | 1625 Chestnut Street |  | Saxbys
+cafe  | Saxbys | 3141 Chestnut Street | coffee_shop | 
+cafe  | Saxbys | 1902 Liacouras Walk | coffee_shop | 
+cafe  | Saxbys | 1700 Spring Garden Street | coffee_shop | 
+cafe  | Saxbys - Drexel | 65 North 34th Street | coffee_shop | 
+cafe  | Schmear Bagel Parlor | 2001 Fitzwater Street | coffee_shop;bagel;breakfast | 
+cafe  | Shibam Coffee | 3748 Lancaster Avenue | coffee_shop;dessert | 
+cafe  | Sister Cities Cafe |  |  | 
+cafe  | Smile Cafe | 105 South 22nd Street | thai | 
+cafe  | Social House Eatery and Cafe | 2100 South Street |  | 
+cafe  | Starbucks | 3401 Walnut Street | coffee_shop | Starbucks
+cafe  | Starbucks | 200 West Washington Square | coffee_shop | Starbucks
+cafe  | Starbucks | 600 South 9th Street | coffee_shop | Starbucks
+cafe  | Starbucks | 337-341 South Broad Street | coffee_shop | Starbucks
+cafe  | Starbucks | 4140 Woodland Avenue | coffee_shop | Starbucks
+cafe  | Starbucks | 1801 Spruce Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1600 Arch Street | coffee_shop | Starbucks
+cafe  | Starbucks | 63 North 3rd Street | coffee_shop | Starbucks
+cafe  | Starbucks |  | coffee_shop | Starbucks
+cafe  | Starbucks | 1500 Market Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1528 Walnut Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1945 Callowhill Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1755 North 13th Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1900 Market Street | coffee_shop | Starbucks
+cafe  | Starbucks |  | coffee_shop | Starbucks
+cafe  | Starbucks | 525 Arch Street | coffee_shop | Starbucks
+cafe  | Starbucks | 901 Market Street | coffee_shop | Starbucks
+cafe  | Starbucks | 490 North Broad Street | coffee_shop | Starbucks
+cafe  | Starbucks | 101 North Broad Street | coffee_shop | Starbucks
+cafe  | Starbucks | 2497 Aramingo Avenue | coffee_shop | Starbucks
+cafe  | Starbucks |  | coffee_shop | Starbucks
+cafe  | Starbucks | 3151 Market Street | coffee_shop | Starbucks
+cafe  | Starbucks | 3901 Walnut Street | coffee_shop | Starbucks
+cafe  | Starbucks | 1 South 15th Street | coffee_shop | Starbucks
+cafe  | Stephen's Cafe |  |  | 
+cafe  | Sue*Saki's treats | 4903 Catharine Street | ice_cream | 
+cafe  | Sunday Girl | 263 North 3rd Street |  | 
+cafe  | Talula's Daily | 208 West Washington Square | coffee_shop | 
+cafe  | Tea Do | 132 North 10th Street | tea;bubble_tea | 
+cafe  | Tea House Cafe |  |  | 
+cafe  | Tea-Do | 3816-3836 Chestnut Street | bubble_tea | 
+cafe  | Teassert Bar |  |  | 
+cafe  | The Artist's Pallet Cafe |  |  | 
+cafe  | The Board and Brew | 3200 Chestnut Street |  | 
+cafe  | The Monkey & The Elephant | 2831 West Girard Avenue | coffee_shop | 
+cafe  | Time & Peace | 36 South 7th Street |  | 
+cafe  | Top Hat Coffee Lounge | 3131 Walnut Street | coffee_shop | 
+cafe  | Torchwood Cafe | 303 North 3rd Street | american;coffee_shop | 
+cafe  | Tribe Cafe | 2310 North Broad Street |  | 
+cafe  | Two Persons - Market East | 920 Market Street | coffee_shop | 
+cafe  | Ultimo Coffee | 1900 South 15th Street | coffee_shop | 
+cafe  | Vivi Bubble Tea | North 10th Street |  | 
+cafe  | Waterfront Gourmet Cafe & Deli | 1414 South Penn Square |  | 
+cafe  | Yi Fang Tea |  | bubble_tea | Yi Fang Tea
+cafe  | machi sushi bar | 209 South 20th Street | sushi | 
+cafe  | t.uni |  | bubble_tea | 

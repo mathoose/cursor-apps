@@ -85,6 +85,11 @@
       "storageKey": "coffee-map-v1"
     },
     {
+      "id": "coffee-drinks-map",
+      "name": "Coffee & Drinks",
+      "subtitle": "Philly cafes & bars map"
+    },
+    {
       "id": "city-axes",
       "name": "City Axes",
       "subtitle": "Broad & Market from City Hall",
