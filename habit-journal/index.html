@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v75 -->
+  <!-- build: hj-today-version-v76 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -869,9 +869,9 @@
       cursor: pointer;
     }
     .exclude-day-chip.on {
-      background: #d8d4cc;
-      border-color: #b8b4ac;
-      color: #6b6560;
+      background: #fdeaea;
+      border-color: var(--accent);
+      color: var(--accent-dark);
     }
     .exclude-days-hint {
       margin: 6px 0 0;
@@ -1339,6 +1339,38 @@
       font-size: 0.8125rem;
       color: var(--muted);
       font-weight: 600;
+    }
+    .habits-list-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+      align-items: center;
+    }
+    .habits-list-filter input[type="search"] {
+      flex: 1 1 160px;
+      min-width: 0;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      background: #fff;
+    }
+    .habits-list-filter select {
+      flex: 0 1 140px;
+      min-width: 120px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    .habits-filter-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: -4px 0 10px;
     }
     .habit-meta-row {
       display: flex;
@@ -3035,6 +3067,11 @@
     body.layout-modern .habits-danger-toggle {
       color: #c5cbe0 !important;
     }
+    body.layout-modern .exclude-day-chip.on {
+      background: rgba(139, 124, 247, 0.35) !important;
+      border-color: rgba(139, 124, 247, 0.75) !important;
+      color: #fff !important;
+    }
     body.layout-modern .graph-habit-chip {
       background: #252a3a;
       border-width: 1.5px !important;
@@ -3567,7 +3604,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v75 · Sep 8, 2026";
+  let habitJournalVersionText = "v76 · Oct 6, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3834,6 +3871,9 @@
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
   let habitsColorPanelOpen = false;
+  let habitsListQuery = "";
+  let habitsListCategory = "all";
+  const HABITS_LIST_FILTER_KEY = "habit-journal-habits-list-filter";
   let graphMa15 = false;
   let graphMa30 = false;
   let graphHideDaily = false;
@@ -4029,7 +4069,7 @@
       html +=
         '<button type="button" class="exclude-day-chip' +
         (on ? " on" : "") +
-        '" data-exclude-day="' +
+        '" data-exclude-habit="' +
         escapeHtml(habit.id) +
         '" data-weekday="' +
         day +
@@ -4045,10 +4085,12 @@
 
   function bindExcludeDays(root) {
     if (!root) return;
-    root.querySelectorAll("[data-exclude-day]").forEach(function (btn) {
-      btn.onclick = function () {
+    root.querySelectorAll("[data-exclude-habit][data-weekday]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        e.preventDefault();
         const habit = state.habits.find(function (h) {
-          return h.id === btn.getAttribute("data-exclude-day");
+          return h.id === btn.getAttribute("data-exclude-habit");
         });
         if (!habit || habit.type !== "yesno") return;
         const day = parseInt(btn.getAttribute("data-weekday"), 10);
@@ -4059,9 +4101,52 @@
         habit.excludeDays = normalizeExcludeDays(habit.excludeDays);
         purgeExcludedCellMarks(habit.id);
         save();
-        render();
+        const on = habit.excludeDays.indexOf(day) >= 0;
+        btn.classList.toggle("on", on);
+        btn.setAttribute("aria-pressed", String(on));
+        if (activeTab === "habits") renderHabits();
+        else render();
       };
     });
+  }
+
+  function loadHabitsListFilter() {
+    try {
+      const raw = localStorage.getItem(HABITS_LIST_FILTER_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (typeof p.query === "string") habitsListQuery = p.query;
+      if (typeof p.category === "string") habitsListCategory = p.category;
+      if (
+        habitsListCategory &&
+        habitsListCategory !== "all" &&
+        state.categories &&
+        state.categories.indexOf(habitsListCategory) < 0
+      ) {
+        habitsListCategory = "all";
+      }
+    } catch (e) { /* ok */ }
+  }
+
+  function persistHabitsListFilter() {
+    try {
+      localStorage.setItem(
+        HABITS_LIST_FILTER_KEY,
+        JSON.stringify({ query: habitsListQuery, category: habitsListCategory })
+      );
+    } catch (e) { /* ok */ }
+  }
+
+  function habitMatchesHabitsListFilter(habit) {
+    if (habitsListCategory && habitsListCategory !== "all" && habit.category !== habitsListCategory) {
+      return false;
+    }
+    const q = habitsListQuery.trim().toLowerCase();
+    if (!q) return true;
+    const name = String(habit.name || "").toLowerCase();
+    const cat = categoryLabel(habit.category).toLowerCase();
+    const type = habit.type === "yesno" ? "yes no" : habit.type || "";
+    return name.indexOf(q) >= 0 || cat.indexOf(q) >= 0 || type.indexOf(q) >= 0;
   }
 
   function renderHabitEditExcludeDays(habit) {
@@ -9695,6 +9780,28 @@
     html +=
       '<p class="hint">Use ‹ › on a Month or Stats category chip to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
 
+    html += '<div class="habits-list-filter">';
+    html +=
+      '<input type="search" id="habitsListSearch" placeholder="Search habits" value="' +
+      escapeHtml(habitsListQuery) +
+      '" autocomplete="off" aria-label="Search habits" />';
+    html += '<select id="habitsListCategory" aria-label="Filter habits by category">';
+    html +=
+      '<option value="all"' +
+      (habitsListCategory === "all" ? " selected" : "") +
+      ">All categories</option>";
+    state.categories.forEach(function (cat) {
+      html +=
+        '<option value="' +
+        escapeHtml(cat.id) +
+        '"' +
+        (habitsListCategory === cat.id ? " selected" : "") +
+        ">" +
+        escapeHtml(cat.label) +
+        "</option>";
+    });
+    html += "</select></div>";
+
     html += '<div class="add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
     html += '<select id="newHabitCategory" aria-label="Category">';
@@ -9869,18 +9976,34 @@
 
     const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
     const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
+    const filteredVisible = visibleHabits.filter(habitMatchesHabitsListFilter);
+    const filteredHidden = hiddenHabits.filter(habitMatchesHabitsListFilter);
+    const filterActive =
+      habitsListQuery.trim() !== "" || (habitsListCategory && habitsListCategory !== "all");
+    if (filterActive) {
+      html +=
+        '<p class="habits-filter-meta">Showing ' +
+        (filteredVisible.length + filteredHidden.length) +
+        " of " +
+        state.habits.length +
+        " habits</p>";
+    }
 
-    visibleHabits.forEach(function (habit) {
+    filteredVisible.forEach(function (habit) {
       html += renderHabitCompactRow(habit, false);
     });
 
-    if (hiddenHabits.length) {
+    if (!filteredVisible.length && !filteredHidden.length && state.habits.length) {
+      html += '<p class="hint">No habits match your search — try another name or category.</p>';
+    }
+
+    if (filteredHidden.length) {
       html += '<div class="habits-hidden-section">';
       html +=
         '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
-        hiddenHabits.length +
+        filteredHidden.length +
         ")</p>";
-      hiddenHabits.forEach(function (habit) {
+      filteredHidden.forEach(function (habit) {
         html += renderHabitCompactRow(habit, true);
       });
       html += "</div>";
@@ -9903,6 +10026,23 @@
 
     bindDataActions(root);
     bindExcludeDays(root);
+
+    const habitsSearchInp = document.getElementById("habitsListSearch");
+    if (habitsSearchInp) {
+      habitsSearchInp.oninput = function () {
+        habitsListQuery = habitsSearchInp.value;
+        persistHabitsListFilter();
+        renderHabits();
+      };
+    }
+    const habitsCatFil = document.getElementById("habitsListCategory");
+    if (habitsCatFil) {
+      habitsCatFil.onchange = function () {
+        habitsListCategory = habitsCatFil.value || "all";
+        persistHabitsListFilter();
+        renderHabits();
+      };
+    }
 
     const layoutToggle = document.getElementById("layoutToggle");
     if (layoutToggle) {
@@ -10840,6 +10980,7 @@
 
   try {
     loadHabitJournalVersion();
+    loadHabitsListFilter();
     render();
     maybeShowDailyPrompt(true);
     if (window.__hjRecoveredFrom) {
