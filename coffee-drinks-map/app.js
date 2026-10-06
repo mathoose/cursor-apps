@@ -13,15 +13,15 @@
     'South Philadelphia': 'South Philly',
     'Center City West': 'Center City'
   };
+  var HERE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>';
+  var COLOR_COFFEE = '#c2410c';
+  var COLOR_HH = '#43a047';
+  var COLOR_BAR = '#78716c';
 
   var coffeePlaces = [];
   var drinkPlaces = [];
   var hhRestaurants = [];
-  var neighborhoods = [];
-  var mapCoffee = null;
-  var mapDrinks = null;
-  var layerCoffee = null;
-  var layerDrinks = null;
+  var modes = {};
 
   var daySel = document.getElementById('day');
   var timeSel = document.getElementById('time');
@@ -40,18 +40,36 @@
       .replace(/"/g, '&quot;');
   }
 
+  var toastTimer = null;
   function toast(msg) {
     var el = document.getElementById('toast');
     if (!el) return;
     el.textContent = msg;
     el.classList.add('show');
-    setTimeout(function () { el.classList.remove('show'); }, 2600);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2600);
   }
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(function (s) {
       s.hidden = s.id !== id;
     });
+    var screen = document.getElementById(id);
+    document.body.classList.toggle('on-map', !!(screen && screen.classList.contains('screen-map')));
+    window.scrollTo(0, 0);
+  }
+
+  /* apps-shell inserts the version footer after the first <main>, which lives inside a hidden screen. */
+  function hoistVersionFooter() {
+    var footer = document.querySelector('.app-version-footer');
+    if (footer && footer.parentNode !== document.body) document.body.appendChild(footer);
+    return !!footer;
+  }
+  if (!hoistVersionFooter() && typeof MutationObserver !== 'undefined') {
+    var footerObserver = new MutationObserver(function () {
+      if (hoistVersionFooter()) footerObserver.disconnect();
+    });
+    footerObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
 
   function parseTime(t) {
@@ -100,14 +118,26 @@
     return parseTime(s.start) <= slot && slot < parseTime(s.end);
   }
 
+  function hasSchedule(p) {
+    return !!(p.schedule && Object.keys(p.schedule).length);
+  }
+
+  function hhNow(p) {
+    var d = new Date();
+    return isActive(p, getTodayDayName(), d.getHours() * 60 + d.getMinutes());
+  }
+
   function hasCoords(p) {
     return typeof p.lat === 'number' && typeof p.lng === 'number' && isFinite(p.lat) && isFinite(p.lng);
   }
 
   function appleMapsUrl(p, name) {
-    if (!hasCoords(p)) return '';
     var pin = name || p.name || 'Place';
-    return 'https://maps.apple.com/?ll=' + p.lat + ',' + p.lng + '&q=' + encodeURIComponent(pin);
+    if (hasCoords(p)) {
+      return 'https://maps.apple.com/?ll=' + p.lat + ',' + p.lng + '&q=' + encodeURIComponent(pin);
+    }
+    if (p.address) return 'https://maps.apple.com/?q=' + encodeURIComponent(pin + ' ' + p.address);
+    return '';
   }
 
   function openDetail(place, kind) {
@@ -115,129 +145,241 @@
     document.getElementById('detail-name').textContent = name;
     var meta = [canonicalNeighborhood(place.neighborhood), place.address].filter(Boolean).join(' · ');
     document.getElementById('detail-meta').textContent = meta;
+    var hhEl = document.getElementById('detail-hh');
+    if (kind === 'drinks' && hasSchedule(place)) {
+      var today = place.schedule[getTodayDayName()];
+      var line = today
+        ? 'Happy hour today: ' + today.start + ' – ' + today.end + (hhNow(place) ? ' · on now' : '')
+        : 'No happy hour today';
+      hhEl.textContent = line;
+      hhEl.classList.toggle('on', hhNow(place));
+      hhEl.hidden = false;
+    } else {
+      hhEl.hidden = true;
+    }
     var desc = place.description || place.hoursNote || '';
-    if (kind === 'coffee' && !desc) desc = 'From the shared coffee catalog.';
     document.getElementById('detail-desc').textContent = desc;
     var links = document.getElementById('detail-links');
     links.innerHTML = '';
     var ig = place.instagram || place.instagramUrl;
     var web = place.hh_menu || place.website;
-    if (web) {
+    [[web, kind === 'drinks' && place.hh_menu ? 'Menu' : 'Website'], [ig, 'Instagram']].forEach(function (pair) {
+      if (!pair[0]) return;
       var a = document.createElement('a');
-      a.href = web;
+      a.href = pair[0];
       a.target = '_blank';
       a.rel = 'noopener';
-      a.textContent = 'Website / menu';
+      a.textContent = pair[1];
       links.appendChild(a);
-    }
-    if (ig) {
-      var b = document.createElement('a');
-      b.href = ig;
-      b.target = '_blank';
-      b.rel = 'noopener';
-      b.textContent = 'Instagram';
-      links.appendChild(b);
-    }
+    });
     var maps = document.getElementById('detail-maps');
     var mu = appleMapsUrl(place, name);
-    if (mu) {
-      maps.href = mu;
-      maps.hidden = false;
-    } else maps.hidden = true;
+    maps.hidden = !mu;
+    if (mu) maps.href = mu;
     document.getElementById('detail-overlay').hidden = false;
+    document.body.classList.add('sheet-open');
   }
 
   function closeDetail() {
     document.getElementById('detail-overlay').hidden = true;
+    document.body.classList.remove('sheet-open');
   }
 
-  function initMap(elId) {
-    if (typeof PhillyWalkMap === 'undefined' || typeof L === 'undefined') return null;
-    var map = L.map(elId, {
-      zoomControl: true,
-      maxZoom: 19,
-      minZoom: PhillyWalkMap.minZoom,
-      maxBounds: PhillyWalkMap.panLatLngBounds ? PhillyWalkMap.panLatLngBounds() : PhillyWalkMap.latLngBounds(),
-      maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity != null ? PhillyWalkMap.maxBoundsViscosity : 0.85
-    });
-    PhillyWalkMap.addTiles(map);
-    PhillyWalkMap.applyLimits(map);
-    PhillyWalkMap.fit(map, [28, 28]);
-    return map;
+  function walkMinutesTo(here, p) {
+    if (!here || !here.active || !hasCoords(p)) return null;
+    var m = PhillyWalkMap.haversineMeters(here.lat, here.lng, p.lat, p.lng);
+    return Math.max(1, Math.round(m / PhillyWalkMap.WALK_M_PER_MIN));
   }
 
-  function makePin(lat, lng, color, onClick) {
-    var m = L.circleMarker([lat, lng], {
-      radius: 7,
-      color: '#fff',
-      weight: 2,
-      fillColor: color,
-      fillOpacity: 0.95
-    });
-    m.on('click', onClick);
-    return m;
-  }
+  /* One controller per map screen (coffee / drinks). */
+  function createMode(cfg) {
+    var root = document.getElementById(cfg.screenId);
+    var q = function (sel) { return root.querySelector(sel); };
+    var mode = {
+      cfg: cfg,
+      root: root,
+      map: null,
+      layer: null,
+      here: null,
+      view: 'map'
+    };
 
-  function renderCoffeeMap() {
-    if (!mapCoffee) {
-      mapCoffee = initMap('map-coffee');
-      layerCoffee = L.layerGroup().addTo(mapCoffee);
+    function places() { return cfg.getPlaces(); }
+
+    function hereActive() {
+      return !!(mode.here && mode.here.isActive());
     }
-    layerCoffee.clearLayers();
-    coffeePlaces.filter(hasCoords).forEach(function (p) {
-      layerCoffee.addLayer(makePin(p.lat, p.lng, '#9a3412', function () {
-        openDetail(p, 'coffee');
-      }));
-    });
-    document.getElementById('coffee-sub').textContent = coffeePlaces.length + ' cafes · ' +
-      coffeePlaces.filter(hasCoords).length + ' on map';
-  }
 
-  function renderDrinksMap() {
-    if (!mapDrinks) {
-      mapDrinks = initMap('map-drinks');
-      layerDrinks = L.layerGroup().addTo(mapDrinks);
+    function ensureMap() {
+      if (mode.map || typeof L === 'undefined' || typeof PhillyWalkMap === 'undefined') return;
+      mode.map = L.map(cfg.mapId, {
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: PhillyWalkMap.minZoom,
+        maxZoom: 19,
+        maxBounds: PhillyWalkMap.panLatLngBounds(),
+        maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity
+      }).setView([PhillyWalkMap.center.lat, PhillyWalkMap.center.lng], PhillyWalkMap.defaultZoom);
+      PhillyWalkMap.addTiles(mode.map);
+      PhillyWalkMap.applyLimits(mode.map);
+      PhillyWalkMap.ensurePinPane(mode.map);
+      PhillyWalkMap.bindZoomLabels(mode.map);
+      L.control.zoom({ position: 'bottomleft' }).addTo(mode.map);
+      mode.layer = L.layerGroup().addTo(mode.map);
+      mode.here = PhillyWalkMap.attachHereControl(mode.map, {
+        onChange: updateHereUi,
+        onError: function (msg) { toast(msg); }
+      });
     }
-    layerDrinks.clearLayers();
-    drinkPlaces.filter(hasCoords).forEach(function (p) {
-      var hasHh = p.schedule && Object.keys(p.schedule).length;
-      layerDrinks.addLayer(makePin(p.lat, p.lng, hasHh ? '#15803d' : '#a8a29e', function () {
-        openDetail(p, 'drinks');
-      }));
+
+    function renderPins() {
+      if (!mode.layer) return;
+      mode.layer.clearLayers();
+      var active = hereActive();
+      places().filter(hasCoords).forEach(function (p) {
+        var dim = active && !mode.here.isWithin(p.lat, p.lng);
+        var pin = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
+          fillColor: cfg.pinColor(p),
+          dim: dim,
+          label: p.name,
+          labelInteractive: true,
+          onClick: function () { openDetail(p, cfg.kind); }
+        });
+        if (pin) mode.layer.addLayer(pin);
+      });
+    }
+
+    function updateSub() {
+      q('[data-sub]').textContent = cfg.subtitle(places());
+    }
+
+    function updateHereUi(state) {
+      var btn = q('[data-here-btn]');
+      var bar = q('[data-here-bar]');
+      btn.disabled = !!(state && state.locating);
+      btn.innerHTML = HERE_ICON + '<span>' + (state && state.locating ? 'Locating…' : 'Where am I') + '</span>';
+      if (!state || !state.active) {
+        bar.hidden = true;
+        root.classList.remove('here-open');
+      } else {
+        bar.hidden = false;
+        root.classList.add('here-open');
+        var slider = q('[data-here-slider]');
+        if (Number(slider.value) !== state.minutes) slider.value = String(state.minutes);
+        q('[data-here-label]').textContent = PhillyWalkMap.formatWalkLabel(state.minutes);
+        q('[data-here-minutes]').textContent = state.minutes + ' min';
+        var n = mode.here.countWithin(places());
+        q('[data-here-count]').textContent = n + ' place' + (n === 1 ? '' : 's') + ' inside this walk';
+      }
+      renderPins();
+      if (mode.view === 'list') renderList();
+    }
+
+    function renderList() {
+      var search = (q('[data-search]').value || '').trim().toLowerCase();
+      var here = mode.here ? mode.here.getState() : null;
+      var active = hereActive();
+      var list = places().filter(function (p) {
+        if (active && (!hasCoords(p) || !mode.here.isWithin(p.lat, p.lng))) return false;
+        if (!search) return true;
+        return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(search) >= 0;
+      });
+      if (active) {
+        list.forEach(function (p) { p._walk = walkMinutesTo(here, p); });
+        list.sort(function (a, b) { return a._walk - b._walk || a.name.localeCompare(b.name); });
+      } else {
+        list.sort(function (a, b) { return a.name.localeCompare(b.name); });
+      }
+      var note = q('[data-list-note]');
+      if (active) {
+        note.hidden = false;
+        note.innerHTML = 'Showing <strong>' + list.length + '</strong> inside your ' + here.minutes +
+          ' min walk · <button type="button" class="text-btn" data-list-clear>Show all</button>';
+      } else {
+        note.hidden = true;
+        note.innerHTML = '';
+      }
+      var listEl = q('[data-list]');
+      if (!list.length) {
+        listEl.innerHTML = '<p class="empty-state">' +
+          (active ? 'Nothing inside this walk. Try a longer walk on the map.' : 'No matches.') + '</p>';
+        return;
+      }
+      listEl.innerHTML = list.map(function (p, i) {
+        var metaParts = [];
+        if (active && p._walk != null) metaParts.push(p._walk + ' min walk');
+        var hood = canonicalNeighborhood(p.neighborhood);
+        if (hood) metaParts.push(hood);
+        else if (p.address) metaParts.push(p.address);
+        var badge = cfg.badge ? cfg.badge(p) : '';
+        return '<button type="button" class="place-card" data-idx="' + i + '">' +
+          '<span class="name"><span class="dot" style="background:' + cfg.pinColor(p) + '"></span>' +
+          '<span class="name-text">' + escapeHtml(p.name) + '</span>' + badge + '</span>' +
+          (metaParts.length ? '<span class="meta">' + escapeHtml(metaParts.join(' · ')) + '</span>' : '') +
+          '</button>';
+      }).join('');
+      mode.lastList = list;
+    }
+
+    function setView(view) {
+      mode.view = view;
+      root.classList.toggle('view-list', view === 'list');
+      q('[data-list-view]').hidden = view !== 'list';
+      root.querySelectorAll('.nav-btn').forEach(function (b) {
+        var on = b.getAttribute('data-view') === view;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      if (view === 'list') {
+        renderList();
+        q('[data-list-view]').scrollTop = 0;
+      } else if (mode.map) {
+        setTimeout(function () { mode.map.invalidateSize(); }, 30);
+      }
+    }
+
+    function show() {
+      showScreen(cfg.screenId);
+      var first = !mode.map;
+      ensureMap();
+      if (!mode.map) return;
+      mode.map.invalidateSize();
+      if (first) {
+        PhillyWalkMap.fit(mode.map, [28, 28]);
+        renderPins();
+      }
+      updateSub();
+      if (mode.view === 'list') renderList();
+    }
+
+    root.querySelector('[data-back]').addEventListener('click', function () { showScreen('screen-home'); });
+    root.querySelectorAll('.nav-btn').forEach(function (b) {
+      b.addEventListener('click', function () { setView(b.getAttribute('data-view')); });
     });
-    var withHh = drinkPlaces.filter(function (p) { return p.schedule && Object.keys(p.schedule).length; }).length;
-    document.getElementById('drinks-sub').textContent = drinkPlaces.length + ' places · ' +
-      withHh + ' with HH times';
-  }
+    q('[data-here-btn]').addEventListener('click', function () {
+      if (!mode.here) {
+        toast('Location helper failed to load');
+        return;
+      }
+      mode.here.locate();
+    });
+    q('[data-here-clear]').addEventListener('click', function () { if (mode.here) mode.here.clear(); });
+    q('[data-here-slider]').addEventListener('input', function (e) {
+      if (mode.here) mode.here.setMinutes(e.target.value);
+    });
+    q('[data-search]').addEventListener('input', renderList);
+    q('[data-list]').addEventListener('click', function (e) {
+      var card = e.target.closest('.place-card');
+      if (!card || !mode.lastList) return;
+      var p = mode.lastList[+card.getAttribute('data-idx')];
+      if (p) openDetail(p, cfg.kind);
+    });
+    q('[data-list-note]').addEventListener('click', function (e) {
+      if (e.target.closest('[data-list-clear]') && mode.here) mode.here.clear();
+    });
 
-  function renderCoffeeList() {
-    var q = (document.getElementById('coffee-search').value || '').toLowerCase();
-    var html = coffeePlaces
-      .filter(function (p) {
-        if (!q) return true;
-        return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(q) >= 0;
-      })
-      .sort(function (a, b) { return a.name.localeCompare(b.name); })
-      .map(function (p) {
-        return '<button type="button" data-coffee-id="' + escapeHtml(p.id || p.name) + '">' +
-          escapeHtml(p.name) + '<span class="meta">' + escapeHtml(p.neighborhood || p.address || '') + '</span></button>';
-      }).join('');
-    document.getElementById('coffee-list').innerHTML = html || '<p class="meta">No matches.</p>';
-  }
-
-  function renderDrinksList() {
-    var q = (document.getElementById('drinks-search').value || '').toLowerCase();
-    var html = drinkPlaces
-      .filter(function (p) {
-        if (!q) return true;
-        return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(q) >= 0;
-      })
-      .sort(function (a, b) { return a.name.localeCompare(b.name); })
-      .map(function (p) {
-        return '<button type="button" data-drink-name="' + escapeHtml(p.name) + '">' +
-          escapeHtml(p.name) + '<span class="meta">' + escapeHtml(p.neighborhood || '') + '</span></button>';
-      }).join('');
-    document.getElementById('drinks-list').innerHTML = html || '<p class="meta">No matches.</p>';
+    mode.show = show;
+    return mode;
   }
 
   function buildTimeOptions(day, selected) {
@@ -256,23 +398,30 @@
     }
     minT = Math.floor(minT / 30) * 30;
     maxT = Math.ceil(maxT / 30) * 30;
+    var matched = false;
     for (var t = minT; t <= maxT; t += 30) {
       var opt = document.createElement('option');
       opt.value = String(t);
       opt.textContent = fmtMinutes(t);
-      if (t === selected) opt.selected = true;
+      if (t === selected) {
+        opt.selected = true;
+        matched = true;
+      }
       timeSel.appendChild(opt);
     }
-  }
-
-  function getScheduleSearch() {
-    return (document.getElementById('schedule-search').value || '').trim().toLowerCase();
+    if (!matched && selected != null && isFinite(selected)) {
+      var extra = document.createElement('option');
+      extra.value = String(selected);
+      extra.textContent = fmtMinutes(selected);
+      extra.selected = true;
+      timeSel.insertBefore(extra, selected < minT ? timeSel.firstChild : null);
+    }
   }
 
   function filteredForGrid(day) {
     var list = hhRestaurants.filter(function (r) { return r.schedule && r.schedule[day]; });
     if (nSel.value) list = list.filter(function (r) { return canonicalNeighborhood(r.neighborhood) === nSel.value; });
-    var q = getScheduleSearch();
+    var q = (document.getElementById('schedule-search').value || '').trim().toLowerCase();
     if (q) {
       list = list.filter(function (r) {
         return (r.name + ' ' + (r.neighborhood || '') + ' ' + (r.address || '')).toLowerCase().indexOf(q) >= 0;
@@ -282,20 +431,21 @@
   }
 
   function renderGrid() {
-    var day = daySel.value;
-    var hhNow = document.getElementById('filter-hh-now').checked;
-    var selectedTime = hhNow ? getNowSlot() : +timeSel.value;
-    if (hhNow) {
+    var nowMode = document.getElementById('filter-hh-now').checked;
+    var selectedTime = nowMode ? getNowSlot() : +timeSel.value;
+    if (nowMode) {
       daySel.value = getTodayDayName();
-      day = daySel.value;
-      buildTimeOptions(day, selectedTime);
+      buildTimeOptions(daySel.value, selectedTime);
     }
+    var day = daySel.value;
     var filtered = filteredForGrid(day);
     filtered.sort(function (a, b) { return a.name.localeCompare(b.name); });
+    var thead = document.querySelector('#grid thead');
+    var tbody = document.querySelector('#grid tbody');
     if (!filtered.length) {
-      document.querySelector('#grid thead').innerHTML = '';
-      document.querySelector('#grid tbody').innerHTML = '<tr><td colspan="20">No places for these filters.</td></tr>';
-      document.getElementById('summary').textContent = 'No places for these filters.';
+      thead.innerHTML = '';
+      tbody.innerHTML = '';
+      document.getElementById('summary').textContent = 'No happy hours for these filters.';
       return;
     }
     var minT = Infinity;
@@ -310,27 +460,24 @@
     var slots = [];
     for (var t = minT; t < maxT; t += 30) slots.push(t);
     var activeNow = filtered.filter(function (r) { return isActive(r, day, selectedTime); });
-    var summaryParts = [];
-    if (hhNow) {
-      summaryParts.push('<strong>' + activeNow.length + '</strong> with happy hour <strong>right now</strong>');
-    } else {
-      summaryParts.push('<strong>' + activeNow.length + '</strong> at <strong>' + fmtMinutes(selectedTime) + '</strong> on <strong>' + day + '</strong>');
-    }
-    if (nSel.value) summaryParts.push('in <strong>' + escapeHtml(nSel.value) + '</strong>');
-    document.getElementById('summary').innerHTML = summaryParts.join(' · ') +
+    var head = nowMode
+      ? '<strong>' + activeNow.length + '</strong> with happy hour <strong>right now</strong>'
+      : '<strong>' + activeNow.length + '</strong> active at <strong>' + fmtMinutes(selectedTime) + '</strong> on <strong>' + day + '</strong>';
+    if (nSel.value) head += ' in <strong>' + escapeHtml(nSel.value) + '</strong>';
+    document.getElementById('summary').innerHTML = head +
       (activeNow.length ? ': ' + activeNow.map(function (r) {
         return '<button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</button>';
       }).join(', ') : '');
-    document.querySelector('#grid thead').innerHTML = '<tr><th class="rest">Restaurant</th><th class="neigh">Neighborhood</th>' +
-      slots.map(function (t) {
-        var sel = t === selectedTime ? ' selected-col' : '';
-        return '<th class="time-header' + sel + '" title="' + fmtMinutes(t) + '">' + fmtMinutesShort(t) + '</th>';
+    thead.innerHTML = '<tr><th class="rest">Place</th><th class="neigh">Neighborhood</th>' +
+      slots.map(function (s) {
+        var sel = s === selectedTime ? ' selected-col' : '';
+        return '<th class="time-header' + sel + '" title="' + fmtMinutes(s) + '">' + fmtMinutesShort(s) + '</th>';
       }).join('') + '</tr>';
-    document.querySelector('#grid tbody').innerHTML = filtered.map(function (r) {
-      var cells = slots.map(function (t) {
-        var active = isActive(r, day, t);
-        var sel = t === selectedTime ? ' selected-col' : '';
-        var cls = active ? (t === selectedTime ? 'active-now' : 'active') : 'inactive';
+    tbody.innerHTML = filtered.map(function (r) {
+      var cells = slots.map(function (s) {
+        var active = isActive(r, day, s);
+        var sel = s === selectedTime ? ' selected-col' : '';
+        var cls = active ? (s === selectedTime ? 'active-now' : 'active') : 'inactive';
         return '<td class="slot ' + cls + sel + '"></td>';
       }).join('');
       return '<tr><td class="rest"><button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' +
@@ -340,14 +487,13 @@
   }
 
   function rebuildNeighborhoods() {
-    neighborhoods = [];
-    drinkPlaces.forEach(function (p) {
+    var seen = {};
+    hhRestaurants.forEach(function (p) {
       var n = canonicalNeighborhood(p.neighborhood);
-      if (n && neighborhoods.indexOf(n) === -1) neighborhoods.push(n);
+      if (n) seen[n] = true;
     });
-    neighborhoods.sort();
     nSel.innerHTML = '<option value="">All neighborhoods</option>';
-    neighborhoods.forEach(function (n) {
+    Object.keys(seen).sort().forEach(function (n) {
       var opt = document.createElement('option');
       opt.value = n;
       opt.textContent = n;
@@ -356,15 +502,9 @@
   }
 
   function bootstrapCatalog() {
-    drinkPlaces.forEach(function (p) {
-      p.neighborhood = canonicalNeighborhood(p.neighborhood);
-    });
-    coffeePlaces.forEach(function (p) {
-      p.neighborhood = canonicalNeighborhood(p.neighborhood);
-    });
-    hhRestaurants = drinkPlaces.filter(function (p) {
-      return p.schedule && Object.keys(p.schedule).length;
-    });
+    drinkPlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
+    coffeePlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
+    hhRestaurants = drinkPlaces.filter(hasSchedule);
     rebuildNeighborhoods();
     DAY_NAMES.forEach(function (d) {
       var opt = document.createElement('option');
@@ -375,118 +515,72 @@
     daySel.value = getTodayDayName();
     buildTimeOptions(daySel.value, getNowSlot());
     document.getElementById('home-status').textContent =
-      coffeePlaces.length + ' coffees · ' + drinkPlaces.length + ' drinks (' + hhRestaurants.length + ' with HH times)';
+      coffeePlaces.length + ' coffee shops · ' + drinkPlaces.length + ' bars (' + hhRestaurants.length + ' with happy hours)';
+  }
+
+  function openDrinkByName(name) {
+    var p = drinkPlaces.find(function (x) { return x.name === name; });
+    if (p) openDetail(p, 'drinks');
   }
 
   function wireUi() {
-    document.getElementById('pick-coffee').onclick = function () {
-      showScreen('screen-coffee');
-      setTimeout(function () {
-        if (mapCoffee) mapCoffee.invalidateSize();
-        renderCoffeeMap();
-      }, 80);
-    };
-    document.getElementById('pick-drinks').onclick = function () {
-      showScreen('screen-drinks');
-      setTimeout(function () {
-        if (mapDrinks) mapDrinks.invalidateSize();
-        renderDrinksMap();
-      }, 80);
-    };
-    document.getElementById('coffee-back').onclick = function () { showScreen('screen-home'); };
-    document.getElementById('drinks-back').onclick = function () { showScreen('screen-home'); };
-    document.getElementById('schedule-back').onclick = function () { showScreen('screen-drinks'); };
-    document.getElementById('open-schedule').onclick = function () {
+    modes.coffee = createMode({
+      kind: 'coffee',
+      screenId: 'screen-coffee',
+      mapId: 'map-coffee',
+      getPlaces: function () { return coffeePlaces; },
+      pinColor: function () { return COLOR_COFFEE; },
+      subtitle: function (list) {
+        return list.length + ' coffee shops';
+      }
+    });
+    modes.drinks = createMode({
+      kind: 'drinks',
+      screenId: 'screen-drinks',
+      mapId: 'map-drinks',
+      getPlaces: function () { return drinkPlaces; },
+      pinColor: function (p) { return hasSchedule(p) ? COLOR_HH : COLOR_BAR; },
+      badge: function (p) {
+        if (!hasSchedule(p)) return '';
+        return hhNow(p) ? '<span class="hh-pill on">HH now</span>' : '<span class="hh-pill">HH</span>';
+      },
+      subtitle: function (list) {
+        var withHh = list.filter(hasSchedule).length;
+        return list.length + ' bars · ' + withHh + ' with happy hours';
+      }
+    });
+
+    document.getElementById('pick-coffee').addEventListener('click', function () { modes.coffee.show(); });
+    document.getElementById('pick-drinks').addEventListener('click', function () { modes.drinks.show(); });
+    document.getElementById('schedule-back').addEventListener('click', function () { modes.drinks.show(); });
+    document.getElementById('open-schedule').addEventListener('click', function () {
       showScreen('screen-schedule');
       renderGrid();
-    };
-    document.getElementById('detail-close').onclick = closeDetail;
-    document.getElementById('detail-overlay').onclick = function (e) {
+    });
+    document.getElementById('detail-close').addEventListener('click', closeDetail);
+    document.getElementById('detail-overlay').addEventListener('click', function (e) {
       if (e.target.id === 'detail-overlay') closeDetail();
-    };
-
-    document.querySelectorAll('[data-coffee-view]').forEach(function (btn) {
-      btn.onclick = function () {
-        document.querySelectorAll('[data-coffee-view]').forEach(function (b) { b.classList.toggle('on', b === btn); });
-        var list = btn.getAttribute('data-coffee-view') === 'list';
-        document.getElementById('coffee-list-panel').hidden = !list;
-        if (list) renderCoffeeList();
-        if (mapCoffee) setTimeout(function () { mapCoffee.invalidateSize(); }, 50);
-      };
-    });
-    document.querySelectorAll('[data-drinks-view]').forEach(function (btn) {
-      btn.onclick = function () {
-        document.querySelectorAll('[data-drinks-view]').forEach(function (b) { b.classList.toggle('on', b === btn); });
-        var list = btn.getAttribute('data-drinks-view') === 'list';
-        document.getElementById('drinks-list-panel').hidden = !list;
-        if (list) renderDrinksList();
-        if (mapDrinks) setTimeout(function () { mapDrinks.invalidateSize(); }, 50);
-      };
     });
 
-    document.getElementById('coffee-search').oninput = renderCoffeeList;
-    document.getElementById('drinks-search').oninput = renderDrinksList;
-    document.getElementById('coffee-list').onclick = function (e) {
-      var btn = e.target.closest('button[data-coffee-id]');
-      if (!btn) return;
-      var id = btn.getAttribute('data-coffee-id');
-      var p = coffeePlaces.find(function (x) { return (x.id || x.name) === id; });
-      if (p) openDetail(p, 'coffee');
-    };
-    document.getElementById('drinks-list').onclick = function (e) {
-      var btn = e.target.closest('button[data-drink-name]');
-      if (!btn) return;
-      var name = btn.getAttribute('data-drink-name');
-      var p = drinkPlaces.find(function (x) { return x.name === name; });
-      if (p) openDetail(p, 'drinks');
-    };
-
+    var hhNowEl = document.getElementById('filter-hh-now');
     daySel.addEventListener('change', function () {
-      buildTimeOptions(daySel.value, getNowSlot());
+      hhNowEl.checked = false;
+      buildTimeOptions(daySel.value, +timeSel.value);
       renderGrid();
     });
-    timeSel.addEventListener('change', renderGrid);
+    timeSel.addEventListener('change', function () {
+      hhNowEl.checked = false;
+      renderGrid();
+    });
     nSel.addEventListener('change', renderGrid);
     document.getElementById('schedule-search').addEventListener('input', renderGrid);
-    document.getElementById('filter-hh-now').addEventListener('change', function () {
-      if (document.getElementById('filter-hh-now').checked) {
-        daySel.value = getTodayDayName();
-        buildTimeOptions(daySel.value, getNowSlot());
-      }
-      renderGrid();
+    hhNowEl.addEventListener('change', renderGrid);
+    ['grid', 'summary'].forEach(function (id) {
+      document.getElementById(id).addEventListener('click', function (e) {
+        var btn = e.target.closest('.rest-link');
+        if (btn) openDrinkByName(btn.getAttribute('data-name'));
+      });
     });
-    document.querySelector('#grid tbody').addEventListener('click', function (e) {
-      var btn = e.target.closest('.rest-link');
-      if (!btn) return;
-      var name = btn.getAttribute('data-name');
-      var p = drinkPlaces.find(function (x) { return x.name === name; });
-      if (p) openDetail(p, 'drinks');
-    });
-    document.getElementById('summary').addEventListener('click', function (e) {
-      var btn = e.target.closest('.rest-link');
-      if (!btn) return;
-      var name = btn.getAttribute('data-name');
-      var p = drinkPlaces.find(function (x) { return x.name === name; });
-      if (p) openDetail(p, 'drinks');
-    });
-
-    function wireHere(btnId, getMap) {
-      var btn = document.getElementById(btnId);
-      if (!btn || !PhillyWalkMap || !PhillyWalkMap.locateOnce) return;
-      btn.onclick = function () {
-        var map = getMap();
-        if (!map) return;
-        PhillyWalkMap.locateOnce(function (fix) {
-          if (!PhillyWalkMap.contains(fix.lat, fix.lng)) {
-            toast('Outside Philadelphia map area.');
-            return;
-          }
-          map.panTo([fix.lat, fix.lng]);
-        }, function () { toast('Could not get location.'); });
-      };
-    }
-    wireHere('here-coffee', function () { return mapCoffee; });
-    wireHere('here-drinks', function () { return mapDrinks; });
   }
 
   function loadCatalog() {
