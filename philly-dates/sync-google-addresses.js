@@ -4,6 +4,7 @@
  * Confirm addresses and Google Maps links via Places API (New).
  *
  * Updates address, googlePlaceId, and googleMapsUri from Google when they differ.
+ * For map pins (lat/lng), use sync-google-locations.js instead.
  *
  * Requires GOOGLE_PLACES_API_KEY (or GOOGLE_MAPS_API_KEY).
  *

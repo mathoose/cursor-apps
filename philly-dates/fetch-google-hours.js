@@ -50,6 +50,26 @@ function isPdfUrl(url) {
   return /\.pdf(\?|#|$)/i.test(String(url || ''));
 }
 
+function applyGoogleLocation(place, details) {
+  if (!details || !details.location) return false;
+  var lat = Number(details.location.latitude);
+  var lng = Number(details.location.longitude);
+  if (!isFinite(lat) || !isFinite(lng)) return false;
+  var changed = false;
+  if (place.lat !== lat || place.lng !== lng) {
+    if (place.lat != null && place.lng != null) {
+      place.latPrevious = place.lat;
+      place.lngPrevious = place.lng;
+    }
+    place.lat = Math.round(lat * 1e6) / 1e6;
+    place.lng = Math.round(lng * 1e6) / 1e6;
+    place.locationSource = 'google';
+    place.locationSyncedAt = new Date().toISOString().slice(0, 10);
+    changed = true;
+  }
+  return changed;
+}
+
 function applyGoogleMapsFields(place, details) {
   if (!details) return false;
   var changed = false;
@@ -153,7 +173,7 @@ async function placeDetails(placeId) {
   var res = await fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(placeId), {
     headers: {
       'X-Goog-Api-Key': API_KEY,
-      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri,regularOpeningHours,currentOpeningHours,businessStatus,websiteUri'
+      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri,location,regularOpeningHours,currentOpeningHours,businessStatus,websiteUri'
     }
   });
   if (!res.ok) {
@@ -229,6 +249,7 @@ async function main() {
   var fail = 0;
   var websitesUpdated = 0;
   var mapsUpdated = 0;
+  var locationsUpdated = 0;
   for (var i = 0; i < todo.length; i++) {
     var place = todo[i];
     process.stdout.write('[' + (i + 1) + '/' + todo.length + '] ' + place.name + ' … ');
@@ -243,11 +264,13 @@ async function main() {
         }
         if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         if (applyGoogleMapsFields(place, result.details)) mapsUpdated++;
+        if (applyGoogleLocation(place, result.details)) locationsUpdated++;
         ok++;
         console.log('OK');
       } else {
         if (result.googlePlaceId) place.googlePlaceId = result.googlePlaceId;
         if (applyGoogleMapsFields(place, result.details)) mapsUpdated++;
+        if (applyGoogleLocation(place, result.details)) locationsUpdated++;
         if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         fail++;
         console.log('skip (' + result.reason + ')');
@@ -264,7 +287,7 @@ async function main() {
   }
 
   fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated.');
+  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated,', locationsUpdated, 'pins updated.');
 }
 
 main().catch(function(e) {
