@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-drinks-map-v9 -->
+<!-- build: coffee-drinks-map-v10 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -241,9 +241,9 @@
         </div>
         <div data-decide-step="nogo" hidden>
           <h2>Any types that are a no-go?</h2>
-          <p class="decide-lead">Check what you want to skip. Cafes and bars are included unless you check them. Leave everything off if you’re open.</p>
+          <p class="decide-lead">Check what you want to skip. Cafes and bars are included unless you check them. If you are not in Philly, suggestions use who’s open in the city.</p>
           <div id="decide-cuisines" class="cuisine-checks"></div>
-          <button type="button" class="btn-primary decide-next" id="decide-nogo-next">See options near me</button>
+          <button type="button" class="btn-primary decide-next" id="decide-nogo-next">See options</button>
           <button type="button" class="text-btn decide-back-step" id="decide-nogo-back">Back</button>
         </div>
       </div>
@@ -278,6 +278,10 @@
         <button type="button" class="text-btn" id="detail-close">Close</button>
       </div>
       <p class="detail-meta" id="detail-meta"></p>
+      <div class="mark-row" id="detail-marks">
+        <button type="button" class="mark-btn" id="mark-favorite" aria-pressed="false">Favorite</button>
+        <button type="button" class="mark-btn" id="mark-want" aria-pressed="false">Want to try</button>
+      </div>
       <p class="detail-hh" id="detail-hh" hidden></p>
       <div class="detail-hours" id="detail-hours" hidden></div>
       <p class="detail-desc" id="detail-desc"></p>
@@ -290,7 +294,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=9" defer></script>
+  <script src="app.js?v=10" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
