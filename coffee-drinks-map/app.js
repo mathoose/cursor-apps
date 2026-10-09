@@ -59,6 +59,7 @@
     });
     var screen = document.getElementById(id);
     document.body.classList.toggle('on-map', !!(screen && screen.classList.contains('screen-map')));
+    document.body.classList.toggle('decide-open', id === 'screen-decide');
     window.scrollTo(0, 0);
   }
 
@@ -636,6 +637,387 @@
     if (p) openDetail(p, 'drinks');
   }
 
+  var DECIDE_SETTINGS_KEY = 'coffee-drinks-decide-v1';
+  var CUISINES = [
+    { id: 'mexican', label: 'Mexican' },
+    { id: 'thai', label: 'Thai' },
+    { id: 'pizza', label: 'Pizza' },
+    { id: 'bar', label: 'Bar food' },
+    { id: 'cafe', label: 'Cafe' },
+    { id: 'indian', label: 'Indian' },
+    { id: 'chinese', label: 'Chinese' },
+    { id: 'japanese', label: 'Japanese / sushi' },
+    { id: 'italian', label: 'Italian' },
+    { id: 'vietnamese', label: 'Vietnamese' },
+    { id: 'greek', label: 'Greek' },
+    { id: 'korean', label: 'Korean' },
+    { id: 'seafood', label: 'Seafood' },
+    { id: 'burgers', label: 'Burgers' },
+    { id: 'mediterranean', label: 'Mediterranean' }
+  ];
+  var CUISINE_RE = {
+    mexican: /mexican|taco|taqueria|cantina|burrito|quesadilla|tex-mex/,
+    thai: /\bthai\b|pad thai/,
+    pizza: /pizza|pizzeria/,
+    bar: /\bbar\b|pub\b|tavern|wings|happy hour/,
+    cafe: /\bcafe\b|caf\u00e9|coffee|bakery|brunch/,
+    indian: /indian|tandoor|naan|tikka|curry/,
+    chinese: /chinese|szechuan|sichuan|dim sum|dumpling/,
+    japanese: /japanese|sushi|ramen|izakaya/,
+    italian: /italian|pasta|trattoria|osteria/,
+    vietnamese: /vietnamese|\bpho\b|banh mi/,
+    greek: /greek|gyro|souvlaki/,
+    korean: /korean|bibimbap|korean bbq/,
+    seafood: /seafood|oyster|crab/,
+    burgers: /burger/,
+    mediterranean: /mediterranean|falafel|hummus|lebanese/
+  };
+
+  function loadDecideSettings() {
+    try {
+      var raw = localStorage.getItem(DECIDE_SETTINGS_KEY);
+      var parsed = raw ? JSON.parse(raw) : {};
+      return {
+        uberOne: !!parsed.uberOne,
+        dashPass: !!parsed.dashPass,
+        grubhubPlus: !!parsed.grubhubPlus
+      };
+    } catch (e) {
+      return { uberOne: false, dashPass: false, grubhubPlus: false };
+    }
+  }
+
+  function saveDecideSettings(s) {
+    try { localStorage.setItem(DECIDE_SETTINGS_KEY, JSON.stringify(s)); } catch (e) { /* private mode */ }
+  }
+
+  function placeTags(p, kind) {
+    var text = ((p.name || '') + ' ' + (p.description || '') + ' ' + (p.hoursNote || '')).toLowerCase();
+    var tags = [];
+    CUISINES.forEach(function (c) {
+      if (CUISINE_RE[c.id] && CUISINE_RE[c.id].test(text)) tags.push(c.id);
+    });
+    if (kind === 'coffee' && tags.indexOf('cafe') < 0) tags.push('cafe');
+    if (kind === 'drinks' && tags.indexOf('bar') < 0) tags.push('bar');
+    return tags;
+  }
+
+  function decideSnippet(p) {
+    var t = String(p.description || p.hoursNote || '').split('\n')[0].replace(/^\*\s*/, '').trim();
+    if (t.length > 140) t = t.slice(0, 137) + '\u2026';
+    return t;
+  }
+
+  function initDecide() {
+    var settings = loadDecideSettings();
+    var session = { service: 'dine', handoff: 'dine', nogo: {} };
+    var results = [];
+    var selected = 0;
+    var map = null;
+    var pinLayer = null;
+    var lineLayer = null;
+    var here = null;
+    var awaitingFix = false;
+    var box = document.getElementById('decide-cuisines');
+    box.innerHTML = CUISINES.map(function (c) {
+      return '<label><input type="checkbox" data-nogo="' + c.id + '" /> ' + escapeHtml(c.label) + '</label>';
+    }).join('');
+
+    function setStep(name) {
+      document.querySelectorAll('[data-decide-step]').forEach(function (el) {
+        el.hidden = el.getAttribute('data-decide-step') !== name;
+      });
+      document.getElementById('decide-wizard').hidden = false;
+      document.getElementById('decide-results').hidden = true;
+      var sub = document.getElementById('decide-sub');
+      if (name === 'service') sub.textContent = 'Eat in or takeout';
+      else if (name === 'handoff') sub.textContent = 'Pickup or delivery';
+      else sub.textContent = 'Skip anything you don\u2019t want';
+    }
+
+    function ensureMap() {
+      if (map || typeof L === 'undefined' || typeof PhillyWalkMap === 'undefined') return;
+      map = L.map('map-decide', {
+        zoomControl: false,
+        attributionControl: true,
+        minZoom: PhillyWalkMap.minZoom,
+        maxZoom: 19,
+        maxBounds: PhillyWalkMap.panLatLngBounds(),
+        maxBoundsViscosity: PhillyWalkMap.maxBoundsViscosity
+      }).setView([PhillyWalkMap.center.lat, PhillyWalkMap.center.lng], PhillyWalkMap.defaultZoom);
+      PhillyWalkMap.addTiles(map);
+      PhillyWalkMap.applyLimits(map);
+      PhillyWalkMap.ensurePinPane(map);
+      PhillyWalkMap.bindZoomLabels(map);
+      L.control.zoom({ position: 'bottomleft' }).addTo(map);
+      pinLayer = L.layerGroup().addTo(map);
+      lineLayer = L.layerGroup().addTo(map);
+      here = PhillyWalkMap.attachHereControl(map, {
+        onChange: function (state) {
+          if (awaitingFix && state && state.active && !state.locating) {
+            awaitingFix = false;
+            buildResults(state);
+          }
+        },
+        onError: function (msg) {
+          awaitingFix = false;
+          toast(msg || 'Could not get your location');
+          setStep('nogo');
+        }
+      });
+    }
+
+    function kindColor(kind) {
+      if (kind === 'coffee') return COLOR_COFFEE;
+      if (kind === 'drinks') return COLOR_BAR;
+      return COLOR_FOOD;
+    }
+
+    function kindLabel(kind) {
+      if (kind === 'coffee') return 'Cafe';
+      if (kind === 'drinks') return 'Bar';
+      return 'Restaurant';
+    }
+
+    function orderButtons(p) {
+      if (session.handoff !== 'pickup' && session.handoff !== 'delivery') return '';
+      var q = encodeURIComponent((p.name || 'restaurant') + ' Philadelphia');
+      var rows = [
+        { href: 'https://www.ubereats.com/search?q=' + q, label: 'Search Uber Eats', on: settings.uberOne, note: 'Uber One' },
+        { href: 'https://www.doordash.com/search/store/' + encodeURIComponent(p.name || '') + '/', label: 'Search DoorDash', on: settings.dashPass, note: 'DashPass' },
+        { href: 'https://www.grubhub.com/search?queryText=' + q, label: 'Search Grubhub', on: settings.grubhubPlus, note: 'Grubhub+' }
+      ];
+      return rows.map(function (r) {
+        return '<a href="' + r.href + '" target="_blank" rel="noopener">' + r.label +
+          (r.on ? '<span class="member-note">You have ' + r.note + '</span>' : '') + '</a>';
+      }).join('');
+    }
+
+    function siteButtons(p) {
+      var html = '';
+      var web = p.website || p.hh_menu;
+      var ig = p.instagramUrl || p.instagram;
+      if (web) html += '<a href="' + escapeHtml(web) + '" target="_blank" rel="noopener">Website</a>';
+      if (ig) html += '<a href="' + escapeHtml(ig) + '" target="_blank" rel="noopener">Instagram</a>';
+      return html;
+    }
+
+    function renderBubbles() {
+      var el = document.getElementById('decide-bubbles');
+      if (!results.length) {
+        el.innerHTML = '<p class="decide-empty">Nothing matched nearby. Go back and uncheck a type, or try delivery for a wider area.</p>';
+        return;
+      }
+      el.innerHTML = results.map(function (p, i) {
+        var dist = p._meters < 1000
+          ? Math.round(p._meters) + ' m'
+          : (p._meters / 1000).toFixed(1) + ' km';
+        var walk = Math.max(1, Math.round(p._meters / PhillyWalkMap.WALK_M_PER_MIN));
+        return '<article class="decide-bubble' + (i === selected ? ' is-on' : '') + '" data-pick="' + i + '">' +
+          '<div class="decide-bubble-top"><span class="decide-bubble-name">' + escapeHtml(p.name) + '</span>' +
+          '<button type="button" class="text-btn" data-details="' + i + '">Details</button></div>' +
+          '<p class="decide-bubble-meta">' + escapeHtml(kindLabel(p._kind) + ' \u00b7 ' + dist + ' \u00b7 ~' + walk + ' min walk') + '</p>' +
+          (decideSnippet(p) ? '<p class="decide-bubble-desc">' + escapeHtml(decideSnippet(p)) + '</p>' : '') +
+          '<div class="decide-bubble-links">' + siteButtons(p) + orderButtons(p) + '</div></article>';
+      }).join('');
+    }
+
+    function renderPins() {
+      if (!pinLayer) return;
+      pinLayer.clearLayers();
+      lineLayer.clearLayers();
+      var user = here && here.getState();
+      results.forEach(function (p, i) {
+        var pin = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
+          fillColor: kindColor(p._kind),
+          radius: i === selected ? 11 : 7,
+          weight: i === selected ? 3 : 2,
+          label: p.name,
+          labelInteractive: true,
+          onClick: function () { selectResult(i, true); }
+        });
+        if (pin) pinLayer.addLayer(pin);
+      });
+      var pick = results[selected];
+      if (pick && user && user.active) {
+        lineLayer.addLayer(L.polyline([[user.lat, user.lng], [pick.lat, pick.lng]], {
+          color: '#0f766e',
+          weight: 3,
+          opacity: 0.85,
+          dashArray: '6 6'
+        }));
+      }
+    }
+
+    function fitAll(user) {
+      if (!map || !results.length || !user) return;
+      var pts = results.map(function (p) { return [p.lat, p.lng]; });
+      pts.push([user.lat, user.lng]);
+      map.fitBounds(L.latLngBounds(pts), { padding: [36, 36], maxZoom: 15 });
+    }
+
+    function fitPair(user, p) {
+      if (!map || !user || !p) return;
+      map.fitBounds(L.latLngBounds([[user.lat, user.lng], [p.lat, p.lng]]), { padding: [48, 48], maxZoom: 16 });
+    }
+
+    function selectResult(i, openSheet) {
+      if (!results[i]) return;
+      selected = i;
+      renderBubbles();
+      renderPins();
+      var user = here.getState();
+      fitPair(user, results[i]);
+      var card = document.querySelector('.decide-bubble[data-pick="' + i + '"]');
+      if (card) card.scrollIntoView({ block: 'nearest' });
+      if (openSheet) {
+        openDetail(results[i], results[i]._kind);
+        var extra = document.getElementById('detail-links');
+        if (extra && (session.handoff === 'pickup' || session.handoff === 'delivery')) {
+          extra.insertAdjacentHTML('beforeend', orderButtons(results[i]));
+        }
+      }
+    }
+
+    function pool() {
+      var rows = [];
+      foodPlaces.forEach(function (p) { rows.push({ p: p, kind: 'food' }); });
+      drinkPlaces.forEach(function (p) { rows.push({ p: p, kind: 'drinks' }); });
+      coffeePlaces.forEach(function (p) { rows.push({ p: p, kind: 'coffee' }); });
+      return rows;
+    }
+
+    function buildResults(user) {
+      var limit = session.handoff === 'delivery' ? 8000 : 10 * PhillyWalkMap.WALK_M_PER_MIN;
+      var seen = {};
+      results = [];
+      pool().forEach(function (row) {
+        var p = row.p;
+        if (!hasCoords(p)) return;
+        var key = String(p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+        if (!key || seen[key]) return;
+        var tags = placeTags(p, row.kind);
+        if (tags.some(function (t) { return session.nogo[t]; })) return;
+        var meters = PhillyWalkMap.haversineMeters(user.lat, user.lng, p.lat, p.lng);
+        if (meters > limit) return;
+        seen[key] = true;
+        var copy = Object.assign({}, p);
+        copy._kind = row.kind;
+        copy._meters = meters;
+        copy._tags = tags;
+        results.push(copy);
+      });
+      results.sort(function (a, b) { return a._meters - b._meters || a.name.localeCompare(b.name); });
+      results = results.slice(0, 24);
+      selected = 0;
+      document.getElementById('decide-wizard').hidden = true;
+      document.getElementById('decide-results').hidden = false;
+      var label = session.service === 'dine' ? 'Eat in' : (session.handoff === 'delivery' ? 'Delivery' : 'Pickup');
+      document.getElementById('decide-sub').textContent = label + ' \u00b7 ' + results.length + ' nearby';
+      setTimeout(function () {
+        map.invalidateSize();
+        renderBubbles();
+        renderPins();
+        if (results.length) fitAll(user);
+        else map.setView([user.lat, user.lng], 15);
+      }, 40);
+    }
+
+    function readNogo() {
+      session.nogo = {};
+      box.querySelectorAll('[data-nogo]').forEach(function (input) {
+        if (input.checked) session.nogo[input.getAttribute('data-nogo')] = true;
+      });
+    }
+
+    function askLocation() {
+      readNogo();
+      ensureMap();
+      if (!here) {
+        toast('Map failed to load');
+        return;
+      }
+      document.getElementById('decide-wizard').hidden = true;
+      document.getElementById('decide-results').hidden = false;
+      document.getElementById('decide-sub').textContent = 'Finding you\u2026';
+      document.getElementById('decide-bubbles').innerHTML = '<p class="decide-empty">Allow location so we can show places near you.</p>';
+      awaitingFix = true;
+      setTimeout(function () {
+        map.invalidateSize();
+        here.locate();
+      }, 40);
+    }
+
+    function openDecide() {
+      showScreen('screen-decide');
+      session = { service: 'dine', handoff: 'dine', nogo: {} };
+      results = [];
+      box.querySelectorAll('input').forEach(function (input) { input.checked = false; });
+      setStep('service');
+    }
+
+    function syncMemberInputs() {
+      document.querySelectorAll('#decide-settings-overlay [data-member]').forEach(function (input) {
+        input.checked = !!settings[input.getAttribute('data-member')];
+      });
+    }
+
+    document.getElementById('pick-decide').addEventListener('click', openDecide);
+    document.getElementById('food-decide').addEventListener('click', openDecide);
+    document.getElementById('decide-back').addEventListener('click', function () {
+      showScreen('screen-home');
+    });
+    document.querySelector('[data-decide-step="service"]').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-service]');
+      if (!btn) return;
+      session.service = btn.getAttribute('data-service');
+      if (session.service === 'takeout') setStep('handoff');
+      else {
+        session.handoff = 'dine';
+        setStep('nogo');
+      }
+    });
+    document.querySelector('[data-decide-step="handoff"]').addEventListener('click', function (e) {
+      var prev = e.target.closest('[data-decide-prev]');
+      if (prev) { setStep('service'); return; }
+      var btn = e.target.closest('[data-handoff]');
+      if (!btn) return;
+      session.handoff = btn.getAttribute('data-handoff');
+      setStep('nogo');
+    });
+    document.getElementById('decide-nogo-back').addEventListener('click', function () {
+      setStep(session.service === 'takeout' ? 'handoff' : 'service');
+    });
+    document.getElementById('decide-nogo-next').addEventListener('click', askLocation);
+    document.getElementById('decide-bubbles').addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;
+      var details = e.target.closest('[data-details]');
+      if (details) {
+        selectResult(+details.getAttribute('data-details'), true);
+        return;
+      }
+      var card = e.target.closest('[data-pick]');
+      if (card) selectResult(+card.getAttribute('data-pick'), false);
+    });
+    document.getElementById('decide-settings').addEventListener('click', function () {
+      syncMemberInputs();
+      document.getElementById('decide-settings-overlay').hidden = false;
+    });
+    document.getElementById('decide-settings-close').addEventListener('click', function () {
+      document.getElementById('decide-settings-overlay').hidden = true;
+    });
+    document.getElementById('decide-settings-overlay').addEventListener('click', function (e) {
+      if (e.target.id === 'decide-settings-overlay') e.currentTarget.hidden = true;
+    });
+    document.getElementById('decide-settings-overlay').addEventListener('change', function (e) {
+      var input = e.target.closest('[data-member]');
+      if (!input) return;
+      settings[input.getAttribute('data-member')] = input.checked;
+      saveDecideSettings(settings);
+      if (!document.getElementById('decide-results').hidden) renderBubbles();
+    });
+  }
+
   function wireUi() {
     modes.coffee = createMode({
       kind: 'coffee',
@@ -681,6 +1063,7 @@
     document.getElementById('pick-coffee').addEventListener('click', function () { modes.coffee.show(); });
     document.getElementById('pick-drinks').addEventListener('click', function () { modes.drinks.show(); });
     document.getElementById('pick-food').addEventListener('click', function () { modes.food.show(); });
+    initDecide();
     document.getElementById('schedule-back').addEventListener('click', function () { modes.drinks.show(); });
     document.getElementById('open-schedule').addEventListener('click', function () {
       showScreen('screen-schedule');
