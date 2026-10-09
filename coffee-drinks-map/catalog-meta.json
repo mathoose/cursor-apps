@@ -1,7 +1,8 @@
 {
-  "drinks": 212,
+  "drinks": 188,
   "coffee": 172,
+  "food": 25,
   "added_drinks": 9,
   "added_coffee": 72,
-  "with_hh_schedule": 124
+  "with_hh_schedule": 125
 }

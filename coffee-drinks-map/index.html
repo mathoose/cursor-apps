@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<!-- build: coffee-drinks-map-v2 -->
+<!-- build: coffee-drinks-map-v6 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-  <title>Coffee & Drinks</title>
+  <title>Coffee, Drinks &amp; Food</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Coffee & Drinks" />
+  <meta name="apple-mobile-web-app-title" content="Coffee &amp; Food" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#1c1917" />
   <link rel="icon" href="app-icon.png" type="image/png" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -24,7 +24,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
       </a>
       <h1>Philly map</h1>
-      <p class="sub">Coffee shops &amp; bars · shared catalog</p>
+      <p class="sub">Cafes, restaurants &amp; bars · shared catalog</p>
     </header>
     <div class="home-actions">
       <button type="button" class="home-btn home-btn-coffee" id="pick-coffee">
@@ -36,6 +36,11 @@
         <span class="home-btn-icon" aria-hidden="true">🍺</span>
         <span class="home-btn-label">Drinks</span>
         <span class="home-btn-hint">Bars, breweries &amp; happy hours</span>
+      </button>
+      <button type="button" class="home-btn home-btn-food" id="pick-food">
+        <span class="home-btn-icon" aria-hidden="true">🍽️</span>
+        <span class="home-btn-label">Food</span>
+        <span class="home-btn-hint">Lunch &amp; dinner</span>
       </button>
     </div>
     <p class="home-foot" id="home-status" aria-live="polite"></p>
@@ -120,6 +125,50 @@
     </nav>
   </section>
 
+  <section id="screen-food" class="screen screen-map theme-food" data-mode="food" hidden>
+    <header class="topbar">
+      <button type="button" class="icon-btn" data-back aria-label="Back">
+        <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="topbar-titles">
+        <h1>Food</h1>
+        <p class="sub" data-sub>Loading…</p>
+      </div>
+    </header>
+    <main>
+      <div id="map-food" class="map" role="application" aria-label="Food map"></div>
+      <div class="list-view" data-list-view hidden>
+        <input type="search" class="list-search" data-search placeholder="Search restaurants…" autocomplete="off" />
+        <div class="meal-chips" data-meal-chips role="tablist" aria-label="Meal">
+          <button type="button" class="meal-chip active" data-meal="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="meal-chip" data-meal="lunch" role="tab" aria-selected="false">Lunch</button>
+          <button type="button" class="meal-chip" data-meal="dinner" role="tab" aria-selected="false">Dinner</button>
+        </div>
+        <p class="list-note" data-list-note hidden></p>
+        <div class="place-list" data-list></div>
+      </div>
+    </main>
+    <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
+    <div class="here-bar" data-here-bar hidden>
+      <div class="here-bar-top">
+        <p class="here-label" data-here-label>~800 m · 10 min walk</p>
+        <button type="button" class="text-btn" data-here-clear>Clear</button>
+      </div>
+      <label class="here-slider-label"><span>Walk</span><input type="range" data-here-slider min="5" max="25" step="1" value="10" /><span data-here-minutes>10 min</span></label>
+      <p class="here-count" data-here-count></p>
+    </div>
+    <nav class="bottom-nav" role="tablist" aria-label="Views">
+      <button type="button" class="nav-btn active" data-view="map" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24"><path d="M12 21s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+        <span>Map</span>
+      </button>
+      <button type="button" class="nav-btn" data-view="list" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        <span>List</span>
+      </button>
+    </nav>
+  </section>
+
   <section id="screen-schedule" class="screen screen-schedule" hidden>
     <header class="page-header">
       <button type="button" class="icon-btn" id="schedule-back" aria-label="Back to map">
@@ -165,6 +214,7 @@
       </div>
       <p class="detail-meta" id="detail-meta"></p>
       <p class="detail-hh" id="detail-hh" hidden></p>
+      <p class="detail-hours" id="detail-hours" hidden></p>
       <p class="detail-desc" id="detail-desc"></p>
       <div class="detail-links" id="detail-links"></div>
       <a class="btn-primary maps-link" id="detail-maps" target="_blank" rel="noopener">Open in Maps</a>
@@ -175,7 +225,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=2" defer></script>
+  <script src="app.js?v=6" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

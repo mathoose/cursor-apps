@@ -1,0 +1,1010 @@
+[
+  {
+    "id": "tiffin-indian-cuisine",
+    "name": "Tiffin Indian cuisine",
+    "neighborhood": "Bella Vista",
+    "address": "1100 Federal St, Philadelphia, PA 19147",
+    "lat": 39.933255,
+    "lng": -75.16274,
+    "website": "https://www.tiffin.com/",
+    "instagramUrl": "https://www.instagram.com/tiffinindian/",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon–Fri 11:30am–10pm · Sat–Sun noon–10pm (Apple Maps / listings); confirm on Instagram",
+    "description": "South Philly outpost of Munish Narula's mini-chain: North Indian curries, tandoor, naan, and chaats. BYO wine with corkage.",
+    "meal": "both"
+  },
+  {
+    "id": "saigon-grace-cafe",
+    "name": "Saigon Grace Cafe",
+    "neighborhood": "Graduate Hospital",
+    "address": "1516 South St, Philadelphia, PA 19146",
+    "lat": 39.9438,
+    "lng": -75.1678,
+    "website": "https://saigongracecafe.com/",
+    "instagramUrl": "https://www.instagram.com/saigongracecafe/",
+    "hours": {
+      "Monday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue closed · Mon/Wed–Fri 8:30am–7pm · Sat–Sun 8:30am–4pm",
+    "description": "Vietnamese coffee (salt foam) and Viet-Mexican cafe food from Khai Tran, Trinh Nguyen, and Fernando Cristobol. Listed in drinks as Saigon Cafe.",
+    "meal": "both"
+  },
+  {
+    "id": "pine-street-grill",
+    "name": "Pine Street Grill",
+    "neighborhood": "Graduate Hospital",
+    "address": "2227 Pine St, Philadelphia, PA 19103",
+    "lat": 39.947399,
+    "lng": -75.179196,
+    "website": "https://www.pinestreetgrill.com/",
+    "instagramUrl": "https://www.instagram.com/pinestreetgrill.phl/",
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue closed. Dinner hours above; Sat–Sun brunch 10:30am–2pm (not all-afternoon). Confirm on Instagram.",
+    "description": "Fitler Square neighborhood grill from Amanda Shulman and Alex Kemp (Her Place, My Loup): comfort classics, kids menu, weekend brunch.",
+    "meal": "both"
+  },
+  {
+    "id": "ambrosia",
+    "name": "Ambrosia",
+    "neighborhood": "Graduate Hospital",
+    "address": "231 S 24th St, Philadelphia, PA 19103",
+    "lat": 39.950009,
+    "lng": -75.179667,
+    "website": "https://www.ambrosiaphilly.com/",
+    "instagramUrl": "https://www.instagram.com/ambrosia_philly/",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Lunch and dinner seatings (afternoon gap). Last seating earlier than close. Wine welcome, no corkage.",
+    "description": "Casual Italian at 24th & Locust: homemade pasta, full bar; still no corkage if you bring wine.",
+    "meal": "both"
+  },
+  {
+    "id": "lorenzo-and-sons-pizza",
+    "name": "Lorenzo and Sons Pizza",
+    "neighborhood": "Queen Village",
+    "address": "305 South St, Philadelphia, PA 19147",
+    "lat": 39.941549,
+    "lng": -75.147882,
+    "website": "https://lorenzoandsons.com/",
+    "instagramUrl": "https://www.instagram.com/the_real_lorenzo_and_sons/",
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Sun–Wed 11am–1am · Thu–Sat 11am–3am (Apple Maps). Cash-friendly giant slices.",
+    "description": "South Street institution: huge New York-style slices, late night. Cash only (ATM on site).",
+    "meal": "both"
+  },
+  {
+    "id": "cafe-y-chocolate",
+    "name": "Café y Chocolate",
+    "neighborhood": "East Passyunk",
+    "address": "1532 Snyder Ave, Philadelphia, PA 19145",
+    "lat": 39.924649,
+    "lng": -75.172647,
+    "website": "https://www.cafeychocolatephilly.com/",
+    "instagramUrl": "https://www.instagram.com/cafeychocolatepa/",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Sun–Thu 8am–5pm · Fri–Sat 8:30am–8pm on cafeychocolatephilly.com; summer brunch hours also posted — confirm on Instagram.",
+    "description": "Mexican cafe at Snyder & Passyunk: breakfast, moles, and Mexican hot chocolate.",
+    "meal": "both"
+  },
+  {
+    "id": "tesiny",
+    "name": "Tesiny",
+    "neighborhood": "Bella Vista",
+    "address": "719 Dickinson St, Philadelphia, PA 19147",
+    "lat": 39.9308,
+    "lng": -75.1568,
+    "website": "https://www.tesiny.com/",
+    "instagramUrl": "https://www.instagram.com/tesinyphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue–Sat 5–10pm · Sun–Mon closed",
+    "description": "South Philly seafood / cocktail room. Dinner only.",
+    "meal": "dinner"
+  },
+  {
+    "id": "agricola",
+    "name": "Agrícola",
+    "neighborhood": "Bella Vista",
+    "address": "1180 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.934683,
+    "lng": -75.160608,
+    "website": "https://order.toasttab.com/online/agricola",
+    "instagramUrl": "https://www.instagram.com/agricolaphl/",
+    "hours": {
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Thu–Sat 4–9pm · Sun 2–7pm · Mon–Wed closed (listings). Confirm on Instagram — hours are limited.",
+    "description": "Chef-y pizza at 10th & Federal: house-milled grain, farm pork, pizza classes. Look for the monkey over the door.",
+    "meal": "dinner"
+  },
+  {
+    "id": "casablanca",
+    "name": "Casablanca Mediterranean Grill",
+    "neighborhood": "East Passyunk",
+    "address": "947 Federal St, Philadelphia, PA 19147",
+    "lat": 39.934676,
+    "lng": -75.160296,
+    "website": "https://casablanca-grill.com/",
+    "instagramUrl": "https://www.instagram.com/casablancaphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Site: Tue–Thu 2–10pm (kitchen earlier); Fri–Sat prix fixe or a la carte. Open six days — confirm Monday on Instagram. Sun closed.",
+    "description": "Family Mediterranean grill with a full bar (no longer BYOB). Best of Philly Mediterranean.",
+    "meal": "both"
+  },
+  {
+    "id": "paffuto",
+    "name": "Paffuto",
+    "neighborhood": "Bella Vista",
+    "address": "1009 S 8th St, Philadelphia, PA 19147",
+    "lat": 39.936863,
+    "lng": -75.156505,
+    "website": "https://www.paffutophl.com/",
+    "instagramUrl": "https://www.instagram.com/paffutophilly/",
+    "hours": {
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "12:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "8:30 AM",
+        "close": "2:30 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon–Tue closed. Daytime cafe + some dinner services; site and Cash App disagree on exact dinner nights — confirm on Instagram.",
+    "description": "Italian cafe/restaurant in the old Bibou space (CIA alums). Breakfast sandwiches by day, dinner some evenings.",
+    "meal": "both"
+  },
+  {
+    "id": "juana-tamale",
+    "name": "Juana Tamale",
+    "neighborhood": "East Passyunk",
+    "address": "1941 E Passyunk Ave, Philadelphia, PA 19148",
+    "lat": 39.925666,
+    "lng": -75.16843,
+    "website": "https://juana-tamale.square.site/",
+    "instagramUrl": "https://www.instagram.com/juanatamale/",
+    "hours": {
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Closed Mondays. ~11am–10pm other days (listings); birria often sells out — confirm on Instagram.",
+    "description": "Neon Mexican BYOB from Chef Jennifer Zavala: birria tacos and ramen, handmade tamales, vegan options.",
+    "meal": "both"
+  },
+  {
+    "id": "pho-75",
+    "name": "Pho 75",
+    "neighborhood": "Bella Vista",
+    "address": "1122 Washington Ave F, Philadelphia, PA 19147",
+    "lat": 39.933559,
+    "lng": -75.147816,
+    "website": "https://phillypho.com/",
+    "instagramUrl": "https://www.instagram.com/75pho/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Every day 9am–8pm. Cash-friendly pho shop in Wing Phat Plaza.",
+    "description": "South Philly's iconic pho: eye-round, brisket, tendon, tripe, meatballs. Look for the yellow banner.",
+    "meal": "both"
+  },
+  {
+    "id": "el-chingon",
+    "name": "El Chingon",
+    "neighborhood": "East Passyunk",
+    "address": "1524 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.930125,
+    "lng": -75.16161,
+    "website": "https://www.elchingonphilly.com/",
+    "instagramUrl": "https://www.instagram.com/elchingonphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon closed · Tue–Thu & Sun 11am–9pm · Fri–Sat 11am–10pm",
+    "description": "Mexican restaurant on 10th Street — lunch through dinner.",
+    "meal": "both"
+  },
+  {
+    "id": "mawn",
+    "name": "Mawn",
+    "neighborhood": "Bella Vista",
+    "address": "764 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.9398,
+    "lng": -75.1582,
+    "website": "https://mawnphilly.com/",
+    "instagramUrl": "https://www.instagram.com/mawnphilly/",
+    "hours": {
+      "Wednesday": {
+        "open": "4:30 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Dinner Wed–Sat 4:30–9pm (reservations). Walk-in lunch Thu–Sat 11am–2:30pm. Afternoon gap. Confirm on Instagram.",
+    "description": "James Beard Cambodian noodle house on 9th Street. Tiny BYOB; dinner books out — lunch is the walk-in play.",
+    "meal": "both"
+  },
+  {
+    "id": "fiorella",
+    "name": "Fiorella",
+    "neighborhood": "Bella Vista",
+    "address": "817 Christian St, Philadelphia, PA 19147",
+    "lat": 39.938899,
+    "lng": -75.156876,
+    "website": "https://fiorellaphilly.com/",
+    "instagramUrl": "https://www.instagram.com/fiorellaphilly/",
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Sun–Thu 4–9pm · Fri–Sat 4–10pm",
+    "description": "Marc Vetri pasta restaurant on Christian Street. Dinner only.",
+    "meal": "dinner"
+  },
+  {
+    "id": "the-dutch",
+    "name": "The Dutch",
+    "neighborhood": "East Passyunk",
+    "address": "1537 S 11th Street, Philadelphia, PA 19147",
+    "lat": 39.929865,
+    "lng": -75.162992,
+    "website": "https://thedutchphilly.com/",
+    "instagramUrl": "https://www.instagram.com/thedutchphilly/",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Brunch Mon–Fri 8am–3pm · Sat–Sun 8am–2pm (walk-in)",
+    "description": "Pennsylvania Dutch-inspired scratch kitchen and bar; sister to Fond. Brunch / lunch hours.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cilantro",
+    "name": "Cilantro",
+    "neighborhood": "Queen Village",
+    "address": "613 S 4th St, Philadelphia, PA 19147",
+    "lat": 39.941,
+    "lng": -75.1488,
+    "website": "https://www.cilantromediterraneancuisine.com/",
+    "instagramUrl": "https://www.instagram.com/cilantromediterraneancuisine/",
+    "hours": {
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon–Thu & Sat–Sun noon–11pm · Fri noon–midnight (dine-in). Carryout ends 30 min earlier.",
+    "description": "Halal Egyptian / Mediterranean on 4th Street: shawarma, hawawshi, falafel platters.",
+    "meal": "both"
+  },
+  {
+    "id": "amerithai-bistro",
+    "name": "Ameri Thai Bistro",
+    "neighborhood": "East Passyunk",
+    "address": "1244 Snyder Ave, Philadelphia, PA 19148",
+    "lat": 39.923917,
+    "lng": -75.167515,
+    "website": "https://amerithaitogo.com/",
+    "instagramUrl": "https://www.instagram.com/amerithai.bistro/",
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon closed · Tue–Thu 4–9pm · Fri–Sat 11am–10pm · Sun 11am–9pm",
+    "description": "Neighborhood Thai on Snyder: curries, boat noodles, mango sticky rice. Lunch Fri–Sun; dinner Tue–Sun.",
+    "meal": "both"
+  },
+  {
+    "id": "the-bakery",
+    "name": "The Bakery",
+    "neighborhood": "Pennsport",
+    "address": "2300 S 3rd St, Philadelphia, PA 19148",
+    "lat": 39.919489,
+    "lng": -75.152295,
+    "website": "https://www.instagram.com/thebakery.phl/",
+    "instagramUrl": "https://www.instagram.com/thebakery.phl/",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "instagram",
+    "hoursNote": "Handle is @thebakery.phl (not .ph). Mon–Fri 7am–2pm · Sat–Sun 8am–2pm. Friday pizza nights / After Hours dinners — confirm on Instagram.",
+    "description": "3rd & Wolf donuts, coffee, and breakfast sandwiches. Rocco Weiss revived a century-old cake-donut recipe; pizza nights via IG.",
+    "meal": "lunch"
+  },
+  {
+    "id": "horseman-wellness-club",
+    "name": "Horseman Wellness Club",
+    "neighborhood": "Pennsport",
+    "address": "1801 S 4th St, Philadelphia, PA 19148",
+    "lat": 39.925792,
+    "lng": -75.152491,
+    "website": "https://horsemanwellnessclub.com/",
+    "instagramUrl": "https://www.instagram.com/horsemanwellnessclub/",
+    "hours": {
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon–Tue closed · Wed–Sat 8am–4pm · Sun 8am–3pm (listings). Confirm on Instagram.",
+    "description": "Whole-food cafe / meal-prep shop: grass-fed cooking, breakfast and lunch. Closed early week.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cafe-tinto-olney",
+    "name": "Café Tinto (Olney)",
+    "neighborhood": "Olney",
+    "address": "143 E Wyoming Ave, Philadelphia, PA 19120",
+    "lat": 40.021566,
+    "lng": -75.122583,
+    "website": "https://www.cafetinto.online/",
+    "instagramUrl": "https://www.instagram.com/cafetinto.co/",
+    "hours": {
+      "Monday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon–Sat 5:30am–2pm · Sunday closed (family day). Confirm on Instagram.",
+    "description": "Original Colombian cafe: coffee, empanadas, breakfast platters. Owner Giselle Poveda / Daniela Garcia.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cafe-tinto-fishtown",
+    "name": "Café Tinto (Fishtown)",
+    "neighborhood": "Fishtown",
+    "address": "1701 N Front St, Philadelphia, PA 19122",
+    "lat": 39.975094,
+    "lng": -75.134192,
+    "website": "https://www.cafetinto.online/",
+    "instagramUrl": "https://www.instagram.com/cafetinto.co/",
+    "hours": {
+      "Monday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon–Sat ~6am–3pm · Sunday typically closed. Location also posts as @cafetinto.fishtown; occasional 3–6pm happy hour — confirm on IG.",
+    "description": "Fishtown panadería: Colombian pastries, empanadas, arepas, breakfast. Separate pin from the Olney original.",
+    "meal": "lunch"
+  },
+  {
+    "id": "angelos-pizzeria",
+    "name": "Angelo's Pizzeria",
+    "neighborhood": "Bella Vista",
+    "address": "736 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.940697,
+    "lng": -75.157578,
+    "website": "https://www.angelospizzeriasouthphiladelphia.com/",
+    "instagramUrl": "https://www.instagram.com/angelos_pizzeria_south_philly/",
+    "hours": {
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Wed–Sun 11am–7pm · Mon–Tue closed. Lines are the point — confirm on Instagram.",
+    "description": "Italian Market pizza, cheesesteaks, and roast pork. Dough mixed by hand, mozzarella pulled fresh.",
+    "meal": "both"
+  },
+  {
+    "id": "south-philly-barbacoa",
+    "name": "South Philly Barbacoa",
+    "neighborhood": "Bella Vista",
+    "address": "1134 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.935512,
+    "lng": -75.158757,
+    "website": "https://www.instagram.com/southphillybarbacoa_/",
+    "instagramUrl": "https://www.instagram.com/southphillybarbacoa_/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "10:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "10:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "6:00 AM",
+        "close": "9:00 PM"
+      },
+      "Sunday": {
+        "open": "6:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Weekend mornings from 6am; weekdays 9 or 10am–9pm (listings). Chef Cristina Martinez also @barbacoachef. Confirm on Instagram — they can sell out.",
+    "description": "James Beard barbacoa and handmade tortillas on 9th Street (Chef’s Table). Weekend mornings are the move.",
+    "meal": "both"
+  },
+  {
+    "id": "quality-taste-jamaican",
+    "name": "Quality Taste Jamaican Restaurant",
+    "neighborhood": "Mantua",
+    "address": "4002 Lancaster Ave, Philadelphia, PA 19104",
+    "lat": 39.963141,
+    "lng": -75.202682,
+    "website": "https://www.instagram.com/qualitytastejamaicanrestaurant/",
+    "instagramUrl": "https://www.instagram.com/qualitytastejamaicanrestaurant/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Yelp: Mon/Wed–Sat 9am–11pm · Tue 9am–9pm · Sun 10am–7pm. Confirm on Instagram.",
+    "description": "Lancaster Avenue jerk, curry goat, and oxtail — West Philly away from campus / Clark Park.",
+    "meal": "both"
+  }
+]
