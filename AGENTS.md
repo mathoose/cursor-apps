@@ -53,6 +53,14 @@ Before **removing or simplifying** an existing user-facing interaction (tap cycl
 
 After editing `habit-journal/index.html`, run `./scripts/verify-habit-journal-js.sh` before pushing. A syntax error in the inline script blanks the entire app.
 
+## Cursor Cloud specific instructions
+
+The apps are static HTML. There is no package install. Node and Python 3 are already on the image.
+
+On boot, `start` serves this repository at http://127.0.0.1:8080/ (launcher at `/`, each app at `/<folder>/`). The home screen uses `apps.json` when the GitHub contents API is unreachable.
+
+After editing `habit-journal/index.html`, run `./scripts/verify-habit-journal-js.sh` before pushing. A syntax error in the inline script blanks the entire app.
+
 ## Coffee & Drinks map (canonical)
 
 **Philly Dates** and **Coffee Map** are launcher-hidden (archived). Do not bump or edit them for map/pin work unless the user asks to un-archive.
