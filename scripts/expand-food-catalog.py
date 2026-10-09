@@ -34,10 +34,15 @@ NEIGHBORHOODS: dict[str, tuple[float, float, float, float]] = {
 }
 
 PER_HOOD = 20
+# Fast-food / cafe chains still skipped. Allowed in catalog: Starbucks, Chipotle, Panera,
+# Taco Bell, Chick-fil-A, Wawa, Domino's, Dunkin (and similar spellings via removed patterns).
 CHAIN = re.compile(
-    r"starbucks|mcdonald|subway|dunkin|chipotle|panera|domino|pizza hut|"
-    r"wawa|7-eleven|chick-fil-a|wendy|burger king|taco bell|kfc|"
+    r"mcdonald|subway|pizza hut|7-eleven|wendy|burger king|kfc|"
     r"capital one|sweetgreen|cava|shake shack",
+    re.I,
+)
+ALLOWED_CHAIN = re.compile(
+    r"starbucks|chipotle|panera|taco bell|chick-fil-a|chick fil a|wawa|domino|dunkin",
     re.I,
 )
 SKIP_AMENITY = {"bar", "pub", "biergarten", "nightclub"}
@@ -296,6 +301,52 @@ def main() -> None:
             added += 1
         hood_counts[hood] = hood_counts.get(hood, 0) + len(picked)
         print(f"{hood}: +{len(picked)} (now {hood_counts.get(hood, 0)}, target {PER_HOOD})")
+
+    drink_names = existing_names([], drinks)
+    chain_added = 0
+    chain_seen: set[str] = set()
+    for hood, bbox in NEIGHBORHOODS.items():
+        south, west, north, east = bbox
+        try:
+            rows = overpass_restaurants(south, west, north, east)
+            time.sleep(1.5)
+        except Exception as e:
+            print(f"Allowed chains: Overpass failed for {hood}: {e}")
+            continue
+        for c in rows:
+            if not ALLOWED_CHAIN.search(c["name"]):
+                continue
+            nk = norm_name(c["name"])
+            if nk in drink_names:
+                continue
+            loc_key = f"{nk}|{c['lat']}|{c['lng']}"
+            if loc_key in chain_seen:
+                continue
+            chain_seen.add(loc_key)
+            pid = slug(f"{c['name']}-{c['lat']}")
+            if pid in ids:
+                pid = f"{pid}-{hood.lower().replace(' ', '-')[:10]}"
+            ids.add(pid)
+            oh = c.get("opening_hours") or ""
+            food.append(
+                {
+                    **place_row(
+                        c["name"],
+                        hood,
+                        c["address"],
+                        c["lat"],
+                        c["lng"],
+                        f"{c['name']} ({hood}). Chain location from OpenStreetMap.",
+                        c.get("website") or "",
+                        f"OSM hours: {oh}" if oh else "",
+                    ),
+                    "id": pid,
+                }
+            )
+            chain_added += 1
+    if chain_added:
+        print(f"Allowed chains: +{chain_added}")
+        added += chain_added
 
     save_cache(cache)
     FOOD_PATH.write_text(json.dumps(food, indent=2) + "\n", encoding="utf-8")
