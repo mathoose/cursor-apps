@@ -134,15 +134,84 @@
     return typeof p.lat === 'number' && typeof p.lng === 'number' && isFinite(p.lat) && isFinite(p.lng);
   }
 
-  function formatHoursCompact(hours) {
-    if (!hours || typeof hours !== 'object') return '';
-    var parts = [];
+  function parseTime12(s) {
+    if (!s) return null;
+    var m = String(s).trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!m) return null;
+    var h = parseInt(m[1], 10);
+    var min = parseInt(m[2], 10);
+    var ap = m[3].toUpperCase();
+    if (ap === 'PM' && h !== 12) h += 12;
+    if (ap === 'AM' && h === 12) h = 0;
+    return h * 60 + min;
+  }
+
+  function isOpenNowHours(hours) {
+    if (!hours || typeof hours !== 'object') return false;
+    var today = hours[getTodayDayName()];
+    if (!today || !today.open || !today.close) return false;
+    var start = parseTime12(today.open);
+    var end = parseTime12(today.close);
+    if (start == null || end == null) return false;
+    var d = new Date();
+    var now = d.getHours() * 60 + d.getMinutes();
+    if (end <= start) return now >= start || now < end;
+    return now >= start && now < end;
+  }
+
+  function renderHoursBlock(hours) {
+    var el = document.getElementById('detail-hours');
+    el.innerHTML = '';
+    if (!hours || typeof hours !== 'object') {
+      el.hidden = true;
+      return;
+    }
+    var hasAny = DAY_NAMES.some(function (d) {
+      var h = hours[d];
+      return h && h.open && h.close;
+    });
+    if (!hasAny) {
+      el.hidden = true;
+      return;
+    }
+    el.hidden = false;
+    var todayName = getTodayDayName();
+    var todayH = hours[todayName];
+    var todayRow = document.createElement('div');
+    todayRow.className = 'hours-today' + (isOpenNowHours(hours) ? ' on' : '');
+    if (todayH && todayH.open && todayH.close) {
+      todayRow.innerHTML =
+        '<span class="hours-today-label">Today</span>' +
+        '<span class="hours-today-time">' + todayH.open + ' – ' + todayH.close + '</span>' +
+        (isOpenNowHours(hours) ? '<span class="hours-today-badge">Open now</span>' : '');
+    } else {
+      todayRow.innerHTML =
+        '<span class="hours-today-label">Today</span>' +
+        '<span class="hours-today-closed">Closed</span>';
+    }
+    el.appendChild(todayRow);
+    var list = document.createElement('ul');
+    list.className = 'hours-list';
     DAY_NAMES.forEach(function (d) {
       var h = hours[d];
-      if (!h || !h.open || !h.close) return;
-      parts.push((DAY_SHORT[d] || d) + ' ' + h.open + '–' + h.close);
+      var li = document.createElement('li');
+      li.className = 'hours-row' + (d === todayName ? ' is-today' : '');
+      var day = document.createElement('span');
+      day.className = 'hours-day';
+      day.textContent = DAY_SHORT[d] || d;
+      var time = document.createElement('span');
+      time.className = 'hours-time';
+      if (h && h.open && h.close) {
+        time.textContent = h.open + ' – ' + h.close;
+      } else {
+        time.textContent = 'Closed';
+        time.classList.add('closed');
+      }
+      li.appendChild(day);
+      li.appendChild(time);
+      list.appendChild(li);
     });
-    return parts.join(' · ');
+    el.appendChild(list);
   }
 
   function matchesMeal(p, mealFilter) {
@@ -177,14 +246,7 @@
     } else {
       hhEl.hidden = true;
     }
-    var hoursEl = document.getElementById('detail-hours');
-    var hoursLine = formatHoursCompact(place.hours);
-    if (hoursLine) {
-      hoursEl.textContent = hoursLine;
-      hoursEl.hidden = false;
-    } else {
-      hoursEl.hidden = true;
-    }
+    renderHoursBlock(place.hours);
     var desc = place.description || place.hoursNote || '';
     document.getElementById('detail-desc').textContent = desc;
     var links = document.getElementById('detail-links');
@@ -654,7 +716,7 @@
     return Promise.all([
       fetch('coffee.json?v=1').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('drinks.json?v=6').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('food.json?v=6').then(function (r) { return r.ok ? r.json() : []; })
+      fetch('food.json?v=7').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
       coffeePlaces = Array.isArray(triple[0]) ? triple[0] : [];
       drinkPlaces = Array.isArray(triple[1]) ? triple[1] : [];
