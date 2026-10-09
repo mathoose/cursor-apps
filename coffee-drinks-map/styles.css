@@ -10,6 +10,8 @@
   --accent-soft: #ffedd5;
   --drinks: #2e7d32;
   --drinks-soft: #e8f5e9;
+  --food: #0f766e;
+  --food-soft: #ccfbf1;
   --link: #1565c0;
   --cell-inactive: #f0f0f0;
   --cell-active: #43a047;
@@ -76,7 +78,7 @@ button { touch-action: manipulation; cursor: pointer; }
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
-  padding: 22px 20px;
+  padding: 18px 20px;
   border-radius: 18px;
   border: 2px solid var(--border);
   background: var(--surface);
@@ -85,6 +87,7 @@ button { touch-action: manipulation; cursor: pointer; }
 }
 .home-btn-coffee { border-color: #fdba74; background: var(--accent-soft); }
 .home-btn-drinks { border-color: #a5d6a7; background: var(--drinks-soft); }
+.home-btn-food { border-color: #5eead4; background: var(--food-soft); }
 .home-btn-icon { font-size: 2rem; line-height: 1; }
 .home-btn-label { font-size: 1.35rem; font-weight: 700; }
 .home-btn-hint { font-size: 0.85rem; color: var(--muted); }
@@ -265,6 +268,38 @@ button { touch-action: manipulation; cursor: pointer; }
   padding: 2px 8px;
 }
 .hh-pill.on { color: #fff; background: var(--cell-active-now); }
+.meal-pill {
+  flex: 0 0 auto;
+  margin-left: auto;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.meal-pill.lunch { color: var(--food); background: var(--food-soft); }
+.meal-pill.dinner { color: #9a3412; background: #ffedd5; }
+
+.meal-chips {
+  display: flex;
+  gap: 8px;
+  margin: -4px 0 12px;
+}
+.meal-chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+.meal-chip.active {
+  background: var(--food);
+  border-color: var(--food);
+  color: #ecfdf5;
+}
 
 .empty-state {
   text-align: center;
@@ -389,6 +424,7 @@ body.sheet-open .here-bar { display: none; }
 }
 .theme-coffee .nav-btn.active { color: var(--accent-dark); }
 .theme-drinks .nav-btn.active { color: var(--drinks); }
+.theme-food .nav-btn.active { color: var(--food); }
 
 .screen-map .leaflet-bottom { bottom: calc(var(--nav-h) + 6px); }
 .leaflet-control-attribution {
@@ -628,6 +664,16 @@ body.sheet-open .here-bar { display: none; }
   color: var(--drinks);
 }
 .detail-hh.on { color: var(--cell-active-now); }
+.detail-hours {
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
 .detail-desc {
   margin: 0 0 8px;
   font-size: 0.9rem;

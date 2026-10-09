@@ -17,9 +17,12 @@
   var COLOR_COFFEE = '#c2410c';
   var COLOR_HH = '#43a047';
   var COLOR_BAR = '#78716c';
+  var COLOR_FOOD = '#0f766e';
+  var DAY_SHORT = { Sunday: 'Sun', Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat' };
 
   var coffeePlaces = [];
   var drinkPlaces = [];
+  var foodPlaces = [];
   var hhRestaurants = [];
   var modes = {};
 
@@ -131,6 +134,23 @@
     return typeof p.lat === 'number' && typeof p.lng === 'number' && isFinite(p.lat) && isFinite(p.lng);
   }
 
+  function formatHoursCompact(hours) {
+    if (!hours || typeof hours !== 'object') return '';
+    var parts = [];
+    DAY_NAMES.forEach(function (d) {
+      var h = hours[d];
+      if (!h || !h.open || !h.close) return;
+      parts.push((DAY_SHORT[d] || d) + ' ' + h.open + '–' + h.close);
+    });
+    return parts.join(' · ');
+  }
+
+  function matchesMeal(p, mealFilter) {
+    if (!mealFilter || mealFilter === 'all') return true;
+    var m = p.meal || 'both';
+    return m === 'both' || m === mealFilter;
+  }
+
   function appleMapsUrl(p, name) {
     var pin = name || p.name || 'Place';
     if (hasCoords(p)) {
@@ -156,6 +176,14 @@
       hhEl.hidden = false;
     } else {
       hhEl.hidden = true;
+    }
+    var hoursEl = document.getElementById('detail-hours');
+    var hoursLine = formatHoursCompact(place.hours);
+    if (hoursLine) {
+      hoursEl.textContent = hoursLine;
+      hoursEl.hidden = false;
+    } else {
+      hoursEl.hidden = true;
     }
     var desc = place.description || place.hoursNote || '';
     document.getElementById('detail-desc').textContent = desc;
@@ -191,7 +219,7 @@
     return Math.max(1, Math.round(m / PhillyWalkMap.WALK_M_PER_MIN));
   }
 
-  /* One controller per map screen (coffee / drinks). */
+  /* One controller per map screen (coffee / drinks / food). */
   function createMode(cfg) {
     var root = document.getElementById(cfg.screenId);
     var q = function (sel) { return root.querySelector(sel); };
@@ -201,10 +229,15 @@
       map: null,
       layer: null,
       here: null,
-      view: 'map'
+      view: 'map',
+      mealFilter: 'all'
     };
 
-    function places() { return cfg.getPlaces(); }
+    function places() {
+      var list = cfg.getPlaces();
+      if (cfg.kind !== 'food') return list;
+      return list.filter(function (p) { return matchesMeal(p, mode.mealFilter); });
+    }
 
     function hereActive() {
       return !!(mode.here && mode.here.isActive());
@@ -368,6 +401,22 @@
       if (mode.here) mode.here.setMinutes(e.target.value);
     });
     q('[data-search]').addEventListener('input', renderList);
+    var chips = q('[data-meal-chips]');
+    if (chips) {
+      chips.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-meal]');
+        if (!btn) return;
+        mode.mealFilter = btn.getAttribute('data-meal') || 'all';
+        chips.querySelectorAll('[data-meal]').forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        updateSub();
+        renderPins();
+        if (mode.view === 'list') renderList();
+      });
+    }
     q('[data-list]').addEventListener('click', function (e) {
       var card = e.target.closest('.place-card');
       if (!card || !mode.lastList) return;
@@ -504,6 +553,7 @@
   function bootstrapCatalog() {
     drinkPlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
     coffeePlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
+    foodPlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
     hhRestaurants = drinkPlaces.filter(hasSchedule);
     rebuildNeighborhoods();
     DAY_NAMES.forEach(function (d) {
@@ -515,7 +565,8 @@
     daySel.value = getTodayDayName();
     buildTimeOptions(daySel.value, getNowSlot());
     document.getElementById('home-status').textContent =
-      coffeePlaces.length + ' coffee shops · ' + drinkPlaces.length + ' bars (' + hhRestaurants.length + ' with happy hours)';
+      coffeePlaces.length + ' coffee shops · ' + drinkPlaces.length + ' bars (' +
+      hhRestaurants.length + ' with happy hours) · ' + foodPlaces.length + ' restaurants';
   }
 
   function openDrinkByName(name) {
@@ -549,9 +600,25 @@
         return list.length + ' bars · ' + withHh + ' with happy hours';
       }
     });
+    modes.food = createMode({
+      kind: 'food',
+      screenId: 'screen-food',
+      mapId: 'map-food',
+      getPlaces: function () { return foodPlaces; },
+      pinColor: function () { return COLOR_FOOD; },
+      badge: function (p) {
+        if (p.meal === 'lunch') return '<span class="meal-pill lunch">Lunch</span>';
+        if (p.meal === 'dinner') return '<span class="meal-pill dinner">Dinner</span>';
+        return '';
+      },
+      subtitle: function (list) {
+        return list.length + ' restaurants';
+      }
+    });
 
     document.getElementById('pick-coffee').addEventListener('click', function () { modes.coffee.show(); });
     document.getElementById('pick-drinks').addEventListener('click', function () { modes.drinks.show(); });
+    document.getElementById('pick-food').addEventListener('click', function () { modes.food.show(); });
     document.getElementById('schedule-back').addEventListener('click', function () { modes.drinks.show(); });
     document.getElementById('open-schedule').addEventListener('click', function () {
       showScreen('screen-schedule');
@@ -586,10 +653,12 @@
   function loadCatalog() {
     return Promise.all([
       fetch('coffee.json?v=1').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('drinks.json?v=1').then(function (r) { return r.ok ? r.json() : []; })
-    ]).then(function (pair) {
-      coffeePlaces = Array.isArray(pair[0]) ? pair[0] : [];
-      drinkPlaces = Array.isArray(pair[1]) ? pair[1] : [];
+      fetch('drinks.json?v=6').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('food.json?v=6').then(function (r) { return r.ok ? r.json() : []; })
+    ]).then(function (triple) {
+      coffeePlaces = Array.isArray(triple[0]) ? triple[0] : [];
+      drinkPlaces = Array.isArray(triple[1]) ? triple[1] : [];
+      foodPlaces = Array.isArray(triple[2]) ? triple[2] : [];
       bootstrapCatalog();
       wireUi();
     }).catch(function () {
