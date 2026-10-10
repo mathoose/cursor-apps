@@ -2563,7 +2563,7 @@
 
   function importFocusData(parsed) {
     if (!parsed || !Array.isArray(parsed.tasks)) {
-      showToast('Not a Focus / ADHD tracker export', { error: true });
+      showToast('Not a Focus export', { error: true });
       return 0;
     }
     var extracted = getFocusPrinterTasks(parsed);
@@ -2684,7 +2684,7 @@
           }
         }
         if (!isFocusBackup(parsed)) {
-          showToast('Pick a Focus / ADHD tracker export JSON', { error: true });
+          showToast('Pick a Focus export JSON', { error: true });
           return;
         }
         var added = importFocusData(parsed);
