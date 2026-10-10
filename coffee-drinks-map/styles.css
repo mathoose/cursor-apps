@@ -658,6 +658,21 @@ body.sheet-open .here-bar { display: none; }
 }
 .sheet-title { margin: 0; font-size: 1.15rem; min-width: 0; overflow-wrap: anywhere; }
 .detail-meta { margin: 0 0 8px; color: var(--muted); font-size: 0.85rem; }
+.mark-row { display: flex; gap: 8px; margin: 0 0 10px; }
+.mark-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.mark-btn.on {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #fff;
+}
 .detail-hh {
   margin: 0 0 8px;
   font-size: 0.88rem;

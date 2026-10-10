@@ -230,6 +230,54 @@
     return '';
   }
 
+  var MARKS_KEY = 'coffee-drinks-marks-v1';
+  var detailCurrent = null;
+
+  function placeMarkKey(p, kind) {
+    var id = (p && (p.id || p.name)) || '';
+    return (kind || 'place') + ':' + String(id).toLowerCase();
+  }
+
+  function loadMarks() {
+    try {
+      var raw = localStorage.getItem(MARKS_KEY);
+      var parsed = raw ? JSON.parse(raw) : {};
+      return { fav: parsed.fav || {}, want: parsed.want || {} };
+    } catch (e) {
+      return { fav: {}, want: {} };
+    }
+  }
+
+  function saveMarks(marks) {
+    try { localStorage.setItem(MARKS_KEY, JSON.stringify(marks)); } catch (e) { /* private mode */ }
+  }
+
+  function refreshMarkButtons() {
+    var favBtn = document.getElementById('mark-favorite');
+    var wantBtn = document.getElementById('mark-want');
+    if (!favBtn || !wantBtn) return;
+    var key = detailCurrent ? placeMarkKey(detailCurrent.place, detailCurrent.kind) : '';
+    var marks = loadMarks();
+    var favOn = !!(key && marks.fav[key]);
+    var wantOn = !!(key && marks.want[key]);
+    favBtn.classList.toggle('on', favOn);
+    wantBtn.classList.toggle('on', wantOn);
+    favBtn.setAttribute('aria-pressed', favOn ? 'true' : 'false');
+    wantBtn.setAttribute('aria-pressed', wantOn ? 'true' : 'false');
+    favBtn.textContent = favOn ? 'Favorited' : 'Favorite';
+    wantBtn.textContent = wantOn ? 'Want to try' : 'Want to try';
+  }
+
+  function toggleMark(bucket) {
+    if (!detailCurrent) return;
+    var key = placeMarkKey(detailCurrent.place, detailCurrent.kind);
+    var marks = loadMarks();
+    if (marks[bucket][key]) delete marks[bucket][key];
+    else marks[bucket][key] = { name: detailCurrent.place.name || '', kind: detailCurrent.kind };
+    saveMarks(marks);
+    refreshMarkButtons();
+  }
+
   function openDetail(place, kind) {
     var name = place.name || 'Place';
     document.getElementById('detail-name').textContent = name;
@@ -267,6 +315,8 @@
     var mu = appleMapsUrl(place, name);
     maps.hidden = !mu;
     if (mu) maps.href = mu;
+    detailCurrent = { place: place, kind: kind || 'place' };
+    refreshMarkButtons();
     document.getElementById('detail-overlay').hidden = false;
     document.body.classList.add('sheet-open');
   }
@@ -756,13 +806,19 @@
         onChange: function (state) {
           if (awaitingFix && state && state.active && !state.locating) {
             awaitingFix = false;
-            buildResults(state);
+            if (!PhillyWalkMap.contains(state.lat, state.lng)) {
+              here.clear();
+              toast('Outside Philly — showing places by hours');
+              buildResults(null);
+            } else {
+              buildResults(state);
+            }
           }
         },
-        onError: function (msg) {
+        onError: function () {
           awaitingFix = false;
-          toast(msg || 'Could not get your location');
-          setStep('nogo');
+          toast('No location — showing places that are open in Philly');
+          buildResults(null);
         }
       });
     }
@@ -809,14 +865,19 @@
         return;
       }
       el.innerHTML = results.map(function (p, i) {
-        var dist = p._meters < 1000
-          ? Math.round(p._meters) + ' m'
-          : (p._meters / 1000).toFixed(1) + ' km';
-        var walk = Math.max(1, Math.round(p._meters / PhillyWalkMap.WALK_M_PER_MIN));
+        var status = p._open ? 'Open now' : (p._hasHours ? 'Closed now' : 'Hours unknown');
+        var where = '';
+        if (!session.remote && p._meters != null) {
+          var dist = p._meters < 1000
+            ? Math.round(p._meters) + ' m'
+            : (p._meters / 1000).toFixed(1) + ' km';
+          var walk = Math.max(1, Math.round(p._meters / PhillyWalkMap.WALK_M_PER_MIN));
+          where = ' \u00b7 ' + dist + ' \u00b7 ~' + walk + ' min walk';
+        }
         return '<article class="decide-bubble' + (i === selected ? ' is-on' : '') + '" data-pick="' + i + '">' +
           '<div class="decide-bubble-top"><span class="decide-bubble-name">' + escapeHtml(p.name) + '</span>' +
           '<button type="button" class="text-btn" data-details="' + i + '">Details</button></div>' +
-          '<p class="decide-bubble-meta">' + escapeHtml(kindLabel(p._kind) + ' \u00b7 ' + dist + ' \u00b7 ~' + walk + ' min walk') + '</p>' +
+          '<p class="decide-bubble-meta">' + escapeHtml(kindLabel(p._kind) + ' \u00b7 ' + status) + where + '</p>' +
           (decideSnippet(p) ? '<p class="decide-bubble-desc">' + escapeHtml(decideSnippet(p)) + '</p>' : '') +
           '<div class="decide-bubble-links">' + siteButtons(p) + orderButtons(p) + '</div></article>';
       }).join('');
@@ -850,9 +911,9 @@
     }
 
     function fitAll(user) {
-      if (!map || !results.length || !user) return;
+      if (!map || !results.length) return;
       var pts = results.map(function (p) { return [p.lat, p.lng]; });
-      pts.push([user.lat, user.lng]);
+      if (user && user.active) pts.push([user.lat, user.lng]);
       map.fitBounds(L.latLngBounds(pts), { padding: [36, 36], maxZoom: 15 });
     }
 
@@ -866,8 +927,9 @@
       selected = i;
       renderBubbles();
       renderPins();
-      var user = here.getState();
-      fitPair(user, results[i]);
+      var user = here && here.getState();
+      if (user && user.active && PhillyWalkMap.contains(user.lat, user.lng)) fitPair(user, results[i]);
+      else if (map) map.setView([results[i].lat, results[i].lng], 16);
       var card = document.querySelector('.decide-bubble[data-pick="' + i + '"]');
       if (card) card.scrollIntoView({ block: 'nearest' });
       if (openSheet) {
@@ -887,10 +949,16 @@
       return rows;
     }
 
-    function buildResults(user) {
-      var limit = session.handoff === 'delivery' ? 8000 : 10 * PhillyWalkMap.WALK_M_PER_MIN;
+    function hoursRank(p) {
+      if (p._open) return 0;
+      if (!p._hasHours) return 1;
+      return 2;
+    }
+
+    function gather(user) {
+      var limit = user ? (session.handoff === 'delivery' ? 8000 : 10 * PhillyWalkMap.WALK_M_PER_MIN) : Infinity;
       var seen = {};
-      results = [];
+      var list = [];
       pool().forEach(function (row) {
         var p = row.p;
         if (!hasCoords(p)) return;
@@ -898,28 +966,53 @@
         if (!key || seen[key]) return;
         var tags = placeTags(p, row.kind);
         if (tags.some(function (t) { return session.nogo[t]; })) return;
-        var meters = PhillyWalkMap.haversineMeters(user.lat, user.lng, p.lat, p.lng);
-        if (meters > limit) return;
+        var meters = user ? PhillyWalkMap.haversineMeters(user.lat, user.lng, p.lat, p.lng) : null;
+        if (user && meters > limit) return;
         seen[key] = true;
         var copy = Object.assign({}, p);
         copy._kind = row.kind;
         copy._meters = meters;
         copy._tags = tags;
-        results.push(copy);
+        copy._open = isOpenNowHours(p.hours);
+        copy._hasHours = DAY_NAMES.some(function (d) {
+          var h = p.hours && p.hours[d];
+          return h && h.open && h.close;
+        });
+        list.push(copy);
       });
-      results.sort(function (a, b) { return a._meters - b._meters || a.name.localeCompare(b.name); });
-      results = results.slice(0, 24);
+      list.sort(function (a, b) {
+        var rank = hoursRank(a) - hoursRank(b);
+        if (rank) return rank;
+        if (user && a._meters != null && b._meters != null && a._meters !== b._meters) return a._meters - b._meters;
+        return a.name.localeCompare(b.name);
+      });
+      return list.slice(0, 24);
+    }
+
+    function buildResults(user) {
+      session.remote = !user;
+      results = gather(user);
+      if (user && !results.length) {
+        session.remote = true;
+        user = null;
+        results = gather(null);
+      }
       selected = 0;
+      ensureMap();
       document.getElementById('decide-wizard').hidden = true;
       document.getElementById('decide-results').hidden = false;
       var label = session.service === 'dine' ? 'Eat in' : (session.handoff === 'delivery' ? 'Delivery' : 'Pickup');
-      document.getElementById('decide-sub').textContent = label + ' \u00b7 ' + results.length + ' nearby';
+      var openN = results.filter(function (p) { return p._open; }).length;
+      document.getElementById('decide-sub').textContent = session.remote
+        ? (label + ' \u00b7 ' + openN + ' open in Philly')
+        : (label + ' \u00b7 ' + results.length + ' nearby');
       setTimeout(function () {
+        if (!map) return;
         map.invalidateSize();
         renderBubbles();
         renderPins();
-        if (results.length) fitAll(user);
-        else map.setView([user.lat, user.lng], 15);
+        if (results.length) fitAll(user && user.active ? user : null);
+        else map.setView([PhillyWalkMap.center.lat, PhillyWalkMap.center.lng], PhillyWalkMap.defaultZoom);
       }, 40);
     }
 
@@ -940,7 +1033,7 @@
       document.getElementById('decide-wizard').hidden = true;
       document.getElementById('decide-results').hidden = false;
       document.getElementById('decide-sub').textContent = 'Finding you\u2026';
-      document.getElementById('decide-bubbles').innerHTML = '<p class="decide-empty">Allow location so we can show places near you.</p>';
+      document.getElementById('decide-bubbles').innerHTML = '<p class="decide-empty">Checking location. If you are outside Philly, options use who’s open.</p>';
       awaitingFix = true;
       setTimeout(function () {
         map.invalidateSize();
@@ -1070,6 +1163,8 @@
       renderGrid();
     });
     document.getElementById('detail-close').addEventListener('click', closeDetail);
+    document.getElementById('mark-favorite').addEventListener('click', function () { toggleMark('fav'); });
+    document.getElementById('mark-want').addEventListener('click', function () { toggleMark('want'); });
     document.getElementById('detail-overlay').addEventListener('click', function (e) {
       if (e.target.id === 'detail-overlay') closeDetail();
     });
