@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-drinks-map-v12 -->
+<!-- build: coffee-drinks-map-v14 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=14" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -62,9 +62,12 @@
       </div>
     </header>
     <main>
+      <label class="map-search-bar">
+        <span class="visually-hidden">Search cafes</span>
+        <input type="search" class="map-search" data-search placeholder="Search on map…" autocomplete="off" enterkeyhint="search" />
+      </label>
       <div id="map-coffee" class="map" role="application" aria-label="Coffee map"></div>
       <div class="list-view" data-list-view hidden>
-        <input type="search" class="list-search" data-search placeholder="Search cafes…" autocomplete="off" />
         <p class="list-note" data-list-note hidden></p>
         <div class="place-list" data-list></div>
       </div>
@@ -102,9 +105,12 @@
       <button type="button" class="hh-btn" id="open-schedule">Active happy hours</button>
     </header>
     <main>
+      <label class="map-search-bar">
+        <span class="visually-hidden">Search bars</span>
+        <input type="search" class="map-search" data-search placeholder="Search on map…" autocomplete="off" enterkeyhint="search" />
+      </label>
       <div id="map-drinks" class="map" role="application" aria-label="Drinks map"></div>
       <div class="list-view" data-list-view hidden>
-        <input type="search" class="list-search" data-search placeholder="Search bars…" autocomplete="off" />
         <p class="list-note" data-list-note hidden></p>
         <div class="place-list" data-list></div>
       </div>
@@ -142,9 +148,12 @@
       <button type="button" class="text-btn decide-launch" id="food-decide">Decide</button>
     </header>
     <main>
+      <label class="map-search-bar">
+        <span class="visually-hidden">Search restaurants</span>
+        <input type="search" class="map-search" data-search placeholder="Search on map…" autocomplete="off" enterkeyhint="search" />
+      </label>
       <div id="map-food" class="map" role="application" aria-label="Food map"></div>
       <div class="list-view" data-list-view hidden>
-        <input type="search" class="list-search" data-search placeholder="Search restaurants…" autocomplete="off" />
         <div class="meal-chips" data-meal-chips role="tablist" aria-label="Meal">
           <button type="button" class="meal-chip active" data-meal="all" role="tab" aria-selected="true">All</button>
           <button type="button" class="meal-chip" data-meal="lunch" role="tab" aria-selected="false">Lunch</button>
@@ -294,7 +303,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=12" defer></script>
+  <script src="app.js?v=14" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
