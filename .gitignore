@@ -1,5 +1,9 @@
 node_modules/
 
+# Icon redesign drafts (see docs/ICON_REDESIGN.md) — export only, not for PRs
+**/icon-options/
+**/icon-style-comparison.png
+
 # Tracker exports — never commit snapshot data (this repo is public)
 *.zip
 full-backup.json
