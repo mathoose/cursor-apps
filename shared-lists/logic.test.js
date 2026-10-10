@@ -84,4 +84,35 @@ var custom = L.createList(L.emptyData(), { id: "c1", category: "custom", customN
 var custom2 = L.createList(custom.data, { id: "c2", category: "custom", customName: "camping", now: t1 });
 assert.strictEqual(L.earlierLists(custom2.data, "c2")[0].id, "c1");
 
+var styled = L.createList(L.emptyData(), {
+  id: "prio",
+  category: "custom",
+  customName: "Priority",
+  title: "Add to my priority",
+  color: "pink",
+  size: "small",
+  repeatDays: ["fri", "mon", "tue", "wed", "thu"],
+  now: t0,
+});
+assert.strictEqual(styled.list.color, "pink");
+assert.strictEqual(styled.list.size, "small");
+assert.strictEqual(L.repeatLabel(styled.list.repeatDays), "Mon–Fri");
+assert.strictEqual(L.repeatsOn(styled.list, new Date("2026-10-10T15:00:00")), false);
+assert.strictEqual(L.repeatsOn(styled.list, new Date("2026-10-12T15:00:00")), true);
+var withItem = L.addItem(styled.data, "prio", "Call the school", t1, "call");
+var copiedStyle = L.copyList(withItem.data, "prio", null, { now: t2, id: "prio-copy" });
+assert.strictEqual(copiedStyle.list.color, "pink");
+assert.strictEqual(copiedStyle.list.size, "small");
+assert.strictEqual(copiedStyle.list.repeatDays.join(","), "mon,tue,wed,thu,fri");
+var other = L.createList(styled.data, { id: "gro", category: "grocery", title: "Store", now: t1 });
+assert.strictEqual(L.listsForPriority(other.data, "gro", new Date("2026-10-12T15:00:00"))[0].id, "prio");
+var painted = L.setListStyle(styled.data, "prio", { color: "blue", size: "large" }, t2);
+assert.strictEqual(L.findList(painted, "prio").color, "blue");
+assert.strictEqual(L.findList(painted, "prio").size, "large");
+assert.strictEqual(L.repeatLabel(L.findList(painted, "prio").repeatDays), "Mon–Fri");
+var older = L.setListStyle(styled.data, "prio", { color: "mint" }, t0);
+var newer = L.setListStyle(styled.data, "prio", { color: "peach" }, t2);
+var kept = L.mergeData(older, newer);
+assert.strictEqual(L.findList(kept, "prio").color, "peach");
+
 console.log("shared-lists logic ok");

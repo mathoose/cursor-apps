@@ -10,6 +10,30 @@
     { id: "leaving", label: "Leaving the house" },
   ];
   var CATEGORY_ORDER = ["packing", "grocery", "leaving"];
+  var COLORS = [
+    { id: "butter", label: "Butter" },
+    { id: "pink", label: "Pink" },
+    { id: "mint", label: "Mint" },
+    { id: "blue", label: "Blue" },
+    { id: "peach", label: "Peach" },
+    { id: "lilac", label: "Lilac" },
+  ];
+  var SIZES = [
+    { id: "small", label: "Slip" },
+    { id: "medium", label: "Page" },
+    { id: "large", label: "Pad" },
+  ];
+  var DAYS = [
+    { id: "sun", label: "Sun" },
+    { id: "mon", label: "Mon" },
+    { id: "tue", label: "Tue" },
+    { id: "wed", label: "Wed" },
+    { id: "thu", label: "Thu" },
+    { id: "fri", label: "Fri" },
+    { id: "sat", label: "Sat" },
+  ];
+  var WEEKDAYS = ["mon", "tue", "wed", "thu", "fri"];
+  var DAY_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
   var TOMBSTONE_MS = 30 * 24 * 60 * 60 * 1000;
 
   function stamp(value) {
@@ -88,6 +112,62 @@
     };
   }
 
+  function defaultColor(id) {
+    var n = 0;
+    String(id || "note").split("").forEach(function (ch) { n += ch.charCodeAt(0); });
+    return COLORS[n % COLORS.length].id;
+  }
+
+  function normalizeColor(color, id) {
+    var i;
+    for (i = 0; i < COLORS.length; i++) {
+      if (COLORS[i].id === color) return color;
+    }
+    return defaultColor(id);
+  }
+
+  function normalizeSize(size) {
+    if (size === "small" || size === "large") return size;
+    return "medium";
+  }
+
+  function normalizeRepeatDays(days) {
+    var seen = {};
+    var out = [];
+    (days || []).forEach(function (day) {
+      var id = String(day || "").toLowerCase().slice(0, 3);
+      if (!Object.prototype.hasOwnProperty.call(DAY_INDEX, id) || seen[id]) return;
+      seen[id] = true;
+      out.push(id);
+    });
+    out.sort(function (a, b) { return DAY_INDEX[a] - DAY_INDEX[b]; });
+    return out;
+  }
+
+  function repeatLabel(days) {
+    var list = normalizeRepeatDays(days);
+    if (!list.length) return "";
+    if (list.length === 7) return "Every day";
+    if (list.join(",") === WEEKDAYS.join(",")) return "Mon–Fri";
+    return list.map(function (id) {
+      var i;
+      for (i = 0; i < DAYS.length; i++) if (DAYS[i].id === id) return DAYS[i].label;
+      return id;
+    }).join(" ");
+  }
+
+  function dayId(date) {
+    var names = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    var d = date instanceof Date ? date : new Date();
+    return names[d.getDay()];
+  }
+
+  function repeatsOn(list, date) {
+    var days = normalizeRepeatDays(list && list.repeatDays);
+    if (!days.length) return false;
+    return days.indexOf(dayId(date)) !== -1;
+  }
+
   function normalizeList(list) {
     if (!list || !list.id) return null;
     var category = list.category === "packing" || list.category === "grocery" || list.category === "leaving"
@@ -99,11 +179,15 @@
       var row = normalizeItem(it);
       if (row) items.push(row);
     });
+    var id = String(list.id);
     return {
-      id: String(list.id),
+      id: id,
       category: category,
       customName: customName,
       title: normalizeText(list.title),
+      color: normalizeColor(list.color, id),
+      size: normalizeSize(list.size),
+      repeatDays: normalizeRepeatDays(list.repeatDays),
       createdAt: list.createdAt || new Date().toISOString(),
       updatedAt: list.updatedAt || list.createdAt || new Date().toISOString(),
       deletedAt: list.deletedAt || null,
@@ -185,6 +269,9 @@
       category: category,
       customName: opts.customName || "",
       title: opts.title || "",
+      color: opts.color,
+      size: opts.size,
+      repeatDays: opts.repeatDays,
       createdAt: now,
       updatedAt: now,
       deletedAt: null,
@@ -193,6 +280,30 @@
     var next = normalizeData(data);
     next.lists.push(list);
     return { data: next, list: list };
+  }
+
+  function setListStyle(data, listId, patch, now) {
+    patch = patch || {};
+    now = now || new Date().toISOString();
+    return mapList(data, listId, function (list) {
+      if (patch.color) list.color = normalizeColor(patch.color, list.id);
+      if (patch.size) list.size = normalizeSize(patch.size);
+      if (Array.isArray(patch.repeatDays)) list.repeatDays = normalizeRepeatDays(patch.repeatDays);
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
+  function listsForPriority(data, excludeId, date) {
+    var today = [];
+    var repeating = [];
+    activeLists(data).forEach(function (list) {
+      if (list.id === excludeId) return;
+      if (!list.repeatDays.length) return;
+      repeating.push(list);
+      if (repeatsOn(list, date || new Date())) today.push(list);
+    });
+    return today.length ? today : repeating;
   }
 
   function setListTitle(data, listId, title, now) {
@@ -345,6 +456,9 @@
       category: source.category,
       customName: source.customName,
       title: title,
+      color: source.color,
+      size: source.size,
+      repeatDays: source.repeatDays,
       now: now,
     });
     created.list.items = cloneItemsUnchecked(chosen, now, opts.itemId);
@@ -433,6 +547,9 @@
         category: shell.category,
         customName: shell.customName,
         title: shell.title,
+        color: shell.color,
+        size: shell.size,
+        repeatDays: shell.repeatDays,
         createdAt: shell.createdAt,
         updatedAt: shell.updatedAt,
         deletedAt: shell.deletedAt,
@@ -464,6 +581,14 @@
 
   return {
     CATEGORIES: CATEGORIES,
+    COLORS: COLORS,
+    SIZES: SIZES,
+    DAYS: DAYS,
+    WEEKDAYS: WEEKDAYS,
+    repeatLabel: repeatLabel,
+    dayId: dayId,
+    repeatsOn: repeatsOn,
+    listsForPriority: listsForPriority,
     normalizeText: normalizeText,
     normalizeKey: normalizeKey,
     normalizeCode: normalizeCode,
@@ -481,6 +606,7 @@
     visibleItems: visibleItems,
     counts: counts,
     createList: createList,
+    setListStyle: setListStyle,
     setListTitle: setListTitle,
     deleteList: deleteList,
     addItem: addItem,
