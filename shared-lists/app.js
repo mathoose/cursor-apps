@@ -23,6 +23,7 @@
     saveTimer: 0,
     busy: false,
     colorPopOpen: false,
+    activityPopOpen: false,
   };
 
   function $(id) { return document.getElementById(id); }
@@ -55,13 +56,27 @@
     try {
       var p = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
       if (!p || typeof p !== "object" || !p.rooms || typeof p.rooms !== "object") {
-        return { version: 1, activeCode: "", rooms: {} };
+        return { version: 2, profile: { displayName: "" }, activeCode: "", rooms: {} };
       }
-      p.version = 1;
+      if (!p.profile || typeof p.profile !== "object") p.profile = { displayName: "" };
+      p.profile.displayName = L.normalizeDisplayName(p.profile.displayName);
+      p.version = 2;
       return p;
     } catch (e) {
-      return { version: 1, activeCode: "", rooms: {} };
+      return { version: 2, profile: { displayName: "" }, activeCode: "", rooms: {} };
     }
+  }
+
+  function profileName() {
+    return L.normalizeDisplayName(loadCache().profile && loadCache().profile.displayName);
+  }
+
+  function setProfileName(name) {
+    var cache = loadCache();
+    cache.profile = cache.profile || {};
+    cache.profile.displayName = L.normalizeDisplayName(name);
+    cache.version = 2;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
   }
 
   function saveCache() {
@@ -352,6 +367,11 @@
     if (state.view !== "room") return;
     $("codePill").textContent = state.code;
     $("roomSync").textContent = state.status;
+    var editName = $("editNameBtn");
+    if (editName) {
+      var who = profileName();
+      editName.textContent = who ? ("You: " + who + " · Edit name") : "Add your name";
+    }
     var groups = L.groupLists(state.data);
     if (!groups.length) {
       $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or the weekday priority.</p>';
@@ -478,6 +498,21 @@
       pop.hidden = true;
       mark.setAttribute("aria-expanded", "false");
     }
+    var actPop = $("activityPop");
+    var actMark = $("activityMark");
+    if (state.activityPopOpen) {
+      actPop.hidden = false;
+      if (document.activeElement !== $("activityNameInput")) {
+        actPop.innerHTML = activityPopHtml(list.id);
+      } else {
+        var feed = actPop.querySelector(".activity-feed");
+        if (feed) feed.innerHTML = L.activityForList(state.data, list.id).map(activityRowHtml).join("") || '<p class="activity-empty">No activity on this note yet.</p>';
+      }
+      actMark.setAttribute("aria-expanded", "true");
+    } else {
+      actPop.hidden = true;
+      actMark.setAttribute("aria-expanded", "false");
+    }
     $("cardNoteThread").innerHTML = cardNoteThreadHtml(list);
     $("styleBar").innerHTML = repeatStyleHtml({ days: list.repeatDays }, true);
     var c = L.counts(list);
@@ -552,9 +587,61 @@
   }
 
   function closeSheet() {
+    if (state.sheet && state.sheet.kind === "profile" && state.sheet.required) return;
     state.sheet = null;
     $("sheet").hidden = true;
     $("sheetBody").innerHTML = "";
+  }
+
+  function openProfileSheet(required) {
+    var current = profileName();
+    openSheet({
+      kind: "profile",
+      required: !!required,
+      html: "<h2>Your name</h2><p>We use this on the activity feed when you change a list — for example removing an item.</p>"
+        + '<label class="field-label" for="profileNameInput">Name</label>'
+        + '<input id="profileNameInput" type="text" maxlength="32" autocomplete="name" placeholder="Alex" value="' + esc(current) + '" />'
+        + '<button type="button" class="btn btn-primary" data-action="save-profile">Save name</button>'
+        + (required ? "" : '<button type="button" class="btn btn-quiet" data-action="close-sheet">Cancel</button>'),
+    });
+    setTimeout(function () {
+      var input = $("profileNameInput");
+      if (input) input.focus();
+    }, 30);
+  }
+
+  function ensureProfile() {
+    if (!config()) return;
+    if (profileName()) return;
+    openProfileSheet(true);
+  }
+
+  function closeActivityPop() {
+    state.activityPopOpen = false;
+    var pop = $("activityPop");
+    if (pop) pop.hidden = true;
+    var mark = $("activityMark");
+    if (mark) mark.setAttribute("aria-expanded", "false");
+  }
+
+  function activityRowHtml(row) {
+    if (row.type === "remove_item") {
+      return '<p class="activity-row"><strong>' + esc(row.by) + "</strong> removed “" + esc(row.itemText) + "”"
+        + ' <time datetime="' + esc(row.at) + '">' + esc(L.formatLastChanged(row.at)) + "</time></p>";
+    }
+    return "";
+  }
+
+  function activityPopHtml(listId) {
+    var rows = L.activityForList(state.data, listId);
+    var feed = rows.length
+      ? rows.map(activityRowHtml).join("")
+      : '<p class="activity-empty">No activity on this note yet.</p>';
+    return '<p class="activity-pop-head">Activity on this note</p>'
+      + '<div class="activity-name-row"><label class="sr-only" for="activityNameInput">Your name</label>'
+      + '<input id="activityNameInput" type="text" maxlength="32" autocomplete="name" placeholder="Your name" value="' + esc(profileName()) + '" />'
+      + '<button type="button" class="btn btn-secondary activity-name-save" data-action="save-activity-name">Save</button></div>'
+      + '<div class="activity-feed">' + feed + "</div>";
   }
 
   function openSheet(sheet) {
@@ -647,6 +734,7 @@
   function openList(id) {
     state.listId = id;
     state.colorPopOpen = false;
+    state.activityPopOpen = false;
     show("list");
     renderItems();
     $("addInput").focus();
@@ -691,7 +779,35 @@
       return;
     }
     if (action === "remove") {
-      mutate(L.removeItem(state.data, btn.getAttribute("data-list"), id));
+      if (!profileName()) {
+        openProfileSheet(true);
+        return;
+      }
+      mutate(L.removeItem(state.data, btn.getAttribute("data-list"), id, undefined, profileName()));
+      return;
+    }
+    if (action === "save-profile") {
+      var profileInput = $("profileNameInput");
+      if (!profileInput || !L.normalizeDisplayName(profileInput.value)) {
+        toast("Enter a name");
+        return;
+      }
+      setProfileName(profileInput.value);
+      state.sheet = null;
+      $("sheet").hidden = true;
+      $("sheetBody").innerHTML = "";
+      toast("Saved your name");
+      return;
+    }
+    if (action === "save-activity-name") {
+      var nameInput = $("activityNameInput");
+      if (!nameInput || !L.normalizeDisplayName(nameInput.value)) {
+        toast("Enter a name");
+        return;
+      }
+      setProfileName(nameInput.value);
+      toast("Saved your name");
+      renderItems();
       return;
     }
     if (action === "expand") {
@@ -966,24 +1082,39 @@
   });
 
   $("roomsBtn").addEventListener("click", showJoin);
+  $("editNameBtn").addEventListener("click", function () {
+    openProfileSheet(false);
+  });
   $("newListBtn").addEventListener("click", newListSheet);
   $("copyListBtn").addEventListener("click", function () { copySheet(state.listId); });
   $("deleteListBtn").addEventListener("click", deleteSheet);
   $("forgetBtn").addEventListener("click", forgetSheet);
   $("backLists").addEventListener("click", function () {
     closeColorPop();
+    closeActivityPop();
     show("room");
     renderRoom();
   });
   $("colorMark").addEventListener("click", function (e) {
     e.stopPropagation();
+    closeActivityPop();
     state.colorPopOpen = !state.colorPopOpen;
     renderItems();
   });
-  document.addEventListener("click", function (e) {
-    if (!state.colorPopOpen || state.view !== "list") return;
-    if (e.target.closest("#colorPop") || e.target.closest("#colorMark")) return;
+  $("activityMark").addEventListener("click", function (e) {
+    e.stopPropagation();
     closeColorPop();
+    state.activityPopOpen = !state.activityPopOpen;
+    renderItems();
+  });
+  document.addEventListener("click", function (e) {
+    if (state.view !== "list") return;
+    if (state.colorPopOpen) {
+      if (!e.target.closest("#colorPop") && !e.target.closest("#colorMark")) closeColorPop();
+    }
+    if (state.activityPopOpen) {
+      if (!e.target.closest("#activityPop") && !e.target.closest("#activityMark")) closeActivityPop();
+    }
   });
   $("sheetBackdrop").addEventListener("click", closeSheet);
   $("codePill").addEventListener("click", function () {
@@ -1050,4 +1181,5 @@
   }
 
   boot();
+  ensureProfile();
 })();
