@@ -167,6 +167,23 @@ main {
   opacity: 0.85;
   font-weight: 500;
 }
+.log-text-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: var(--accent-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+.log-text-btn:active { opacity: 0.7; }
+.sheet-photo-add {
+  width: 100%;
+  margin-bottom: 8px;
+}
 
 .section-label {
   font-size: 0.72rem;

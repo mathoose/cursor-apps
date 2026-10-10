@@ -12,8 +12,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <!-- build: dont-forget-v3 -->
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <!-- build: dont-forget-v4 -->
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body class="view-store">
   <header class="app-header" id="appHeader">
@@ -42,13 +42,14 @@
         <button type="button" class="snap-btn" id="snapBtn">
           <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span class="snap-btn-label">Snap where I left it</span>
-          <span class="snap-btn-hint">Photo → what → where → done</span>
+          <span class="snap-btn-hint">Optional photo · what · where</span>
         </button>
+        <button type="button" class="log-text-btn" id="logNoPhotoBtn">Log without photo</button>
       </div>
       <p class="section-label">Recent</p>
       <div class="item-list" id="storeRecentList"></div>
       <div class="empty-state" id="storeEmpty" hidden>
-        <p>Nothing saved yet.<br />Tap the button above to log your first item.</p>
+        <p>Nothing saved yet.<br />Snap a photo or tap Log without photo.</p>
       </div>
     </section>
 
@@ -91,6 +92,7 @@
         <input type="text" id="saveWhere" placeholder="e.g. Bedroom desk, kitchen counter" autocomplete="off" enterkeyhint="done" list="locationSuggestions" />
         <datalist id="locationSuggestions"></datalist>
       </div>
+      <button type="button" class="btn btn-quiet sheet-photo-add" id="saveAddPhotoBtn" hidden>Add a photo</button>
       <div class="sheet-actions">
         <button type="button" class="btn btn-secondary" id="saveCancelBtn">Cancel</button>
         <button type="button" class="btn btn-primary" id="saveBtn" disabled>Save</button>
@@ -233,12 +235,12 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="config.js?v=3"></script>
-  <script src="logic.js?v=3"></script>
-  <script src="rooms.js?v=3"></script>
+  <script src="config.js?v=4"></script>
+  <script src="logic.js?v=4"></script>
+  <script src="rooms.js?v=4"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
