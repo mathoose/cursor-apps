@@ -9,14 +9,14 @@
   <meta name="apple-mobile-web-app-title" content="Our Lists" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#5c3b22" />
-  <!-- build: shared-lists-v7 -->
+  <!-- build: shared-lists-v8 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="app-header">
@@ -91,12 +91,26 @@
     </section>
 
     <section id="viewList" hidden>
-      <button type="button" class="text-back" id="backLists">All notes</button>
-      <div id="paper" class="paper tone-butter paper-medium">
-      <label class="sr-only" for="listTitle">List name</label>
-      <input id="listTitle" class="title-input" type="text" maxlength="80" placeholder="List name" autocomplete="off" />
-      <label class="field-label" for="listCardNote">Note on the desk slip</label>
-      <textarea id="listCardNote" class="card-note-input" rows="2" maxlength="280" placeholder="I'm shopping after work ~5pm — add what you want"></textarea>
+      <button type="button" class="back-to-desk" id="backLists">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        <span>Back to all notes</span>
+      </button>
+      <div id="paper" class="paper tone-butter paper-small">
+      <div class="paper-title-row">
+        <label class="sr-only" for="listTitle">List name</label>
+        <input id="listTitle" class="title-input" type="text" maxlength="80" placeholder="List name" autocomplete="off" />
+        <button type="button" class="color-mark swatch-butter" id="colorMark" aria-label="Change note color" aria-expanded="false" aria-controls="colorPop"></button>
+      </div>
+      <div id="colorPop" class="color-pop" hidden role="dialog" aria-label="Note colors"></div>
+      <div class="card-notes-block">
+        <p class="field-label">Desk slip notes</p>
+        <div id="cardNoteThread" class="card-note-thread" aria-live="polite"></div>
+        <form id="cardNoteForm" class="card-note-form">
+          <label class="sr-only" for="cardNoteDraft">Leave a note for the room</label>
+          <textarea id="cardNoteDraft" class="card-note-input" rows="2" maxlength="280" placeholder="Leave a note — others can reply after you post"></textarea>
+          <button type="submit" class="btn btn-secondary card-note-post">Post note</button>
+        </form>
+      </div>
       <p class="list-meta" id="listMeta"></p>
       <div id="styleBar"></div>
       <form id="addForm" class="add-row">
@@ -119,9 +133,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="config.js?v=7"></script>
-  <script src="logic.js?v=7"></script>
-  <script src="app.js?v=7"></script>
+  <script src="config.js?v=8"></script>
+  <script src="logic.js?v=8"></script>
+  <script src="app.js?v=8"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>

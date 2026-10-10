@@ -123,8 +123,15 @@ var skip = L.setItemUsual(grocery.data, "gro", grocery.list.items[0].id, "no", t
 assert.strictEqual(L.shopItems(L.findList(skip, "gro")).length, L.GROCERY_SUGGESTIONS.length - 1);
 var cycled = L.cycleItemStock(skip, "gro", grocery.list.items[1].id, t2);
 assert.strictEqual(L.findList(cycled, "gro").items[1].stock, "high");
-var noted = L.setListCardNote(cycled, "gro", "Shopping after work ~5pm", t2);
-assert.strictEqual(L.findList(noted, "gro").cardNote, "Shopping after work ~5pm");
+var noted = L.addCardNote(cycled, "gro", "Shopping after work ~5pm", t2);
+var groNotes = L.normalizeCardNotes(L.findList(noted, "gro"));
+assert.strictEqual(groNotes.length, 1);
+assert.strictEqual(groNotes[0].text, "Shopping after work ~5pm");
+assert.strictEqual(groNotes[0].createdAt, t2);
+var replied = L.addCardNote(noted, "gro", "Pick up milk too", t2);
+assert.strictEqual(L.normalizeCardNotes(L.findList(replied, "gro")).length, 2);
+var legacy = L.normalizeData({ lists: [{ id: "old", category: "grocery", cardNote: "Legacy blurb", createdAt: t0, updatedAt: t1, items: [] }] });
+assert.strictEqual(L.normalizeCardNotes(L.findList(legacy, "old"))[0].text, "Legacy blurb");
 assert.ok(L.formatLastChanged(t2, L.stamp(t2) + 120000).indexOf("m ago") !== -1);
 assert.strictEqual(L.shouldOfferGroceryStarter(L.emptyData()), true);
 assert.strictEqual(L.shouldOfferGroceryStarter(grocery.data), false);

@@ -60,6 +60,56 @@
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 280);
   }
 
+  function normalizeCardNoteEntry(entry, fallbackWhen) {
+    if (!entry || !entry.id) return null;
+    var text = normalizeCardNote(entry.text);
+    if (!text) return null;
+    return {
+      id: String(entry.id),
+      text: text,
+      createdAt: entry.createdAt || fallbackWhen || new Date().toISOString(),
+    };
+  }
+
+  function normalizeCardNotes(list) {
+    var notes = [];
+    (list.cardNotes || []).forEach(function (entry) {
+      var row = normalizeCardNoteEntry(entry, list.updatedAt || list.createdAt);
+      if (row) notes.push(row);
+    });
+    if (!notes.length && list.cardNote) {
+      var legacy = normalizeCardNote(list.cardNote);
+      if (legacy) {
+        notes.push({
+          id: String(list.id || "note") + "-legacy",
+          text: legacy,
+          createdAt: list.updatedAt || list.createdAt || new Date().toISOString(),
+        });
+      }
+    }
+    notes.sort(function (a, b) { return stamp(a.createdAt) - stamp(b.createdAt); });
+    return notes;
+  }
+
+  function mergeCardNotes(aList, bList) {
+    var map = {};
+    function take(entry, fallbackWhen) {
+      var row = normalizeCardNoteEntry(entry, fallbackWhen);
+      if (!row) return;
+      if (!map[row.id] || stamp(row.createdAt) >= stamp(map[row.id].createdAt)) map[row.id] = row;
+    }
+    normalizeCardNotes(aList || {}).forEach(function (n) { take(n, n.createdAt); });
+    normalizeCardNotes(bList || {}).forEach(function (n) { take(n, n.createdAt); });
+    return Object.keys(map).map(function (id) { return map[id]; }).sort(function (a, b) {
+      return stamp(a.createdAt) - stamp(b.createdAt);
+    });
+  }
+
+  function latestCardNote(list) {
+    var notes = normalizeCardNotes(list);
+    return notes.length ? notes[notes.length - 1] : null;
+  }
+
   function normalizeUsual(value) {
     if (value === "sometimes" || value === "no") return value;
     return "yes";
@@ -237,7 +287,7 @@
       color: normalizeColor(list.color, id),
       size: normalizeSize(list.size),
       repeatDays: normalizeRepeatDays(list.repeatDays),
-      cardNote: normalizeCardNote(list.cardNote),
+      cardNotes: normalizeCardNotes(list),
       createdAt: list.createdAt || new Date().toISOString(),
       updatedAt: list.updatedAt || list.createdAt || new Date().toISOString(),
       deletedAt: list.deletedAt || null,
@@ -415,14 +465,26 @@
       if (patch.color) list.color = normalizeColor(patch.color, list.id);
       if (patch.size) list.size = normalizeSize(patch.size);
       if (Array.isArray(patch.repeatDays)) list.repeatDays = normalizeRepeatDays(patch.repeatDays);
-      if (typeof patch.cardNote === "string") list.cardNote = normalizeCardNote(patch.cardNote);
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
+  function addCardNote(data, listId, text, now) {
+    now = now || new Date().toISOString();
+    var note = normalizeCardNote(text);
+    if (!note) return normalizeData(data);
+    return mapList(data, listId, function (list) {
+      var notes = normalizeCardNotes(list);
+      notes.push({ id: uid(), text: note, createdAt: now });
+      list.cardNotes = notes;
       list.updatedAt = now;
       return list;
     });
   }
 
   function setListCardNote(data, listId, note, now) {
-    return setListStyle(data, listId, { cardNote: note }, now);
+    return addCardNote(data, listId, note, now);
   }
 
   function setItemUsual(data, listId, itemId, usual, now) {
@@ -707,7 +769,7 @@
       color: source.color,
       size: source.size,
       repeatDays: source.repeatDays,
-      cardNote: source.cardNote,
+      cardNotes: normalizeCardNotes(source),
       now: now,
     });
     created.list.items = cloneItemsUnchecked(chosen, now, opts.itemId);
@@ -790,7 +852,9 @@
         map[row.id] = row;
         return;
       }
-      var shell = pickNewer(map[row.id], row);
+      var left = map[row.id];
+      var right = row;
+      var shell = pickNewer(left, right);
       map[row.id] = normalizeList({
         id: shell.id,
         category: shell.category,
@@ -799,11 +863,11 @@
         color: shell.color,
         size: shell.size,
         repeatDays: shell.repeatDays,
-        cardNote: shell.cardNote,
+        cardNotes: mergeCardNotes(left, right),
         createdAt: shell.createdAt,
         updatedAt: shell.updatedAt,
         deletedAt: shell.deletedAt,
-        items: mergeItems(map[row.id].items, row.items),
+        items: mergeItems(left.items, right.items),
       });
     }
     (a && a.lists || []).forEach(take);
@@ -850,6 +914,7 @@
     repeatsOn: repeatsOn,
     listsForPriority: listsForPriority,
     normalizeText: normalizeText,
+    normalizeCardNote: normalizeCardNote,
     normalizeKey: normalizeKey,
     normalizeCode: normalizeCode,
     codeError: codeError,
@@ -871,6 +936,9 @@
     shouldOfferGroceryStarter: shouldOfferGroceryStarter,
     groceryHistoryItems: groceryHistoryItems,
     setListStyle: setListStyle,
+    normalizeCardNotes: normalizeCardNotes,
+    latestCardNote: latestCardNote,
+    addCardNote: addCardNote,
     setListCardNote: setListCardNote,
     setItemUsual: setItemUsual,
     setItemStock: setItemStock,
