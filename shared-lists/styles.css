@@ -164,6 +164,18 @@ textarea, input[type="text"], input[type="password"], input[type="search"] {
   box-shadow: 0 4px 0 rgba(92, 59, 34, 0.15);
 }
 .sync { margin: 0; text-align: right; }
+.name-edit-link {
+  display: block;
+  width: 100%;
+  margin: -4px 0 10px;
+  padding: 4px 0;
+  text-align: left;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .desk { display: flex; flex-wrap: wrap; align-items: stretch; gap: 16px 12px; }
 .note {
@@ -272,10 +284,55 @@ textarea, input[type="text"], input[type="password"], input[type="search"] {
 .paper-title-row {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 4px;
 }
 .paper-title-row .title-input { flex: 1; min-width: 0; }
+.activity-mark {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  margin-top: 4px;
+  padding: 0;
+  border-radius: 10px;
+  color: rgba(43, 33, 24, 0.38);
+  background: transparent;
+}
+.activity-mark[aria-expanded="true"] { color: rgba(43, 33, 24, 0.72); background: rgba(255, 255, 255, 0.35); }
+.activity-pop {
+  position: absolute;
+  top: 52px;
+  left: 12px;
+  right: 12px;
+  z-index: 5;
+  max-height: min(52vh, 320px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 252, 244, 0.97);
+  box-shadow: 0 12px 28px rgba(70, 42, 16, 0.22);
+  border: 1px solid rgba(80, 48, 20, 0.12);
+}
+.activity-pop-head { margin: 0 0 8px; font-size: 0.95rem; color: var(--muted); }
+.activity-name-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+.activity-name-row input { flex: 1; min-width: 0; margin: 0; background: rgba(255, 255, 255, 0.55); }
+.activity-name-save { width: auto; min-height: 40px; margin: 0; padding: 8px 12px; flex: 0 0 auto; }
+.activity-feed {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-right: 2px;
+}
+.activity-row {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+.activity-row strong { font-weight: 700; }
+.activity-row time { display: block; margin-top: 2px; font-size: 0.82rem; color: var(--muted); }
+.activity-empty { margin: 0; color: var(--muted); font-size: 0.95rem; }
 .color-mark {
   flex: 0 0 auto;
   width: 40px;

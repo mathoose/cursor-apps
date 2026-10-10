@@ -35,6 +35,8 @@
   var WEEKDAYS = ["mon", "tue", "wed", "thu", "fri"];
   var DAY_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
   var TOMBSTONE_MS = 30 * 24 * 60 * 60 * 1000;
+  var MAX_DISPLAY_NAME = 32;
+  var MAX_ACTIVITY = 100;
   var GROCERY_SUGGESTIONS = [
     "Milk", "Eggs", "Bread", "Butter", "Cheese", "Yogurt", "Coffee", "Bananas", "Apples",
     "Salad greens", "Onions", "Garlic", "Chicken", "Ground beef", "Pasta", "Rice",
@@ -54,6 +56,10 @@
 
   function normalizeText(text) {
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 140);
+  }
+
+  function normalizeDisplayName(name) {
+    return normalizeText(name).slice(0, MAX_DISPLAY_NAME);
   }
 
   function normalizeCardNote(text) {
@@ -145,12 +151,55 @@
   }
 
   function emptyData() {
-    return { lists: [], meta: { groceryStarterUsed: false } };
+    return { lists: [], meta: { groceryStarterUsed: false, activity: [] } };
+  }
+
+  function normalizeActivityEntry(entry) {
+    if (!entry || typeof entry !== "object") return null;
+    var type = entry.type === "remove_item" ? "remove_item" : "";
+    if (!type) return null;
+    var itemText = normalizeText(entry.itemText);
+    if (!itemText) return null;
+    var listTitle = normalizeText(entry.listTitle).slice(0, 80);
+    if (!listTitle) listTitle = "List";
+    return {
+      id: String(entry.id || uid()),
+      type: type,
+      at: entry.at || new Date().toISOString(),
+      by: normalizeDisplayName(entry.by) || "Someone",
+      listId: String(entry.listId || ""),
+      listTitle: listTitle,
+      itemText: itemText,
+    };
+  }
+
+  function normalizeActivity(list) {
+    var map = {};
+    (list || []).forEach(function (entry) {
+      var row = normalizeActivityEntry(entry);
+      if (!row) return;
+      if (!map[row.id] || stamp(row.at) >= stamp(map[row.id].at)) map[row.id] = row;
+    });
+    return Object.keys(map).map(function (id) { return map[id]; }).sort(function (a, b) {
+      return stamp(b.at) - stamp(a.at);
+    }).slice(0, MAX_ACTIVITY);
+  }
+
+  function mergeActivity(aList, bList) {
+    return normalizeActivity((aList || []).concat(bList || []));
+  }
+
+  function activityForList(data, listId) {
+    var id = String(listId || "");
+    return normalizeActivity((data && data.meta && data.meta.activity) || []).filter(function (row) {
+      return !id || row.listId === id;
+    });
   }
 
   function normalizeMeta(raw, lists) {
     var meta = raw && raw.meta && typeof raw.meta === "object" ? raw.meta : {};
     var used = !!meta.groceryStarterUsed;
+    var activity = normalizeActivity(meta.activity);
     if (!used && lists && lists.length) {
       var i;
       for (i = 0; i < lists.length; i++) {
@@ -165,7 +214,16 @@
         if (list && list.category === "grocery") used = true;
       });
     }
-    return { groceryStarterUsed: used };
+    return { groceryStarterUsed: used, activity: activity };
+  }
+
+  function appendActivity(data, entry, now) {
+    var row = normalizeActivityEntry(Object.assign({}, entry, { at: entry.at || now || new Date().toISOString() }));
+    if (!row) return normalizeData(data);
+    var next = normalizeData(data);
+    var activity = normalizeActivity(next.meta.activity.concat([row]));
+    next.meta = Object.assign({}, next.meta, { activity: activity });
+    return next;
   }
 
   function withMeta(data, patch) {
@@ -671,18 +729,36 @@
     });
   }
 
-  function removeItem(data, listId, itemId, now) {
+  function removeItem(data, listId, itemId, now, actorName) {
     now = now || new Date().toISOString();
-    return mapList(data, listId, function (list) {
-      list.items = list.items.map(function (it) {
+    var list = findList(data, listId);
+    var removedText = "";
+    if (list) {
+      list.items.forEach(function (it) {
+        if (it.id === itemId && !it.deletedAt) removedText = it.text;
+      });
+    }
+    var next = mapList(data, listId, function (listRow) {
+      listRow.items = listRow.items.map(function (it) {
         if (it.id !== itemId) return it;
         it.deletedAt = now;
         it.updatedAt = now;
         return it;
       });
-      list.updatedAt = now;
-      return list;
+      listRow.updatedAt = now;
+      return listRow;
     });
+    var by = normalizeDisplayName(actorName);
+    if (by && removedText && list) {
+      next = appendActivity(next, {
+        type: "remove_item",
+        by: by,
+        listId: listId,
+        listTitle: displayTitle(list),
+        itemText: removedText,
+      }, now);
+    }
+    return next;
   }
 
   function takenKeys(list) {
@@ -873,11 +949,13 @@
     (a && a.lists || []).forEach(take);
     (b && b.lists || []).forEach(take);
     var lists = Object.keys(map).map(function (id) { return map[id]; });
+    var mergedActivity = mergeActivity(a && a.meta && a.meta.activity, b && b.meta && b.meta.activity);
     return {
       lists: lists,
       meta: normalizeMeta({
         meta: {
           groceryStarterUsed: !!((a && a.meta && a.meta.groceryStarterUsed) || (b && b.meta && b.meta.groceryStarterUsed)),
+          activity: mergedActivity,
         },
         lists: lists,
       }, lists),
@@ -887,6 +965,9 @@
   function pruneData(raw, nowMs) {
     var now = typeof nowMs === "number" ? nowMs : Date.now();
     var data = normalizeData(raw);
+    data.meta.activity = (data.meta.activity || []).filter(function (row) {
+      return now - stamp(row.at) <= TOMBSTONE_MS;
+    });
     data.lists = data.lists.filter(function (list) {
       if (list.deletedAt && now - stamp(list.deletedAt) > TOMBSTONE_MS) return false;
       list.items = list.items.filter(function (it) {
@@ -914,6 +995,9 @@
     repeatsOn: repeatsOn,
     listsForPriority: listsForPriority,
     normalizeText: normalizeText,
+    normalizeDisplayName: normalizeDisplayName,
+    normalizeActivity: normalizeActivity,
+    activityForList: activityForList,
     normalizeCardNote: normalizeCardNote,
     normalizeKey: normalizeKey,
     normalizeCode: normalizeCode,
