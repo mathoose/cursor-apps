@@ -16,7 +16,8 @@
   var HERE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>';
   var COLOR_COFFEE = '#c2410c';
   var COLOR_PIN_OPEN = '#43a047';
-  var COLOR_PIN_CLOSED = '#9ca3af';
+  var COLOR_PIN_CLOSED = '#c62828';
+  var COLOR_PIN_UNKNOWN = '#9ca3af';
   var COLOR_HH = '#43a047';
   var COLOR_BAR = '#78716c';
   var COLOR_FOOD = '#0f766e';
@@ -164,11 +165,11 @@
     return isOpenNowHours(p.hours) ? 'open' : 'closed';
   }
 
-  function pinColorCoffee(p) {
+  function pinColorByHours(p) {
     var st = hoursOpenStatus(p);
     if (st === 'open') return COLOR_PIN_OPEN;
     if (st === 'closed') return COLOR_PIN_CLOSED;
-    return COLOR_COFFEE;
+    return COLOR_PIN_UNKNOWN;
   }
 
   function matchesPlaceSearch(p, search) {
@@ -1161,10 +1162,9 @@
       screenId: 'screen-coffee',
       mapId: 'map-coffee',
       getPlaces: function () { return coffeePlaces; },
-      pinColor: pinColorCoffee,
+      pinColor: pinColorByHours,
       subtitle: function (list) {
-        var open = list.filter(function (p) { return hoursOpenStatus(p) === 'open'; }).length;
-        return list.length + ' cafes · green open · grey closed · orange unknown';
+        return list.length + ' cafes · green open · red closed · grey no hours';
       }
     });
     modes.drinks = createMode({
@@ -1187,14 +1187,14 @@
       screenId: 'screen-food',
       mapId: 'map-food',
       getPlaces: function () { return foodPlaces; },
-      pinColor: function () { return COLOR_FOOD; },
+      pinColor: pinColorByHours,
       badge: function (p) {
         if (p.meal === 'lunch') return '<span class="meal-pill lunch">Lunch</span>';
         if (p.meal === 'dinner') return '<span class="meal-pill dinner">Dinner</span>';
         return '';
       },
       subtitle: function (list) {
-        return list.length + ' restaurants';
+        return list.length + ' restaurants · green open · red closed · grey no hours';
       }
     });
 
