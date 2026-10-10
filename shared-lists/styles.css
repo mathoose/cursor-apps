@@ -14,9 +14,9 @@ html, body {
   margin: 0;
   min-height: 100%;
   color: var(--ink);
-  font-family: "Patrick Hand", "Iowan Old Style", Palatino, Georgia, serif;
-  font-size: 18px;
-  line-height: 1.35;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
   background:
     radial-gradient(circle at 12% -10%, rgba(255, 248, 230, 0.7), transparent 16rem),
     radial-gradient(circle at 100% 0%, rgba(120, 72, 36, 0.18), transparent 18rem),
@@ -40,10 +40,11 @@ body { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
 .header-titles { flex: 1; min-width: 0; }
 .header-titles h1 {
   margin: 0;
-  font-family: "Caveat", "Segoe Print", cursive;
-  font-size: 2rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-optical-sizing: auto;
+  font-size: 1.55rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.1;
 }
 .header-titles p {
   margin: 0;
@@ -75,10 +76,11 @@ main { width: min(640px, 100%); margin: 0 auto; padding: 16px; }
 
 h2 {
   margin: 0 0 8px;
-  font-family: "Caveat", "Segoe Print", cursive;
-  font-size: 2.2rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-optical-sizing: auto;
+  font-size: 1.7rem;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.15;
 }
 p { margin: 0 0 12px; }
 .eyebrow { margin: 0 0 4px; color: #8a4b2a; font-size: 0.95rem; letter-spacing: 0.04em; text-transform: uppercase; }
@@ -104,11 +106,12 @@ input[type="text"], input[type="password"], input[type="search"] {
   border: 0;
   background: transparent;
   box-shadow: none;
-  font-family: "Caveat", "Segoe Print", cursive;
-  font-size: 2.4rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-optical-sizing: auto;
+  font-size: 1.85rem;
   font-weight: 700;
-  line-height: 1;
-  min-height: 52px;
+  line-height: 1.15;
+  min-height: 48px;
 }
 
 .btn {
@@ -197,10 +200,11 @@ input[type="text"], input[type="password"], input[type="search"] {
 }
 .note-open strong {
   display: block;
-  font-family: "Caveat", "Segoe Print", cursive;
-  font-size: 1.85rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-optical-sizing: auto;
+  font-size: 1.35rem;
   font-weight: 700;
-  line-height: 0.95;
+  line-height: 1.15;
 }
 .note-copy {
   align-self: flex-end;
