@@ -381,6 +381,11 @@ main {
   color: var(--text);
   border: 1px solid var(--border);
 }
+.btn-quiet {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+}
 .btn-danger {
   background: var(--danger-soft);
   color: var(--danger);
