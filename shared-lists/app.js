@@ -334,30 +334,84 @@
     $("savedRooms").innerHTML = html;
   }
 
+  function noteCard(list) {
+    var c = L.counts(list);
+    var repeat = L.repeatLabel(list.repeatDays);
+    var meta = (repeat ? repeat + " · " : "") + c.open + " open";
+    if (c.done) meta += " · " + c.done + " done";
+    return '<article class="note note-' + esc(list.size) + " tone-" + esc(list.color) + '"><button type="button" class="note-open" data-action="open-list" data-id="' + esc(list.id) + '"><span class="tape" aria-hidden="true"></span><strong>' + esc(L.displayTitle(list)) + '</strong><span class="note-meta">' + esc(meta) + '</span></button><button type="button" class="note-copy" data-action="copy-list" data-id="' + esc(list.id) + '">Copy</button></article>';
+  }
+
   function renderRoom() {
     if (state.view !== "room") return;
     $("codePill").textContent = state.code;
     $("roomSync").textContent = state.status;
     var groups = L.groupLists(state.data);
     if (!groups.length) {
-      $("roomLists").innerHTML = '<p class="empty">No lists yet. Start one for packing, groceries, or leaving the house.</p>';
+      $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or the weekday priority.</p>';
       return;
     }
     var html = "";
+    var today = L.activeLists(state.data).filter(function (list) { return L.repeatsOn(list, new Date()); });
+    if (today.length) {
+      html += '<p class="group-label">On the desk today</p><div class="desk">';
+      today.forEach(function (list) { html += noteCard(list); });
+      html += "</div>";
+    }
+    var todayIds = {};
+    today.forEach(function (list) { todayIds[list.id] = true; });
     groups.forEach(function (group) {
-      html += '<p class="group-label">' + esc(group.label) + "</p>";
-      group.lists.forEach(function (list) {
-        var c = L.counts(list);
-        html += '<article class="list-card"><button type="button" class="list-open" data-action="open-list" data-id="' + esc(list.id) + '"><strong>' + esc(L.displayTitle(list)) + '</strong><span class="fine">' + esc(formatWhen(list.createdAt)) + " · " + c.open + " open · " + c.done + ' done</span></button><button type="button" class="mini" data-action="copy-list" data-id="' + esc(list.id) + '">Copy</button></article>';
-      });
+      var rest = group.lists.filter(function (list) { return !todayIds[list.id]; });
+      if (!rest.length) return;
+      html += '<p class="group-label">' + esc(group.label) + '</p><div class="desk">';
+      rest.forEach(function (list) { html += noteCard(list); });
+      html += "</div>";
     });
     $("roomLists").innerHTML = html;
   }
 
-  function itemRow(listId, it) {
+  function itemRow(listId, it, showPriority) {
     var on = it.checked ? " on" : "";
     var done = it.checked ? " done" : "";
-    return '<div class="item-row' + done + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button><span class="item-text">' + esc(it.text) + '</span><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+    var priority = showPriority && !it.checked
+      ? '<button type="button" class="priority-btn" data-action="to-priority" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Priority</button>'
+      : "";
+    return '<div class="item-row' + done + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button><span class="item-text">' + esc(it.text) + "</span>" + priority + '<button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+  }
+
+  function stylePickerHtml(sel, live) {
+    var colorAction = live ? "set-color" : "pick-color";
+    var sizeAction = live ? "set-size" : "pick-size";
+    var dayAction = live ? "toggle-day" : "pick-day";
+    var weekAction = live ? "set-weekdays" : "pick-weekdays";
+    var colors = L.COLORS.map(function (c) {
+      return '<button type="button" class="swatch swatch-' + c.id + (sel.color === c.id ? " on" : "") + '" data-action="' + colorAction + '" data-color="' + c.id + '" aria-label="' + esc(c.label) + '"></button>';
+    }).join("");
+    var sizes = L.SIZES.map(function (s) {
+      return '<button type="button" class="chip' + (sel.size === s.id ? " on" : "") + '" data-action="' + sizeAction + '" data-size="' + s.id + '">' + esc(s.label) + "</button>";
+    }).join("");
+    var days = L.DAYS.map(function (d) {
+      var on = (sel.days || []).indexOf(d.id) !== -1;
+      return '<button type="button" class="day-chip' + (on ? " on" : "") + '" data-action="' + dayAction + '" data-day="' + d.id + '">' + esc(d.label) + "</button>";
+    }).join("");
+    return '<p class="field-label">Color</p><div class="swatches">' + colors + '</div><p class="field-label">Size</p><div class="chips">' + sizes + '</div><p class="field-label">Comes back</p><div class="day-row">' + days + '</div><button type="button" class="chip" data-action="' + weekAction + '">Mon–Fri</button>';
+  }
+
+  function withDay(days, day) {
+    var next = (days || []).slice();
+    var index = next.indexOf(day);
+    if (index === -1) next.push(day);
+    else next.splice(index, 1);
+    var order = {};
+    L.DAYS.forEach(function (d, i) { order[d.id] = i; });
+    next.sort(function (a, b) { return order[a] - order[b]; });
+    return next;
+  }
+
+  function paintChoice(selector, attr, value) {
+    document.querySelectorAll(selector).forEach(function (el) {
+      el.classList.toggle("on", el.getAttribute(attr) === value);
+    });
   }
 
   function renderItems() {
@@ -370,21 +424,26 @@
     }
     var title = $("listTitle");
     if (document.activeElement !== title) title.value = list.title || "";
+    var paper = $("paper");
+    paper.className = "paper tone-" + list.color + " paper-" + list.size;
+    $("styleBar").innerHTML = stylePickerHtml({ color: list.color, size: list.size, days: list.repeatDays }, true);
     var c = L.counts(list);
-    $("listMeta").textContent = L.categoryLabel(list) + " · " + c.open + " open · " + c.done + " done · " + (state.status || "");
+    var repeat = L.repeatLabel(list.repeatDays);
+    $("listMeta").textContent = L.categoryLabel(list) + (repeat ? " · " + repeat : "") + " · " + c.open + " open · " + c.done + " done · " + (state.status || "");
+    var showPriority = L.listsForPriority(state.data, list.id, new Date()).length > 0;
     var items = L.visibleItems(list.items);
     var open = items.filter(function (it) { return !it.checked; });
     var done = items.filter(function (it) { return it.checked; });
     var html = "";
-    if (!items.length) html = '<p class="empty">Nothing on this list yet.</p>';
+    if (!items.length) html = '<p class="empty">Nothing on this note yet.</p>';
     if (open.length) {
       html += '<div class="item-section">';
-      open.forEach(function (it) { html += itemRow(list.id, it); });
+      open.forEach(function (it) { html += itemRow(list.id, it, showPriority); });
       html += "</div>";
     }
     if (done.length) {
       html += '<p class="section-label">Done</p><div class="item-section">';
-      done.forEach(function (it) { html += itemRow(list.id, it); });
+      done.forEach(function (it) { html += itemRow(list.id, it, false); });
       html += "</div>";
     }
     $("itemList").innerHTML = html;
@@ -441,15 +500,31 @@
   }
 
   function newListSheet() {
+    var sheet = {
+      kind: "new",
+      category: "grocery",
+      color: "butter",
+      size: "medium",
+      days: [],
+      html: "",
+    };
     var chips = L.CATEGORIES.map(function (cat) {
       return '<button type="button" class="chip' + (cat.id === "grocery" ? " on" : "") + '" data-action="pick-cat" data-cat="' + cat.id + '">' + esc(cat.label) + "</button>";
     }).join("");
     chips += '<button type="button" class="chip" data-action="pick-cat" data-cat="custom">Other</button>';
-    openSheet({
-      kind: "new",
-      category: "grocery",
-      html: '<h2>New list</h2><p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" /><button type="button" class="btn btn-primary" data-action="create-list">Create list</button>',
-    });
+    sheet.html = '<h2>New note</h2><button type="button" class="btn btn-secondary" data-action="make-priority">Weekday priority</button><p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" />' + stylePickerHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
+    openSheet(sheet);
+  }
+
+  function sendToPriority(targetId, itemId) {
+    var result = L.addFromList(state.data, targetId, state.listId, [itemId]);
+    if (!result.added) {
+      toast("Already on that note");
+      return;
+    }
+    closeSheet();
+    mutate(result.data);
+    toast("Added to " + L.displayTitle(L.findList(result.data, targetId)));
   }
 
   function copySheet(listId) {
@@ -545,6 +620,81 @@
       }
       return;
     }
+    if (action === "make-priority") {
+      var priority = L.createList(state.data, {
+        category: "custom",
+        customName: "Priority",
+        title: "Add to my priority",
+        color: "butter",
+        size: "small",
+        repeatDays: L.WEEKDAYS.slice(),
+      });
+      closeSheet();
+      show("list");
+      mutate(priority.data, priority.list.id);
+      return;
+    }
+    if (action === "pick-color") {
+      state.sheet.color = btn.getAttribute("data-color");
+      paintChoice("#sheetBody .swatch", "data-color", state.sheet.color);
+      return;
+    }
+    if (action === "pick-size") {
+      state.sheet.size = btn.getAttribute("data-size");
+      paintChoice("#sheetBody .chip[data-size]", "data-size", state.sheet.size);
+      return;
+    }
+    if (action === "pick-day") {
+      state.sheet.days = withDay(state.sheet.days, btn.getAttribute("data-day"));
+      document.querySelectorAll("#sheetBody .day-chip").forEach(function (el) {
+        el.classList.toggle("on", state.sheet.days.indexOf(el.getAttribute("data-day")) !== -1);
+      });
+      return;
+    }
+    if (action === "pick-weekdays") {
+      state.sheet.days = L.WEEKDAYS.slice();
+      document.querySelectorAll("#sheetBody .day-chip").forEach(function (el) {
+        el.classList.toggle("on", state.sheet.days.indexOf(el.getAttribute("data-day")) !== -1);
+      });
+      return;
+    }
+    if (action === "set-color") {
+      mutate(L.setListStyle(state.data, state.listId, { color: btn.getAttribute("data-color") }));
+      return;
+    }
+    if (action === "set-size") {
+      mutate(L.setListStyle(state.data, state.listId, { size: btn.getAttribute("data-size") }));
+      return;
+    }
+    if (action === "toggle-day") {
+      var current = L.findList(state.data, state.listId);
+      mutate(L.setListStyle(state.data, state.listId, { repeatDays: withDay(current.repeatDays, btn.getAttribute("data-day")) }));
+      return;
+    }
+    if (action === "set-weekdays") {
+      mutate(L.setListStyle(state.data, state.listId, { repeatDays: L.WEEKDAYS.slice() }));
+      return;
+    }
+    if (action === "to-priority") {
+      var targets = L.listsForPriority(state.data, state.listId, new Date());
+      if (!targets.length) {
+        toast("Make a note that comes back, like Mon–Fri");
+        return;
+      }
+      if (targets.length === 1) {
+        sendToPriority(targets[0].id, id);
+        return;
+      }
+      var choices = targets.map(function (list) {
+        return '<button type="button" class="btn btn-secondary" data-action="pick-priority" data-target="' + esc(list.id) + '" data-id="' + esc(id) + '">' + esc(L.displayTitle(list)) + "</button>";
+      }).join("");
+      openSheet({ kind: "priority", html: "<h2>Add to which note?</h2>" + choices });
+      return;
+    }
+    if (action === "pick-priority") {
+      sendToPriority(btn.getAttribute("data-target"), id);
+      return;
+    }
     if (action === "pick-cat") {
       state.sheet.category = btn.getAttribute("data-cat");
       document.querySelectorAll("#catChips .chip").forEach(function (chip) {
@@ -561,7 +711,14 @@
         return;
       }
       var title = $("newTitle") ? $("newTitle").value : "";
-      var created = L.createList(state.data, { category: category, customName: customName, title: title });
+      var created = L.createList(state.data, {
+        category: category,
+        customName: customName,
+        title: title,
+        color: state.sheet.color,
+        size: state.sheet.size,
+        repeatDays: state.sheet.days,
+      });
       closeSheet();
       show("list");
       mutate(created.data, created.list.id);

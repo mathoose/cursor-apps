@@ -8,6 +8,7 @@ Instructions for Cloud Agents and other automated contributors working in this r
 |-------|---------|-----------------|
 | [github-pr-edits](cursor-user-skills/github-pr-edits/SKILL.md) | [`scripts/install-github-pr-edits-skill.sh`](scripts/install-github-pr-edits-skill.sh) | PRs, pushes, repo changes on GitHub |
 | [add-app](cursor-user-skills/add-app/SKILL.md) | [`scripts/install-add-app-skill.sh`](scripts/install-add-app-skill.sh) | Creating a new app, scaffolding app folders, home-screen icon setup |
+| [icon-redesign](cursor-user-skills/icon-redesign/SKILL.md) | [`scripts/install-icon-redesign-skill.sh`](scripts/install-icon-redesign-skill.sh) | Redesigning Home Screen icons — Current vs tone/PixelPot/DayCity/Passage export before any PR |
 | [mobile-canvas-plot-inspect](cursor-user-skills/mobile-canvas-plot-inspect/SKILL.md) | [`scripts/install-mobile-canvas-plot-inspect-skill.sh`](scripts/install-mobile-canvas-plot-inspect-skill.sh) | Canvas plot press-and-hold scrub, tooltips, crosshairs (especially Habit Journal Stats plot) |
 
 ## Pull requests
@@ -34,6 +35,10 @@ At the **end of every turn** where code changed, include a **PR summary table** 
 - End commit messages with `Versions: …` listing what changed.
 - Push the **feature branch** (not `main`) and create/update the PR before finishing the turn. Leave the PR open.
 - Tell the user they must **merge the PR themselves** for changes to appear on `mathoose.github.io`. Never merge it for them.
+
+## Icon redesigns
+
+When the user asks to **redesign** app icons: follow [docs/ICON_REDESIGN.md](docs/ICON_REDESIGN.md) and the **icon-redesign** skill. Generate four style options, run `./scripts/export-icon-style-options.sh`, attach the comparison PNG, and **do not open a PR** until they pick. `icon-options/` is gitignored.
 
 ## Version numbers
 

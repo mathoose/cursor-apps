@@ -8,8 +8,11 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Our Lists" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#1f6f6a" />
+  <meta name="theme-color" content="#5c3b22" />
   <!-- build: shared-lists-v5 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -88,10 +91,12 @@
     </section>
 
     <section id="viewList" hidden>
-      <button type="button" class="text-back" id="backLists">All lists</button>
+      <button type="button" class="text-back" id="backLists">All notes</button>
+      <div id="paper" class="paper tone-butter paper-medium">
       <label class="sr-only" for="listTitle">List name</label>
       <input id="listTitle" class="title-input" type="text" maxlength="80" placeholder="List name" autocomplete="off" />
       <p class="list-meta" id="listMeta"></p>
+      <div id="styleBar"></div>
       <form id="addForm" class="add-row">
         <input id="addInput" type="text" maxlength="140" placeholder="Add an item" autocomplete="off" enterkeyhint="done" />
         <button type="submit" class="add-btn" aria-label="Add item">+</button>
@@ -102,6 +107,7 @@
         <button type="button" class="btn btn-secondary" id="copyListBtn">Copy list</button>
         <button type="button" class="btn btn-quiet danger-text" id="deleteListBtn">Delete list</button>
       </div>
+      </div>
     </section>
   </main>
 
@@ -111,9 +117,9 @@
   </div>
   <div id="toast" class="toast" hidden></div>
 
-  <script src="config.js?v=3"></script>
-  <script src="logic.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="config.js?v=5"></script>
+  <script src="logic.js?v=5"></script>
+  <script src="app.js?v=5"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
