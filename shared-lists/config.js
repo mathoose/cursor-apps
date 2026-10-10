@@ -1,7 +1,6 @@
-/* Fill these in after you create a free Supabase project and run supabase.sql.
-   Project Settings → API → Project URL and the anon public key.
-   The anon key is meant to be in this public site. The PIN is checked in the database. */
+/* Project URL and publishable key for Our Lists.
+   The publishable key is public. The PIN is checked in the database. */
 window.SHARED_LISTS_CONFIG = {
-  supabaseUrl: "",
-  supabaseAnonKey: ""
+  supabaseUrl: "https://nhgvockbcuwacwwoqsiq.supabase.co",
+  supabaseAnonKey: "sb_publishable_OjLrVHKr6vUkqAQJxsJX7Q_cDDTv2ge"
 };
