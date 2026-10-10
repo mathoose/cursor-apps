@@ -421,6 +421,11 @@
   function render() {
     if (state.view === "room") renderRoom();
     if (state.view === "list") renderItems();
+    if (state.view === "room" && state.code) $("headerSub").textContent = "Room " + state.code;
+    if (state.view === "list") {
+      var current = L.findList(state.data, state.listId);
+      $("headerSub").textContent = current ? L.displayTitle(current) : "List";
+    }
   }
 
   function closeSheet() {
