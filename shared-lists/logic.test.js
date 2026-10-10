@@ -126,5 +126,16 @@ assert.strictEqual(L.findList(cycled, "gro").items[1].stock, "high");
 var noted = L.setListCardNote(cycled, "gro", "Shopping after work ~5pm", t2);
 assert.strictEqual(L.findList(noted, "gro").cardNote, "Shopping after work ~5pm");
 assert.ok(L.formatLastChanged(t2, L.stamp(t2) + 120000).indexOf("m ago") !== -1);
+assert.strictEqual(L.shouldOfferGroceryStarter(L.emptyData()), true);
+assert.strictEqual(L.shouldOfferGroceryStarter(grocery.data), false);
+var bought = L.toggleItem(grocery.data, "gro", grocery.list.items[2].id, t2);
+var trip = L.createList(bought, { id: "trip", category: "grocery", title: "Saturday run", now: t2 });
+var withEggs = L.addItem(trip.data, "trip", "Eggs", t2, "eggs");
+var doneEggs = L.toggleItem(withEggs.data, "trip", "eggs", t2);
+assert.strictEqual(L.groceryHistoryItems(doneEggs).length, 2);
+var fromPast = L.createGroceryFromHistory(doneEggs, { now: "2026-10-11T12:00:00.000Z", id: "newgro" }, null);
+assert.strictEqual(fromPast.copied, 2);
+assert.strictEqual(L.shouldOfferGroceryStarter(fromPast.data), false);
+assert.strictEqual(L.findList(fromPast.data, "newgro").items[0].checked, false);
 
 console.log("shared-lists logic ok");

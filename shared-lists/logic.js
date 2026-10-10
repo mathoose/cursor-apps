@@ -95,7 +95,33 @@
   }
 
   function emptyData() {
-    return { lists: [] };
+    return { lists: [], meta: { groceryStarterUsed: false } };
+  }
+
+  function normalizeMeta(raw, lists) {
+    var meta = raw && raw.meta && typeof raw.meta === "object" ? raw.meta : {};
+    var used = !!meta.groceryStarterUsed;
+    if (!used && lists && lists.length) {
+      var i;
+      for (i = 0; i < lists.length; i++) {
+        if (lists[i].category === "grocery") {
+          used = true;
+          break;
+        }
+      }
+    }
+    if (!used && raw && Array.isArray(raw.lists)) {
+      raw.lists.forEach(function (list) {
+        if (list && list.category === "grocery") used = true;
+      });
+    }
+    return { groceryStarterUsed: used };
+  }
+
+  function withMeta(data, patch) {
+    var next = normalizeData(data);
+    next.meta = Object.assign({}, next.meta, patch || {});
+    return next;
   }
 
   function categoryLabel(list) {
@@ -259,7 +285,49 @@
       var row = normalizeList(list);
       if (row) lists.push(row);
     });
-    return { lists: lists };
+    return { lists: lists, meta: normalizeMeta(data, lists) };
+  }
+
+  function shouldOfferGroceryStarter(data) {
+    return !normalizeData(data).meta.groceryStarterUsed;
+  }
+
+  function groceryHistoryItems(data) {
+    var map = {};
+    normalizeData(data).lists.forEach(function (list) {
+      if (list.category !== "grocery") return;
+      var listTitle = displayTitle(list);
+      var tripAt = list.updatedAt;
+      (list.items || []).forEach(function (it) {
+        if (!it || it.deletedAt || !it.checked) return;
+        var key = normalizeKey(it.text);
+        var checkedAt = it.checkedAt || it.updatedAt;
+        if (!map[key]) {
+          map[key] = {
+            key: key,
+            text: it.text,
+            usual: it.usual,
+            stock: it.stock,
+            checkedAt: checkedAt,
+            tripTitle: listTitle,
+            tripAt: tripAt,
+            times: 1,
+          };
+          return;
+        }
+        map[key].times += 1;
+        if (stamp(checkedAt) >= stamp(map[key].checkedAt)) {
+          map[key].checkedAt = checkedAt;
+          map[key].usual = it.usual;
+          map[key].stock = it.stock;
+          map[key].tripTitle = listTitle;
+          map[key].tripAt = tripAt;
+        }
+      });
+    });
+    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
+      return stamp(b.checkedAt) - stamp(a.checkedAt);
+    });
   }
 
   function canonical(raw) {
@@ -427,7 +495,51 @@
     created.list.items = items;
     created.list.updatedAt = now;
     created.data = mapList(created.data, created.list.id, function () { return created.list; });
+    created.data = withMeta(created.data, { groceryStarterUsed: true });
     return created;
+  }
+
+  function createGroceryFromHistory(data, opts, keys) {
+    opts = opts || {};
+    var history = groceryHistoryItems(data);
+    var pick = null;
+    if (keys) {
+      pick = {};
+      keys.forEach(function (k) { pick[k] = true; });
+    }
+    var chosen = history.filter(function (row) { return !pick || pick[row.key]; });
+    if (!chosen.length) return { data: normalizeData(data), list: null, copied: 0 };
+    var now = opts.now || new Date().toISOString();
+    var nowMs = stamp(now);
+    var created = createList(data, {
+      id: opts.id,
+      category: "grocery",
+      title: opts.title || "Grocery list",
+      color: opts.color || "butter",
+      size: "small",
+      cardNote: opts.cardNote,
+      now: now,
+    });
+    var items = [];
+    chosen.forEach(function (row, index) {
+      var when = new Date(nowMs - index * 1000).toISOString();
+      items.push(normalizeItem({
+        id: uid(),
+        text: row.text,
+        checked: false,
+        usual: row.usual,
+        stock: row.stock,
+        createdAt: when,
+        updatedAt: when,
+        checkedAt: null,
+        deletedAt: null,
+      }));
+    });
+    created.list.items = items;
+    created.list.updatedAt = now;
+    created.data = mapList(created.data, created.list.id, function () { return created.list; });
+    created.data = withMeta(created.data, { groceryStarterUsed: true });
+    return { data: created.data, list: created.list, copied: items.length };
   }
 
   function listsForPriority(data, excludeId, date) {
@@ -696,7 +808,16 @@
     }
     (a && a.lists || []).forEach(take);
     (b && b.lists || []).forEach(take);
-    return { lists: Object.keys(map).map(function (id) { return map[id]; }) };
+    var lists = Object.keys(map).map(function (id) { return map[id]; });
+    return {
+      lists: lists,
+      meta: normalizeMeta({
+        meta: {
+          groceryStarterUsed: !!((a && a.meta && a.meta.groceryStarterUsed) || (b && b.meta && b.meta.groceryStarterUsed)),
+        },
+        lists: lists,
+      }, lists),
+    };
   }
 
   function pruneData(raw, nowMs) {
@@ -746,6 +867,9 @@
     counts: counts,
     createList: createList,
     createGroceryStarter: createGroceryStarter,
+    createGroceryFromHistory: createGroceryFromHistory,
+    shouldOfferGroceryStarter: shouldOfferGroceryStarter,
+    groceryHistoryItems: groceryHistoryItems,
     setListStyle: setListStyle,
     setListCardNote: setListCardNote,
     setItemUsual: setItemUsual,
