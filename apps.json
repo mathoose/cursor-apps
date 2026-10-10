@@ -18,6 +18,7 @@
       "process-guide": { "storageKey": "process-guide-v1" },
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" },
+      "shared-lists": { "storageKey": "shared-lists-v1" },
       "times-tables": { "storageKey": "times-tables-v1" },
       "things-book": { "storageKey": "things-book-v1" },
       "stride-flow": { "storageKey": "stride-flow-v1" },
@@ -130,6 +131,12 @@
       "name": "Our Groceries",
       "subtitle": "Shared shopping list",
       "storageKey": "shopping-list-v1"
+    },
+    {
+      "id": "shared-lists",
+      "name": "Our Lists",
+      "subtitle": "Shared checklists",
+      "storageKey": "shared-lists-v1"
     },
     {
       "id": "times-tables",

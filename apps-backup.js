@@ -37,6 +37,7 @@
     "city-axes": "City Axes",
     "done-today": "Done Today",
     "things-to-do": "Dates",
+    "shared-lists": "Our Lists",
   };
 
   var PHOTO_DATABASES = [
@@ -54,6 +55,66 @@
     "world-cup-2026": ["world-cup-2026-scores-v1", "world-cup-2026-knockout-v1"],
     "habit-journal": ["habit-journal-meta-v1", "habit-journal-local-v1"],
   };
+
+  function newerSharedStamp(a, b) {
+    var ta = Date.parse((a && a.updatedAt) || "") || 0;
+    var tb = Date.parse((b && b.updatedAt) || "") || 0;
+    return ta >= tb ? a : b;
+  }
+
+  function mergeSharedItems(aItems, bItems) {
+    var map = {};
+    function take(it) {
+      if (!it || !it.id) return;
+      map[it.id] = newerSharedStamp(map[it.id], it);
+    }
+    (aItems || []).forEach(take);
+    (bItems || []).forEach(take);
+    return Object.keys(map).map(function (id) { return map[id]; });
+  }
+
+  function mergeSharedData(a, b) {
+    var map = {};
+    function take(list) {
+      if (!list || !list.id) return;
+      if (!map[list.id]) {
+        map[list.id] = list;
+        return;
+      }
+      var shell = newerSharedStamp(map[list.id], list);
+      map[list.id] = Object.assign({}, shell, {
+        items: mergeSharedItems(map[list.id].items, list.items),
+      });
+    }
+    ((a && a.lists) || []).forEach(take);
+    ((b && b.lists) || []).forEach(take);
+    return { lists: Object.keys(map).map(function (id) { return map[id]; }) };
+  }
+
+  function mergeSharedCache(existing, incoming) {
+    if (!incoming) return existing;
+    if (!existing) return incoming;
+    var rooms = Object.assign({}, existing.rooms || {});
+    Object.keys(incoming.rooms || {}).forEach(function (code) {
+      var a = rooms[code];
+      var b = incoming.rooms[code];
+      if (!b) return;
+      if (!a) {
+        rooms[code] = b;
+        return;
+      }
+      rooms[code] = {
+        pin: b.pin || a.pin || "",
+        revision: Math.max(Number(a.revision) || 0, Number(b.revision) || 0),
+        data: mergeSharedData(a.data, b.data),
+      };
+    });
+    return {
+      version: 1,
+      activeCode: existing.activeCode || incoming.activeCode || "",
+      rooms: rooms,
+    };
+  }
 
   var APP_REGISTRY = {
     "habit-journal": {
@@ -1696,6 +1757,46 @@
             dates: incoming.layers ? !!incoming.layers.dates : !!(existing.layers && existing.layers.dates),
           },
         };
+      },
+    },
+    "shared-lists": {
+      storageKey: "shared-lists-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("shared-lists-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !p.rooms || typeof p.rooms !== "object" || !Object.keys(p.rooms).length) return null;
+          return { version: 1, activeCode: p.activeCode || "", rooms: p.rooms };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !slice.rooms || typeof slice.rooms !== "object") return false;
+        return writeKey("shared-lists-v1", JSON.stringify({
+          version: 1,
+          activeCode: slice.activeCode || "",
+          rooms: slice.rooms,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.rooms && typeof obj.rooms === "object" && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var codes = Object.keys(slice.rooms || {});
+        var lists = 0;
+        codes.forEach(function (code) {
+          var room = slice.rooms[code];
+          var rows = room && room.data && room.data.lists;
+          if (!Array.isArray(rows)) return;
+          rows.forEach(function (list) { if (list && !list.deletedAt) lists += 1; });
+        });
+        return codes.length + " room" + (codes.length === 1 ? "" : "s") + ", " + lists + " list" + (lists === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        return mergeSharedCache(existing, incoming);
       },
     },
   };

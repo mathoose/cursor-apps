@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Our Lists</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Our Lists" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1f6f6a" />
+  <!-- build: shared-lists-v1 -->
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Our Lists</h1>
+      <p id="headerSub">Shared checklists</p>
+    </div>
+    <button type="button" class="header-btn" id="roomsBtn" hidden>Rooms</button>
+  </header>
+
+  <main>
+    <section id="viewSetup" hidden>
+      <div class="card">
+        <p class="eyebrow">One-time setup</p>
+        <h2>Connect a shared room</h2>
+        <p>Lists live in a free Supabase project so both phones see the same room. Until that is connected, nothing is saved to a shared room.</p>
+        <ol class="steps">
+          <li>Create a free project at supabase.com.</li>
+          <li>Open the SQL editor, paste <strong>shared-lists/supabase.sql</strong>, and run it.</li>
+          <li>In Project Settings → API, copy the Project URL and the anon public key.</li>
+          <li>Put both values in <strong>shared-lists/config.js</strong> and merge that update.</li>
+        </ol>
+        <p class="fine">The anon key is public on purpose. A room still asks for its PIN before it opens.</p>
+      </div>
+    </section>
+
+    <section id="viewJoin" hidden>
+      <div class="card">
+        <p class="eyebrow">Room code</p>
+        <h2>Same code, same lists</h2>
+        <p>Pick a code you can say out loud. The first time that code is used, you’ll set a PIN. Anyone with the same code and PIN can edit these lists.</p>
+        <form id="joinForm">
+          <label class="field-label" for="codeInput">Room code</label>
+          <input id="codeInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="BEACH" enterkeyhint="go" />
+          <p class="field-hint" id="codeHint">4–12 letters or numbers.</p>
+          <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+      </div>
+      <div id="savedRooms"></div>
+    </section>
+
+    <section id="viewPin" hidden>
+      <div class="card">
+        <p class="eyebrow" id="pinEyebrow">PIN</p>
+        <h2 id="pinTitle">Enter the PIN</h2>
+        <p id="pinCopy"></p>
+        <form id="pinForm">
+          <label class="field-label" for="pinInput" id="pinLabel">PIN</label>
+          <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+          <div id="pinConfirmWrap" hidden>
+            <label class="field-label" for="pinConfirm">Confirm PIN</label>
+            <input id="pinConfirm" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+          </div>
+          <p class="field-hint" id="pinHint"></p>
+          <button type="submit" class="btn btn-primary" id="pinSubmit">Open room</button>
+          <button type="button" class="btn btn-quiet" id="pinBack">Use a different code</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="viewRoom" hidden>
+      <div class="room-bar">
+        <button type="button" class="code-pill" id="codePill"></button>
+        <p class="sync" id="roomSync" aria-live="polite"></p>
+      </div>
+      <button type="button" class="btn btn-primary" id="newListBtn">New list</button>
+      <div id="roomLists"></div>
+      <button type="button" class="btn btn-quiet danger-text" id="forgetBtn">Forget this room on this phone</button>
+    </section>
+
+    <section id="viewList" hidden>
+      <button type="button" class="text-back" id="backLists">All lists</button>
+      <label class="sr-only" for="listTitle">List name</label>
+      <input id="listTitle" class="title-input" type="text" maxlength="80" placeholder="List name" autocomplete="off" />
+      <p class="list-meta" id="listMeta"></p>
+      <form id="addForm" class="add-row">
+        <input id="addInput" type="text" maxlength="140" placeholder="Add an item" autocomplete="off" enterkeyhint="done" />
+        <button type="submit" class="add-btn" aria-label="Add item">+</button>
+      </form>
+      <div id="itemList"></div>
+      <div id="historyBlock"></div>
+      <div class="list-actions">
+        <button type="button" class="btn btn-secondary" id="copyListBtn">Copy list</button>
+        <button type="button" class="btn btn-quiet danger-text" id="deleteListBtn">Delete list</button>
+      </div>
+    </section>
+  </main>
+
+  <div id="sheet" class="sheet" hidden>
+    <button type="button" class="sheet-backdrop" id="sheetBackdrop" aria-label="Close"></button>
+    <div class="sheet-card" id="sheetBody" role="dialog" aria-modal="true"></div>
+  </div>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="config.js?v=1"></script>
+  <script src="logic.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
