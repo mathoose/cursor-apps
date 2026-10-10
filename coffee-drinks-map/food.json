@@ -3303,21 +3303,6 @@
     "meal": "both"
   },
   {
-    "id": "tomato-pie-cafe",
-    "name": "Tomato Pie Cafe",
-    "neighborhood": "Point Breeze",
-    "address": "1754, South Chadwick Street, Philadelphia, Pennsylvania, 19145",
-    "lat": 39.92868,
-    "lng": -75.173216,
-    "website": "",
-    "instagramUrl": "",
-    "hours": {},
-    "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
-    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
-    "meal": "both"
-  },
-  {
     "id": "african-small-pot",
     "name": "African Small Pot",
     "neighborhood": "Point Breeze",

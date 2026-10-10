@@ -1099,7 +1099,7 @@
     return Promise.all([
       fetch('coffee.json?v=1').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('drinks.json?v=6').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('food.json?v=8').then(function (r) { return r.ok ? r.json() : []; })
+      fetch('food.json?v=10').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
       coffeePlaces = Array.isArray(triple[0]) ? triple[0] : [];
       drinkPlaces = Array.isArray(triple[1]) ? triple[1] : [];

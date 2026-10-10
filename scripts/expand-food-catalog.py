@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 FOOD_PATH = ROOT / "coffee-drinks-map" / "food.json"
 DRINKS_PATH = ROOT / "coffee-drinks-map" / "drinks.json"
+COFFEE_PATH = ROOT / "coffee-drinks-map" / "coffee.json"
 SEEDS_PATH = Path(__file__).resolve().parent / "food-catalog-neighborhood-seeds.json"
 CACHE_PATH = Path(__file__).resolve().parent / "food-catalog-geocode-cache.json"
 OVERPASS_URLS = [
@@ -185,6 +186,16 @@ def overpass_restaurants(south: float, west: float, north: float, east: float) -
     return rows
 
 
+def near_known_place(lat: float, lng: float, points: list[tuple[float, float]], meters: float = 40) -> bool:
+    """True if this pin sits on a cafe or bar we already list (bad geocode)."""
+    for plat, plng in points:
+        dlat = (lat - plat) * 111_000
+        dlng = (lng - plng) * 85_000
+        if (dlat * dlat + dlng * dlng) ** 0.5 <= meters:
+            return True
+    return False
+
+
 def existing_names(food: list, drinks: list) -> set[str]:
     names: set[str] = set()
     for p in food + drinks:
@@ -224,7 +235,14 @@ def place_row(
 def main() -> None:
     food = load_json(FOOD_PATH)
     drinks = load_json(DRINKS_PATH)
+    coffee = load_json(COFFEE_PATH)
     taken = existing_names(food, drinks)
+    taken |= existing_names([], coffee)
+    known_points = [
+        (p["lat"], p["lng"])
+        for p in drinks + coffee
+        if isinstance(p.get("lat"), (int, float)) and isinstance(p.get("lng"), (int, float))
+    ]
     ids = {p.get("id") for p in food if p.get("id")}
     cache = load_cache()
     seeds: dict[str, list[str]] = {}
@@ -268,6 +286,8 @@ def main() -> None:
         for c in sorted(candidates, key=lambda r: -r["score"]):
             nk = norm_name(c["name"])
             if not nk or nk in taken or nk in seen_local:
+                continue
+            if near_known_place(c["lat"], c["lng"], known_points):
                 continue
             seen_local.add(nk)
             picked.append(c)
