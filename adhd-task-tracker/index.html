@@ -2161,6 +2161,54 @@
   }
   .settings-label { font-weight: 500; font-size: 0.95rem; }
   .settings-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .settings-toggle-row input { width: 18px; height: 18px; flex-shrink: 0; }
+  .completion-modal-task {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+    word-wrap: break-word;
+  }
+  .completion-modal-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .completion-modal-body textarea {
+    width: 100%;
+    min-height: 88px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+    font-family: inherit;
+  }
+  .completion-modal-body textarea:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  .task-completion-note {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+    font-style: italic;
+    word-wrap: break-word;
+  }
+  .pill.completion-note {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .list-manage-row {
     display: flex; align-items: center; gap: 8px;
     background: var(--surface);
@@ -2606,6 +2654,29 @@
   </div>
 </div>
 
+<!-- Complete task (optional comment) -->
+<div class="modal-backdrop" id="completionModal" role="dialog" aria-modal="true">
+  <div class="modal completion-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Complete task</div>
+      <button class="icon-btn" id="completionModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="modal-body completion-modal-body">
+      <p class="completion-modal-task" id="completionModalTaskTitle"></p>
+      <p class="completion-modal-hint">Add an optional note about how it went — or leave blank and tap Complete.</p>
+      <label class="field-label" for="completionCommentInput">Completion note</label>
+      <textarea id="completionCommentInput" placeholder="Optional comment…" autocomplete="off"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="completionCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="completionConfirmBtn">Complete</button>
+    </div>
+  </div>
+</div>
+
 <!-- Settings modal -->
 <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true">
   <div class="modal">
@@ -2617,6 +2688,13 @@
       </button>
     </div>
     <div class="modal-body">
+      <div class="settings-row settings-toggle-row">
+        <div>
+          <div class="settings-label">Completion comment</div>
+          <div class="settings-sub">When you check off a task, show an optional note box.</div>
+        </div>
+        <input type="checkbox" id="completionCommentPromptInput" aria-label="Prompt for completion comment">
+      </div>
       <div class="settings-row">
         <div>
           <div class="settings-label">Export backup</div>
@@ -3047,7 +3125,8 @@ let state = {
   categoryFilter: 'all',
   amsFilter: 'all',
   taskSort: 'custom',
-  quickAddSaveSettings: { list: false, inbox: false }
+  quickAddSaveSettings: { list: false, inbox: false },
+  completionCommentPrompt: true
 };
 
 const quickAddCategoryUi = {
@@ -3076,6 +3155,7 @@ let taskPhotoThumbCache = {};
 let taskPhotoThumbPending = {};
 let taskModalPhotoUrl = null;
 let pendingNewTaskPhotoBlob = null;
+let pendingCompletionTaskId = null;
 let expandedTaskSubtasks = new Set();
 let pendingSubtaskInputFocus = null;
 
@@ -3176,6 +3256,9 @@ function loadState() {
       if (typeof parsed.quickAddSaveSettings.inbox === 'boolean') {
         state.quickAddSaveSettings.inbox = parsed.quickAddSaveSettings.inbox;
       }
+    }
+    if (typeof parsed.completionCommentPrompt === 'boolean') {
+      state.completionCommentPrompt = parsed.completionCommentPrompt;
     }
   } catch (e) {
     console.error('Load failed:', e);
@@ -3285,6 +3368,7 @@ function normalizeTask(t) {
     important: typeof t.important === 'boolean' ? t.important : null,
     completed: !!t.completed,
     completedAt: t.completedAt || null,
+    completionComment: typeof t.completionComment === 'string' ? t.completionComment : '',
     hasPhoto: !!t.hasPhoto,
     paid: !!t.paid,
     ams: !!t.ams,
@@ -4075,7 +4159,8 @@ function saveState() {
       categoryFilter: state.categoryFilter,
       amsFilter: state.amsFilter,
       taskSort: state.taskSort,
-      quickAddSaveSettings: state.quickAddSaveSettings
+      quickAddSaveSettings: state.quickAddSaveSettings,
+      completionCommentPrompt: state.completionCommentPrompt
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -4318,14 +4403,80 @@ function updateTask(id, patch) {
   return t;
 }
 
-function toggleTask(id) {
-  const t = state.tasks.find(t => t.id === id);
-  if (!t) return;
-  t.completed = !t.completed;
-  t.completedAt = t.completed ? new Date().toISOString() : null;
+function completeTask(id, comment) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t || t.completed) return;
+  t.completed = true;
+  t.completedAt = new Date().toISOString();
+  t.updatedAt = new Date().toISOString();
+  t.completionComment = (comment || '').trim();
+  assignTaskToGroupEnd(t);
+  saveState();
+}
+
+function uncompleteTask(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t || !t.completed) return;
+  t.completed = false;
+  t.completedAt = null;
   t.updatedAt = new Date().toISOString();
   assignTaskToGroupEnd(t);
   saveState();
+}
+
+function toggleTask(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t) return;
+  if (t.completed) uncompleteTask(id);
+  else completeTask(id, '');
+}
+
+function openCompletionModal(taskId) {
+  const t = state.tasks.find(function (x) { return x.id === taskId; });
+  if (!t || t.completed) return;
+  pendingCompletionTaskId = taskId;
+  const titleEl = document.getElementById('completionModalTaskTitle');
+  const input = document.getElementById('completionCommentInput');
+  if (titleEl) titleEl.textContent = t.title || 'Untitled task';
+  if (input) input.value = t.completionComment || '';
+  openModal('completionModal');
+  setTimeout(function () {
+    if (input) input.focus();
+  }, 100);
+}
+
+function closeCompletionModal() {
+  pendingCompletionTaskId = null;
+  closeModal('completionModal');
+}
+
+function confirmCompletionModal() {
+  if (!pendingCompletionTaskId) {
+    closeCompletionModal();
+    return;
+  }
+  const input = document.getElementById('completionCommentInput');
+  const comment = input ? input.value : '';
+  const id = pendingCompletionTaskId;
+  closeCompletionModal();
+  completeTask(id, comment);
+  render();
+}
+
+function handleTaskCheckClick(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t) return;
+  if (t.completed) {
+    uncompleteTask(id);
+    render();
+    return;
+  }
+  if (state.completionCommentPrompt !== false) {
+    openCompletionModal(id);
+    return;
+  }
+  completeTask(id, '');
+  render();
 }
 
 function deleteTask(id) {
@@ -4858,6 +5009,7 @@ function taskHasSecondaryMeta(task, opts) {
   if (task.subtasks && task.subtasks.length) return true;
   if (task.hasPhoto) return true;
   if (getTaskLinkUrl(task)) return true;
+  if (task.completed && task.completionComment) return true;
   return false;
 }
 
@@ -5196,7 +5348,7 @@ function renderTaskRow(task, opts) {
   }
   const check = el('div', {
     class: 'task-check ' + priorityClass(task.priority),
-    onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
+    onClick: (e) => { e.stopPropagation(); handleTaskCheckClick(task.id); }
   });
   check.appendChild(taskCheckmark());
   row.appendChild(check);
@@ -5231,6 +5383,9 @@ function renderTaskRow(task, opts) {
   }
   appendTaskLinkPill(meta, task);
   if (meta.childNodes.length) body.appendChild(meta);
+  if (task.completed && task.completionComment) {
+    body.appendChild(el('div', { class: 'task-completion-note', text: task.completionComment }));
+  }
   row.appendChild(body);
   row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
   if (!inlineSubtasks) return row;
@@ -5380,7 +5535,7 @@ function renderMatrixTask(task) {
   });
   const check = el('div', {
     class: 'mtask-check ' + priorityClass(task.priority),
-    onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
+    onClick: (e) => { e.stopPropagation(); handleTaskCheckClick(task.id); }
   });
   node.appendChild(check);
   if (task.ams) {
@@ -7586,12 +7741,42 @@ function wireTaskEditor() {
   document.getElementById('taskPhotoRemoveBtn').addEventListener('click', removeTaskPhoto);
 }
 
+function wireCompletionModal() {
+  document.getElementById('completionModalClose').addEventListener('click', closeCompletionModal);
+  document.getElementById('completionCancelBtn').addEventListener('click', closeCompletionModal);
+  document.getElementById('completionConfirmBtn').addEventListener('click', confirmCompletionModal);
+  document.getElementById('completionModal').addEventListener('click', (e) => {
+    if (e.target.id === 'completionModal') closeCompletionModal();
+  });
+  const input = document.getElementById('completionCommentInput');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        confirmCompletionModal();
+      }
+    });
+  }
+}
+
 function wireSettings() {
-  document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    const promptCb = document.getElementById('completionCommentPromptInput');
+    if (promptCb) promptCb.checked = state.completionCommentPrompt !== false;
+    openModal('settingsModal');
+  });
   document.getElementById('settingsModalClose').addEventListener('click', () => closeModal('settingsModal'));
   document.getElementById('settingsModal').addEventListener('click', (e) => {
     if (e.target.id === 'settingsModal') closeModal('settingsModal');
   });
+
+  const completionPromptCb = document.getElementById('completionCommentPromptInput');
+  if (completionPromptCb) {
+    completionPromptCb.addEventListener('change', () => {
+      state.completionCommentPrompt = completionPromptCb.checked;
+      saveState();
+    });
+  }
 
   document.getElementById('exportBtn').addEventListener('click', exportBackup);
   document.getElementById('exportBtn2').addEventListener('click', exportBackup);
@@ -7756,6 +7941,7 @@ function init() {
   wireNav();
   wireQuickAdds();
   wireTaskEditor();
+  wireCompletionModal();
   wireSettings();
   wireBulkTag();
   wireCalendar();
