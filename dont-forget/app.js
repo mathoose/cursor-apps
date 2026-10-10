@@ -575,14 +575,29 @@
     }
   }
 
-  function openSaveSheet(blob) {
-    pendingPhotoBlob = blob;
-    pendingPreviewUrl = URL.createObjectURL(blob);
+  function updateSavePhotoUi() {
     var preview = document.getElementById('savePhotoPreview');
-    if (preview) {
-      preview.src = pendingPreviewUrl;
-      preview.hidden = false;
+    var addPhoto = document.getElementById('saveAddPhotoBtn');
+    var hasPhoto = !!pendingPhotoBlob;
+    if (addPhoto) addPhoto.hidden = hasPhoto;
+    if (preview && !hasPhoto) {
+      preview.hidden = true;
+      preview.removeAttribute('src');
     }
+  }
+
+  function openSaveSheet(blob) {
+    clearPendingPhoto();
+    if (blob) {
+      pendingPhotoBlob = blob;
+      pendingPreviewUrl = URL.createObjectURL(blob);
+      var preview = document.getElementById('savePhotoPreview');
+      if (preview) {
+        preview.src = pendingPreviewUrl;
+        preview.hidden = false;
+      }
+    }
+    updateSavePhotoUi();
     var what = document.getElementById('saveWhat');
     var where = document.getElementById('saveWhere');
     var saveBtn = document.getElementById('saveBtn');
@@ -591,6 +606,33 @@
     if (saveBtn) saveBtn.disabled = true;
     openOverlay('saveOverlay');
     setTimeout(function () { if (what) what.focus(); }, 200);
+  }
+
+  function promptPhotoForSaveSheet() {
+    if (typeof AppsPhotoPicker === 'undefined') return;
+    AppsPhotoPicker.prompt({
+      title: 'Add photo',
+      multiple: false,
+      onFiles: function (files) {
+        if (!files.length) return;
+        preparePhotoBlob(files[0]).then(function (blob) {
+          if (pendingPreviewUrl) {
+            URL.revokeObjectURL(pendingPreviewUrl);
+          }
+          pendingPhotoBlob = blob;
+          pendingPreviewUrl = URL.createObjectURL(blob);
+          var preview = document.getElementById('savePhotoPreview');
+          if (preview) {
+            preview.src = pendingPreviewUrl;
+            preview.hidden = false;
+          }
+          updateSavePhotoUi();
+        }).catch(function () {
+          toast('Could not process photo');
+        });
+      },
+      onInvalid: function () { toast('Please choose an image'); }
+    });
   }
 
   function closeSaveSheet() {
@@ -605,17 +647,8 @@
     if (saveBtn) saveBtn.disabled = !(what.trim() && where.trim());
   }
 
-  function saveItem() {
-    if (!pendingPhotoBlob) return;
-    var what = (document.getElementById('saveWhat') || {}).value || '';
-    var where = (document.getElementById('saveWhere') || {}).value || '';
-    what = what.trim();
-    where = where.trim();
-    if (!what || !where) return;
-
-    var id = newId();
-    var blob = pendingPhotoBlob;
-    putPhoto(id, blob).then(function () {
+  function persistNewItem(what, where, id, blob) {
+    function finish() {
       var added = L.addItem(getScopedData(), {
         id: id,
         name: what,
@@ -627,9 +660,25 @@
       closeSaveSheet();
       toast('Saved!');
       render();
-    }).catch(function () {
-      toast('Could not save photo');
-    });
+    }
+    if (blob) {
+      putPhoto(id, blob).then(finish).catch(function () {
+        toast('Could not save photo');
+      });
+    } else {
+      finish();
+    }
+  }
+
+  function saveItem() {
+    var what = (document.getElementById('saveWhat') || {}).value || '';
+    var where = (document.getElementById('saveWhere') || {}).value || '';
+    what = what.trim();
+    where = where.trim();
+    if (!what || !where) return;
+
+    var id = newId();
+    persistNewItem(what, where, id, pendingPhotoBlob);
   }
 
   /* ——— Detail ——— */
@@ -1258,21 +1307,32 @@
 
   function wireEvents() {
     document.getElementById('snapBtn').addEventListener('click', function () {
-      if (typeof AppsPhotoPicker === 'undefined') return;
+      if (typeof AppsPhotoPicker === 'undefined') {
+        openSaveSheet(null);
+        return;
+      }
       AppsPhotoPicker.prompt({
         title: 'Add photo',
         multiple: false,
         onFiles: function (files) {
-          if (!files.length) return;
+          if (!files.length) {
+            openSaveSheet(null);
+            return;
+          }
           preparePhotoBlob(files[0]).then(function (blob) {
             openSaveSheet(blob);
           }).catch(function () {
             toast('Could not process photo');
+            openSaveSheet(null);
           });
         },
         onInvalid: function () { toast('Please choose an image'); }
       });
     });
+    document.getElementById('logNoPhotoBtn').addEventListener('click', function () {
+      openSaveSheet(null);
+    });
+    document.getElementById('saveAddPhotoBtn').addEventListener('click', promptPhotoForSaveSheet);
 
     document.getElementById('saveWhat').addEventListener('input', updateSaveBtn);
     document.getElementById('saveWhere').addEventListener('input', updateSaveBtn);
