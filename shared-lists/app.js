@@ -339,7 +339,11 @@
     var repeat = L.repeatLabel(list.repeatDays);
     var meta = (repeat ? repeat + " · " : "") + c.open + " open";
     if (c.done) meta += " · " + c.done + " done";
-    return '<article class="note note-' + esc(list.size) + " tone-" + esc(list.color) + '"><button type="button" class="note-open" data-action="open-list" data-id="' + esc(list.id) + '"><span class="tape" aria-hidden="true"></span><strong>' + esc(L.displayTitle(list)) + '</strong><span class="note-meta">' + esc(meta) + '</span></button><button type="button" class="note-copy" data-action="copy-list" data-id="' + esc(list.id) + '">Copy</button></article>';
+    meta += " · Last " + L.formatLastChanged(list.updatedAt);
+    var blurb = list.cardNote
+      ? '<p class="note-blurb">' + esc(list.cardNote) + "</p>"
+      : "";
+    return '<article class="note note-small tone-' + esc(list.color) + '"><button type="button" class="note-open" data-action="open-list" data-id="' + esc(list.id) + '"><span class="tape" aria-hidden="true"></span><strong>' + esc(L.displayTitle(list)) + "</strong>" + blurb + '<span class="note-meta">' + esc(meta) + '</span></button><button type="button" class="note-copy" data-action="copy-list" data-id="' + esc(list.id) + '">Copy</button></article>';
   }
 
   function renderRoom() {
@@ -370,13 +374,32 @@
     $("roomLists").innerHTML = html;
   }
 
-  function itemRow(listId, it, showPriority) {
+  function stockBarHtml(listId, it) {
+    var level = it.stock || "none";
+    var label = it.stock === "low" ? "Low in fridge" : it.stock === "high" ? "Plenty in fridge" : it.stock === "medium" ? "Some left" : "Set fridge level";
+    return '<button type="button" class="stock-bar stock-' + esc(level) + '" data-action="cycle-stock" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + esc(label) + '"></button>';
+  }
+
+  function usualHtml(listId, it) {
+    function chip(val, label) {
+      var on = it.usual === val ? " on" : "";
+      return '<button type="button" class="usual-chip' + on + '" data-action="set-usual" data-usual="' + val + '" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + label + "</button>";
+    }
+    return '<span class="usual-row">' + chip("yes", "Buy") + chip("sometimes", "Sometimes") + chip("no", "Skip") + "</span>";
+  }
+
+  function itemRow(list, it, showPriority) {
+    var listId = list.id;
     var on = it.checked ? " on" : "";
     var done = it.checked ? " done" : "";
+    var sometimes = it.usual === "sometimes" && !it.checked ? " sometimes" : "";
     var priority = showPriority && !it.checked
       ? '<button type="button" class="priority-btn" data-action="to-priority" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Priority</button>'
       : "";
-    return '<div class="item-row' + done + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button><span class="item-text">' + esc(it.text) + "</span>" + priority + '<button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+    var grocery = L.isGroceryList(list)
+      ? stockBarHtml(listId, it) + usualHtml(listId, it)
+      : "";
+    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<span class="item-text">' + esc(it.text) + "</span>" + priority + '<button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
   }
 
   function stylePickerHtml(sel, live) {
@@ -424,26 +447,39 @@
     }
     var title = $("listTitle");
     if (document.activeElement !== title) title.value = list.title || "";
+    var cardNote = $("listCardNote");
+    if (document.activeElement !== cardNote) cardNote.value = list.cardNote || "";
     var paper = $("paper");
     paper.className = "paper tone-" + list.color + " paper-" + list.size;
     $("styleBar").innerHTML = stylePickerHtml({ color: list.color, size: list.size, days: list.repeatDays }, true);
     var c = L.counts(list);
     var repeat = L.repeatLabel(list.repeatDays);
-    $("listMeta").textContent = L.categoryLabel(list) + (repeat ? " · " + repeat : "") + " · " + c.open + " open · " + c.done + " done · " + (state.status || "");
+    $("listMeta").textContent = L.categoryLabel(list) + (repeat ? " · " + repeat : "") + " · " + c.open + " open · " + c.done + " done · Last " + L.formatLastChanged(list.updatedAt) + " · " + (state.status || "");
     var showPriority = L.listsForPriority(state.data, list.id, new Date()).length > 0;
-    var items = L.visibleItems(list.items);
+    var items = L.isGroceryList(list) ? L.shopItems(list) : L.visibleItems(list.items);
+    var skipped = L.isGroceryList(list)
+      ? L.visibleItems(list.items).filter(function (it) { return it.usual === "no"; })
+      : [];
     var open = items.filter(function (it) { return !it.checked; });
     var done = items.filter(function (it) { return it.checked; });
     var html = "";
-    if (!items.length) html = '<p class="empty">Nothing on this note yet.</p>';
+    if (!items.length && !skipped.length) html = '<p class="empty">Nothing on this note yet.</p>';
+    if (L.isGroceryList(list) && !items.length && skipped.length) {
+      html += '<p class="empty">Everything is set to Skip. Change Buy / Sometimes below.</p>';
+    }
     if (open.length) {
       html += '<div class="item-section">';
-      open.forEach(function (it) { html += itemRow(list.id, it, showPriority); });
+      open.forEach(function (it) { html += itemRow(list, it, showPriority); });
       html += "</div>";
     }
     if (done.length) {
       html += '<p class="section-label">Done</p><div class="item-section">';
-      done.forEach(function (it) { html += itemRow(list.id, it, false); });
+      done.forEach(function (it) { html += itemRow(list, it, false); });
+      html += "</div>";
+    }
+    if (skipped.length) {
+      html += '<p class="section-label">Not on our list</p><div class="item-section skipped-section">';
+      skipped.forEach(function (it) { html += itemRow(list, it, false); });
       html += "</div>";
     }
     $("itemList").innerHTML = html;
@@ -499,12 +535,36 @@
     $("sheetBody").innerHTML = sheet.html;
   }
 
+  function newListGroceryBlock() {
+    if (L.shouldOfferGroceryStarter(state.data)) {
+      return '<button type="button" class="btn btn-secondary" data-action="create-grocery-starter">Suggested grocery list (once per room)</button>';
+    }
+    if (L.groceryHistoryItems(state.data).length) {
+      return '<button type="button" class="btn btn-secondary" data-action="open-grocery-history">New grocery list from past trips</button>';
+    }
+    return '<p class="fine">Check items off on a grocery run and they will show up here for the next list.</p>';
+  }
+
+  function groceryHistorySheet() {
+    var history = L.groceryHistoryItems(state.data);
+    var rows = history.map(function (row) {
+      var when = formatWhen(row.checkedAt);
+      var meta = row.tripTitle + (when ? " · " + when : "");
+      if (row.times > 1) meta += " · " + row.times + "×";
+      return '<label class="check-row"><input type="checkbox" data-history-key="' + esc(row.key) + '" checked /> ' + esc(row.text) + ' <span class="fine">' + esc(meta) + "</span></label>";
+    }).join("");
+    openSheet({
+      kind: "grocery-history",
+      html: "<h2>Past groceries</h2><p>Checked-off items from earlier grocery lists in this room.</p>" + rows + '<label class="field-label" for="historyTitle">List name</label><input id="historyTitle" type="text" maxlength="80" placeholder="Grocery list" /><label class="field-label" for="historyCardNote">Desk slip note</label><textarea id="historyCardNote" rows="2" maxlength="280" placeholder="I\u2019m shopping after work ~5pm"></textarea><button type="button" class="btn btn-primary" data-action="create-grocery-from-history">Start list with selected</button>',
+    });
+  }
+
   function newListSheet() {
     var sheet = {
       kind: "new",
       category: "grocery",
       color: "butter",
-      size: "medium",
+      size: "small",
       days: [],
       html: "",
     };
@@ -512,7 +572,7 @@
       return '<button type="button" class="chip' + (cat.id === "grocery" ? " on" : "") + '" data-action="pick-cat" data-cat="' + cat.id + '">' + esc(cat.label) + "</button>";
     }).join("");
     chips += '<button type="button" class="chip" data-action="pick-cat" data-cat="custom">Other</button>';
-    sheet.html = '<h2>New note</h2><button type="button" class="btn btn-secondary" data-action="make-priority">Weekday priority</button><p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" />' + stylePickerHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
+    sheet.html = "<h2>New note</h2><button type=\"button\" class=\"btn btn-secondary\" data-action=\"make-priority\">Weekday priority</button>" + newListGroceryBlock() + '<p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" /><label class="field-label" for="newCardNote">Desk slip note</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="I\u2019m shopping after work ~5pm"></textarea>' + stylePickerHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
     openSheet(sheet);
   }
 
@@ -589,6 +649,14 @@
     }
     if (action === "open-list") { openList(id); return; }
     if (action === "copy-list") { copySheet(id); return; }
+    if (action === "cycle-stock") {
+      mutate(L.cycleItemStock(state.data, btn.getAttribute("data-list"), id));
+      return;
+    }
+    if (action === "set-usual") {
+      mutate(L.setItemUsual(state.data, btn.getAttribute("data-list"), id, btn.getAttribute("data-usual")));
+      return;
+    }
     if (action === "toggle") {
       mutate(L.toggleItem(state.data, btn.getAttribute("data-list"), id));
       return;
@@ -618,6 +686,52 @@
         mutate(many.data);
         toast("Added " + many.added);
       }
+      return;
+    }
+    if (action === "open-grocery-history") {
+      groceryHistorySheet();
+      return;
+    }
+    if (action === "create-grocery-starter") {
+      if (!L.shouldOfferGroceryStarter(state.data)) {
+        toast("Use past trips for the next grocery list");
+        return;
+      }
+      var note = $("newCardNote") ? $("newCardNote").value : "";
+      var title = $("newTitle") ? $("newTitle").value : "";
+      var started = L.createGroceryStarter(state.data, {
+        title: title,
+        cardNote: note,
+      });
+      closeSheet();
+      show("list");
+      mutate(started.data, started.list.id);
+      toast("Added " + started.list.items.length + " usual groceries");
+      return;
+    }
+    if (action === "create-grocery-from-history") {
+      var keys = [];
+      document.querySelectorAll("[data-history-key]").forEach(function (box) {
+        if (box.checked) keys.push(box.getAttribute("data-history-key"));
+      });
+      if (!keys.length) {
+        toast("Pick at least one item");
+        return;
+      }
+      var histTitle = $("historyTitle") ? $("historyTitle").value : "";
+      var histNote = $("historyCardNote") ? $("historyCardNote").value : "";
+      var fromPast = L.createGroceryFromHistory(state.data, {
+        title: histTitle,
+        cardNote: histNote,
+      }, keys);
+      if (!fromPast.list) {
+        toast("Nothing to add");
+        return;
+      }
+      closeSheet();
+      show("list");
+      mutate(fromPast.data, fromPast.list.id);
+      toast("Added " + fromPast.copied + " from past trips");
       return;
     }
     if (action === "make-priority") {
@@ -711,6 +825,7 @@
         return;
       }
       var title = $("newTitle") ? $("newTitle").value : "";
+      var deskNote = $("newCardNote") ? $("newCardNote").value : "";
       var created = L.createList(state.data, {
         category: category,
         customName: customName,
@@ -718,6 +833,7 @@
         color: state.sheet.color,
         size: state.sheet.size,
         repeatDays: state.sheet.days,
+        cardNote: deskNote,
       });
       closeSheet();
       show("list");
@@ -854,6 +970,15 @@
 
   $("listTitle").addEventListener("change", function () {
     mutate(L.setListTitle(state.data, state.listId, $("listTitle").value));
+  });
+
+  var cardNoteTimer = 0;
+  $("listCardNote").addEventListener("input", function () {
+    clearTimeout(cardNoteTimer);
+    cardNoteTimer = setTimeout(function () {
+      if (state.view !== "list" || !state.listId) return;
+      mutate(L.setListCardNote(state.data, state.listId, $("listCardNote").value), state.listId);
+    }, 450);
   });
 
   document.addEventListener("visibilitychange", function () {

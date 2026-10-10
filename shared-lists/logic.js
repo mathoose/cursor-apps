@@ -35,6 +35,13 @@
   var WEEKDAYS = ["mon", "tue", "wed", "thu", "fri"];
   var DAY_INDEX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
   var TOMBSTONE_MS = 30 * 24 * 60 * 60 * 1000;
+  var GROCERY_SUGGESTIONS = [
+    "Milk", "Eggs", "Bread", "Butter", "Cheese", "Yogurt", "Coffee", "Bananas", "Apples",
+    "Salad greens", "Onions", "Garlic", "Chicken", "Ground beef", "Pasta", "Rice",
+    "Cereal", "Orange juice", "Snacks", "Ice cream", "Toilet paper", "Paper towels",
+    "Dish soap", "Laundry detergent", "Trash bags",
+  ];
+  var STOCK_CYCLE = ["low", "medium", "high"];
 
   function stamp(value) {
     var t = Date.parse(value || "");
@@ -47,6 +54,20 @@
 
   function normalizeText(text) {
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 140);
+  }
+
+  function normalizeCardNote(text) {
+    return String(text || "").trim().replace(/\s+/g, " ").slice(0, 280);
+  }
+
+  function normalizeUsual(value) {
+    if (value === "sometimes" || value === "no") return value;
+    return "yes";
+  }
+
+  function normalizeStock(value) {
+    if (value === "low" || value === "medium" || value === "high") return value;
+    return null;
   }
 
   function normalizeKey(text) {
@@ -74,7 +95,33 @@
   }
 
   function emptyData() {
-    return { lists: [] };
+    return { lists: [], meta: { groceryStarterUsed: false } };
+  }
+
+  function normalizeMeta(raw, lists) {
+    var meta = raw && raw.meta && typeof raw.meta === "object" ? raw.meta : {};
+    var used = !!meta.groceryStarterUsed;
+    if (!used && lists && lists.length) {
+      var i;
+      for (i = 0; i < lists.length; i++) {
+        if (lists[i].category === "grocery") {
+          used = true;
+          break;
+        }
+      }
+    }
+    if (!used && raw && Array.isArray(raw.lists)) {
+      raw.lists.forEach(function (list) {
+        if (list && list.category === "grocery") used = true;
+      });
+    }
+    return { groceryStarterUsed: used };
+  }
+
+  function withMeta(data, patch) {
+    var next = normalizeData(data);
+    next.meta = Object.assign({}, next.meta, patch || {});
+    return next;
   }
 
   function categoryLabel(list) {
@@ -105,6 +152,8 @@
       id: String(it.id),
       text: text,
       checked: checked,
+      usual: normalizeUsual(it.usual),
+      stock: normalizeStock(it.stock),
       createdAt: it.createdAt || new Date().toISOString(),
       updatedAt: it.updatedAt || it.createdAt || new Date().toISOString(),
       checkedAt: checked ? (it.checkedAt || it.updatedAt || null) : null,
@@ -127,8 +176,8 @@
   }
 
   function normalizeSize(size) {
-    if (size === "small" || size === "large") return size;
-    return "medium";
+    if (size === "medium" || size === "large") return size;
+    return "small";
   }
 
   function normalizeRepeatDays(days) {
@@ -188,11 +237,45 @@
       color: normalizeColor(list.color, id),
       size: normalizeSize(list.size),
       repeatDays: normalizeRepeatDays(list.repeatDays),
+      cardNote: normalizeCardNote(list.cardNote),
       createdAt: list.createdAt || new Date().toISOString(),
       updatedAt: list.updatedAt || list.createdAt || new Date().toISOString(),
       deletedAt: list.deletedAt || null,
       items: items,
     };
+  }
+
+  function formatLastChanged(iso, nowMs) {
+    var t = stamp(iso);
+    if (!t) return "";
+    var now = typeof nowMs === "number" ? nowMs : Date.now();
+    var diff = now - t;
+    if (diff < 45000) return "just now";
+    if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
+    if (diff < 86400000) return Math.floor(diff / 3600000) + "h ago";
+    if (diff < 604800000) return Math.floor(diff / 86400000) + "d ago";
+    try {
+      return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function isGroceryList(list) {
+    return !!(list && list.category === "grocery");
+  }
+
+  function shopItems(list) {
+    return visibleItems(list && list.items).filter(function (it) {
+      return it.usual !== "no";
+    });
+  }
+
+  function nextStock(stock) {
+    var cur = normalizeStock(stock);
+    if (!cur) return "low";
+    var i = STOCK_CYCLE.indexOf(cur);
+    return STOCK_CYCLE[(i + 1) % STOCK_CYCLE.length];
   }
 
   function normalizeData(raw) {
@@ -202,7 +285,49 @@
       var row = normalizeList(list);
       if (row) lists.push(row);
     });
-    return { lists: lists };
+    return { lists: lists, meta: normalizeMeta(data, lists) };
+  }
+
+  function shouldOfferGroceryStarter(data) {
+    return !normalizeData(data).meta.groceryStarterUsed;
+  }
+
+  function groceryHistoryItems(data) {
+    var map = {};
+    normalizeData(data).lists.forEach(function (list) {
+      if (list.category !== "grocery") return;
+      var listTitle = displayTitle(list);
+      var tripAt = list.updatedAt;
+      (list.items || []).forEach(function (it) {
+        if (!it || it.deletedAt || !it.checked) return;
+        var key = normalizeKey(it.text);
+        var checkedAt = it.checkedAt || it.updatedAt;
+        if (!map[key]) {
+          map[key] = {
+            key: key,
+            text: it.text,
+            usual: it.usual,
+            stock: it.stock,
+            checkedAt: checkedAt,
+            tripTitle: listTitle,
+            tripAt: tripAt,
+            times: 1,
+          };
+          return;
+        }
+        map[key].times += 1;
+        if (stamp(checkedAt) >= stamp(map[key].checkedAt)) {
+          map[key].checkedAt = checkedAt;
+          map[key].usual = it.usual;
+          map[key].stock = it.stock;
+          map[key].tripTitle = listTitle;
+          map[key].tripAt = tripAt;
+        }
+      });
+    });
+    return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
+      return stamp(b.checkedAt) - stamp(a.checkedAt);
+    });
   }
 
   function canonical(raw) {
@@ -272,6 +397,7 @@
       color: opts.color,
       size: opts.size,
       repeatDays: opts.repeatDays,
+      cardNote: opts.cardNote,
       createdAt: now,
       updatedAt: now,
       deletedAt: null,
@@ -289,9 +415,131 @@
       if (patch.color) list.color = normalizeColor(patch.color, list.id);
       if (patch.size) list.size = normalizeSize(patch.size);
       if (Array.isArray(patch.repeatDays)) list.repeatDays = normalizeRepeatDays(patch.repeatDays);
+      if (typeof patch.cardNote === "string") list.cardNote = normalizeCardNote(patch.cardNote);
       list.updatedAt = now;
       return list;
     });
+  }
+
+  function setListCardNote(data, listId, note, now) {
+    return setListStyle(data, listId, { cardNote: note }, now);
+  }
+
+  function setItemUsual(data, listId, itemId, usual, now) {
+    now = now || new Date().toISOString();
+    return mapList(data, listId, function (list) {
+      list.items = list.items.map(function (it) {
+        if (it.id !== itemId || it.deletedAt) return it;
+        it.usual = normalizeUsual(usual);
+        it.updatedAt = now;
+        return it;
+      });
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
+  function setItemStock(data, listId, itemId, stock, now) {
+    now = now || new Date().toISOString();
+    return mapList(data, listId, function (list) {
+      list.items = list.items.map(function (it) {
+        if (it.id !== itemId || it.deletedAt) return it;
+        it.stock = normalizeStock(stock);
+        it.updatedAt = now;
+        return it;
+      });
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
+  function cycleItemStock(data, listId, itemId, now) {
+    var list = findList(data, listId);
+    if (!list) return normalizeData(data);
+    var item = null;
+    list.items.forEach(function (it) {
+      if (it.id === itemId) item = it;
+    });
+    if (!item) return normalizeData(data);
+    return setItemStock(data, listId, itemId, nextStock(item.stock), now);
+  }
+
+  function createGroceryStarter(data, opts) {
+    opts = opts || {};
+    var now = opts.now || new Date().toISOString();
+    var nowMs = stamp(now);
+    var created = createList(data, {
+      id: opts.id,
+      category: "grocery",
+      title: opts.title || "Grocery list",
+      color: opts.color || "butter",
+      size: "small",
+      cardNote: opts.cardNote || "",
+      now: now,
+    });
+    var items = [];
+    GROCERY_SUGGESTIONS.forEach(function (text, index) {
+      var when = new Date(nowMs - index * 1000).toISOString();
+      items.push(normalizeItem({
+        id: uid(),
+        text: text,
+        checked: false,
+        usual: "yes",
+        stock: "medium",
+        createdAt: when,
+        updatedAt: when,
+        checkedAt: null,
+        deletedAt: null,
+      }));
+    });
+    created.list.items = items;
+    created.list.updatedAt = now;
+    created.data = mapList(created.data, created.list.id, function () { return created.list; });
+    created.data = withMeta(created.data, { groceryStarterUsed: true });
+    return created;
+  }
+
+  function createGroceryFromHistory(data, opts, keys) {
+    opts = opts || {};
+    var history = groceryHistoryItems(data);
+    var pick = null;
+    if (keys) {
+      pick = {};
+      keys.forEach(function (k) { pick[k] = true; });
+    }
+    var chosen = history.filter(function (row) { return !pick || pick[row.key]; });
+    if (!chosen.length) return { data: normalizeData(data), list: null, copied: 0 };
+    var now = opts.now || new Date().toISOString();
+    var nowMs = stamp(now);
+    var created = createList(data, {
+      id: opts.id,
+      category: "grocery",
+      title: opts.title || "Grocery list",
+      color: opts.color || "butter",
+      size: "small",
+      cardNote: opts.cardNote,
+      now: now,
+    });
+    var items = [];
+    chosen.forEach(function (row, index) {
+      var when = new Date(nowMs - index * 1000).toISOString();
+      items.push(normalizeItem({
+        id: uid(),
+        text: row.text,
+        checked: false,
+        usual: row.usual,
+        stock: row.stock,
+        createdAt: when,
+        updatedAt: when,
+        checkedAt: null,
+        deletedAt: null,
+      }));
+    });
+    created.list.items = items;
+    created.list.updatedAt = now;
+    created.data = mapList(created.data, created.list.id, function () { return created.list; });
+    created.data = withMeta(created.data, { groceryStarterUsed: true });
+    return { data: created.data, list: created.list, copied: items.length };
   }
 
   function listsForPriority(data, excludeId, date) {
@@ -459,6 +707,7 @@
       color: source.color,
       size: source.size,
       repeatDays: source.repeatDays,
+      cardNote: source.cardNote,
       now: now,
     });
     created.list.items = cloneItemsUnchecked(chosen, now, opts.itemId);
@@ -550,6 +799,7 @@
         color: shell.color,
         size: shell.size,
         repeatDays: shell.repeatDays,
+        cardNote: shell.cardNote,
         createdAt: shell.createdAt,
         updatedAt: shell.updatedAt,
         deletedAt: shell.deletedAt,
@@ -558,7 +808,16 @@
     }
     (a && a.lists || []).forEach(take);
     (b && b.lists || []).forEach(take);
-    return { lists: Object.keys(map).map(function (id) { return map[id]; }) };
+    var lists = Object.keys(map).map(function (id) { return map[id]; });
+    return {
+      lists: lists,
+      meta: normalizeMeta({
+        meta: {
+          groceryStarterUsed: !!((a && a.meta && a.meta.groceryStarterUsed) || (b && b.meta && b.meta.groceryStarterUsed)),
+        },
+        lists: lists,
+      }, lists),
+    };
   }
 
   function pruneData(raw, nowMs) {
@@ -585,6 +844,7 @@
     SIZES: SIZES,
     DAYS: DAYS,
     WEEKDAYS: WEEKDAYS,
+    GROCERY_SUGGESTIONS: GROCERY_SUGGESTIONS,
     repeatLabel: repeatLabel,
     dayId: dayId,
     repeatsOn: repeatsOn,
@@ -606,8 +866,19 @@
     visibleItems: visibleItems,
     counts: counts,
     createList: createList,
+    createGroceryStarter: createGroceryStarter,
+    createGroceryFromHistory: createGroceryFromHistory,
+    shouldOfferGroceryStarter: shouldOfferGroceryStarter,
+    groceryHistoryItems: groceryHistoryItems,
     setListStyle: setListStyle,
+    setListCardNote: setListCardNote,
+    setItemUsual: setItemUsual,
+    setItemStock: setItemStock,
+    cycleItemStock: cycleItemStock,
     setListTitle: setListTitle,
+    formatLastChanged: formatLastChanged,
+    isGroceryList: isGroceryList,
+    shopItems: shopItems,
     deleteList: deleteList,
     addItem: addItem,
     toggleItem: toggleItem,
