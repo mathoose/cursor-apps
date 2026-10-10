@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var L = window.DontForgetLogic;
+  var R = window.DontForgetRooms;
   var STORAGE_KEY = 'dont-forget-v1';
   var PHOTO_DB = 'dont-forget-photos-v1';
   var PHOTO_STORE = 'photos';
@@ -14,27 +16,26 @@
   var detailPhotoUrl = null;
   var thumbCache = {};
   var thumbPending = {};
+  var pendingRoomCode = '';
+  var pendingRoomPinMode = 'enter';
 
   /* ——— State ——— */
 
   function newId() {
-    return 'item-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+    return L.uid();
   }
 
   function defaultState() {
-    return { version: 1, items: [] };
+    return { version: 2, profile: { displayName: '' }, items: [] };
   }
 
   function normalizeState(raw) {
     var st = raw && typeof raw === 'object' ? raw : defaultState();
-    if (!Array.isArray(st.items)) st.items = [];
-    st.version = 1;
-    st.items = st.items.filter(function (it) {
-      return it && it.id && it.name && it.location && it.recordedAt;
-    });
-    st.items.sort(function (a, b) {
-      return new Date(b.recordedAt) - new Date(a.recordedAt);
-    });
+    if (!st.profile || typeof st.profile !== 'object') st.profile = { displayName: '' };
+    st.profile.displayName = L.normalizeDisplayName(st.profile.displayName);
+    var data = L.normalizeData({ items: st.items || [] });
+    st.version = 2;
+    st.items = data.items;
     return st;
   }
 
@@ -52,9 +53,40 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizeState(st)));
   }
 
-  function hasPhoto(itemId) {
+  function getDisplayName() {
+    return L.normalizeDisplayName(getState().profile.displayName);
+  }
+
+  function setDisplayName(name) {
     var st = getState();
-    return st.items.some(function (it) { return it.id === itemId; });
+    st.profile.displayName = L.normalizeDisplayName(name);
+    saveState(st);
+    updateNameGate();
+    updateScopeUi();
+  }
+
+  function getScopedData() {
+    if (R.isRoomActive()) return R.getRoomData();
+    return { items: getState().items };
+  }
+
+  function setScopedData(data) {
+    var normalized = L.normalizeData(data);
+    if (R.isRoomActive()) {
+      R.mutateRoom(normalized);
+    } else {
+      var st = getState();
+      st.items = normalized.items;
+      saveState(st);
+    }
+  }
+
+  function activeItems() {
+    return L.activeItems(getScopedData());
+  }
+
+  function hasPhoto(itemId) {
+    return activeItems().some(function (it) { return it.id === itemId; });
   }
 
   /* ——— IndexedDB ——— */
@@ -345,6 +377,38 @@
     return out;
   }
 
+  function uniqueLocationSuggestions() {
+    return L.uniqueLocations(getScopedData());
+  }
+
+  function updateScopeUi() {
+    var pill = document.getElementById('scopePill');
+    var subtitle = document.getElementById('headerSubtitle');
+    var syncNote = document.getElementById('roomSyncNote');
+    var scope = R.getScope();
+    if (pill) {
+      pill.hidden = false;
+      pill.textContent = scope.mode === 'room' ? scope.code : 'Just me';
+      pill.classList.toggle('is-room', scope.mode === 'room');
+    }
+    if (subtitle && currentView === 'store') {
+      if (scope.mode === 'room') {
+        subtitle.textContent = 'Room ' + scope.code + ' · synced list';
+      } else {
+        subtitle.textContent = 'Snap where you left it';
+      }
+    }
+    if (syncNote) {
+      if (scope.mode === 'room') {
+        syncNote.textContent = R.getStatus() || 'Synced';
+      } else {
+        syncNote.textContent = R.hasSync()
+          ? 'Use a shared room so you both see the same items. Photos stay on each phone.'
+          : 'Add Supabase config to enable shared rooms (see dont-forget/supabase.sql).';
+      }
+    }
+  }
+
   /* ——— UI helpers ——— */
 
   function toast(msg) {
@@ -409,7 +473,9 @@
     name.textContent = item.name;
     var meta = document.createElement('div');
     meta.className = 'item-row-meta';
-    meta.textContent = item.location + ' · ' + formatRelativeTime(item.recordedAt);
+    var who = item.history && item.history[0] && item.history[0].by
+      ? (' · ' + item.history[0].by) : '';
+    meta.textContent = item.location + ' · ' + formatRelativeTime(item.recordedAt) + who;
     body.appendChild(name);
     body.appendChild(meta);
     btn.appendChild(body);
@@ -446,8 +512,8 @@
   }
 
   function render() {
-    var st = getState();
-    var recent = st.items.slice(0, RECENT_LIMIT);
+    var items = activeItems();
+    var recent = items.slice(0, RECENT_LIMIT);
     renderList('storeRecentList', recent, 'storeEmpty');
 
     var query = (document.getElementById('findSearch') || {}).value || '';
@@ -457,27 +523,28 @@
     var findEmptyText = document.getElementById('findEmptyText');
 
     if (query) {
-      findItems = st.items.filter(function (it) {
+      findItems = items.filter(function (it) {
         return it.name.toLowerCase().indexOf(query) >= 0;
       });
       if (findLabel) findLabel.textContent = findItems.length ? 'Results' : 'No matches';
       if (findEmptyText) findEmptyText.textContent = 'Nothing matches "' + query + '"';
     } else {
-      findItems = st.items;
+      findItems = items;
       if (findLabel) findLabel.textContent = 'Recent';
       if (findEmptyText) findEmptyText.textContent = 'No items yet. Switch to Store to log something.';
     }
     renderList('findList', findItems, 'findEmpty');
 
-    updateDatalists(st);
+    updateDatalists(items);
+    updateScopeUi();
   }
 
-  function updateDatalists(st) {
+  function updateDatalists(items) {
     var names = document.getElementById('nameSuggestions');
     var locs = document.getElementById('locationSuggestions');
     if (names) {
       names.innerHTML = '';
-      uniqueValues(st.items, 'name').forEach(function (n) {
+      uniqueValues(items, 'name').forEach(function (n) {
         var opt = document.createElement('option');
         opt.value = n;
         names.appendChild(opt);
@@ -485,7 +552,7 @@
     }
     if (locs) {
       locs.innerHTML = '';
-      uniqueValues(st.items, 'location').forEach(function (l) {
+      uniqueLocationSuggestions().forEach(function (l) {
         var opt = document.createElement('option');
         opt.value = l;
         locs.appendChild(opt);
@@ -547,18 +614,15 @@
     if (!what || !where) return;
 
     var id = newId();
-    var item = {
-      id: id,
-      name: what,
-      location: where,
-      recordedAt: new Date().toISOString()
-    };
-
     var blob = pendingPhotoBlob;
     putPhoto(id, blob).then(function () {
-      var st = getState();
-      st.items.unshift(item);
-      saveState(st);
+      var added = L.addItem(getScopedData(), {
+        id: id,
+        name: what,
+        location: where,
+        by: getDisplayName(),
+      });
+      setScopedData(added.data);
       invalidateThumb(id);
       closeSaveSheet();
       toast('Saved!');
@@ -577,9 +641,26 @@
     }
   }
 
+  function formatHistoryLine(entry, isLatest) {
+    var who = entry.by ? (' · ' + entry.by) : '';
+    var prefix = isLatest ? 'Last change' : 'Was';
+    return prefix + ' ' + formatFriendlyDate(entry.at) + who + ' → ' + entry.location;
+  }
+
+  function updateDetailMoveBtn() {
+    var item = detailItemId ? L.findItem(getScopedData(), detailItemId) : null;
+    var where = (document.getElementById('detailWhere') || {}).value || '';
+    where = where.trim();
+    var btn = document.getElementById('detailMoveBtn');
+    if (!btn || !item) {
+      if (btn) btn.disabled = true;
+      return;
+    }
+    btn.disabled = !where || where.toLowerCase() === item.location.toLowerCase();
+  }
+
   function openDetail(itemId) {
-    var st = getState();
-    var item = st.items.find(function (it) { return it.id === itemId; });
+    var item = L.findItem(getScopedData(), itemId);
     if (!item) return;
 
     detailItemId = itemId;
@@ -587,9 +668,14 @@
     var title = document.getElementById('detailTitle');
     var badges = document.getElementById('detailBadges');
     var photoWrap = document.getElementById('detailPhotoWrap');
+    var historyEl = document.getElementById('detailHistory');
+    var whereInput = document.getElementById('detailWhere');
 
     if (title) title.textContent = item.name;
+    if (whereInput) whereInput.value = '';
     if (badges) {
+      var latest = item.history && item.history[0];
+      var byLine = latest && latest.by ? (' · ' + escapeHtml(latest.by)) : '';
       badges.innerHTML =
         '<span class="badge">' +
           '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
@@ -597,9 +683,25 @@
         '</span>' +
         '<span class="badge date">' +
           '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
-          escapeHtml(formatFriendlyDate(item.recordedAt)) +
+          escapeHtml(formatFriendlyDate(item.recordedAt)) + byLine +
         '</span>';
     }
+    if (historyEl) {
+      var prev = L.previousLocations(item);
+      if (!prev.length) {
+        historyEl.hidden = true;
+        historyEl.innerHTML = '';
+      } else {
+        historyEl.hidden = false;
+        var html = '<p class="section-label">Previously seen</p><ul class="history-list">';
+        prev.forEach(function (entry) {
+          html += '<li>' + escapeHtml(formatHistoryLine(entry, false)) + '</li>';
+        });
+        html += '</ul>';
+        historyEl.innerHTML = html;
+      }
+    }
+    updateDetailMoveBtn();
     if (photoWrap) {
       photoWrap.innerHTML = '<span class="detail-photo-loading">Loading photo…</span>';
     }
@@ -636,24 +738,40 @@
     revokeDetailPhoto();
   }
 
+  function saveDetailLocation() {
+    if (!detailItemId) return;
+    var where = (document.getElementById('detailWhere') || {}).value || '';
+    where = where.trim();
+    if (!where) return;
+    var moved = L.updateLocation(getScopedData(), detailItemId, where, getDisplayName());
+    if (!moved.item) return;
+    setScopedData(moved.data);
+    toast('Location updated');
+    openDetail(detailItemId);
+    render();
+  }
+
   function deleteDetailItem() {
     if (!detailItemId) return;
-    var st = getState();
-    var item = st.items.find(function (it) { return it.id === detailItemId; });
+    var item = L.findItem(getScopedData(), detailItemId);
     if (!item) return;
     if (!confirm('Delete "' + item.name + '"?')) return;
 
     var id = detailItemId;
     deletePhoto(id).then(function () {
-      var state = getState();
-      state.items = state.items.filter(function (it) { return it.id !== id; });
-      saveState(state);
+      var next = L.deleteItem(getScopedData(), id);
+      setScopedData(next);
       invalidateThumb(id);
       closeDetail();
       toast('Deleted');
       render();
     }).catch(function () {
-      toast('Could not delete');
+      var next = L.deleteItem(getScopedData(), id);
+      setScopedData(next);
+      invalidateThumb(id);
+      closeDetail();
+      toast('Deleted');
+      render();
     });
   }
 
@@ -798,15 +916,15 @@
   function exportPhotosZip() {
     var btn = document.getElementById('exportPhotosBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Zipping…'; }
-    var st = getState();
-    if (!st.items.length) {
+    var items = activeItems();
+    if (!items.length) {
       toast('No items to export');
       if (btn) { btn.disabled = false; btn.textContent = 'Export photos (ZIP)'; }
       return;
     }
     var usedNames = {};
     var manifestPhotos = [];
-    var tasks = st.items.map(function (item) {
+    var tasks = items.map(function (item) {
       return getPhotoBlob(item.id).then(function (blob) {
         if (!blob) return null;
         var ext = blobExtension(blob);
@@ -836,7 +954,8 @@
         toast('No photos on this device');
         return null;
       }
-      var snapshot = JSON.parse(JSON.stringify(st));
+      var snapshot = JSON.parse(JSON.stringify(getState()));
+      snapshot.items = items;
       zipEntries.unshift({
         name: 'manifest.json',
         data: new TextEncoder().encode(JSON.stringify({
@@ -862,22 +981,23 @@
   }
 
   function mergeItemFromPhotoMeta(photo) {
-    var st = getState();
-    var item = st.items.find(function (it) { return it.id === photo.itemId; });
+    var data = getScopedData();
+    var item = L.findItem(data, photo.itemId);
     if (!item) {
-      item = {
+      var added = L.addItem(data, {
         id: photo.itemId || newId(),
         name: photo.name || 'Imported item',
         location: photo.location || 'Unknown',
-        recordedAt: photo.recordedAt || new Date().toISOString()
-      };
-      st.items.unshift(item);
-    } else {
-      if (photo.name) item.name = photo.name;
-      if (photo.location) item.location = photo.location;
-      if (photo.recordedAt) item.recordedAt = photo.recordedAt;
+        by: getDisplayName(),
+        now: photo.recordedAt || new Date().toISOString(),
+      });
+      setScopedData(added.data);
+      return added.item.id;
     }
-    saveState(st);
+    if (photo.location && photo.location !== item.location) {
+      var moved = L.updateLocation(data, item.id, photo.location, getDisplayName(), photo.recordedAt);
+      setScopedData(moved.data);
+    }
     return item.id;
   }
 
@@ -959,17 +1079,11 @@
           return;
         }
         var existing = getState();
-        var itemIds = {};
-        existing.items.forEach(function (it) { itemIds[it.id] = true; });
-        var added = 0;
-        slice.items.forEach(function (it) {
-          if (!itemIds[it.id]) {
-            existing.items.push(it);
-            itemIds[it.id] = true;
-            added++;
-          }
-        });
+        var merged = L.mergeData({ items: existing.items }, L.normalizeData(slice));
+        var before = existing.items.length;
+        existing.items = merged.items;
         saveState(normalizeState(existing));
+        var added = Math.max(0, merged.items.length - before);
         toast(added ? ('Added ' + added + ' item' + (added === 1 ? '' : 's')) : 'No new items to add');
         render();
       } catch (e) {
@@ -977,6 +1091,167 @@
       }
     };
     reader.readAsText(file);
+  }
+
+  /* ——— Name & rooms ——— */
+
+  function updateNameGate() {
+    var overlay = document.getElementById('nameOverlay');
+    var input = document.getElementById('nameInput');
+    var saveBtn = document.getElementById('nameSaveBtn');
+    var has = !!getDisplayName();
+    if (overlay) overlay.classList.toggle('open', !has);
+    if (has && input && !input.value) input.value = getDisplayName();
+    if (saveBtn) saveBtn.disabled = !(input && L.normalizeDisplayName(input.value));
+  }
+
+  function showRoomsSubview(which) {
+    ['roomsViewPrivate', 'roomsViewJoin', 'roomsViewPin'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.hidden = id !== 'roomsView' + which.charAt(0).toUpperCase() + which.slice(1);
+    });
+    if (which === 'private') renderSavedRoomsList();
+  }
+
+  function renderSavedRoomsList() {
+    var host = document.getElementById('savedRoomsList');
+    if (!host) return;
+    var codes = R.listSavedRooms();
+    var scope = R.getScope();
+    var html = '';
+    codes.forEach(function (code) {
+      var meta = R.savedRoomMeta(code);
+      if (!meta) return;
+      var on = scope.mode === 'room' && scope.code === code;
+      html += '<button type="button" class="room-choice' + (on ? ' on' : '') + '" data-action="open-room" data-code="' + escapeHtml(code) + '">' +
+        '<strong>' + escapeHtml(code) + '</strong>' +
+        '<span class="room-choice-meta">' + meta.count + (meta.count === 1 ? ' item' : ' items') + '</span></button>' +
+        '<button type="button" class="room-forget" data-action="forget-room" data-code="' + escapeHtml(code) + '">Forget on this phone</button>';
+    });
+    host.innerHTML = html;
+    var pickPrivate = document.getElementById('pickPrivateBtn');
+    if (pickPrivate) pickPrivate.classList.toggle('on', scope.mode === 'private');
+  }
+
+  function openRoomsOverlay() {
+    if (!R.hasSync()) {
+      toast('Shared rooms need Supabase — see Settings note');
+    }
+    pendingRoomCode = '';
+    showRoomsSubview('private');
+    openOverlay('roomsOverlay');
+  }
+
+  function closeRoomsOverlay() {
+    closeOverlay('roomsOverlay');
+  }
+
+  function beginJoinRoom() {
+    if (!R.hasSync()) {
+      toast('Add Supabase config first (dont-forget/config.js)');
+      return;
+    }
+    pendingRoomCode = '';
+    var input = document.getElementById('roomCodeInput');
+    if (input) input.value = '';
+    showRoomsSubview('join');
+  }
+
+  function continueRoomCode() {
+    var code = L.normalizeCode((document.getElementById('roomCodeInput') || {}).value);
+    var err = L.codeError(code);
+    if (err) {
+      toast(err);
+      return;
+    }
+    pendingRoomCode = code;
+    R.roomStatus(code).then(function (status) {
+      pendingRoomPinMode = status === 'new' ? 'create' : 'enter';
+      var creating = pendingRoomPinMode === 'create';
+      var copy = document.getElementById('roomPinCopy');
+      var label = document.getElementById('roomPinLabel');
+      var confirmWrap = document.getElementById('roomPinConfirmWrap');
+      var submit = document.getElementById('roomPinSubmit');
+      if (copy) {
+        copy.textContent = creating
+          ? 'Room ' + code + ' is new. Pick a PIN you’ll both remember.'
+          : 'Room ' + code + ' already exists. Enter the PIN from the first phone.';
+      }
+      if (label) label.textContent = creating ? 'New PIN' : 'PIN';
+      if (confirmWrap) confirmWrap.hidden = !creating;
+      if (submit) submit.textContent = creating ? 'Create room' : 'Open room';
+      var pinInput = document.getElementById('roomPinInput');
+      var pinConfirm = document.getElementById('roomPinConfirm');
+      if (pinInput) pinInput.value = '';
+      if (pinConfirm) pinConfirm.value = '';
+      var hint = document.getElementById('roomPinHint');
+      if (hint) hint.textContent = '';
+      showRoomsSubview('pin');
+      if (pinInput) pinInput.focus();
+    }).catch(function (err) {
+      toast(R.explainSyncError(err));
+    });
+  }
+
+  function submitRoomPin() {
+    var code = pendingRoomCode;
+    if (!code) return;
+    var pin = L.normalizePin((document.getElementById('roomPinInput') || {}).value);
+    var err = L.pinError(pin);
+    if (err) {
+      toast(err);
+      return;
+    }
+    if (pendingRoomPinMode === 'create') {
+      var confirm = L.normalizePin((document.getElementById('roomPinConfirm') || {}).value);
+      if (pin !== confirm) {
+        toast('PINs don’t match');
+        return;
+      }
+      R.createRoom(code, pin, L.emptyData()).then(function (res) {
+        if (res && res.status === 'ok') {
+          R.enterRoom(code, pin, res.revision, res.data);
+          closeRoomsOverlay();
+          toast('Room ' + code + ' ready');
+          render();
+        } else if (res && res.status === 'exists') {
+          pendingRoomPinMode = 'enter';
+          toast('Someone just created that code — enter their PIN');
+          continueRoomCode();
+        } else {
+          toast('Could not create room');
+        }
+      }).catch(function (e) {
+        toast(R.explainSyncError(e));
+      });
+      return;
+    }
+    R.openRoom(code, pin).then(function (res) {
+      if (res && res.status === 'ok') {
+        R.enterRoom(code, pin, res.revision, res.data);
+        closeRoomsOverlay();
+        toast('Opened ' + code);
+        render();
+      } else if (res && res.status === 'bad_pin') {
+        toast('That PIN doesn’t match');
+      } else if (res && res.status === 'new') {
+        pendingRoomPinMode = 'create';
+        toast('That code is new — set a PIN');
+        continueRoomCode();
+      } else {
+        toast('Could not open room');
+      }
+    }).catch(function (e) {
+      toast(R.explainSyncError(e));
+    });
+  }
+
+  function openSavedRoom(code) {
+    var meta = R.savedRoomMeta(code);
+    if (!meta || !meta.pin) return;
+    R.enterRoom(code, meta.pin, meta.revision, meta.data);
+    closeRoomsOverlay();
+    render();
   }
 
   /* ——— Wire events ——— */
@@ -1025,12 +1300,34 @@
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
     document.getElementById('detailCloseBtn2').addEventListener('click', closeDetail);
     document.getElementById('detailDeleteBtn').addEventListener('click', deleteDetailItem);
+    document.getElementById('detailMoveBtn').addEventListener('click', saveDetailLocation);
+    document.getElementById('detailWhere').addEventListener('input', updateDetailMoveBtn);
+    document.getElementById('detailWhere').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('detailMoveBtn');
+        if (btn && !btn.disabled) saveDetailLocation();
+      }
+    });
     document.getElementById('detailOverlay').addEventListener('click', function (e) {
       if (e.target === this) closeDetail();
     });
 
+    document.getElementById('scopePill').addEventListener('click', openRoomsOverlay);
+
     document.getElementById('settingsBtn').addEventListener('click', function () {
+      var nameField = document.getElementById('settingsDisplayName');
+      if (nameField) nameField.value = getDisplayName();
+      updateScopeUi();
       openOverlay('settingsOverlay');
+    });
+    document.getElementById('settingsDisplayName').addEventListener('change', function () {
+      setDisplayName(this.value);
+      toast('Name saved');
+    });
+    document.getElementById('openRoomsBtn').addEventListener('click', function () {
+      closeOverlay('settingsOverlay');
+      openRoomsOverlay();
     });
     document.getElementById('settingsCloseBtn').addEventListener('click', function () {
       closeOverlay('settingsOverlay');
@@ -1053,6 +1350,51 @@
     });
     document.getElementById('clearPhotosBtn').addEventListener('click', clearPhotosFromDevice);
 
+    document.getElementById('nameInput').addEventListener('input', function () {
+      var btn = document.getElementById('nameSaveBtn');
+      if (btn) btn.disabled = !L.normalizeDisplayName(this.value);
+    });
+    document.getElementById('nameSaveBtn').addEventListener('click', function () {
+      var val = L.normalizeDisplayName((document.getElementById('nameInput') || {}).value);
+      if (!val) return;
+      setDisplayName(val);
+      toast('Welcome, ' + val);
+    });
+    document.getElementById('nameInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !document.getElementById('nameSaveBtn').disabled) {
+        document.getElementById('nameSaveBtn').click();
+      }
+    });
+
+    document.getElementById('roomsCloseBtn').addEventListener('click', closeRoomsOverlay);
+    document.getElementById('roomsOverlay').addEventListener('click', function (e) {
+      if (e.target === this) closeRoomsOverlay();
+    });
+    document.getElementById('joinRoomBtn').addEventListener('click', beginJoinRoom);
+    document.getElementById('roomCodeContinue').addEventListener('click', continueRoomCode);
+    document.getElementById('roomJoinBack').addEventListener('click', function () { showRoomsSubview('private'); });
+    document.getElementById('roomPinBack').addEventListener('click', function () { showRoomsSubview('join'); });
+    document.getElementById('roomPinSubmit').addEventListener('click', submitRoomPin);
+    document.getElementById('pickPrivateBtn').addEventListener('click', function () {
+      R.usePrivate();
+      renderSavedRoomsList();
+      render();
+      toast('Using private list');
+    });
+    document.getElementById('savedRoomsList').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var code = btn.getAttribute('data-code');
+      if (btn.getAttribute('data-action') === 'open-room') openSavedRoom(code);
+      if (btn.getAttribute('data-action') === 'forget-room') {
+        if (confirm('Forget room ' + code + ' on this phone? Items stay in the room.')) {
+          R.forgetRoom(code);
+          renderSavedRoomsList();
+          render();
+        }
+      }
+    });
+
     var header = document.getElementById('appHeader');
     window.addEventListener('scroll', function () {
       if (header) header.classList.toggle('scrolled', window.scrollY > 4);
@@ -1063,12 +1405,22 @@
         closeSaveSheet();
         closeDetail();
         closeOverlay('settingsOverlay');
+        closeRoomsOverlay();
       }
     });
   }
 
   /* ——— Init ——— */
 
+  R.onStatus(function () { updateScopeUi(); });
+  R.onScope(function () {
+    updateScopeUi();
+    render();
+  });
+  R.restoreFromCache();
+
   wireEvents();
+  updateNameGate();
+  updateScopeUi();
   render();
 })();

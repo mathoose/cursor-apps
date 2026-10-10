@@ -12,7 +12,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <!-- build: dont-forget-v3 -->
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body class="view-store">
   <header class="app-header" id="appHeader">
@@ -24,6 +25,7 @@
         <h1 class="view-title" id="headerTitle">Don't Forget</h1>
         <p class="view-subtitle" id="headerSubtitle">Snap where you left it</p>
       </div>
+      <button type="button" class="scope-pill" id="scopePill" hidden>Just me</button>
       <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </button>
@@ -111,6 +113,15 @@
       </div>
       <div class="detail-body">
         <div class="detail-badges" id="detailBadges"></div>
+        <div class="detail-move" id="detailMoveBlock">
+          <p class="section-label">Update location</p>
+          <div class="field">
+            <label class="field-label" for="detailWhere">Where is it now?</label>
+            <input type="text" id="detailWhere" placeholder="e.g. Kitchen drawer" autocomplete="off" enterkeyhint="done" list="locationSuggestions" />
+          </div>
+          <button type="button" class="btn btn-primary" id="detailMoveBtn" disabled>Save new location</button>
+        </div>
+        <div class="detail-history" id="detailHistory" hidden></div>
         <div class="detail-actions">
           <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
           <button type="button" class="btn btn-secondary" id="detailCloseBtn2">Close</button>
@@ -124,6 +135,19 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>You</h3>
+        <div class="field">
+          <label class="field-label" for="settingsDisplayName">First name</label>
+          <input type="text" id="settingsDisplayName" maxlength="32" placeholder="How you sign updates" autocomplete="name" />
+        </div>
+        <p class="settings-note">Shared rooms show this name when you save or move an item.</p>
+      </div>
+      <div class="settings-section">
+        <h3>Shared rooms</h3>
+        <button type="button" class="btn btn-secondary" id="openRoomsBtn" style="width:100%">Rooms &amp; sharing</button>
+        <p class="settings-note" id="roomSyncNote"></p>
+      </div>
       <div class="settings-section">
         <h3>Data</h3>
         <div class="settings-btns">
@@ -152,11 +176,69 @@
     </div>
   </div>
 
+  <!-- Name gate -->
+  <div class="overlay open" id="nameOverlay" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="nameTitle">Your first name</h2>
+      <p class="sheet-copy">So your partner knows who moved the passports or logged something new.</p>
+      <div class="field">
+        <label class="field-label" for="nameInput">First name</label>
+        <input type="text" id="nameInput" maxlength="32" placeholder="e.g. Mike" autocomplete="name" enterkeyhint="done" />
+      </div>
+      <button type="button" class="btn btn-primary" id="nameSaveBtn" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Rooms overlay -->
+  <div class="overlay" id="roomsOverlay" role="dialog" aria-modal="true">
+    <div class="sheet sheet-tall">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="roomsTitle">Rooms</h2>
+      <p class="sheet-copy" id="roomsCopy">Share items with the same room code and PIN as Our Lists — but with its own data.</p>
+      <div id="roomsViewPrivate">
+        <button type="button" class="room-choice on" data-scope="private" id="pickPrivateBtn">
+          <strong>Just me</strong>
+          <span class="room-choice-meta">Private on this phone</span>
+        </button>
+        <div id="savedRoomsList"></div>
+        <button type="button" class="btn btn-primary" id="joinRoomBtn">Join or create a room</button>
+      </div>
+      <div id="roomsViewJoin" hidden>
+        <div class="field">
+          <label class="field-label" for="roomCodeInput">Room code</label>
+          <input id="roomCodeInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="HOME" enterkeyhint="go" />
+          <p class="field-hint">4–12 letters or numbers.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="roomCodeContinue">Continue</button>
+        <button type="button" class="btn btn-quiet" id="roomJoinBack">Back</button>
+      </div>
+      <div id="roomsViewPin" hidden>
+        <p class="sheet-copy" id="roomPinCopy"></p>
+        <div class="field">
+          <label class="field-label" for="roomPinInput" id="roomPinLabel">PIN</label>
+          <input id="roomPinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+        </div>
+        <div class="field" id="roomPinConfirmWrap" hidden>
+          <label class="field-label" for="roomPinConfirm">Confirm PIN</label>
+          <input id="roomPinConfirm" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+        </div>
+        <p class="field-hint" id="roomPinHint"></p>
+        <button type="button" class="btn btn-primary" id="roomPinSubmit">Open room</button>
+        <button type="button" class="btn btn-quiet" id="roomPinBack">Back</button>
+      </div>
+      <button type="button" class="btn btn-secondary" id="roomsCloseBtn" style="width:100%;margin-top:12px">Done</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="config.js?v=3"></script>
+  <script src="logic.js?v=3"></script>
+  <script src="rooms.js?v=3"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
