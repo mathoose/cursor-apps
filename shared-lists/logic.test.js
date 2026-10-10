@@ -115,4 +115,16 @@ var newer = L.setListStyle(styled.data, "prio", { color: "peach" }, t2);
 var kept = L.mergeData(older, newer);
 assert.strictEqual(L.findList(kept, "prio").color, "peach");
 
+var grocery = L.createGroceryStarter(L.emptyData(), { now: t0, id: "gro" });
+assert.strictEqual(grocery.list.items.length, L.GROCERY_SUGGESTIONS.length);
+assert.strictEqual(grocery.list.items[0].stock, "medium");
+assert.strictEqual(grocery.list.items[0].usual, "yes");
+var skip = L.setItemUsual(grocery.data, "gro", grocery.list.items[0].id, "no", t1);
+assert.strictEqual(L.shopItems(L.findList(skip, "gro")).length, L.GROCERY_SUGGESTIONS.length - 1);
+var cycled = L.cycleItemStock(skip, "gro", grocery.list.items[1].id, t2);
+assert.strictEqual(L.findList(cycled, "gro").items[1].stock, "high");
+var noted = L.setListCardNote(cycled, "gro", "Shopping after work ~5pm", t2);
+assert.strictEqual(L.findList(noted, "gro").cardNote, "Shopping after work ~5pm");
+assert.ok(L.formatLastChanged(t2, L.stamp(t2) + 120000).indexOf("m ago") !== -1);
+
 console.log("shared-lists logic ok");
