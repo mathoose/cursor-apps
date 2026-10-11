@@ -180,6 +180,36 @@ button { touch-action: manipulation; cursor: pointer; }
   box-shadow: 0 2px 10px rgba(44, 28, 18, 0.16);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.map-search-bar {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: calc(52px + env(safe-area-inset-top, 0px));
+  z-index: 1060;
+  pointer-events: auto;
+}
+.map-search {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 250, 246, 0.96);
+  font-size: 1rem;
+  box-shadow: 0 2px 12px rgba(44, 28, 18, 0.12);
+}
+
 .map {
   position: absolute;
   inset: 0;
@@ -194,7 +224,7 @@ button { touch-action: manipulation; cursor: pointer; }
   position: absolute;
   inset: 0;
   z-index: 2;
-  padding: calc(68px + env(safe-area-inset-top, 0px)) 14px calc(var(--nav-h) + 24px);
+  padding: calc(108px + env(safe-area-inset-top, 0px)) 14px calc(var(--nav-h) + 24px);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   background: var(--bg);

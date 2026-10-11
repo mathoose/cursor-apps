@@ -15,6 +15,9 @@
   };
   var HERE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>';
   var COLOR_COFFEE = '#c2410c';
+  var COLOR_PIN_OPEN = '#43a047';
+  var COLOR_PIN_CLOSED = '#c62828';
+  var COLOR_PIN_UNKNOWN = '#9ca3af';
   var COLOR_HH = '#43a047';
   var COLOR_BAR = '#78716c';
   var COLOR_FOOD = '#0f766e';
@@ -145,6 +148,33 @@
     if (ap === 'PM' && h !== 12) h += 12;
     if (ap === 'AM' && h === 12) h = 0;
     return h * 60 + min;
+  }
+
+  function hasAnyHours(hours) {
+    if (!hours || typeof hours !== 'object') return false;
+    return DAY_NAMES.some(function (d) {
+      var h = hours[d];
+      return h && h.open && h.close;
+    });
+  }
+
+  function hoursOpenStatus(p) {
+    if (!hasAnyHours(p.hours)) return 'unknown';
+    var today = p.hours[getTodayDayName()];
+    if (!today || !today.open || !today.close) return 'closed';
+    return isOpenNowHours(p.hours) ? 'open' : 'closed';
+  }
+
+  function pinColorByHours(p) {
+    var st = hoursOpenStatus(p);
+    if (st === 'open') return COLOR_PIN_OPEN;
+    if (st === 'closed') return COLOR_PIN_CLOSED;
+    return COLOR_PIN_UNKNOWN;
+  }
+
+  function matchesPlaceSearch(p, search) {
+    if (!search) return true;
+    return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(search) >= 0;
   }
 
   function isOpenNowHours(hours) {
@@ -378,11 +408,23 @@
       });
     }
 
+    function searchQuery() {
+      return (q('[data-search]').value || '').trim().toLowerCase();
+    }
+
+    function filteredPlaces() {
+      var search = searchQuery();
+      return places().filter(function (p) {
+        if (!hasCoords(p)) return false;
+        return matchesPlaceSearch(p, search);
+      });
+    }
+
     function renderPins() {
       if (!mode.layer) return;
       mode.layer.clearLayers();
       var active = hereActive();
-      places().filter(hasCoords).forEach(function (p) {
+      filteredPlaces().forEach(function (p) {
         var dim = active && !mode.here.isWithin(p.lat, p.lng);
         var pin = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
           fillColor: cfg.pinColor(p),
@@ -422,13 +464,12 @@
     }
 
     function renderList() {
-      var search = (q('[data-search]').value || '').trim().toLowerCase();
+      var search = searchQuery();
       var here = mode.here ? mode.here.getState() : null;
       var active = hereActive();
       var list = places().filter(function (p) {
         if (active && (!hasCoords(p) || !mode.here.isWithin(p.lat, p.lng))) return false;
-        if (!search) return true;
-        return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(search) >= 0;
+        return matchesPlaceSearch(p, search);
       });
       if (active) {
         list.forEach(function (p) { p._walk = walkMinutesTo(here, p); });
@@ -513,7 +554,11 @@
     q('[data-here-slider]').addEventListener('input', function (e) {
       if (mode.here) mode.here.setMinutes(e.target.value);
     });
-    q('[data-search]').addEventListener('input', renderList);
+    function onSearchInput() {
+      renderPins();
+      if (mode.view === 'list') renderList();
+    }
+    q('[data-search]').addEventListener('input', onSearchInput);
     var chips = q('[data-meal-chips]');
     if (chips) {
       chips.addEventListener('click', function (e) {
@@ -1117,9 +1162,9 @@
       screenId: 'screen-coffee',
       mapId: 'map-coffee',
       getPlaces: function () { return coffeePlaces; },
-      pinColor: function () { return COLOR_COFFEE; },
+      pinColor: pinColorByHours,
       subtitle: function (list) {
-        return list.length + ' coffee shops';
+        return list.length + ' cafes · green open · red closed · grey no hours';
       }
     });
     modes.drinks = createMode({
@@ -1142,14 +1187,14 @@
       screenId: 'screen-food',
       mapId: 'map-food',
       getPlaces: function () { return foodPlaces; },
-      pinColor: function () { return COLOR_FOOD; },
+      pinColor: pinColorByHours,
       badge: function (p) {
         if (p.meal === 'lunch') return '<span class="meal-pill lunch">Lunch</span>';
         if (p.meal === 'dinner') return '<span class="meal-pill dinner">Dinner</span>';
         return '';
       },
       subtitle: function (list) {
-        return list.length + ' restaurants';
+        return list.length + ' restaurants · green open · red closed · grey no hours';
       }
     });
 
