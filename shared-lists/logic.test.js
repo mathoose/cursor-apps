@@ -66,6 +66,8 @@ var names = L.visibleItems(L.findList(merged, "list-a").items).map(function (it)
 });
 assert.deepStrictEqual(names, ["Eggs", "Bread", "Milk:done"]);
 
+var detailed = L.setItemDetail(seed(), "list-a", "milk", "Last seen in guest room", t2);
+assert.strictEqual(L.findList(detailed, "list-a").items.filter(function (it) { return it.id === "milk"; })[0].detail, "Last seen in guest room");
 var removed = L.removeItem(seed(), "list-a", "milk", t2);
 var removedNamed = L.removeItem(seed(), "list-a", "milk", t2, "Alex");
 var acts = L.activityForList(removedNamed, "list-a");
