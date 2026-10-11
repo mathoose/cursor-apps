@@ -503,13 +503,12 @@ textarea, input[type="text"], input[type="password"], input[type="search"] {
 .check.on { background: #5c3b22; border-color: #5c3b22; }
 .item-text { flex: 1; padding: 8px 0; }
 .item-row.done .item-text { text-decoration: line-through; opacity: 0.62; }
-.remove, .priority-btn {
+.remove {
   min-height: 36px;
   padding: 0 4px;
   background: transparent;
   color: inherit;
 }
-.priority-btn { text-decoration: underline; }
 
 .history-card { margin-top: 10px; padding: 0; overflow: hidden; }
 .history-head {

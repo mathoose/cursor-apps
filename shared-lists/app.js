@@ -371,7 +371,7 @@
     $("roomSync").textContent = state.status;
     var groups = L.groupLists(state.data);
     if (!groups.length) {
-      $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or the weekday priority.</p>';
+      $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or errands.</p>';
       return;
     }
     var html = "";
@@ -407,14 +407,11 @@
     return '<span class="usual-row">' + chip("yes", "Buy") + chip("sometimes", "Sometimes") + chip("no", "Skip") + "</span>";
   }
 
-  function itemRow(list, it, showPriority) {
+  function itemRow(list, it) {
     var listId = list.id;
     var on = it.checked ? " on" : "";
     var done = it.checked ? " done" : "";
     var sometimes = it.usual === "sometimes" && !it.checked ? " sometimes" : "";
-    var priority = showPriority && !it.checked
-      ? '<button type="button" class="priority-btn" data-action="to-priority" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Priority</button>'
-      : "";
     var grocery = L.isGroceryList(list)
       ? stockBarHtml(listId, it) + usualHtml(listId, it)
       : "";
@@ -422,7 +419,7 @@
       ? '<p class="item-detail">' + esc(it.detail) + "</p>"
       : "";
     var noteLabel = it.detail ? "Edit note" : "Note";
-    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<div class="item-body"><span class="item-text">' + esc(it.text) + "</span>" + detail + '</div>' + priority + '<button type="button" class="item-note-btn" data-action="edit-item-note" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + '</button><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<div class="item-body"><span class="item-text">' + esc(it.text) + "</span>" + detail + '</div><button type="button" class="item-note-btn" data-action="edit-item-note" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + '</button><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
   }
 
   function repeatStyleHtml(sel, live) {
@@ -520,7 +517,6 @@
     $("cardNoteThread").innerHTML = cardNoteThreadHtml(list);
     var c = L.counts(list);
     var repeat = L.repeatLabel(list.repeatDays);
-    var showPriority = L.listsForPriority(state.data, list.id, new Date()).length > 0;
     var items = L.isGroceryList(list) ? L.shopItems(list) : L.visibleItems(list.items);
     var skipped = L.isGroceryList(list)
       ? L.visibleItems(list.items).filter(function (it) { return it.usual === "no"; })
@@ -534,12 +530,12 @@
     }
     if (open.length) {
       html += '<div class="item-section">';
-      open.forEach(function (it) { html += itemRow(list, it, showPriority); });
+      open.forEach(function (it) { html += itemRow(list, it); });
       html += "</div>";
     }
     if (done.length) {
       html += '<p class="section-label">Done</p><div class="item-section">';
-      done.forEach(function (it) { html += itemRow(list, it, false); });
+      done.forEach(function (it) { html += itemRow(list, it); });
       html += "</div>";
     }
     if (skipped.length) {
@@ -722,19 +718,8 @@
       return '<button type="button" class="chip' + (cat.id === "grocery" ? " on" : "") + '" data-action="pick-cat" data-cat="' + cat.id + '">' + esc(cat.label) + "</button>";
     }).join("");
     chips += '<button type="button" class="chip" data-action="pick-cat" data-cat="custom">Other</button>';
-    sheet.html = "<h2>New note</h2><button type=\"button\" class=\"btn btn-secondary\" data-action=\"make-priority\">Weekday priority</button>" + newListGroceryBlock() + '<p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" /><label class="field-label" for="newCardNote">First desk slip note (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Posted with a timestamp when you create the list"></textarea><p class="fine">Pick the note color after you open the list — tap the dot on the top right.</p>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
+    sheet.html = "<h2>New note</h2>" + newListGroceryBlock() + '<p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" /><label class="field-label" for="newCardNote">First desk slip note (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Posted with a timestamp when you create the list"></textarea><p class="fine">Pick the note color after you open the list — tap the dot on the top right.</p>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
     openSheet(sheet);
-  }
-
-  function sendToPriority(targetId, itemId) {
-    var result = L.addFromList(state.data, targetId, state.listId, [itemId]);
-    if (!result.added) {
-      toast("Already on that note");
-      return;
-    }
-    closeSheet();
-    mutate(result.data);
-    toast("Added to " + L.displayTitle(L.findList(result.data, targetId)));
   }
 
   function copySheet(listId) {
@@ -908,20 +893,6 @@
       toast("Added " + fromPast.copied + " from past trips");
       return;
     }
-    if (action === "make-priority") {
-      var priority = L.createList(state.data, {
-        category: "custom",
-        customName: "Priority",
-        title: "Add to my priority",
-        color: "butter",
-        size: "small",
-        repeatDays: L.WEEKDAYS.slice(),
-      });
-      closeSheet();
-      show("list");
-      mutate(priority.data, priority.list.id);
-      return;
-    }
     if (action === "toggle-color-pop") {
       state.colorPopOpen = !state.colorPopOpen;
       renderItems();
@@ -979,26 +950,6 @@
       closeSheet();
       mutate(L.setItemDetail(state.data, btn.getAttribute("data-list"), btn.getAttribute("data-id"), ""), btn.getAttribute("data-list"));
       toast("Note removed");
-      return;
-    }
-    if (action === "to-priority") {
-      var targets = L.listsForPriority(state.data, state.listId, new Date());
-      if (!targets.length) {
-        toast("Make a note that comes back, like Mon–Fri");
-        return;
-      }
-      if (targets.length === 1) {
-        sendToPriority(targets[0].id, id);
-        return;
-      }
-      var choices = targets.map(function (list) {
-        return '<button type="button" class="btn btn-secondary" data-action="pick-priority" data-target="' + esc(list.id) + '" data-id="' + esc(id) + '">' + esc(L.displayTitle(list)) + "</button>";
-      }).join("");
-      openSheet({ kind: "priority", html: "<h2>Add to which note?</h2>" + choices });
-      return;
-    }
-    if (action === "pick-priority") {
-      sendToPriority(btn.getAttribute("data-target"), id);
       return;
     }
     if (action === "pick-cat") {
