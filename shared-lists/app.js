@@ -111,6 +111,8 @@
       $(id).hidden = id !== "view" + view.charAt(0).toUpperCase() + view.slice(1);
     });
     $("roomsBtn").hidden = view !== "room" && view !== "list";
+    var settingsBtn = $("settingsBtn");
+    if (settingsBtn) settingsBtn.hidden = view !== "room" && view !== "list";
     var sub = "Shared checklists";
     if (view === "room" && state.code) sub = "Room " + state.code;
     if (view === "list") {
@@ -367,11 +369,6 @@
     if (state.view !== "room") return;
     $("codePill").textContent = state.code;
     $("roomSync").textContent = state.status;
-    var editName = $("editNameBtn");
-    if (editName) {
-      var who = profileName();
-      editName.textContent = who ? ("You: " + who + " · Edit name") : "Add your name";
-    }
     var groups = L.groupLists(state.data);
     if (!groups.length) {
       $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or the weekday priority.</p>';
@@ -513,14 +510,7 @@
     var actMark = $("activityMark");
     if (state.activityPopOpen) {
       actPop.hidden = false;
-      if (document.activeElement !== $("activityNameInput")) {
-        actPop.innerHTML = activityPopHtml(list);
-      } else {
-        var feed = actPop.querySelector(".activity-feed");
-        if (feed) feed.innerHTML = L.activityForList(state.data, list.id).map(activityRowHtml).join("") || '<p class="activity-empty">No activity on this note yet.</p>';
-        var repeat = actPop.querySelector(".activity-repeat");
-        if (repeat) repeat.innerHTML = repeatStyleHtml({ days: list.repeatDays }, true);
-      }
+      actPop.innerHTML = activityPopHtml(list);
       actMark.setAttribute("aria-expanded", "true");
     } else {
       actPop.hidden = true;
@@ -530,7 +520,6 @@
     $("cardNoteThread").innerHTML = cardNoteThreadHtml(list);
     var c = L.counts(list);
     var repeat = L.repeatLabel(list.repeatDays);
-    $("listMeta").textContent = L.categoryLabel(list) + (repeat ? " · " + repeat : "") + " · " + c.open + " open · " + c.done + " done · Last " + L.formatLastChanged(list.updatedAt) + " · " + (state.status || "");
     var showPriority = L.listsForPriority(state.data, list.id, new Date()).length > 0;
     var items = L.isGroceryList(list) ? L.shopItems(list) : L.visibleItems(list.items);
     var skipped = L.isGroceryList(list)
@@ -657,10 +646,9 @@
     var feed = rows.length
       ? rows.map(activityRowHtml).join("")
       : '<p class="activity-empty">No activity on this note yet.</p>';
-    return '<p class="activity-pop-head">Activity &amp; schedule</p>'
-      + '<div class="activity-name-row"><label class="sr-only" for="activityNameInput">Your name</label>'
-      + '<input id="activityNameInput" type="text" maxlength="32" autocomplete="name" placeholder="Your name" value="' + esc(profileName()) + '" />'
-      + '<button type="button" class="btn btn-secondary activity-name-save" data-action="save-activity-name">Save</button></div>'
+    return '<div class="activity-pop-bar">'
+      + '<p class="activity-pop-head">Activity &amp; schedule</p>'
+      + '<button type="button" class="activity-pop-close" data-action="close-activity-pop">Done</button></div>'
       + '<div class="activity-repeat">' + repeatStyleHtml({ days: list.repeatDays }, true) + "</div>"
       + '<p class="field-label activity-section-label">Recent changes</p>'
       + '<div class="activity-feed">' + feed + "</div>";
@@ -846,14 +834,8 @@
       toast("Saved your name");
       return;
     }
-    if (action === "save-activity-name") {
-      var nameInput = $("activityNameInput");
-      if (!nameInput || !L.normalizeDisplayName(nameInput.value)) {
-        toast("Enter a name");
-        return;
-      }
-      setProfileName(nameInput.value);
-      toast("Saved your name");
+    if (action === "close-activity-pop") {
+      closeActivityPop();
       renderItems();
       return;
     }
@@ -1151,7 +1133,7 @@
   });
 
   $("roomsBtn").addEventListener("click", showJoin);
-  $("editNameBtn").addEventListener("click", function () {
+  $("settingsBtn").addEventListener("click", function () {
     openProfileSheet(false);
   });
   $("newListBtn").addEventListener("click", newListSheet);
