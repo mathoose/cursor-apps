@@ -150,4 +150,9 @@ assert.strictEqual(fromPast.copied, 2);
 assert.strictEqual(L.shouldOfferGroceryStarter(fromPast.data), false);
 assert.strictEqual(L.findList(fromPast.data, "newgro").items[0].checked, false);
 
+assert.strictEqual(L.itemEmoji("Toothbrush"), "🪥");
+assert.strictEqual(L.itemEmoji("Mattheus laptop"), "💻");
+assert.strictEqual(L.itemEmoji("Brownie"), "🍫");
+assert.strictEqual(L.itemEmoji("Random thing"), "");
+
 console.log("shared-lists logic ok");
