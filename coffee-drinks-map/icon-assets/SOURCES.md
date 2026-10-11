@@ -1,6 +1,8 @@
-# Home icon photo cutouts
+# Unused photo cutouts
 
-Foreground photos are **real photographs** (not AI-generated). Backgrounds were removed with [rembg](https://github.com/danielgatis/rembg) for compositing onto the Philly Apple Maps base (`philly-dates/app-icon.png`).
+The live home icon is built from the exact Philly Dates map (`philly-dates/app-icon.png`) by `scripts/build-coffee-drinks-app-icon.py` — larger “Philadelphia” plus blue “dates”. These PNGs are leftover photo cutouts and are not composited into `app-icon.png`.
+
+Foreground photos are **real photographs** (not AI-generated). Backgrounds were removed with [rembg](https://github.com/danielgatis/rembg).
 
 | Asset | Source | License |
 |-------|--------|---------|
