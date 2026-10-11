@@ -12,8 +12,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <!-- build: dont-forget-v4 -->
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <!-- build: dont-forget-v5 -->
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body class="view-store">
   <header class="app-header" id="appHeader">
@@ -34,6 +34,8 @@
       <input type="search" class="find-search" id="findSearch" placeholder="What are you looking for?" autocomplete="off" enterkeyhint="search" />
     </div>
   </header>
+
+  <div class="looking-for-strip" id="lookingForStrip" hidden aria-live="polite"></div>
 
   <main>
     <!-- Store tab -->
@@ -108,7 +110,9 @@
           <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
         </button>
         <h2 class="detail-title" id="detailTitle"></h2>
-        <span style="width:44px"></span>
+        <button type="button" class="icon-btn star-btn" id="detailStarBtn" aria-label="Mark looking for">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+        </button>
       </div>
       <div class="detail-photo-wrap" id="detailPhotoWrap">
         <span class="detail-photo-loading">Loading photo…</span>
@@ -124,6 +128,15 @@
           <button type="button" class="btn btn-primary" id="detailMoveBtn" disabled>Save new location</button>
         </div>
         <div class="detail-history" id="detailHistory" hidden></div>
+        <div class="detail-comments" id="detailCommentsBlock">
+          <p class="section-label">Notes from everyone</p>
+          <div class="comment-list" id="detailCommentList"></div>
+          <div class="field">
+            <label class="field-label" for="detailComment">Add a note</label>
+            <input type="text" id="detailComment" maxlength="280" placeholder="e.g. Last seen in garage · not in garage" autocomplete="off" enterkeyhint="send" />
+          </div>
+          <button type="button" class="btn btn-secondary" id="detailCommentBtn" disabled>Post note</button>
+        </div>
         <div class="detail-actions">
           <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
           <button type="button" class="btn btn-secondary" id="detailCloseBtn2">Close</button>
@@ -235,12 +248,12 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="config.js?v=4"></script>
-  <script src="logic.js?v=4"></script>
-  <script src="rooms.js?v=4"></script>
+  <script src="config.js?v=5"></script>
+  <script src="logic.js?v=5"></script>
+  <script src="rooms.js?v=5"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

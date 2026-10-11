@@ -8,6 +8,7 @@
   var MAX_NAME = 80;
   var MAX_LOCATION = 120;
   var MAX_DISPLAY_NAME = 32;
+  var MAX_COMMENT = 280;
 
   function stamp(value) {
     var t = Date.parse(value || "");
@@ -63,6 +64,74 @@
     };
   }
 
+  function commentId() {
+    return "cmt-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+  }
+
+  function normalizeLookingForRaw(lf) {
+    if (!lf || typeof lf !== "object") return null;
+    var at = lf.at || lf.since;
+    if (!at) return null;
+    return {
+      active: !!lf.active,
+      at: at,
+      by: normalizeDisplayName(lf.by),
+    };
+  }
+
+  function normalizeLookingFor(lf) {
+    var row = normalizeLookingForRaw(lf);
+    if (!row || !row.active) return null;
+    return { active: true, at: row.at, by: row.by };
+  }
+
+  function normalizeComment(c) {
+    if (!c || typeof c !== "object") return null;
+    var text = normalizeText(c.text, MAX_COMMENT);
+    if (!text) return null;
+    var at = c.at || new Date().toISOString();
+    return {
+      id: String(c.id || commentId()),
+      text: text,
+      at: at,
+      by: normalizeDisplayName(c.by),
+    };
+  }
+
+  function normalizeComments(list) {
+    var out = [];
+    (list || []).forEach(function (c) {
+      var row = normalizeComment(c);
+      if (row) out.push(row);
+    });
+    out.sort(function (a, b) { return stamp(a.at) - stamp(b.at); });
+    return out;
+  }
+
+  function mergeLookingFor(a, b) {
+    var ra = normalizeLookingForRaw(a);
+    var rb = normalizeLookingForRaw(b);
+    if (!ra) return rb && rb.active ? { active: true, at: rb.at, by: rb.by } : null;
+    if (!rb) return ra.active ? { active: true, at: ra.at, by: ra.by } : null;
+    var pick = stamp(ra.at) >= stamp(rb.at) ? ra : rb;
+    return pick.active ? { active: true, at: pick.at, by: pick.by } : null;
+  }
+
+  function mergeComments(aList, bList) {
+    var map = {};
+    function take(c) {
+      var row = normalizeComment(c);
+      if (!row) return;
+      var prev = map[row.id];
+      if (!prev || stamp(row.at) >= stamp(prev.at)) map[row.id] = row;
+    }
+    (aList || []).forEach(take);
+    (bList || []).forEach(take);
+    var out = Object.keys(map).map(function (id) { return map[id]; });
+    out.sort(function (a, b) { return stamp(a.at) - stamp(b.at); });
+    return out;
+  }
+
   function buildHistoryFromLegacy(item) {
     var loc = normalizeText(item.location, MAX_LOCATION);
     if (!loc) return [];
@@ -86,6 +155,7 @@
     if (!history.length) return null;
     history.sort(function (a, b) { return stamp(b.at) - stamp(a.at); });
     var latest = history[0];
+    var lookingFor = normalizeLookingFor(it.lookingFor);
     return {
       id: String(it.id),
       name: name,
@@ -93,12 +163,43 @@
       recordedAt: latest.at,
       createdAt: it.createdAt || history[history.length - 1].at || latest.at,
       history: history,
+      lookingFor: lookingFor,
+      comments: normalizeComments(it.comments),
       deletedAt: it.deletedAt || null,
     };
   }
 
   function activeItems(data) {
     return normalizeData(data).items.filter(function (it) { return !it.deletedAt; });
+  }
+
+  function itemsForDisplay(items, viewerName) {
+    viewerName = normalizeDisplayName(viewerName);
+    var list = (items || []).slice();
+    list.sort(function (a, b) {
+      var aLf = a.lookingFor;
+      var bLf = b.lookingFor;
+      var aRank = aLf ? (aLf.by && aLf.by.toLowerCase() === viewerName.toLowerCase() ? 1 : 0) : 2;
+      var bRank = bLf ? (bLf.by && bLf.by.toLowerCase() === viewerName.toLowerCase() ? 1 : 0) : 2;
+      if (aRank !== bRank) return aRank - bRank;
+      if (aRank < 2 && bRank < 2) {
+        var d = stamp(bLf.at) - stamp(aLf.at);
+        if (d) return d;
+      }
+      return stamp(b.recordedAt) - stamp(a.recordedAt);
+    });
+    return list;
+  }
+
+  function lookingForAlerts(items, viewerName) {
+    viewerName = normalizeDisplayName(viewerName);
+    return itemsForDisplay(
+      (items || []).filter(function (it) { return it.lookingFor && it.lookingFor.active; }),
+      viewerName
+    ).filter(function (it) {
+      return it.lookingFor && it.lookingFor.by &&
+        it.lookingFor.by.toLowerCase() !== viewerName.toLowerCase();
+    });
   }
 
   function normalizeData(raw) {
@@ -117,6 +218,7 @@
     data.items.sort(function (a, b) { return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
     data.items.forEach(function (it) {
       it.history.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+      it.comments.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
     });
     return data;
   }
@@ -180,6 +282,49 @@
         name: it.name,
         createdAt: it.createdAt,
         history: history,
+        lookingFor: it.lookingFor,
+        comments: it.comments,
+        deletedAt: it.deletedAt,
+      });
+    });
+    return { data: next, item: findItem(next, itemId) };
+  }
+
+  function setLookingFor(data, itemId, active, by, now) {
+    by = normalizeDisplayName(by);
+    now = now || new Date().toISOString();
+    var next = mapItems(data, itemId, function (it) {
+      var lf = active
+        ? { active: true, at: now, by: by }
+        : { active: false, at: now, by: by };
+      return normalizeItem({
+        id: it.id,
+        name: it.name,
+        createdAt: it.createdAt,
+        history: it.history,
+        lookingFor: lf,
+        comments: it.comments,
+        deletedAt: it.deletedAt,
+      });
+    });
+    return { data: next, item: findItem(next, itemId) };
+  }
+
+  function addComment(data, itemId, text, by, now) {
+    text = normalizeText(text, MAX_COMMENT);
+    by = normalizeDisplayName(by);
+    now = now || new Date().toISOString();
+    if (!text) return { data: normalizeData(data), item: null };
+    var next = mapItems(data, itemId, function (it) {
+      var comments = (it.comments || []).slice();
+      comments.push({ id: commentId(), text: text, at: now, by: by });
+      return normalizeItem({
+        id: it.id,
+        name: it.name,
+        createdAt: it.createdAt,
+        history: it.history,
+        lookingFor: it.lookingFor,
+        comments: comments,
         deletedAt: it.deletedAt,
       });
     });
@@ -235,6 +380,8 @@
           ? (stamp(map[row.id].createdAt) <= stamp(row.createdAt) ? map[row.id].createdAt : row.createdAt)
           : (map[row.id].createdAt || row.createdAt),
         history: mergeHistory(map[row.id].history, row.history),
+        lookingFor: mergeLookingFor(map[row.id].lookingFor, row.lookingFor),
+        comments: mergeComments(map[row.id].comments, row.comments),
         deletedAt: deletedAt,
       });
     }
@@ -298,6 +445,10 @@
     pruneData: pruneData,
     uniqueLocations: uniqueLocations,
     previousLocations: previousLocations,
+    itemsForDisplay: itemsForDisplay,
+    lookingForAlerts: lookingForAlerts,
+    setLookingFor: setLookingFor,
+    addComment: addComment,
     stamp: stamp,
     uid: uid,
   };

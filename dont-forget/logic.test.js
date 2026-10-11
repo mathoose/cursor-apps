@@ -25,4 +25,14 @@ function assert(cond, msg) {
   assert(it.history.length >= 2, "merged history");
 })();
 
+(function testLookingFor() {
+  var r = L.addItem(L.emptyData(), { name: "Keys", location: "Garage", by: "A" });
+  var on = L.setLookingFor(r.data, r.item.id, true, "Sarah", "2026-10-11T12:00:00.000Z");
+  assert(on.item.lookingFor && on.item.lookingFor.by === "Sarah", "looking for set");
+  var note = L.addComment(on.data, r.item.id, "Last seen on hook", "Sarah");
+  assert(note.item.comments.length === 1, "comment added");
+  var alerts = L.lookingForAlerts(L.activeItems(note.data), "Mike");
+  assert(alerts.length === 1, "alert for other user");
+})();
+
 console.log("dont-forget logic: ok");

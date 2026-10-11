@@ -82,7 +82,11 @@
   }
 
   function activeItems() {
-    return L.activeItems(getScopedData());
+    return L.itemsForDisplay(L.activeItems(getScopedData()), getDisplayName());
+  }
+
+  function lookingForAlerts() {
+    return L.lookingForAlerts(L.activeItems(getScopedData()), getDisplayName());
   }
 
   function hasPhoto(itemId) {
@@ -455,7 +459,103 @@
     render();
   }
 
+  function isLookingFor(item) {
+    return !!(item && item.lookingFor && item.lookingFor.active);
+  }
+
+  function starSvg(filled) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>';
+  }
+
+  function toggleLookingFor(itemId, focusComment) {
+    var item = L.findItem(getScopedData(), itemId);
+    if (!item) return;
+    var on = !isLookingFor(item);
+    var result = L.setLookingFor(getScopedData(), itemId, on, getDisplayName());
+    setScopedData(result.data);
+    if (detailItemId === itemId || (on && focusComment)) {
+      openDetail(itemId);
+    }
+    render();
+    if (on && focusComment) {
+      setTimeout(function () {
+        var input = document.getElementById('detailComment');
+        if (input) {
+          input.placeholder = 'e.g. Last seen at…';
+          input.focus();
+        }
+      }, 120);
+    }
+    toast(on ? 'Marked looking for' : 'Cleared looking for');
+  }
+
+  function postDetailComment() {
+    if (!detailItemId) return;
+    var text = (document.getElementById('detailComment') || {}).value || '';
+    text = text.trim();
+    if (!text) return;
+    var result = L.addComment(getScopedData(), detailItemId, text, getDisplayName());
+    if (!result.item) return;
+    setScopedData(result.data);
+    var input = document.getElementById('detailComment');
+    if (input) input.value = '';
+    updateDetailCommentBtn();
+    openDetail(detailItemId);
+    render();
+    toast('Note posted');
+  }
+
+  function updateDetailCommentBtn() {
+    var text = ((document.getElementById('detailComment') || {}).value || '').trim();
+    var btn = document.getElementById('detailCommentBtn');
+    if (btn) btn.disabled = !text;
+  }
+
+  function renderLookingForStrip() {
+    var strip = document.getElementById('lookingForStrip');
+    if (!strip) return;
+    var alerts = lookingForAlerts();
+    if (!alerts.length) {
+      strip.hidden = true;
+      strip.innerHTML = '';
+      return;
+    }
+    strip.hidden = false;
+    var html = '<p class="looking-for-label">Looking for</p><div class="looking-for-cards">';
+    alerts.forEach(function (item) {
+      var who = item.lookingFor && item.lookingFor.by ? item.lookingFor.by : 'Someone';
+      var latestNote = item.comments && item.comments.length
+        ? item.comments[item.comments.length - 1].text
+        : item.location;
+      html += '<button type="button" class="looking-for-card" data-id="' + escapeHtml(item.id) + '">' +
+        '<span class="looking-for-star" aria-hidden="true">' + starSvg(true) + '</span>' +
+        '<span class="looking-for-card-body"><strong>' + escapeHtml(who) + '</strong> · ' + escapeHtml(item.name) +
+        '<span class="looking-for-card-meta">' + escapeHtml(latestNote) + '</span></span></button>';
+    });
+    html += '</div>';
+    strip.innerHTML = html;
+    strip.querySelectorAll('.looking-for-card').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openDetail(btn.getAttribute('data-id'));
+      });
+    });
+  }
+
   function renderItemRow(item) {
+    var row = document.createElement('div');
+    row.className = 'item-row-wrap' + (isLookingFor(item) ? ' is-looking' : '');
+
+    var star = document.createElement('button');
+    star.type = 'button';
+    star.className = 'item-star' + (isLookingFor(item) ? ' on' : '');
+    star.setAttribute('aria-label', isLookingFor(item) ? 'Clear looking for' : 'Mark looking for');
+    star.innerHTML = starSvg(isLookingFor(item));
+    star.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var willTurnOn = !isLookingFor(item);
+      toggleLookingFor(item.id, willTurnOn);
+    });
+
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'item-row';
@@ -493,7 +593,9 @@
       openDetail(item.id);
     });
 
-    return btn;
+    row.appendChild(star);
+    row.appendChild(btn);
+    return row;
   }
 
   function renderList(containerId, items, emptyId) {
@@ -535,6 +637,7 @@
     }
     renderList('findList', findItems, 'findEmpty');
 
+    renderLookingForStrip();
     updateDatalists(items);
     updateScopeUi();
   }
@@ -751,6 +854,33 @@
       }
     }
     updateDetailMoveBtn();
+    var starBtn = document.getElementById('detailStarBtn');
+    if (starBtn) {
+      starBtn.classList.toggle('on', isLookingFor(item));
+      starBtn.setAttribute('aria-label', isLookingFor(item) ? 'Clear looking for' : 'Mark looking for');
+    }
+    var commentList = document.getElementById('detailCommentList');
+    var commentInput = document.getElementById('detailComment');
+    if (commentInput && document.activeElement !== commentInput) {
+      commentInput.value = '';
+      commentInput.placeholder = isLookingFor(item)
+        ? 'e.g. Last seen at…'
+        : 'e.g. Not in garage';
+    }
+    updateDetailCommentBtn();
+    if (commentList) {
+      if (!item.comments || !item.comments.length) {
+        commentList.innerHTML = '<p class="comment-empty">No notes yet.</p>';
+      } else {
+        var chtml = '';
+        item.comments.forEach(function (c) {
+          var who = c.by ? '<strong>' + escapeHtml(c.by) + '</strong> · ' : '';
+          chtml += '<div class="comment-row"><p class="comment-text">' + who + escapeHtml(c.text) + '</p>' +
+            '<p class="comment-meta">' + escapeHtml(formatFriendlyDate(c.at)) + '</p></div>';
+        });
+        commentList.innerHTML = chtml;
+      }
+    }
     if (photoWrap) {
       photoWrap.innerHTML = '<span class="detail-photo-loading">Loading photo…</span>';
     }
@@ -1360,6 +1490,21 @@
     document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
     document.getElementById('detailCloseBtn2').addEventListener('click', closeDetail);
     document.getElementById('detailDeleteBtn').addEventListener('click', deleteDetailItem);
+    document.getElementById('detailStarBtn').addEventListener('click', function () {
+      if (!detailItemId) return;
+      var item = L.findItem(getScopedData(), detailItemId);
+      if (!item) return;
+      toggleLookingFor(detailItemId, !isLookingFor(item));
+    });
+    document.getElementById('detailComment').addEventListener('input', updateDetailCommentBtn);
+    document.getElementById('detailComment').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var btn = document.getElementById('detailCommentBtn');
+        if (btn && !btn.disabled) postDetailComment();
+      }
+    });
+    document.getElementById('detailCommentBtn').addEventListener('click', postDetailComment);
     document.getElementById('detailMoveBtn').addEventListener('click', saveDetailLocation);
     document.getElementById('detailWhere').addEventListener('input', updateDetailMoveBtn);
     document.getElementById('detailWhere').addEventListener('keydown', function (e) {
