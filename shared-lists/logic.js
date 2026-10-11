@@ -66,6 +66,10 @@
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 280);
   }
 
+  function normalizeItemDetail(text) {
+    return String(text || "").trim().replace(/\s+/g, " ").slice(0, 140);
+  }
+
   function normalizeCardNoteEntry(entry, fallbackWhen) {
     if (!entry || !entry.id) return null;
     var text = normalizeCardNote(entry.text);
@@ -266,6 +270,7 @@
       updatedAt: it.updatedAt || it.createdAt || new Date().toISOString(),
       checkedAt: checked ? (it.checkedAt || it.updatedAt || null) : null,
       deletedAt: it.deletedAt || null,
+      detail: normalizeItemDetail(it.detail),
     };
   }
 
@@ -559,6 +564,21 @@
     });
   }
 
+  function setItemDetail(data, listId, itemId, detail, now) {
+    now = now || new Date().toISOString();
+    var note = normalizeItemDetail(detail);
+    return mapList(data, listId, function (list) {
+      list.items = list.items.map(function (it) {
+        if (it.id !== itemId || it.deletedAt) return it;
+        it.detail = note;
+        it.updatedAt = now;
+        return it;
+      });
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
   function setItemStock(data, listId, itemId, stock, now) {
     now = now || new Date().toISOString();
     return mapList(data, listId, function (list) {
@@ -812,6 +832,7 @@
       made.push(normalizeItem({
         id: idFactory ? idFactory(it, index) : uid(),
         text: it.text,
+        detail: it.detail,
         checked: false,
         createdAt: when,
         updatedAt: when,
@@ -884,6 +905,7 @@
       made.push(normalizeItem({
         id: opts.itemId ? opts.itemId(it, added) : uid(),
         text: it.text,
+        detail: it.detail,
         checked: false,
         createdAt: when,
         updatedAt: when,
@@ -1024,6 +1046,8 @@
     latestCardNote: latestCardNote,
     addCardNote: addCardNote,
     setListCardNote: setListCardNote,
+    setItemDetail: setItemDetail,
+    normalizeItemDetail: normalizeItemDetail,
     setItemUsual: setItemUsual,
     setItemStock: setItemStock,
     cycleItemStock: cycleItemStock,

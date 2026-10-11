@@ -421,7 +421,11 @@
     var grocery = L.isGroceryList(list)
       ? stockBarHtml(listId, it) + usualHtml(listId, it)
       : "";
-    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<span class="item-text">' + esc(it.text) + "</span>" + priority + '<button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+    var detail = it.detail
+      ? '<p class="item-detail">' + esc(it.detail) + "</p>"
+      : "";
+    var noteLabel = it.detail ? "Edit note" : "Note";
+    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<div class="item-body"><span class="item-text">' + esc(it.text) + "</span>" + detail + '</div>' + priority + '<button type="button" class="item-note-btn" data-action="edit-item-note" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + '</button><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
   }
 
   function repeatStyleHtml(sel, live) {
@@ -440,12 +444,19 @@
     }).join("");
   }
 
+  function syncPaperPopScrim() {
+    var scrim = $("paperPopScrim");
+    if (!scrim) return;
+    scrim.hidden = !(state.colorPopOpen || state.activityPopOpen);
+  }
+
   function closeColorPop() {
     state.colorPopOpen = false;
     var pop = $("colorPop");
     if (pop) pop.hidden = true;
     var mark = $("colorMark");
     if (mark) mark.setAttribute("aria-expanded", "false");
+    syncPaperPopScrim();
   }
 
   function cardNoteThreadHtml(list) {
@@ -503,18 +514,20 @@
     if (state.activityPopOpen) {
       actPop.hidden = false;
       if (document.activeElement !== $("activityNameInput")) {
-        actPop.innerHTML = activityPopHtml(list.id);
+        actPop.innerHTML = activityPopHtml(list);
       } else {
         var feed = actPop.querySelector(".activity-feed");
         if (feed) feed.innerHTML = L.activityForList(state.data, list.id).map(activityRowHtml).join("") || '<p class="activity-empty">No activity on this note yet.</p>';
+        var repeat = actPop.querySelector(".activity-repeat");
+        if (repeat) repeat.innerHTML = repeatStyleHtml({ days: list.repeatDays }, true);
       }
       actMark.setAttribute("aria-expanded", "true");
     } else {
       actPop.hidden = true;
       actMark.setAttribute("aria-expanded", "false");
     }
+    syncPaperPopScrim();
     $("cardNoteThread").innerHTML = cardNoteThreadHtml(list);
-    $("styleBar").innerHTML = repeatStyleHtml({ days: list.repeatDays }, true);
     var c = L.counts(list);
     var repeat = L.repeatLabel(list.repeatDays);
     $("listMeta").textContent = L.categoryLabel(list) + (repeat ? " · " + repeat : "") + " · " + c.open + " open · " + c.done + " done · Last " + L.formatLastChanged(list.updatedAt) + " · " + (state.status || "");
@@ -622,6 +635,13 @@
     if (pop) pop.hidden = true;
     var mark = $("activityMark");
     if (mark) mark.setAttribute("aria-expanded", "false");
+    syncPaperPopScrim();
+  }
+
+  function closePaperPops() {
+    closeColorPop();
+    closeActivityPop();
+    if (state.view === "list") renderItems();
   }
 
   function activityRowHtml(row) {
@@ -632,16 +652,43 @@
     return "";
   }
 
-  function activityPopHtml(listId) {
-    var rows = L.activityForList(state.data, listId);
+  function activityPopHtml(list) {
+    var rows = L.activityForList(state.data, list.id);
     var feed = rows.length
       ? rows.map(activityRowHtml).join("")
       : '<p class="activity-empty">No activity on this note yet.</p>';
-    return '<p class="activity-pop-head">Activity on this note</p>'
+    return '<p class="activity-pop-head">Activity &amp; schedule</p>'
       + '<div class="activity-name-row"><label class="sr-only" for="activityNameInput">Your name</label>'
       + '<input id="activityNameInput" type="text" maxlength="32" autocomplete="name" placeholder="Your name" value="' + esc(profileName()) + '" />'
       + '<button type="button" class="btn btn-secondary activity-name-save" data-action="save-activity-name">Save</button></div>'
+      + '<div class="activity-repeat">' + repeatStyleHtml({ days: list.repeatDays }, true) + "</div>"
+      + '<p class="field-label activity-section-label">Recent changes</p>'
       + '<div class="activity-feed">' + feed + "</div>";
+  }
+
+  function itemNoteSheet(listId, itemId) {
+    var list = L.findList(state.data, listId);
+    if (!list) return;
+    var item = null;
+    list.items.forEach(function (it) {
+      if (it.id === itemId && !it.deletedAt) item = it;
+    });
+    if (!item) return;
+    openSheet({
+      kind: "item-note",
+      listId: listId,
+      itemId: itemId,
+      html: "<h2>Note on “" + esc(item.text) + "”</h2><p class=\"fine\">Where it is, when you last saw it, etc.</p>"
+        + '<label class="field-label" for="itemNoteInput">Item note</label>'
+        + '<textarea id="itemNoteInput" rows="3" maxlength="140" placeholder="Last seen in guest room">' + esc(item.detail || "") + "</textarea>"
+        + '<button type="button" class="btn btn-primary" data-action="save-item-note" data-list="' + esc(listId) + '" data-id="' + esc(itemId) + '">Save note</button>'
+        + (item.detail ? '<button type="button" class="btn btn-quiet" data-action="clear-item-note" data-list="' + esc(listId) + '" data-id="' + esc(itemId) + '">Remove note</button>' : "")
+        + '<button type="button" class="btn btn-quiet" data-action="close-sheet">Cancel</button>',
+    });
+    setTimeout(function () {
+      var input = $("itemNoteInput");
+      if (input) input.focus();
+    }, 30);
   }
 
   function openSheet(sheet) {
@@ -922,12 +969,34 @@
       return;
     }
     if (action === "toggle-day") {
-      var current = L.findList(state.data, state.listId);
-      mutate(L.setListStyle(state.data, state.listId, { repeatDays: withDay(current.repeatDays, btn.getAttribute("data-day")) }));
+      var listId = state.listId || btn.getAttribute("data-list");
+      var current = L.findList(state.data, listId);
+      if (!current) return;
+      mutate(L.setListStyle(state.data, listId, { repeatDays: withDay(current.repeatDays, btn.getAttribute("data-day")) }), listId);
       return;
     }
     if (action === "set-weekdays") {
-      mutate(L.setListStyle(state.data, state.listId, { repeatDays: L.WEEKDAYS.slice() }));
+      var listIdWeek = state.listId || btn.getAttribute("data-list");
+      mutate(L.setListStyle(state.data, listIdWeek, { repeatDays: L.WEEKDAYS.slice() }), listIdWeek);
+      return;
+    }
+    if (action === "edit-item-note") {
+      itemNoteSheet(btn.getAttribute("data-list"), id);
+      return;
+    }
+    if (action === "save-item-note") {
+      var noteList = btn.getAttribute("data-list");
+      var noteId = btn.getAttribute("data-id");
+      var noteText = $("itemNoteInput") ? $("itemNoteInput").value : "";
+      closeSheet();
+      mutate(L.setItemDetail(state.data, noteList, noteId, noteText), noteList);
+      toast(noteText.trim() ? "Saved item note" : "Note cleared");
+      return;
+    }
+    if (action === "clear-item-note") {
+      closeSheet();
+      mutate(L.setItemDetail(state.data, btn.getAttribute("data-list"), btn.getAttribute("data-id"), ""), btn.getAttribute("data-list"));
+      toast("Note removed");
       return;
     }
     if (action === "to-priority") {
@@ -1096,26 +1165,36 @@
     renderRoom();
   });
   $("colorMark").addEventListener("click", function (e) {
+    e.preventDefault();
     e.stopPropagation();
     closeActivityPop();
     state.colorPopOpen = !state.colorPopOpen;
     renderItems();
   });
   $("activityMark").addEventListener("click", function (e) {
+    e.preventDefault();
     e.stopPropagation();
     closeColorPop();
     state.activityPopOpen = !state.activityPopOpen;
     renderItems();
   });
-  document.addEventListener("click", function (e) {
-    if (state.view !== "list") return;
-    if (state.colorPopOpen) {
-      if (!e.target.closest("#colorPop") && !e.target.closest("#colorMark")) closeColorPop();
-    }
-    if (state.activityPopOpen) {
-      if (!e.target.closest("#activityPop") && !e.target.closest("#activityMark")) closeActivityPop();
-    }
+  $("paperPopScrim").addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    closePaperPops();
   });
+  document.addEventListener(
+    "pointerdown",
+    function (e) {
+      if (state.view !== "list") return;
+      if (!state.colorPopOpen && !state.activityPopOpen) return;
+      if (e.target.closest("#activityPop") || e.target.closest("#activityMark")) return;
+      if (e.target.closest("#colorPop") || e.target.closest("#colorMark")) return;
+      if (e.target.closest("#paperPopScrim")) return;
+      closePaperPops();
+    },
+    true
+  );
   $("sheetBackdrop").addEventListener("click", closeSheet);
   $("codePill").addEventListener("click", function () {
     var text = state.code;
