@@ -94,8 +94,8 @@ assert.strictEqual(L.earlierLists(custom2.data, "c2")[0].id, "c1");
 var styled = L.createList(L.emptyData(), {
   id: "prio",
   category: "custom",
-  customName: "Priority",
-  title: "Add to my priority",
+  customName: "Daily",
+  title: "Weekday errands",
   color: "pink",
   size: "small",
   repeatDays: ["fri", "mon", "tue", "wed", "thu"],
@@ -111,8 +111,6 @@ var copiedStyle = L.copyList(withItem.data, "prio", null, { now: t2, id: "prio-c
 assert.strictEqual(copiedStyle.list.color, "pink");
 assert.strictEqual(copiedStyle.list.size, "small");
 assert.strictEqual(copiedStyle.list.repeatDays.join(","), "mon,tue,wed,thu,fri");
-var other = L.createList(styled.data, { id: "gro", category: "grocery", title: "Store", now: t1 });
-assert.strictEqual(L.listsForPriority(other.data, "gro", new Date("2026-10-12T15:00:00"))[0].id, "prio");
 var painted = L.setListStyle(styled.data, "prio", { color: "blue", size: "large" }, t2);
 assert.strictEqual(L.findList(painted, "prio").color, "blue");
 assert.strictEqual(L.findList(painted, "prio").size, "large");

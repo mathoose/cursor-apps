@@ -682,18 +682,6 @@
     return { data: created.data, list: created.list, copied: items.length };
   }
 
-  function listsForPriority(data, excludeId, date) {
-    var today = [];
-    var repeating = [];
-    activeLists(data).forEach(function (list) {
-      if (list.id === excludeId) return;
-      if (!list.repeatDays.length) return;
-      repeating.push(list);
-      if (repeatsOn(list, date || new Date())) today.push(list);
-    });
-    return today.length ? today : repeating;
-  }
-
   function setListTitle(data, listId, title, now) {
     now = now || new Date().toISOString();
     return mapList(data, listId, function (list) {
@@ -1015,7 +1003,6 @@
     repeatLabel: repeatLabel,
     dayId: dayId,
     repeatsOn: repeatsOn,
-    listsForPriority: listsForPriority,
     normalizeText: normalizeText,
     normalizeDisplayName: normalizeDisplayName,
     normalizeActivity: normalizeActivity,
