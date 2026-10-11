@@ -319,18 +319,40 @@
     openPin("enter");
   }
 
+  function visibleItemCount(data) {
+    var n = 0;
+    L.activeLists(data).forEach(function (list) {
+      n += L.visibleItems(list.items).length;
+    });
+    return n;
+  }
+
   function enterRoom(code, pin, revision, data) {
     if (state.code && state.code !== code && state.dirty) saveNow();
     state.saveAgain = false;
+    var cache = loadCache();
+    var cached = cache.rooms[code];
+    var localData = cached && cached.data ? cached.data : L.emptyData();
+    var remoteData = data || L.emptyData();
+    var remoteItems = visibleItemCount(remoteData);
+    var merged = L.pruneData(L.mergeData(localData, remoteData));
     state.code = code;
     state.pin = pin;
     state.revision = Number(revision) || 0;
-    state.data = L.normalizeData(data || L.emptyData());
-    state.dirty = false;
+    state.data = merged;
+    state.dirty = !L.sameData(merged, remoteData);
     state.listId = "";
     saveCache();
     show("room");
-    setStatus("Synced");
+    if (state.dirty) {
+      setStatus("Restoring…");
+      scheduleSave();
+      if (visibleItemCount(merged) > remoteItems) {
+        toast("Merged in items saved on this phone");
+      }
+    } else {
+      setStatus("Synced");
+    }
     render();
     startPoll();
     pull();
