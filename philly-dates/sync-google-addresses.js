@@ -14,6 +14,7 @@
  *   node sync-google-addresses.js --dry-run
  *   node sync-google-addresses.js --limit 10
  *   node sync-google-addresses.js --only "Barcelona Wine Bar,Cantina Los Caballitos"
+ *   node sync-google-addresses.js --catalog food --all --limit 50
  *
  * Also updates lat/lng from Google `location` when present (see sync-google-locations.js for bulk pin sync).
  */
@@ -21,7 +22,9 @@ const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const PLACES_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const COFFEE_PATH = path.join(ROOT, 'coffee-drinks-map', 'coffee.json');
+const FOOD_PATH = path.join(ROOT, 'coffee-drinks-map', 'food.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DELAY_MS = 250;
 
@@ -34,6 +37,18 @@ const onlyIdx = args.indexOf('--only');
 const onlyNames = onlyIdx >= 0
   ? args[onlyIdx + 1].split(',').map(function(s) { return s.trim(); }).filter(Boolean)
   : null;
+const catalogIdx = args.indexOf('--catalog');
+const catalogArg = catalogIdx >= 0 ? args[catalogIdx + 1] : 'drinks';
+
+function catalogPaths(cat) {
+  if (cat === 'coffee') {
+    return { placesPath: COFFEE_PATH, label: 'coffee-drinks-map/coffee.json' };
+  }
+  if (cat === 'food') {
+    return { placesPath: FOOD_PATH, label: 'coffee-drinks-map/food.json' };
+  }
+  return { placesPath: DRINKS_PATH, label: 'coffee-drinks-map/drinks.json' };
+}
 
 function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
@@ -190,6 +205,13 @@ async function main() {
     process.exit(1);
   }
 
+  if (catalogArg !== 'drinks' && catalogArg !== 'coffee' && catalogArg !== 'food') {
+    console.error('Unknown --catalog "' + catalogArg + '". Use drinks, coffee, or food.');
+    process.exit(1);
+  }
+  var catalog = catalogPaths(catalogArg);
+  var PLACES_PATH = catalog.placesPath;
+
   var places = JSON.parse(fs.readFileSync(PLACES_PATH, 'utf8'));
   var todo = searchAll ? places.slice() : places.filter(function(p) { return p.googlePlaceId; });
   if (onlyNames && onlyNames.length) {
@@ -199,6 +221,7 @@ async function main() {
   }
   if (isFinite(limit)) todo = todo.slice(0, limit);
 
+  console.log((dryRun ? '[dry-run] ' : '') + 'Catalog: ' + catalog.label);
   console.log((dryRun ? '[dry-run] ' : '') + 'Syncing Google Maps data for ' + todo.length + ' places…');
 
   var updated = 0;
@@ -242,7 +265,7 @@ async function main() {
   console.log('  unchanged:', unchanged);
   console.log('  skipped/not found:', notFound);
   console.log('  errors:', errors);
-  if (dryRun && updated) console.log('\nRe-run without --dry-run to save coffee-drinks-map/drinks.json');
+  if (dryRun && updated) console.log('\nRe-run without --dry-run to save ' + catalog.label);
 }
 
 main().catch(function(e) {
