@@ -3,7 +3,7 @@
 
   var L = window.SharedListsLogic;
   var STORAGE_KEY = "shared-lists-v1";
-  var POLL_MS = 4000;
+  var POLL_MS = 2000;
 
   var state = {
     view: "join",
@@ -371,7 +371,7 @@
     $("roomSync").textContent = state.status;
     var groups = L.groupLists(state.data);
     if (!groups.length) {
-      $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tear off a note for packing, groceries, or errands.</p>';
+      $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tap <strong>New list</strong> to tear off a note.</p>';
       return;
     }
     var html = "";
@@ -557,7 +557,8 @@
     L.visibleItems(list.items).forEach(function (it) {
       currentKeys[L.normalizeKey(it.text)] = true;
     });
-    var html = '<p class="section-label">Earlier ' + esc(L.categoryLabel(list).toLowerCase()) + " lists</p>";
+    var histKind = (L.categoryLabel(list) || "note").toLowerCase();
+    var html = '<p class="section-label">Earlier ' + esc(histKind) + " lists</p>";
     earlier.forEach(function (old) {
       var open = !!state.expanded[old.id];
       html += '<article class="history-card"><button type="button" class="history-head" data-action="expand" data-id="' + esc(old.id) + '"><span><strong>' + esc(L.displayTitle(old)) + '</strong><span class="history-meta">' + esc(formatWhen(old.createdAt)) + " · " + L.visibleItems(old.items).length + ' items</span></span><span>' + (open ? "Hide" : "Show") + "</span></button>";
@@ -708,17 +709,12 @@
   function newListSheet() {
     var sheet = {
       kind: "new",
-      category: "grocery",
       color: "butter",
       size: "small",
       days: [],
       html: "",
     };
-    var chips = L.CATEGORIES.map(function (cat) {
-      return '<button type="button" class="chip' + (cat.id === "grocery" ? " on" : "") + '" data-action="pick-cat" data-cat="' + cat.id + '">' + esc(cat.label) + "</button>";
-    }).join("");
-    chips += '<button type="button" class="chip" data-action="pick-cat" data-cat="custom">Other</button>';
-    sheet.html = "<h2>New note</h2>" + newListGroceryBlock() + '<p class="field-label">Category</p><div class="chips" id="catChips">' + chips + '</div><div id="customWrap" hidden><label class="field-label" for="customName">Category name</label><input id="customName" type="text" maxlength="40" placeholder="Camping" /></div><label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="This week" /><label class="field-label" for="newCardNote">First desk slip note (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Posted with a timestamp when you create the list"></textarea><p class="fine">Pick the note color after you open the list — tap the dot on the top right.</p>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
+    sheet.html = "<h2>New note</h2>" + newListGroceryBlock() + '<label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="Groceries, weekend errands…" /><label class="field-label" for="newCardNote">First desk slip note (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Posted with a timestamp when you create the list"></textarea><p class="fine">Pick the note color after you open the list — tap the dot on the top right.</p>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
     openSheet(sheet);
   }
 
@@ -952,26 +948,12 @@
       toast("Note removed");
       return;
     }
-    if (action === "pick-cat") {
-      state.sheet.category = btn.getAttribute("data-cat");
-      document.querySelectorAll("#catChips .chip").forEach(function (chip) {
-        chip.classList.toggle("on", chip.getAttribute("data-cat") === state.sheet.category);
-      });
-      $("customWrap").hidden = state.sheet.category !== "custom";
-      return;
-    }
     if (action === "create-list") {
-      var category = state.sheet.category || "grocery";
-      var customName = $("customName") ? $("customName").value : "";
-      if (category === "custom" && !L.normalizeText(customName)) {
-        toast("Name this category");
-        return;
-      }
       var title = $("newTitle") ? $("newTitle").value : "";
       var deskNote = $("newCardNote") ? $("newCardNote").value : "";
       var created = L.createList(state.data, {
-        category: category,
-        customName: customName,
+        category: "custom",
+        customName: "",
         title: title,
         color: state.sheet.color,
         size: state.sheet.size,

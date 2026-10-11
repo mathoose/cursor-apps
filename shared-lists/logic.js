@@ -238,12 +238,19 @@
 
   function categoryLabel(list) {
     if (!list) return "List";
-    if (list.category === "custom") return normalizeText(list.customName) || "Other";
+    if (list.category === "custom") return normalizeText(list.customName);
     var i;
     for (i = 0; i < CATEGORIES.length; i++) {
       if (CATEGORIES[i].id === list.category) return CATEGORIES[i].label;
     }
     return "Other";
+  }
+
+  function roomGroupLabel(list) {
+    if (!list) return "Notes";
+    if (list.category === "custom" && !normalizeText(list.customName)) return "Notes";
+    var label = categoryLabel(list);
+    return label || "Notes";
   }
 
   function categoryKey(list) {
@@ -335,7 +342,7 @@
     var category = list.category === "packing" || list.category === "grocery" || list.category === "leaving"
       ? list.category
       : "custom";
-    var customName = category === "custom" ? (normalizeText(list.customName || list.category) || "Other") : "";
+    var customName = category === "custom" ? normalizeText(list.customName || "") : "";
     var items = [];
     (list.items || []).forEach(function (it) {
       var row = normalizeItem(it);
@@ -794,7 +801,7 @@
     activeLists(data).forEach(function (list) {
       var key = categoryKey(list);
       if (!byKey[key]) {
-        byKey[key] = { key: key, label: categoryLabel(list), lists: [] };
+        byKey[key] = { key: key, label: roomGroupLabel(list), lists: [] };
         groups.push(byKey[key]);
       }
       byKey[key].lists.push(list);
@@ -990,7 +997,10 @@
 
   function displayTitle(list) {
     if (!list) return "List";
-    return list.title || categoryLabel(list);
+    var title = normalizeText(list.title);
+    if (title) return title;
+    var label = categoryLabel(list);
+    return label || "Untitled note";
   }
 
   return {
@@ -1018,6 +1028,7 @@
     canonical: canonical,
     sameData: sameData,
     categoryLabel: categoryLabel,
+    roomGroupLabel: roomGroupLabel,
     categoryKey: categoryKey,
     activeLists: activeLists,
     findList: findList,
