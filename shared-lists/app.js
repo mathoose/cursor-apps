@@ -419,7 +419,11 @@
       ? '<p class="item-detail">' + esc(it.detail) + "</p>"
       : "";
     var noteLabel = it.detail ? "Edit note" : "Note";
-    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<div class="item-body"><span class="item-text">' + esc(it.text) + "</span>" + detail + '</div><button type="button" class="item-note-btn" data-action="edit-item-note" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + '</button><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
+    var emoji = L.itemEmoji(it.text);
+    var emojiHtml = emoji
+      ? '<span class="item-emoji" aria-hidden="true">' + emoji + "</span>"
+      : '<span class="item-emoji item-emoji-empty" aria-hidden="true"></span>';
+    return '<div class="item-row' + done + sometimes + '"><button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>' + grocery + '<div class="item-body">' + emojiHtml + '<div class="item-copy"><span class="item-text">' + esc(it.text) + "</span>" + detail + "</div></div><button type="button" class=\"item-note-btn\" data-action=\"edit-item-note\" data-list=\"" + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + '</button><button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button></div>';
   }
 
   function repeatStyleHtml(sel, live) {

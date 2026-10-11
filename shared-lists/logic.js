@@ -134,6 +134,71 @@
     return normalizeText(text).toLowerCase();
   }
 
+  var ITEM_EMOJI_HINTS = [
+    { keys: ["toothbrush", "tooth paste", "toothpaste", "floss"], emoji: "🪥" },
+    { keys: ["laptop", "macbook", "computer", "charger", "ipad", "tablet"], emoji: "💻" },
+    { keys: ["phone", "iphone", "android"], emoji: "📱" },
+    { keys: ["brownie", "brownies", "cookie", "cookies", "cake", "cupcake"], emoji: "🍫" },
+    { keys: ["milk"], emoji: "🥛" },
+    { keys: ["egg", "eggs"], emoji: "🥚" },
+    { keys: ["bread", "bagel", "toast"], emoji: "🍞" },
+    { keys: ["butter", "cheese", "yogurt"], emoji: "🧈" },
+    { keys: ["coffee", "espresso"], emoji: "☕" },
+    { keys: ["banana", "bananas"], emoji: "🍌" },
+    { keys: ["apple", "apples"], emoji: "🍎" },
+    { keys: ["salad", "greens", "lettuce", "spinach"], emoji: "🥗" },
+    { keys: ["onion", "garlic"], emoji: "🧅" },
+    { keys: ["chicken"], emoji: "🍗" },
+    { keys: ["beef", "steak", "ground beef"], emoji: "🥩" },
+    { keys: ["pasta", "noodle", "noodles"], emoji: "🍝" },
+    { keys: ["rice"], emoji: "🍚" },
+    { keys: ["cereal"], emoji: "🥣" },
+    { keys: ["juice", "orange juice"], emoji: "🧃" },
+    { keys: ["snack", "snacks", "chips"], emoji: "🍿" },
+    { keys: ["ice cream"], emoji: "🍦" },
+    { keys: ["toilet paper", "paper towel", "paper towels"], emoji: "🧻" },
+    { keys: ["soap", "dish soap", "shampoo"], emoji: "🧼" },
+    { keys: ["detergent", "laundry"], emoji: "🧺" },
+    { keys: ["trash", "garbage"], emoji: "🗑️" },
+    { keys: ["key", "keys"], emoji: "🔑" },
+    { keys: ["wallet", "purse"], emoji: "👛" },
+    { keys: ["passport"], emoji: "🛂" },
+    { keys: ["medicine", "meds", "vitamin", "vitamins", "pill"], emoji: "💊" },
+    { keys: ["umbrella"], emoji: "☔" },
+    { keys: ["jacket", "coat", "sweater"], emoji: "🧥" },
+    { keys: ["shoe", "shoes", "sneaker", "sneakers"], emoji: "👟" },
+    { keys: ["sock", "socks"], emoji: "🧦" },
+    { keys: ["towel"], emoji: "🛁" },
+    { keys: ["gift", "present"], emoji: "🎁" },
+    { keys: ["wine", "beer"], emoji: "🍷" },
+    { keys: ["water", "bottle water"], emoji: "💧" },
+    { keys: ["dog", "puppy"], emoji: "🐕" },
+    { keys: ["cat", "kitty"], emoji: "🐈" },
+    { keys: ["plant", "plants"], emoji: "🪴" },
+    { keys: ["light bulb", "bulb"], emoji: "💡" },
+    { keys: ["battery", "batteries"], emoji: "🔋" },
+  ];
+
+  function itemEmoji(text) {
+    var key = normalizeKey(text);
+    if (!key) return "";
+    var i;
+    var j;
+    var hint;
+    var best = "";
+    var bestLen = 0;
+    for (i = 0; i < ITEM_EMOJI_HINTS.length; i++) {
+      hint = ITEM_EMOJI_HINTS[i];
+      for (j = 0; j < hint.keys.length; j++) {
+        if (key.indexOf(hint.keys[j]) !== -1 && hint.keys[j].length > bestLen) {
+          best = hint.emoji;
+          bestLen = hint.keys[j].length;
+        }
+      }
+    }
+    return best;
+  }
+
   function normalizeCode(code) {
     return String(code || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12);
   }
@@ -1019,6 +1084,7 @@
     activityForList: activityForList,
     normalizeCardNote: normalizeCardNote,
     normalizeKey: normalizeKey,
+    itemEmoji: itemEmoji,
     normalizeCode: normalizeCode,
     codeError: codeError,
     normalizePin: normalizePin,
