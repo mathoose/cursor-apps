@@ -1,6 +1,8 @@
-# Unused photo cutouts
+# Icon sources
 
-The live home icon is built from the exact Philly Dates map (`philly-dates/app-icon.png`) by `scripts/build-coffee-drinks-app-icon.py` — larger “Philadelphia” plus blue “dates”. These PNGs are leftover photo cutouts and are not composited into `app-icon.png`.
+`philly-map-base.png` is a sharp Center City street map (1024×1024). The Philly Dates / happy-hours app only keeps its Apple Maps look as `philly-dates/app-icon.png` at 180×180, which blurs if enlarged. Rebuild labels with `scripts/build-coffee-drinks-app-icon.py`.
+
+Photo cutouts below are unused leftovers:
 
 Foreground photos are **real photographs** (not AI-generated). Backgrounds were removed with [rembg](https://github.com/danielgatis/rembg).
 
