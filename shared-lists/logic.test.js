@@ -155,4 +155,18 @@ assert.strictEqual(L.itemEmoji("Mattheus laptop"), "💻");
 assert.strictEqual(L.itemEmoji("Brownie"), "🍫");
 assert.strictEqual(L.itemEmoji("Random thing"), "");
 
+var serverEmpty = {
+  lists: [{
+    id: "list-a",
+    category: "grocery",
+    title: "This week",
+    items: [],
+    createdAt: t0,
+    updatedAt: t2,
+  }],
+  meta: { groceryStarterUsed: true, activity: [] },
+};
+var rescued = L.mergeData(seed(), serverEmpty);
+assert.strictEqual(L.visibleItems(L.findList(rescued, "list-a").items).length, 2);
+
 console.log("shared-lists logic ok");
