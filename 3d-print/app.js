@@ -31,7 +31,8 @@
     categoryFilter: 'all',
     keepAddSelections: false,
     lastAddSelections: null,
-    itemSort: 'custom'
+    itemSort: 'custom',
+    historySort: 'closed-newest'
   };
 
   var currentView = 'queue';
@@ -45,8 +46,12 @@
   var sendTargetItemId = null;
   var pendingSliceItemId = null;
   var pendingReprintItemId = null;
+  var pendingCloseOutItemId = null;
+  var pendingFinishedItemId = null;
+  var pendingFinishTimerContext = null;
   var pendingRatingHistoryId = null;
   var pendingRatingSelection = 0;
+  var pendingWouldPrintAgain = null;
   var fcpUiBound = false;
   var filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
 
@@ -287,7 +292,8 @@
       estimatedMinutes: t.estimatedMinutes != null ? Math.max(0, parseInt(t.estimatedMinutes, 10) || 0) : null,
       sortOrder: typeof t.sortOrder === 'number' ? t.sortOrder : null,
       createdAt: t.createdAt || new Date().toISOString(),
-      updatedAt: t.updatedAt || new Date().toISOString()
+      updatedAt: t.updatedAt || new Date().toISOString(),
+      closedAt: t.closedAt || null
     };
   }
 
@@ -328,7 +334,9 @@
       startedAt: h.startedAt || null,
       finishedAt: h.finishedAt || new Date().toISOString(),
       durationMinutes: h.durationMinutes != null ? Math.max(0, parseInt(h.durationMinutes, 10) || 0) : null,
-      rating: rating
+      rating: rating,
+      comment: (h.comment || '').trim(),
+      wouldPrintAgain: h.wouldPrintAgain === true ? true : (h.wouldPrintAgain === false ? false : null)
     };
   }
 
@@ -453,7 +461,13 @@
 
   function normalizeItemSort(value) {
     if (value === 'added-newest' || value === 'added-oldest') return value;
+    if (value === 'closed-newest' || value === 'closed-oldest') return value;
     return 'custom';
+  }
+
+  function normalizeHistorySort(value) {
+    if (value === 'closed-oldest') return value;
+    return 'closed-newest';
   }
 
   function itemAddedMs(item) {
@@ -479,6 +493,35 @@
     if ((a.id || '') < (b.id || '')) return -1;
     if ((a.id || '') > (b.id || '')) return 1;
     return 0;
+  }
+
+  function itemClosedMs(item) {
+    var iso = item && item.closedAt ? item.closedAt : (item && item.status === 'done' ? item.updatedAt : '');
+    var t = Date.parse(iso || '');
+    return isNaN(t) ? 0 : t;
+  }
+
+  function compareItemsByClosedAt(a, b, newestFirst) {
+    var diff = itemClosedMs(a) - itemClosedMs(b);
+    if (diff) return newestFirst ? -diff : diff;
+    return compareItemsByTimeAdded(a, b, newestFirst);
+  }
+
+  function historyClosedMs(entry) {
+    var t = Date.parse(entry && entry.finishedAt ? entry.finishedAt : '');
+    return isNaN(t) ? 0 : t;
+  }
+
+  function sortHistoryForView(entries) {
+    var mode = normalizeHistorySort(state.historySort);
+    var newestFirst = mode !== 'closed-oldest';
+    return entries.slice().sort(function (a, b) {
+      var diff = historyClosedMs(a) - historyClosedMs(b);
+      if (diff) return newestFirst ? -diff : diff;
+      if ((a.id || '') < (b.id || '')) return -1;
+      if ((a.id || '') > (b.id || '')) return 1;
+      return 0;
+    });
   }
 
   function ensureItemSortOrders() {
@@ -507,6 +550,12 @@
     }
     if (mode === 'added-oldest') {
       return items.slice().sort(function (a, b) { return compareItemsByTimeAdded(a, b, false); });
+    }
+    if (mode === 'closed-newest') {
+      return items.slice().sort(function (a, b) { return compareItemsByClosedAt(a, b, true); });
+    }
+    if (mode === 'closed-oldest') {
+      return items.slice().sort(function (a, b) { return compareItemsByClosedAt(a, b, false); });
     }
     return sortItems(items);
   }
@@ -550,6 +599,7 @@
         statusFilter: state.statusFilter,
         categoryFilter: state.categoryFilter,
         itemSort: state.itemSort,
+        historySort: state.historySort,
         keepAddSelections: !!state.keepAddSelections,
         lastAddSelections: state.lastAddSelections
       }));
@@ -580,6 +630,7 @@
       if (typeof parsed.statusFilter === 'string') state.statusFilter = parsed.statusFilter;
       if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
       state.itemSort = normalizeItemSort(parsed.itemSort);
+      state.historySort = normalizeHistorySort(parsed.historySort);
       state.keepAddSelections = !!parsed.keepAddSelections;
       if (parsed.lastAddSelections && typeof parsed.lastAddSelections === 'object') {
         state.lastAddSelections = parsed.lastAddSelections;
@@ -766,12 +817,18 @@
     if (!item) return;
     if (item.status === 'done') {
       item.status = 'queued';
+      item.closedAt = null;
       item.updatedAt = new Date().toISOString();
       repositionItemByPriority(item);
       saveState();
       return;
     }
-    closeOutItem(item);
+    var runningTimer = getRunningTimer(id);
+    if (runningTimer) {
+      finishTimer(runningTimer.id, false);
+      return;
+    }
+    openCloseOutChoice(item);
   }
 
   function cloneItemForReprint(item) {
@@ -799,23 +856,116 @@
     };
   }
 
-  function askWillPrintAgain(item) {
-    if (!item) return;
-    pendingReprintItemId = item.id;
-    var lead = document.getElementById('reprintLead');
-    if (lead) lead.textContent = 'Add “' + item.title + '” to Will print again?';
-    openModal('reprintModal');
-  }
-
-  function markItemDone(item) {
+  function markItemDone(item, closedAtIso) {
     if (!item) return;
     item.status = 'done';
     item.waitlistReason = '';
+    item.closedAt = closedAtIso || new Date().toISOString();
     item.updatedAt = new Date().toISOString();
     repositionItemByPriority(item);
     state.timers = state.timers.filter(function (t) {
       return !(t.status === 'running' && t.itemId === item.id);
     });
+  }
+
+  function dismissCloseOutChoice() {
+    pendingCloseOutItemId = null;
+    closeModal('closeOutModal');
+  }
+
+  function openCloseOutChoice(item) {
+    if (!item) return;
+    pendingCloseOutItemId = item.id;
+    var lead = document.getElementById('closeOutLead');
+    if (lead) lead.textContent = '“' + item.title + '” — printing or finished?';
+    openModal('closeOutModal');
+  }
+
+  function closeOutChoosePrinting() {
+    var itemId = pendingCloseOutItemId;
+    dismissCloseOutChoice();
+    if (!itemId) return;
+    openCloseOutPrinterModal(itemId);
+  }
+
+  function closeOutChooseFinished() {
+    var item = getItem(pendingCloseOutItemId);
+    dismissCloseOutChoice();
+    if (!item) return;
+    openPrintFinishedModal(item);
+  }
+
+  function dismissCloseOutPrinter() {
+    pendingCloseOutItemId = null;
+    closeModal('closeOutPrinterModal');
+  }
+
+  function openCloseOutPrinterModal(itemId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    if (!state.printers.length) {
+      showToast('Add a printer first', { error: true });
+      setView('printers');
+      openPrinterEditor(null);
+      return;
+    }
+    pendingCloseOutItemId = itemId;
+    var lead = document.getElementById('closeOutPrinterLead');
+    if (lead) lead.textContent = 'Which printer is printing “' + item.title + '”?';
+    var list = document.getElementById('closeOutPrinterList');
+    if (list) {
+      list.innerHTML = '';
+      state.printers.forEach(function (p) {
+        var current = item.printerId === p.id;
+        var btn = el('button', {
+          type: 'button',
+          class: 'slice-printer-btn' + (current ? ' current' : ''),
+          onClick: function () {
+            var targetId = pendingCloseOutItemId;
+            pendingCloseOutItemId = null;
+            var target = getItem(targetId);
+            if (target) target.printerId = p.id;
+            closeModal('closeOutPrinterModal');
+            saveState();
+            if (targetId) openStartPrintModal(targetId);
+            render();
+          }
+        });
+        btn.appendChild(el('span', { text: p.name }));
+        if (p.model) btn.appendChild(el('span', { class: 'slice-printer-meta', text: p.model }));
+        else if (current) btn.appendChild(el('span', { class: 'slice-printer-meta', text: 'Already planned' }));
+        list.appendChild(btn);
+      });
+    }
+    openModal('closeOutPrinterModal');
+  }
+
+  function resetPrintFinishedModal() {
+    pendingRatingSelection = 0;
+    pendingWouldPrintAgain = null;
+    pendingRatingHistoryId = null;
+    var comment = document.getElementById('printRatingComment');
+    if (comment) comment.value = '';
+    syncPrintRatingStars(0);
+    syncWouldPrintAgainButtons(null);
+    syncPrintFinishedContinue();
+  }
+
+  function dismissPrintFinishedModal() {
+    pendingFinishedItemId = null;
+    pendingFinishTimerContext = null;
+    resetPrintFinishedModal();
+    closeModal('printRatingModal');
+  }
+
+  function openPrintFinishedModal(item, context) {
+    if (!item) return;
+    pendingFinishedItemId = item.id;
+    pendingFinishTimerContext = context || null;
+    resetPrintFinishedModal();
+    var lead = document.getElementById('printRatingLead');
+    if (lead) lead.textContent = 'How did “' + item.title + '” turn out?';
+    openModal('printRatingModal');
   }
 
   function syncPrintRatingStars(n) {
@@ -826,54 +976,73 @@
       btn.classList.toggle('on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+    syncPrintFinishedContinue();
+  }
+
+  function syncWouldPrintAgainButtons(value) {
+    pendingWouldPrintAgain = value === true ? true : (value === false ? false : null);
+    document.querySelectorAll('.print-again-btn').forEach(function (btn) {
+      var yes = btn.dataset.value === 'yes';
+      var on = pendingWouldPrintAgain === true && yes || pendingWouldPrintAgain === false && !yes;
+      btn.classList.toggle('selected', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    syncPrintFinishedContinue();
+  }
+
+  function syncPrintFinishedContinue() {
+    var hasAgain = pendingWouldPrintAgain === true || pendingWouldPrintAgain === false;
     var cont = document.getElementById('printRatingContinue');
-    if (cont) cont.disabled = n < 1;
+    if (cont) cont.disabled = !(pendingRatingSelection >= 1 && hasAgain);
+    var skip = document.getElementById('printRatingSkip');
+    if (skip) skip.disabled = !hasAgain;
   }
 
-  function openPrintRatingModal(item) {
-    if (!item) return;
-    pendingReprintItemId = item.id;
-    pendingRatingSelection = 0;
-    var lead = document.getElementById('printRatingLead');
-    if (lead) lead.textContent = 'How did “' + item.title + '” turn out?';
-    syncPrintRatingStars(0);
-    openModal('printRatingModal');
-  }
-
-  function applyPrintRatingAndContinue() {
-    if (pendingRatingHistoryId && pendingRatingSelection >= 1) {
-      var hx = state.history.find(function (h) { return h.id === pendingRatingHistoryId; });
-      if (hx) hx.rating = pendingRatingSelection;
+  function applyPrintFinished(opts) {
+    opts = opts || {};
+    var item = getItem(pendingFinishedItemId);
+    if (!item) {
+      dismissPrintFinishedModal();
+      return;
     }
-    var itemId = pendingReprintItemId;
-    pendingRatingHistoryId = null;
-    pendingRatingSelection = 0;
+    var commentEl = document.getElementById('printRatingComment');
+    var comment = commentEl ? commentEl.value.trim() : '';
+    var rating = opts.skipRating ? null : (pendingRatingSelection >= 1 ? pendingRatingSelection : null);
+    if (!opts.skipRating && rating == null) {
+      showToast('Pick a rating or use Skip rating', { error: true });
+      return;
+    }
+    if (pendingWouldPrintAgain !== true && pendingWouldPrintAgain !== false) {
+      showToast('Choose whether you would print again', { error: true });
+      return;
+    }
+    var timerCtx = pendingFinishTimerContext;
+    var finishedAt = new Date().toISOString();
+    var entry = normalizeHistory({
+      printerId: (timerCtx && timerCtx.printerId) || item.printerId,
+      itemId: item.id,
+      itemTitle: item.title,
+      startedAt: timerCtx ? timerCtx.startedAt : null,
+      finishedAt: finishedAt,
+      durationMinutes: timerCtx ? timerCtx.durationMinutes : item.estimatedMinutes,
+      rating: rating,
+      comment: comment,
+      wouldPrintAgain: pendingWouldPrintAgain
+    });
+    state.history.unshift(entry);
+    markItemDone(item, finishedAt);
+    if (pendingWouldPrintAgain === true) {
+      addItem(cloneItemForReprint(item));
+      showToast('Added to Will print again');
+    }
+    dismissPrintFinishedModal();
     saveState();
-    closeModal('printRatingModal');
-    askWillPrintAgain(getItem(itemId));
+    render();
+    showToast('Print logged');
   }
 
   function skipPrintRating() {
-    pendingRatingHistoryId = null;
-    pendingRatingSelection = 0;
-    closeModal('printRatingModal');
-    askWillPrintAgain(getItem(pendingReprintItemId));
-  }
-
-  function closeOutItem(item) {
-    if (!item) return;
-    var entry = normalizeHistory({
-      printerId: item.printerId,
-      itemId: item.id,
-      itemTitle: item.title,
-      finishedAt: new Date().toISOString(),
-      durationMinutes: item.estimatedMinutes
-    });
-    state.history.unshift(entry);
-    pendingRatingHistoryId = entry.id;
-    markItemDone(item);
-    saveState();
-    openPrintRatingModal(item);
+    applyPrintFinished({ skipRating: true });
   }
 
   function markSliced(itemId, printerId) {
@@ -954,28 +1123,32 @@
     var timer = state.timers.find(function (t) { return t.id === timerId; });
     if (!timer) return;
     state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
+    saveState();
+    if (!cancelled && timer.itemId) {
+      var item = getItem(timer.itemId);
+      if (item && item.status !== 'done') {
+        openPrintFinishedModal(item, {
+          printerId: timer.printerId,
+          startedAt: timer.startedAt,
+          durationMinutes: timer.durationMinutes
+        });
+        render();
+        return;
+      }
+    }
     if (!cancelled) {
-      var entry = normalizeHistory({
+      var orphan = normalizeHistory({
         printerId: timer.printerId,
         itemId: timer.itemId,
-        itemTitle: timer.itemTitle || (getItem(timer.itemId) || {}).title || 'Print',
+        itemTitle: timer.itemTitle || 'Print',
         startedAt: timer.startedAt,
         finishedAt: new Date().toISOString(),
         durationMinutes: timer.durationMinutes
       });
-      state.history.unshift(entry);
-      pendingRatingHistoryId = entry.id;
-      if (timer.itemId) {
-        var item = getItem(timer.itemId);
-        if (item && item.status !== 'done') {
-          markItemDone(item);
-          saveState();
-          openPrintRatingModal(item);
-          return;
-        }
-      }
+      state.history.unshift(orphan);
+      saveState();
     }
-    saveState();
+    render();
   }
 
   // ---- Filament color picker (HSV) ----
@@ -1769,8 +1942,6 @@
         onClick: function (e) {
           e.stopPropagation();
           finishTimer(runningTimer.id, false);
-          render();
-          showToast('Print logged');
         }
       }));
       printActions.appendChild(el('button', {
@@ -2054,8 +2225,6 @@
             text: 'Done',
             onClick: function () {
               finishTimer(timer.id, false);
-              render();
-              showToast('Print logged');
             }
           }));
           side.appendChild(el('button', {
@@ -2082,21 +2251,25 @@
         if (historyEmpty) historyEmpty.hidden = false;
       } else {
         if (historyEmpty) historyEmpty.hidden = true;
-        state.history.slice(0, 40).forEach(function (h) {
+        var historySort = document.getElementById('historySort');
+        if (historySort) historySort.value = normalizeHistorySort(state.historySort);
+        sortHistoryForView(state.history).slice(0, 40).forEach(function (h) {
           var printer = getPrinter(h.printerId);
           var row = el('div', { class: 'history-row' });
           var info = el('div', { class: 'printer-info' });
           info.appendChild(el('div', { class: 'printer-name', text: h.itemTitle || 'Print' }));
           var stars = formatStarRating(h.rating);
-          info.appendChild(el('div', {
-            class: 'printer-meta',
-            text: [
-              printer ? printer.name : 'Unknown printer',
-              h.durationMinutes != null ? h.durationMinutes + ' min' : null,
-              stars || null,
-              formatWhen(h.finishedAt)
-            ].filter(Boolean).join(' · ')
-          }));
+          var metaBits = [
+            printer ? printer.name : 'Unknown printer',
+            h.durationMinutes != null ? h.durationMinutes + ' min' : null,
+            stars || null,
+            h.wouldPrintAgain === true ? 'Print again' : (h.wouldPrintAgain === false ? 'No reprint' : null),
+            formatWhen(h.finishedAt)
+          ].filter(Boolean);
+          info.appendChild(el('div', { class: 'printer-meta', text: metaBits.join(' · ') }));
+          if (h.comment) {
+            info.appendChild(el('div', { class: 'history-comment', text: h.comment }));
+          }
           row.appendChild(info);
           historyList.appendChild(row);
         });
@@ -2892,7 +3065,8 @@
         categoryFilter: 'all',
         keepAddSelections: false,
         lastAddSelections: null,
-        itemSort: 'custom'
+        itemSort: 'custom',
+        historySort: 'closed-newest'
       };
       resetQuickAddSelections();
       ensureFilamentColors();
@@ -3121,12 +3295,42 @@
         syncPrintRatingStars(parseInt(btn.dataset.stars, 10));
       });
     });
-    document.getElementById('printRatingContinue').addEventListener('click', applyPrintRatingAndContinue);
-    document.getElementById('printRatingSkip').addEventListener('click', skipPrintRating);
-    document.getElementById('printRatingModalClose').addEventListener('click', skipPrintRating);
-    document.getElementById('printRatingModal').addEventListener('click', function (e) {
-      if (e.target.id === 'printRatingModal') skipPrintRating();
+    document.getElementById('printAgainYesBtn').addEventListener('click', function () {
+      syncWouldPrintAgainButtons(true);
     });
+    document.getElementById('printAgainNoBtn').addEventListener('click', function () {
+      syncWouldPrintAgainButtons(false);
+    });
+    document.getElementById('printRatingContinue').addEventListener('click', function () {
+      applyPrintFinished({ skipRating: false });
+    });
+    document.getElementById('printRatingSkip').addEventListener('click', skipPrintRating);
+    document.getElementById('printRatingModalClose').addEventListener('click', dismissPrintFinishedModal);
+    document.getElementById('printRatingModal').addEventListener('click', function (e) {
+      if (e.target.id === 'printRatingModal') dismissPrintFinishedModal();
+    });
+
+    document.getElementById('closeOutPrintingBtn').addEventListener('click', closeOutChoosePrinting);
+    document.getElementById('closeOutFinishedBtn').addEventListener('click', closeOutChooseFinished);
+    document.getElementById('closeOutCancel').addEventListener('click', dismissCloseOutChoice);
+    document.getElementById('closeOutModalClose').addEventListener('click', dismissCloseOutChoice);
+    document.getElementById('closeOutModal').addEventListener('click', function (e) {
+      if (e.target.id === 'closeOutModal') dismissCloseOutChoice();
+    });
+    document.getElementById('closeOutPrinterCancel').addEventListener('click', dismissCloseOutPrinter);
+    document.getElementById('closeOutPrinterModalClose').addEventListener('click', dismissCloseOutPrinter);
+    document.getElementById('closeOutPrinterModal').addEventListener('click', function (e) {
+      if (e.target.id === 'closeOutPrinterModal') dismissCloseOutPrinter();
+    });
+
+    var historySortEl = document.getElementById('historySort');
+    if (historySortEl) {
+      historySortEl.addEventListener('change', function () {
+        state.historySort = normalizeHistorySort(this.value);
+        saveState();
+        render();
+      });
+    }
 
     function dismissReprintPrompt() {
       pendingReprintItemId = null;

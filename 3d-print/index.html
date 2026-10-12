@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <header class="app-header">
@@ -50,6 +50,8 @@
             <option value="custom">Custom</option>
             <option value="added-newest">Newest added</option>
             <option value="added-oldest">Oldest added</option>
+            <option value="closed-newest">Newest closed</option>
+            <option value="closed-oldest">Oldest closed</option>
           </select>
         </div>
         <div class="list-filter-row" id="categoryFilterRow" hidden>
@@ -151,7 +153,13 @@
             <p class="eyebrow">Log</p>
             <h2>Print history</h2>
           </div>
-          <button type="button" class="btn" id="clearHistoryBtn">Clear</button>
+          <div class="section-head-actions">
+            <select id="historySort" class="list-filter-select history-sort-select" aria-label="Sort print history">
+              <option value="closed-newest">Newest closed</option>
+              <option value="closed-oldest">Oldest closed</option>
+            </select>
+            <button type="button" class="btn" id="clearHistoryBtn">Clear</button>
+          </div>
         </div>
         <div id="historyList"></div>
         <div class="empty-state" id="historyEmpty" hidden>
@@ -365,7 +373,50 @@
     </div>
   </div>
 
-  <!-- Print rating -->
+  <!-- Close out — printing or finished -->
+  <div class="modal-backdrop" id="closeOutModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Close out</div>
+        <button type="button" class="icon-btn" id="closeOutModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="closeOutLead">Printing or finished?</p>
+        <div class="close-out-choices">
+          <button type="button" class="btn close-out-choice-btn" id="closeOutPrintingBtn">Printing</button>
+          <button type="button" class="btn btn-primary close-out-choice-btn" id="closeOutFinishedBtn">Finished</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="closeOutCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Close out — pick printer for printing -->
+  <div class="modal-backdrop" id="closeOutPrinterModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title">Printing</div>
+        <button type="button" class="icon-btn" id="closeOutPrinterModalClose" aria-label="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-lead" id="closeOutPrinterLead">Which printer?</p>
+        <div id="closeOutPrinterList" class="slice-printer-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" id="closeOutPrinterCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print finished — rating, comment, print again -->
   <div class="modal-backdrop" id="printRatingModal" role="dialog" aria-modal="true">
     <div class="modal">
       <div class="modal-handle"></div>
@@ -384,10 +435,21 @@
           <button type="button" class="print-rating-star" data-stars="4" aria-label="4 stars">★</button>
           <button type="button" class="print-rating-star" data-stars="5" aria-label="5 stars">★</button>
         </div>
+        <div class="field print-rating-comment-field">
+          <label class="field-label" for="printRatingComment">Comment (optional)</label>
+          <textarea id="printRatingComment" rows="3" placeholder="Notes on fit, settings, tweaks…" autocomplete="off"></textarea>
+        </div>
+        <div class="print-again-field">
+          <span class="field-label">Would print again?</span>
+          <div class="print-again-toggle" role="group" aria-label="Would print again">
+            <button type="button" class="btn print-again-btn" id="printAgainNoBtn" data-value="no">No</button>
+            <button type="button" class="btn print-again-btn" id="printAgainYesBtn" data-value="yes">Yes</button>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn" id="printRatingSkip">Skip</button>
-        <button type="button" class="btn btn-primary" id="printRatingContinue" disabled>Continue</button>
+        <button type="button" class="btn" id="printRatingSkip">Skip rating</button>
+        <button type="button" class="btn btn-primary" id="printRatingContinue" disabled>Save</button>
       </div>
     </div>
   </div>
@@ -648,6 +710,6 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>
