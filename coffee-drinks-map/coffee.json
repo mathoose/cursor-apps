@@ -4465,8 +4465,37 @@
     "website": "",
     "instagramUrl": "",
     "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed — verify before visiting.",
-    "hours": {}
+    "hoursNote": "OSM opening_hours near pin (Capriccio Cafe and Bar at Cret Park): Mo-Fr 07:00-19:00; Sa-Su 08:00-19:00",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "7:00 PM"
+      }
+    }
   },
   {
     "id": "cinemug",
@@ -4777,8 +4806,37 @@
     "website": "",
     "instagramUrl": "",
     "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed — verify before visiting.",
-    "hours": {}
+    "hoursNote": "OSM opening_hours near pin (Luck You): Mo-Su 10:00-20:00",
+    "hours": {
+      "Monday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Thursday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Friday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      },
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "8:00 PM"
+      }
+    }
   },
   {
     "id": "luckycup",
@@ -4835,15 +4893,40 @@
   {
     "id": "mightybread",
     "name": "Mighty Bread",
-    "neighborhood": "",
-    "address": "Gerritt Street",
+    "neighborhood": "East Passyunk",
+    "address": "1211 Gerritt Street",
     "lat": 39.9321566,
     "lng": -75.1647381,
-    "website": "",
+    "website": "https://www.mightybreadco.com/location/bakery-cafe/",
     "instagramUrl": "",
-    "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed — verify before visiting.",
-    "hours": {}
+    "hoursSource": "google",
+    "hoursNote": "Monday, Wednesday–Friday 8am–6pm; Saturday–Sunday 9am–4pm; closed Tuesday (Google Maps / mightybreadco.com).",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "4:00 PM"
+      }
+    }
   },
   {
     "id": "milkcratevinyl",
@@ -5141,7 +5224,32 @@
     "website": "",
     "instagramUrl": "",
     "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed — verify before visiting.",
-    "hours": {}
+    "hoursNote": "OSM opening_hours near pin (Tribe Cafe): Mo-Sa 08:00-22:30",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "10:30 PM"
+      }
+    }
   }
 ]
