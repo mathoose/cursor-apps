@@ -12,6 +12,7 @@
  *   node fetch-google-hours.js --catalog coffee --limit 50
  *   node fetch-google-hours.js --force   # re-fetch all
  *   node fetch-google-hours.js --only "Barcelona Wine Bar,Cantinas los caballitos" --force
+ *   node fetch-google-hours.js --catalog coffee --only-empty --limit 50
  *
  * Billing: each place uses ~2 calls (Text Search + Place Details with
  * regularOpeningHours). Google offers free monthly tiers; see:
@@ -30,6 +31,7 @@ const DELAY_MS = 250;
 
 const args = process.argv.slice(2);
 const force = args.includes('--force');
+const onlyEmpty = args.includes('--only-empty');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : Infinity;
 const onlyIdx = args.indexOf('--only');
@@ -47,6 +49,14 @@ function catalogPaths(cat) {
     return { placesPath: FOOD_PATH, label: 'coffee-drinks-map/food.json' };
   }
   return { placesPath: DRINKS_PATH, label: 'coffee-drinks-map/drinks.json' };
+}
+
+function hasStructuredHours(hours) {
+  if (!hours || typeof hours !== 'object') return false;
+  return DAY_NAMES.some(function(d) {
+    var h = hours[d];
+    return h && h.open && h.close;
+  });
 }
 
 function sleep(ms) {
@@ -287,7 +297,8 @@ async function main() {
     todo = places.filter(function(p) { return set[p.name]; });
   } else {
     todo = places.filter(function(p) {
-      return force || p.hoursSource !== 'google' || !p.hours;
+      if (onlyEmpty && hasStructuredHours(p.hours)) return false;
+      return force || p.hoursSource !== 'google' || !hasStructuredHours(p.hours);
     });
   }
   if (isFinite(limit)) todo = todo.slice(0, limit);

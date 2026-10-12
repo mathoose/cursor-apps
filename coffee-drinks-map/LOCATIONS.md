@@ -61,7 +61,15 @@ node sync-google-addresses.js --catalog food --all --limit 50
 node sync-google-addresses.js --catalog coffee --all --limit 50
 ```
 
-Spot fixes: `--only "Restaurant A,Cafe B"` or `--force` to re-fetch. Commit updated JSON and open a PR (or merge small PRs per batch).
+Spot fixes: `--only "Restaurant A,Cafe B"` or `--force` to re-fetch.
+
+Coffee pins stuck **grey** with empty `hours: {}` (OSM placeholder): run
+
+```bash
+node fetch-google-hours.js --catalog coffee --only-empty --limit 50
+```
+
+Repeat until the script reports few skips. Commit updated JSON and open a PR (or merge small PRs per batch).
 
 Billing: pay-per-request with monthly Maps Platform credit; see [Places usage and billing](https://developers.google.com/maps/documentation/places/web-service/usage-and-billing).
 
