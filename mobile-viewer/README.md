@@ -1,6 +1,8 @@
 # Tracker Viewer
 
-Read-only phone viewer for exports from `daily-tank-tracker.html`.
+Read-only phone viewer for exports from `daily-tank-tracker.html` / tank tracker v2.
+
+Each batch opens as **one activity column**: results, adjustments, and linked emails, color-coded. Emails with an Outlook/Graph link use **Open in Outlook** (opens the Outlook app on iPhone when the app is installed).
 
 **Live:** https://mathoose.github.io/cursor-apps/mobile-viewer/
 

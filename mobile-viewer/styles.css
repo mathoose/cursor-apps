@@ -479,6 +479,98 @@ main {
   border-bottom: 1px solid var(--border);
 }
 
+.activity-legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
+.activity-legend .leg {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.activity-legend .leg.kind-result,
+.activity-card.kind-result .activity-kind {
+  color: var(--ok);
+  border-color: rgba(62, 207, 142, 0.45);
+}
+
+.activity-legend .leg.kind-adjustment,
+.activity-card.kind-adjustment .activity-kind {
+  color: var(--warn);
+  border-color: rgba(232, 184, 74, 0.45);
+}
+
+.activity-legend .leg.kind-email,
+.activity-card.kind-email .activity-kind {
+  color: var(--accent);
+  border-color: rgba(61, 158, 232, 0.5);
+}
+
+.activity-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-card {
+  padding: 10px 12px 10px 14px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+}
+
+.activity-card.kind-result { border-left-color: var(--ok); }
+.activity-card.kind-adjustment { border-left-color: var(--warn); }
+.activity-card.kind-email { border-left-color: var(--accent); }
+.activity-card.kind-comment { border-left-color: var(--muted); }
+
+.activity-kind {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.activity-title {
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+
+.activity-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.92rem;
+}
+
+.outlook-link {
+  display: inline-block;
+  margin-top: 10px;
+  min-height: 44px;
+  line-height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--accent-dim);
+  color: #fff !important;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.outlook-link:active { opacity: 0.85; }
+
+.activity-missing-link {
+  margin-top: 8px;
+  font-size: 0.78rem;
+}
+
 .nested-record {
   margin: 8px 0;
   padding: 10px;
