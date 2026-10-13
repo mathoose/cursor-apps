@@ -2,8 +2,8 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "4 · Aug 30, 2026";
-  var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
+  var APP_VERSION = "5 · Oct 13, 2026";
+  var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html or tank tracker v2.";
   var BACKUP_KEYS = [
     "tanks",
     "tasks",
@@ -13,6 +13,13 @@
     "seriesProfiles",
     "drbEntries",
     "drbNotes",
+    "emails",
+    "mailItems",
+    "mailLinks",
+    "outlookMessages",
+    "activity",
+    "productLines",
+    "results",
   ];
   var LARGE_BYTES = 150 * 1024 * 1024;
   var IDB_NAME = "trackerViewer";
@@ -160,13 +167,14 @@
   }
 
   function lastCommentText(tank) {
-    var comments = sortByCreatedDesc(tank && tank.comments);
-    for (var i = 0; i < comments.length; i++) {
-      if (text(comments[i] && comments[i].text)) return text(comments[i].text);
-    }
-    var adjs = sortByCreatedDesc(tank && tank.adjustments);
-    for (var j = 0; j < adjs.length; j++) {
-      var note = firstText(adjs[j], ["note", "commentAfter", "commentBefore"]);
+    var acts = collectTankActivity(tank);
+    for (var i = acts.length - 1; i >= 0; i--) {
+      var raw = acts[i].raw || {};
+      if (acts[i].kind === "email") {
+        var sub = firstText(raw, ["subject", "title"]);
+        if (sub) return sub;
+      }
+      var note = firstText(raw, ["text", "note", "commentAfter", "commentBefore", "preview"]);
       if (note) return note;
     }
     return "";
@@ -765,6 +773,296 @@
       : '<span class="check off" aria-hidden="true">☐</span>';
   }
 
+  function stripHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function eventTime(item) {
+    if (!item || typeof item !== "object") return "";
+    return (
+      item.createdAt ||
+      item.receivedTime ||
+      item.receivedAt ||
+      item.sentTime ||
+      item.sentAt ||
+      item.date ||
+      item.timestamp ||
+      item.when ||
+      item.updatedAt ||
+      ""
+    );
+  }
+
+  function outlookHref(mail) {
+    if (!mail) return "";
+    var web = firstText(mail, [
+      "webLink",
+      "webUrl",
+      "outlookWebLink",
+      "owaUrl",
+      "owaLink",
+      "deeplink",
+      "deepLink",
+      "outlookUrl",
+      "officeUrl",
+      "url",
+      "href",
+      "link",
+    ]);
+    if (/^https?:\/\//i.test(web) || /^ms-outlook:/i.test(web)) return web;
+    var iid = firstText(mail, ["internetMessageId", "internetMessageID", "rfc822Id", "rfc822MessageId", "messageId"]);
+    if (iid && /@/.test(iid)) {
+      return "ms-outlook://emails/message/" + encodeURIComponent(iid.replace(/^<|>$/g, ""));
+    }
+    var itemId = firstText(mail, ["immutableId", "graphId", "outlookItemId", "itemId", "entryId"]);
+    if (itemId && String(itemId).length > 16) {
+      return "https://outlook.office.com/mail/deeplink/read/" + encodeURIComponent(itemId);
+    }
+    return "";
+  }
+
+  function emailBodyText(mail) {
+    var body = firstText(mail, ["bodyText", "body", "preview", "snippet", "text", "summary"]);
+    if (body) return body;
+    if (mail && mail.bodyHtml) return stripHtml(mail.bodyHtml);
+    if (mail && mail.html) return stripHtml(mail.html);
+    return "";
+  }
+
+  function activityKind(item, fallback) {
+    if (!item || typeof item !== "object") return fallback || "comment";
+    var t = text(item.type || item.kind || item.entryType || item.category || item.eventType || fallback).toLowerCase();
+    if (
+      /email|mail|outlook|message/.test(t) ||
+      item.subject ||
+      item.internetMessageId ||
+      item.webLink ||
+      item.bodyText
+    ) {
+      if (item.subject || item.internetMessageId || item.webLink || /email|mail|outlook/.test(t)) return "email";
+    }
+    if (/result|reading|measurement|lab|viscosity|solids|spc|qc\b/.test(t)) return "result";
+    if (item.chemLines || item.totalAdjustmentKg != null || /adjust|addition|ps\b|chem/.test(t)) return "adjustment";
+    if (/comment|note|log/.test(t)) return "comment";
+    if (fallback) return fallback;
+    if (item.commentBefore || item.commentAfter || item.startingValue != null) return "adjustment";
+    return "comment";
+  }
+
+  function looksLikeEmail(item) {
+    return activityKind(item, "") === "email";
+  }
+
+  function allEmails() {
+    var d = dataOf();
+    var out = [];
+    ["emails", "mailItems", "mailLinks", "outlookMessages", "linkedEmails"].forEach(function (k) {
+      asArray(d[k]).forEach(function (m) {
+        if (m) out.push(m);
+      });
+    });
+    asArray(d.projects).forEach(function (proj) {
+      asArray(proj && proj.mailLinks).forEach(function (m) {
+        if (m) out.push(m);
+      });
+    });
+    asArray(d.tanks).forEach(function (tank) {
+      ["emails", "mailLinks", "linkedEmails", "outlookMessages", "mailItems"].forEach(function (k) {
+        asArray(tank && tank[k]).forEach(function (m) {
+          if (m) out.push(m);
+        });
+      });
+    });
+    return out;
+  }
+
+  function emailDedupeKey(mail) {
+    return (
+      firstText(mail, ["id", "internetMessageId", "webLink", "itemId", "graphId"]) ||
+      [firstText(mail, ["subject"]), eventTime(mail), firstText(mail, ["senderName", "from"])].join("|")
+    );
+  }
+
+  function lotish(value) {
+    return normalizeLot(value);
+  }
+
+  function emailsForTank(tank) {
+    if (!tank) return [];
+    var tankId = itemId(tank, "");
+    var lot = lotish(tank.usawLot || tank.lotNumber || tank.lot);
+    var product = normalizeLot(batchProduct(tank) || tank.productLine || tank.materialSeries);
+    var tankNo = text(tank.tankNumber);
+    var seen = {};
+    var out = [];
+    allEmails().forEach(function (mail) {
+      if (!looksLikeEmail(mail) && !mail.subject && !mail.webLink) return;
+      var key = emailDedupeKey(mail);
+      if (seen[key]) return;
+      var match = false;
+      if (tankId && String(mail.tankId || mail.batchId || mail.tank) === tankId) match = true;
+      if (!match && tankNo && String(mail.tankNumber || "") === tankNo) match = true;
+      var mailLot = lotish(mail.lot || mail.lotNumber || mail.usawLot || mail.usaw);
+      if (!match && lot && mailLot && lotsMatch(lot, mailLot)) match = true;
+      var mailProd = normalizeLot(mail.product || mail.productLine || mail.materialSeries || mail.series);
+      if (!match && product && mailProd && mailProd === product) match = true;
+      if (!match) return;
+      seen[key] = 1;
+      out.push(mail);
+    });
+    return out;
+  }
+
+  function collectTankActivity(tank) {
+    if (!tank) return [];
+    var items = [];
+    var seen = {};
+    function push(kind, raw) {
+      if (!raw || typeof raw !== "object") return;
+      var key =
+        (raw.id != null ? String(raw.id) : "") ||
+        kind + ":" + eventTime(raw) + ":" + firstText(raw, ["subject", "text", "type", "title", "note"]);
+      if (seen[key]) return;
+      seen[key] = 1;
+      items.push({
+        kind: activityKind(raw, kind),
+        raw: raw,
+        at: eventTime(raw),
+      });
+    }
+    ["activity", "timeline", "events", "history"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (ev) {
+        push((ev && (ev.kind || ev.type)) || "comment", ev);
+      });
+    });
+    asArray(tank.adjustments).forEach(function (a) {
+      push("adjustment", a);
+    });
+    ["results", "labResults", "measurements", "readings", "spcResults", "qcResults"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (r) {
+        push("result", r);
+      });
+    });
+    ["emails", "mailLinks", "linkedEmails", "outlookMessages", "mailItems"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (m) {
+        push("email", m);
+      });
+    });
+    asArray(tank.comments).forEach(function (c) {
+      push("comment", c);
+    });
+    emailsForTank(tank).forEach(function (m) {
+      push("email", m);
+    });
+    items.sort(function (a, b) {
+      return new Date(a.at || 0) - new Date(b.at || 0);
+    });
+    return items;
+  }
+
+  function resultSummary(item) {
+    var label = firstText(item, ["type", "kind", "title", "name", "test", "parameter", "metric"]) || "Result";
+    var value = firstText(item, ["value", "reading", "result", "actual", "actualResult", "measured"]);
+    var unit = firstText(item, ["unit", "units"]);
+    if (value && unit && value.indexOf(unit) === -1) value = value + " " + unit;
+    if (value && label) return label + " · " + value;
+    return value || label;
+  }
+
+  function emailCardHtml(mail) {
+    var href = outlookHref(mail);
+    var subject = firstText(mail, ["subject", "title", "name"]) || "(no subject)";
+    var from = firstText(mail, ["senderName", "fromName", "from", "fromAddress", "sender", "fromEmail"]);
+    var when = formatDateTime(eventTime(mail));
+    var body = emailBodyText(mail);
+    var html = '<div class="activity-card kind-email">';
+    html += '<div class="activity-kind">Email</div>';
+    html += '<div class="activity-title">' + esc(subject) + "</div>";
+    html += '<div class="entry-time">' + esc([from, when].filter(Boolean).join(" · ")) + "</div>";
+    if (body) html += '<div class="activity-body">' + nl(clip(body, 1600)) + "</div>";
+    if (href) {
+      html +=
+        '<a class="outlook-link" href="' +
+        esc(href) +
+        '">Open in Outlook</a>';
+    } else {
+      html += '<div class="muted activity-missing-link">No Outlook link in this export</div>';
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function activityCardHtml(entry) {
+    var kind = entry.kind;
+    var raw = entry.raw;
+    if (kind === "email") return emailCardHtml(raw);
+    if (kind === "adjustment") {
+      var htmlAdj = '<div class="activity-card kind-adjustment">';
+      htmlAdj += '<div class="activity-kind">Adjustment</div>';
+      htmlAdj += "<strong>" + esc(firstText(raw, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
+      if (entry.at) htmlAdj += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+      htmlAdj += recordFieldsHtml(raw, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
+      htmlAdj += photoHtml(raw.imageData, raw.imageName, raw.imageName ? "Photo — " + raw.imageName : "Photo — adjustment");
+      htmlAdj += "</div>";
+      return htmlAdj;
+    }
+    if (kind === "result") {
+      var htmlRes = '<div class="activity-card kind-result">';
+      htmlRes += '<div class="activity-kind">Result</div>';
+      htmlRes += "<strong>" + esc(resultSummary(raw)) + "</strong>";
+      if (entry.at) htmlRes += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+      htmlRes += recordFieldsHtml(raw, {
+        id: 1,
+        type: 1,
+        kind: 1,
+        title: 1,
+        name: 1,
+        createdAt: 1,
+        imageName: 1,
+        value: 1,
+        reading: 1,
+        result: 1,
+        unit: 1,
+        units: 1,
+      });
+      htmlRes += photoHtml(raw.imageData, raw.imageName, "Photo — result");
+      htmlRes += "</div>";
+      return htmlRes;
+    }
+    var htmlNote = '<div class="activity-card kind-comment">';
+    htmlNote += '<div class="activity-kind">Note</div>';
+    if (entry.at) htmlNote += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+    if (text(raw.text || raw.note || raw.comment)) htmlNote += "<div>" + nl(raw.text || raw.note || raw.comment) + "</div>";
+    htmlNote += photoHtml(raw.imageData, raw.imageName, "Photo — comment");
+    htmlNote += "</div>";
+    return htmlNote;
+  }
+
+  function activityColumnHtml(entries) {
+    var html = '<section class="detail-section activity-col"><h3>Activity</h3>';
+    html +=
+      '<div class="activity-legend" aria-hidden="true">' +
+      '<span class="leg kind-result">Result</span>' +
+      '<span class="leg kind-adjustment">Adjustment</span>' +
+      '<span class="leg kind-email">Email</span>' +
+      "</div>";
+    if (!entries.length) {
+      html += '<p class="muted">No activity on this product line.</p></section>';
+      return html;
+    }
+    html += '<div class="activity-column">';
+    entries.forEach(function (entry) {
+      html += activityCardHtml(entry);
+    });
+    html += "</div></section>";
+    return html;
+  }
+
   function photoHtml(src, alt, caption) {
     if (!src) return "";
     var cap = caption ? "<figcaption>" + esc(caption) + "</figcaption>" : "";
@@ -946,6 +1244,14 @@
     });
     asArray(tank.adjustments).forEach(function (a) {
       collectRecordText(a, parts);
+    });
+    ["results", "labResults", "measurements", "readings", "activity", "emails", "mailLinks"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (item) {
+        collectRecordText(item, parts);
+      });
+    });
+    emailsForTank(tank).forEach(function (m) {
+      parts.push(m.subject, m.senderName, m.bodyText, m.lot);
     });
     return blob(parts);
   }
@@ -1522,7 +1828,7 @@
       todo: "Search waiting & to-dos…",
       processes: "Search title, tags, steps…",
       projects: "Search title, tags, notes…",
-      batches: "Search tank, lot, product…",
+      batches: "Search tank, lot, product, email…",
       drb: "Search lot, product, issue…",
     };
     els.searchInput.placeholder = placeholders[currentTab] || "Search";
@@ -1836,17 +2142,11 @@
     var mail = asArray(proj.mailLinks);
     if (mail.length) {
       html += '<section class="detail-section"><h3>Mail</h3>';
+      html += '<div class="activity-column">';
       mail.forEach(function (m) {
-        html += '<div class="entry">';
-        html += "<strong>" + esc(m.subject || "(no subject)") + "</strong>";
-        html +=
-          '<div class="entry-time">' +
-          esc([m.senderName, formatDateTime(m.receivedTime), m.lot].filter(Boolean).join(" · ")) +
-          "</div>";
-        if (text(m.bodyText)) html += "<div>" + nl(m.bodyText) + "</div>";
-        html += "</div>";
+        html += emailCardHtml(m);
       });
-      html += "</section>";
+      html += "</div></section>";
     }
     var entries = asArray(proj.entries).slice().sort(function (a, b) {
       return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
@@ -1886,37 +2186,8 @@
       ["Date finished", formatDate(tank.dateFinished) || tank.dateFinished],
     ]);
     html += "</section>";
-    var adjs = asArray(tank.adjustments).slice().sort(function (a, b) {
-      return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
-    });
-    html += '<section class="detail-section"><h3>Adjustments</h3>';
-    if (!adjs.length) html += '<p class="muted">None.</p>';
-    else {
-      adjs.forEach(function (a) {
-        html += '<div class="adjust">';
-        html += "<strong>" + esc(firstText(a, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
-        if (a.createdAt) html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
-        html += recordFieldsHtml(a, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
-        html += photoHtml(a.imageData, a.imageName, a.imageName ? "Photo — " + a.imageName : "Photo — adjustment");
-        html += "</div>";
-      });
-    }
-    html += "</section>";
-    var comments = asArray(tank.comments).slice().sort(function (a, b) {
-      return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
-    });
-    html += '<section class="detail-section"><h3>Comments</h3>';
-    if (!comments.length) html += '<p class="muted">None.</p>';
-    else {
-      comments.forEach(function (c) {
-        html += '<div class="comment">';
-        html += '<div class="entry-time">' + esc(formatDateTime(c.createdAt)) + "</div>";
-        if (text(c.text)) html += "<div>" + nl(c.text) + "</div>";
-        html += photoHtml(c.imageData, c.imageName, "Photo — comment");
-        html += "</div>";
-      });
-    }
-    html += "</section></article>";
+    html += activityColumnHtml(collectTankActivity(tank));
+    html += "</article>";
     return html;
   }
 
