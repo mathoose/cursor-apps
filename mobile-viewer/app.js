@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "5 · Oct 13, 2026";
+  var APP_VERSION = "6 · Oct 13, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html or tank tracker v2.";
   var BACKUP_KEYS = [
     "tanks",
@@ -798,6 +798,23 @@
     );
   }
 
+  function extractOutlookItemId(mail, web) {
+    var keys = ["immutableId", "graphId", "outlookItemId", "itemId", "entryId", "restId"];
+    var i;
+    for (i = 0; i < keys.length; i++) {
+      var v = text(mail && mail[keys[i]]);
+      if (v && v.length > 16 && !/^mail-?\d+$/i.test(v) && !/^email-?\d+$/i.test(v)) return v;
+    }
+    var url = String(web || "");
+    var m = url.match(/deeplink\/read\/([^/?#]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    m = url.match(/\/mail\/(?:inbox\/)?id\/([^/?#]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    m = url.match(/[?&](?:itemid|ItemID|restid)=([^&]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    return "";
+  }
+
   function outlookHref(mail) {
     if (!mail) return "";
     var web = firstText(mail, [
@@ -814,14 +831,14 @@
       "href",
       "link",
     ]);
-    if (/^https?:\/\//i.test(web) || /^ms-outlook:/i.test(web)) return web;
+    if (/^ms-outlook:/i.test(web)) return web;
     var iid = firstText(mail, ["internetMessageId", "internetMessageID", "rfc822Id", "rfc822MessageId", "messageId"]);
     if (iid && /@/.test(iid)) {
       return "ms-outlook://emails/message/" + encodeURIComponent(iid.replace(/^<|>$/g, ""));
     }
-    var itemId = firstText(mail, ["immutableId", "graphId", "outlookItemId", "itemId", "entryId"]);
-    if (itemId && String(itemId).length > 16) {
-      return "https://outlook.office.com/mail/deeplink/read/" + encodeURIComponent(itemId);
+    var itemId = extractOutlookItemId(mail, web);
+    if (itemId) {
+      return "ms-outlook://emails/message/" + encodeURIComponent(itemId);
     }
     return "";
   }
@@ -1371,14 +1388,30 @@
       items.push({
         section: waiting ? "waiting" : "todo",
         title: firstText(task, ["title", "text", "name", "waitingFor"]) || "Task",
-        source: firstText(task, ["projectTitle", "source", "tankNumber"]) || "Task",
+        source: firstText(task, ["projectTitle", "source", "tankNumber", "series", "materialSeries"]) || "Task",
         kind: waiting ? "waiting" : "task",
         when: task.dueDate || task.reminderDate || task.createdAt,
         tab: tab,
         id: id,
+        series: firstText(task, ["series", "materialSeries", "productLine", "family"]),
       });
     });
+    items.forEach(function (item) {
+      item.origin = todoOriginFrom(item);
+    });
     return items;
+  }
+
+  function todoOriginFrom(item) {
+    var src = text(item && item.source);
+    var kind = text(item && item.kind);
+    var series = text(item && item.series);
+    var blob = [src, kind, item && item.title, series].join(" ").toLowerCase();
+    if (item && item.tab === "batches") return "batch";
+    if (item && item.tab === "drb") return "drb";
+    if ((item && item.tab === "projects") || /\blinked\b/.test(blob) || /email|mail/.test(blob)) return "project";
+    if (series || /series|family/.test(blob)) return "series";
+    return "task";
   }
 
   function filtered(tab) {
@@ -1899,13 +1932,16 @@
       html += '<section class="detail-section"><h3>' + esc(title) + "</h3><div class='list'>";
       rows.forEach(function (item) {
         var canOpen = item.tab && item.tab !== "todo" && item.id;
+        var originClass = " origin-" + (item.origin || "task");
         html += canOpen
-          ? '<button type="button" class="list-item" data-open-tab="' +
+          ? '<button type="button" class="list-item' +
+            originClass +
+            '" data-open-tab="' +
             esc(item.tab) +
             '" data-open="' +
             esc(item.id) +
             '">'
-          : '<div class="list-item">';
+          : '<div class="list-item' + originClass + '">';
         html += todoRowHtml(item);
         html += canOpen ? "</button>" : "</div>";
       });
@@ -1917,14 +1953,20 @@
   }
 
   function todoRowHtml(item) {
-    var kindLabel = item.kind === "drb" ? "DRB" : item.kind || "to-do";
+    var origin = item.origin || "task";
+    var kindLabel =
+      item.section === "waiting" ? "Waiting" : item.kind === "drb" ? "DRB" : item.kind || "to-do";
     return (
       '<div class="title">' +
       esc(item.title) +
       "</div>" +
-      '<div class="meta"><span class="badge">' +
+      '<div class="meta"><span class="badge origin-' +
+      esc(origin) +
+      '">' +
       esc(kindLabel) +
-      "</span><span>" +
+      '</span><span class="origin-tag origin-' +
+      esc(origin) +
+      '">' +
       esc(item.source) +
       "</span>" +
       (item.when ? "<span>" + esc(formatDate(item.when) || item.when) + "</span>" : "") +
@@ -2419,6 +2461,13 @@
   }
 
   function onMainClick(e) {
+    var outlook = e.target.closest("a.outlook-link");
+    if (outlook) {
+      var href = outlook.getAttribute("href") || "";
+      if (/^https?:/i.test(href)) e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     var openBtn = e.target.closest("[data-open]");
     if (openBtn) {
       var tab = openBtn.getAttribute("data-open-tab");

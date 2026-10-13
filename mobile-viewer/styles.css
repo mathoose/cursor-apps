@@ -10,6 +10,10 @@
   --ok: #3ecf8e;
   --warn: #e8b84a;
   --danger: #e86b6b;
+  --origin-project: #3d9ee8;
+  --origin-batch: #3ecf8e;
+  --origin-series: #b794f6;
+  --origin-drb: #e8b84a;
   --radius: 12px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   --safe-top: env(safe-area-inset-top, 0px);
@@ -812,7 +816,42 @@ main {
   opacity: 0.8;
 }
 
-.nav-btn.active { color: var(--accent); }
+.nav-btn[data-tab="todo"].active { color: var(--text); }
+.nav-btn[data-tab="batches"] { color: #5e9a7a; }
+.nav-btn[data-tab="batches"].active { color: var(--origin-batch); }
+.nav-btn[data-tab="projects"] { color: #5b8eb8; }
+.nav-btn[data-tab="projects"].active { color: var(--origin-project); }
+.nav-btn[data-tab="processes"] { color: #8b7ab3; }
+.nav-btn[data-tab="processes"].active { color: var(--origin-series); }
+.nav-btn[data-tab="drb"] { color: #a38a4a; }
+.nav-btn[data-tab="drb"].active { color: var(--origin-drb); }
+
+.list-item.origin-project { border-left: 4px solid var(--origin-project); }
+.list-item.origin-batch { border-left: 4px solid var(--origin-batch); }
+.list-item.origin-series { border-left: 4px solid var(--origin-series); }
+.list-item.origin-drb { border-left: 4px solid var(--origin-drb); }
+
+.badge.origin-project {
+  background: rgba(61, 158, 232, 0.18);
+  color: var(--origin-project);
+}
+.badge.origin-batch {
+  background: rgba(62, 207, 142, 0.18);
+  color: var(--origin-batch);
+}
+.badge.origin-series {
+  background: rgba(183, 148, 246, 0.2);
+  color: var(--origin-series);
+}
+.badge.origin-drb {
+  background: rgba(232, 184, 74, 0.18);
+  color: var(--origin-drb);
+}
+
+.origin-tag.origin-project { color: var(--origin-project); }
+.origin-tag.origin-batch { color: var(--origin-batch); }
+.origin-tag.origin-series { color: var(--origin-series); }
+.origin-tag.origin-drb { color: var(--origin-drb); }
 
 .app-version-footer {
   text-align: center;
