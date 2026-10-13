@@ -1027,6 +1027,8 @@
         value: 1,
         reading: 1,
         result: 1,
+        unit: 1,
+        units: 1,
       });
       htmlRes += photoHtml(raw.imageData, raw.imageName, "Photo — result");
       htmlRes += "</div>";
