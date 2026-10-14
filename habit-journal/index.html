@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v77 -->
+  <!-- build: hj-today-version-v78 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3604,7 +3604,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v77 · Oct 6, 2026";
+  let habitJournalVersionText = "v78 · Oct 14, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3783,6 +3783,7 @@
       graphMa15 = !!parsed.ma15;
       graphMa30 = !!parsed.ma30;
       graphHideDaily = !!parsed.hideDaily;
+      graphYAxisRaw = !!parsed.yRaw;
       if (!graphMa15 && !graphMa30) graphHideDaily = false;
     } catch (e) { /* ok */ }
   }
@@ -3795,6 +3796,7 @@
           ma15: !!graphMa15,
           ma30: !!graphMa30,
           hideDaily: !!(graphHideDaily && (graphMa15 || graphMa30)),
+          yRaw: !!graphYAxisRaw,
         })
       );
     } catch (e) { /* ok */ }
@@ -3877,6 +3879,7 @@
   let graphMa15 = false;
   let graphMa30 = false;
   let graphHideDaily = false;
+  let graphYAxisRaw = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -8525,6 +8528,104 @@
     return padTop + plotH - (norm / 100) * plotH;
   }
 
+  function graphUnifiedAxisBounds(seriesList, domainStartIndex) {
+    let axisMin = null;
+    let axisMax = null;
+    let hasMinScale = false;
+    seriesList.forEach(function (series) {
+      if (usesPlotMinScale(series.habit)) hasMinScale = true;
+      const from = Math.max(domainStartIndex || 0, series.visibleStartIndex || 0);
+      for (let i = from; i < series.points.length; i++) {
+        const raw = series.points[i].raw;
+        if (raw == null || !isFinite(raw)) continue;
+        if (axisMax == null || raw > axisMax) axisMax = raw;
+        if (axisMin == null || raw < axisMin) axisMin = raw;
+      }
+      if (usesPlotMinScale(series.habit)) {
+        if (series.minRaw != null) {
+          axisMin = axisMin == null ? series.minRaw : Math.min(axisMin, series.minRaw);
+        }
+        if (series.maxRaw != null) {
+          axisMax = axisMax == null ? series.maxRaw : Math.max(axisMax, series.maxRaw);
+        }
+      }
+    });
+    if (!hasMinScale) axisMin = 0;
+    if (axisMin == null) axisMin = 0;
+    if (axisMax == null || axisMax <= axisMin) axisMax = axisMin + 1;
+    return { axisMin: axisMin, axisMax: axisMax };
+  }
+
+  function graphRawToUnifiedNorm(raw, axisBounds) {
+    if (raw == null || !isFinite(raw)) return null;
+    const span = axisBounds.axisMax - axisBounds.axisMin;
+    if (span <= 0) return 50;
+    return ((raw - axisBounds.axisMin) / span) * 100;
+  }
+
+  function graphSeriesDrawNorm(series, pointIndex, axisBounds, rawMode) {
+    const p = series.points[pointIndex];
+    if (!p || p.raw == null) return null;
+    if (!rawMode) return p.norm;
+    return graphRawToUnifiedNorm(p.raw, axisBounds);
+  }
+
+  function graphMaDrawNorm(series, pointIndex, windowSize, axisBounds, rawMode) {
+    if (!rawMode) {
+      const norms = movingAverageNorms(series.points, windowSize);
+      return norms[pointIndex];
+    }
+    const rawMa = movingAverageRawAt(series.points, windowSize, pointIndex);
+    return graphRawToUnifiedNorm(rawMa, axisBounds);
+  }
+
+  function graphYAxisReferenceHabit(seriesList) {
+    for (let i = 0; i < seriesList.length; i++) {
+      if (seriesList[i].habit.type !== "yesno") return seriesList[i].habit;
+    }
+    return seriesList.length ? seriesList[0].habit : null;
+  }
+
+  function formatGraphYAxisTick(value, seriesList) {
+    const allYesNo = seriesList.every(function (s) {
+      return s.habit.type === "yesno";
+    });
+    if (allYesNo) return String(Math.round(value));
+    const habit = graphYAxisReferenceHabit(seriesList);
+    if (!habit) return String(Math.round(value));
+    return formatGraphScaleNumber(habit, value);
+  }
+
+  function drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, domainStartIndex) {
+    const rawMode = graphYAxisRaw;
+    const axisBounds =
+      rawMode && seriesList.length
+        ? graphUnifiedAxisBounds(seriesList, domainStartIndex || 0)
+        : null;
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      let label;
+      if (rawMode && axisBounds) {
+        const t = g / 4;
+        const v = axisBounds.axisMax - t * (axisBounds.axisMax - axisBounds.axisMin);
+        label = formatGraphYAxisTick(v, seriesList);
+      } else {
+        label = String(100 - g * 25) + "%";
+      }
+      ctx.fillText(label, pad.left - 6, gy + 3);
+    }
+    return axisBounds;
+  }
+
   function formatGraphDayLabel(date) {
     return MONTHS[date.getMonth()] + " " + date.getDate();
   }
@@ -8791,12 +8892,19 @@
 
   function graphPlotLayout(w) {
     const width = Math.max(w, 280);
+    const padLeft = graphYAxisRaw ? 46 : GRAPH_PLOT_PAD.left;
+    const pad = {
+      top: GRAPH_PLOT_PAD.top,
+      right: GRAPH_PLOT_PAD.right,
+      bottom: GRAPH_PLOT_PAD.bottom,
+      left: padLeft,
+    };
     return {
       w: width,
       h: GRAPH_PLOT_HEIGHT,
-      pad: GRAPH_PLOT_PAD,
-      plotW: width - GRAPH_PLOT_PAD.left - GRAPH_PLOT_PAD.right,
-      plotH: GRAPH_PLOT_HEIGHT - GRAPH_PLOT_PAD.top - GRAPH_PLOT_PAD.bottom,
+      pad: pad,
+      plotW: width - pad.left - pad.right,
+      plotH: GRAPH_PLOT_HEIGHT - pad.top - pad.bottom,
     };
   }
 
@@ -9178,19 +9286,7 @@
     ctx.fillStyle = "#faf8f4";
     ctx.fillRect(0, 0, w, h);
 
-    ctx.strokeStyle = "#e4ddd2";
-    ctx.lineWidth = 1;
-    for (let g = 0; g <= 4; g++) {
-      const gy = pad.top + (plotH * g) / 4;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, gy);
-      ctx.lineTo(w - pad.right, gy);
-      ctx.stroke();
-      ctx.fillStyle = "#6b7264";
-      ctx.font = "10px sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
-    }
+    const axisBounds = drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, 0);
 
     let mid = nextLocalMidnightAfter(start);
     while (mid < now) {
@@ -9230,13 +9326,14 @@
       ctx.lineWidth = 2;
       ctx.beginPath();
       let started = false;
-      series.points.forEach(function (p) {
-        if (p.norm == null || p.ts < start || p.ts > now) {
+      series.points.forEach(function (p, pointIndex) {
+        const norm = graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
+        if (norm == null || p.ts < start || p.ts > now) {
           started = false;
           return;
         }
         const x = pad.left + ((p.ts - start) / span) * plotW;
-        const y = graphYForNorm(p.norm, plotH, pad.top);
+        const y = graphYForNorm(norm, plotH, pad.top);
         if (!started) {
           ctx.moveTo(x, y);
           started = true;
@@ -9246,10 +9343,11 @@
       });
       ctx.stroke();
 
-      series.points.forEach(function (p) {
-        if (p.norm == null || p.ts < start || p.ts > now) return;
+      series.points.forEach(function (p, pointIndex) {
+        const norm = graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
+        if (norm == null || p.ts < start || p.ts > now) return;
         const x = pad.left + ((p.ts - start) / span) * plotW;
-        const y = graphYForNorm(p.norm, plotH, pad.top);
+        const y = graphYForNorm(norm, plotH, pad.top);
         ctx.beginPath();
         ctx.arc(x, y, dotR, 0, Math.PI * 2);
         ctx.fillStyle = color;
@@ -9310,19 +9408,7 @@
       return pad.left + (pointCount === 1 ? 0 : (plotW * domainIndex) / (pointCount - 1));
     }
 
-    ctx.strokeStyle = "#e4ddd2";
-    ctx.lineWidth = 1;
-    for (let g = 0; g <= 4; g++) {
-      const gy = pad.top + (plotH * g) / 4;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, gy);
-      ctx.lineTo(w - pad.right, gy);
-      ctx.stroke();
-      ctx.fillStyle = "#6b7264";
-      ctx.font = "10px sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
-    }
+    const axisBounds = drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, domainStartIndex);
 
     const labelEvery = Math.max(1, Math.ceil(pointCount / 5));
     seriesList[0].points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
@@ -9343,8 +9429,8 @@
 
     seriesList.forEach(function (series) {
       const color = plotColorFromMap(series.habit.id, colorMap);
-      const norms = series.points.map(function (p) {
-        return p.norm;
+      const norms = series.points.map(function (p, pointIndex) {
+        return graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
       });
       const hideDaily =
         graphHideDaily && graphSupportsMovingAvg(range) && (graphMa15 || graphMa30);
@@ -9354,9 +9440,11 @@
         });
 
         series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-          if (p.norm == null) return;
-          const x = graphXForIndex(domainStartIndex + visibleIndex);
-          const y = graphYForNorm(p.norm, plotH, pad.top);
+          const pointIndex = domainStartIndex + visibleIndex;
+          const norm = norms[pointIndex];
+          if (norm == null) return;
+          const x = graphXForIndex(pointIndex);
+          const y = graphYForNorm(norm, plotH, pad.top);
           ctx.beginPath();
           ctx.arc(x, y, dotR, 0, Math.PI * 2);
           ctx.fillStyle = color;
@@ -9366,9 +9454,12 @@
 
       if (graphSupportsMovingAvg(range)) {
         if (graphMa15) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 15, axisBounds, graphYAxisRaw);
+          });
           strokeNormSeries(
             ctx,
-            movingAverageNorms(series.points, 15),
+            maNorms,
             domainStartIndex,
             graphXForIndex,
             plotH,
@@ -9378,9 +9469,12 @@
           );
         }
         if (graphMa30) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 30, axisBounds, graphYAxisRaw);
+          });
           strokeNormSeries(
             ctx,
-            movingAverageNorms(series.points, 30),
+            maNorms,
             domainStartIndex,
             graphXForIndex,
             plotH,
@@ -9433,6 +9527,14 @@
       btn.onclick = function () {
         if (!graphMa15 && !graphMa30) return;
         graphHideDaily = !graphHideDaily;
+        persistGraphMaPrefs();
+        renderGraphs();
+      };
+    });
+    root.querySelectorAll("[data-graph-y-axis]").forEach(function (btn) {
+      btn.onclick = function () {
+        const mode = btn.getAttribute("data-graph-y-axis");
+        graphYAxisRaw = mode === "raw";
         persistGraphMaPrefs();
         renderGraphs();
       };
@@ -9506,6 +9608,22 @@
         graphRangeLabel(range) +
         "</button>";
     });
+    html += "</div>";
+
+    html += '<div class="graph-ma-row" role="group" aria-label="Y axis scale">';
+    html += '<span class="graph-ma-label">Y-axis</span>';
+    html +=
+      '<button type="button" class="graph-range-btn graph-ma-btn' +
+      (!graphYAxisRaw ? " on" : "") +
+      '" data-graph-y-axis="percent" aria-pressed="' +
+      !graphYAxisRaw +
+      '">%</button>';
+    html +=
+      '<button type="button" class="graph-range-btn graph-ma-btn' +
+      (graphYAxisRaw ? " on" : "") +
+      '" data-graph-y-axis="raw" aria-pressed="' +
+      graphYAxisRaw +
+      '">Numbers</button>';
     html += "</div>";
 
     if (graphSupportsMovingAvg(graphRange)) {
@@ -9604,6 +9722,10 @@
         }
         if (graphHideDaily) html += " · daily hidden";
         html += "</p>";
+      }
+      if (graphYAxisRaw) {
+        html +=
+          '<p class="graph-ma-legend hint" style="margin:8px 0 0">Y-axis uses one shared number scale for all selected habits.</p>';
       }
       html += "</div>";
     }
