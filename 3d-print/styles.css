@@ -1151,6 +1151,65 @@ main {
 .print-rating-star:active {
   transform: scale(0.95);
 }
+.print-rating-comment-field {
+  margin-top: 12px;
+}
+.print-rating-comment-field textarea {
+  width: 100%;
+  min-height: 72px;
+  resize: vertical;
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-elevated);
+  color: inherit;
+}
+.print-again-field {
+  margin-top: 14px;
+}
+.print-again-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.print-again-btn {
+  flex: 1;
+  min-height: 40px;
+}
+.print-again-btn.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.close-out-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.close-out-choice-btn {
+  width: 100%;
+  min-height: 44px;
+  justify-content: center;
+}
+.section-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.history-sort-select {
+  max-width: 9.5rem;
+  font-size: 0.78rem;
+  padding: 6px 8px;
+  min-height: 32px;
+}
+.history-comment {
+  margin-top: 4px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
 
 .modal-handle {
   width: 36px;
