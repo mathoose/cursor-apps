@@ -66,6 +66,10 @@ On boot, `start` serves this repository at http://127.0.0.1:8080/ (launcher at `
 
 After editing `habit-journal/index.html`, run `./scripts/verify-habit-journal-js.sh` before pushing. A syntax error in the inline script blanks the entire app.
 
+## Local Events — calendar files
+
+`things-to-do/` is **Local Events** (the old Dates app is archived in `dates-classic/`). After editing `things-to-do/events.json`, run `node things-to-do/build-ics.js` and commit `things-to-do/ics/`. iPhone only offers Add to Calendar for real `.ics` URLs, so the app links to those files. `node things-to-do/build-ics.js --check` fails if they are stale.
+
 ## Coffee & Drinks map (canonical)
 
 **Philly Dates** and **Coffee Map** are launcher-hidden (archived). Do not bump or edit them for map/pin work unless the user asks to un-archive.

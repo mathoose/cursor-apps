@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mathoose cursor-apps//Local Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Philly Friday Oct 16
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:wheatpaste-20261016@mathoose-local-events
+DTSTAMP:20261016T120000Z
+DTSTART;TZID=America/New_York:20261016T170000
+DTEND;TZID=America/New_York:20261017T020000
+SUMMARY:Now I Wanna Sniff Some Glue 2
+LOCATION:Tattooed Mom\, 530 South Street\, Philadelphia\, PA 19147
+DESCRIPTION:Opening night of the international wheatpaste show.\nPrice: Fre
+ e\nTattooed Mom and Billy Penn list opening night as free. Do215 shows $4\
+ , 15+. Upstairs is 21+ with ID\, and the show is up a flight of stairs.\nT
+ ickets: Walk in\nWebsite: https://www.tattooedmomphilly.com/event/now-i-wa
+ nna-sniff-some-glue-2-an-international-wheatpaste-art-show/\nSource: https
+ ://www.instagram.com/p/Deh6FJ3lD87/
+URL:https://www.tattooedmomphilly.com/event/now-i-wanna-sniff-some-glue-2-a
+ n-international-wheatpaste-art-show/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

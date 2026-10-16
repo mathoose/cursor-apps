@@ -2,8 +2,8 @@
   "use strict";
 
   var STORAGE_KEY = "local-events-v1";
-  var EVENTS_URL = "events.json?v=6";
-  var TZID = "America/New_York";
+  var EVENTS_URL = "events.json?v=7";
+  var ICS = window.LocalEventsICS;
   var DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var TAG_LABEL = {
@@ -20,13 +20,43 @@
     rsvp: "RSVP",
     workshop: "Workshop"
   };
+  // Matched as substrings of each event's "neighborhood" text. Shown even with no events that day.
+  var PHILLY_AREAS = [
+    { label: "Center City" },
+    { label: "South Philly" },
+    { label: "North Philly" },
+    { label: "West Philly" },
+    { label: "Northwest Philly" },
+    { label: "Manayunk" },
+    { label: "Fishtown" },
+    { label: "Northern Liberties" },
+    { label: "Kensington" },
+    { label: "Old City" },
+    { label: "Rittenhouse" },
+    { label: "Society Hill" },
+    { label: "Wash West", match: ["Washington Square West", "Wash West", "Gayborhood"] },
+    { label: "South Street" },
+    { label: "Queen Village" },
+    { label: "Bella Vista" },
+    { label: "Passyunk", match: ["Passyunk"] },
+    { label: "Callowhill" },
+    { label: "Fairmount" },
+    { label: "University City" },
+    { label: "Germantown" },
+    { label: "East Falls" },
+    { label: "Mt. Airy", match: ["Mt. Airy", "Mount Airy"] },
+    { label: "Chestnut Hill" },
+    { label: "Waterfront", match: ["Waterfront"] }
+  ];
 
   var days = [];
   var activeDate = null;
   var activeTag = "all";
+  var activeArea = "all";
   var toastTimer = null;
   var prefs = loadPrefs();
   var checked = new Set(prefs.checked);
+  var addedInSheet = new Set();
 
   var els = {
     dayChips: document.getElementById("dayChips"),
@@ -36,11 +66,18 @@
     headerSub: document.getElementById("headerSub"),
     q: document.getElementById("q"),
     chips: document.getElementById("chips"),
+    areaChips: document.getElementById("areaChips"),
     count: document.getElementById("count"),
     list: document.getElementById("list"),
     addBtn: document.getElementById("addBtn"),
     hint: document.getElementById("hint"),
-    toast: document.getElementById("toast")
+    toast: document.getElementById("toast"),
+    sheet: document.getElementById("calSheet"),
+    sheetAll: document.getElementById("calSheetAll"),
+    sheetList: document.getElementById("calSheetList"),
+    sheetIntro: document.getElementById("calSheetIntro"),
+    sheetShare: document.getElementById("calSheetShare"),
+    sheetClose: document.getElementById("calSheetClose")
   };
 
   function loadPrefs() {
@@ -66,6 +103,16 @@
     els.toast.classList.add("show");
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { els.toast.classList.remove("show"); }, 2600);
+  }
+
+  function isStandalone() {
+    return window.navigator.standalone === true ||
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  }
+
+  function isAppleMobile() {
+    return /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   }
 
   function todayKey() {
@@ -107,12 +154,50 @@
     return "https://maps.apple.com/?" + params.toString();
   }
 
+  function areasForDay(day) {
+    if (!day) return [];
+    if (day.city === "Philadelphia") return PHILLY_AREAS;
+    var seen = {};
+    var out = [];
+    day.events.forEach(function (ev) {
+      String(ev.neighborhood || "").split("·").forEach(function (part) {
+        var label = part.trim();
+        if (label && !seen[label]) {
+          seen[label] = true;
+          out.push({ label: label });
+        }
+      });
+    });
+    return out;
+  }
+
+  function inArea(ev, area) {
+    var hay = String(ev.neighborhood || "").toLowerCase();
+    return (area.match || [area.label]).some(function (m) {
+      var needle = m.toLowerCase();
+      var at = hay.indexOf(needle);
+      while (at >= 0) {
+        if (at === 0 || !/[a-z]/.test(hay.charAt(at - 1))) return true;
+        at = hay.indexOf(needle, at + 1);
+      }
+      return false;
+    });
+  }
+
+  function findArea(day, label) {
+    var list = areasForDay(day);
+    for (var i = 0; i < list.length; i++) if (list[i].label === label) return list[i];
+    return null;
+  }
+
   function visibleEvents() {
     var day = currentDay();
     if (!day) return [];
     var q = els.q.value.trim().toLowerCase();
+    var area = activeArea === "all" ? null : findArea(day, activeArea);
     return day.events.filter(function (ev) {
       if (activeTag !== "all" && ev.tags.indexOf(activeTag) < 0) return false;
+      if (area && !inArea(ev, area)) return false;
       if (!q) return true;
       var hay = [
         ev.title, ev.venue, ev.address, ev.neighborhood, ev.price,
@@ -134,6 +219,18 @@
     a.href = href;
     a.target = "_blank";
     a.rel = "noopener";
+    return a;
+  }
+
+  /** Plain link to a static .ics so iOS Safari shows its Add to Calendar preview. */
+  function calendarLink(href, label, className) {
+    var a = el("a", className, label);
+    a.href = href;
+    a.type = "text/calendar";
+    if (isStandalone()) {
+      a.target = "_blank";
+      a.rel = "noopener";
+    }
     return a;
   }
 
@@ -160,6 +257,7 @@
       btn.addEventListener("click", function () {
         activeDate = day.date;
         activeTag = "all";
+        activeArea = "all";
         savePrefs();
         renderAll();
       });
@@ -210,6 +308,35 @@
     });
   }
 
+  function renderAreaChips() {
+    var day = currentDay();
+    var areas = areasForDay(day);
+    els.areaChips.innerHTML = "";
+    els.areaChips.hidden = !areas.length;
+    if (!areas.length) return;
+    if (activeArea !== "all" && !findArea(day, activeArea)) activeArea = "all";
+
+    function chip(label, value, count) {
+      var btn = el("button", "chip area-chip" + (count === 0 ? " empty-area" : ""));
+      btn.type = "button";
+      btn.setAttribute("aria-pressed", String(value === activeArea));
+      btn.appendChild(document.createTextNode(label));
+      if (count != null) btn.appendChild(el("span", "chip-count", String(count)));
+      btn.addEventListener("click", function () {
+        activeArea = value;
+        renderAreaChips();
+        renderList();
+      });
+      els.areaChips.appendChild(btn);
+    }
+
+    chip("All areas", "all", null);
+    areas.forEach(function (area) {
+      var n = day.events.filter(function (ev) { return inArea(ev, area); }).length;
+      chip(area.label, area.label, n);
+    });
+  }
+
   function renderCard(day, ev) {
     var key = eventKey(day, ev);
     var card = el("article", "card" + (checked.has(key) ? " checked" : ""));
@@ -253,12 +380,6 @@
     if (ev.ticketsUrl) links.appendChild(link(ev.ticketsUrl, ev.ticketsLabel || "Tickets"));
     else if (ev.ticketsLabel) links.appendChild(el("span", null, ev.ticketsLabel));
 
-    var solo = el("button", "solo", "Add just this");
-    solo.type = "button";
-    solo.addEventListener("click", function () {
-      exportEvents([{ day: day, ev: ev }], ev.id + "-" + day.date + ".ics");
-    });
-
     card.appendChild(top);
     card.appendChild(meta);
     card.appendChild(fact("Hours", ev.hours));
@@ -266,7 +387,7 @@
     card.appendChild(place);
     card.appendChild(links);
     if (ev.priceNote) card.appendChild(el("p", "note", ev.priceNote));
-    card.appendChild(solo);
+    card.appendChild(calendarLink(ICS.eventPath(day, ev), "Add to Calendar", "solo"));
     return card;
   }
 
@@ -275,7 +396,13 @@
     var shown = visibleEvents();
     els.list.innerHTML = "";
     if (!shown.length) {
-      els.list.appendChild(el("p", "empty", day ? "Nothing matches that search." : "No events loaded."));
+      var msg = "No events loaded.";
+      if (day && activeArea !== "all" && !els.q.value.trim() && activeTag === "all") {
+        msg = "Nothing in " + activeArea + " on " + longDate(day.date) + ".";
+      } else if (day) {
+        msg = "Nothing matches those filters.";
+      }
+      els.list.appendChild(el("p", "empty", msg));
     }
     shown.forEach(function (ev) { els.list.appendChild(renderCard(day, ev)); });
     updateCount();
@@ -310,132 +437,73 @@
     renderDayChips();
     renderIntro();
     renderChips();
+    renderAreaChips();
     renderList();
   }
 
-  function icsEscape(value) {
-    return String(value)
-      .replace(/\\/g, "\\\\")
-      .replace(/\n/g, "\\n")
-      .replace(/,/g, "\\,")
-      .replace(/;/g, "\\;");
-  }
-
-  function fold(line) {
-    var bytes = new TextEncoder().encode(line);
-    if (bytes.length <= 75) return line;
-    var dec = new TextDecoder();
-    var out = "";
-    var start = 0;
-    var limit = 75;
-    while (start < bytes.length) {
-      var end = Math.min(start + limit, bytes.length);
-      while (end > start && end < bytes.length && (bytes[end] & 0xc0) === 0x80) end--;
-      if (end === start) end = Math.min(start + limit, bytes.length);
-      out += (start === 0 ? "" : "\r\n ") + dec.decode(bytes.slice(start, end));
-      start = end;
-      limit = 74;
-    }
-    return out;
-  }
-
-  function stamp(local) {
-    return String(local).replace(/[-:]/g, "");
-  }
-
-  function buildICS(items, calName) {
-    var lines = [
-      "BEGIN:VCALENDAR",
-      "VERSION:2.0",
-      "PRODID:-//mathoose cursor-apps//Local Events//EN",
-      "CALSCALE:GREGORIAN",
-      "METHOD:PUBLISH",
-      "X-WR-CALNAME:" + icsEscape(calName),
-      "BEGIN:VTIMEZONE",
-      "TZID:" + TZID,
-      "BEGIN:DAYLIGHT",
-      "TZOFFSETFROM:-0500",
-      "TZOFFSETTO:-0400",
-      "TZNAME:EDT",
-      "DTSTART:19700308T020000",
-      "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
-      "END:DAYLIGHT",
-      "BEGIN:STANDARD",
-      "TZOFFSETFROM:-0400",
-      "TZOFFSETTO:-0500",
-      "TZNAME:EST",
-      "DTSTART:19701101T020000",
-      "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
-      "END:STANDARD",
-      "END:VTIMEZONE"
-    ];
-    var dtstamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-    items.forEach(function (item) {
-      var ev = item.ev;
-      var day = item.day;
-      var bits = [
-        ev.blurb,
-        "Price: " + ev.price,
-        ev.priceNote,
-        ev.ticketsUrl ? "Tickets: " + ev.ticketsUrl : "Tickets: " + (ev.ticketsLabel || "None listed"),
-        ev.website ? "Website: " + ev.website : "",
-        day.source && day.source.url ? "Source: " + day.source.url : ""
-      ].filter(Boolean);
-      lines.push(
-        "BEGIN:VEVENT",
-        "UID:" + ev.id + "-" + stamp(day.date) + "@mathoose-local-events",
-        "DTSTAMP:" + dtstamp,
-        "DTSTART;TZID=" + TZID + ":" + stamp(ev.start),
-        "DTEND;TZID=" + TZID + ":" + stamp(ev.end),
-        "SUMMARY:" + icsEscape(ev.title),
-        "LOCATION:" + icsEscape(ev.venue + ", " + ev.address),
-        "DESCRIPTION:" + icsEscape(bits.join("\n"))
-      );
-      if (ev.website) lines.push("URL:" + ev.website);
-      lines.push("STATUS:CONFIRMED", "END:VEVENT");
+  function fullDaysIn() {
+    return days.filter(function (day) {
+      return day.events.length > 1 && day.events.every(function (ev) { return checked.has(eventKey(day, ev)); });
     });
-    lines.push("END:VCALENDAR");
-    return lines.map(fold).join("\r\n") + "\r\n";
   }
 
-  function calendarName(items) {
-    var dates = new Set(items.map(function (i) { return i.day.date; }));
-    if (dates.size !== 1) return "Local Events";
-    var day = items[0].day;
-    var d = parseDateKey(day.date);
-    return (day.title || "Local Events") + " " + MONTHS[d.getMonth()].slice(0, 3) + " " + d.getDate();
-  }
-
-  function exportEvents(items, filename) {
+  function openSheet() {
+    var items = checkedItems();
     if (!items.length) return;
-    var ics = buildICS(items, calendarName(items));
-    var appleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    addedInSheet = new Set();
+
+    els.sheetAll.innerHTML = "";
+    fullDaysIn().forEach(function (day) {
+      var a = calendarLink(ICS.dayPath(day), "Add all " + day.events.length + " from " + longDate(day.date), "btn btn-primary cal-all");
+      els.sheetAll.appendChild(a);
+    });
+
+    els.sheetIntro.textContent = items.length === 1
+      ? "Tap Add. Calendar opens a preview — tap Add, then come back here."
+      : "Tap Add on each one. Calendar opens a preview — tap Add, then come back for the next.";
+
+    els.sheetList.innerHTML = "";
+    items.forEach(function (item) {
+      var key = eventKey(item.day, item.ev);
+      var row = el("li", "cal-row");
+      var text = el("div", "cal-row-text");
+      text.appendChild(el("strong", null, item.ev.title));
+      text.appendChild(el("span", null, (days.length > 1 ? longDate(item.day.date) + " · " : "") + item.ev.hours));
+      var a = calendarLink(ICS.eventPath(item.day, item.ev), "Add", "cal-add");
+      a.addEventListener("click", function () {
+        addedInSheet.add(key);
+        row.classList.add("added");
+        a.textContent = "Added ✓";
+      });
+      row.appendChild(text);
+      row.appendChild(a);
+      els.sheetList.appendChild(row);
+    });
+
+    els.sheet.hidden = false;
+    document.body.classList.add("sheet-open");
+  }
+
+  function closeSheet() {
+    els.sheet.hidden = true;
+    document.body.classList.remove("sheet-open");
+  }
+
+  function shareCombined() {
+    var items = checkedItems();
+    if (!items.length) return;
+    var ics = ICS.build(items);
+    var dates = Array.from(new Set(items.map(function (i) { return i.day.date; })));
+    var filename = dates.length === 1 ? "local-events-" + dates[0] + ".ics" : "local-events.ics";
     var file = null;
     try {
       file = new File([ics], filename, { type: "text/calendar" });
     } catch (e) { /* older Safari without File constructor */ }
-
-    if (appleMobile && file && navigator.canShare && navigator.canShare({ files: [file] })) {
-      navigator.share({ files: [file], title: calendarName(items) }).then(function () {
-        els.hint.textContent = "Shared. Open the file from the share sheet or Files, then tap Add All in Calendar.";
-      }).catch(function (err) {
-        if (err && err.name === "AbortError") return;
-        openBlob(ics, filename, appleMobile);
-      });
+    if (isAppleMobile() && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: ICS.calendarName(items) }).catch(function () {});
       return;
     }
-    openBlob(ics, filename, appleMobile);
-  }
-
-  function openBlob(ics, filename, appleMobile) {
-    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    var url = URL.createObjectURL(blob);
-    if (appleMobile) {
-      window.location.href = url;
-      els.hint.textContent = "Opening the calendar file. Tap Add All.";
-      return;
-    }
+    var url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
     var a = document.createElement("a");
     a.href = url;
     a.download = filename;
@@ -443,7 +511,6 @@
     a.click();
     a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2500);
-    els.hint.textContent = "Downloaded " + filename + ". On iPhone, open that file and tap Add All.";
     showToast("Saved " + filename);
   }
 
@@ -463,11 +530,11 @@
     renderList();
   });
 
-  els.addBtn.addEventListener("click", function () {
-    var items = checkedItems();
-    var dates = Array.from(new Set(items.map(function (i) { return i.day.date; })));
-    var name = dates.length === 1 ? "local-events-" + dates[0] + ".ics" : "local-events.ics";
-    exportEvents(items, name);
+  els.addBtn.addEventListener("click", openSheet);
+  els.sheetClose.addEventListener("click", closeSheet);
+  els.sheetShare.addEventListener("click", shareCombined);
+  els.sheet.addEventListener("click", function (e) {
+    if (e.target === els.sheet) closeSheet();
   });
 
   els.q.addEventListener("input", function () {
