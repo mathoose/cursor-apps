@@ -9846,5 +9846,793 @@
     "lng": -75.169769,
     "locationSource": "osm-poi",
     "locationSyncedAt": "2026-10-06"
+  },
+  {
+    "name": "Prohibition Taproom",
+    "address": "501 N 13th St, Philadelphia, PA 19123",
+    "neighborhood": "Fairmount",
+    "description": "Spring Arts gastropub (craft beer, cider, cocktails) in a building that has been a pub since the 1800s.\n* Deals (Mon–Thu 4 PM–6 PM, Fri 3 PM–6 PM): happy hour cocktails on the official menu (Cosmopolitan, Mary Pickford, and others). No weekend happy hour listed.",
+    "social": "",
+    "hh_menu": "https://prohibitiontaproom.com/",
+    "instagram": "",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "3:00 PM",
+        "end": "6:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "1:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Bar hours from prohibitiontaproom.com. Kitchen closes earlier (Mon–Thu 10 PM, Fri–Sat midnight, Sun 10 PM).",
+    "lat": 39.96073,
+    "lng": -75.15946
+  },
+  {
+    "name": "Kite & Key",
+    "address": "1836 Callowhill St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Large Callowhill pub with a beer garden, between Logan Square and Spring Garden.\n* Weekday specials have been listed as $1 off drafts, $2 off house wine, and a $7 citywide (Yuengling draft and a shot of house whiskey). The official hours page only says open at 11 AM daily, so the happy-hour window is not stored here.",
+    "social": "",
+    "hh_menu": "https://www.thekiteandkey.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "official",
+    "hoursNote": "Official site: open 11 AM every day. Closing time not published there.",
+    "lat": 39.9604,
+    "lng": -75.16963
+  },
+  {
+    "name": "The Fairmount Tavern",
+    "address": "1700 Fairmount Ave, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Neighborhood tavern at 17th and Fairmount.\n* Deals (5 PM–8 PM, happy hour page does not limit the days): Sip of Sunshine IPA $9, Cigar City Jai Alai $7, Mahou lager $6, Peach Ring $8, Negroni $8, Arnold Palmer $7.",
+    "social": "",
+    "hh_menu": "https://www.thefairmounttavern.com/happy-hour/",
+    "instagram": "",
+    "schedule": {
+      "Sunday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Monday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Tuesday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Wednesday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Thursday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Friday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      },
+      "Saturday": {
+        "start": "5:00 PM",
+        "end": "8:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "1:00 PM",
+        "close": "12:30 AM"
+      },
+      "Thursday": {
+        "open": "1:00 PM",
+        "close": "1:00 AM"
+      },
+      "Friday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Hours and happy hour from thefairmounttavern.com.",
+    "lat": 39.96694,
+    "lng": -75.16551
+  },
+  {
+    "name": "Bishop's Collar",
+    "address": "2349 Fairmount Ave, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Art Museum neighborhood pub with local drafts and a full kitchen. The site advertises happy hour but does not publish the window.",
+    "social": "",
+    "hh_menu": "https://thebishopscollar.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Daily 11 AM–2 AM (thebishopscollar.com).",
+    "lat": 39.967567,
+    "lng": -75.176855
+  },
+  {
+    "name": "Bridgid's",
+    "address": "726 N 24th St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Longtime Art Museum / Fairmount American restaurant and bar. Closed Monday.",
+    "social": "",
+    "hh_menu": "https://www.opentable.com/r/bridgids-art-museum-philadelphia",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "OpenTable hours (updated 2025): dinner Tue–Thu 4 PM–midnight, Fri–Sat 4 PM–1 AM, Sun 5–10 PM. Closed Monday.",
+    "lat": 39.968482,
+    "lng": -75.176981
+  },
+  {
+    "name": "McCrossen's Tavern",
+    "address": "529 N 20th St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Art Museum gastropub with American craft beer and Decibel wines from New Zealand.",
+    "social": "",
+    "hh_menu": "https://mccrossens.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri noon–2 AM, Sat–Sun 11 AM–2 AM (mccrossens.com).",
+    "lat": 39.963098,
+    "lng": -75.170939
+  },
+  {
+    "name": "Jack's Firehouse",
+    "address": "2130 Fairmount Ave, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Fairmount restaurant and bar in a former firehouse, open for lunch, brunch, and dinner.",
+    "social": "",
+    "hh_menu": "https://jacksfirehouse.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Lunch Mon–Fri noon–4, brunch Sat–Sun 11–3, dinner Mon–Thu until 9, Fri–Sat until 10, Sun until 8 (jacksfirehouse.com).",
+    "lat": 39.967131,
+    "lng": -75.173274
+  },
+  {
+    "name": "Urban Saloon",
+    "address": "2120 Fairmount Ave, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Fairmount Avenue bar and kitchen.",
+    "social": "",
+    "hh_menu": "https://www.urbansaloon.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:30 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "10:30 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Toast lists service until 10:30 PM. Website says Mon–Tue from 4 PM and Wed–Sun from 11 AM, until close (bar may run later than the Toast window).",
+    "lat": 39.967062,
+    "lng": -75.172938
+  },
+  {
+    "name": "Hilltown Tavern Fairmount",
+    "address": "795 N 24th St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Fairmount tavern with craft drafts, cocktails, and a pet-friendly patio near the Art Museum.",
+    "social": "",
+    "hh_menu": "https://hilltownfairmount.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Hours from hilltownfairmount.com.",
+    "lat": 39.96981,
+    "lng": -75.17628
+  },
+  {
+    "name": "Green Room",
+    "address": "1940 Green St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Century-old Fairmount neighborhood bar (pool, darts, drafts). Cash only; ATM on site.",
+    "social": "",
+    "hh_menu": "https://www.greenroomphiladelphia.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 3 PM–2 AM, Sat–Sun noon–2 AM (greenroomphiladelphia.com).",
+    "lat": 39.96476,
+    "lng": -75.1706
+  },
+  {
+    "name": "St. Stephen's Green",
+    "address": "1701 Green St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Irish pub at 17th and Green. Hours were not on a reliable public listing when this pin was added.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap place only; opening hours not tagged.",
+    "lat": 39.964681,
+    "lng": -75.166044
+  },
+  {
+    "name": "The Belgian Cafe",
+    "address": "2047 Green St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Belgian beer bar at 21st and Green. Hours were not confirmed on an official page when this pin was added.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Pinned to 2047 Green Street. Opening hours not confirmed.",
+    "lat": 39.965471,
+    "lng": -75.172386
+  },
+  {
+    "name": "Rembrandt's",
+    "address": "741 N 23rd St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Restaurant and bar at 23rd and Aspen, a longtime Fairmount corner. Hours were not confirmed on an official page when this pin was added.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Pinned to 741 N 23rd Street. Opening hours not confirmed.",
+    "lat": 39.968554,
+    "lng": -75.17485
+  },
+  {
+    "name": "The Fairview Philly",
+    "address": "601 N 21st St, Philadelphia, PA 19130",
+    "neighborhood": "Fairmount",
+    "description": "Pub at 21st and Green.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours: Mo–Th 4 PM–midnight, Fr 4 PM–2 AM, Sa–Su 11 AM–midnight.",
+    "lat": 39.965334,
+    "lng": -75.172392
+  },
+  {
+    "name": "Cherry Street Tavern",
+    "address": "129 N 22nd St, Philadelphia, PA 19103",
+    "neighborhood": "Fairmount",
+    "description": "Logan Square tavern on Cherry Street. Hours were not tagged on OpenStreetMap.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap place; opening hours not tagged.",
+    "lat": 39.957017,
+    "lng": -75.175743
+  },
+  {
+    "name": "Con Murphy's",
+    "address": "1700 Benjamin Franklin Pkwy, Philadelphia, PA 19103",
+    "neighborhood": "Fairmount",
+    "description": "Irish pub on the Benjamin Franklin Parkway. Closed Sunday.",
+    "social": "",
+    "hh_menu": "https://conmurphyspub.com",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours: Mon–Wed 11 AM–midnight, Thu–Sat 9 AM–midnight, closed Sunday.",
+    "lat": 39.9557,
+    "lng": -75.16803
+  },
+  {
+    "name": "Tir na nOg",
+    "address": "1600 Arch St, Philadelphia, PA 19103",
+    "neighborhood": "Fairmount",
+    "description": "Irish pub at 16th and Arch, on the south edge of Logan Square.",
+    "social": "",
+    "hh_menu": "https://tirnanogphilly.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours.",
+    "lat": 39.95443,
+    "lng": -75.16676
+  },
+  {
+    "name": "Bulletin Bar",
+    "address": "3025 Market St, Philadelphia, PA 19104",
+    "neighborhood": "Fairmount",
+    "description": "Bar by 30th Street Station, at the west edge of the parkway / Callowhill side of Market.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours: Sun–Thu 11 AM–10 PM, Fri–Sat 11 AM–11 PM.",
+    "lat": 39.955171,
+    "lng": -75.184214
+  },
+  {
+    "name": "Human Robot Girard",
+    "address": "2711 W Girard Ave, Philadelphia, PA 19130",
+    "neighborhood": "Brewerytown",
+    "description": "Human Robot taproom on Girard Avenue in Brewerytown. This is not the South Philly Human Robot pin.",
+    "social": "",
+    "hh_menu": "https://www.humanrobotgirard.com",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "1:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours.",
+    "lat": 39.97435,
+    "lng": -75.18085
+  },
+  {
+    "name": "2637 Brew",
+    "address": "2637 W Girard Ave, Philadelphia, PA 19130",
+    "neighborhood": "Brewerytown",
+    "description": "Brewerytown taproom on Girard Avenue. Closed Monday.",
+    "social": "",
+    "hh_menu": "https://2637brew.com/",
+    "instagram": "",
+    "schedule": {},
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "1:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "1:00 PM",
+        "close": "12:00 AM"
+      },
+      "Sunday": {
+        "open": "1:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours. Closed Monday.",
+    "lat": 39.97428,
+    "lng": -75.18018
+  },
+  {
+    "name": "Rybrew",
+    "address": "2600 W Girard Ave, Philadelphia, PA 19130",
+    "neighborhood": "Brewerytown",
+    "description": "Brewerytown taproom on Girard Avenue. Hours were not tagged on OpenStreetMap.",
+    "social": "",
+    "hh_menu": "",
+    "instagram": "",
+    "schedule": {},
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap place; opening hours not tagged.",
+    "lat": 39.973844,
+    "lng": -75.179022
   }
 ]

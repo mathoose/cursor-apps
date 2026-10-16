@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
-  <!-- build: local-events-v6 -->
+  <!-- build: local-events-v7 -->
   <header class="app-header">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -38,6 +38,7 @@
       <label class="visually-hidden" for="q">Search events</label>
       <input id="q" class="search" type="search" placeholder="Search title, place, price…" autocomplete="off" enterkeyhint="search" />
       <div id="chips" class="chips" role="toolbar" aria-label="Filter by tag"></div>
+      <div id="areaChips" class="chips area-chips" role="toolbar" aria-label="Filter by neighborhood" hidden></div>
       <div class="bar-actions">
         <span id="count"></span>
         <span>
@@ -55,7 +56,22 @@
 
   <div class="bottom-dock">
     <button type="button" class="add" id="addBtn" disabled>Add to Apple Calendar</button>
-    <p class="hint" id="hint">On iPhone, tap the button. In the share sheet, open the file and choose Add All.</p>
+    <p class="hint" id="hint">Check events, then tap the button. Calendar opens a preview for each one.</p>
+  </div>
+
+  <div class="overlay" id="calSheet" role="dialog" aria-modal="true" aria-labelledby="calSheetTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="calSheetTitle">Add to Apple Calendar</h2>
+      <p class="sheet-intro" id="calSheetIntro"></p>
+      <div class="cal-all-wrap" id="calSheetAll"></div>
+      <ul class="cal-list" id="calSheetList"></ul>
+      <p class="sheet-fine">Nothing opening from the Home Screen icon? Open this page in Safari and try again.</p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="calSheetShare">Save as one file</button>
+        <button type="button" class="btn btn-secondary" id="calSheetClose">Done</button>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -63,6 +79,7 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=6"></script>
+  <script src="ics.js?v=7"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
