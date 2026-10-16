@@ -173,7 +173,15 @@
 
   function inArea(ev, area) {
     var hay = String(ev.neighborhood || "").toLowerCase();
-    return (area.match || [area.label]).some(function (m) { return hay.indexOf(m.toLowerCase()) >= 0; });
+    return (area.match || [area.label]).some(function (m) {
+      var needle = m.toLowerCase();
+      var at = hay.indexOf(needle);
+      while (at >= 0) {
+        if (at === 0 || !/[a-z]/.test(hay.charAt(at - 1))) return true;
+        at = hay.indexOf(needle, at + 1);
+      }
+      return false;
+    });
   }
 
   function findArea(day, label) {
