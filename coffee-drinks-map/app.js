@@ -1238,7 +1238,7 @@
   function loadCatalog() {
     return Promise.all([
       fetch('coffee.json?v=1').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('drinks.json?v=6').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('drinks.json?v=7').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('food.json?v=10').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
       coffeePlaces = Array.isArray(triple[0]) ? triple[0] : [];
