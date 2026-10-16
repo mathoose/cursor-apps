@@ -63,6 +63,23 @@ node sync-google-addresses.js --catalog coffee --all --limit 50
 
 Spot fixes: `--only "Restaurant A,Cafe B"` or `--force` to re-fetch.
 
+## Pins with no hours
+
+Grey pins are places whose `hours` object is empty, even when the description or Instagram already mentions a time. List them and fill OpenStreetMap matches:
+
+```bash
+node scripts/audit-missing-hours.js --catalog drinks
+node scripts/audit-missing-hours.js --catalog drinks --apply-osm
+```
+
+The same command works with `--catalog coffee` or `--catalog food`. It prints Instagram accounts that still have no happy-hour schedule (Static was one of these: the hours live on the post, not in `schedule`). Do not invent a happy hour from a handle alone. When a post or the official site states days and times, copy them into `schedule` and `hours`.
+
+Google, for whatever OSM misses:
+
+```bash
+./scripts/fetch-catalog-hours.sh drinks 50 --only-empty
+```
+
 Coffee pins stuck **grey** with empty `hours: {}` (OSM placeholder): run
 
 ```bash

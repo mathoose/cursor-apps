@@ -6801,7 +6801,35 @@
     "lat": 39.947181,
     "lng": -75.159472,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Middle Child (0 m): Tu-Fr 09:00-15:00; Sa-Su 08:00-15:00"
   },
   {
     "name": "Terra Grill",
@@ -6911,7 +6939,7 @@
     "name": "48 record bar",
     "address": "48 S 2nd St, Philadelphia, PA 19106",
     "neighborhood": "Old City",
-    "description": "coctail bar\n* groovy record bar",
+    "description": "Listening-room cocktail bar above Sassafras in Old City.\n* Golden Hour has been written up as a 5–7 PM special (days have been listed as Wed–Fri and, later, Wed/Thu/Sun). The current official hours page does not list it, so it is not on the happy-hour schedule until the site or a new post confirms the days.",
     "social": "https://www.instagram.com/reel/DKmpPQGu96R/?igsh=MTR0NmhwYm1mNDIyZQ==",
     "hh_menu": "https://www.48recordbar.com/",
     "instagram": "https://www.instagram.com/48recordbar/",
@@ -6919,7 +6947,35 @@
     "lat": 39.948834,
     "lng": -75.144108,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Hours from 48recordbar.com: Tue–Fri 5 PM–2 AM, Sat 4 PM–2 AM, Sun 5 PM–2 AM. Closed Monday."
   },
   {
     "name": "Doom",
@@ -6995,7 +7051,39 @@
     "lat": 39.948774,
     "lng": -75.146128,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Piccolina (0 m): Mo-Fr 12:00-22:00; Sa-Su 10:00-22:00"
   },
   {
     "name": "Griddle and rice",
@@ -7009,7 +7097,39 @@
     "lat": 39.924907,
     "lng": -75.182791,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Griddle & Rice (2 m): Mo-Su 07:00-19:00"
   },
   {
     "name": "Rhythm and spirits",
@@ -7072,7 +7192,35 @@
     },
     "menu_pdf": "https://www.luckyduckphl.com/s/HAPPY-HOUR-6X8_-09_03.pdf",
     "lat": 39.9608,
-    "lng": -75.1369
+    "lng": -75.1369,
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "10:00 AM",
+        "close": "1:00 AM"
+      },
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours from the place note. Closed Monday."
   },
   {
     "name": "Leo",
@@ -7184,7 +7332,39 @@
     "lat": 39.927148,
     "lng": -75.167028,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours from the place note: Mon–Fri 4 PM–2 AM, Sat–Sun noon–2 AM."
   },
   {
     "name": "Honeysuckle",
@@ -7251,7 +7431,31 @@
       }
     },
     "lat": 39.952,
-    "lng": -75.1742
+    "lng": -75.1742,
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Official hours in the place note: closed Sun–Mon, Tue–Thu 5–10 PM, Fri–Sat 5 PM–midnight."
   },
   {
     "name": "El techo",
@@ -7278,7 +7482,31 @@
     "lat": 39.952632,
     "lng": -75.171352,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours from the place note. Closed Monday and Tuesday. Sunday is brunch 11 AM–4 PM."
   },
   {
     "name": "Bar 1010",
@@ -7309,7 +7537,35 @@
     "lat": 39.961967,
     "lng": -75.140963,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Tuesday": {
+        "open": "3:30 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "3:30 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Official hours in the place note. Closed Monday."
   },
   {
     "name": "The Rittenhouse",
@@ -7403,19 +7659,104 @@
     "lat": 39.949702,
     "lng": -75.161896,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for El Vez (0 m): Mo-Th 11:30-22:00; Fr 11:30-24:00; Sa 11:30-15:00,16:00-24:00; Su 11:30-15:00,16:00-22:00"
   },
   {
     "name": "Static",
     "address": "1137 Spruce St, Philadelphia, PA 19107",
     "neighborhood": "Midtown",
-    "description": "cool bar playing movies on projectors",
-    "social": "https://www.instagram.com/reel/DWe7MdCEZf0/?igsh=MXJpZ3Nmdmw1eHlnNg==",
-    "hh_menu": "",
+    "description": "Cocktail bar from the Next of Kin team. Movies on projectors.\n* Deals (Sun–Thu 4 PM–6 PM): $10 cocktails. Posted by @static_phl (August 12): “We have happy hour! Sunday–Thursday, 4–6pm.”",
+    "social": "https://www.instagram.com/static_phl/",
+    "hh_menu": "https://www.instagram.com/static_phl/",
     "instagram": "https://www.instagram.com/static_phl/",
-    "schedule": {},
-    "lat": 39.9462,
-    "lng": -75.1608
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "press",
+    "hoursNote": "Opening hours from the Philadelphia Inquirer (Nov 2025). Happy hour from @static_phl.",
+    "lat": 39.946678,
+    "lng": -75.160909
   },
   {
     "name": "Homegrown 215",
@@ -7429,7 +7770,39 @@
     "lat": 39.919857,
     "lng": -75.173041,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours already in the place note: Mon–Fri 7 AM–4 PM, Sat–Sun 8 AM–4 PM."
   },
   {
     "name": "Noir",
@@ -7464,19 +7837,83 @@
     "lat": 39.926299,
     "lng": -75.167499,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:30 AM",
+        "close": "12:00 AM"
+      },
+      "Sunday": {
+        "open": "11:30 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Noir (0 m): Mo-Th 11:30-15:00,17:00-22:00; Fr-Sa 11:30-15:00,17:00-24:00; Su 11:30-21:00"
   },
   {
     "name": "Stogie Joe's Tavern",
     "address": "1803 E Passyunk Ave listed; official site says 1801 E Passyunk Ave, Philadelphia, PA 19148",
     "neighborhood": "East Passyunk",
-    "description": "https://www.instagram.com/p/DXZcDgkk7dy/",
+    "description": "Tavern food and pizza at 1801 E Passyunk Ave.\n* Hours from the official site. Happy hour is not listed there; Instagram is @stogiejoestavern.",
     "social": "",
-    "hh_menu": "https://www.instagram.com/p/DXZcDgkk7dy/",
+    "hh_menu": "https://stogiejoestavern.com/",
     "instagram": "https://www.instagram.com/stogiejoestavern/",
     "schedule": {},
     "lat": 39.929,
-    "lng": -75.1542
+    "lng": -75.1542,
+    "hours": {
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Hours from stogiejoestavern.com: Mon–Sat 11 AM–10 PM, Sun noon–10 PM."
   },
   {
     "name": "Ember and Ash",
@@ -7582,7 +8019,39 @@
     "lat": 39.933468,
     "lng": -75.158742,
     "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Hours from the place note, taken from the official site: Mon–Fri 5 PM–2 AM, Sat–Sun noon–2 AM."
   },
   {
     "name": "Happy Birthday Bar",
@@ -7639,7 +8108,39 @@
     "lat": 39.936887,
     "lng": -75.154784,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OpenStreetMap opening_hours: 17:00-02:00 (daily). Place note also says about 5 PM–2 AM."
   },
   {
     "name": "Royal Tavern",
@@ -7653,7 +8154,39 @@
     "lat": 39.937037,
     "lng": -75.154553,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Bar hours from royaltavern.com. Sat–Sun open at 11 AM for brunch. Kitchen until 1 AM."
   },
   {
     "name": "Grace and Proper",
@@ -7672,7 +8205,35 @@
     "lat": 39.937245,
     "lng": -75.156461,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "1:00 AM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours from the place note. Closed Tuesday."
   },
   {
     "name": "The continental",
@@ -7698,7 +8259,23 @@
     "lat": 39.949305,
     "lng": -75.148929,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "2:00 AM"
+      },
+      "Saturday": {
+        "open": "8:00 PM",
+        "close": "2:00 AM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Hours from the place note: Thu 5 PM–midnight, Fri 5 PM–2 AM, Sat 8 PM–2 AM."
   },
   {
     "name": "Sunset Social/Cira Green",
@@ -7712,7 +8289,39 @@
     "lat": 39.952793,
     "lng": -75.183611,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Monday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "3:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "3:00 PM",
+        "close": "9:30 PM"
+      },
+      "Friday": {
+        "open": "3:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Sunset Social (0 m): Mo-We 15:00-22:00; Th 15:00-21:30; Fr 15:00-23:00; Sa 12:00-23:00; Su 12:00-22:00"
   },
   {
     "name": "Mug Coffee",
@@ -7800,7 +8409,31 @@
     "lat": 39.929659,
     "lng": -75.163023,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "5:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "osm",
+    "hoursNote": "OSM opening_hours for Mish Mish (5 m): Th,Su,Mo 17:00-21:00; Fr-Sa 17:00-22:00"
   },
   {
     "name": "Topside Tavern",
@@ -7946,7 +8579,39 @@
     "lat": 39.955095,
     "lng": -75.170895,
     "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "locationSyncedAt": "2026-10-06",
+    "hours": {
+      "Sunday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:30 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listing",
+    "hoursNote": "Place note: bar walk-ins from 4:30 PM, dinner until 10 PM."
   },
   {
     "name": "Royal Izakaya and Omikase",
