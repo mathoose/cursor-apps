@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mathoose cursor-apps//Local Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Philly Friday Oct 16
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:lucky-girl-20261016@mathoose-local-events
+DTSTAMP:20261016T120000Z
+DTSTART;TZID=America/New_York:20261016T150000
+DTEND;TZID=America/New_York:20261016T210000
+SUMMARY:Lucky Girl Night Market
+LOCATION:Cherry Street Pier\, 121 N Columbus Boulevard\, Philadelphia\, PA 
+ 19106
+DESCRIPTION:Vintage and craft market. On-site parking is limited.\nPrice: F
+ ree\nCherry Street Pier says free and open\, 3–9 PM. Another listing men
+ tions $10 early entry from 2–3 PM\; that early price is not on the pier 
+ page.\nTickets: Walk in\nWebsite: https://www.cherrystreetpier.com/event/2
+ 026/10/lucky-girl-market/\nSource: https://www.instagram.com/p/Deh6FJ3lD87
+ /
+URL:https://www.cherrystreetpier.com/event/2026/10/lucky-girl-market/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR
