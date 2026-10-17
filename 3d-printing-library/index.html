@@ -11,8 +11,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
-  <!-- build: 3d-printing-library-v4 -->
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <!-- build: 3d-printing-library-v5 -->
 </head>
 <body>
   <div class="lib-top">
@@ -57,7 +57,7 @@
   </section>
 
   <footer class="lib-footer">
-    <p>Designers open via htmlpreview on GitHub <code>main</code> (not a CDN file listing).</p>
+    <p>Designers open via htmlpreview on GitHub <code>main</code> (not a CDN file listing). The lithophane sample opens a model viewer hosted here.</p>
     <p><a class="private-link" id="privateLink" rel="noopener" aria-label="Private models (PIN)" title="Private">🔒</a></p>
   </footer>
 
@@ -119,6 +119,14 @@
         branch: "cursor/poop-bag-holder-a333",
         badge: "Preview",
         thumb: { type: "img", src: "https://cdn.jsdelivr.net/gh/" + PP + "@cursor/poop-bag-holder-a333/poop-bag-holder/iso.png" }
+      },
+      {
+        id: "lithophane-ornament",
+        title: "Lithophane ornament (sample)",
+        blurb: "80 mm photo disc with a rim and hanging loop. Spin it in 3D, switch on a simulated backlight to see the picture, and download the STL.",
+        thumb: { type: "img", src: "lithophane/card-thumb.jpg" },
+        href: "lithophane.html",
+        cta: "Open viewer"
       }
     ];
 
@@ -168,14 +176,20 @@
           { label: "Head cradle v1", path: "henson-razor-tool/henson-head-cradle-v1.stl" },
           { label: "Handle grip v1", path: "henson-razor-tool/henson-handle-grip-v1.stl" }
         ]
+      },
+      {
+        group: "Lithophane ornament (sample)",
+        files: [
+          { label: "Tree ornament, 80 mm", href: "lithophane/lithophane-ornament-sample.stl" }
+        ]
       }
     ];
 
     function renderProjectCard(p) {
       var a = document.createElement("a");
       a.className = "card";
-      a.href = designerUrl(p.id, p.branch);
-      a.setAttribute("rel", "noopener");
+      a.href = p.href || designerUrl(p.id, p.branch);
+      if (!p.href) a.setAttribute("rel", "noopener");
 
       var thumb;
       if (p.thumb.type === "img") {
@@ -206,7 +220,7 @@
       para.textContent = p.blurb;
       var go = document.createElement("span");
       go.className = "go";
-      go.textContent = "Open designer";
+      go.textContent = p.cta || "Open designer";
       body.appendChild(h2);
       body.appendChild(para);
       body.appendChild(go);
@@ -224,8 +238,8 @@
       group.files.forEach(function (f) {
         var row = document.createElement("a");
         row.className = "stl-row";
-        row.href = stlUrl(f.path);
-        row.setAttribute("rel", "noopener");
+        row.href = f.href || stlUrl(f.path);
+        if (!f.href) row.setAttribute("rel", "noopener");
         row.setAttribute("download", "");
         var name = document.createElement("span");
         name.className = "stl-name";
