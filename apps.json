@@ -169,6 +169,11 @@
       "storageKey": "3d-print-v1"
     },
     {
+      "id": "3d-printing-library",
+      "name": "3D Library",
+      "subtitle": "STL designers & frames"
+    },
+    {
       "id": "draft-board",
       "name": "Draft Board",
       "subtitle": "ADP + draft settings",
