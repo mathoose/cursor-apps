@@ -11,8 +11,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
-  <!-- build: 3d-printing-library-v2 -->
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <!-- build: 3d-printing-library-v3 -->
 </head>
 <body>
   <div class="lib-top">
@@ -30,7 +30,7 @@
   <main class="grid" id="designerGrid"></main>
 
   <footer class="lib-footer">
-    <p>Designers are hosted in <code>public-playground</code> on GitHub. Each card opens the live parametric page.</p>
+    <p>Most designers are hosted in <code>public-playground</code> on GitHub. Each card opens the live parametric page or a model viewer.</p>
   </footer>
 
   <script>
@@ -77,6 +77,14 @@
         title: "Power bank wrap",
         blurb: "Slide-on sleeve for the mint SYJ-F37F. Cord wraps around the band (not the USB end); elastic clips on the back hold the ends.",
         thumb: { type: "img", src: CDN + "/power-bank-wrap/iso.png" }
+      },
+      {
+        id: "lithophane-ornament",
+        title: "Lithophane ornament (sample)",
+        blurb: "80 mm photo disc with a rim and hanging loop. Spin it in 3D, switch on a simulated backlight to see the picture, and download the STL.",
+        thumb: { type: "img", src: "lithophane/card-thumb.jpg" },
+        href: "lithophane.html",
+        cta: "Open viewer"
       }
     ];
 
@@ -84,8 +92,8 @@
     projects.forEach(function (p) {
       var a = document.createElement("a");
       a.className = "card";
-      a.href = designerUrl(p.id);
-      a.setAttribute("rel", "noopener");
+      a.href = p.href || designerUrl(p.id);
+      if (!p.href) a.setAttribute("rel", "noopener");
 
       var thumb;
       if (p.thumb.type === "img") {
@@ -109,7 +117,7 @@
       para.textContent = p.blurb;
       var go = document.createElement("span");
       go.className = "go";
-      go.textContent = "Open designer";
+      go.textContent = p.cta || "Open designer";
       body.appendChild(h2);
       body.appendChild(para);
       body.appendChild(go);
