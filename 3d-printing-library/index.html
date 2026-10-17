@@ -11,8 +11,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=4" />
-  <!-- build: 3d-printing-library-v4 -->
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <!-- build: 3d-printing-library-v5 -->
 </head>
 <body>
   <div class="lib-top">
@@ -33,7 +33,7 @@
     </div>
     <div class="etsy-placeholder" id="etsyBlock">
       <p class="etsy-title">Etsy shop</p>
-      <p class="etsy-note">No shop URL found in project files yet. Paste your Etsy link in Project chat and this tile can point there.</p>
+      <p class="etsy-note">Mathoose3Dprints on Etsy</p>
     </div>
   </section>
 
@@ -58,12 +58,13 @@
 
   <footer class="lib-footer">
     <p>Designers open via htmlpreview on GitHub <code>main</code> (not a CDN file listing). The lithophane sample opens a model viewer hosted here.</p>
+    <p><a class="private-link" id="privateLink" rel="noopener" aria-label="Private models (PIN)" title="Private">🔒</a></p>
   </footer>
 
   <script>
     var PP = "mathoose/public-playground";
     var CDN = "https://cdn.jsdelivr.net/gh/" + PP + "@main";
-    var ETSY_SHOP_URL = "";
+    var ETSY_SHOP_URL = "https://www.etsy.com/shop/Mathoose3Dprints";
 
     function designerUrl(folder, branch) {
       branch = branch || "main";
@@ -263,6 +264,19 @@
       stlList.appendChild(renderStlGroup(g));
     });
 
+    // Private, PIN-locked models (encrypted in public-playground/private/vault).
+    // Points at the feature branch until public-playground PR is merged; then drop branch + badge.
+    var privateEntry = { id: "private", branch: "cursor/private-models-a7fd", badge: "Preview" };
+    var privateLink = document.getElementById("privateLink");
+    privateLink.href = designerUrl(privateEntry.id, privateEntry.branch);
+    if (privateEntry.badge) {
+      var pb = document.createElement("span");
+      pb.className = "badge";
+      pb.textContent = privateEntry.badge;
+      privateLink.appendChild(document.createTextNode(" "));
+      privateLink.appendChild(pb);
+    }
+
     if (ETSY_SHOP_URL) {
       var block = document.getElementById("etsyBlock");
       block.className = "etsy-card";
@@ -271,7 +285,8 @@
       link.className = "etsy-link";
       link.href = ETSY_SHOP_URL;
       link.rel = "noopener";
-      link.textContent = "Open Etsy shop";
+      link.textContent = "Open Mathoose3Dprints on Etsy";
+      link.target = "_blank";
       block.appendChild(link);
     }
   </script>
