@@ -7,35 +7,115 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="3D Library" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#082f49" />
+  <meta name="theme-color" content="#efeae2" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <!-- build: 3d-printing-library-v1 -->
-  <meta http-equiv="refresh" content="0;url=https://cdn.jsdelivr.net/gh/mathoose/public-playground@main/3d-printing/" />
-  <style>
-    body {
-      margin: 0;
-      min-height: 100dvh;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-      background: #082f49;
-      color: #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      text-align: center;
-    }
-    a { color: #7dd3fc; }
-    p { max-width: 20rem; line-height: 1.45; opacity: 0.9; }
-  </style>
+  <link rel="stylesheet" href="styles.css?v=1" />
+  <!-- build: 3d-printing-library-v2 -->
 </head>
 <body>
-  <p>Opening the <strong>3D printing library</strong>…</p>
-  <p><a id="hubLink" href="https://cdn.jsdelivr.net/gh/mathoose/public-playground@main/3d-printing/">Tap here if nothing happens</a></p>
+  <div class="lib-top">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+  </div>
+
+  <header class="hero">
+    <p class="kicker">Mathoose's apps · 3D library</p>
+    <h1>3D printing library</h1>
+    <p class="lead">Pick a project, tweak the parameters on your phone, then download the STL for your slicer.</p>
+  </header>
+
+  <main class="grid" id="designerGrid"></main>
+
+  <footer class="lib-footer">
+    <p>Designers are hosted in <code>public-playground</code> on GitHub. Each card opens the live parametric page.</p>
+  </footer>
+
   <script>
-    window.location.replace("https://cdn.jsdelivr.net/gh/mathoose/public-playground@main/3d-printing/");
+    var PP = "mathoose/public-playground";
+    var CDN = "https://cdn.jsdelivr.net/gh/" + PP + "@main";
+
+    function designerUrl(folder) {
+      return "https://htmlpreview.github.io/?https://github.com/" + PP + "/blob/main/" + folder + "/index.html";
+    }
+
+    var projects = [
+      {
+        id: "bubble-frame",
+        title: "Bubble frame",
+        blurb: "Hemisphere bead frame around a photo, a matching back plate with hanging holes, and a stand that hides behind the beads.",
+        thumb: { type: "beads" }
+      },
+      {
+        id: "postit-wall-clip",
+        title: "Post-it clip",
+        blurb: "Wall clip for a Post-it pad. Print on its side — chamfered putty slot you can slide along the back.",
+        thumb: { type: "img", src: CDN + "/postit-wall-clip/postit-wall-clip-iso.png" }
+      },
+      {
+        id: "striped-frame",
+        title: "Striped frame",
+        blurb: "Alternating color bands along the frame path (2–4 colors). Thickness + layer height per color. Back plate + stand included.",
+        thumb: { type: "stripes" }
+      },
+      {
+        id: "photive-snap-box",
+        title: "Photive snap box",
+        blurb: "Open tray + snap-over cap lid for the 6-port Photive brick, plus a per-port USB spacer comb. Live sliders for fit, plug lengths, cord slot, and inner size.",
+        thumb: { type: "img", src: CDN + "/photive-snap-box/iso.png" }
+      },
+      {
+        id: "henson-razor-tool",
+        title: "Henson razor tool",
+        blurb: "Knurled cradle that holds the Henson AL13 / Ti22 head by its cap so you can unscrew the handle without touching the blade. Optional handle grip sleeve.",
+        thumb: { type: "img", src: CDN + "/henson-razor-tool/iso.png" }
+      },
+      {
+        id: "power-bank-wrap",
+        title: "Power bank wrap",
+        blurb: "Slide-on sleeve for the mint SYJ-F37F. Cord wraps around the band (not the USB end); elastic clips on the back hold the ends.",
+        thumb: { type: "img", src: CDN + "/power-bank-wrap/iso.png" }
+      }
+    ];
+
+    var grid = document.getElementById("designerGrid");
+    projects.forEach(function (p) {
+      var a = document.createElement("a");
+      a.className = "card";
+      a.href = designerUrl(p.id);
+      a.setAttribute("rel", "noopener");
+
+      var thumb;
+      if (p.thumb.type === "img") {
+        thumb = document.createElement("img");
+        thumb.className = "thumb";
+        thumb.src = p.thumb.src;
+        thumb.alt = "";
+        thumb.loading = "lazy";
+      } else {
+        thumb = document.createElement("div");
+        thumb.className = "thumb " + p.thumb.type;
+        thumb.setAttribute("aria-hidden", "true");
+      }
+      a.appendChild(thumb);
+
+      var body = document.createElement("div");
+      body.className = "body";
+      var h2 = document.createElement("h2");
+      h2.textContent = p.title;
+      var para = document.createElement("p");
+      para.textContent = p.blurb;
+      var go = document.createElement("span");
+      go.className = "go";
+      go.textContent = "Open designer";
+      body.appendChild(h2);
+      body.appendChild(para);
+      body.appendChild(go);
+      a.appendChild(body);
+      grid.appendChild(a);
+    });
   </script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
