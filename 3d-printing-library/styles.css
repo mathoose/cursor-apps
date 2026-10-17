@@ -254,3 +254,7 @@ h2 { margin: 0 0 6px; font-size: 1.2rem; letter-spacing: -0.03em; }
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+.private-link { text-decoration: none; opacity: 0.5; font-size: 0.9rem; }
+.private-link:hover { opacity: 0.95; }
+.private-link .badge { font-size: 0.65rem; vertical-align: middle; }
