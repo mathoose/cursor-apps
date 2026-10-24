@@ -5251,5 +5251,26 @@
         "close": "10:30 PM"
       }
     }
+  },
+  {
+    "id": "aurora-cafe",
+    "name": "Aurora Cafe",
+    "neighborhood": "Graduate Hospital",
+    "address": "1700 Christian St, Philadelphia, PA 19146",
+    "lat": 39.940519,
+    "lng": -75.171275,
+    "website": "https://www.instagram.com/auroracafephilly/",
+    "instagramUrl": "https://www.instagram.com/auroracafephilly/",
+    "hoursSource": "listing",
+    "hoursNote": "New cafe at 17th and Christian (Philadelphia Bucket List, Oct 24, 2026). Google Maps listing read Oct 15, 2026: daily 7:30 AM–5 PM. Another listing shows 4 PM. Seasonal drinks and fresh pastries. @auroracafephilly",
+    "hours": {
+      "Sunday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Monday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Tuesday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Wednesday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Thursday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Friday": { "open": "7:30 AM", "close": "5:00 PM" },
+      "Saturday": { "open": "7:30 AM", "close": "5:00 PM" }
+    }
   }
 ]
