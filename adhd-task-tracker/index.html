@@ -180,11 +180,16 @@
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 0 12px;
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     border: none;
     outline: none;
     background: transparent;
@@ -193,6 +198,19 @@
     color: var(--text-muted);
   }
   .quick-add-link input::placeholder { color: var(--text-faint); }
+  .quick-link-paste {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .quick-link-paste:active { background: var(--border); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -659,17 +677,37 @@
   }
   .list-toolbar {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .list-toolbar .list-filter-row {
-    flex: 1;
-    min-width: 140px;
+    flex: none;
+    width: 100%;
+    min-width: 0;
     margin-bottom: 0;
   }
+  .category-filter-block {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+  }
+  .category-filter-block[hidden] { display: none !important; }
+  .category-filter-scroll {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 0 4px;
+  }
+  .category-filter-scroll::-webkit-scrollbar { display: none; }
   .list-tag-btn {
+    align-self: flex-start;
     flex-shrink: 0;
     padding: 8px 12px;
     min-height: 36px;
@@ -2378,9 +2416,9 @@
           <option value="added-oldest">Oldest added</option>
         </select>
       </div>
-      <div class="list-filter-row" id="listCategoryFilterRow" hidden>
+      <div class="category-filter-block" id="listCategoryFilterRow" hidden>
         <span class="list-filter-label">Category</span>
-        <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+        <div id="listCategoryFilter" class="category-filter-scroll" role="group" aria-label="Filter by category"></div>
       </div>
       <div class="list-filter-row" id="listAmsFilterRow" hidden>
         <span class="list-filter-label">AMS</span>
@@ -2397,6 +2435,7 @@
       </div>
       <div class="quick-add-link">
         <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste" id="listQuickLinkPaste">From clipboard</button>
       </div>
       <div class="quick-add-priority" id="listQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -2454,9 +2493,9 @@
           <option value="added-oldest">Oldest added</option>
         </select>
       </div>
-      <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
-        <span class="list-filter-label">Filter by</span>
-        <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+      <div class="category-filter-block" id="inboxCategoryFilterRow" hidden>
+        <span class="list-filter-label">Category</span>
+        <div id="inboxCategoryFilter" class="category-filter-scroll" role="group" aria-label="Filter by category"></div>
       </div>
     </div>
     <div class="quick-add-card">
@@ -2468,6 +2507,7 @@
       </div>
       <div class="quick-add-link">
         <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste" id="inboxQuickLinkPaste">From clipboard</button>
       </div>
       <div class="quick-add-priority" id="inboxQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -3085,9 +3125,7 @@ function isPrinterListName(name) {
 
 function isPrinterList(listId) {
   const list = state.lists.find(l => l.id === listId);
-  if (!list) return false;
-  if (list.printer) return true;
-  return isPrinterListName(list.name);
+  return !!(list && list.printer);
 }
 
 /** @deprecated use isPrinterList */
@@ -3105,7 +3143,7 @@ function shouldShowPrinterTaskFields(draft) {
 function ensurePrinterLists(lists) {
   return lists.map(function (l) {
     const next = Object.assign({}, l);
-    if (next.printer == null) next.printer = isPrinterListName(next.name);
+    next.printer = false;
     return next;
   });
 }
@@ -3229,7 +3267,9 @@ function loadState() {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return;
+    let clearedPrinterTag = false;
     if (Array.isArray(parsed.lists) && parsed.lists.length) {
+      clearedPrinterTag = parsed.lists.some(function (l) { return l && l.printer; });
       state.lists = ensurePrinterLists(ensureSystemLists(parsed.lists));
     }
     if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
@@ -3260,6 +3300,7 @@ function loadState() {
     if (typeof parsed.completionCommentPrompt === 'boolean') {
       state.completionCommentPrompt = parsed.completionCommentPrompt;
     }
+    if (clearedPrinterTag) saveState();
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -3313,6 +3354,38 @@ function extractFirstUrl(text) {
   if (!m) return '';
   const url = normalizeTaskLink(m[0].replace(/[.,;:!?)]+$/, ''));
   return isValidTaskLink(url) ? url : '';
+}
+
+function extractShareUrl(raw) {
+  const fromHttp = extractFirstUrl(raw);
+  if (fromHttp) return fromHttp;
+  const s = (raw || '').trim();
+  if (!s || /\s/.test(s)) return '';
+  if (/^(www\.)?[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(s)) {
+    const bare = normalizeTaskLink(s);
+    return isValidTaskLink(bare) ? bare : '';
+  }
+  return '';
+}
+
+function pasteLinkInto(linkInput, titleInput) {
+  function applyText(text) {
+    const url = extractShareUrl(text);
+    if (!url) {
+      showToast('No link on the clipboard', { error: true });
+      return;
+    }
+    linkInput.value = url;
+    if (titleInput) titleInput.focus();
+    showToast('Link ready — add a title');
+  }
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(applyText).catch(function () {
+      showToast('Allow paste, or paste into the link field', { error: true });
+    });
+    return;
+  }
+  showToast('Paste into the link field', { error: true });
 }
 
 function getTaskLinkUrl(task) {
@@ -4869,8 +4942,32 @@ function renderTaskEditorCategories() {
   field.hidden = !getCategoriesForList(editingTaskDraft.listId).length && !selection.size;
 }
 
+function fillCategoryFilterChips(container, categories) {
+  if (!container) return;
+  container.innerHTML = '';
+  const chips = [{ id: 'all', name: 'All' }].concat(categories.map(function (cat) {
+    return { id: cat.id, name: cat.name };
+  }));
+  chips.forEach(function (chip) {
+    const selected = state.categoryFilter === chip.id;
+    const btn = el('button', {
+      type: 'button',
+      class: 'category-chip' + (selected ? ' selected' : ''),
+      text: chip.name,
+      'aria-pressed': selected ? 'true' : 'false'
+    });
+    btn.addEventListener('click', function () {
+      if (state.categoryFilter === chip.id) return;
+      state.categoryFilter = chip.id;
+      saveState();
+      render();
+    });
+    container.appendChild(btn);
+  });
+}
+
 function renderCategoryFilters() {
-  const selects = [
+  const chipRows = [
     document.getElementById('listCategoryFilter'),
     document.getElementById('inboxCategoryFilter')
   ];
@@ -4889,22 +4986,8 @@ function renderCategoryFilters() {
     state.categoryFilter = 'all';
     saveState();
   }
-  selects.forEach(select => {
-    if (!select) return;
-    select.innerHTML = '';
-    const allOpt = el('option', { value: 'all', text: 'All categories' });
-    if (state.categoryFilter === 'all') allOpt.selected = true;
-    select.appendChild(allOpt);
-    visibleCategories.forEach(cat => {
-      const opt = el('option', { value: cat.id, text: cat.name });
-      if (state.categoryFilter === cat.id) opt.selected = true;
-      select.appendChild(opt);
-    });
-    select.onchange = (e) => {
-      state.categoryFilter = e.target.value;
-      saveState();
-      render();
-    };
+  chipRows.forEach(function (row) {
+    fillCategoryFilterChips(row, visibleCategories);
   });
   renderAmsFilter();
   syncListToolbar();
@@ -6188,30 +6271,9 @@ function renderListsManager() {
     const row = el('div', { class: 'list-manage-row' });
     const labelCol = el('div', { style: 'flex:1;min-width:0;' });
     labelCol.appendChild(el('div', { class: 'settings-label', text: list.name }));
-    if (!list.system) {
-      labelCol.appendChild(el('div', {
-        class: 'settings-sub',
-        text: list.printer ? '3D Printer list · AMS & filament enabled' : 'Tap 3D Printer to enable AMS & filament'
-      }));
-    }
     row.appendChild(labelCol);
 
     const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;flex-shrink:0;' });
-
-    if (!list.system) {
-      actions.appendChild(el('button', {
-        type: 'button',
-        class: 'btn' + (list.printer ? ' btn-primary' : ''),
-        style: 'padding: 6px 10px; min-height: 32px; font-size: 0.75rem; white-space: nowrap;',
-        text: list.printer ? '3D Printer ✓' : '3D Printer',
-        onClick: () => {
-          list.printer = !list.printer;
-          saveState();
-          renderListsManager();
-          render();
-        }
-      }));
-    }
 
     const reorder = el('div', { class: 'list-reorder' });
     const upBtn = el('button', {
@@ -6284,7 +6346,7 @@ function addList(name, opts) {
     return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
-  state.lists.push({ id, name, printer: isPrinterListName(name) });
+  state.lists.push({ id, name, printer: false });
   saveState();
   if (!opts.silent) showToast('Added list: ' + name);
   return id;
@@ -7448,9 +7510,10 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, saveSettingsInputId, getListId, categoryUiKey) {
+  function wireQuickAdd(titleInputId, linkInputId, pasteBtnId, prioRowId, btnId, saveSettingsInputId, getListId, categoryUiKey) {
     const titleInput = document.getElementById(titleInputId);
     const linkInput = document.getElementById(linkInputId);
+    const pasteBtn = document.getElementById(pasteBtnId);
     const btn = document.getElementById(btnId);
     const saveSettingsInput = document.getElementById(saveSettingsInputId);
     const prioRow = document.getElementById(prioRowId);
@@ -7550,10 +7613,15 @@ function wireQuickAdds() {
     btn.addEventListener('click', submit);
     titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
     linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    if (pasteBtn) {
+      pasteBtn.addEventListener('click', function () {
+        pasteLinkInto(linkInput, titleInput);
+      });
+    }
   }
 
-  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', 'inboxQuickSaveSettings', () => 'inbox', 'inbox');
-  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', 'listQuickSaveSettings', () => state.activeListId, 'list');
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickLinkPaste', 'inboxQuickPriority', 'inboxQuickBtn', 'inboxQuickSaveSettings', () => 'inbox', 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickLinkPaste', 'listQuickPriority', 'listQuickBtn', 'listQuickSaveSettings', () => state.activeListId, 'list');
 }
 
 function wireDateNav() {
