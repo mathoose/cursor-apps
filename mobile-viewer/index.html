@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- build: mobile-viewer-v6 -->
+  <!-- build: mobile-viewer-v7 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Tracker Viewer</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,7 +14,7 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body class="mobile-viewer">
   <section id="loadScreen" class="load-screen">
@@ -25,18 +25,16 @@
         <p>Read-only snapshot on your phone</p>
       </div>
     </div>
-    <p class="load-copy">Pick the Export ZIP from the desktop tracker, or a bare <code>full-backup.json</code>. Nothing is uploaded — parsing stays on this device.</p>
-    <label class="file-pick">
-      Choose tracker export (.zip or full-backup.json)
-      <input id="fileInput" type="file" accept=".zip,.json,application/zip,application/json,application/x-zip-compressed" />
-    </label>
+    <p class="load-copy">Load the newest Export ZIP from Google Drive, or a bare <code>full-backup.json</code>. Nothing is uploaded — parsing stays on this device.</p>
+    <button type="button" class="btn-primary" id="btnDriveLoad">Open Google Drive</button>
+    <label class="file-pick" for="fileInput">Choose the export (.zip or full-backup.json)</label>
     <div id="progress" class="progress" hidden></div>
     <p id="loadError" class="error" hidden></p>
     <div id="summaryCard" class="summary-card" hidden></div>
     <p class="load-note">Large exports with photos can take 10–30 seconds to open on a phone.</p>
     <div class="load-home">
       <a href="https://mathoose.github.io/cursor-apps/" data-apps-home>Back to Apps</a>
-      <p class="app-version" style="margin-top:12px">Tracker Viewer v6 · Oct 13, 2026</p>
+      <p class="app-version" style="margin-top:12px">Tracker Viewer v7 · Oct 28, 2026</p>
     </div>
   </section>
 
@@ -55,6 +53,11 @@
     </header>
 
     <p id="banner" class="banner">Read-only snapshot</p>
+    <button type="button" class="drive-bar" id="btnDrive">Load latest from Google Drive</button>
+    <div id="batchBar" class="batch-bar" hidden>
+      <label for="batchSelect">Active batch</label>
+      <select id="batchSelect"></select>
+    </div>
 
     <div id="searchWrap" class="search-wrap">
       <input id="searchInput" type="search" placeholder="Search" autocomplete="off" enterkeyhint="search" />
@@ -95,7 +98,7 @@
   </div>
 
   <footer class="app-version-footer">
-    <p class="app-version" id="appVersion">Tracker Viewer v6 · Oct 13, 2026</p>
+    <p class="app-version" id="appVersion">Tracker Viewer v7 · Oct 28, 2026</p>
   </footer>
 
   <div id="sheet" class="overlay" hidden>
@@ -120,6 +123,24 @@
     </div>
   </div>
 
+  <div id="driveSheet" class="overlay" hidden>
+    <div class="sheet" role="dialog" aria-labelledby="driveTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="driveTitle">Load the latest export</h2>
+      <ol class="drive-steps">
+        <li>Open Google Drive.</li>
+        <li>Find the newest Tank Tracker export ZIP (or <code>full-backup.json</code>).</li>
+        <li>Come back here and tap <strong>Choose the export</strong>. On iPhone use Browse, then Google Drive.</li>
+      </ol>
+      <button type="button" class="btn-primary" id="btnOpenDrive">Open Google Drive</button>
+      <a class="btn-ghost drive-web" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener">Drive in the browser</a>
+      <button type="button" class="btn-primary" id="btnPickExport">Choose the export</button>
+      <button type="button" class="btn-ghost" id="btnDriveClose">Not now</button>
+    </div>
+  </div>
+
+  <input id="fileInput" class="offscreen-file" type="file" accept=".zip,.json,application/zip,application/json,application/x-zip-compressed" />
+
   <div id="lightbox" hidden>
     <img id="lightboxImg" alt="" />
     <div class="lightbox-hint">Pinch to zoom · tap or swipe down to close</div>
@@ -128,6 +149,6 @@
   <div class="toast" id="toast" role="status"></div>
 
   <script src="jszip.min.js"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
