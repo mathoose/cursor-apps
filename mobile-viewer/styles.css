@@ -306,6 +306,74 @@ body.mobile-viewer .apps-home-back {
   text-align: center;
 }
 
+.drive-bar {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 10px 14px;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: #15283a;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-align: center;
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+.batch-bar {
+  padding: 10px 14px 0;
+  background: var(--bg);
+}
+
+.batch-bar label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.batch-bar select {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+}
+
+.offscreen-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.drive-steps {
+  margin: 0 0 14px;
+  padding-left: 1.2rem;
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.drive-web {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
 .search-wrap {
   padding: 10px 12px 6px;
   position: sticky;
@@ -535,6 +603,17 @@ main {
 .activity-card.kind-adjustment { border-left-color: var(--warn); }
 .activity-card.kind-email { border-left-color: var(--accent); }
 .activity-card.kind-comment { border-left-color: var(--muted); }
+.activity-card.kind-drb { border-left-color: var(--origin-drb, var(--warn)); }
+.activity-card.kind-task { border-left-color: var(--origin-project, var(--accent)); }
+
+.activity-legend .leg.kind-drb,
+.activity-card.kind-drb .activity-kind {
+  color: var(--origin-drb, var(--warn));
+  border-color: rgba(232, 184, 74, 0.45);
+}
+.activity-card.kind-task .activity-kind {
+  color: var(--origin-project, var(--accent));
+}
 
 .activity-kind {
   font-size: 0.68rem;
@@ -878,6 +957,10 @@ body:not(.app-mode) > .app-version-footer {
   display: flex;
   align-items: flex-end;
   justify-content: center;
+}
+
+.overlay[hidden] {
+  display: none !important;
 }
 
 .sheet {

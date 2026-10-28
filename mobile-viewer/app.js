@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "6 · Oct 13, 2026";
+  var APP_VERSION = "7 · Oct 28, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html or tank tracker v2.";
   var BACKUP_KEYS = [
     "tanks",
@@ -39,6 +39,7 @@
   var detailId = null;
   var returnTab = null;
   var searches = { todo: "", processes: "", projects: "", batches: "", drb: "" };
+  var selectedBatchKey = "";
   var pendingFile = null;
   var toastTimer = null;
 
@@ -164,6 +165,29 @@
 
   function batchStage(tank) {
     return firstText(tank, ["stage", "status"]);
+  }
+
+  function batchIsActive(tank) {
+    if (!tank) return false;
+    if (tank.active === false || tank.isActive === false || tank.live === false) return false;
+    if (tank.active === true || tank.live === true) return true;
+    if (text(tank.dateFinished)) return false;
+    var status = text(tank.status).toLowerCase();
+    if (/^(closed|complete|completed|archived|finished|done|shipped|inactive)$/.test(status)) return false;
+    return true;
+  }
+
+  function batchOptionLabel(tank) {
+    var parts = [];
+    var lot = usawLabel(tank);
+    if (lot) parts.push(lot);
+    else parts.push("Tank " + (tank.tankNumber || "—"));
+    var product = batchProduct(tank);
+    if (product) parts.push(product);
+    var stage = batchStage(tank);
+    if (stage) parts.push(stage);
+    if (tank.tankNumber && lot) parts.push("Tank " + tank.tankNumber);
+    return parts.join(" · ");
   }
 
   function lastCommentText(tank) {
@@ -976,6 +1000,29 @@
     emailsForTank(tank).forEach(function (m) {
       push("email", m);
     });
+    function pushFixed(kind, raw) {
+      if (!raw || typeof raw !== "object") return;
+      var key =
+        "fixed:" +
+        kind +
+        ":" +
+        (raw.id != null ? String(raw.id) : eventTime(raw) + firstText(raw, ["title", "text", "materialName", "subject"]));
+      if (seen[key]) return;
+      seen[key] = 1;
+      items.push({ kind: kind, raw: raw, at: eventTime(raw) || raw.date || raw.dueDate || "" });
+    }
+    var tankId = itemId(tank, "");
+    asArray(lists().drb).forEach(function (entry) {
+      if (lotsMatch(tank.usawLot, entry.lotNumber) || (tankId && String(entry.tankId || "") === tankId)) {
+        pushFixed("drb", entry);
+      }
+    });
+    asArray(lists().tasks).forEach(function (task) {
+      var hit =
+        (tankId && String(task.tankId || "") === tankId) ||
+        (text(tank.tankNumber) && String(task.tankNumber || "") === text(tank.tankNumber));
+      if (hit) pushFixed("task", task);
+    });
     items.sort(function (a, b) {
       return new Date(a.at || 0) - new Date(b.at || 0);
     });
@@ -1051,6 +1098,25 @@
       htmlRes += "</div>";
       return htmlRes;
     }
+    if (kind === "drb") {
+      var htmlDrb = '<div class="activity-card kind-drb">';
+      htmlDrb += '<div class="activity-kind">DRB</div>';
+      htmlDrb += "<strong>" + esc(drbMaterialTitle(raw)) + "</strong>";
+      if (entry.at) htmlDrb += '<div class="entry-time">' + esc(formatDate(entry.at) || formatDateTime(entry.at)) + "</div>";
+      if (text(raw.issue || raw.classification)) {
+        htmlDrb += "<div>" + esc([raw.classification, raw.issue].filter(Boolean).join(" · ")) + "</div>";
+      }
+      htmlDrb += "</div>";
+      return htmlDrb;
+    }
+    if (kind === "task") {
+      var htmlTask = '<div class="activity-card kind-task">';
+      htmlTask += '<div class="activity-kind">Linked to-do</div>';
+      htmlTask += "<strong>" + esc(firstText(raw, ["title", "text", "name", "waitingFor"]) || "Task") + "</strong>";
+      if (entry.at) htmlTask += '<div class="entry-time">' + esc(formatDate(entry.at) || formatDateTime(entry.at)) + "</div>";
+      htmlTask += "</div>";
+      return htmlTask;
+    }
     var htmlNote = '<div class="activity-card kind-comment">';
     htmlNote += '<div class="activity-kind">Note</div>';
     if (entry.at) htmlNote += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
@@ -1067,6 +1133,7 @@
       '<span class="leg kind-result">Result</span>' +
       '<span class="leg kind-adjustment">Adjustment</span>' +
       '<span class="leg kind-email">Email</span>' +
+      '<span class="leg kind-drb">DRB</span>' +
       "</div>";
     if (!entries.length) {
       html += '<p class="muted">No activity on this product line.</p></section>';
@@ -1569,12 +1636,16 @@
       if (!raw) return;
       var parsed = JSON.parse(raw);
       if (parsed && parsed.uiVersion >= 2 && TAB_LABELS[parsed.tab]) currentTab = parsed.tab;
+      if (parsed && parsed.batchKey) selectedBatchKey = String(parsed.batchKey);
     } catch (e) {}
   }
 
   function writeUi() {
     try {
-      localStorage.setItem(UI_KEY, JSON.stringify({ tab: currentTab, uiVersion: 2 }));
+      localStorage.setItem(
+        UI_KEY,
+        JSON.stringify({ tab: currentTab, batchKey: selectedBatchKey, uiVersion: 3 })
+      );
     } catch (e) {}
   }
 
@@ -1783,6 +1854,20 @@
     parseAndLoad(file, false);
   }
 
+  function openDriveSheet() {
+    var sheet = $("driveSheet");
+    if (sheet) sheet.hidden = false;
+  }
+
+  function closeDriveSheet() {
+    var sheet = $("driveSheet");
+    if (sheet) sheet.hidden = true;
+  }
+
+  function openGoogleDrive() {
+    window.location.href = "googledrive://";
+  }
+
   function showLoad(keepSummary) {
     document.body.classList.remove("app-mode");
     els.loadScreen.hidden = false;
@@ -1831,6 +1916,7 @@
   function headerForTab() {
     els.headerTitle.textContent = TAB_LABELS[currentTab] || "Tracker Viewer";
     if (currentTab === "todo") els.headerSub.textContent = "Waiting & open items";
+    else if (currentTab === "batches") els.headerSub.textContent = "One column for the batch you pick";
     else els.headerSub.textContent = snapshot && snapshot.textOnly ? "Text-only snapshot" : "Read-only snapshot";
   }
 
@@ -1878,9 +1964,91 @@
     els.backToList.textContent = backLabels[currentTab] || "← All items";
   }
 
+  function batchChoices() {
+    var tanks = lists().batches;
+    var q = (searches.batches || "").trim().toLowerCase();
+    var rows = [];
+    tanks.forEach(function (tank) {
+      if (q && tankSearchBlob(tank).indexOf(q) === -1) return;
+      rows.push({ tank: tank, key: rowKey("batches", tank, tanks), active: batchIsActive(tank) });
+    });
+    rows.sort(function (a, b) {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      var da = new Date(a.tank.dateStarted || a.tank.updatedAt || 0).getTime();
+      var db = new Date(b.tank.dateStarted || b.tank.updatedAt || 0).getTime();
+      return db - da;
+    });
+    return rows;
+  }
+
+  function renderBatchPicker() {
+    var bar = $("batchBar");
+    var sel = $("batchSelect");
+    if (!bar || !sel) return;
+    var show = currentTab === "batches" && !detailId;
+    bar.hidden = !show;
+    if (!show) return;
+    var rows = batchChoices();
+    var known = {};
+    rows.forEach(function (r) {
+      known[r.key] = 1;
+    });
+    if (!selectedBatchKey || !known[selectedBatchKey]) {
+      var firstActive = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].active) {
+          firstActive = rows[i];
+          break;
+        }
+      }
+      selectedBatchKey = (firstActive || rows[0] || {}).key || "";
+    }
+    var html = "";
+    var group = "";
+    rows.forEach(function (r) {
+      var g = r.active ? "Active" : "Finished";
+      if (g !== group) {
+        if (group) html += "</optgroup>";
+        group = g;
+        html += '<optgroup label="' + esc(g) + '">';
+      }
+      html +=
+        '<option value="' +
+        esc(r.key) +
+        '"' +
+        (r.key === selectedBatchKey ? " selected" : "") +
+        ">" +
+        esc(batchOptionLabel(r.tank)) +
+        "</option>";
+    });
+    if (group) html += "</optgroup>";
+    if (!rows.length) html = '<option value="">No batches</option>';
+    sel.innerHTML = html;
+  }
+
+  function renderBatchLive() {
+    var rows = batchChoices();
+    var chosen = null;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].key === selectedBatchKey) chosen = rows[i].tank;
+    }
+    if (!chosen && rows.length) chosen = rows[0].tank;
+    if (!chosen) {
+      var q = (searches.batches || "").trim();
+      els.main.innerHTML =
+        '<p class="empty">' + (q ? "No batches match that search." : "No batches in this snapshot.") + "</p>";
+      return;
+    }
+    els.main.innerHTML = batchDetail(chosen);
+  }
+
   function renderList() {
     if (currentTab === "todo") {
       renderTodoList();
+      return;
+    }
+    if (currentTab === "batches") {
+      renderBatchLive();
       return;
     }
     var items = filtered(currentTab);
@@ -2305,7 +2473,9 @@
     renderBanner();
     renderTabCounts();
     renderSearch();
-    if (detailId && currentTab !== "todo") renderDetail();
+    renderBatchPicker();
+    if (currentTab === "batches" && !detailId) renderBatchLive();
+    else if (detailId && currentTab !== "todo") renderDetail();
     else renderList();
   }
 
@@ -2471,6 +2641,17 @@
     var openBtn = e.target.closest("[data-open]");
     if (openBtn) {
       var tab = openBtn.getAttribute("data-open-tab");
+      var dest = tab && TAB_LABELS[tab] ? tab : currentTab;
+      if (dest === "batches") {
+        if (tab && tab !== currentTab) currentTab = tab;
+        selectedBatchKey = openBtn.getAttribute("data-open") || selectedBatchKey;
+        detailId = null;
+        returnTab = null;
+        writeUi();
+        renderAll();
+        window.scrollTo(0, 0);
+        return;
+      }
       if (tab && TAB_LABELS[tab] && tab !== currentTab) {
         returnTab = currentTab === "todo" ? "todo" : null;
         currentTab = tab;
@@ -2567,7 +2748,29 @@
 
     els.searchInput.addEventListener("input", function () {
       searches[currentTab] = els.searchInput.value || "";
+      if (currentTab === "batches" && !detailId) {
+        renderBatchPicker();
+        renderBatchLive();
+        return;
+      }
       if (!detailId) renderList();
+    });
+    $("batchSelect").addEventListener("change", function () {
+      selectedBatchKey = $("batchSelect").value || "";
+      writeUi();
+      renderBatchLive();
+      window.scrollTo(0, 0);
+    });
+    $("btnDrive").addEventListener("click", openDriveSheet);
+    $("btnDriveLoad").addEventListener("click", openDriveSheet);
+    $("btnOpenDrive").addEventListener("click", openGoogleDrive);
+    $("btnPickExport").addEventListener("click", function () {
+      closeDriveSheet();
+      if (els.fileInput) els.fileInput.click();
+    });
+    $("btnDriveClose").addEventListener("click", closeDriveSheet);
+    $("driveSheet").addEventListener("click", function (e) {
+      if (e.target === $("driveSheet")) closeDriveSheet();
     });
     els.backToList.addEventListener("click", function () {
       if (returnTab) {
