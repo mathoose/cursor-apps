@@ -70,10 +70,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJK_XHFpzHxokRvuQGqI_1pqY",
     "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 11:00 PM; Thursday: 11:30 AM – 11:00 PM; Friday: 11:30 AM – 12:00 AM; Saturday: 11:30 AM – 12:00 AM; Sunday: 11:30 AM – 10:00 PM",
-    "lat": 39.948276,
-    "lng": -75.170834,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.94997,
+    "lng": -75.162028,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.948276,
+    "lngPrevious": -75.170834
   },
   {
     "name": "Mona",
@@ -139,10 +141,12 @@
     "googlePlaceId": "ChIJTVYdEy_GxokRqENH3p2Bvz0",
     "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 2:00 AM",
     "menu_pdf": "https://monaphilly.com/wp-content/uploads/2026/02/MONA_HAPPYHOUR_2026.pdf",
-    "lat": 39.950004,
-    "lng": -75.158803,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.950436,
+    "lng": -75.162251,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950004,
+    "lngPrevious": -75.158803
   },
   {
     "name": "Vintage Wine Bar",
@@ -207,10 +211,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJaRhJXS_GxokRkFd27uuyrLY",
     "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM",
-    "lat": 39.951834,
-    "lng": -75.161519,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.949648,
+    "lng": -75.161882,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.951834,
+    "lngPrevious": -75.161519
   },
   {
     "name": "Darling Jack's Tavern",
@@ -275,10 +281,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ09z2qQzHxokR-1gpzJ4Sgm0",
     "hoursNote": "Monday: 11:30 AM – 10:00 PM; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM",
-    "lat": 39.951439,
-    "lng": -75.161619,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.950382,
+    "lng": -75.16172,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.951439,
+    "lngPrevious": -75.161619
   },
   {
     "name": "Moriarty's Irish Pub",
@@ -417,10 +425,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJBdUeZi_GxokR2uEUM6HYpJ4",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 11:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 PM – 12:00 AM; Saturday: 4:00 PM – 12:00 AM; Sunday: 4:00 – 10:00 PM",
-    "lat": 39.951934,
-    "lng": -75.161419,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.949691,
+    "lng": -75.16209,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.951934,
+    "lngPrevious": -75.161419
   },
   {
     "name": "The Bread Room",
@@ -524,10 +534,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJlzkAqpfHxokRt3GCWRx52-c",
     "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 – 11:00 PM; Saturday: 1:00 – 11:00 PM; Sunday: 1:00 – 9:00 PM",
-    "lat": 39.94655,
-    "lng": -75.16263,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.950322,
+    "lng": -75.161732,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.94655,
+    "lngPrevious": -75.16263
   },
   {
     "name": "Giuseppe & Sons",
@@ -600,10 +612,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJbYZ7rkTHxokRfhIPW-VgDb4",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM",
-    "lat": 39.950612,
-    "lng": -75.16726,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.950452,
+    "lng": -75.166199,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950612,
+    "lngPrevious": -75.16726
   },
   {
     "name": "Harp & Crown",
@@ -686,10 +700,12 @@
     "hh_menu": "https://theblacksheeppub.com/happy-hour/",
     "instagram": "https://www.instagram.com/theblacksheepphilly/",
     "schedule": {},
-    "lat": 39.950824,
-    "lng": -75.168644,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.948411,
+    "lng": -75.169315,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950824,
+    "lngPrevious": -75.168644
   },
   {
     "name": "Almyra Restaurant",
@@ -810,10 +826,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJo2Hq4i_GxokR8JmHsU-s45M",
     "hoursNote": "Monday: 5:00 PM – 2:00 AM; Tuesday: 5:00 PM – 2:00 AM; Wednesday: 5:00 PM – 2:00 AM; Thursday: 5:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 2:00 AM",
-    "lat": 39.950753,
-    "lng": -75.168143,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.950256,
+    "lng": -75.165948,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950753,
+    "lngPrevious": -75.168143
   },
   {
     "name": "The Franklin Mortgage & Investment",
@@ -857,8 +875,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJlwYTlTDGxokR8h4PWNXFhTY",
     "hoursNote": "Monday: 5:00 PM – 12:00 AM; Tuesday: 5:00 PM – 12:00 AM; Wednesday: 5:00 PM – 12:00 AM; Thursday: 5:00 PM – 12:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 5:00 PM – 2:00 AM; Sunday: 5:00 PM – 12:00 AM",
-    "lat": 39.9486,
-    "lng": -75.171
+    "lat": 39.948321,
+    "lng": -75.169697,
+    "latPrevious": 39.9486,
+    "lngPrevious": -75.171,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Ranstead Room",
@@ -898,8 +920,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJueM_GTfGxokRq_IKa4nOJi4",
     "hoursNote": "Monday: 7:00 PM – 12:00 AM; Tuesday: 7:00 PM – 12:00 AM; Wednesday: 7:00 PM – 12:00 AM; Thursday: 7:00 PM – 2:00 AM; Friday: 7:00 PM – 2:00 AM; Saturday: 7:00 PM – 2:00 AM; Sunday: Closed",
-    "lat": 39.9512,
-    "lng": -75.1744
+    "lat": 39.952736,
+    "lng": -75.173702,
+    "latPrevious": 39.9512,
+    "lngPrevious": -75.1744,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Rosy's Taco Bar",
@@ -1139,10 +1165,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJWeZiBmTHxokRNvlQNYx2GcY",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 4:00 – 11:00 PM; Sunday: 4:00 – 10:00 PM",
-    "lat": 39.948994,
-    "lng": -75.174576,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.951066,
+    "lng": -75.173593,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.948994,
+    "lngPrevious": -75.174576
   },
   {
     "name": "Enswell",
@@ -1339,10 +1367,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJS0l86zrGxokRSmp9b6VRJT8",
     "hoursNote": "Monday: 5:00 – 9:00 PM; Tuesday: 5:00 – 9:00 PM; Wednesday: 5:00 – 9:00 PM; Thursday: 5:00 – 9:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: Closed",
-    "lat": 39.948531,
-    "lng": -75.167004,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.948547,
+    "lng": -75.167972,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.948531,
+    "lngPrevious": -75.167004
   },
   {
     "name": "Brauhaus Schmitz",
@@ -1407,10 +1437,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJdaSbpyDGxokRte6dD4EqA_g",
     "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 12:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 PM – 12:00 AM",
-    "lat": 39.941395,
-    "lng": -75.159137,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.942076,
+    "lng": -75.154614,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.941395,
+    "lngPrevious": -75.159137
   },
   {
     "name": "O'Neals",
@@ -1501,8 +1533,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ57UlMJrIxokRzGoYl_rVe2k",
     "hoursNote": "Monday: 4:00 PM – 2:00 AM; Tuesday: 4:00 PM – 2:00 AM; Wednesday: 4:00 PM – 2:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 12:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 2:00 AM",
-    "lat": 39.9424,
-    "lng": -75.145
+    "lat": 39.942521,
+    "lng": -75.145619,
+    "latPrevious": 39.9424,
+    "lngPrevious": -75.145,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Bridget Foy's",
@@ -1619,8 +1655,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJgUAenZnIxokRm0hnJ7GU2wg",
     "hoursNote": "Monday: 11:00 AM – 2:00 AM; Tuesday: 11:00 AM – 2:00 AM; Wednesday: 11:00 AM – 2:00 AM; Thursday: 11:00 AM – 2:00 AM; Friday: 11:00 AM – 2:00 AM; Saturday: 11:00 AM – 2:00 AM; Sunday: 11:00 AM – 2:00 AM",
-    "lat": 39.94125,
-    "lng": -75.1448
+    "lat": 39.941065,
+    "lng": -75.145535,
+    "latPrevious": 39.94125,
+    "lngPrevious": -75.1448,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Marsha's South Street",
@@ -1826,8 +1866,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ41LekZ3JxokRilqTt09Daf0",
     "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 2:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 – 10:00 PM",
-    "lat": 39.9718,
-    "lng": -75.1348
+    "lat": 39.972176,
+    "lng": -75.134614,
+    "latPrevious": 39.9718,
+    "lngPrevious": -75.1348,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Love and Honey Fried Chicken",
@@ -2106,8 +2150,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJXTNZXGnIxokRv7-nfbIT1-I",
     "hoursNote": "Monday: 8:00 AM – 4:00 PM; Tuesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Wednesday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Thursday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM; Friday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Saturday: 8:00 AM – 4:00 PM, 5:00 – 10:00 PM; Sunday: 8:00 AM – 4:00 PM, 5:00 – 9:00 PM",
-    "lat": 39.9698,
-    "lng": -75.1412
+    "lat": 39.969761,
+    "lng": -75.135843,
+    "latPrevious": 39.9698,
+    "lngPrevious": -75.1412,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Attico Rooftoop",
@@ -2296,8 +2344,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJBzQZYzDGxokRZzPeP310hr8",
     "hoursNote": "Monday: 7:00 AM – 9:30 PM; Tuesday: 7:00 AM – 9:30 PM; Wednesday: 7:00 AM – 9:30 PM; Thursday: 7:00 AM – 9:30 PM; Friday: 7:00 AM – 11:00 PM; Saturday: 8:00 AM – 11:00 PM; Sunday: 8:00 AM – 2:00 PM",
-    "lat": 39.9501,
-    "lng": -75.1698
+    "lat": 39.950466,
+    "lng": -75.168871,
+    "latPrevious": 39.9501,
+    "lngPrevious": -75.1698,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Cellar Dog",
@@ -3022,10 +3074,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJQeTMeYXIxokRBSEd7jsg46U",
     "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: Closed; Thursday: 6:00 PM – 2:00 AM; Friday: 5:00 PM – 2:00 AM; Saturday: 1:00 PM – 2:00 AM; Sunday: 1:00 PM – 12:00 AM",
-    "lat": 39.950925,
-    "lng": -75.143404,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.948917,
+    "lng": -75.143856,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950925,
+    "lngPrevious": -75.143404
   },
   {
     "name": "National Mechanics",
@@ -3150,8 +3204,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ6ZizgI_IxokRMfvmuRIZVKY",
     "hoursNote": "Monday: Closed; Tuesday: 11:30 AM – 10:00 PM; Wednesday: 11:30 AM – 10:00 PM; Thursday: 11:30 AM – 10:00 PM; Friday: 11:30 AM – 11:00 PM; Saturday: 3:00 – 11:00 PM; Sunday: 2:00 – 9:00 PM",
-    "lat": 39.9498,
-    "lng": -75.1418
+    "lat": 39.948797,
+    "lng": -75.142445,
+    "latPrevious": 39.9498,
+    "lngPrevious": -75.1418,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Umami",
@@ -3274,10 +3332,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJNxESpoPIxokRs5NCI4-Aosc",
     "hoursNote": "Monday: Closed; Tuesday: Closed; Wednesday: 3:00 – 10:00 PM; Thursday: 3:00 – 10:00 PM; Friday: 3:00 PM – 12:00 AM; Saturday: 12:00 PM – 12:00 AM; Sunday: 12:00 – 10:00 PM",
-    "lat": 39.950297,
-    "lng": -75.15102,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.949115,
+    "lng": -75.1509,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.950297,
+    "lngPrevious": -75.15102
   },
   {
     "name": "Tuna Bar",
@@ -3334,8 +3394,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJlRh-K4bIxokRziis3VsBU48",
     "hoursNote": "Monday: Closed; Tuesday: 1:30 – 10:00 PM; Wednesday: 1:30 – 10:00 PM; Thursday: 1:30 – 10:00 PM; Friday: 1:30 – 11:00 PM; Saturday: 1:30 – 11:00 PM; Sunday: 1:30 – 10:00 PM",
-    "lat": 39.9548,
-    "lng": -75.1438
+    "lat": 39.953885,
+    "lng": -75.143171,
+    "latPrevious": 39.9548,
+    "lngPrevious": -75.1438,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Pearl and Mary Oyster Bar",
@@ -3692,8 +3756,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJLV8I2eDHxokRrTmQFZ3cgls",
     "hoursNote": "Monday: 11:00 AM – 8:00 PM; Tuesday: 11:00 AM – 8:00 PM; Wednesday: 11:00 AM – 8:00 PM; Thursday: 11:00 AM – 8:00 PM; Friday: 11:00 AM – 8:00 PM; Saturday: 11:00 AM – 8:00 PM; Sunday: 11:00 AM – 8:00 PM",
-    "lat": 39.9278,
-    "lng": -75.1688
+    "lat": 39.92551,
+    "lng": -75.170007,
+    "latPrevious": 39.9278,
+    "lngPrevious": -75.1688,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Drury Beer Garden (DBG)",
@@ -3758,8 +3826,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJjRxlbi_GxokR28nxL3vZcMY",
     "hoursNote": "Monday: Closed; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 1:00 AM; Thursday: 4:00 PM – 1:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 12:00 PM – 2:00 AM; Sunday: 12:00 PM – 12:00 AM",
-    "lat": 39.9502,
-    "lng": -75.1628
+    "lat": 39.949972,
+    "lng": -75.162428,
+    "latPrevious": 39.9502,
+    "lngPrevious": -75.1628,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Southgate",
@@ -4774,10 +4846,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ5-m_ETfGxokRlOaR-SV4jUU",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 12:00 – 11:00 PM; Sunday: 12:00 – 10:00 PM",
-    "lat": 39.952731,
-    "lng": -75.176399,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.952351,
+    "lng": -75.174089,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.952731,
+    "lngPrevious": -75.176399
   },
   {
     "name": "Lion Sports Bar",
@@ -4846,8 +4920,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ13iIJjbHxokR6xtY5aE7n5g",
     "hoursNote": "Monday: 3:00 PM – 12:00 AM; Tuesday: 3:00 PM – 12:00 AM; Wednesday: 3:00 PM – 2:00 AM; Thursday: 3:00 PM – 2:00 AM; Friday: 3:00 PM – 2:00 AM; Saturday: 7:00 AM – 2:00 AM; Sunday: 7:00 AM – 12:00 AM",
-    "lat": 39.9538,
-    "lng": -75.1578
+    "lat": 39.953855,
+    "lng": -75.157219,
+    "latPrevious": 39.9538,
+    "lngPrevious": -75.1578,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "La Chinesca",
@@ -4916,10 +4994,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJe3UgJfDHxokR2xpaq9MHcrs",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 10:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 11:30 AM – 11:00 PM; Sunday: 11:30 AM – 10:00 PM",
-    "lat": 39.961422,
-    "lng": -75.156005,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.96182,
+    "lng": -75.155124,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.961422,
+    "lngPrevious": -75.156005
   },
   {
     "name": "Kelliann’s Bar & Grill",
@@ -5060,10 +5140,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJZUvdSdHHxokRQ7KBGh-BHr0",
     "hoursNote": "Monday: 5:00 – 10:00 PM; Tuesday: 5:00 – 10:00 PM; Wednesday: 5:00 – 10:00 PM; Thursday: 5:00 – 10:00 PM; Friday: 4:00 – 10:00 PM; Saturday: 4:00 – 10:00 PM; Sunday: 4:00 – 9:00 PM",
-    "lat": 39.964982,
-    "lng": -75.161107,
-    "locationSource": "osm-poi",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.965,
+    "lng": -75.161769,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.964982,
+    "lngPrevious": -75.161107
   },
   {
     "name": "The International",
@@ -5204,10 +5286,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJX6c5BajHxokRW4G0y0ZU4q4",
     "hoursNote": "Monday: 4:00 – 10:00 PM; Tuesday: 4:00 – 10:00 PM; Wednesday: 4:00 – 10:00 PM; Thursday: 4:00 – 11:00 PM; Friday: 4:00 – 11:00 PM; Saturday: 10:00 AM – 11:00 PM; Sunday: 10:00 AM – 10:00 PM",
-    "lat": 39.948531,
-    "lng": -75.167004,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.948919,
+    "lng": -75.169618,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.948531,
+    "lngPrevious": -75.167004
   },
   {
     "name": "Repes on the row",
@@ -5390,10 +5474,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJPaix8ZDHxokR6k5M1RZT8Bc",
     "hoursNote": "Monday: 8:00 AM – 5:00 PM; Tuesday: 8:00 AM – 5:00 PM; Wednesday: 8:00 AM – 5:00 PM; Thursday: 8:00 AM – 5:00 PM; Friday: 8:00 AM – 5:00 PM; Saturday: 8:00 AM – 5:00 PM; Sunday: 8:00 AM – 5:00 PM",
-    "lat": 39.94785,
-    "lng": -75.161588,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.947555,
+    "lng": -75.16014,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.94785,
+    "lngPrevious": -75.161588
   },
   {
     "name": "The black taxi",
@@ -5798,8 +5884,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJr9JcrzPGxokRQbeKyGsjIYw",
     "hoursNote": "Monday: 4:00 PM – 12:00 AM; Tuesday: 4:00 PM – 12:00 AM; Wednesday: 4:00 PM – 12:00 AM; Thursday: 4:00 PM – 12:00 AM; Friday: 4:00 PM – 2:00 AM; Saturday: 4:00 PM – 2:00 AM; Sunday: 4:00 PM – 12:00 AM",
-    "lat": 39.9569,
-    "lng": -75.1708
+    "lat": 39.956891,
+    "lng": -75.169449,
+    "latPrevious": 39.9569,
+    "lngPrevious": -75.1708,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "The wayward",
@@ -5872,8 +5962,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJ9wRce3rHxokRHnCgu3JGDwQ",
     "hoursNote": "Monday: 6:30 – 10:00 AM, 11:00 AM – 5:00 PM; Tuesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Wednesday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Thursday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Friday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM; Saturday: 6:30 AM – 10:00 PM; Sunday: 6:30 – 10:00 AM, 11:00 AM – 10:00 PM",
-    "lat": 39.9515,
-    "lng": -75.1608
+    "lat": 39.951234,
+    "lng": -75.159484,
+    "latPrevious": 39.9515,
+    "lngPrevious": -75.1608,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Figo",
@@ -6041,8 +6135,12 @@
     "hoursSource": "google",
     "googlePlaceId": "ChIJy8i9uzDGxokRCudJzZJM-WA",
     "hoursNote": "Monday: 11:30 AM – 2:00 AM; Tuesday: 11:30 AM – 2:00 AM; Wednesday: 11:30 AM – 2:00 AM; Thursday: 11:30 AM – 2:00 AM; Friday: 11:30 AM – 2:00 AM; Saturday: 11:30 AM – 2:00 AM; Sunday: 11:30 AM – 2:00 AM",
-    "lat": 39.9502,
-    "lng": -75.1728
+    "lat": 39.95123,
+    "lng": -75.172482,
+    "latPrevious": 39.9502,
+    "lngPrevious": -75.1728,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Restaurant Aleksandar",
@@ -7000,10 +7098,12 @@
     "hh_menu": "https://www.poisonheartbar.com/",
     "instagram": "",
     "schedule": {},
-    "lat": 39.961903,
-    "lng": -75.154067,
-    "locationSource": "photon-osm-manual",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.961476,
+    "lng": -75.154058,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.961903,
+    "lngPrevious": -75.154067
   },
   {
     "name": "Mi vida",
@@ -7036,8 +7136,12 @@
       }
     },
     "menu_pdf": "https://www.mividamexico.com/wp-content/uploads/2026/06/Mi-Vida-Philly-Happy-Hour-1-up-6.25.26_web.pdf",
-    "lat": 39.9515,
-    "lng": -75.1608
+    "lat": 39.951207,
+    "lng": -75.159225,
+    "latPrevious": 39.9515,
+    "lngPrevious": -75.1608,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Piccolina",
@@ -7972,8 +8076,8 @@
         "end": "6:00 PM"
       }
     },
-    "lat": 39.9316,
-    "lng": -75.156,
+    "lat": 39.93005,
+    "lng": -75.163374,
     "hours": {
       "Monday": {
         "open": "12:00 PM",
@@ -8005,7 +8109,11 @@
       }
     },
     "hoursSource": "official",
-    "hoursNote": "Mon–Thu 12–9 · Fri–Sat 12–10 · Sun 12–8"
+    "hoursNote": "Mon–Thu 12–9 · Fri–Sat 12–10 · Sun 12–8",
+    "latPrevious": 39.9316,
+    "lngPrevious": -75.156,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Garage",
@@ -8346,10 +8454,12 @@
     "hh_menu": "https://www.kanellarestaurant.com/",
     "instagram": "",
     "schedule": {},
-    "lat": 39.952839,
-    "lng": -75.157021,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.946314,
+    "lng": -75.157991,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.952839,
+    "lngPrevious": -75.157021
   },
   {
     "name": "Giovanni's bar and grill",
@@ -8360,8 +8470,12 @@
     "hh_menu": "",
     "instagram": "",
     "schedule": {},
-    "lat": 39.9548,
-    "lng": -75.1428
+    "lat": 39.953687,
+    "lng": -75.142469,
+    "latPrevious": 39.9548,
+    "lngPrevious": -75.1428,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30"
   },
   {
     "name": "Trattoria Carina",
@@ -8691,10 +8805,12 @@
     "hh_menu": "",
     "instagram": "",
     "schedule": {},
-    "lat": 39.940152,
-    "lng": -75.148166,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.940642,
+    "lng": -75.147975,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.940152,
+    "lngPrevious": -75.148166
   },
   {
     "name": "Alice",
@@ -9033,10 +9149,12 @@
     },
     "hoursSource": "official",
     "hoursNote": "Tue–Fri 4–10pm · Sat 11:30am–10pm · Sun 11:30am–9pm · Mon closed",
-    "lat": 39.936978,
-    "lng": -75.176931,
-    "locationSource": "photon-osm",
-    "locationSyncedAt": "2026-10-06"
+    "lat": 39.935858,
+    "lng": -75.178342,
+    "locationSource": "nominatim-address",
+    "locationSyncedAt": "2026-10-30",
+    "latPrevious": 39.936978,
+    "lngPrevious": -75.176931
   },
   {
     "name": "Insatiable",
