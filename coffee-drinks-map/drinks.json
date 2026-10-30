@@ -10634,5 +10634,143 @@
     "hoursNote": "OpenStreetMap place; opening hours not tagged.",
     "lat": 39.973844,
     "lng": -75.179022
+  },
+  {
+    "name": "Sampan",
+    "address": "124 S 13th St, Philadelphia, PA 19107",
+    "neighborhood": "Midtown",
+    "description": "Schulson Collective pan-Asian small plates on 13th Street, a few doors from Prunella. Graffiti Bar is the enclosed patio in the alley behind it.\n* Deals (daily 4 PM–7 PM): official location page lists happy hour every day 4–7. Item prices are not on that page.",
+    "social": "",
+    "hh_menu": "https://www.sampanphilly.com/",
+    "instagram": "",
+    "schedule": {
+      "Sunday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Saturday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Kitchen Sun–Tue 4–10, Wed–Thu 4–11, Fri–Sat 4–midnight. Dining-room bar stays open one hour later (sampanphilly.com).",
+    "lat": 39.949519,
+    "lng": -75.162202
+  },
+  {
+    "name": "Graffiti Bar",
+    "address": "124 S 13th St, Philadelphia, PA 19107",
+    "neighborhood": "Midtown",
+    "description": "Enclosed 30-seat patio behind Sampan, down the alley, with a mural by Ali M Williams. Same kitchen as Sampan. Not a separate Prunella bar.\n* Deals (Mon–Fri 4 PM–7 PM): satays, dumplings, spring rolls, bao buns, a daily cocktail, and wine and beer specials (sampanphilly.com). Prices are not listed.",
+    "social": "",
+    "hh_menu": "https://www.sampanphilly.com/",
+    "instagram": "",
+    "schedule": {
+      "Monday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "7:00 PM"
+      }
+    },
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "1:00 AM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Site hours are the kitchen window; Graffiti Bar stays open one hour later every night.",
+    "lat": 39.94945,
+    "lng": -75.16232
   }
 ]
