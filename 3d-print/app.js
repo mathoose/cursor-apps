@@ -657,7 +657,9 @@
       return existing.id;
     }
     var id = uid('cat');
-    state.categories.push(normalizeCategory({ id: id, name: trimmed }));
+    var cat = normalizeCategory({ id: id, name: trimmed });
+    if (opts.prepend) state.categories.unshift(cat);
+    else state.categories.push(cat);
     if (!opts.deferSave) saveState();
     if (!opts.silent) showToast('Added category: ' + trimmed);
     return id;
@@ -683,6 +685,24 @@
     arr[index] = arr[next];
     arr[next] = tmp;
     saveState();
+  }
+
+  /** Move recently used categories to the front of the picker list (order is persisted). */
+  function bumpCategoriesRecentlyUsed(ids) {
+    var used = normalizeCategoryIds(ids);
+    if (!used.length || !state.categories.length) return;
+    var usedSet = {};
+    used.forEach(function (id) { usedSet[id] = true; });
+    var front = [];
+    var rest = [];
+    used.forEach(function (id) {
+      var cat = getCategory(id);
+      if (cat) front.push(cat);
+    });
+    state.categories.forEach(function (cat) {
+      if (!usedSet[cat.id]) rest.push(cat);
+    });
+    state.categories = front.concat(rest);
   }
 
   function addBulkCategories(text) {
@@ -1442,22 +1462,6 @@
     var scroll = el('div', { class: 'category-chip-scroll' });
     var selection = getSelection();
 
-    state.categories.forEach(function (cat) {
-      var selected = selection.has(cat.id);
-      scroll.appendChild(el('button', {
-        type: 'button',
-        class: 'category-chip' + (selected ? ' selected' : ''),
-        text: cat.name,
-        'aria-pressed': selected ? 'true' : 'false',
-        onClick: function () {
-          if (selection.has(cat.id)) selection.delete(cat.id);
-          else selection.add(cat.id);
-          if (onUpdate) onUpdate();
-          renderCategoryChipRow(container, getSelection, isAdding, setAdding, onUpdate);
-        }
-      }));
-    });
-
     if (isAdding()) {
       var input = el('input', {
         type: 'text',
@@ -1470,7 +1474,7 @@
         var name = input.value.trim();
         setAdding(false);
         if (name) {
-          var id = addCategory(name, { silent: true });
+          var id = addCategory(name, { silent: true, prepend: true });
           if (id) {
             selection.add(id);
             if (onUpdate) onUpdate();
@@ -1502,6 +1506,22 @@
         }
       }));
     }
+
+    state.categories.forEach(function (cat) {
+      var selected = selection.has(cat.id);
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip' + (selected ? ' selected' : ''),
+        text: cat.name,
+        'aria-pressed': selected ? 'true' : 'false',
+        onClick: function () {
+          if (selection.has(cat.id)) selection.delete(cat.id);
+          else selection.add(cat.id);
+          if (onUpdate) onUpdate();
+          renderCategoryChipRow(container, getSelection, isAdding, setAdding, onUpdate);
+        }
+      }));
+    });
 
     container.appendChild(label);
     container.appendChild(scroll);
@@ -1586,6 +1606,11 @@
     quickUi.plateCount = 1;
     quickUi.categoryAdding = false;
     quickUi.printerId = null;
+  }
+
+  /** After a quick add when Save settings is off: clear tag chips only; keep category & other fields. */
+  function resetQuickAddTagsAfterSubmit() {
+    quickUi.filament.clear();
   }
 
   function readQuickAddFormIntoUi() {
@@ -2956,10 +2981,11 @@
         printerId: quickUi.printerId || null
       });
       filamentColorIds.forEach(recordFilamentColorUse);
+      if (categoryIds.length) bumpCategoriesRecentlyUsed(categoryIds);
       titleInput.value = '';
       linkInput.value = '';
       persistLastAddSelections();
-      if (!state.keepAddSelections) resetQuickAddSelections();
+      if (!state.keepAddSelections) resetQuickAddTagsAfterSubmit();
       saveState();
       render();
       showToast(prio >= 2 ? 'Added near the top' : 'Added');
