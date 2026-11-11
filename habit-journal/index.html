@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v78 -->
+  <!-- build: hj-today-version-v79 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3604,7 +3604,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v78 · Oct 14, 2026";
+  let habitJournalVersionText = "v79 · Nov 11, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -6900,7 +6900,8 @@
       const n = parseInt(next, 10);
       if (!isFinite(n) || n > MAX_TIME_HOURS) return;
       timePadHours = next;
-      if (timePadHours.length >= 2) timePadField = "m";
+      /* One hour digit then minutes (e.g. sleep 6h 30m); tap hours again to enter 10+ */
+      if (timePadHours.length >= 1) timePadField = "m";
     } else {
       let next = timePadMinutes === "0" ? "" : timePadMinutes;
       if (next.length >= 2) return;
