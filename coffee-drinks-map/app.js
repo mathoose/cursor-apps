@@ -2,6 +2,7 @@
   'use strict';
 
   var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var NEIGHBORHOOD_ALIASES = {
     'Midtown Village': 'Midtown',
     'Washington Square West': 'Midtown',
@@ -18,20 +19,26 @@
   var COLOR_PIN_OPEN = '#43a047';
   var COLOR_PIN_CLOSED = '#c62828';
   var COLOR_PIN_UNKNOWN = '#9ca3af';
-  var COLOR_HH = '#43a047';
+  var COLOR_HH_NOW = '#d97706';
   var COLOR_BAR = '#78716c';
   var COLOR_FOOD = '#0f766e';
   var DAY_SHORT = { Sunday: 'Sun', Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat' };
+  var KIND_ORDER = ['coffee', 'food', 'drinks'];
+  var KIND_TAG = { coffee: 'Coffee', food: 'Food', drinks: 'Drinks' };
+  /* A place that sits in two catalogs under one name is one place when the pins are this close. */
+  var SAME_PLACE_METERS = 200;
 
-  var coffeePlaces = [];
-  var drinkPlaces = [];
-  var foodPlaces = [];
+  var allPlaces = [];
+  var placeByKey = {};
   var hhRestaurants = [];
   var modes = {};
+  var currentScreen = 'screen-home';
 
   var daySel = document.getElementById('day');
   var timeSel = document.getElementById('time');
   var nSel = document.getElementById('neighborhood');
+
+  function $(id) { return document.getElementById(id); }
 
   function canonicalNeighborhood(n) {
     n = String(n || '').trim();
@@ -46,9 +53,13 @@
       .replace(/"/g, '&quot;');
   }
 
+  function nameKey(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+
   var toastTimer = null;
   function toast(msg) {
-    var el = document.getElementById('toast');
+    var el = $('toast');
     if (!el) return;
     el.textContent = msg;
     el.classList.add('show');
@@ -60,10 +71,20 @@
     document.querySelectorAll('.screen').forEach(function (s) {
       s.hidden = s.id !== id;
     });
-    var screen = document.getElementById(id);
+    var screen = $(id);
+    currentScreen = id;
     document.body.classList.toggle('on-map', !!(screen && screen.classList.contains('screen-map')));
     document.body.classList.toggle('decide-open', id === 'screen-decide');
     window.scrollTo(0, 0);
+  }
+
+  /* Map screens need their map resized on the way back in; plain screens just show. */
+  function goScreen(id) {
+    if (id === 'screen-coffee' && modes.coffee) modes.coffee.show();
+    else if (id === 'screen-eat' && modes.eat) modes.eat.show();
+    else if (id === 'screen-saved') openSaved();
+    else if (id === 'screen-home') openHome();
+    else showScreen(id);
   }
 
   /* apps-shell inserts the version footer after the first <main>, which lives inside a hidden screen. */
@@ -78,6 +99,8 @@
     });
     footerObserver.observe(document.documentElement, { childList: true, subtree: true });
   }
+
+  /* ---------- Time, hours and happy hours ---------- */
 
   function parseTime(t) {
     if (!t) return NaN;
@@ -106,8 +129,23 @@
     return min ? h12 + ':' + String(min).padStart(2, '0') + ap : h12 + ap;
   }
 
+  /* "4 PM" / "6:30 PM" for one-line blurbs. */
+  function fmtClock(m) {
+    if (!isFinite(m)) return '';
+    m = ((m % 1440) + 1440) % 1440;
+    var h = Math.floor(m / 60);
+    var min = m % 60;
+    var h12 = h % 12 || 12;
+    return h12 + (min ? ':' + String(min).padStart(2, '0') : '') + ' ' + (h >= 12 ? 'PM' : 'AM');
+  }
+
   function getTodayDayName() {
     return DAY_NAMES[new Date().getDay()];
+  }
+
+  function nowMinutes() {
+    var d = new Date();
+    return d.getHours() * 60 + d.getMinutes();
   }
 
   function roundToSlot(m) {
@@ -115,8 +153,7 @@
   }
 
   function getNowSlot() {
-    var d = new Date();
-    return roundToSlot(d.getHours() * 60 + d.getMinutes());
+    return roundToSlot(nowMinutes());
   }
 
   function isActive(r, day, slot) {
@@ -130,8 +167,11 @@
   }
 
   function hhNow(p) {
-    var d = new Date();
-    return isActive(p, getTodayDayName(), d.getHours() * 60 + d.getMinutes());
+    return isActive(p, getTodayDayName(), nowMinutes());
+  }
+
+  function hhToday(p) {
+    return hasSchedule(p) ? (p.schedule[getTodayDayName()] || null) : null;
   }
 
   function hasCoords(p) {
@@ -174,7 +214,8 @@
 
   function matchesPlaceSearch(p, search) {
     if (!search) return true;
-    return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '')).toLowerCase().indexOf(search) >= 0;
+    return (p.name + ' ' + (p.neighborhood || '') + ' ' + (p.address || '') + ' ' + (p.cuisine || ''))
+      .toLowerCase().indexOf(search) >= 0;
   }
 
   function isOpenNowHours(hours) {
@@ -184,24 +225,32 @@
     var start = parseTime12(today.open);
     var end = parseTime12(today.close);
     if (start == null || end == null) return false;
-    var d = new Date();
-    var now = d.getHours() * 60 + d.getMinutes();
+    var now = nowMinutes();
     if (end <= start) return now >= start || now < end;
     return now >= start && now < end;
   }
 
-  function renderHoursBlock(hours) {
-    var el = document.getElementById('detail-hours');
-    el.innerHTML = '';
-    if (!hours || typeof hours !== 'object') {
-      el.hidden = true;
-      return;
+  function openBlurb(p) {
+    var st = hoursOpenStatus(p);
+    if (st === 'open') {
+      var close = parseTime12(p.hours[getTodayDayName()].close);
+      return close == null ? 'Open now' : 'Open · closes ' + fmtClock(close);
     }
-    var hasAny = DAY_NAMES.some(function (d) {
-      var h = hours[d];
-      return h && h.open && h.close;
-    });
-    if (!hasAny) {
+    if (st === 'closed') return 'Closed now';
+    return '';
+  }
+
+  function hhBlurb(p) {
+    var today = hhToday(p);
+    if (!today) return '';
+    if (hhNow(p)) return 'Happy hour right now · until ' + fmtClock(parseTime(today.end));
+    return 'Happy hour today ' + fmtClock(parseTime(today.start)) + ' – ' + fmtClock(parseTime(today.end));
+  }
+
+  function renderHoursBlock(hours) {
+    var el = $('detail-hours');
+    el.innerHTML = '';
+    if (!hasAnyHours(hours)) {
       el.hidden = true;
       return;
     }
@@ -246,7 +295,6 @@
   }
 
   function matchesMeal(p, mealFilter) {
-    if (!mealFilter || mealFilter === 'all') return true;
     var m = p.meal || 'both';
     return m === 'both' || m === mealFilter;
   }
@@ -260,79 +308,380 @@
     return '';
   }
 
-  var MARKS_KEY = 'coffee-drinks-marks-v1';
-  var detailCurrent = null;
-
-  function placeMarkKey(p, kind) {
-    var id = (p && (p.id || p.name)) || '';
-    return (kind || 'place') + ':' + String(id).toLowerCase();
+  function metersBetween(a, b) {
+    return PhillyWalkMap.haversineMeters(a.lat, a.lng, b.lat, b.lng);
   }
 
-  function loadMarks() {
-    try {
-      var raw = localStorage.getItem(MARKS_KEY);
-      var parsed = raw ? JSON.parse(raw) : {};
-      return { fav: parsed.fav || {}, want: parsed.want || {} };
-    } catch (e) {
-      return { fav: {}, want: {} };
+  function fmtDistance(m) {
+    return m < 1000 ? Math.round(m / 10) * 10 + ' m' : (m / 1000).toFixed(1) + ' km';
+  }
+
+  /* ---------- One catalog: a place can be coffee, food and drinks at once ---------- */
+
+  var BOILERPLATE_RE = /^(popular pick in|listed in .*openstreetmap|.*chain location from openstreetmap)/i;
+
+  function isBoilerplate(text) {
+    return BOILERPLATE_RE.test(String(text || '').trim());
+  }
+
+  function isEmptyValue(v) {
+    if (v == null || v === '') return true;
+    return typeof v === 'object' && !Array.isArray(v) && !Object.keys(v).length;
+  }
+
+  function buildPlaces(sources) {
+    var byName = {};
+    allPlaces = [];
+    placeByKey = {};
+    sources.forEach(function (src) {
+      var kind = src.kind;
+      var nameCount = {};
+      src.list.forEach(function (raw) {
+        var k = nameKey(raw.name);
+        nameCount[k] = (nameCount[k] || 0) + 1;
+      });
+      src.list.forEach(function (raw) {
+        var nk = nameKey(raw.name);
+        if (!nk) return;
+        /* Same shape the app has always used for marks, so saved favorites keep working. */
+        var key = kind + ':' + String(raw.id || raw.name).toLowerCase();
+        var unique = nameCount[nk] === 1;
+        var target = null;
+        (byName[nk] || []).forEach(function (cand) {
+          if (target || cand.kinds[kind]) return;
+          var near = hasCoords(cand) && hasCoords(raw) && metersBetween(cand, raw) <= SAME_PLACE_METERS;
+          if (near || (unique && cand._uniqueName)) target = cand;
+        });
+        if (!target) {
+          target = Object.assign({}, raw);
+          target.kinds = {};
+          target.keys = [];
+          target._uniqueName = unique;
+          target.neighborhood = canonicalNeighborhood(raw.neighborhood);
+          if (isBoilerplate(target.description)) target.description = '';
+          (byName[nk] = byName[nk] || []).push(target);
+          allPlaces.push(target);
+        } else {
+          Object.keys(raw).forEach(function (field) {
+            if (field === 'description' || field === 'neighborhood') return;
+            if (isEmptyValue(target[field]) && !isEmptyValue(raw[field])) target[field] = raw[field];
+          });
+          if (!hasAnyHours(target.hours) && hasAnyHours(raw.hours)) {
+            target.hours = raw.hours;
+            target.hoursNote = raw.hoursNote || target.hoursNote;
+          }
+          var extra = String(raw.description || '').trim();
+          if (extra && !isBoilerplate(extra) && String(target.description || '').indexOf(extra) < 0) {
+            target.description = target.description ? target.description + '\n\n' + extra : extra;
+          }
+          if (!target.neighborhood) target.neighborhood = canonicalNeighborhood(raw.neighborhood);
+        }
+        target.kinds[kind] = true;
+        target.keys.push(key);
+        placeByKey[key] = target;
+      });
+    });
+    allPlaces.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  }
+
+  function placesOf(kind) {
+    return allPlaces.filter(function (p) { return p.kinds[kind]; });
+  }
+
+  function primaryKind(p) {
+    if (p.kinds.food) return 'food';
+    if (p.kinds.drinks) return 'drinks';
+    if (p.kinds.coffee) return 'coffee';
+    return 'place';
+  }
+
+  function kindTagsHtml(p) {
+    return KIND_ORDER.filter(function (k) { return p.kinds && p.kinds[k]; }).map(function (k) {
+      return '<span class="tag tag-' + k + '">' + KIND_TAG[k] + '</span>';
+    }).join('');
+  }
+
+  /* First match wins, so the specific words sit above the general ones. */
+  var LABEL_RULES = [
+    [/sushi|omakase/, 'Sushi'],
+    [/ramen/, 'Ramen'],
+    [/izakaya|japanese/, 'Japanese'],
+    [/\bpho\b|vietnamese|banh mi|\bviet\b/, 'Vietnamese'],
+    [/\bthai\b/, 'Thai'],
+    [/dim sum|dumpling/, 'Dumplings'],
+    [/sichuan|szechuan|chinese/, 'Chinese'],
+    [/korean/, 'Korean'],
+    [/cambodian/, 'Cambodian'],
+    [/indian|tandoor/, 'Indian'],
+    [/jamaican|jerk/, 'Jamaican'],
+    [/colombian/, 'Colombian'],
+    [/taco|taqueria|cantina|mexican|tamale|barbacoa|mezcal/, 'Mexican'],
+    [/pizza|pizzeria|tomato pie/, 'Pizza'],
+    [/steakhouse/, 'Steakhouse'],
+    [/cheesesteak|\bsteaks\b/, 'Cheesesteaks'],
+    [/burger/, 'Burgers'],
+    [/fried chicken/, 'Fried chicken'],
+    [/oyster|seafood|fish & chips/, 'Seafood'],
+    [/\bbbq\b|barbecue|smokehouse/, 'BBQ'],
+    [/italian|trattoria|osteria|ristorante|pasta/, 'Italian'],
+    [/greek|gyro|souvlaki|taverna/, 'Greek'],
+    [/mediterranean|falafel|hummus|lebanese|halal|egyptian/, 'Mediterranean'],
+    [/french|bistro|brasserie|creperie/, 'French'],
+    [/ice cream|water ice|gelato/, 'Ice cream'],
+    [/donut|bakery|pastr|bagel/, 'Bakery'],
+    [/brewery|brewing|brewpub|\bbrew\b/, 'Brewery'],
+    [/wine bar|\bvino\b/, 'Wine bar'],
+    [/beer garden/, 'Beer garden'],
+    [/rooftop/, 'Rooftop bar'],
+    [/irish/, 'Irish pub'],
+    [/tavern|\bpub\b|saloon|taproom|tap room|sports bar/, 'Pub'],
+    [/diner|brunch/, 'Brunch'],
+    [/delicatessen|\bdeli\b/, 'Deli'],
+    [/chipotle/, 'Mexican'],
+    [/domino/, 'Pizza'],
+    [/coffee|roasters?\b|starbucks|dunkin/, 'Coffee']
+  ];
+
+  function matchLabel(text) {
+    for (var i = 0; i < LABEL_RULES.length; i++) {
+      if (LABEL_RULES[i][0].test(text)) return LABEL_RULES[i][1];
     }
+    return '';
   }
 
-  function saveMarks(marks) {
-    try { localStorage.setItem(MARKS_KEY, JSON.stringify(marks)); } catch (e) { /* private mode */ }
+  /* Short "what kind of place" word: the catalog's own cuisine first, then the name, then the write-up. */
+  function cuisineLabel(p) {
+    if (p.cuisine) return p.cuisine;
+    if (p._label != null) return p._label;
+    var label = matchLabel(String(p.name || '').toLowerCase());
+    if (!label && p.kinds.food && !p.kinds.drinks) {
+      label = matchLabel(String(p.description || '').toLowerCase());
+    }
+    if (label === 'Coffee' && p.kinds.coffee) label = '';
+    p._label = label;
+    return label;
   }
+
+  function snippet(p, max) {
+    var lines = String(p.description || '').split('\n').map(function (l) {
+      return l.replace(/^\*\s*/, '').trim();
+    }).filter(function (l) {
+      return l && !isBoilerplate(l) && !/^https?:/i.test(l) && !/^\d+(\.\d+)?\s*\/\s*10\b/.test(l);
+    });
+    var t = lines[0] || (p.kinds.coffee ? String(p.hoursNote || '') : '');
+    max = max || 140;
+    if (t.length > max) t = t.slice(0, max - 3).replace(/\s+\S*$/, '') + '\u2026';
+    return t;
+  }
+
+  /* ---------- What stays on the phone: marks, ratings, logged orders ---------- */
+
+  var STORE_KEY = 'coffee-drinks-marks-v1';
+  var store = loadStore();
+
+  function plainObject(v) {
+    return v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  }
+
+  function loadStore() {
+    var parsed = {};
+    try { parsed = plainObject(JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch (e) { parsed = {}; }
+    return {
+      fav: plainObject(parsed.fav),
+      want: plainObject(parsed.want),
+      ratings: plainObject(parsed.ratings),
+      visits: Array.isArray(parsed.visits) ? parsed.visits : [],
+      extraCosts: plainObject(parsed.extraCosts)
+    };
+  }
+
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { toast('Could not save on this phone'); }
+  }
+
+  function isMarked(p, bucket) {
+    return p.keys.some(function (k) { return !!store[bucket][k]; });
+  }
+
+  function toggleMark(p, bucket) {
+    if (isMarked(p, bucket)) {
+      p.keys.forEach(function (k) { delete store[bucket][k]; });
+    } else {
+      store[bucket][p.keys[0]] = { name: p.name || '', kind: primaryKind(p) };
+    }
+    saveStore();
+  }
+
+  function getRating(p) {
+    for (var i = 0; i < p.keys.length; i++) {
+      var n = +store.ratings[p.keys[i]];
+      if (n >= 1 && n <= 5) return n;
+    }
+    return 0;
+  }
+
+  function setRating(p, n) {
+    p.keys.forEach(function (k) { delete store.ratings[k]; });
+    if (n >= 1 && n <= 5) store.ratings[p.keys[0]] = n;
+    saveStore();
+  }
+
+  function visitsFor(p) {
+    return store.visits.filter(function (v) { return p.keys.indexOf(v.key) >= 0; })
+      .sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); });
+  }
+
+  function itemTotal(item) {
+    var extras = (item.extras || []).reduce(function (sum, e) { return sum + (+e.cost || 0); }, 0);
+    return Math.round(((+item.price || 0) + extras) * 100) / 100;
+  }
+
+  function visitTotal(v) {
+    return Math.round((v.items || []).reduce(function (sum, it) { return sum + itemTotal(it); }, 0) * 100) / 100;
+  }
+
+  function parseMoney(s) {
+    var n = parseFloat(String(s == null ? '' : s).replace(/[^0-9.]/g, ''));
+    return isFinite(n) && n >= 0 ? Math.round(n * 100) / 100 : null;
+  }
+
+  function fmtMoney(n) {
+    return '$' + (+n || 0).toFixed(2);
+  }
+
+  function fmtWhen(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var h = d.getHours();
+    return DAY_SHORT[DAY_NAMES[d.getDay()]] + ', ' + MONTH_SHORT[d.getMonth()] + ' ' + d.getDate() +
+      ' · ' + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM');
+  }
+
+  function starsText(n) {
+    n = Math.max(0, Math.min(5, Math.round(+n || 0)));
+    return n ? '\u2605'.repeat(n) + '\u2606'.repeat(5 - n) : '';
+  }
+
+  /* Places the phone remembers that the catalog no longer (or never) had. */
+  function looseKeyName(key) {
+    var rec = store.fav[key] || store.want[key];
+    if (rec && rec.name) return rec.name;
+    for (var i = store.visits.length - 1; i >= 0; i--) {
+      if (store.visits[i].key === key) return store.visits[i].name || '';
+    }
+    return '';
+  }
+
+  function loosePlace(key, name) {
+    return { name: name || looseKeyName(key) || 'Place', keys: [key], kinds: {}, loose: true };
+  }
+
+  function resolvePlace(key) {
+    return placeByKey[key] || loosePlace(key);
+  }
+
+  function savedCount() {
+    var seen = {};
+    ['fav', 'want'].forEach(function (bucket) {
+      Object.keys(store[bucket]).forEach(function (k) { seen[resolvePlace(k).keys[0]] = true; });
+    });
+    return Object.keys(seen).length;
+  }
+
+  function renderStars(el, value, onChange) {
+    el.innerHTML = [1, 2, 3, 4, 5].map(function (n) {
+      return '<button type="button" class="star' + (n <= value ? ' on' : '') + '" data-star="' + n +
+        '" aria-label="' + n + ' star' + (n === 1 ? '' : 's') + '" aria-pressed="' + (n === value ? 'true' : 'false') + '">\u2605</button>';
+    }).join('');
+    el.onclick = function (e) {
+      var btn = e.target.closest('[data-star]');
+      if (!btn) return;
+      var n = +btn.getAttribute('data-star');
+      onChange(n === value ? 0 : n);
+    };
+  }
+
+  /* ---------- Place detail ---------- */
+
+  var detailPlace = null;
 
   function refreshMarkButtons() {
-    var favBtn = document.getElementById('mark-favorite');
-    var wantBtn = document.getElementById('mark-want');
-    if (!favBtn || !wantBtn) return;
-    var key = detailCurrent ? placeMarkKey(detailCurrent.place, detailCurrent.kind) : '';
-    var marks = loadMarks();
-    var favOn = !!(key && marks.fav[key]);
-    var wantOn = !!(key && marks.want[key]);
+    var favBtn = $('mark-favorite');
+    var wantBtn = $('mark-want');
+    var favOn = !!(detailPlace && isMarked(detailPlace, 'fav'));
+    var wantOn = !!(detailPlace && isMarked(detailPlace, 'want'));
     favBtn.classList.toggle('on', favOn);
     wantBtn.classList.toggle('on', wantOn);
     favBtn.setAttribute('aria-pressed', favOn ? 'true' : 'false');
     wantBtn.setAttribute('aria-pressed', wantOn ? 'true' : 'false');
     favBtn.textContent = favOn ? 'Favorited' : 'Favorite';
-    wantBtn.textContent = wantOn ? 'Want to try' : 'Want to try';
+    wantBtn.textContent = 'Want to try';
   }
 
-  function toggleMark(bucket) {
-    if (!detailCurrent) return;
-    var key = placeMarkKey(detailCurrent.place, detailCurrent.kind);
-    var marks = loadMarks();
-    if (marks[bucket][key]) delete marks[bucket][key];
-    else marks[bucket][key] = { name: detailCurrent.place.name || '', kind: detailCurrent.kind };
-    saveMarks(marks);
-    refreshMarkButtons();
+  function refreshDetailStars() {
+    if (!detailPlace) return;
+    renderStars($('detail-stars'), getRating(detailPlace), function (n) {
+      setRating(detailPlace, n);
+      refreshDetailStars();
+    });
   }
 
-  function openDetail(place, kind) {
+  function itemLine(it) {
+    var extras = (it.extras || []).map(function (e) {
+      return escapeHtml(e.label) + (e.cost ? ' +' + fmtMoney(e.cost) : '');
+    }).join(', ');
+    return '<span class="visit-item-name">' + escapeHtml(it.name || 'Order') + '</span>' +
+      (extras ? ' <span class="visit-item-extras">' + extras + '</span>' : '') +
+      (it.stars ? ' <span class="visit-item-stars">' + starsText(it.stars) + '</span>' : '');
+  }
+
+  function renderVisits() {
+    var el = $('detail-visits');
+    var visits = detailPlace ? visitsFor(detailPlace) : [];
+    if (!visits.length) {
+      el.hidden = true;
+      el.innerHTML = '';
+      return;
+    }
+    var spent = visits.reduce(function (sum, v) { return sum + visitTotal(v); }, 0);
+    el.hidden = false;
+    el.innerHTML = '<div class="visits-head"><h3>Your orders</h3><span>' + visits.length + ' visit' +
+      (visits.length === 1 ? '' : 's') + ' · ' + fmtMoney(spent) + '</span></div>' +
+      visits.slice(0, 20).map(function (v) {
+        return '<div class="visit"><div class="visit-top"><span class="visit-when">' + escapeHtml(fmtWhen(v.at)) +
+          '</span><span class="visit-total">' + fmtMoney(visitTotal(v)) + '</span>' +
+          '<button type="button" class="visit-del" data-del-visit="' + escapeHtml(v.id) + '" aria-label="Remove this order">\u00d7</button></div>' +
+          (v.items || []).map(function (it) {
+            return '<p class="visit-item">' + itemLine(it) + '<span class="visit-item-price">' + fmtMoney(itemTotal(it)) + '</span></p>';
+          }).join('') +
+          (v.note ? '<p class="visit-note">' + escapeHtml(v.note) + '</p>' : '') + '</div>';
+      }).join('');
+  }
+
+  function openDetail(place) {
     var name = place.name || 'Place';
-    document.getElementById('detail-name').textContent = name;
-    var meta = [canonicalNeighborhood(place.neighborhood), place.address].filter(Boolean).join(' · ');
-    document.getElementById('detail-meta').textContent = meta;
-    var hhEl = document.getElementById('detail-hh');
-    if (kind === 'drinks' && hasSchedule(place)) {
-      var today = place.schedule[getTodayDayName()];
-      var line = today
-        ? 'Happy hour today: ' + today.start + ' – ' + today.end + (hhNow(place) ? ' · on now' : '')
-        : 'No happy hour today';
-      hhEl.textContent = line;
+    detailPlace = place;
+    $('detail-name').textContent = name;
+    $('detail-kinds').innerHTML = kindTagsHtml(place) +
+      (cuisineLabel(place) ? '<span class="tag tag-plain">' + escapeHtml(cuisineLabel(place)) + '</span>' : '') +
+      (place.loose ? '<span class="tag tag-plain">Not on the map</span>' : '');
+    $('detail-meta').textContent = [canonicalNeighborhood(place.neighborhood), place.address].filter(Boolean).join(' · ');
+    var hhRow = $('detail-hh-row');
+    if (hasSchedule(place)) {
+      var hhEl = $('detail-hh');
+      hhEl.textContent = hhBlurb(place) || 'No happy hour today';
       hhEl.classList.toggle('on', hhNow(place));
-      hhEl.hidden = false;
+      hhRow.hidden = false;
     } else {
-      hhEl.hidden = true;
+      hhRow.hidden = true;
     }
     renderHoursBlock(place.hours);
-    var desc = place.description || place.hoursNote || '';
-    document.getElementById('detail-desc').textContent = desc;
-    var links = document.getElementById('detail-links');
+    $('detail-desc').textContent = place.description || place.hoursNote || '';
+    var links = $('detail-links');
     links.innerHTML = '';
     var ig = place.instagram || place.instagramUrl;
-    var web = place.hh_menu || place.website;
-    [[web, kind === 'drinks' && place.hh_menu ? 'Menu' : 'Website'], [ig, 'Instagram']].forEach(function (pair) {
+    var site = place.website && place.website !== place.hh_menu ? place.website : '';
+    [[place.hh_menu, 'Menu'], [site, 'Website'], [ig, 'Instagram']].forEach(function (pair) {
       if (!pair[0]) return;
       var a = document.createElement('a');
       a.href = pair[0];
@@ -341,19 +690,31 @@
       a.textContent = pair[1];
       links.appendChild(a);
     });
-    var maps = document.getElementById('detail-maps');
+    var maps = $('detail-maps');
     var mu = appleMapsUrl(place, name);
     maps.hidden = !mu;
     if (mu) maps.href = mu;
-    detailCurrent = { place: place, kind: kind || 'place' };
     refreshMarkButtons();
-    document.getElementById('detail-overlay').hidden = false;
+    refreshDetailStars();
+    renderVisits();
+    $('detail-overlay').hidden = false;
+    $('detail-overlay').querySelector('.sheet').scrollTop = 0;
     document.body.classList.add('sheet-open');
   }
 
   function closeDetail() {
-    document.getElementById('detail-overlay').hidden = true;
+    $('detail-overlay').hidden = true;
     document.body.classList.remove('sheet-open');
+    refreshOpenViews();
+  }
+
+  /* Whatever is on screen behind a sheet may show marks, stars or orders that just changed. */
+  function refreshOpenViews() {
+    Object.keys(modes).forEach(function (k) {
+      if (modes[k].view === 'list' && currentScreen === modes[k].cfg.screenId) modes[k].renderList();
+    });
+    if (currentScreen === 'screen-saved') renderSaved();
+    if (currentScreen === 'screen-home') renderHome();
   }
 
   function walkMinutesTo(here, p) {
@@ -362,9 +723,19 @@
     return Math.max(1, Math.round(m / PhillyWalkMap.WALK_M_PER_MIN));
   }
 
-  /* One controller per map screen (coffee / drinks / food). */
+  function cardMarks(p) {
+    var bits = '';
+    var rating = getRating(p);
+    if (rating) bits += '<span class="card-stars" aria-label="Rated ' + rating + ' of 5">' + starsText(rating) + '</span>';
+    if (isMarked(p, 'fav')) bits += '<span class="card-mark fav">Favorite</span>';
+    if (isMarked(p, 'want')) bits += '<span class="card-mark want">Want to try</span>';
+    return bits ? '<span class="card-marks">' + bits + '</span>' : '';
+  }
+
+  /* ---------- Map + list screens (coffee, and the joint food & drinks one) ---------- */
+
   function createMode(cfg) {
-    var root = document.getElementById(cfg.screenId);
+    var root = $(cfg.screenId);
     var q = function (sel) { return root.querySelector(sel); };
     var mode = {
       cfg: cfg,
@@ -373,13 +744,13 @@
       layer: null,
       here: null,
       view: 'map',
-      mealFilter: 'all'
+      filter: 'all'
     };
 
     function places() {
       var list = cfg.getPlaces();
-      if (cfg.kind !== 'food') return list;
-      return list.filter(function (p) { return matchesMeal(p, mode.mealFilter); });
+      if (!cfg.filter || mode.filter === 'all') return list;
+      return list.filter(function (p) { return cfg.filter(p, mode.filter); });
     }
 
     function hereActive() {
@@ -431,7 +802,7 @@
           dim: dim,
           label: p.name,
           labelInteractive: true,
-          onClick: function () { openDetail(p, cfg.kind); }
+          onClick: function () { openDetail(p); }
         });
         if (pin) mode.layer.addLayer(pin);
       });
@@ -487,6 +858,7 @@
         note.innerHTML = '';
       }
       var listEl = q('[data-list]');
+      mode.lastList = list;
       if (!list.length) {
         listEl.innerHTML = '<p class="empty-state">' +
           (active ? 'Nothing inside this walk. Try a longer walk on the map.' : 'No matches.') + '</p>';
@@ -495,6 +867,7 @@
       listEl.innerHTML = list.map(function (p, i) {
         var metaParts = [];
         if (active && p._walk != null) metaParts.push(p._walk + ' min walk');
+        if (cfg.metaLead && cfg.metaLead(p)) metaParts.push(cfg.metaLead(p));
         var hood = canonicalNeighborhood(p.neighborhood);
         if (hood) metaParts.push(hood);
         else if (p.address) metaParts.push(p.address);
@@ -503,9 +876,8 @@
           '<span class="name"><span class="dot" style="background:' + cfg.pinColor(p) + '"></span>' +
           '<span class="name-text">' + escapeHtml(p.name) + '</span>' + badge + '</span>' +
           (metaParts.length ? '<span class="meta">' + escapeHtml(metaParts.join(' · ')) + '</span>' : '') +
-          '</button>';
+          cardMarks(p) + '</button>';
       }).join('');
-      mode.lastList = list;
     }
 
     function setView(view) {
@@ -525,21 +897,34 @@
       }
     }
 
+    function setFilter(name) {
+      mode.filter = name || 'all';
+      var chips = q('[data-filter-chips]');
+      if (chips) {
+        chips.querySelectorAll('[data-filter]').forEach(function (b) {
+          var on = b.getAttribute('data-filter') === mode.filter;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      }
+      updateSub();
+      renderPins();
+      if (mode.view === 'list') renderList();
+    }
+
     function show() {
       showScreen(cfg.screenId);
       var first = !mode.map;
       ensureMap();
       if (!mode.map) return;
       mode.map.invalidateSize();
-      if (first) {
-        PhillyWalkMap.fit(mode.map, [28, 28]);
-        renderPins();
-      }
+      if (first) PhillyWalkMap.fit(mode.map, [28, 28]);
+      renderPins();
       updateSub();
       if (mode.view === 'list') renderList();
     }
 
-    root.querySelector('[data-back]').addEventListener('click', function () { showScreen('screen-home'); });
+    root.querySelector('[data-back]').addEventListener('click', function () { openHome(); });
     root.querySelectorAll('.nav-btn').forEach(function (b) {
       b.addEventListener('click', function () { setView(b.getAttribute('data-view')); });
     });
@@ -554,39 +939,53 @@
     q('[data-here-slider]').addEventListener('input', function (e) {
       if (mode.here) mode.here.setMinutes(e.target.value);
     });
-    function onSearchInput() {
+    q('[data-search]').addEventListener('input', function () {
       renderPins();
       if (mode.view === 'list') renderList();
-    }
-    q('[data-search]').addEventListener('input', onSearchInput);
-    var chips = q('[data-meal-chips]');
-    if (chips) {
-      chips.addEventListener('click', function (e) {
-        var btn = e.target.closest('[data-meal]');
-        if (!btn) return;
-        mode.mealFilter = btn.getAttribute('data-meal') || 'all';
-        chips.querySelectorAll('[data-meal]').forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('active', on);
-          b.setAttribute('aria-selected', on ? 'true' : 'false');
-        });
-        updateSub();
-        renderPins();
-        if (mode.view === 'list') renderList();
+    });
+    var chipsEl = q('[data-filter-chips]');
+    if (chipsEl) {
+      chipsEl.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-filter]');
+        if (btn) setFilter(btn.getAttribute('data-filter'));
       });
     }
     q('[data-list]').addEventListener('click', function (e) {
       var card = e.target.closest('.place-card');
       if (!card || !mode.lastList) return;
       var p = mode.lastList[+card.getAttribute('data-idx')];
-      if (p) openDetail(p, cfg.kind);
+      if (p) openDetail(p);
     });
     q('[data-list-note]').addEventListener('click', function (e) {
       if (e.target.closest('[data-list-clear]') && mode.here) mode.here.clear();
     });
 
     mode.show = show;
+    mode.renderList = renderList;
+    mode.setFilter = setFilter;
     return mode;
+  }
+
+  /* ---------- Happy hour page ---------- */
+
+  var scheduleReturn = 'screen-home';
+  var scheduleFocus = '';
+
+  function openSchedule(returnTo, focusName) {
+    scheduleReturn = returnTo || 'screen-home';
+    scheduleFocus = focusName || '';
+    $('schedule-search').value = '';
+    nSel.value = '';
+    $('filter-hh-now').checked = true;
+    showScreen('screen-schedule');
+    renderGrid();
+    /* Land on the current time column (and the place you came from), not on 10 AM. */
+    var wrap = document.querySelector('.grid-wrap');
+    var col = document.querySelector('#grid th.time-header.selected-col');
+    var lead = document.querySelector('#grid th.rest');
+    var row = document.querySelector('#grid tr.focus-row');
+    wrap.scrollLeft = col ? Math.max(0, col.offsetLeft - (lead ? lead.offsetWidth : 0) - 64) : 0;
+    wrap.scrollTop = row ? Math.max(0, row.offsetTop - wrap.clientHeight / 2) : 0;
   }
 
   function buildTimeOptions(day, selected) {
@@ -628,7 +1027,7 @@
   function filteredForGrid(day) {
     var list = hhRestaurants.filter(function (r) { return r.schedule && r.schedule[day]; });
     if (nSel.value) list = list.filter(function (r) { return canonicalNeighborhood(r.neighborhood) === nSel.value; });
-    var q = (document.getElementById('schedule-search').value || '').trim().toLowerCase();
+    var q = ($('schedule-search').value || '').trim().toLowerCase();
     if (q) {
       list = list.filter(function (r) {
         return (r.name + ' ' + (r.neighborhood || '') + ' ' + (r.address || '')).toLowerCase().indexOf(q) >= 0;
@@ -638,7 +1037,7 @@
   }
 
   function renderGrid() {
-    var nowMode = document.getElementById('filter-hh-now').checked;
+    var nowMode = $('filter-hh-now').checked;
     var selectedTime = nowMode ? getNowSlot() : +timeSel.value;
     if (nowMode) {
       daySel.value = getTodayDayName();
@@ -652,7 +1051,7 @@
     if (!filtered.length) {
       thead.innerHTML = '';
       tbody.innerHTML = '';
-      document.getElementById('summary').textContent = 'No happy hours for these filters.';
+      $('summary').textContent = 'No happy hours for these filters.';
       return;
     }
     var minT = Infinity;
@@ -671,9 +1070,9 @@
       ? '<strong>' + activeNow.length + '</strong> with happy hour <strong>right now</strong>'
       : '<strong>' + activeNow.length + '</strong> active at <strong>' + fmtMinutes(selectedTime) + '</strong> on <strong>' + day + '</strong>';
     if (nSel.value) head += ' in <strong>' + escapeHtml(nSel.value) + '</strong>';
-    document.getElementById('summary').innerHTML = head +
+    $('summary').innerHTML = head +
       (activeNow.length ? ': ' + activeNow.map(function (r) {
-        return '<button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' + escapeHtml(r.name) + '</button>';
+        return '<button type="button" class="rest-link" data-key="' + escapeHtml(r.keys[0]) + '">' + escapeHtml(r.name) + '</button>';
       }).join(', ') : '');
     thead.innerHTML = '<tr><th class="rest">Place</th><th class="neigh">Neighborhood</th>' +
       slots.map(function (s) {
@@ -687,7 +1086,8 @@
         var cls = active ? (s === selectedTime ? 'active-now' : 'active') : 'inactive';
         return '<td class="slot ' + cls + sel + '"></td>';
       }).join('');
-      return '<tr><td class="rest"><button type="button" class="rest-link" data-name="' + escapeHtml(r.name) + '">' +
+      return '<tr' + (scheduleFocus && r.name === scheduleFocus ? ' class="focus-row"' : '') +
+        '><td class="rest"><button type="button" class="rest-link" data-key="' + escapeHtml(r.keys[0]) + '">' +
         escapeHtml(r.name) + '</button></td><td class="neigh">' + escapeHtml(canonicalNeighborhood(r.neighborhood)) +
         '</td>' + cells + '</tr>';
     }).join('');
@@ -709,10 +1109,7 @@
   }
 
   function bootstrapCatalog() {
-    drinkPlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
-    coffeePlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
-    foodPlaces.forEach(function (p) { p.neighborhood = canonicalNeighborhood(p.neighborhood); });
-    hhRestaurants = drinkPlaces.filter(hasSchedule);
+    hhRestaurants = allPlaces.filter(hasSchedule);
     rebuildNeighborhoods();
     DAY_NAMES.forEach(function (d) {
       var opt = document.createElement('option');
@@ -722,15 +1119,750 @@
     });
     daySel.value = getTodayDayName();
     buildTimeOptions(daySel.value, getNowSlot());
-    document.getElementById('home-status').textContent =
-      coffeePlaces.length + ' coffee shops · ' + drinkPlaces.length + ' bars (' +
-      hhRestaurants.length + ' with happy hours) · ' + foodPlaces.length + ' restaurants';
   }
 
-  function openDrinkByName(name) {
-    var p = drinkPlaces.find(function (x) { return x.name === name; });
-    if (p) openDetail(p, 'drinks');
+  /* ---------- Home: "I'm here", the pick-a-place carousel, shortcuts ---------- */
+
+  var pickFilter = 'any';
+  var picks = [];
+  var PICK_COUNT = 8;
+
+  function pickPool() {
+    return allPlaces.filter(function (p) {
+      if (pickFilter === 'hh') return hhNow(p);
+      if (pickFilter === 'saved') return isMarked(p, 'fav') || isMarked(p, 'want');
+      if (pickFilter === 'any') return true;
+      return !!p.kinds[pickFilter];
+    });
   }
+
+  /* Random, but leaning toward places you could walk into right now and ones you already flagged. */
+  function pickWeight(p) {
+    var w = 1;
+    var st = hoursOpenStatus(p);
+    if (st === 'open') w *= 3;
+    else if (st === 'closed') w *= 0.12;
+    if (hhNow(p)) w *= 4;
+    else if (hhToday(p)) w *= 1.4;
+    if (isMarked(p, 'want')) w *= 2.5;
+    if (isMarked(p, 'fav')) w *= 2;
+    if (!p._uniqueName) w *= 0.25;
+    /* A card with nothing to say about the place is not much help choosing. */
+    if (!cuisineLabel(p) && !snippet(p)) w *= st === 'unknown' ? 0.05 : 0.4;
+    return w;
+  }
+
+  function shufflePicks() {
+    var pool = pickPool().map(function (p) { return { p: p, w: pickWeight(p) }; });
+    picks = [];
+    while (pool.length && picks.length < PICK_COUNT) {
+      var total = pool.reduce(function (sum, row) { return sum + row.w; }, 0);
+      var roll = Math.random() * total;
+      var idx = 0;
+      for (var i = 0; i < pool.length; i++) {
+        roll -= pool[i].w;
+        if (roll <= 0) { idx = i; break; }
+      }
+      picks.push(pool[idx].p);
+      pool.splice(idx, 1);
+    }
+  }
+
+  function renderPicks() {
+    var track = $('pick-track');
+    if (!picks.length) {
+      var msg = pickFilter === 'hh'
+        ? 'No happy hour is on right now.'
+        : (pickFilter === 'saved' ? 'Nothing on your list yet. Open a place and tap Favorite or Want to try.' : 'Nothing to suggest.');
+      track.innerHTML = '<div class="pick-card pick-empty"><p>' + msg + '</p>' +
+        (pickFilter === 'hh' ? '<button type="button" class="btn-small" data-pick-schedule>See today’s happy hours</button>' : '') + '</div>';
+      return;
+    }
+    track.innerHTML = picks.map(function (p, i) {
+      var pills = '';
+      var hh = hhBlurb(p);
+      if (hh) {
+        pills += '<button type="button" class="pill pill-hh' + (hhNow(p) ? ' on' : '') + '" data-pick-hh="' + i + '">' +
+          escapeHtml(hh) + ' \u203a</button>';
+      }
+      var label = cuisineLabel(p);
+      if (label) pills += '<span class="pill pill-cuisine">' + escapeHtml(label) + '</span>';
+      var open = openBlurb(p);
+      if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
+      if (isMarked(p, 'fav')) pills += '<span class="pill pill-saved">Favorite</span>';
+      else if (isMarked(p, 'want')) pills += '<span class="pill pill-saved">Want to try</span>';
+      var rating = getRating(p);
+      if (rating) pills += '<span class="pill pill-stars">' + starsText(rating) + '</span>';
+      var text = snippet(p, 130);
+      if (!text && !pills) text = 'No hours or notes on file yet — tap Details for the address and links.';
+      var maps = appleMapsUrl(p, p.name);
+      return '<article class="pick-card" data-pick-card="' + i + '">' +
+        '<div class="tag-row">' + kindTagsHtml(p) +
+        (p.neighborhood ? '<span class="pick-hood">' + escapeHtml(p.neighborhood) + '</span>' : '') + '</div>' +
+        '<h3>' + escapeHtml(p.name) + '</h3>' +
+        '<div class="pill-row">' + pills + '</div>' +
+        (text ? '<p class="pick-desc">' + escapeHtml(text) + '</p>' : '') +
+        '<div class="pick-actions"><button type="button" class="btn-small solid" data-pick-details="' + i + '">Details</button>' +
+        (maps ? '<a class="btn-small" href="' + escapeHtml(maps) + '" target="_blank" rel="noopener">Maps</a>' : '') +
+        '<span class="pick-count">' + (i + 1) + ' / ' + picks.length + '</span></div></article>';
+    }).join('');
+  }
+
+  function renderHome() {
+    picks = picks.filter(function (p) { return pickFilter !== 'saved' || isMarked(p, 'fav') || isMarked(p, 'want'); });
+    renderPicks();
+    var nowCount = hhRestaurants.filter(hhNow).length;
+    var todayCount = hhRestaurants.filter(hhToday).length;
+    $('home-hh').innerHTML = (nowCount
+      ? '<strong>' + nowCount + '</strong> happy hour' + (nowCount === 1 ? '' : 's') + ' on right now'
+      : '<strong>' + todayCount + '</strong> happy hour' + (todayCount === 1 ? '' : 's') + ' today') +
+      '<span aria-hidden="true">\u203a</span>';
+    $('home-hh').classList.toggle('on', nowCount > 0);
+    var saved = savedCount();
+    $('home-count-saved').textContent = saved
+      ? saved + ' saved · ' + store.visits.length + ' order' + (store.visits.length === 1 ? '' : 's') + ' logged'
+      : 'Favorites & want to try';
+    $('home-count-coffee').textContent = placesOf('coffee').length + ' cafes & roasters';
+    $('home-count-eat').textContent = eatPlaces().length + ' restaurants & bars';
+    $('home-status').textContent = allPlaces.length + ' places · ' + hhRestaurants.length + ' with happy hours';
+  }
+
+  function openHome() {
+    showScreen('screen-home');
+    if (!picks.length) shufflePicks();
+    renderHome();
+  }
+
+  function setPickFilter(name) {
+    pickFilter = name;
+    document.querySelectorAll('#pick-filters [data-pick-filter]').forEach(function (b) {
+      var on = b.getAttribute('data-pick-filter') === name;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    shufflePicks();
+    renderPicks();
+    $('pick-track').scrollLeft = 0;
+  }
+
+  function eatPlaces() {
+    return allPlaces.filter(function (p) { return p.kinds.food || p.kinds.drinks; });
+  }
+
+  /* ---------- "I'm here": find the place, then log the order ---------- */
+
+  var hereFix = null;
+  var hereRows = [];
+
+  function recentVisitPlaces() {
+    var seen = {};
+    var out = [];
+    store.visits.slice().sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); }).forEach(function (v) {
+      var p = resolvePlace(v.key);
+      if (seen[p.keys[0]]) return;
+      seen[p.keys[0]] = true;
+      out.push(p);
+    });
+    return out.slice(0, 6);
+  }
+
+  function renderHereList() {
+    var q = ($('here-search').value || '').trim();
+    var ql = q.toLowerCase();
+    var rows;
+    if (ql) {
+      rows = allPlaces.filter(function (p) { return matchesPlaceSearch(p, ql); });
+    } else if (hereFix) {
+      rows = allPlaces.filter(hasCoords);
+    } else {
+      rows = recentVisitPlaces();
+    }
+    if (hereFix) {
+      rows = rows.map(function (p) {
+        p._meters = hasCoords(p) ? PhillyWalkMap.haversineMeters(hereFix.lat, hereFix.lng, p.lat, p.lng) : Infinity;
+        return p;
+      }).sort(function (a, b) { return a._meters - b._meters || a.name.localeCompare(b.name); });
+    }
+    hereRows = rows.slice(0, ql ? 30 : 8);
+    var html = hereRows.map(function (p, i) {
+      var meta = [];
+      if (hereFix && isFinite(p._meters)) meta.push(fmtDistance(p._meters));
+      if (p.neighborhood) meta.push(p.neighborhood);
+      var n = visitsFor(p).length;
+      if (n) meta.push(n + ' order' + (n === 1 ? '' : 's') + ' logged');
+      return '<button type="button" class="place-card" data-here-idx="' + i + '">' +
+        '<span class="name"><span class="name-text">' + escapeHtml(p.name) + '</span>' +
+        (hereFix && !ql && i === 0 && p._meters < 120 ? '<span class="near-pill">Closest</span>' : '') + '</span>' +
+        '<span class="tag-row">' + kindTagsHtml(p) + '</span>' +
+        (meta.length ? '<span class="meta">' + escapeHtml(meta.join(' · ')) + '</span>' : '') + '</button>';
+    }).join('');
+    var exact = ql && hereRows.some(function (p) { return p.name.toLowerCase() === ql; });
+    if (q && !exact) {
+      html += '<button type="button" class="place-card place-card-new" data-here-new>' +
+        '<span class="name"><span class="name-text">Log at “' + escapeHtml(q) + '”</span></span>' +
+        '<span class="meta">Not on the map — keep it as your own place</span></button>';
+    }
+    if (!html) {
+      html = '<p class="empty-state">' + (hereFix ? 'Nothing nearby. Type the name instead.' : 'Type the name of the place you’re at.') + '</p>';
+    }
+    $('here-list').innerHTML = html;
+  }
+
+  function openHere() {
+    hereFix = null;
+    $('here-search').value = '';
+    $('here-status').textContent = 'Finding the places closest to you…';
+    $('here-overlay').hidden = false;
+    document.body.classList.add('sheet-open');
+    renderHereList();
+    if (!navigator.geolocation) {
+      $('here-status').textContent = 'No location on this device — type the name.';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      if ($('here-overlay').hidden) return;
+      hereFix = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      $('here-status').textContent = 'Closest to you first. Tap where you are.';
+      renderHereList();
+    }, function () {
+      if ($('here-overlay').hidden) return;
+      $('here-status').textContent = 'Couldn’t get your location — type the name.';
+      renderHereList();
+    }, { enableHighAccuracy: true, maximumAge: 30000, timeout: 10000 });
+  }
+
+  function closeHere() {
+    $('here-overlay').hidden = true;
+    document.body.classList.remove('sheet-open');
+  }
+
+  var EXTRA_GROUPS = [
+    { id: 'milk', label: 'Milk', single: true, options: [
+      { id: 'whole', label: 'Whole milk', chip: 'Whole' },
+      { id: 'skim', label: 'Skim milk', chip: 'Skim' },
+      { id: 'almond', label: 'Almond milk', chip: 'Almond' },
+      { id: 'oat', label: 'Oat milk', chip: 'Oat' }
+    ] },
+    { id: 'flavor', label: 'Flavor', other: 'Other flavor', options: [
+      { id: 'vanilla', label: 'Vanilla', chip: 'Vanilla' },
+      { id: 'caramel', label: 'Caramel', chip: 'Caramel' },
+      { id: 'hazelnut', label: 'Hazelnut', chip: 'Hazelnut' },
+      { id: 'mocha', label: 'Mocha', chip: 'Mocha' },
+      { id: 'lavender', label: 'Lavender', chip: 'Lavender' },
+      { id: 'honey', label: 'Honey', chip: 'Honey' }
+    ] },
+    { id: 'more', label: 'More', other: 'Something else', options: [
+      { id: 'shot', label: 'Extra shot', chip: 'Extra shot' }
+    ] }
+  ];
+  var QUICK_COSTS = [0.5, 0.75];
+  var SUGGEST = {
+    coffee: ['Latte', 'Cappuccino', 'Drip coffee', 'Cold brew', 'Americano', 'Cortado', 'Espresso', 'Mocha', 'Matcha latte', 'Chai latte', 'Tea', 'Pastry'],
+    drinks: ['Beer', 'Cocktail', 'Wine', 'Margarita', 'Happy hour special', 'Appetizer'],
+    food: ['Entrée', 'Sandwich', 'Appetizer', 'Dessert', 'Drink']
+  };
+
+  var logState = null;
+
+  function emptyDraft() {
+    return { name: '', price: '', extras: [], stars: 0 };
+  }
+
+  function draftHasContent(d) {
+    return !!(String(d.name).trim() || parseMoney(d.price) != null || d.extras.length || d.stars);
+  }
+
+  function draftToItem(d) {
+    return {
+      name: String(d.name).trim() || 'Order',
+      price: parseMoney(d.price),
+      extras: d.extras.map(function (e) {
+        var extra = { id: e.id, group: e.group, label: e.label, cost: +e.cost || 0 };
+        if (e.custom) extra.custom = true;
+        return extra;
+      }),
+      stars: d.stars || 0
+    };
+  }
+
+  function findOption(groupId, id) {
+    var group = EXTRA_GROUPS.filter(function (g) { return g.id === groupId; })[0];
+    if (!group) return null;
+    return group.options.filter(function (o) { return o.id === id; })[0] || null;
+  }
+
+  function rememberedCost(extraId) {
+    if (!logState) return null;
+    var here = store.extraCosts[logState.place.keys[0] + '|' + extraId];
+    if (typeof here === 'number') return here;
+    var any = store.extraCosts[extraId];
+    return typeof any === 'number' ? any : null;
+  }
+
+  function historySuggestions(place) {
+    var seen = {};
+    var out = [];
+    visitsFor(place).forEach(function (v) {
+      (v.items || []).forEach(function (it) {
+        var k = nameKey(it.name);
+        if (!k || seen[k] || it.name === 'Order') return;
+        seen[k] = true;
+        out.push(it);
+      });
+    });
+    return out.slice(0, 4);
+  }
+
+  function renderLogSuggest() {
+    var place = logState.place;
+    var again = historySuggestions(place);
+    var seen = {};
+    again.forEach(function (it) { seen[nameKey(it.name)] = true; });
+    var names = [];
+    KIND_ORDER.forEach(function (k) {
+      if (!place.kinds[k]) return;
+      SUGGEST[k].forEach(function (n) {
+        if (seen[nameKey(n)]) return;
+        seen[nameKey(n)] = true;
+        names.push(n);
+      });
+    });
+    if (!names.length && !again.length) names = SUGGEST.coffee.slice(0, 6).concat(SUGGEST.food.slice(0, 3));
+    logState.again = again;
+    $('log-suggest').innerHTML = again.map(function (it, i) {
+      return '<button type="button" class="chip chip-again" data-again="' + i + '">' + escapeHtml(it.name) +
+        (it.price != null || (it.extras || []).length ? ' · ' + fmtMoney(itemTotal(it)) : '') + '</button>';
+    }).join('') + names.slice(0, 12).map(function (n) {
+      return '<button type="button" class="chip" data-suggest="' + escapeHtml(n) + '">' + escapeHtml(n) + '</button>';
+    }).join('');
+  }
+
+  function renderLogExtras() {
+    var d = logState.draft;
+    var prompt = logState.prompt;
+    var wrap = $('log-extras');
+    var toggle = $('log-extras-toggle');
+    toggle.hidden = logState.showExtras;
+    wrap.hidden = !logState.showExtras;
+    if (!logState.showExtras) return;
+    wrap.innerHTML = EXTRA_GROUPS.map(function (group) {
+      var chips = group.options.map(function (o) {
+        var picked = d.extras.filter(function (e) { return e.id === o.id; })[0];
+        return '<button type="button" class="chip chip-extra' + (picked ? ' active' : '') + '" data-extra="' + o.id +
+          '" data-group="' + group.id + '" aria-pressed="' + (picked ? 'true' : 'false') + '">' + escapeHtml(o.chip) +
+          (picked && picked.cost ? ' <b>+' + fmtMoney(picked.cost) + '</b>' : '') + '</button>';
+      }).join('');
+      chips += d.extras.filter(function (e) { return e.group === group.id && e.custom; }).map(function (e) {
+        return '<button type="button" class="chip chip-extra active" data-extra="' + escapeHtml(e.id) + '" data-group="' + group.id +
+          '" aria-pressed="true">' + escapeHtml(e.label) + (e.cost ? ' <b>+' + fmtMoney(e.cost) + '</b>' : '') + '</button>';
+      }).join('');
+      if (group.other) {
+        chips += '<button type="button" class="chip chip-other" data-extra-other="' + group.id + '">+ Other</button>';
+      }
+      var html = '<p class="field-label">' + group.label + '</p><div class="chip-row wrap">' + chips + '</div>';
+      if (prompt && prompt.group === group.id) html += costPromptHtml(group, prompt);
+      return html;
+    }).join('');
+  }
+
+  function costPromptHtml(group, prompt) {
+    var title;
+    var known = null;
+    if (prompt.custom) {
+      title = '<strong>' + escapeHtml(group.other) + '</strong> — what did it cost?';
+    } else {
+      var opt = findOption(group.id, prompt.id);
+      title = '<strong>' + escapeHtml(opt ? opt.label : 'Extra') + '</strong> — did it cost extra?';
+      known = rememberedCost(prompt.id);
+    }
+    var costs = QUICK_COSTS.slice();
+    if (known && costs.indexOf(known) < 0) costs.push(known);
+    return '<div class="cost-prompt" id="log-cost">' +
+      '<p class="cost-title">' + title + '</p>' +
+      (prompt.custom ? '<input type="text" class="field" id="log-cost-name" placeholder="What was it? (pistachio, whipped cream…)" autocomplete="off" />' : '') +
+      '<div class="cost-options">' +
+      '<button type="button" class="cost-btn' + (known === 0 ? ' last' : '') + '" data-cost="0">No charge</button>' +
+      costs.map(function (c) {
+        return '<button type="button" class="cost-btn' + (known === c ? ' last' : '') + '" data-cost="' + c + '">+' + fmtMoney(c) +
+          (known === c ? '<small>last time</small>' : '') + '</button>';
+      }).join('') +
+      '<span class="money-field mini"><span aria-hidden="true">$</span><input type="text" inputmode="decimal" id="log-cost-other" placeholder="Other" autocomplete="off" enterkeyhint="done" /></span>' +
+      '<button type="button" class="cost-btn set" data-cost-set>Add</button>' +
+      '</div></div>';
+  }
+
+  function renderLogItems() {
+    var el = $('log-items');
+    var items = logState.items;
+    el.hidden = !items.length;
+    el.innerHTML = items.map(function (it, i) {
+      return '<div class="log-item"><p class="visit-item">' + itemLine(it) + '<span class="visit-item-price">' + fmtMoney(itemTotal(it)) + '</span></p>' +
+        '<button type="button" class="visit-del" data-del-item="' + i + '" aria-label="Remove ' + escapeHtml(it.name) + '">\u00d7</button></div>';
+    }).join('');
+    $('log-name-label').textContent = items.length ? 'Next item' : 'What did you get?';
+  }
+
+  function renderLogTotals() {
+    var d = logState.draft;
+    var draftItem = draftToItem(d);
+    var hasDraft = draftHasContent(d);
+    var extrasSum = d.extras.reduce(function (sum, e) { return sum + (+e.cost || 0); }, 0);
+    $('log-item-total').textContent = hasDraft && (draftItem.price != null || extrasSum)
+      ? 'This item ' + fmtMoney(itemTotal(draftItem)) + (extrasSum ? ' (incl. ' + fmtMoney(extrasSum) + ' extras)' : '')
+      : '';
+    var total = logState.items.reduce(function (sum, it) { return sum + itemTotal(it); }, 0) + (hasDraft ? itemTotal(draftItem) : 0);
+    var count = logState.items.length + (hasDraft ? 1 : 0);
+    $('log-save').textContent = count
+      ? 'Save ' + (count === 1 ? 'order' : count + ' items') + ' · ' + fmtMoney(total)
+      : 'Save order';
+  }
+
+  function renderLogStars() {
+    renderStars($('log-item-stars'), logState.draft.stars, function (n) {
+      logState.draft.stars = n;
+      renderLogStars();
+      renderLogTotals();
+    });
+    renderStars($('log-place-stars'), logState.placeStars, function (n) {
+      logState.placeStars = n;
+      renderLogStars();
+    });
+  }
+
+  function renderLogForm() {
+    $('log-name').value = logState.draft.name;
+    $('log-price').value = logState.draft.price;
+    renderLogItems();
+    renderLogSuggest();
+    renderLogExtras();
+    renderLogStars();
+    renderLogTotals();
+  }
+
+  function openLog(place) {
+    logState = {
+      place: place,
+      items: [],
+      draft: emptyDraft(),
+      prompt: null,
+      placeStars: getRating(place),
+      showExtras: !!place.kinds.coffee || !KIND_ORDER.some(function (k) { return place.kinds[k]; }),
+      again: []
+    };
+    $('log-where').textContent = 'At ' + place.name + ' · ' + fmtWhen(new Date().toISOString());
+    $('log-note').value = '';
+    renderLogForm();
+    $('detail-overlay').hidden = true;
+    $('here-overlay').hidden = true;
+    $('log-overlay').hidden = false;
+    $('log-overlay').querySelector('.sheet').scrollTop = 0;
+    document.body.classList.add('sheet-open');
+  }
+
+  function closeLog() {
+    $('log-overlay').hidden = true;
+    document.body.classList.remove('sheet-open');
+    logState = null;
+  }
+
+  function tapExtra(groupId, id) {
+    var d = logState.draft;
+    var group = EXTRA_GROUPS.filter(function (g) { return g.id === groupId; })[0];
+    var at = -1;
+    d.extras.forEach(function (e, i) { if (e.id === id) at = i; });
+    if (at >= 0) {
+      d.extras.splice(at, 1);
+      if (logState.prompt && logState.prompt.id === id) logState.prompt = null;
+    } else {
+      var opt = findOption(groupId, id);
+      if (!opt) return;
+      if (group.single) d.extras = d.extras.filter(function (e) { return e.group !== groupId; });
+      d.extras.push({ id: id, group: groupId, label: opt.label, cost: 0 });
+      logState.prompt = { group: groupId, id: id };
+    }
+    renderLogExtras();
+    renderLogTotals();
+    var prompt = $('log-cost');
+    if (prompt) prompt.scrollIntoView({ block: 'nearest' });
+  }
+
+  function applyCost(cost) {
+    var prompt = logState.prompt;
+    if (!prompt) return;
+    cost = Math.round((+cost || 0) * 100) / 100;
+    var d = logState.draft;
+    if (prompt.custom) {
+      var group = EXTRA_GROUPS.filter(function (g) { return g.id === prompt.group; })[0];
+      var nameEl = $('log-cost-name');
+      var label = (nameEl && nameEl.value.trim()) || group.other;
+      d.extras.push({ id: 'custom-' + Date.now().toString(36), group: prompt.group, label: label, cost: cost, custom: true });
+    } else {
+      d.extras.forEach(function (e) { if (e.id === prompt.id) e.cost = cost; });
+    }
+    logState.prompt = null;
+    renderLogExtras();
+    renderLogTotals();
+  }
+
+  function addLogItem() {
+    if (!draftHasContent(logState.draft)) {
+      toast('Add what you ordered first');
+      $('log-name').focus();
+      return false;
+    }
+    logState.items.push(draftToItem(logState.draft));
+    logState.draft = emptyDraft();
+    logState.prompt = null;
+    renderLogForm();
+    return true;
+  }
+
+  function saveLog() {
+    if (draftHasContent(logState.draft)) logState.items.push(draftToItem(logState.draft));
+    if (!logState.items.length) {
+      toast('Add what you ordered first');
+      $('log-name').focus();
+      return;
+    }
+    var place = logState.place;
+    var visit = {
+      id: 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      key: place.keys[0],
+      name: place.name,
+      at: new Date().toISOString(),
+      items: logState.items,
+      note: $('log-note').value.trim()
+    };
+    store.visits.push(visit);
+    visit.items.forEach(function (it) {
+      it.extras.forEach(function (e) {
+        if (e.custom) return;
+        store.extraCosts[e.id] = e.cost;
+        store.extraCosts[place.keys[0] + '|' + e.id] = e.cost;
+      });
+    });
+    if (logState.placeStars !== getRating(place)) setRating(place, logState.placeStars);
+    else saveStore();
+    var total = visitTotal(visit);
+    closeLog();
+    toast('Saved · ' + fmtMoney(total));
+    openDetail(place);
+  }
+
+  function initLog() {
+    $('home-here').addEventListener('click', openHere);
+    $('here-close').addEventListener('click', closeHere);
+    $('here-overlay').addEventListener('click', function (e) {
+      if (e.target.id === 'here-overlay') closeHere();
+    });
+    $('here-search').addEventListener('input', renderHereList);
+    $('here-list').addEventListener('click', function (e) {
+      var fresh = e.target.closest('[data-here-new]');
+      if (fresh) {
+        var name = $('here-search').value.trim();
+        if (name) openLog(loosePlace('custom:' + nameKey(name), name));
+        return;
+      }
+      var card = e.target.closest('[data-here-idx]');
+      if (card && hereRows[+card.getAttribute('data-here-idx')]) openLog(hereRows[+card.getAttribute('data-here-idx')]);
+    });
+    $('detail-here').addEventListener('click', function () {
+      if (detailPlace) openLog(detailPlace);
+    });
+
+    $('log-cancel').addEventListener('click', function () {
+      var place = logState && logState.place;
+      var dirty = logState && (logState.items.length || draftHasContent(logState.draft));
+      if (dirty && !window.confirm('Discard this order?')) return;
+      closeLog();
+      if (place && !place.loose) openDetail(place);
+      else refreshOpenViews();
+    });
+    $('log-name').addEventListener('input', function (e) {
+      logState.draft.name = e.target.value;
+      renderLogTotals();
+    });
+    $('log-name').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); $('log-price').focus(); }
+    });
+    $('log-price').addEventListener('input', function (e) {
+      logState.draft.price = e.target.value;
+      renderLogTotals();
+    });
+    $('log-price').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
+    });
+    $('log-suggest').addEventListener('click', function (e) {
+      var again = e.target.closest('[data-again]');
+      if (again) {
+        var it = logState.again[+again.getAttribute('data-again')];
+        if (!it) return;
+        logState.draft.name = it.name;
+        logState.draft.price = it.price != null ? it.price.toFixed(2) : '';
+        logState.draft.extras = (it.extras || []).map(function (x) { return Object.assign({}, x); });
+        if (logState.draft.extras.length) logState.showExtras = true;
+        logState.prompt = null;
+        renderLogForm();
+        return;
+      }
+      var chip = e.target.closest('[data-suggest]');
+      if (!chip) return;
+      logState.draft.name = chip.getAttribute('data-suggest');
+      $('log-name').value = logState.draft.name;
+      renderLogTotals();
+      if (!$('log-price').value) $('log-price').focus();
+    });
+    $('log-extras-toggle').addEventListener('click', function () {
+      logState.showExtras = true;
+      renderLogExtras();
+    });
+    $('log-extras').addEventListener('click', function (e) {
+      var cost = e.target.closest('[data-cost]');
+      if (cost) { applyCost(+cost.getAttribute('data-cost')); return; }
+      if (e.target.closest('[data-cost-set]')) {
+        var amount = parseMoney($('log-cost-other').value);
+        if (amount == null) { toast('Type the extra amount'); $('log-cost-other').focus(); return; }
+        applyCost(amount);
+        return;
+      }
+      var other = e.target.closest('[data-extra-other]');
+      if (other) {
+        logState.prompt = { group: other.getAttribute('data-extra-other'), custom: true };
+        renderLogExtras();
+        var nameEl = $('log-cost-name');
+        if (nameEl) nameEl.focus();
+        return;
+      }
+      var chip = e.target.closest('[data-extra]');
+      if (chip) tapExtra(chip.getAttribute('data-group'), chip.getAttribute('data-extra'));
+    });
+    $('log-extras').addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.target.id !== 'log-cost-other') return;
+      e.preventDefault();
+      var amount = parseMoney(e.target.value);
+      if (amount != null) applyCost(amount);
+    });
+    $('log-items').addEventListener('click', function (e) {
+      var del = e.target.closest('[data-del-item]');
+      if (!del) return;
+      logState.items.splice(+del.getAttribute('data-del-item'), 1);
+      renderLogItems();
+      renderLogTotals();
+    });
+    $('log-add').addEventListener('click', function () {
+      if (addLogItem()) $('log-name').focus();
+    });
+    $('log-save').addEventListener('click', saveLog);
+  }
+
+  /* ---------- Places to try ---------- */
+
+  var savedFilter = 'all';
+  var savedRows = [];
+
+  function savedEntries() {
+    var byPrimary = {};
+    function entry(p) {
+      var k = p.keys[0];
+      if (!byPrimary[k]) byPrimary[k] = { place: p, fav: false, want: false, visits: [] };
+      return byPrimary[k];
+    }
+    Object.keys(store.fav).forEach(function (k) { entry(resolvePlace(k)).fav = true; });
+    Object.keys(store.want).forEach(function (k) { entry(resolvePlace(k)).want = true; });
+    store.visits.forEach(function (v) { entry(resolvePlace(v.key)).visits.push(v); });
+    return Object.keys(byPrimary).map(function (k) {
+      var row = byPrimary[k];
+      row.visits.sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); });
+      return row;
+    });
+  }
+
+  function renderSaved() {
+    var all = savedEntries();
+    var counts = {
+      all: all.filter(function (r) { return r.fav || r.want; }).length,
+      want: all.filter(function (r) { return r.want; }).length,
+      fav: all.filter(function (r) { return r.fav; }).length,
+      visited: all.filter(function (r) { return r.visits.length; }).length
+    };
+    var labels = [['all', 'All'], ['want', 'Want to try'], ['fav', 'Favorites'], ['visited', 'Visited']];
+    $('saved-filters').innerHTML = labels.map(function (pair) {
+      var on = pair[0] === savedFilter;
+      return '<button type="button" class="chip' + (on ? ' active' : '') + '" data-saved-filter="' + pair[0] +
+        '" role="tab" aria-selected="' + (on ? 'true' : 'false') + '">' + pair[1] + ' <b>' + counts[pair[0]] + '</b></button>';
+    }).join('');
+    savedRows = all.filter(function (r) {
+      if (savedFilter === 'want') return r.want;
+      if (savedFilter === 'fav') return r.fav;
+      if (savedFilter === 'visited') return r.visits.length > 0;
+      return r.fav || r.want;
+    });
+    if (savedFilter === 'visited') {
+      savedRows.sort(function (a, b) { return String(b.visits[0].at).localeCompare(String(a.visits[0].at)); });
+    } else {
+      /* Still-to-try first: that is what this page is for. */
+      savedRows.sort(function (a, b) {
+        return (b.want - a.want) || a.place.name.localeCompare(b.place.name);
+      });
+    }
+    $('saved-sub').textContent = counts.want + ' to try · ' + counts.fav + ' favorite' + (counts.fav === 1 ? '' : 's') +
+      ' · ' + counts.visited + ' visited';
+    if (!savedRows.length) {
+      var empty = {
+        all: 'Nothing here yet. Open any place and tap Favorite or Want to try.',
+        want: 'No places to try yet. Open a place and tap Want to try.',
+        fav: 'No favorites yet. Open a place and tap Favorite.',
+        visited: 'No orders logged yet. Tap “I’m here right now” when you’re at a place.'
+      };
+      $('saved-list').innerHTML = '<p class="empty-state">' + empty[savedFilter] + '</p>';
+      return;
+    }
+    $('saved-list').innerHTML = savedRows.map(function (row, i) {
+      var p = row.place;
+      var pills = '';
+      if (row.want) pills += '<span class="pill pill-want">Want to try</span>';
+      if (row.fav) pills += '<span class="pill pill-saved">Favorite</span>';
+      if (hhNow(p)) pills += '<span class="pill pill-hh on">Happy hour now</span>';
+      var open = openBlurb(p);
+      if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
+      var rating = getRating(p);
+      if (rating) pills += '<span class="pill pill-stars">' + starsText(rating) + '</span>';
+      var meta = [cuisineLabel(p), p.neighborhood].filter(Boolean);
+      var last = row.visits[0];
+      var lastLine = last
+        ? row.visits.length + ' order' + (row.visits.length === 1 ? '' : 's') + ' · last ' + fmtMoney(visitTotal(last)) +
+          ' on ' + fmtWhen(last.at).split(' · ')[0]
+        : '';
+      return '<button type="button" class="place-card saved-card" data-saved-idx="' + i + '">' +
+        '<span class="name"><span class="name-text">' + escapeHtml(p.name) + '</span></span>' +
+        '<span class="tag-row">' + kindTagsHtml(p) +
+        (meta.length ? '<span class="pick-hood">' + escapeHtml(meta.join(' · ')) + '</span>' : '') + '</span>' +
+        '<span class="pill-row">' + pills + '</span>' +
+        (lastLine ? '<span class="meta">' + escapeHtml(lastLine) + '</span>' : '') + '</button>';
+    }).join('');
+  }
+
+  function openSaved() {
+    showScreen('screen-saved');
+    renderSaved();
+  }
+
+  function initSaved() {
+    $('saved-back').addEventListener('click', openHome);
+    $('saved-filters').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-saved-filter]');
+      if (!btn) return;
+      savedFilter = btn.getAttribute('data-saved-filter');
+      renderSaved();
+    });
+    $('saved-list').addEventListener('click', function (e) {
+      var card = e.target.closest('[data-saved-idx]');
+      var row = card && savedRows[+card.getAttribute('data-saved-idx')];
+      if (row) openDetail(row.place);
+    });
+  }
+
+  /* ---------- Help me decide ---------- */
 
   var DECIDE_SETTINGS_KEY = 'coffee-drinks-decide-v1';
   var CUISINES = [
@@ -787,7 +1919,7 @@
   }
 
   function placeTags(p, kind) {
-    var text = ((p.name || '') + ' ' + (p.description || '') + ' ' + (p.hoursNote || '')).toLowerCase();
+    var text = ((p.name || '') + ' ' + (p.cuisine || '') + ' ' + (p.description || '') + ' ' + (p.hoursNote || '')).toLowerCase();
     var tags = [];
     CUISINES.forEach(function (c) {
       if (CUISINE_RE[c.id] && CUISINE_RE[c.id].test(text)) tags.push(c.id);
@@ -795,12 +1927,6 @@
     if (kind === 'coffee' && tags.indexOf('cafe') < 0) tags.push('cafe');
     if (kind === 'drinks' && tags.indexOf('bar') < 0) tags.push('bar');
     return tags;
-  }
-
-  function decideSnippet(p) {
-    var t = String(p.description || p.hoursNote || '').split('\n')[0].replace(/^\*\s*/, '').trim();
-    if (t.length > 140) t = t.slice(0, 137) + '\u2026';
-    return t;
   }
 
   function initDecide() {
@@ -813,7 +1939,7 @@
     var lineLayer = null;
     var here = null;
     var awaitingFix = false;
-    var box = document.getElementById('decide-cuisines');
+    var box = $('decide-cuisines');
     box.innerHTML = CUISINES.map(function (c) {
       return '<label><input type="checkbox" data-nogo="' + c.id + '" /> ' + escapeHtml(c.label) + '</label>';
     }).join('');
@@ -822,9 +1948,9 @@
       document.querySelectorAll('[data-decide-step]').forEach(function (el) {
         el.hidden = el.getAttribute('data-decide-step') !== name;
       });
-      document.getElementById('decide-wizard').hidden = false;
-      document.getElementById('decide-results').hidden = true;
-      var sub = document.getElementById('decide-sub');
+      $('decide-wizard').hidden = false;
+      $('decide-results').hidden = true;
+      var sub = $('decide-sub');
       if (name === 'service') sub.textContent = 'Eat in or takeout';
       else if (name === 'handoff') sub.textContent = 'Pickup or delivery';
       else sub.textContent = 'Skip anything you don\u2019t want';
@@ -904,7 +2030,7 @@
     }
 
     function renderBubbles() {
-      var el = document.getElementById('decide-bubbles');
+      var el = $('decide-bubbles');
       if (!results.length) {
         el.innerHTML = '<p class="decide-empty">Nothing matched nearby. Go back and uncheck a type, or try delivery for a wider area.</p>';
         return;
@@ -919,11 +2045,12 @@
           var walk = Math.max(1, Math.round(p._meters / PhillyWalkMap.WALK_M_PER_MIN));
           where = ' \u00b7 ' + dist + ' \u00b7 ~' + walk + ' min walk';
         }
+        var desc = snippet(p, 140);
         return '<article class="decide-bubble' + (i === selected ? ' is-on' : '') + '" data-pick="' + i + '">' +
           '<div class="decide-bubble-top"><span class="decide-bubble-name">' + escapeHtml(p.name) + '</span>' +
           '<button type="button" class="text-btn" data-details="' + i + '">Details</button></div>' +
           '<p class="decide-bubble-meta">' + escapeHtml(kindLabel(p._kind) + ' \u00b7 ' + status) + where + '</p>' +
-          (decideSnippet(p) ? '<p class="decide-bubble-desc">' + escapeHtml(decideSnippet(p)) + '</p>' : '') +
+          (desc ? '<p class="decide-bubble-desc">' + escapeHtml(desc) + '</p>' : '') +
           '<div class="decide-bubble-links">' + siteButtons(p) + orderButtons(p) + '</div></article>';
       }).join('');
     }
@@ -978,20 +2105,12 @@
       var card = document.querySelector('.decide-bubble[data-pick="' + i + '"]');
       if (card) card.scrollIntoView({ block: 'nearest' });
       if (openSheet) {
-        openDetail(results[i], results[i]._kind);
-        var extra = document.getElementById('detail-links');
+        openDetail(results[i]._place);
+        var extra = $('detail-links');
         if (extra && (session.handoff === 'pickup' || session.handoff === 'delivery')) {
           extra.insertAdjacentHTML('beforeend', orderButtons(results[i]));
         }
       }
-    }
-
-    function pool() {
-      var rows = [];
-      foodPlaces.forEach(function (p) { rows.push({ p: p, kind: 'food' }); });
-      drinkPlaces.forEach(function (p) { rows.push({ p: p, kind: 'drinks' }); });
-      coffeePlaces.forEach(function (p) { rows.push({ p: p, kind: 'coffee' }); });
-      return rows;
     }
 
     function hoursRank(p) {
@@ -1004,25 +2123,23 @@
       var limit = user ? (session.handoff === 'delivery' ? 8000 : 10 * PhillyWalkMap.WALK_M_PER_MIN) : Infinity;
       var seen = {};
       var list = [];
-      pool().forEach(function (row) {
-        var p = row.p;
+      allPlaces.forEach(function (p) {
         if (!hasCoords(p)) return;
-        var key = String(p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+        var key = nameKey(p.name);
         if (!key || seen[key]) return;
-        var tags = placeTags(p, row.kind);
+        var kind = primaryKind(p);
+        var tags = placeTags(p, kind);
         if (tags.some(function (t) { return session.nogo[t]; })) return;
         var meters = user ? PhillyWalkMap.haversineMeters(user.lat, user.lng, p.lat, p.lng) : null;
         if (user && meters > limit) return;
         seen[key] = true;
         var copy = Object.assign({}, p);
-        copy._kind = row.kind;
+        copy._place = p;
+        copy._kind = kind;
         copy._meters = meters;
         copy._tags = tags;
         copy._open = isOpenNowHours(p.hours);
-        copy._hasHours = DAY_NAMES.some(function (d) {
-          var h = p.hours && p.hours[d];
-          return h && h.open && h.close;
-        });
+        copy._hasHours = hasAnyHours(p.hours);
         list.push(copy);
       });
       list.sort(function (a, b) {
@@ -1044,11 +2161,11 @@
       }
       selected = 0;
       ensureMap();
-      document.getElementById('decide-wizard').hidden = true;
-      document.getElementById('decide-results').hidden = false;
+      $('decide-wizard').hidden = true;
+      $('decide-results').hidden = false;
       var label = session.service === 'dine' ? 'Eat in' : (session.handoff === 'delivery' ? 'Delivery' : 'Pickup');
       var openN = results.filter(function (p) { return p._open; }).length;
-      document.getElementById('decide-sub').textContent = session.remote
+      $('decide-sub').textContent = session.remote
         ? (label + ' \u00b7 ' + openN + ' open in Philly')
         : (label + ' \u00b7 ' + results.length + ' nearby');
       setTimeout(function () {
@@ -1075,10 +2192,10 @@
         toast('Map failed to load');
         return;
       }
-      document.getElementById('decide-wizard').hidden = true;
-      document.getElementById('decide-results').hidden = false;
-      document.getElementById('decide-sub').textContent = 'Finding you\u2026';
-      document.getElementById('decide-bubbles').innerHTML = '<p class="decide-empty">Checking location. If you are outside Philly, options use who’s open.</p>';
+      $('decide-wizard').hidden = true;
+      $('decide-results').hidden = false;
+      $('decide-sub').textContent = 'Finding you\u2026';
+      $('decide-bubbles').innerHTML = '<p class="decide-empty">Checking location. If you are outside Philly, options use who’s open.</p>';
       awaitingFix = true;
       setTimeout(function () {
         map.invalidateSize();
@@ -1100,11 +2217,9 @@
       });
     }
 
-    document.getElementById('pick-decide').addEventListener('click', openDecide);
-    document.getElementById('food-decide').addEventListener('click', openDecide);
-    document.getElementById('decide-back').addEventListener('click', function () {
-      showScreen('screen-home');
-    });
+    $('pick-decide').addEventListener('click', openDecide);
+    $('eat-decide').addEventListener('click', openDecide);
+    $('decide-back').addEventListener('click', openHome);
     document.querySelector('[data-decide-step="service"]').addEventListener('click', function (e) {
       var btn = e.target.closest('[data-service]');
       if (!btn) return;
@@ -1123,11 +2238,11 @@
       session.handoff = btn.getAttribute('data-handoff');
       setStep('nogo');
     });
-    document.getElementById('decide-nogo-back').addEventListener('click', function () {
+    $('decide-nogo-back').addEventListener('click', function () {
       setStep(session.service === 'takeout' ? 'handoff' : 'service');
     });
-    document.getElementById('decide-nogo-next').addEventListener('click', askLocation);
-    document.getElementById('decide-bubbles').addEventListener('click', function (e) {
+    $('decide-nogo-next').addEventListener('click', askLocation);
+    $('decide-bubbles').addEventListener('click', function (e) {
       if (e.target.closest('a')) return;
       var details = e.target.closest('[data-details]');
       if (details) {
@@ -1137,84 +2252,127 @@
       var card = e.target.closest('[data-pick]');
       if (card) selectResult(+card.getAttribute('data-pick'), false);
     });
-    document.getElementById('decide-settings').addEventListener('click', function () {
+    $('decide-settings').addEventListener('click', function () {
       syncMemberInputs();
-      document.getElementById('decide-settings-overlay').hidden = false;
+      $('decide-settings-overlay').hidden = false;
     });
-    document.getElementById('decide-settings-close').addEventListener('click', function () {
-      document.getElementById('decide-settings-overlay').hidden = true;
+    $('decide-settings-close').addEventListener('click', function () {
+      $('decide-settings-overlay').hidden = true;
     });
-    document.getElementById('decide-settings-overlay').addEventListener('click', function (e) {
+    $('decide-settings-overlay').addEventListener('click', function (e) {
       if (e.target.id === 'decide-settings-overlay') e.currentTarget.hidden = true;
     });
-    document.getElementById('decide-settings-overlay').addEventListener('change', function (e) {
+    $('decide-settings-overlay').addEventListener('change', function (e) {
       var input = e.target.closest('[data-member]');
       if (!input) return;
       settings[input.getAttribute('data-member')] = input.checked;
       saveDecideSettings(settings);
-      if (!document.getElementById('decide-results').hidden) renderBubbles();
+      if (!$('decide-results').hidden) renderBubbles();
     });
   }
 
+  /* ---------- Wiring ---------- */
+
   function wireUi() {
     modes.coffee = createMode({
-      kind: 'coffee',
       screenId: 'screen-coffee',
       mapId: 'map-coffee',
-      getPlaces: function () { return coffeePlaces; },
+      getPlaces: function () { return placesOf('coffee'); },
       pinColor: pinColorByHours,
       subtitle: function (list) {
         return list.length + ' cafes · green open · red closed · grey no hours';
       }
     });
-    modes.drinks = createMode({
-      kind: 'drinks',
-      screenId: 'screen-drinks',
-      mapId: 'map-drinks',
-      getPlaces: function () { return drinkPlaces; },
-      pinColor: function (p) { return hasSchedule(p) ? COLOR_HH : COLOR_BAR; },
-      badge: function (p) {
-        if (!hasSchedule(p)) return '';
-        return hhNow(p) ? '<span class="hh-pill on">HH now</span>' : '<span class="hh-pill">HH</span>';
+    modes.eat = createMode({
+      screenId: 'screen-eat',
+      mapId: 'map-eat',
+      getPlaces: eatPlaces,
+      filter: function (p, f) {
+        if (f === 'food') return !!p.kinds.food;
+        if (f === 'drinks') return !!p.kinds.drinks;
+        if (f === 'hh') return hasSchedule(p);
+        if (f === 'lunch' || f === 'dinner') return !!p.kinds.food && matchesMeal(p, f);
+        return true;
       },
-      subtitle: function (list) {
-        var withHh = list.filter(hasSchedule).length;
-        return list.length + ' bars · ' + withHh + ' with happy hours';
-      }
-    });
-    modes.food = createMode({
-      kind: 'food',
-      screenId: 'screen-food',
-      mapId: 'map-food',
-      getPlaces: function () { return foodPlaces; },
-      pinColor: pinColorByHours,
+      pinColor: function (p) { return hhNow(p) ? COLOR_HH_NOW : pinColorByHours(p); },
+      metaLead: cuisineLabel,
       badge: function (p) {
+        if (hasSchedule(p)) {
+          return hhNow(p) ? '<span class="hh-pill on">HH now</span>' : '<span class="hh-pill">HH</span>';
+        }
         if (p.meal === 'lunch') return '<span class="meal-pill lunch">Lunch</span>';
         if (p.meal === 'dinner') return '<span class="meal-pill dinner">Dinner</span>';
         return '';
       },
       subtitle: function (list) {
-        return list.length + ' restaurants · green open · red closed · grey no hours';
+        var now = list.filter(hhNow).length;
+        return list.length + ' places' + (now ? ' · ' + now + ' HH now' : '');
       }
     });
 
-    document.getElementById('pick-coffee').addEventListener('click', function () { modes.coffee.show(); });
-    document.getElementById('pick-drinks').addEventListener('click', function () { modes.drinks.show(); });
-    document.getElementById('pick-food').addEventListener('click', function () { modes.food.show(); });
+    $('pick-coffee').addEventListener('click', function () { modes.coffee.show(); });
+    $('pick-eat').addEventListener('click', function () { modes.eat.show(); });
+    $('pick-saved').addEventListener('click', openSaved);
     initDecide();
-    document.getElementById('schedule-back').addEventListener('click', function () { modes.drinks.show(); });
-    document.getElementById('open-schedule').addEventListener('click', function () {
-      showScreen('screen-schedule');
-      renderGrid();
+    initLog();
+    initSaved();
+
+    $('pick-shuffle').addEventListener('click', function () {
+      shufflePicks();
+      renderPicks();
+      $('pick-track').scrollTo({ left: 0, behavior: 'smooth' });
     });
-    document.getElementById('detail-close').addEventListener('click', closeDetail);
-    document.getElementById('mark-favorite').addEventListener('click', function () { toggleMark('fav'); });
-    document.getElementById('mark-want').addEventListener('click', function () { toggleMark('want'); });
-    document.getElementById('detail-overlay').addEventListener('click', function (e) {
+    $('pick-filters').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-pick-filter]');
+      if (btn) setPickFilter(btn.getAttribute('data-pick-filter'));
+    });
+    $('pick-track').addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;
+      if (e.target.closest('[data-pick-schedule]')) { openSchedule('screen-home'); return; }
+      var hh = e.target.closest('[data-pick-hh]');
+      if (hh) {
+        var hp = picks[+hh.getAttribute('data-pick-hh')];
+        openSchedule('screen-home', hp ? hp.name : '');
+        return;
+      }
+      var card = e.target.closest('[data-pick-card]');
+      var p = card && picks[+card.getAttribute('data-pick-card')];
+      if (p) openDetail(p);
+    });
+    $('home-hh').addEventListener('click', function () { openSchedule('screen-home'); });
+
+    $('schedule-back').addEventListener('click', function () { goScreen(scheduleReturn); });
+    $('open-schedule').addEventListener('click', function () { openSchedule('screen-eat'); });
+    $('detail-close').addEventListener('click', closeDetail);
+    $('mark-favorite').addEventListener('click', function () {
+      if (!detailPlace) return;
+      toggleMark(detailPlace, 'fav');
+      refreshMarkButtons();
+    });
+    $('mark-want').addEventListener('click', function () {
+      if (!detailPlace) return;
+      toggleMark(detailPlace, 'want');
+      refreshMarkButtons();
+    });
+    $('detail-hh-link').addEventListener('click', function () {
+      var name = detailPlace ? detailPlace.name : '';
+      var back = currentScreen === 'screen-schedule' ? scheduleReturn : currentScreen;
+      closeDetail();
+      openSchedule(back, name);
+    });
+    $('detail-visits').addEventListener('click', function (e) {
+      var del = e.target.closest('[data-del-visit]');
+      if (!del || !window.confirm('Remove this order?')) return;
+      var id = del.getAttribute('data-del-visit');
+      store.visits = store.visits.filter(function (v) { return v.id !== id; });
+      saveStore();
+      renderVisits();
+    });
+    $('detail-overlay').addEventListener('click', function (e) {
       if (e.target.id === 'detail-overlay') closeDetail();
     });
 
-    var hhNowEl = document.getElementById('filter-hh-now');
+    var hhNowEl = $('filter-hh-now');
     daySel.addEventListener('change', function () {
       hhNowEl.checked = false;
       buildTimeOptions(daySel.value, +timeSel.value);
@@ -1225,12 +2383,13 @@
       renderGrid();
     });
     nSel.addEventListener('change', renderGrid);
-    document.getElementById('schedule-search').addEventListener('input', renderGrid);
+    $('schedule-search').addEventListener('input', renderGrid);
     hhNowEl.addEventListener('change', renderGrid);
     ['grid', 'summary'].forEach(function (id) {
-      document.getElementById(id).addEventListener('click', function (e) {
+      $(id).addEventListener('click', function (e) {
         var btn = e.target.closest('.rest-link');
-        if (btn) openDrinkByName(btn.getAttribute('data-name'));
+        var p = btn && placeByKey[btn.getAttribute('data-key')];
+        if (p) openDetail(p);
       });
     });
   }
@@ -1238,15 +2397,20 @@
   function loadCatalog() {
     return Promise.all([
       fetch('coffee.json?v=2').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('drinks.json?v=9').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('food.json?v=10').then(function (r) { return r.ok ? r.json() : []; })
+      fetch('drinks.json?v=10').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('food.json?v=11').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
-      coffeePlaces = Array.isArray(triple[0]) ? triple[0] : [];
-      drinkPlaces = Array.isArray(triple[1]) ? triple[1] : [];
-      foodPlaces = Array.isArray(triple[2]) ? triple[2] : [];
+      /* Drinks first, then coffee, then food: when one place is in two files, the hand-placed pin wins. */
+      buildPlaces([
+        { kind: 'drinks', list: Array.isArray(triple[1]) ? triple[1] : [] },
+        { kind: 'coffee', list: Array.isArray(triple[0]) ? triple[0] : [] },
+        { kind: 'food', list: Array.isArray(triple[2]) ? triple[2] : [] }
+      ]);
       bootstrapCatalog();
       wireUi();
-    }).catch(function () {
+      openHome();
+    }).catch(function (err) {
+      if (window.console) console.error(err);
       toast('Could not load catalog.');
     });
   }
