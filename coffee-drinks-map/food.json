@@ -86,6 +86,7 @@
   {
     "id": "pine-street-grill",
     "name": "Pine Street Grill",
+    "cuisine": "American grill",
     "neighborhood": "Graduate Hospital",
     "address": "2227 Pine St, Philadelphia, PA 19103",
     "lat": 39.947399,
@@ -258,6 +259,7 @@
   {
     "id": "tesiny",
     "name": "Tesiny",
+    "cuisine": "Seafood",
     "neighborhood": "Bella Vista",
     "address": "719 Dickinson St, Philadelphia, PA 19147",
     "lat": 39.9308,
@@ -522,6 +524,7 @@
   {
     "id": "mawn",
     "name": "Mawn",
+    "cuisine": "Cambodian noodles",
     "neighborhood": "Bella Vista",
     "address": "764 S 9th St, Philadelphia, PA 19147",
     "lat": 39.9398,
@@ -554,6 +557,7 @@
   {
     "id": "fiorella",
     "name": "Fiorella",
+    "cuisine": "Pasta",
     "neighborhood": "Bella Vista",
     "address": "817 Christian St, Philadelphia, PA 19147",
     "lat": 39.938899,
@@ -598,6 +602,7 @@
   {
     "id": "the-dutch",
     "name": "The Dutch",
+    "cuisine": "Brunch",
     "neighborhood": "East Passyunk",
     "address": "1537 S 11th Street, Philadelphia, PA 19147",
     "lat": 39.929865,
@@ -922,6 +927,7 @@
   {
     "id": "south-philly-barbacoa",
     "name": "South Philly Barbacoa",
+    "cuisine": "Barbacoa tacos",
     "neighborhood": "Bella Vista",
     "address": "1134 S 9th St, Philadelphia, PA 19147",
     "lat": 39.935512,
@@ -1010,6 +1016,7 @@
   {
     "id": "little-water",
     "name": "Little Water",
+    "cuisine": "Seafood",
     "neighborhood": "Rittenhouse",
     "address": "2049, East Hagert Street, Philadelphia, PA, 19125",
     "lat": 39.983981,
@@ -1025,6 +1032,7 @@
   {
     "id": "vernick-food-drink",
     "name": "Vernick Food & Drink",
+    "cuisine": "New American",
     "neighborhood": "Rittenhouse",
     "address": "2031, Walnut Street, Philadelphia, PA, 19103",
     "lat": 39.950806,
@@ -1040,6 +1048,7 @@
   {
     "id": "parc",
     "name": "Parc",
+    "cuisine": "French brasserie",
     "neighborhood": "Rittenhouse",
     "address": "225, South 18th Street, Philadelphia, Pennsylvania, 19103",
     "lat": 39.94923,
@@ -1055,6 +1064,7 @@
   {
     "id": "la-jefa",
     "name": "La Jefa",
+    "cuisine": "Mexican cafe",
     "neighborhood": "Rittenhouse",
     "address": "1605, Latimer Street, Philadelphia, Pennsylvania, 19103",
     "lat": 39.948237,
@@ -1070,6 +1080,7 @@
   {
     "id": "dizengoff",
     "name": "Dizengoff",
+    "cuisine": "Hummus",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -1085,6 +1096,7 @@
   {
     "id": "zama",
     "name": "Zama",
+    "cuisine": "Sushi",
     "neighborhood": "Rittenhouse",
     "address": "128, South 19th Street, Philadelphia, PA, 19103",
     "lat": 39.950891,
@@ -1100,6 +1112,7 @@
   {
     "id": "k-far",
     "name": "K'Far",
+    "cuisine": "Israeli bakery",
     "neighborhood": "Rittenhouse",
     "address": "110, South 19th Street, Philadelphia, PA, 19103",
     "lat": 39.951492,
@@ -1115,6 +1128,7 @@
   {
     "id": "el-merkury",
     "name": "El Merkury",
+    "cuisine": "Central American",
     "neighborhood": "Rittenhouse",
     "address": "2104, Chestnut Street, Philadelphia, PA, 19103",
     "lat": 39.952206,
@@ -1130,6 +1144,7 @@
   {
     "id": "malai",
     "name": "Malai",
+    "cuisine": "Ice cream",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -1145,6 +1160,7 @@
   {
     "id": "my-loup",
     "name": "My Loup",
+    "cuisine": "French",
     "neighborhood": "Rittenhouse",
     "address": "104, South 20th Street, Philadelphia, PA, 19103",
     "lat": 39.951869,
@@ -1190,6 +1206,7 @@
   {
     "id": "uchi-philadelphia",
     "name": "Uchi Philadelphia",
+    "cuisine": "Sushi",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -1235,6 +1252,7 @@
   {
     "id": "river-twice",
     "name": "River Twice",
+    "cuisine": "New American",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1250,6 +1268,7 @@
   {
     "id": "laurel",
     "name": "Laurel",
+    "cuisine": "French-American",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1265,6 +1284,7 @@
   {
     "id": "townsend",
     "name": "Townsend",
+    "cuisine": "French",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1280,6 +1300,7 @@
   {
     "id": "hardena",
     "name": "Hardena",
+    "cuisine": "Indonesian",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1295,6 +1316,7 @@
   {
     "id": "noord",
     "name": "Noord",
+    "cuisine": "Northern European",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1325,6 +1347,7 @@
   {
     "id": "brigantessa",
     "name": "Brigantessa",
+    "cuisine": "Italian",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1355,6 +1378,7 @@
   {
     "id": "cafe-nhan",
     "name": "Cafe Nhan",
+    "cuisine": "Vietnamese",
     "neighborhood": "East Passyunk",
     "address": "1919, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.926101,
@@ -1385,6 +1409,7 @@
   {
     "id": "a-mano",
     "name": "A Mano",
+    "cuisine": "Italian",
     "neighborhood": "East Passyunk",
     "address": "Philadelphia, Pennsylvania",
     "lat": 39.922329,
@@ -1400,6 +1425,7 @@
   {
     "id": "jezabel-cafe",
     "name": "Jezabel Cafe",
+    "cuisine": "Argentine",
     "neighborhood": "East Passyunk",
     "address": "206-208, South 45th Street, Philadelphia, PA, 19104",
     "lat": 39.954933,
@@ -1415,6 +1441,7 @@
   {
     "id": "barbuzzo",
     "name": "Barbuzzo",
+    "cuisine": "Mediterranean",
     "neighborhood": "East Passyunk",
     "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
     "lat": 39.931738,
@@ -1460,6 +1487,7 @@
   {
     "id": "essen-bakery",
     "name": "Essen Bakery",
+    "cuisine": "Jewish bakery",
     "neighborhood": "East Passyunk",
     "address": "1437, East Passyunk Avenue, Philadelphia, PA, 19147",
     "lat": 39.931041,
@@ -1475,6 +1503,7 @@
   {
     "id": "sabrina-s-cafe",
     "name": "Sabrina's Cafe",
+    "cuisine": "Brunch",
     "neighborhood": "East Passyunk",
     "address": "910, Christian Street, Philadelphia, PA, 19147",
     "lat": 39.938968,
@@ -1535,6 +1564,7 @@
   {
     "id": "dmitri-s",
     "name": "Dmitri's",
+    "cuisine": "Greek seafood",
     "neighborhood": "Pennsport",
     "address": "Philadelphia, Pennsylvania, 19147",
     "lat": 39.931792,
@@ -1565,6 +1595,7 @@
   {
     "id": "marra-s",
     "name": "Marra's",
+    "cuisine": "Italian",
     "neighborhood": "Pennsport",
     "address": "Philadelphia, Pennsylvania, 19147",
     "lat": 39.931792,
@@ -1580,6 +1611,7 @@
   {
     "id": "marrakesh",
     "name": "Marrakesh",
+    "cuisine": "Moroccan",
     "neighborhood": "Pennsport",
     "address": "Philadelphia, Pennsylvania, 19147",
     "lat": 39.931792,
@@ -1640,6 +1672,7 @@
   {
     "id": "royal-boucherie",
     "name": "Royal Boucherie",
+    "cuisine": "French brasserie",
     "neighborhood": "Pennsport",
     "address": "52, South 2nd Street, Philadelphia, PA, 19106",
     "lat": 39.948715,
@@ -1655,6 +1688,7 @@
   {
     "id": "famous-4th-street-delicatessen",
     "name": "Famous 4th Street Delicatessen",
+    "cuisine": "Jewish deli",
     "neighborhood": "Pennsport",
     "address": "1136, Arch Street, Philadelphia, PA, 19107",
     "lat": 39.953069,
@@ -1670,6 +1704,7 @@
   {
     "id": "jim-s-south-st",
     "name": "Jim's South St",
+    "cuisine": "Cheesesteaks",
     "neighborhood": "Pennsport",
     "address": "Philadelphia, Pennsylvania, 19147",
     "lat": 39.931792,
@@ -1700,6 +1735,7 @@
   {
     "id": "john-s-roast-pork",
     "name": "John's Roast Pork",
+    "cuisine": "Roast pork sandwiches",
     "neighborhood": "Pennsport",
     "address": "14, East Snyder Avenue, Philadelphia, PA, 19148",
     "lat": 39.921045,
@@ -1895,6 +1931,7 @@
   {
     "id": "sate-kampar",
     "name": "Sate Kampar",
+    "cuisine": "Malaysian",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -1910,6 +1947,7 @@
   {
     "id": "tiffin",
     "name": "Tiffin",
+    "cuisine": "Indian",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -1925,6 +1963,7 @@
   {
     "id": "goldie",
     "name": "Goldie",
+    "cuisine": "Falafel",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -1940,6 +1979,7 @@
   {
     "id": "mood-cafe",
     "name": "Mood Cafe",
+    "cuisine": "Chaat & lassi",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -1985,6 +2025,7 @@
   {
     "id": "le-viet",
     "name": "Le Viet",
+    "cuisine": "Vietnamese",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -2075,6 +2116,7 @@
   {
     "id": "johnny-brenda-s",
     "name": "Johnny Brenda's",
+    "cuisine": "Bar & music venue",
     "neighborhood": "South Street",
     "address": "1201, Frankford Avenue, Philadelphia, PA, 19125",
     "lat": 39.969072,
@@ -2090,6 +2132,7 @@
   {
     "id": "milkboy",
     "name": "Milkboy",
+    "cuisine": "Bar & music venue",
     "neighborhood": "South Street",
     "address": "401, South Street, Philadelphia, Pennsylvania, 19147",
     "lat": 39.941702,
@@ -2135,6 +2178,7 @@
   {
     "id": "effie-s-restaurant",
     "name": "Effie's Restaurant",
+    "cuisine": "Greek",
     "neighborhood": "South Street",
     "address": "1020, South Street, Philadelphia, PA, 19147",
     "lat": 39.942768,
@@ -2210,6 +2254,7 @@
   {
     "id": "federal-donuts",
     "name": "Federal Donuts",
+    "cuisine": "Donuts & fried chicken",
     "neighborhood": "South Street",
     "address": "540, South Street, Philadelphia, Pennsylvania, 19146",
     "lat": 39.941895,
@@ -2225,6 +2270,7 @@
   {
     "id": "jack-s-firehouse",
     "name": "Jack's Firehouse",
+    "cuisine": "BBQ",
     "neighborhood": "Fairmount",
     "address": "2130, Fairmount Avenue, Philadelphia, PA, 19130",
     "lat": 39.967131,
@@ -2300,6 +2346,7 @@
   {
     "id": "kite-key",
     "name": "Kite & Key",
+    "cuisine": "Beer bar",
     "neighborhood": "Fairmount",
     "address": "1836, Callowhill Street, Philadelphia, PA, 19130",
     "lat": 39.960396,
@@ -2330,6 +2377,7 @@
   {
     "id": "figs",
     "name": "Figs",
+    "cuisine": "Mediterranean",
     "neighborhood": "Fairmount",
     "address": "Philadelphia, Pennsylvania, 19130",
     "lat": 39.972335,
@@ -2345,6 +2393,7 @@
   {
     "id": "honey-s-sit-n-eat",
     "name": "Honey's Sit N Eat",
+    "cuisine": "Brunch",
     "neighborhood": "Fairmount",
     "address": "800, North 4th Street, Philadelphia, PA, 19123",
     "lat": 39.963898,
@@ -2390,6 +2439,7 @@
   {
     "id": "eulogy-belgian-tavern",
     "name": "Eulogy Belgian Tavern",
+    "cuisine": "Belgian beer bar",
     "neighborhood": "Fairmount",
     "address": "1700, Fairmount Avenue, Philadelphia, PA, 19130",
     "lat": 39.966939,
@@ -2405,6 +2455,7 @@
   {
     "id": "bar-hygge",
     "name": "Bar Hygge",
+    "cuisine": "Brewpub",
     "neighborhood": "Fairmount",
     "address": "1720, Fairmount Avenue, Philadelphia, PA, 19130",
     "lat": 39.967025,
@@ -2420,6 +2471,7 @@
   {
     "id": "bufad",
     "name": "Bufad",
+    "cuisine": "Pizza",
     "neighborhood": "Fairmount",
     "address": "Philadelphia, Pennsylvania, 19130",
     "lat": 39.972335,
@@ -2450,6 +2502,7 @@
   {
     "id": "the-belgian-cafe",
     "name": "The Belgian Cafe",
+    "cuisine": "Belgian beer bar",
     "neighborhood": "Fairmount",
     "address": "1700, Fairmount Avenue, Philadelphia, PA, 19130",
     "lat": 39.966939,
@@ -2465,6 +2518,7 @@
   {
     "id": "urban-farmer",
     "name": "Urban Farmer",
+    "cuisine": "Steakhouse",
     "neighborhood": "Fairmount",
     "address": "700, North 22nd Street, Philadelphia, Pennsylvania, 19130",
     "lat": 39.967558,
@@ -2480,6 +2534,7 @@
   {
     "id": "the-couch-tomato-cafe",
     "name": "The Couch Tomato Cafe",
+    "cuisine": "Pizza & salads",
     "neighborhood": "Fairmount",
     "address": "102, Rector Street, Philadelphia, Pennsylvania, 19127",
     "lat": 40.024741,
@@ -2495,6 +2550,7 @@
   {
     "id": "rybrew",
     "name": "Rybrew",
+    "cuisine": "Sandwiches & craft beer",
     "neighborhood": "Fairmount",
     "address": "2600, West Girard Avenue, Philadelphia, PA, 19121",
     "lat": 39.973844,
@@ -2570,6 +2626,7 @@
   {
     "id": "cafe-la-maude",
     "name": "Cafe La Maude",
+    "cuisine": "Brunch",
     "neighborhood": "Northern Liberties",
     "address": "816, North 4th Street, Philadelphia, PA, 19123",
     "lat": 39.964263,
@@ -2585,6 +2642,7 @@
   {
     "id": "silk-city-diner",
     "name": "Silk City Diner",
+    "cuisine": "Diner & bar",
     "neighborhood": "Northern Liberties",
     "address": "435, Spring Garden Street, Philadelphia, PA, 19123",
     "lat": 39.961356,
@@ -2630,6 +2688,7 @@
   {
     "id": "wm-mulherin-s-sons",
     "name": "Wm. Mulherin's Sons",
+    "cuisine": "Italian",
     "neighborhood": "Northern Liberties",
     "address": "1355, North Front Street, Philadelphia, PA, 19122",
     "lat": 39.971722,
@@ -2645,6 +2704,7 @@
   {
     "id": "stock",
     "name": "Stock",
+    "cuisine": "Southeast Asian",
     "neighborhood": "Northern Liberties",
     "address": "Philadelphia, Pennsylvania, 19123",
     "lat": 39.965049,
@@ -2660,6 +2720,7 @@
   {
     "id": "winkel",
     "name": "Winkel",
+    "cuisine": "Dutch brunch",
     "neighborhood": "Northern Liberties",
     "address": "Philadelphia, Pennsylvania, 19123",
     "lat": 39.965049,
@@ -2765,6 +2826,7 @@
   {
     "id": "suraya",
     "name": "Suraya",
+    "cuisine": "Lebanese",
     "neighborhood": "Fishtown",
     "address": "1528, Frankford Avenue, Philadelphia, PA, 19125",
     "lat": 39.973728,
@@ -2795,6 +2857,7 @@
   {
     "id": "cheu-fishtown",
     "name": "Cheu Fishtown",
+    "cuisine": "Ramen & noodles",
     "neighborhood": "Fishtown",
     "address": "1416, Frankford Avenue, Philadelphia, PA, 19125",
     "lat": 39.972264,
@@ -2810,6 +2873,7 @@
   {
     "id": "fette-sau",
     "name": "Fette Sau",
+    "cuisine": "BBQ",
     "neighborhood": "Fishtown",
     "address": "Frankford Avenue, Philadelphia, Pennsylvania, 19125",
     "lat": 39.969279,
@@ -2855,6 +2919,7 @@
   {
     "id": "frankford-hall",
     "name": "Frankford Hall",
+    "cuisine": "Beer garden",
     "neighborhood": "Fishtown",
     "address": "1524, Frankford Avenue, Philadelphia, PA, 19125",
     "lat": 39.973591,
@@ -2915,6 +2980,7 @@
   {
     "id": "el-compadre",
     "name": "El Compadre",
+    "cuisine": "Mexican",
     "neighborhood": "Fishtown",
     "address": "1431, Frankford Avenue, Philadelphia, PA, 19125",
     "lat": 39.973131,
@@ -2930,6 +2996,7 @@
   {
     "id": "sally",
     "name": "Sally",
+    "cuisine": "Pizza",
     "neighborhood": "Fishtown",
     "address": "Philadelphia, Pennsylvania, 19125",
     "lat": 39.973256,
@@ -3080,6 +3147,7 @@
   {
     "id": "tria-rittenhouse",
     "name": "Tria Rittenhouse",
+    "cuisine": "Wine bar",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -3095,6 +3163,7 @@
   {
     "id": "buena-onda",
     "name": "Buena Onda",
+    "cuisine": "Tacos",
     "neighborhood": "Rittenhouse",
     "address": "1901, Callowhill Street, Philadelphia, PA, 19130",
     "lat": 39.960806,
@@ -3110,6 +3179,7 @@
   {
     "id": "huda",
     "name": "Huda",
+    "cuisine": "Sandwiches",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -3125,6 +3195,7 @@
   {
     "id": "tequilas",
     "name": "Tequilas",
+    "cuisine": "Mexican",
     "neighborhood": "Rittenhouse",
     "address": "1800, Market Street, Philadelphia, PA, 19103",
     "lat": 39.952834,
@@ -3140,6 +3211,7 @@
   {
     "id": "isgro-pastries",
     "name": "Isgro Pastries",
+    "cuisine": "Italian bakery",
     "neighborhood": "South Street",
     "address": "1020, South Street, Philadelphia, PA, 19147",
     "lat": 39.942768,
@@ -3155,6 +3227,7 @@
   {
     "id": "termini-brothers-bakery",
     "name": "Termini Brothers Bakery",
+    "cuisine": "Italian bakery",
     "neighborhood": "South Street",
     "address": "1523-25, South 8th Street, Philadelphia, PA, 19147",
     "lat": 39.929827,
@@ -3170,6 +3243,7 @@
   {
     "id": "buddakan",
     "name": "Buddakan",
+    "cuisine": "Pan-Asian",
     "neighborhood": "South Street",
     "address": "1020, South Street, Philadelphia, PA, 19147",
     "lat": 39.942768,
@@ -3185,6 +3259,7 @@
   {
     "id": "morimoto",
     "name": "Morimoto",
+    "cuisine": "Sushi",
     "neighborhood": "South Street",
     "address": "1020, South Street, Philadelphia, PA, 19147",
     "lat": 39.942768,
@@ -3215,6 +3290,7 @@
   {
     "id": "penang",
     "name": "Penang",
+    "cuisine": "Malaysian",
     "neighborhood": "South Street",
     "address": "1020, South Street, Philadelphia, PA, 19147",
     "lat": 39.942768,
@@ -3230,6 +3306,7 @@
   {
     "id": "the-couch-tomato-cafe-fairmount",
     "name": "The Couch Tomato Cafe Fairmount",
+    "cuisine": "Pizza & salads",
     "neighborhood": "Fairmount",
     "address": "102, Rector Street, Philadelphia, Pennsylvania, 19127",
     "lat": 40.024741,
@@ -3290,6 +3367,7 @@
   {
     "id": "booker-s-restaurant",
     "name": "Booker's Restaurant",
+    "cuisine": "Southern",
     "neighborhood": "Point Breeze",
     "address": "5021, Baltimore Avenue, Philadelphia, PA, 19143",
     "lat": 39.94799,
@@ -3305,6 +3383,7 @@
   {
     "id": "african-small-pot",
     "name": "African Small Pot",
+    "cuisine": "West African",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,
@@ -3335,6 +3414,7 @@
   {
     "id": "essen-bakery-point-breeze",
     "name": "Essen Bakery Point Breeze",
+    "cuisine": "Jewish bakery",
     "neighborhood": "Point Breeze",
     "address": "Philadelphia, Pennsylvania, 19146",
     "lat": 39.933446,

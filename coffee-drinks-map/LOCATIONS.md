@@ -2,6 +2,12 @@
 
 Bar, cafe, and restaurant pins live in **`drinks.json`**, **`coffee.json`**, and **`food.json`**. Edit those files (or run the sync scripts below); do not maintain `philly-dates/places.json` or `coffee-map/places.json` — those apps are archived.
 
+## One place, several lists
+
+The app loads all three files into one list. A place that appears in more than one file under the same name (ignoring case and punctuation) shows up once, tagged with every list it is on — so a bar that also serves dinner belongs in both `drinks.json` and `food.json`. Chains with several locations are matched only when the pins are within 200 m. When the files disagree on a pin, `drinks.json` wins, then `coffee.json`, then `food.json`.
+
+`cuisine` (optional, `drinks.json` and `food.json`) is the short label shown on the pick-a-place cards and in lists, such as `"Sushi"` or `"Belgian beer bar"`. It is set by hand. When it is missing the app guesses from the name (and, for food-only places, the description), and shows nothing if it cannot tell.
+
 ## Recommended workflow
 
 1. **Best accuracy (places with `googlePlaceId`):**
