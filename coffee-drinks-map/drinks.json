@@ -1,6 +1,7 @@
 [
   {
     "name": "Prunella",
+    "cuisine": "Pizza",
     "address": "112 S 13th st Philadelphia, PA 19102",
     "neighborhood": "Midtown",
     "description": "Happy hour is bar seating only\n* Lunch specials are not the happy hour\n* 8/10\n* Spicy chicken caesar\n* https://www.tiktok.com/t/ZP8yeeEqF/\n* Deals (Sun–Sat 4 PM–6 PM): $7 Cosmopolita plus house wine, daily happy-hour beer, daily pizza special (Pepperoni or Plain Jane), and snacks (garlic knots, crispy polenta, tomato toast, polpetti); other item prices unconfirmed on the official menu.",
@@ -356,6 +357,7 @@
   },
   {
     "name": "Double Knot",
+    "cuisine": "Sushi",
     "address": "120 S 13th St Philadelphia, PA 19107",
     "neighborhood": "Midtown",
     "description": "Sushi\n* https://www.tiktok.com/@emmayums/video/7597261514008956190?q=double%20knot%20happy%20hour&t=1772414963542\n* Deals (Sun–Sat 4 PM–7 PM): Daily walk-in HH at the upstairs bar/cafe: $8 rolls, $5-$7 robata, $8-$9 snacks/bao/dumplings, $6 house wine/rosé/junmai, $7 specialty cocktails (The Tautline Hitch, The Sheet Bend).",
@@ -543,6 +545,7 @@
   },
   {
     "name": "Giuseppe & Sons",
+    "cuisine": "Italian",
     "address": "1523 Sansom St Philadelphia, PA 19102",
     "neighborhood": "Rittenhouse",
     "description": "8/10\n* Speakeasy hidden in rittenhouse. Stunning. Wish I could experience walking into it for the first time\n* Deals (Sun–Sat 4 PM–6 PM): Bar + lounge: $6 wine, $7 cocktails (Lend Lease, Limonata, Hotel Nacional), $6 rotating draft; food includes $5 daily pizza, $7 sandwiches/ricotta toast/caesar, $8 meatballs/calamari, $7-$9 seafood.",
@@ -709,6 +712,7 @@
   },
   {
     "name": "Almyra Restaurant",
+    "cuisine": "Greek",
     "address": "1636 Chancellor St Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "7.75/10\n* Been here once for happy hour. cheap, good spread and weirdly nobody else was there\n* Greek\n* Deals (Sun–Sat 4 PM–6 PM): $7 Greek-inspired cocktails, $6 wine/cava, $5 beer; mezze includes $6 tyri bites/spanakopita manti, $7 crab wonton, $8 crispy rice/saganaki/skewers, spreads 3 for $9 or 5 for $15.",
@@ -835,6 +839,7 @@
   },
   {
     "name": "The Franklin Mortgage & Investment",
+    "cuisine": "Cocktail bar",
     "address": "1715 Rittenhouse Square, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Speakeasy https://www.instagram.com/reel/DIO94_POm9b/?igsh=MXQ2MW5vZ3Vuanh6eg==",
@@ -884,6 +889,7 @@
   },
   {
     "name": "Ranstead Room",
+    "cuisine": "Cocktail bar",
     "address": "2013 Ranstead St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Speakeasy https://www.instagram.com/reel/DIO94_POm9b/?igsh=MXQ2MW5vZ3Vuanh6eg==",
@@ -991,6 +997,7 @@
   },
   {
     "name": "Human Robot",
+    "cuisine": "Brewery",
     "address": "1646 S 12th St, Philadelphia, PA 19148 (listed ZIP 19122 is wrong)",
     "neighborhood": "East Passyunk",
     "description": "Bar. I dont think theres food. Beer is fine. They have tables outside.",
@@ -1310,6 +1317,7 @@
   },
   {
     "name": "Tequilas Restaurant",
+    "cuisine": "Mexican",
     "address": "1602 Locust St Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Mexican food\n* https://www.instagram.com/reel/DJ9Jr1hRZHm/?igsh=ZjFoaTdtenJ6YjN3\n* Deals (Mon–Fri 5 PM–7 PM): Kitchen snacks $7-$15 (totopos $7, guacamole/soup $10, queso $12, stuffed shrimp $14, ceviche $15); bar includes $5 Numero Uno, $10 sangria/house wine, $11 margarita, $10 vodka highball.",
@@ -1376,6 +1384,7 @@
   },
   {
     "name": "Brauhaus Schmitz",
+    "cuisine": "German",
     "address": "718 South St Philadelphia, PA 19147",
     "neighborhood": "Queen Village",
     "description": "Happy hour is bar seating only\n* Been here > $10 sometimes\n* Good for parties\n* Really good doner on shareable plates\n* $16 liters\n* Deals (Mon–Fri 4 PM–7 PM): $6 all beers, $7 house wine, $8 sausage sandwiches — bar only.",
@@ -1711,6 +1720,7 @@
   },
   {
     "name": "Bistro Romano",
+    "cuisine": "Italian",
     "address": "120 Lombard St, Philadelphia, PA 19147",
     "neighborhood": "Old City",
     "description": "Italian\n* Gorgeous interior: https://www.instagram.com/reel/DT6J4bBEq1P/?igsh=eGNlcWVmcDdhbTlw",
@@ -1750,6 +1760,7 @@
   },
   {
     "name": "Bok Bar",
+    "cuisine": "Rooftop bar",
     "address": "800 Mifflin St, Philadelphia, PA 19148",
     "neighborhood": "East Passyunk",
     "description": "One of the best views of Philly\n* Ok drinks and pricey food\n* Cool events sometimes",
@@ -2159,6 +2170,7 @@
   },
   {
     "name": "Attico Rooftoop",
+    "cuisine": "Rooftop bar",
     "address": "219 S Broad St, Philadelphia, PA 19107",
     "neighborhood": "Center City",
     "description": "Place you can https://www.instagram.com/reel/DLKwJTsAsqh/?igsh=MW1yenJsNDhucWd3Yw==\n* Deals (Wed–Fri 4 PM–6 PM): Wed–Fri 4–6pm. $8 cocktails (e.g. Carry A Big Stick); beers include New Trail Painted Sky and Yards PPA; wines/sparkling; bites include shrimp cocktail, lamb sausage skewers, mixed green salad, bacon poutine, crispy cauliflower, chips and dips\n* Rooftop at the Cambria — Attico Rooftop",
@@ -2551,6 +2563,7 @@
   },
   {
     "name": "Loco Pez",
+    "cuisine": "Mexican",
     "address": "700 S 20th St, Philadelphia, PA 19146",
     "neighborhood": "Graduate Hospital",
     "description": "Confirm current specials — official site does not list happy-hour prices",
@@ -2624,6 +2637,7 @@
   },
   {
     "name": "Loco Pez (Fishtown)",
+    "cuisine": "Mexican",
     "address": "2401 E Norris St, Philadelphia, PA 19125",
     "neighborhood": "Fishtown",
     "description": "Outdoor seating available.\n* Confirm current specials — official site does not list happy-hour prices",
@@ -2765,6 +2779,7 @@
   },
   {
     "name": "Cuba Libre",
+    "cuisine": "Cuban",
     "address": "10 S 2nd St, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Happy hour is bar seating only\n* Beautiful interior.\n* Deals (Sun 12 PM–4 PM; Mon–Fri 4 PM–7:30 PM): Bar-only HH: $7 classic mojito/caipirinha/Cuba Libre/sangria/house wine/beer/single-liquor cocktails, $8 flavored mojitos; tapas $6.50–$8 (guacamole, yuca fries, tostones, croquetas, empanadas, wings, meatballs) and $10 churrasco burger.",
@@ -3341,6 +3356,7 @@
   },
   {
     "name": "Tuna Bar",
+    "cuisine": "Sushi",
     "address": "205 Race St, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Very little food options — not sure, need to see.\n* Confirm current specials — official site does not list happy-hour prices",
@@ -3479,6 +3495,7 @@
   },
   {
     "name": "Village Whiskey",
+    "cuisine": "Burgers",
     "address": "118 S 20th St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Outdoor seating, good shrimp.\n* Deals (Sun–Fri 4 PM–6 PM): Sun–Fri 4–6 PM: $5 beer (Garage Beer, Half Acre Daisy Cutter), $8 wine (EOS Sauvignon Blanc / Pinot Noir), $9 cocktails (It's Always Sunny, Rose Gold, Orange Line, NY Sour); snacks $6 (hot chicken slider, pulled pork slider, Caesar, deviled eggs, fried pickles) or $8 (pimento cheese dip, duck fat cheddar fries).",
@@ -3903,6 +3920,7 @@
   },
   {
     "name": "Amada Restaurant",
+    "cuisine": "Spanish tapas",
     "address": "217-219 Chestnut St, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Deals (Sun–Fri 4:30 PM–6:30 PM): Sun–Fri 4:30–6:30 PM at the bar (July 2026 HH PDF): $9 sangria, $10 cocktails, $8 vino, $6 Mahou draft; tapas include picada $6, patatas bravas $7, tortilla $8, croquetas $9, padróns $9, pinchos de pollo $10, dátiles $11, gambas al ajillo $12, charcutería $14, quesos $15.",
@@ -4252,6 +4270,7 @@
   },
   {
     "name": "Barcelona Wine Bar",
+    "cuisine": "Spanish tapas",
     "address": "1709 East Passyunk Avenue, Philadelphia, PA 19148",
     "neighborhood": "East Passyunk",
     "description": "Outdoor seating, cool people go here.\n* Deals (Mon–Fri 4 PM–6 PM): Mon–Fri 4–6 PM (Feb 26, 2026 Passyunk HH PDF): 50% off all sherries and bottles of sparkling; La Nevera Rioja glass/porrón $24; mini cocktails (chamomile cosmo, espresso martini, dirty martini, Richmond gimlet) price unconfirmed on PDF; snacks include olives/albondigas/cazuela/croquetas/bravas/montadito (pick 1 $5.50 / 2 $10 / 3 $14.50) and manchego-serrano charcuterie $13.50. Mondays also half-off bottles 4–11 PM.",
@@ -4653,6 +4672,7 @@
   },
   {
     "name": "Han Dynasty",
+    "cuisine": "Sichuan",
     "address": "110 Chestnut St, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Old City Sichuan flagship (not University City or other Han Dynasty locations). Good for groups; dramatic high-ceiling interior and full bar. Hours on the official location page are dining hours, not happy hour. Moved from 123 Chestnut to 110 Chestnut.\n* Confirm current specials — official site does not list happy-hour prices",
@@ -4729,6 +4749,7 @@
   },
   {
     "name": "Oyster House",
+    "cuisine": "Seafood",
     "address": "1516 Sansom St, Philadelphia, PA 19102",
     "neighborhood": "Rittenhouse",
     "description": "Happy hour is bar seating only\n* Bar area only; no happy-hour reservations. Closed Sunday and Monday. Center City seafood institution at 1516 Sansom St.\n* Deals (Tue–Fri 4 PM–6 PM): $2 oysters; snacks and drink specials (snack and drink prices unconfirmed on the official site).",
@@ -4785,6 +4806,7 @@
   },
   {
     "name": "El Rey",
+    "cuisine": "Mexican",
     "address": "2013 Chestnut St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "STARR Mexican cantina inspired by Puebla and Veracruz. Busy after-work crowd in Rittenhouse.\n* Deals (Mon–Fri 4 PM–6 PM): Food: esquites popcorn $2; chips & salsa $4; street corn $4; botana small bites $4; veggie taco $4; chicken taco $4; carnitas taco $4; veggie empanadas $6; fish taco $6; eggplant enchilada $6; quesadilla gringa $6; spiced wings $8. Drinks: Tecate cans $4; Modelo Especial draft $5; classic margarita $6; flavored margarita del dia $6.",
@@ -4929,6 +4951,7 @@
   },
   {
     "name": "La Chinesca",
+    "cuisine": "Mexican-Chinese",
     "address": "1036 Spring Garden St, Philadelphia, PA 19123",
     "neighborhood": "Northern Liberties",
     "description": "Mexicali / Chinese-Mexican fusion in a former Jiffy Lube, with indoor bar plus front and back patios. Official happy hour is Sun–Fri 4–6 PM (not Saturday). Separate late-night food menu Fri–Sat 10–11 PM is not labeled as happy hour.\n* Deals (Sun–Fri 4 PM–6 PM): Happy-hour food: fried wonton chips $6; chilled cucumbers $7; mushroom taco $6; carnitas taco $6; fish taco al pastor $6; chorizo & shrimp egg roll $6. Drink specials listed without prices (Tecate, Citywide Tecate + tequila, sauvignon blanc / rosé / red blend, Fill It Regular, On Empty, spiked blood orange lemonade, Gear Shift) — drink prices unconfirmed.",
@@ -5217,6 +5240,7 @@
   },
   {
     "name": "Via Locusta",
+    "cuisine": "Italian",
     "address": "1723 Locust St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Intimate handmade-pasta room just off Rittenhouse Square. Resy notes happy hour is walk-in only. Weekend brunch 10 AM–3 PM.\n* Deals (Sun–Sat 4 PM–6 PM): Drinks: cocktails $7 (Bergamot gin / Earl Grey / lemon; Valencia vodka / blood orange / lime; Tuscan Spritz; Picante Limon); mocktail Il Imposture $5; beer $5 daily selection; wine $7 white / rosé / red. Food: chicken spiedini $6; pork, shrimp, or shishito spiedini $5; octopus or salmon spiedini $7; grilled fig toast $8; caprese toast $8; wild mushroom toast $7; fritto misto $10; panzerotti $7; mozzarella fritta $7; zucchini fritta $7; focaccia $7; Milanese sandwich $8; leek agnolotti $9; meatballs $8.",
@@ -5687,6 +5711,7 @@
   },
   {
     "name": "The Dandelion",
+    "cuisine": "British pub",
     "address": "124 S 18th St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "STARR British pub just off Rittenhouse Square; fish & chips, Welsh rarebit, afternoon tea weekdays 3–5 PM.\n* Deals (Mon–Fri 4:30 PM–6:30 PM): Nosh: Welsh rarebit $5; deviled eggs $5; spiced bar nuts $5; warm marinated olives $5; oysters on the half shell $2.50 each; smoked cod spread $8; pickled beetroot $7; chip butty $8. Drinks: imperial pint draughts $7; house red / white / sparkling $8; Gin-Gin Mule $8; English Paloma $8; Rose Mimosa $8.",
@@ -5755,6 +5780,7 @@
   },
   {
     "name": "Standard tap",
+    "cuisine": "Gastropub",
     "address": "901 N 2nd St, Philadelphia, PA 19123",
     "neighborhood": "Northern Liberties",
     "description": "HH: Mon-Fri 4-6 PM ($6 small plates, $6 drafts, $10 wines, $10 daily special cocktails)\n* Description: The cool-looking building in Northern libs, outdoor and indoor seating",
@@ -6208,6 +6234,7 @@
   },
   {
     "name": "DanDan Rittenhouse",
+    "cuisine": "Sichuan",
     "address": "126 S 16th St, Philadelphia, PA 19102",
     "neighborhood": "Rittenhouse",
     "description": "Sichuan and Taiwanese restaurant with a full bar. Official happy hour is daily 4–6 PM, 1st floor only, excluding holidays. Closed Thanksgiving.",
@@ -6493,6 +6520,7 @@
   },
   {
     "name": "Monks bar",
+    "cuisine": "Belgian beer bar",
     "address": "264 S 16th St, Philadelphia, PA 19102",
     "neighborhood": "Rittenhouse",
     "description": "HH: They do not have one",
@@ -6594,6 +6622,7 @@
   },
   {
     "name": "Louie Louie",
+    "cuisine": "French",
     "address": "3611 Walnut St, Philadelphia, PA 19104",
     "neighborhood": "University City",
     "description": "French-inspired American bistro in University City (Fearless Restaurants). Happenings page still labels Wednesday 6–9 PM as Girls Night Out extended HH. 3611 Walnut St, (267) 805-8585.\n* Deals (Sun 10 AM–3 PM; Mon–Tue 3 PM–6 PM; Wed 3 PM–close; Thu–Fri 3 PM–6 PM): Happiest Hour Mon–Fri 3–6 PM at bar, lounge, and select outdoor tables (first-come). Official 8.5.26 PDF: $9 cocktails (Dear Daiquiri, Botanique, Rose Spritz), red/white sangria, $8 wine by the glass (sparkling, chardonnay, pinot grigio, cabernet, pinot noir), $6 seasonal beer. Food: crispy artichokes $10, truffled frites $8, onion soup gratinée $10, potato chips $8, marinated olives $8, pickled vegetables $12, short rib poutine $10, macaroni au gratin $8, moules $12, tuna tartare $14, steak tartare $12; Girl Dinner $25 (Caesar, truffled frites, dirty martini). Wednesday: 3 PM to close. Sunday brunch HH 10 AM–3 PM at the bar: $9 mimosa/rosé spritz/bloody mary/sangria, $6 beer, $8 wine; brunch plates include mini shrimp & grits $14, mini bananas foster waffle $12, breakfast sandwich for two $17. Martini Monday: $7 martinis with any entrée (not the 3–6 HH window).",
@@ -6889,6 +6918,7 @@
   },
   {
     "name": "Middle child",
+    "cuisine": "Sandwiches",
     "address": "248 S 11th St, Philadelphia, PA 19107 (Center City shop). Clubhouse is 1232 N Front St, Fishtown.",
     "neighborhood": "Midtown",
     "description": "center city sandwich shop\n* https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
@@ -6964,6 +6994,7 @@
   },
   {
     "name": "Fork restaurant",
+    "cuisine": "New American",
     "address": "306 Market Street, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Old City flagship of James Beard winner Ellen Yin / High Street Hospitality since 1997. Seasonal Mid-Atlantic American; brunch Sat–Sun 11 AM–3 PM. 306 Market St, (215) 625-9425.",
@@ -7563,6 +7594,7 @@
   },
   {
     "name": "El techo",
+    "cuisine": "Rooftop bar",
     "address": "1830 Ludlow Street, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "Retractable-roof 11th-floor taqueria above Condesa; 21+, walk-ins weekdays, brunch reservations Sunday. El Techo hours: Mon–Tue closed; Wed–Thu 4–11 PM; Fri 4 PM–12 AM; Sat 12 PM–12 AM; Sun brunch 11 AM–4 PM. 1830 Ludlow St. Instagram @eltechophilly.\n* https://www.instagram.com/reel/DVtArG0lE58/?igsh=czFibDVjeG9yc3l1\n* Deals (Wed–Fri 4 PM–7 PM): Official Condesa & El Techo HH page: drinks — 16 oz Negra Modelo or Modelo Especial draft $6; natural wines (red/white/sparkling/rosé) $7; tequila margarita $9; mezcal margarita $12; specialty cocktail feature $10. Botanas — alitas de pollo $9, flautas $7, guacamole $9, chicharrónes $7, elote $7, tamale $7, quesadillas $7. Shared program listed Mon–Fri; El Techo itself is closed Mon–Tue so rooftop HH is Wed–Fri. Mezcal Monday (1/2 price mezcal) and Taco Tuesday ($6 mix-and-match carnitas/pescado/brisket/coliflor) apply downstairs at Condesa.",
@@ -7732,6 +7764,7 @@
   },
   {
     "name": "El Vez",
+    "cuisine": "Mexican",
     "address": "121 S. 13th Street, Philadelphia, PA 19107",
     "neighborhood": "Midtown",
     "description": "Stephen Starr Mex-Eclectic spot with a large tequila list, vintage photo booth, and a lively party vibe. 121 S. 13th St; (215) 928-9800.\n* Deals (Mon–Fri 3 PM–5 PM): Official Happy Hour tab (Mon–Fri 3:00–5:00 PM): Classic El Vez, Frozen Blood Orange, and Pink Cadillac margaritas $9 glass / $36 pitcher; El Vez Colada $9; Zero-Proof Cucumber Fizz $5 (add Corazon tequila +$4); Sauvignon Blanc or Merlot $8; all draft beer $5; Michelada $6 (Modelo Especial / Modelo Negra). Food: Taco Americano $4; Cheese Crisp $7 (add chicken, carnitas, or short rib +$4); Carnitas Taquitos $9; Salsa con Queso $10; Tlayuda de Camarón $14; Birria Asada Fries $14.",
@@ -8357,6 +8390,7 @@
   },
   {
     "name": "Stratus Lounge",
+    "cuisine": "Rooftop bar",
     "address": "433 Chestnut Street, Philadelphia, PA 19106",
     "neighborhood": "Old City",
     "description": "Kimpton Hotel Monaco rooftop lounge above Independence Park / Liberty Bell views. Current hours: Thursday 5 PM–12 AM, Friday 5 PM–2 AM, Saturday 8 PM–2 AM; food until 10 PM Thu–Sat. Reservations recommended. 433 Chestnut St.",
@@ -8447,6 +8481,7 @@
   },
   {
     "name": "Kanella Grill",
+    "cuisine": "Greek",
     "address": "1001 Spruce St, Philadelphia, PA 19107",
     "neighborhood": "Midtown",
     "description": "Greek place, outdoor seating with lots of sun\n* Emily recommends. Good dips",
@@ -8491,6 +8526,7 @@
   },
   {
     "name": "Mish Mish",
+    "cuisine": "Mediterranean",
     "address": "1046 Tasker St, Philadelphia, PA 19148",
     "neighborhood": "East Passyunk",
     "description": "Chef Alex Tewfik Mediterranean / natural-wine spot. Dinner and drinks Thursday–Monday from 5 PM; closed Tuesday–Wednesday; walk-ins welcome. Instagram bio also lists Sunshine Hour 5–7 PM Th–M. 1046 Tasker St.\n* Deals (Sun–Mon 5 PM–7 PM; Thu–Sat 5 PM–7 PM): Official Sunshine Hour PDF: 5–7 PM, outside only, whenever it’s nice out, no reservations. Snacks: olives and citrus $8, french fries $6, spicy grilled cheese $12. Wine $11 (Rimbert rosé, Carolina Gatti prosecco, Casal de Ventozela orange, Latium Morini white). Sonics $8 (Cardamaro, Sirene, Amara). Beer $9 (Mish Mish pilsner; Cartesian Vestigial Feeling IPA). Spritzes $11 (Pamplemousse, Aperol, Lillet). French Champagne & French Fries $99 (bottle of Champagne + all-you-can-eat fries).",
@@ -8620,6 +8656,7 @@
   },
   {
     "name": "Friday Saturday Sunday",
+    "cuisine": "New American",
     "address": "261 S 21st St, Philadelphia, PA 19103",
     "neighborhood": "Rittenhouse",
     "description": "",
@@ -8648,6 +8685,7 @@
   },
   {
     "name": "Kalaya",
+    "cuisine": "Thai",
     "address": "4 W Palmer St, Philadelphia, PA 19122",
     "neighborhood": "Kensington",
     "description": "",
@@ -8662,6 +8700,7 @@
   },
   {
     "name": "Vernick Fish",
+    "cuisine": "Seafood",
     "address": "1 N 19th St (One N. 19th Street), Philadelphia, PA 19103",
     "neighborhood": "Fairmount",
     "description": "James Beard chef Greg Vernick’s American oyster bar in Four Seasons Hotel Philadelphia at Comcast Center. Bar walk-ins from 4:30 PM daily; dinner 5–10 PM. Smart-casual dress code. One N. 19th St; (215) 419-5055.\n* Deals (Sun–Thu 4:30 PM–6:30 PM): unconfirmed. Social Hour / specially priced selections are advertised Sunday–Thursday 4:30–6:30 PM at the bar and lounge; the menus page does not list Social Hour item prices. Do not treat the $49 weekday lunch prix fixe as happy hour.",
@@ -9034,6 +9073,7 @@
   },
   {
     "name": "Dock Street South",
+    "cuisine": "Brewery",
     "address": "2118 Washington Ave, Philadelphia, PA 19146",
     "neighborhood": "Point Breeze",
     "description": "Deals (Tue–Fri 4 PM–6 PM): $1 off draught beers · $10 cocktail of the week · discounted snacks and pizza.",
@@ -9416,6 +9456,7 @@
   },
   {
     "name": "Le Virtù",
+    "cuisine": "Italian",
     "address": "1927 E Passyunk Ave, Philadelphia, PA 19148",
     "neighborhood": "East Passyunk",
     "description": "Deals (Sun–Fri 5 PM–7 PM): Happy hour every day but Saturday (official site / Instagram). Abruzzese Italian; outdoor dining.",
@@ -10656,6 +10697,7 @@
   },
   {
     "name": "Human Robot Girard",
+    "cuisine": "Brewery",
     "address": "2711 W Girard Ave, Philadelphia, PA 19130",
     "neighborhood": "Brewerytown",
     "description": "Human Robot taproom on Girard Avenue in Brewerytown. This is not the South Philly Human Robot pin.",
@@ -10755,6 +10797,7 @@
   },
   {
     "name": "Sampan",
+    "cuisine": "Pan-Asian",
     "address": "124 S 13th St, Philadelphia, PA 19107",
     "neighborhood": "Midtown",
     "description": "Schulson Collective pan-Asian small plates on 13th Street, a few doors from Prunella. Graffiti Bar is the enclosed patio in the alley behind it.\n* Deals (daily 4 PM–7 PM): official location page lists happy hour every day 4–7. Item prices are not on that page.",
