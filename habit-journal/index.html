@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v79 -->
+  <!-- build: hj-today-version-v80 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -129,6 +129,31 @@
       color: var(--ink);
     }
     .nav-row { display: flex; align-items: center; gap: 6px; }
+    .settings-cog {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .settings-cog svg { width: 18px; height: 18px; }
+    .plot-default-habits {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow: auto;
+      margin: 8px 0 12px;
+    }
+    .plot-default-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+    }
     .nav-btn {
       min-width: var(--tap);
       min-height: 36px;
@@ -3377,6 +3402,9 @@
     <div class="topbar-inner">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <h1>Habit Journal</h1>
+      <button type="button" class="nav-btn settings-cog" id="appSettingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <div class="nav-row" id="topNav"></div>
     </div>
   </header>
@@ -3510,6 +3538,44 @@
     </div>
   </div>
 
+  <div class="habit-edit-sheet" id="plotSettingsSheet" hidden role="dialog" aria-modal="true" aria-labelledby="plotSettingsTitle">
+    <div class="habit-edit-backdrop" id="plotSettingsBackdrop"></div>
+    <div class="habit-edit-panel" style="max-height:88vh;overflow:auto">
+      <div class="habit-edit-head">
+        <h2 id="plotSettingsTitle">Settings</h2>
+        <button type="button" class="habit-edit-close" id="plotSettingsClose" aria-label="Close">×</button>
+      </div>
+      <p class="hint">Plot default is what Stats → Plot opens to each time you launch the app.</p>
+      <label class="habit-edit-field">
+        <span>Plot default · category</span>
+        <select id="plotDefaultCategory"></select>
+      </label>
+      <div class="habit-edit-field">
+        <span>Habits on the plot</span>
+        <div class="plot-default-habits" id="plotDefaultHabits"></div>
+      </div>
+      <label class="habit-edit-field">
+        <span>Range</span>
+        <select id="plotDefaultRange"></select>
+      </label>
+      <label class="habit-edit-field">
+        <span>Y-axis</span>
+        <select id="plotDefaultYaxis">
+          <option value="percent">Percent</option>
+          <option value="raw">Numbers</option>
+        </select>
+      </label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultDaily" /> Show daily line</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa5" /> 5-day average (dots)</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa15" /> 15-day average (short dashes)</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa30" /> 30-day average (long dashes)</label>
+      <div class="habit-edit-actions">
+        <button type="button" class="btn btn-secondary btn-block" id="plotDefaultFromCurrent">Use what’s on the plot now</button>
+        <button type="button" class="btn btn-primary btn-block" id="plotDefaultSave">Save plot default</button>
+      </div>
+    </div>
+  </div>
+
   <div class="time-add-sheet" id="timeAddSheet" hidden role="dialog" aria-modal="true" aria-labelledby="timeAddTitle">
     <div class="time-add-backdrop" id="timeAddBackdrop"></div>
     <div class="time-add-panel">
@@ -3604,7 +3670,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v79 · Nov 11, 2026";
+  let habitJournalVersionText = "v80 · Nov 19, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3647,6 +3713,7 @@
   };
   const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
   const GRAPH_MA_KEY = "habit-journal-graph-ma";
+  const PLOT_DEFAULT_KEY = "habit-journal-plot-default";
   let timeAddContext = null;
   let timePadField = "h";
   let timePadHours = "";
@@ -3780,11 +3847,12 @@
       const raw = localStorage.getItem(GRAPH_MA_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
+      graphMa5 = !!parsed.ma5;
       graphMa15 = !!parsed.ma15;
       graphMa30 = !!parsed.ma30;
       graphHideDaily = !!parsed.hideDaily;
       graphYAxisRaw = !!parsed.yRaw;
-      if (!graphMa15 && !graphMa30) graphHideDaily = false;
+      if (!graphAnyMovingAvg()) graphHideDaily = false;
     } catch (e) { /* ok */ }
   }
 
@@ -3793,13 +3861,205 @@
       localStorage.setItem(
         GRAPH_MA_KEY,
         JSON.stringify({
+          ma5: !!graphMa5,
           ma15: !!graphMa15,
           ma30: !!graphMa30,
-          hideDaily: !!(graphHideDaily && (graphMa15 || graphMa30)),
+          hideDaily: !!(graphHideDaily && graphAnyMovingAvg()),
           yRaw: !!graphYAxisRaw,
         })
       );
     } catch (e) { /* ok */ }
+  }
+
+  function graphAnyMovingAvg() {
+    return !!(graphMa5 || graphMa15 || graphMa30);
+  }
+
+  function factoryPlotDefault() {
+    let yRaw = false;
+    try {
+      const old = JSON.parse(localStorage.getItem(GRAPH_MA_KEY) || "null");
+      if (old && old.yRaw) yRaw = true;
+    } catch (e) { /* ok */ }
+    return {
+      category: "fitness",
+      habitIds: [],
+      useNameMatch: true,
+      range: "30",
+      ma5: true,
+      ma15: true,
+      ma30: true,
+      showDaily: true,
+      yRaw: yRaw,
+      mode: "plot",
+    };
+  }
+
+  function readStoredPlotDefault() {
+    try {
+      const raw = localStorage.getItem(PLOT_DEFAULT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function resolvePlotCategory(id) {
+    if (!id || id === "all") return "all";
+    if (state.categories.some(function (c) { return c.id === id; })) return id;
+    return "all";
+  }
+
+  function isPushupOrSquatName(name) {
+    const n = String(name || "");
+    return /push[\s-]?ups?/i.test(n) || /squats?/i.test(n);
+  }
+
+  function resolvePlotDefaultHabitIds(def) {
+    const explicit = (def.habitIds || []).filter(function (id) {
+      return state.habits.some(function (h) { return h.id === id && !h.hidden; });
+    });
+    if (explicit.length && !def.useNameMatch) return explicit;
+    const cat = resolvePlotCategory(def.category);
+    let found = state.habits.filter(function (h) {
+      if (h.hidden || !isPushupOrSquatName(h.name)) return false;
+      return cat === "all" || h.category === cat;
+    });
+    if (!found.length) {
+      found = state.habits.filter(function (h) {
+        return !h.hidden && isPushupOrSquatName(h.name);
+      });
+    }
+    return found.map(function (h) { return h.id; });
+  }
+
+  function applyPlotDefault(def) {
+    const d = def || readStoredPlotDefault() || factoryPlotDefault();
+    graphCategory = resolvePlotCategory(d.category);
+    const ranges = graphRangeOptions();
+    graphRange = ranges.indexOf(d.range) >= 0 ? d.range : "30";
+    graphMa5 = d.ma5 !== false;
+    graphMa15 = !!d.ma15;
+    graphMa30 = !!d.ma30;
+    graphHideDaily = d.showDaily === false && graphAnyMovingAvg();
+    graphYAxisRaw = !!d.yRaw;
+    if (d.mode === "grid" || d.mode === "stats" || d.mode === "plot") graphsMode = d.mode;
+    graphSelectedIds = {};
+    resolvePlotDefaultHabitIds(d).forEach(function (id) {
+      graphSelectedIds[id] = true;
+      ensureGraphHabitColor(id);
+    });
+    graphUserToggled = true;
+  }
+
+  function plotDefaultFromForm() {
+    const catEl = document.getElementById("plotDefaultCategory");
+    const rangeEl = document.getElementById("plotDefaultRange");
+    const yEl = document.getElementById("plotDefaultYaxis");
+    const ids = [];
+    document.querySelectorAll("#plotDefaultHabits input[data-plot-default-habit]:checked").forEach(function (inp) {
+      ids.push(inp.getAttribute("data-plot-default-habit"));
+    });
+    return {
+      category: catEl ? catEl.value : "fitness",
+      habitIds: ids,
+      useNameMatch: false,
+      range: rangeEl ? rangeEl.value : "30",
+      ma5: !!(document.getElementById("plotDefaultMa5") && document.getElementById("plotDefaultMa5").checked),
+      ma15: !!(document.getElementById("plotDefaultMa15") && document.getElementById("plotDefaultMa15").checked),
+      ma30: !!(document.getElementById("plotDefaultMa30") && document.getElementById("plotDefaultMa30").checked),
+      showDaily: !!(document.getElementById("plotDefaultDaily") && document.getElementById("plotDefaultDaily").checked),
+      yRaw: !!(yEl && yEl.value === "raw"),
+      mode: "plot",
+    };
+  }
+
+  function fillPlotDefaultForm(def) {
+    const d = def || readStoredPlotDefault() || factoryPlotDefault();
+    const catEl = document.getElementById("plotDefaultCategory");
+    const rangeEl = document.getElementById("plotDefaultRange");
+    const yEl = document.getElementById("plotDefaultYaxis");
+    const habitsEl = document.getElementById("plotDefaultHabits");
+    if (catEl) {
+      let html = '<option value="all">All</option>';
+      state.categories.forEach(function (cat) {
+        html += '<option value="' + escapeHtml(cat.id) + '">' + escapeHtml(cat.label) + "</option>";
+      });
+      catEl.innerHTML = html;
+      catEl.value = resolvePlotCategory(d.category);
+    }
+    if (rangeEl) {
+      let html = "";
+      graphRangeOptions().forEach(function (range) {
+        html += '<option value="' + range + '">' + escapeHtml(graphRangeLabel(range)) + "</option>";
+      });
+      rangeEl.innerHTML = html;
+      rangeEl.value = graphRangeOptions().indexOf(d.range) >= 0 ? d.range : "30";
+    }
+    if (yEl) yEl.value = d.yRaw ? "raw" : "percent";
+    const daily = document.getElementById("plotDefaultDaily");
+    const ma5 = document.getElementById("plotDefaultMa5");
+    const ma15 = document.getElementById("plotDefaultMa15");
+    const ma30 = document.getElementById("plotDefaultMa30");
+    if (daily) daily.checked = d.showDaily !== false;
+    if (ma5) ma5.checked = d.ma5 !== false;
+    if (ma15) ma15.checked = !!d.ma15;
+    if (ma30) ma30.checked = !!d.ma30;
+    const selected = {};
+    resolvePlotDefaultHabitIds(d).forEach(function (id) { selected[id] = true; });
+    if (habitsEl) {
+      const cat = catEl ? catEl.value : "all";
+      let html = "";
+      state.habits.forEach(function (h) {
+        if (h.hidden) return;
+        if (cat && cat !== "all" && h.category !== cat) return;
+        html +=
+          '<label class="plot-default-check"><input type="checkbox" data-plot-default-habit="' +
+          escapeHtml(h.id) +
+          '"' +
+          (selected[h.id] ? " checked" : "") +
+          " />" +
+          escapeHtml(h.name) +
+          "</label>";
+      });
+      if (!html) html = '<p class="hint">No habits in this category.</p>';
+      habitsEl.innerHTML = html;
+    }
+  }
+
+  function openPlotSettings() {
+    fillPlotDefaultForm(readStoredPlotDefault() || factoryPlotDefault());
+    const sheet = document.getElementById("plotSettingsSheet");
+    if (sheet) sheet.hidden = false;
+    document.body.classList.add("habit-edit-open");
+  }
+
+  function closePlotSettings() {
+    const sheet = document.getElementById("plotSettingsSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("habit-edit-open");
+  }
+
+  function currentPlotAsDefault() {
+    const ids = [];
+    getGraphSelectedHabits(getPlotHabits()).forEach(function (h) {
+      ids.push(h.id);
+    });
+    return {
+      category: graphCategory || "all",
+      habitIds: ids,
+      useNameMatch: false,
+      range: graphRange,
+      ma5: !!graphMa5,
+      ma15: !!graphMa15,
+      ma30: !!graphMa30,
+      showDaily: !graphHideDaily,
+      yRaw: !!graphYAxisRaw,
+      mode: "plot",
+    };
   }
 
   function loadLayoutMode() {
@@ -3866,6 +4126,7 @@
   let graphColorSlotNext = 0;
   let logGraphHabitId = null;
   let graphRange = "30";
+  let graphCategory = "fitness";
   let graphUserToggled = false;
   let graphsMode = "plot";
   let statsSelectedHabitIds = [];
@@ -3876,6 +4137,7 @@
   let habitsListQuery = "";
   let habitsListCategory = "all";
   const HABITS_LIST_FILTER_KEY = "habit-journal-habits-list-filter";
+  let graphMa5 = false;
   let graphMa15 = false;
   let graphMa30 = false;
   let graphHideDaily = false;
@@ -4366,6 +4628,14 @@
     }
     state.prunedFactoryMeditation = true;
     save();
+  }
+
+  function getPlotHabits() {
+    return state.habits.filter(function (h) {
+      if (h.hidden) return false;
+      if (!graphCategory || graphCategory === "all") return true;
+      return h.category === graphCategory;
+    });
   }
 
   function getFilteredHabits(onlyVisible) {
@@ -5258,15 +5528,18 @@
     toast("Updated " + savedName);
   }
 
-  function renderCategoryFiltersHtml(onlyVisible) {
+  function renderCategoryFiltersHtml(onlyVisible, activeOverride) {
     const visibleCats = visibleFilterCategories(onlyVisible);
+    const active = activeOverride != null ? activeOverride : state.categoryFilter;
+    const plotScope = activeOverride != null;
     let html =
       '<div class="category-filters" data-only-visible="' +
       (onlyVisible ? "1" : "0") +
+      (plotScope ? '" data-filter-scope="plot' : "") +
       '" aria-label="Category filters. Use arrows or hold a category to reorder.">';
     html +=
       '<button type="button" class="chip' +
-      (state.categoryFilter === "all" ? " on" : "") +
+      (active === "all" ? " on" : "") +
       '" data-cat-filter="all">All</button>';
     visibleCats.forEach(function (cat, idx) {
       const count = state.habits.filter(function (h) {
@@ -5274,7 +5547,7 @@
         return h.category === cat.id;
       }).length;
       const accent = categoryAccentColor(cat.id);
-      const on = state.categoryFilter === cat.id;
+      const on = active === cat.id;
       const canLeft = idx > 0;
       const canRight = idx < visibleCats.length - 1;
       html +=
@@ -5401,6 +5674,11 @@
         if (suppressClick) {
           e.preventDefault();
           suppressClick = false;
+          return;
+        }
+        if (row.getAttribute("data-filter-scope") === "plot") {
+          graphCategory = btn.getAttribute("data-cat-filter") || "all";
+          renderGraphs();
           return;
         }
         state.categoryFilter = btn.getAttribute("data-cat-filter");
@@ -8456,6 +8734,7 @@
 
   function graphMaLookbackDays() {
     let days = 0;
+    if (graphMa5) days = Math.max(days, 5);
     if (graphMa15) days = Math.max(days, 15);
     if (graphMa30) days = Math.max(days, 30);
     return days;
@@ -8822,6 +9101,7 @@
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
+    ctx.lineCap = (opts && opts.lineCap) || "butt";
     ctx.setLineDash(dashed || (dash && dash.length) ? dash : []);
     ctx.beginPath();
     let started = false;
@@ -8999,7 +9279,7 @@
     const pointIndex = meta.domainStartIndex + visibleIndex;
     const refPoint = meta.seriesList[0].points[pointIndex];
     const label = refPoint && refPoint.day ? formatGraphInspectDay(refPoint.day.date) : "";
-    const includeMa = !!(meta.showMa15 || meta.showMa30);
+    const includeMa = !!(meta.showMa5 || meta.showMa15 || meta.showMa30);
     return {
       label: label,
       habits: meta.seriesList.map(function (series) {
@@ -9011,6 +9291,9 @@
           day: p && p.day ? p.day : null,
         };
         if (includeMa) {
+          if (meta.showMa5) {
+            row.ma5 = movingAverageRawAt(series.points, 5, pointIndex);
+          }
           if (meta.showMa15) {
             row.ma15 = movingAverageRawAt(series.points, 15, pointIndex);
           }
@@ -9087,7 +9370,7 @@
     const wrap = canvas.parentElement;
     if (!wrap) return;
     const info = graphInspectAtPlotX(meta, graphPlotXFromClient(canvas, clientX));
-    const showMaMetrics = !!(meta.showMa15 || meta.showMa30);
+    const showMaMetrics = !!(meta.showMa5 || meta.showMa15 || meta.showMa30);
     let html =
       '<div class="graph-chart-tooltip-date">' + escapeHtml(info.label) + "</div><ul>";
     info.habits.forEach(function (row) {
@@ -9104,6 +9387,12 @@
           '<span class="graph-chart-tooltip-metric">Day <b>' +
           escapeHtml(dayLabel) +
           "</b></span>";
+        if (meta.showMa5) {
+          html +=
+            '<span class="graph-chart-tooltip-metric">5d <b>' +
+            escapeHtml(graphInspectMaLabel(row.habit, row.ma5)) +
+            "</b></span>";
+        }
         if (meta.showMa15) {
           html +=
             '<span class="graph-chart-tooltip-metric">15d <b>' +
@@ -9434,7 +9723,7 @@
         return graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
       });
       const hideDaily =
-        graphHideDaily && graphSupportsMovingAvg(range) && (graphMa15 || graphMa30);
+        graphHideDaily && graphSupportsMovingAvg(range) && graphAnyMovingAvg();
       if (!hideDaily) {
         strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, pad.top, color, {
           lineWidth: 2,
@@ -9454,6 +9743,21 @@
       }
 
       if (graphSupportsMovingAvg(range)) {
+        if (graphMa5) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 5, axisBounds, graphYAxisRaw);
+          });
+          strokeNormSeries(
+            ctx,
+            maNorms,
+            domainStartIndex,
+            graphXForIndex,
+            plotH,
+            pad.top,
+            shadeHexColor(color, 1.2),
+            { dashed: true, dash: [1.2, 3.2], lineWidth: 2.6, lineCap: "round" }
+          );
+        }
         if (graphMa15) {
           const maNorms = series.points.map(function (p, pointIndex) {
             return graphMaDrawNorm(series, pointIndex, 15, axisBounds, graphYAxisRaw);
@@ -9498,6 +9802,7 @@
       plotH: plotH,
       w: w,
       h: h,
+      showMa5: !!(graphSupportsMovingAvg(range) && graphMa5),
       showMa15: !!(graphSupportsMovingAvg(range) && graphMa15),
       showMa30: !!(graphSupportsMovingAvg(range) && graphMa30),
     });
@@ -9517,16 +9822,17 @@
     root.querySelectorAll("[data-graph-ma]").forEach(function (btn) {
       btn.onclick = function () {
         const days = btn.getAttribute("data-graph-ma");
+        if (days === "5") graphMa5 = !graphMa5;
         if (days === "15") graphMa15 = !graphMa15;
         if (days === "30") graphMa30 = !graphMa30;
-        if (!graphMa15 && !graphMa30) graphHideDaily = false;
+        if (!graphAnyMovingAvg()) graphHideDaily = false;
         persistGraphMaPrefs();
         renderGraphs();
       };
     });
     root.querySelectorAll("[data-graph-hide-daily]").forEach(function (btn) {
       btn.onclick = function () {
-        if (!graphMa15 && !graphMa30) return;
+        if (!graphAnyMovingAvg()) return;
         graphHideDaily = !graphHideDaily;
         persistGraphMaPrefs();
         renderGraphs();
@@ -9563,14 +9869,14 @@
   function renderGraph(targetRoot) {
     const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
-    const habits = getFilteredHabits(true);
+    const habits = getPlotHabits();
     const selectedHabits = getGraphSelectedHabits(habits);
     const seriesList = selectedHabits.map(function (habit) {
       if (graphRange === "today") return buildGraphTodaySeries(habit);
       if (graphRange === "1") return buildGraph24hSeries(habit);
       const bounds = getGraphDateBounds(graphRange);
       const lookback =
-        graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)
+        graphSupportsMovingAvg(graphRange) && graphAnyMovingAvg()
           ? graphMaLookbackDays()
           : 0;
       return buildGraphSeries(habit, bounds.start, bounds.end, lookback);
@@ -9589,7 +9895,7 @@
           return false;
         });
 
-    let html = renderCategoryFiltersHtml(true);
+    let html = renderCategoryFiltersHtml(true, graphCategory);
     html +=
       '<p class="hint">' +
       (graphRange === "today"
@@ -9632,6 +9938,12 @@
       html += '<span class="graph-ma-label">Moving avg</span>';
       html +=
         '<button type="button" class="graph-range-btn graph-ma-btn' +
+        (graphMa5 ? " on" : "") +
+        '" data-graph-ma="5" aria-pressed="' +
+        graphMa5 +
+        '">5-day</button>';
+      html +=
+        '<button type="button" class="graph-range-btn graph-ma-btn' +
         (graphMa15 ? " on" : "") +
         '" data-graph-ma="15" aria-pressed="' +
         graphMa15 +
@@ -9642,7 +9954,7 @@
         '" data-graph-ma="30" aria-pressed="' +
         graphMa30 +
         '">30-day</button>';
-      if (graphMa15 || graphMa30) {
+      if (graphAnyMovingAvg()) {
         html +=
           '<button type="button" class="graph-range-btn graph-ma-btn' +
           (graphHideDaily ? " on" : "") +
@@ -9711,16 +10023,13 @@
           escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw, series.minRaw)) +
           "</span></div>";
       });
-      if (graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)) {
+      if (graphSupportsMovingAvg(graphRange) && graphAnyMovingAvg()) {
         html += '<p class="graph-ma-legend hint" style="margin:8px 0 0">';
-        if (graphMa15 && graphMa30) {
-          html +=
-            "15-day: short dashes · 30-day: longer, darker dashes";
-        } else if (graphMa15) {
-          html += "Short dashes: 15-day moving average";
-        } else {
-          html += "Longer darker dashes: 30-day moving average";
-        }
+        const maBits = [];
+        if (graphMa5) maBits.push("5-day: dots");
+        if (graphMa15) maBits.push("15-day: short dashes");
+        if (graphMa30) maBits.push("30-day: longer, darker dashes");
+        html += maBits.join(" · ");
         if (graphHideDaily) html += " · daily hidden";
         html += "</p>";
       }
@@ -11089,8 +11398,44 @@
     }
   }
 
+  function bindPlotSettings() {
+    const openBtn = document.getElementById("appSettingsBtn");
+    if (openBtn) openBtn.onclick = openPlotSettings;
+    const closeBtn = document.getElementById("plotSettingsClose");
+    if (closeBtn) closeBtn.onclick = closePlotSettings;
+    const backdrop = document.getElementById("plotSettingsBackdrop");
+    if (backdrop) backdrop.onclick = closePlotSettings;
+    const catEl = document.getElementById("plotDefaultCategory");
+    if (catEl) {
+      catEl.onchange = function () {
+        fillPlotDefaultForm(plotDefaultFromForm());
+      };
+    }
+    const fromCurrent = document.getElementById("plotDefaultFromCurrent");
+    if (fromCurrent) {
+      fromCurrent.onclick = function () {
+        fillPlotDefaultForm(currentPlotAsDefault());
+      };
+    }
+    const saveBtn = document.getElementById("plotDefaultSave");
+    if (saveBtn) {
+      saveBtn.onclick = function () {
+        const def = plotDefaultFromForm();
+        try {
+          localStorage.setItem(PLOT_DEFAULT_KEY, JSON.stringify(def));
+        } catch (e) { /* ok */ }
+        applyPlotDefault(def);
+        persistGraphMaPrefs();
+        closePlotSettings();
+        render();
+        toast("Plot default saved");
+      };
+    }
+  }
+
   loadLayoutMode();
-  loadGraphMaPrefs();
+  applyPlotDefault();
+  bindPlotSettings();
   storageOk = storageAvailable();
   if (!storageOk) {
     showStorageBanner("Data won't save in Private Browsing. Use Safari normal mode and always open the same URL (mathoose.github.io).");
