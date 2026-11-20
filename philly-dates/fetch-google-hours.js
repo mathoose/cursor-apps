@@ -7,9 +7,12 @@
  * Set: export GOOGLE_PLACES_API_KEY=your_key
  *
  * Usage:
- *   node fetch-google-hours.js           # fetch missing hours only
+ *   node fetch-google-hours.js --catalog drinks   # default catalog
+ *   node fetch-google-hours.js --catalog food --limit 50
+ *   node fetch-google-hours.js --catalog coffee --limit 50
  *   node fetch-google-hours.js --force   # re-fetch all
- *   node fetch-google-hours.js --limit 5 # test on first 5
+ *   node fetch-google-hours.js --only "Barcelona Wine Bar,Cantinas los caballitos" --force
+ *   node fetch-google-hours.js --catalog coffee --only-empty --limit 50
  *
  * Billing: each place uses ~2 calls (Text Search + Place Details with
  * regularOpeningHours). Google offers free monthly tiers; see:
@@ -18,15 +21,43 @@
 const fs = require('fs');
 const path = require('path');
 
-const PLACES_PATH = path.join(__dirname, 'places.json');
+const ROOT = path.join(__dirname, '..');
+const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const COFFEE_PATH = path.join(ROOT, 'coffee-drinks-map', 'coffee.json');
+const FOOD_PATH = path.join(ROOT, 'coffee-drinks-map', 'food.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DELAY_MS = 250;
 
 const args = process.argv.slice(2);
 const force = args.includes('--force');
+const onlyEmpty = args.includes('--only-empty');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : Infinity;
+const onlyIdx = args.indexOf('--only');
+const onlyNames = onlyIdx >= 0
+  ? args[onlyIdx + 1].split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+  : null;
+const catalogIdx = args.indexOf('--catalog');
+const catalogArg = catalogIdx >= 0 ? args[catalogIdx + 1] : 'drinks';
+
+function catalogPaths(cat) {
+  if (cat === 'coffee') {
+    return { placesPath: COFFEE_PATH, label: 'coffee-drinks-map/coffee.json' };
+  }
+  if (cat === 'food') {
+    return { placesPath: FOOD_PATH, label: 'coffee-drinks-map/food.json' };
+  }
+  return { placesPath: DRINKS_PATH, label: 'coffee-drinks-map/drinks.json' };
+}
+
+function hasStructuredHours(hours) {
+  if (!hours || typeof hours !== 'object') return false;
+  return DAY_NAMES.some(function(d) {
+    var h = hours[d];
+    return h && h.open && h.close;
+  });
+}
 
 function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
@@ -48,6 +79,26 @@ function normalizeUrl(url) {
 
 function isPdfUrl(url) {
   return /\.pdf(\?|#|$)/i.test(String(url || ''));
+}
+
+function applyGoogleLocation(place, details) {
+  if (!details || !details.location) return false;
+  var lat = Number(details.location.latitude);
+  var lng = Number(details.location.longitude);
+  if (!isFinite(lat) || !isFinite(lng)) return false;
+  var changed = false;
+  if (place.lat !== lat || place.lng !== lng) {
+    if (place.lat != null && place.lng != null) {
+      place.latPrevious = place.lat;
+      place.lngPrevious = place.lng;
+    }
+    place.lat = Math.round(lat * 1e6) / 1e6;
+    place.lng = Math.round(lng * 1e6) / 1e6;
+    place.locationSource = 'google';
+    place.locationSyncedAt = new Date().toISOString().slice(0, 10);
+    changed = true;
+  }
+  return changed;
 }
 
 function applyGoogleMapsFields(place, details) {
@@ -74,22 +125,29 @@ function applyGoogleMapsFields(place, details) {
   return changed;
 }
 
+function websiteFieldFor(place) {
+  return Object.prototype.hasOwnProperty.call(place, 'hh_menu') ? 'hh_menu' : 'website';
+}
+
 function applyGoogleWebsite(place, websiteUri) {
   var googleUrl = (websiteUri || '').trim();
   if (!googleUrl) return false;
-  var current = (place.hh_menu || '').trim();
+  var field = websiteFieldFor(place);
+  var current = (place[field] || '').trim();
   if (!current) {
-    place.hh_menu = googleUrl;
+    place[field] = googleUrl;
     place.websiteSource = 'google';
     return true;
   }
   if (normalizeUrl(current) === normalizeUrl(googleUrl)) return false;
-  if (isPdfUrl(current)) {
+  if (isPdfUrl(current) && field === 'hh_menu') {
     place.menu_pdf = current;
-  } else {
+  } else if (field === 'hh_menu') {
     place.hh_menuPrevious = current;
+  } else {
+    place.websitePrevious = current;
   }
-  place.hh_menu = googleUrl;
+  place[field] = googleUrl;
   place.websiteSource = 'google';
   return true;
 }
@@ -153,7 +211,7 @@ async function placeDetails(placeId) {
   var res = await fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(placeId), {
     headers: {
       'X-Goog-Api-Key': API_KEY,
-      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri,regularOpeningHours,currentOpeningHours,businessStatus,websiteUri'
+      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri,location,regularOpeningHours,currentOpeningHours,businessStatus,websiteUri'
     }
   });
   if (!res.ok) {
@@ -172,18 +230,25 @@ function buildQuery(place) {
 }
 
 async function fetchHoursForPlace(place) {
-  var query = buildQuery(place);
-  var found = await textSearch(query);
-  if (!found || !found.id) return { ok: false, reason: 'not found on Google: ' + query };
-
-  await sleep(DELAY_MS);
-  var details = await placeDetails(found.id);
+  var details;
+  var foundId = place.googlePlaceId ? String(place.googlePlaceId).replace(/^places\//, '') : '';
+  if (foundId) {
+    await sleep(DELAY_MS);
+    details = await placeDetails(foundId);
+  } else {
+    var query = buildQuery(place);
+    var found = await textSearch(query);
+    if (!found || !found.id) return { ok: false, reason: 'not found on Google: ' + query };
+    foundId = found.id;
+    await sleep(DELAY_MS);
+    details = await placeDetails(foundId);
+  }
   var roh = details.regularOpeningHours;
       if (!roh || !roh.periods || !roh.periods.length) {
     return {
       ok: false,
       reason: 'no opening hours on Google',
-      googlePlaceId: found.id,
+      googlePlaceId: foundId,
       websiteUri: details.websiteUri || '',
       displayName: details.displayName && details.displayName.text,
       details: details
@@ -191,12 +256,12 @@ async function fetchHoursForPlace(place) {
   }
 
   var hours = periodsToHours(roh.periods);
-  if (!hours) return { ok: false, reason: 'could not parse hours', googlePlaceId: found.id, details: details };
+  if (!hours) return { ok: false, reason: 'could not parse hours', googlePlaceId: foundId, details: details };
 
   return {
     ok: true,
     hours: hours,
-    googlePlaceId: found.id,
+    googlePlaceId: foundId,
     websiteUri: details.websiteUri || '',
     weekdayDescriptions: roh.weekdayDescriptions || [],
     displayName: details.displayName && details.displayName.text,
@@ -213,22 +278,39 @@ async function main() {
     console.error('  2. Enable "Places API (New)"');
     console.error('  3. Create an API key → restrict to Places API (New)');
     console.error('  4. export GOOGLE_PLACES_API_KEY=your_key');
-    console.error('  5. node fetch-google-hours.js');
+    console.error('  5. node fetch-google-hours.js --catalog food --limit 50');
     process.exit(1);
   }
 
+  if (catalogArg !== 'drinks' && catalogArg !== 'coffee' && catalogArg !== 'food') {
+    console.error('Unknown --catalog "' + catalogArg + '". Use drinks, coffee, or food.');
+    process.exit(1);
+  }
+  var catalog = catalogPaths(catalogArg);
+  var PLACES_PATH = catalog.placesPath;
+
   var places = JSON.parse(fs.readFileSync(PLACES_PATH, 'utf8'));
-  var todo = places.filter(function(p) {
-    return force || p.hoursSource !== 'google' || !p.hours;
-  });
+  var todo;
+  if (onlyNames && onlyNames.length) {
+    var set = {};
+    onlyNames.forEach(function(n) { set[n] = true; });
+    todo = places.filter(function(p) { return set[p.name]; });
+  } else {
+    todo = places.filter(function(p) {
+      if (onlyEmpty && hasStructuredHours(p.hours)) return false;
+      return force || p.hoursSource !== 'google' || !hasStructuredHours(p.hours);
+    });
+  }
   if (isFinite(limit)) todo = todo.slice(0, limit);
 
+  console.log('Catalog:', catalog.label);
   console.log('Fetching Google hours for', todo.length, 'of', places.length, 'places…');
 
   var ok = 0;
   var fail = 0;
   var websitesUpdated = 0;
   var mapsUpdated = 0;
+  var locationsUpdated = 0;
   for (var i = 0; i < todo.length; i++) {
     var place = todo[i];
     process.stdout.write('[' + (i + 1) + '/' + todo.length + '] ' + place.name + ' … ');
@@ -243,11 +325,13 @@ async function main() {
         }
         if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         if (applyGoogleMapsFields(place, result.details)) mapsUpdated++;
+        if (applyGoogleLocation(place, result.details)) locationsUpdated++;
         ok++;
         console.log('OK');
       } else {
         if (result.googlePlaceId) place.googlePlaceId = result.googlePlaceId;
         if (applyGoogleMapsFields(place, result.details)) mapsUpdated++;
+        if (applyGoogleLocation(place, result.details)) locationsUpdated++;
         if (applyGoogleWebsite(place, result.websiteUri)) websitesUpdated++;
         fail++;
         console.log('skip (' + result.reason + ')');
@@ -264,7 +348,7 @@ async function main() {
   }
 
   fs.writeFileSync(PLACES_PATH, JSON.stringify(places, null, 2) + '\n');
-  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated.');
+  console.log('\nDone. Saved', ok, 'with Google hours,', fail, 'skipped/failed,', websitesUpdated, 'website links updated,', mapsUpdated, 'address/map links updated,', locationsUpdated, 'pins updated.');
 }
 
 main().catch(function(e) {

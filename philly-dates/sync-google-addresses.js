@@ -4,6 +4,7 @@
  * Confirm addresses and Google Maps links via Places API (New).
  *
  * Updates address, googlePlaceId, and googleMapsUri from Google when they differ.
+ * For map pins (lat/lng), use sync-google-locations.js instead.
  *
  * Requires GOOGLE_PLACES_API_KEY (or GOOGLE_MAPS_API_KEY).
  *
@@ -12,11 +13,18 @@
  *   node sync-google-addresses.js --all        # text-search places missing an id
  *   node sync-google-addresses.js --dry-run
  *   node sync-google-addresses.js --limit 10
+ *   node sync-google-addresses.js --only "Barcelona Wine Bar,Cantina Los Caballitos"
+ *   node sync-google-addresses.js --catalog food --all --limit 50
+ *
+ * Also updates lat/lng from Google `location` when present (see sync-google-locations.js for bulk pin sync).
  */
 const fs = require('fs');
 const path = require('path');
 
-const PLACES_PATH = path.join(__dirname, 'places.json');
+const ROOT = path.join(__dirname, '..');
+const DRINKS_PATH = path.join(ROOT, 'coffee-drinks-map', 'drinks.json');
+const COFFEE_PATH = path.join(ROOT, 'coffee-drinks-map', 'coffee.json');
+const FOOD_PATH = path.join(ROOT, 'coffee-drinks-map', 'food.json');
 const API_KEY = process.env.GOOGLE_PLACES_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 const DELAY_MS = 250;
 
@@ -25,6 +33,22 @@ const dryRun = args.includes('--dry-run');
 const searchAll = args.includes('--all');
 const limitIdx = args.indexOf('--limit');
 const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1], 10) : Infinity;
+const onlyIdx = args.indexOf('--only');
+const onlyNames = onlyIdx >= 0
+  ? args[onlyIdx + 1].split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+  : null;
+const catalogIdx = args.indexOf('--catalog');
+const catalogArg = catalogIdx >= 0 ? args[catalogIdx + 1] : 'drinks';
+
+function catalogPaths(cat) {
+  if (cat === 'coffee') {
+    return { placesPath: COFFEE_PATH, label: 'coffee-drinks-map/coffee.json' };
+  }
+  if (cat === 'food') {
+    return { placesPath: FOOD_PATH, label: 'coffee-drinks-map/food.json' };
+  }
+  return { placesPath: DRINKS_PATH, label: 'coffee-drinks-map/drinks.json' };
+}
 
 function sleep(ms) {
   return new Promise(function(resolve) { setTimeout(resolve, ms); });
@@ -55,7 +79,7 @@ async function textSearch(query) {
     headers: {
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': API_KEY,
-      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.googleMapsUri'
+      'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.googleMapsUri,places.location'
     },
     body: JSON.stringify({
       textQuery: query,
@@ -81,7 +105,7 @@ async function placeDetails(placeId) {
   var res = await fetch('https://places.googleapis.com/v1/places/' + encodeURIComponent(id), {
     headers: {
       'X-Goog-Api-Key': API_KEY,
-      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri'
+      'X-Goog-FieldMask': 'id,displayName,formattedAddress,googleMapsUri,location'
     }
   });
   if (!res.ok) {
@@ -107,8 +131,29 @@ function pickMapsFields(found) {
     googlePlaceId: id || '',
     formattedAddress: (found.formattedAddress || '').trim(),
     googleMapsUri: (found.googleMapsUri || '').trim(),
-    displayName: found.displayName && found.displayName.text
+    displayName: found.displayName && found.displayName.text,
+    location: found.location
   };
+}
+
+function applyGoogleLocation(place, location) {
+  if (!location) return false;
+  var lat = Number(location.latitude);
+  var lng = Number(location.longitude);
+  if (!isFinite(lat) || !isFinite(lng)) return false;
+  var changed = false;
+  if (place.lat !== lat || place.lng !== lng) {
+    if (place.lat != null && place.lng != null) {
+      place.latPrevious = place.lat;
+      place.lngPrevious = place.lng;
+    }
+    place.lat = Math.round(lat * 1e6) / 1e6;
+    place.lng = Math.round(lng * 1e6) / 1e6;
+    place.locationSource = 'google';
+    place.locationSyncedAt = new Date().toISOString().slice(0, 10);
+    changed = true;
+  }
+  return changed;
 }
 
 async function googleMapsForPlace(place) {
@@ -150,6 +195,7 @@ function applyMapsFields(place, info) {
     place.googleMapsUri = info.googleMapsUri;
     changed = true;
   }
+  if (applyGoogleLocation(place, info.location)) changed = true;
   return { changed: changed, displayName: info.displayName };
 }
 
@@ -159,10 +205,23 @@ async function main() {
     process.exit(1);
   }
 
+  if (catalogArg !== 'drinks' && catalogArg !== 'coffee' && catalogArg !== 'food') {
+    console.error('Unknown --catalog "' + catalogArg + '". Use drinks, coffee, or food.');
+    process.exit(1);
+  }
+  var catalog = catalogPaths(catalogArg);
+  var PLACES_PATH = catalog.placesPath;
+
   var places = JSON.parse(fs.readFileSync(PLACES_PATH, 'utf8'));
   var todo = searchAll ? places.slice() : places.filter(function(p) { return p.googlePlaceId; });
+  if (onlyNames && onlyNames.length) {
+    var set = {};
+    onlyNames.forEach(function(n) { set[n] = true; });
+    todo = places.filter(function(p) { return set[p.name]; });
+  }
   if (isFinite(limit)) todo = todo.slice(0, limit);
 
+  console.log((dryRun ? '[dry-run] ' : '') + 'Catalog: ' + catalog.label);
   console.log((dryRun ? '[dry-run] ' : '') + 'Syncing Google Maps data for ' + todo.length + ' places…');
 
   var updated = 0;
@@ -206,7 +265,7 @@ async function main() {
   console.log('  unchanged:', unchanged);
   console.log('  skipped/not found:', notFound);
   console.log('  errors:', errors);
-  if (dryRun && updated) console.log('\nRe-run without --dry-run to save places.json');
+  if (dryRun && updated) console.log('\nRe-run without --dry-run to save ' + catalog.label);
 }
 
 main().catch(function(e) {

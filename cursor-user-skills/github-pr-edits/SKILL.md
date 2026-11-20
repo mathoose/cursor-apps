@@ -7,14 +7,24 @@ description: Edit files on GitHub via pull requests — one PR per change round,
 
 Use this skill when making **any code change destined for GitHub**. Do not push directly to the default branch. Do not reuse a branch after its PR has been merged.
 
+## User merges only (hard rule)
+
+**Never merge a pull request. Never push to `main` (or any default branch).** Agent-side merge/push does not update the live apps.
+
+- Always leave an **open pull request** for the user to merge themselves.
+- Push **only** the feature branch so that PR can exist (`git push -u origin <branch-name>`).
+- Do not run `gh pr merge`, `git merge` into `main`, `git push origin main`, or any other merge/land action.
+- Do not use GitHub / Origin tools to merge, squash, or close-as-merged.
+- In the summary, tell the user they must **merge the PR** for GitHub Pages / `mathoose.github.io` to update.
+
 ## Workflow (required)
 
 1. **Branch** — `git checkout <default-branch> && git pull && git checkout -b <branch-name>`
 2. **Edit** — Make the smallest correct change. Match existing patterns in the repo.
 3. **Version bump** — If the repo tracks versions (see below), bump every component you changed.
 4. **Commit** — Clear message; end with `Versions: …` when versions were bumped.
-5. **Push** — `git push -u origin <branch-name>`
-6. **Pull request** — Open a **new** PR to the default branch. One PR per round of work; if the previous PR merged, start a new branch and new PR.
+5. **Push the feature branch** — `git push -u origin <branch-name>` (not `main`).
+6. **Pull request** — Open a **new** PR to the default branch. One PR per round of work; if the previous PR merged, start a new branch and new PR. Leave it open — the user merges it.
 7. **Summarize** — End your message to the user with the **PR summary table** (see below).
 
 ## Version bumps
@@ -60,7 +70,7 @@ Always include this at the **end** of your response when you changed code:
 
 If multiple components changed in one PR, list them all in the Versions column.
 
-If nothing is open to merge, say that and list what was merged or pushed this turn.
+If nothing is open to merge, say so (the user may already have merged). Never merge it yourself.
 
 ## Commit message example
 
@@ -72,11 +82,14 @@ Versions: things-book 5
 
 ## Remind the user
 
+- They must **merge the PR themselves**. Agent merge/push does not update the live apps.
 - Changes go live only after the PR is **merged** to the default branch (and any deploy pipeline runs).
 - For `mathoose/cursor-apps`: live site is `https://mathoose.github.io/cursor-apps/` (GitHub Pages from **`main`**). App data on device (`localStorage` / IndexedDB) is not affected by deploys.
 
 ## Do not
 
+- Merge, squash, or land a PR — the user always merges.
+- Push to `main` / the default branch.
 - Skip version bumps for “small” fixes when the repo tracks versions.
 - Fold unrelated work into one PR without user approval.
 - Reuse a merged branch for new work — create a fresh branch and PR.

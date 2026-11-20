@@ -12,7 +12,8 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <!-- build: dont-forget-v5 -->
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body class="view-store">
   <header class="app-header" id="appHeader">
@@ -24,6 +25,7 @@
         <h1 class="view-title" id="headerTitle">Don't Forget</h1>
         <p class="view-subtitle" id="headerSubtitle">Snap where you left it</p>
       </div>
+      <button type="button" class="scope-pill" id="scopePill" hidden>Just me</button>
       <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
       </button>
@@ -33,6 +35,8 @@
     </div>
   </header>
 
+  <div class="looking-for-strip" id="lookingForStrip" hidden aria-live="polite"></div>
+
   <main>
     <!-- Store tab -->
     <section class="view active" id="viewStore" data-view="store">
@@ -40,13 +44,14 @@
         <button type="button" class="snap-btn" id="snapBtn">
           <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span class="snap-btn-label">Snap where I left it</span>
-          <span class="snap-btn-hint">Photo → what → where → done</span>
+          <span class="snap-btn-hint">Optional photo · what · where</span>
         </button>
+        <button type="button" class="log-text-btn" id="logNoPhotoBtn">Log without photo</button>
       </div>
       <p class="section-label">Recent</p>
       <div class="item-list" id="storeRecentList"></div>
       <div class="empty-state" id="storeEmpty" hidden>
-        <p>Nothing saved yet.<br />Tap the button above to log your first item.</p>
+        <p>Nothing saved yet.<br />Snap a photo or tap Log without photo.</p>
       </div>
     </section>
 
@@ -89,6 +94,7 @@
         <input type="text" id="saveWhere" placeholder="e.g. Bedroom desk, kitchen counter" autocomplete="off" enterkeyhint="done" list="locationSuggestions" />
         <datalist id="locationSuggestions"></datalist>
       </div>
+      <button type="button" class="btn btn-quiet sheet-photo-add" id="saveAddPhotoBtn" hidden>Add a photo</button>
       <div class="sheet-actions">
         <button type="button" class="btn btn-secondary" id="saveCancelBtn">Cancel</button>
         <button type="button" class="btn btn-primary" id="saveBtn" disabled>Save</button>
@@ -104,13 +110,33 @@
           <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
         </button>
         <h2 class="detail-title" id="detailTitle"></h2>
-        <span style="width:44px"></span>
+        <button type="button" class="icon-btn star-btn" id="detailStarBtn" aria-label="Mark looking for">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+        </button>
       </div>
       <div class="detail-photo-wrap" id="detailPhotoWrap">
         <span class="detail-photo-loading">Loading photo…</span>
       </div>
       <div class="detail-body">
         <div class="detail-badges" id="detailBadges"></div>
+        <div class="detail-move" id="detailMoveBlock">
+          <p class="section-label">Update location</p>
+          <div class="field">
+            <label class="field-label" for="detailWhere">Where is it now?</label>
+            <input type="text" id="detailWhere" placeholder="e.g. Kitchen drawer" autocomplete="off" enterkeyhint="done" list="locationSuggestions" />
+          </div>
+          <button type="button" class="btn btn-primary" id="detailMoveBtn" disabled>Save new location</button>
+        </div>
+        <div class="detail-history" id="detailHistory" hidden></div>
+        <div class="detail-comments" id="detailCommentsBlock">
+          <p class="section-label">Notes from everyone</p>
+          <div class="comment-list" id="detailCommentList"></div>
+          <div class="field">
+            <label class="field-label" for="detailComment">Add a note</label>
+            <input type="text" id="detailComment" maxlength="280" placeholder="e.g. Last seen in garage · not in garage" autocomplete="off" enterkeyhint="send" />
+          </div>
+          <button type="button" class="btn btn-secondary" id="detailCommentBtn" disabled>Post note</button>
+        </div>
         <div class="detail-actions">
           <button type="button" class="btn btn-danger" id="detailDeleteBtn">Delete</button>
           <button type="button" class="btn btn-secondary" id="detailCloseBtn2">Close</button>
@@ -124,6 +150,19 @@
     <div class="sheet">
       <div class="sheet-handle"></div>
       <h2 class="sheet-title">Settings</h2>
+      <div class="settings-section">
+        <h3>You</h3>
+        <div class="field">
+          <label class="field-label" for="settingsDisplayName">First name</label>
+          <input type="text" id="settingsDisplayName" maxlength="32" placeholder="How you sign updates" autocomplete="name" />
+        </div>
+        <p class="settings-note">Shared rooms show this name when you save or move an item.</p>
+      </div>
+      <div class="settings-section">
+        <h3>Shared rooms</h3>
+        <button type="button" class="btn btn-secondary" id="openRoomsBtn" style="width:100%">Rooms &amp; sharing</button>
+        <p class="settings-note" id="roomSyncNote"></p>
+      </div>
       <div class="settings-section">
         <h3>Data</h3>
         <div class="settings-btns">
@@ -152,11 +191,69 @@
     </div>
   </div>
 
+  <!-- Name gate -->
+  <div class="overlay open" id="nameOverlay" role="dialog" aria-modal="true" aria-labelledby="nameTitle">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="nameTitle">Your first name</h2>
+      <p class="sheet-copy">So your partner knows who moved the passports or logged something new.</p>
+      <div class="field">
+        <label class="field-label" for="nameInput">First name</label>
+        <input type="text" id="nameInput" maxlength="32" placeholder="e.g. Mike" autocomplete="name" enterkeyhint="done" />
+      </div>
+      <button type="button" class="btn btn-primary" id="nameSaveBtn" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Rooms overlay -->
+  <div class="overlay" id="roomsOverlay" role="dialog" aria-modal="true">
+    <div class="sheet sheet-tall">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="roomsTitle">Rooms</h2>
+      <p class="sheet-copy" id="roomsCopy">Share items with the same room code and PIN as Our Lists — but with its own data.</p>
+      <div id="roomsViewPrivate">
+        <button type="button" class="room-choice on" data-scope="private" id="pickPrivateBtn">
+          <strong>Just me</strong>
+          <span class="room-choice-meta">Private on this phone</span>
+        </button>
+        <div id="savedRoomsList"></div>
+        <button type="button" class="btn btn-primary" id="joinRoomBtn">Join or create a room</button>
+      </div>
+      <div id="roomsViewJoin" hidden>
+        <div class="field">
+          <label class="field-label" for="roomCodeInput">Room code</label>
+          <input id="roomCodeInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="HOME" enterkeyhint="go" />
+          <p class="field-hint">4–12 letters or numbers.</p>
+        </div>
+        <button type="button" class="btn btn-primary" id="roomCodeContinue">Continue</button>
+        <button type="button" class="btn btn-quiet" id="roomJoinBack">Back</button>
+      </div>
+      <div id="roomsViewPin" hidden>
+        <p class="sheet-copy" id="roomPinCopy"></p>
+        <div class="field">
+          <label class="field-label" for="roomPinInput" id="roomPinLabel">PIN</label>
+          <input id="roomPinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+        </div>
+        <div class="field" id="roomPinConfirmWrap" hidden>
+          <label class="field-label" for="roomPinConfirm">Confirm PIN</label>
+          <input id="roomPinConfirm" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
+        </div>
+        <p class="field-hint" id="roomPinHint"></p>
+        <button type="button" class="btn btn-primary" id="roomPinSubmit">Open room</button>
+        <button type="button" class="btn btn-quiet" id="roomPinBack">Back</button>
+      </div>
+      <button type="button" class="btn btn-secondary" id="roomsCloseBtn" style="width:100%;margin-top:12px">Done</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="config.js?v=5"></script>
+  <script src="logic.js?v=5"></script>
+  <script src="rooms.js?v=5"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

@@ -12,7 +12,9 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=15" />
 </head>
 <body>
   <header class="top">
@@ -25,7 +27,7 @@
         <p class="sub">Happy hours · tap a name for details</p>
       </div>
       <div class="top-actions">
-        <a class="btn btn-map" id="map-btn" href="https://www.google.com/maps/d/u/0/edit?mid=1FhoUT9uIqB7j7KwfxiN5pH7OlS8QENI&ll=39.939886441906246%2C-75.16844806228112&z=14" target="_blank" rel="noopener">Map</a>
+        <button type="button" class="btn btn-map" id="map-btn">Map</button>
         <button type="button" class="btn btn-icon" id="settings-btn" title="Settings" aria-label="Settings">⚙️</button>
       </div>
     </div>
@@ -206,12 +208,6 @@
           <label class="settings-row"><input type="checkbox" id="dark-mode-toggle" /> Night mode</label>
         </div>
         <div class="settings-section">
-          <h3>Map link</h3>
-          <input type="url" id="map-url-input" placeholder="Google My Maps URL" class="full" />
-          <p class="hint">Used by the Map button in the header.</p>
-          <button type="button" class="btn btn-primary" id="save-map-url">Save map link</button>
-        </div>
-        <div class="settings-section">
           <h3>Edit any place</h3>
           <select id="edit-any-select" class="full"><option value="">Choose a place…</option></select>
         </div>
@@ -233,7 +229,7 @@
             <button type="button" class="btn btn-secondary" id="import-btn">Import Excel</button>
           </div>
           <input type="file" id="import-file" accept=".xlsx,.xls" hidden />
-          <p class="hint">JSON saves favorites, tags, visited/ratings, and edits (works with Export all on Apps home). Excel updates names, times, and links. Menu photos stay on this device only.</p>
+          <p class="hint">JSON saves favorites, tags, visited/ratings, and edits on this device only (works with Export all on Apps home) — ratings are never part of the shared place list. Excel updates names, times, and links. Menu photos stay on this device only.</p>
           <div class="btn-row" style="margin-top:8px">
             <button type="button" class="btn btn-danger" id="clear-photos-btn">Clear photos</button>
           </div>
@@ -247,10 +243,66 @@
     </div>
   </div>
 
+  <div class="city-map-overlay" id="city-map-overlay" hidden>
+    <div class="city-map-bar">
+      <button type="button" class="modal-close" id="city-map-close" aria-label="Close map">&times;</button>
+      <div class="city-map-bar-main">
+        <h2 id="city-map-title">Map</h2>
+        <p class="city-map-count" id="city-map-count"></p>
+        <div class="city-map-search-wrap">
+          <input type="search" id="city-map-search" placeholder="Find a place on the map…" autocomplete="off" enterkeyhint="search" />
+          <div class="city-map-search-results" id="city-map-search-results" hidden></div>
+        </div>
+        <label class="city-map-filter"><input type="checkbox" id="map-only-open" /> Only show open</label>
+      </div>
+    </div>
+    <div class="city-map-legend" aria-label="Pin colors">
+      <span><i class="pin-dot specials"></i> Specials</span>
+      <span><i class="pin-dot open"></i> Open</span>
+      <span><i class="pin-dot closed"></i> Closed</span>
+    </div>
+    <div class="city-map-viewport" id="city-map-viewport">
+      <div id="city-map" class="city-map-leaflet" role="application" aria-label="Philadelphia map"></div>
+      <div class="city-map-here-bar" id="city-map-here-bar" hidden>
+        <div class="city-map-here-top">
+          <p class="city-map-here-label" id="city-map-here-label">~800 m · 10 min walk</p>
+          <button type="button" class="text-btn" id="city-map-here-clear">Clear</button>
+        </div>
+        <label class="city-map-here-slider">
+          <span>Walk</span>
+          <input type="range" id="city-map-here-slider" min="5" max="25" step="1" value="10" />
+          <span id="city-map-here-minutes">10 min</span>
+        </label>
+        <p class="city-map-here-count" id="city-map-here-count"></p>
+      </div>
+      <button type="button" class="city-map-here-btn" id="city-map-here" aria-label="Where am I">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+        <span>Where am I</span>
+      </button>
+      <div class="city-map-zoom">
+        <button type="button" id="city-map-in" aria-label="Zoom in">+</button>
+        <button type="button" id="city-map-out" aria-label="Zoom out">−</button>
+      </div>
+      <div class="city-map-toast" id="city-map-toast" role="status" aria-live="polite" hidden></div>
+    </div>
+    <div class="city-map-popup" id="city-map-popup" hidden>
+      <button type="button" class="modal-close" id="city-map-popup-close" aria-label="Close place">&times;</button>
+      <h3 id="city-map-popup-name"></h3>
+      <p class="city-map-popup-loc" id="city-map-popup-loc"></p>
+      <dl class="hours-dl">
+        <div><dt>Open</dt><dd id="city-map-popup-open"></dd></div>
+        <div><dt>Happy hour</dt><dd id="city-map-popup-hh"></dd></div>
+      </dl>
+      <button type="button" class="btn btn-primary" id="city-map-popup-details">Details</button>
+    </div>
+  </div>
+
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
-  <script src="app.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
+  <script src="app.js?v=20" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>

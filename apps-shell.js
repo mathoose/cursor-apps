@@ -36,6 +36,40 @@
       });
   }
 
+  function versionInteger(text) {
+    var n = String(text || "").split("·")[0].trim();
+    return /^\d+$/.test(n) ? n : "";
+  }
+
+  function assetVersion(url) {
+    var m = String(url || "").match(/[?&]v=(\d+)/);
+    return m ? m[1] : "";
+  }
+
+  function reloadIfStaleApp(versionText) {
+    var want = versionInteger(versionText);
+    if (!want) return false;
+    var stale = false;
+    document.querySelectorAll("script[src]").forEach(function (node) {
+      var src = node.getAttribute("src") || "";
+      if (!/(^|\/)app\.js(\?|$)/.test(src)) return;
+      var have = assetVersion(src);
+      if (have && have !== want) stale = true;
+    });
+    document.querySelectorAll("link[rel='stylesheet']").forEach(function (node) {
+      var href = node.getAttribute("href") || "";
+      if (!/(^|\/)styles\.css(\?|$)/.test(href)) return;
+      var have = assetVersion(href);
+      if (have && have !== want) stale = true;
+    });
+    if (!stale) return false;
+    var url = new URL(window.location.href);
+    if (url.searchParams.get("appv") === want) return false;
+    url.searchParams.set("appv", want);
+    window.location.replace(url.toString());
+    return true;
+  }
+
   function showAppVersion(versionText) {
     if (!versionText) return;
     if (document.querySelector(".app-version")) return;
@@ -71,6 +105,7 @@
 
     loadVersions().then(function (versions) {
       if (!versions || !versions.apps) return;
+      if (reloadIfStaleApp(versions.apps[appId])) return;
       showAppVersion(versions.apps[appId]);
     });
   });

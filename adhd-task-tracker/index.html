@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-<title>Focus — ADHD Task Tracker</title>
+<title>Focus</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Focus">
@@ -180,11 +180,16 @@
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 0 12px;
     border-bottom: 1px solid var(--border);
   }
   .quick-add-link input {
-    width: 100%;
+    flex: 1;
+    min-width: 0;
+    width: auto;
     border: none;
     outline: none;
     background: transparent;
@@ -193,6 +198,19 @@
     color: var(--text-muted);
   }
   .quick-add-link input::placeholder { color: var(--text-faint); }
+  .quick-link-paste {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    border-radius: 8px;
+    padding: 5px 9px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .quick-link-paste:active { background: var(--border); }
   .quick-add input {
     flex: 1; border: none; outline: none; background: transparent;
     padding: 10px 0; font-size: 1rem;
@@ -302,6 +320,70 @@
     font-size: 0.78rem;
     background: var(--surface);
     outline: none;
+  }
+  .quick-add-save-settings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px 10px;
+    border-top: 1px solid var(--border);
+  }
+  .quick-add-save-settings-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .quick-add-save-settings-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .quick-add-save-settings-hint {
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    line-height: 1.25;
+  }
+  .save-settings-toggle {
+    position: relative;
+    display: block;
+    width: 48px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+  .save-settings-toggle input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    margin: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .save-settings-toggle-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    background: var(--border-strong);
+    transition: background 0.2s;
+  }
+  .save-settings-toggle input:checked + .save-settings-toggle-track {
+    background: var(--accent);
+  }
+  .save-settings-toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s;
+    pointer-events: none;
+  }
+  .save-settings-toggle input:checked ~ .save-settings-toggle-thumb {
+    transform: translateX(20px);
   }
   .quick-add-filament {
     display: flex;
@@ -590,18 +672,42 @@
     gap: 8px;
     margin-bottom: 10px;
   }
+  .list-filter-row[hidden] {
+    display: none;
+  }
   .list-toolbar {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .list-toolbar .list-filter-row {
-    flex: 1;
+    flex: none;
+    width: 100%;
     min-width: 0;
     margin-bottom: 0;
   }
+  .category-filter-block {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    width: 100%;
+  }
+  .category-filter-block[hidden] { display: none !important; }
+  .category-filter-scroll {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 2px 0 4px;
+  }
+  .category-filter-scroll::-webkit-scrollbar { display: none; }
   .list-tag-btn {
+    align-self: flex-start;
     flex-shrink: 0;
     padding: 8px 12px;
     min-height: 36px;
@@ -1920,6 +2026,140 @@
     font-size: 0.9rem;
   }
 
+  .task-block { display: flex; flex-direction: column; }
+  .task-block.expanded .task {
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .task-expand-btn {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    margin-top: 0;
+    border: none;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .task-expand-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.15s;
+  }
+  .task-expand-btn.open svg { transform: rotate(180deg); }
+  .task-expand-btn:active { background: var(--border); color: var(--accent); }
+  .task-subtasks-panel {
+    padding: 6px 10px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+  .task-subtasks-heading {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+    margin-bottom: 6px;
+    padding-left: 2px;
+  }
+  .task-subtasks-list { display: flex; flex-direction: column; gap: 4px; }
+  .task-subtasks-hint {
+    margin: 4px 0 0;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+  .task-subtask-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .task-subtask-row.done { opacity: 0.65; }
+  .task-subtask-row.done .subtask-check {
+    background: var(--success);
+    border-color: var(--success);
+  }
+  .task-subtask-row.done .subtask-check svg { opacity: 1; }
+  .task-subtask-row.done .subtask-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+  }
+  .task-subtask-row.dragging {
+    opacity: 0.75;
+    box-shadow: var(--shadow);
+  }
+  .task-subtask-row.drag-slot-glow {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+  .task-subtask-drag {
+    width: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px 0;
+    flex-shrink: 0;
+    cursor: grab;
+    touch-action: none;
+  }
+  .task-subtask-drag span {
+    display: block;
+    height: 2px;
+    background: var(--text-faint);
+    border-radius: 1px;
+  }
+  .task-subtask-row .subtask-check {
+    width: 18px;
+    height: 18px;
+  }
+  .task-subtask-row .subtask-title {
+    flex: 1;
+    font-size: 0.85rem;
+    min-width: 0;
+    word-wrap: break-word;
+  }
+  .task-subtask-add {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .task-subtask-add input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.88rem;
+    padding: 4px 2px;
+  }
+  .task-subtask-add input::placeholder { color: var(--text-faint); }
+  .task-subtasks-list-draggable { position: relative; }
+  .subtask-drop-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 2;
+  }
+  .subtask-drop-indicator.on { opacity: 1; }
+
   /* ---------- Toast / undo ---------- */
   .toast {
     position: fixed;
@@ -1959,6 +2199,54 @@
   }
   .settings-label { font-weight: 500; font-size: 0.95rem; }
   .settings-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+  .settings-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .settings-toggle-row input { width: 18px; height: 18px; flex-shrink: 0; }
+  .completion-modal-task {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+    word-wrap: break-word;
+  }
+  .completion-modal-hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0 0 10px;
+  }
+  .completion-modal-body textarea {
+    width: 100%;
+    min-height: 88px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    resize: vertical;
+    font-family: inherit;
+  }
+  .completion-modal-body textarea:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  .task-completion-note {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+    font-style: italic;
+    word-wrap: break-word;
+  }
+  .pill.completion-note {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .list-manage-row {
     display: flex; align-items: center; gap: 8px;
     background: var(--surface);
@@ -2119,10 +2407,18 @@
   <section class="view active" id="view-lists" data-title="Lists">
     <div id="focusStripContainer"></div>
     <div class="list-tabs" id="listTabs"></div>
-    <div class="list-toolbar" id="listToolbar" hidden>
-      <div class="list-filter-row" id="listCategoryFilterRow" hidden>
+    <div class="list-toolbar" id="listToolbar">
+      <div class="list-filter-row">
+        <span class="list-filter-label">Sort</span>
+        <select id="listSortSelect" class="list-filter-select" aria-label="Sort tasks">
+          <option value="custom">Custom</option>
+          <option value="added-newest">Newest added</option>
+          <option value="added-oldest">Oldest added</option>
+        </select>
+      </div>
+      <div class="category-filter-block" id="listCategoryFilterRow" hidden>
         <span class="list-filter-label">Category</span>
-        <select id="listCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+        <div id="listCategoryFilter" class="category-filter-scroll" role="group" aria-label="Filter by category"></div>
       </div>
       <div class="list-filter-row" id="listAmsFilterRow" hidden>
         <span class="list-filter-label">AMS</span>
@@ -2139,6 +2435,7 @@
       </div>
       <div class="quick-add-link">
         <input id="listQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste" id="listQuickLinkPaste">From clipboard</button>
       </div>
       <div class="quick-add-priority" id="listQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -2169,6 +2466,17 @@
         <span class="quick-add-categories-label">Filament</span>
         <div class="filament-color-scroll" id="listFilamentColors"></div>
       </div>
+      <div class="quick-add-save-settings">
+        <div class="quick-add-save-settings-text">
+          <span class="quick-add-save-settings-label">Save settings</span>
+          <span class="quick-add-save-settings-hint">Keep priority &amp; categories for the next task</span>
+        </div>
+        <label class="save-settings-toggle" title="Keep priority and categories after adding">
+          <input type="checkbox" id="listQuickSaveSettings" aria-label="Save settings">
+          <span class="save-settings-toggle-track"></span>
+          <span class="save-settings-toggle-thumb"></span>
+        </label>
+      </div>
     </div>
     <div id="listTasks"></div>
   </section>
@@ -2176,9 +2484,19 @@
   <!-- Inbox -->
   <section class="view" id="view-inbox" data-title="Inbox">
     <p class="view-subtitle" id="inboxSubtitle" style="margin: 0 0 12px;">Brain dump — capture first, organize later.</p>
-    <div class="list-filter-row" id="inboxCategoryFilterRow" hidden>
-      <span class="list-filter-label">Filter by</span>
-      <select id="inboxCategoryFilter" class="list-filter-select" aria-label="Filter by category"></select>
+    <div class="list-toolbar" id="inboxToolbar">
+      <div class="list-filter-row">
+        <span class="list-filter-label">Sort</span>
+        <select id="inboxSortSelect" class="list-filter-select" aria-label="Sort inbox">
+          <option value="custom">Custom</option>
+          <option value="added-newest">Newest added</option>
+          <option value="added-oldest">Oldest added</option>
+        </select>
+      </div>
+      <div class="category-filter-block" id="inboxCategoryFilterRow" hidden>
+        <span class="list-filter-label">Category</span>
+        <div id="inboxCategoryFilter" class="category-filter-scroll" role="group" aria-label="Filter by category"></div>
+      </div>
     </div>
     <div class="quick-add-card">
       <div class="quick-add">
@@ -2189,6 +2507,7 @@
       </div>
       <div class="quick-add-link">
         <input id="inboxQuickLinkInput" type="url" placeholder="Paste link (optional)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="button" class="quick-link-paste" id="inboxQuickLinkPaste">From clipboard</button>
       </div>
       <div class="quick-add-priority" id="inboxQuickPriority">
         <span class="quick-add-priority-label">Priority</span>
@@ -2206,6 +2525,17 @@
         </div>
       </div>
       <div class="quick-add-categories" id="inboxQuickCategories"></div>
+      <div class="quick-add-save-settings">
+        <div class="quick-add-save-settings-text">
+          <span class="quick-add-save-settings-label">Save settings</span>
+          <span class="quick-add-save-settings-hint">Keep priority &amp; categories for the next task</span>
+        </div>
+        <label class="save-settings-toggle" title="Keep priority and categories after adding">
+          <input type="checkbox" id="inboxQuickSaveSettings" aria-label="Save settings">
+          <span class="save-settings-toggle-track"></span>
+          <span class="save-settings-toggle-thumb"></span>
+        </label>
+      </div>
     </div>
     <div id="inboxTasks"></div>
   </section>
@@ -2364,6 +2694,29 @@
   </div>
 </div>
 
+<!-- Complete task (optional comment) -->
+<div class="modal-backdrop" id="completionModal" role="dialog" aria-modal="true">
+  <div class="modal completion-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Complete task</div>
+      <button class="icon-btn" id="completionModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+    </div>
+    <div class="modal-body completion-modal-body">
+      <p class="completion-modal-task" id="completionModalTaskTitle"></p>
+      <p class="completion-modal-hint">Add an optional note about how it went — or leave blank and tap Complete.</p>
+      <label class="field-label" for="completionCommentInput">Completion note</label>
+      <textarea id="completionCommentInput" placeholder="Optional comment…" autocomplete="off"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="completionCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="completionConfirmBtn">Complete</button>
+    </div>
+  </div>
+</div>
+
 <!-- Settings modal -->
 <div class="modal-backdrop" id="settingsModal" role="dialog" aria-modal="true">
   <div class="modal">
@@ -2375,6 +2728,13 @@
       </button>
     </div>
     <div class="modal-body">
+      <div class="settings-row settings-toggle-row">
+        <div>
+          <div class="settings-label">Completion comment</div>
+          <div class="settings-sub">When you check off a task, show an optional note box.</div>
+        </div>
+        <input type="checkbox" id="completionCommentPromptInput" aria-label="Prompt for completion comment">
+      </div>
       <div class="settings-row">
         <div>
           <div class="settings-label">Export backup</div>
@@ -2765,9 +3125,7 @@ function isPrinterListName(name) {
 
 function isPrinterList(listId) {
   const list = state.lists.find(l => l.id === listId);
-  if (!list) return false;
-  if (list.printer) return true;
-  return isPrinterListName(list.name);
+  return !!(list && list.printer);
 }
 
 /** @deprecated use isPrinterList */
@@ -2785,7 +3143,7 @@ function shouldShowPrinterTaskFields(draft) {
 function ensurePrinterLists(lists) {
   return lists.map(function (l) {
     const next = Object.assign({}, l);
-    if (next.printer == null) next.printer = isPrinterListName(next.name);
+    next.printer = false;
     return next;
   });
 }
@@ -2803,7 +3161,10 @@ let state = {
   selectedDate: null,
   matrixFilter: 'all',
   categoryFilter: 'all',
-  amsFilter: 'all'
+  amsFilter: 'all',
+  taskSort: 'custom',
+  quickAddSaveSettings: { list: false, inbox: false },
+  completionCommentPrompt: true
 };
 
 const quickAddCategoryUi = {
@@ -2832,6 +3193,9 @@ let taskPhotoThumbCache = {};
 let taskPhotoThumbPending = {};
 let taskModalPhotoUrl = null;
 let pendingNewTaskPhotoBlob = null;
+let pendingCompletionTaskId = null;
+let expandedTaskSubtasks = new Set();
+let pendingSubtaskInputFocus = null;
 
 const FITNESS_SUGGESTIONS = ['Push-ups', 'Squats', 'Sit-ups', 'Plank (sec)', 'Pull-ups', 'Steps'];
 const BULLET_SUGGESTIONS = ['Coffee', 'Water (cups)', 'Greek yogurt', 'Fruit', 'Veggies', 'Snack'];
@@ -2903,7 +3267,9 @@ function loadState() {
     if (!raw) return;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return;
+    let clearedPrinterTag = false;
     if (Array.isArray(parsed.lists) && parsed.lists.length) {
+      clearedPrinterTag = parsed.lists.some(function (l) { return l && l.printer; });
       state.lists = ensurePrinterLists(ensureSystemLists(parsed.lists));
     }
     if (Array.isArray(parsed.categories)) state.categories = parsed.categories.map(normalizeCategoryDef);
@@ -2922,6 +3288,19 @@ function loadState() {
     if (parsed.amsFilter === 'all' || parsed.amsFilter === 'ams' || parsed.amsFilter === 'no-ams') {
       state.amsFilter = parsed.amsFilter;
     }
+    state.taskSort = normalizeTaskSort(parsed.taskSort);
+    if (parsed.quickAddSaveSettings && typeof parsed.quickAddSaveSettings === 'object') {
+      if (typeof parsed.quickAddSaveSettings.list === 'boolean') {
+        state.quickAddSaveSettings.list = parsed.quickAddSaveSettings.list;
+      }
+      if (typeof parsed.quickAddSaveSettings.inbox === 'boolean') {
+        state.quickAddSaveSettings.inbox = parsed.quickAddSaveSettings.inbox;
+      }
+    }
+    if (typeof parsed.completionCommentPrompt === 'boolean') {
+      state.completionCommentPrompt = parsed.completionCommentPrompt;
+    }
+    if (clearedPrinterTag) saveState();
   } catch (e) {
     console.error('Load failed:', e);
     showToast('Could not load saved data', { error: true });
@@ -2977,6 +3356,38 @@ function extractFirstUrl(text) {
   return isValidTaskLink(url) ? url : '';
 }
 
+function extractShareUrl(raw) {
+  const fromHttp = extractFirstUrl(raw);
+  if (fromHttp) return fromHttp;
+  const s = (raw || '').trim();
+  if (!s || /\s/.test(s)) return '';
+  if (/^(www\.)?[\w.-]+\.[a-z]{2,}([/?#].*)?$/i.test(s)) {
+    const bare = normalizeTaskLink(s);
+    return isValidTaskLink(bare) ? bare : '';
+  }
+  return '';
+}
+
+function pasteLinkInto(linkInput, titleInput) {
+  function applyText(text) {
+    const url = extractShareUrl(text);
+    if (!url) {
+      showToast('No link on the clipboard', { error: true });
+      return;
+    }
+    linkInput.value = url;
+    if (titleInput) titleInput.focus();
+    showToast('Link ready — add a title');
+  }
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(applyText).catch(function () {
+      showToast('Allow paste, or paste into the link field', { error: true });
+    });
+    return;
+  }
+  showToast('Paste into the link field', { error: true });
+}
+
 function getTaskLinkUrl(task) {
   if (!task) return '';
   if (task.link) {
@@ -3030,15 +3441,17 @@ function normalizeTask(t) {
     important: typeof t.important === 'boolean' ? t.important : null,
     completed: !!t.completed,
     completedAt: t.completedAt || null,
+    completionComment: typeof t.completionComment === 'string' ? t.completionComment : '',
     hasPhoto: !!t.hasPhoto,
     paid: !!t.paid,
     ams: !!t.ams,
     filamentColorIds: filamentColorIds,
     categoryIds: normalizeCategoryIds(t.categoryIds),
-    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map(s => ({
+    subtasks: Array.isArray(t.subtasks) ? t.subtasks.map((s, i) => ({
       id: s.id || uid(),
       title: s.title || '',
-      done: !!s.done
+      done: !!s.done,
+      sortOrder: typeof s.sortOrder === 'number' ? s.sortOrder : i
     })) : [],
     createdAt: t.createdAt || new Date().toISOString(),
     updatedAt: t.updatedAt || new Date().toISOString(),
@@ -3057,6 +3470,43 @@ function compareTaskOrder(a, b) {
     return (a.dueDate || '9999') < (b.dueDate || '9999') ? -1 : 1;
   }
   return a.createdAt < b.createdAt ? -1 : 1;
+}
+
+function normalizeTaskSort(value) {
+  if (value === 'added-newest' || value === 'added-oldest') return value;
+  return 'custom';
+}
+
+function taskAddedMs(task) {
+  const t = Date.parse(task && task.createdAt ? task.createdAt : '');
+  return Number.isNaN(t) ? 0 : t;
+}
+
+function compareTasksByTimeAdded(a, b, newestFirst) {
+  const diff = taskAddedMs(a) - taskAddedMs(b);
+  if (diff) return newestFirst ? -diff : diff;
+  if ((a.id || '') < (b.id || '')) return -1;
+  if ((a.id || '') > (b.id || '')) return 1;
+  return 0;
+}
+
+function sortTasksForView(tasks) {
+  const mode = normalizeTaskSort(state.taskSort);
+  if (mode === 'added-newest') {
+    return tasks.slice().sort((a, b) => compareTasksByTimeAdded(a, b, true));
+  }
+  if (mode === 'added-oldest') {
+    return tasks.slice().sort((a, b) => compareTasksByTimeAdded(a, b, false));
+  }
+  return sortTasksByOrder(tasks);
+}
+
+function syncTaskSortSelects() {
+  const value = normalizeTaskSort(state.taskSort);
+  ['listSortSelect', 'inboxSortSelect'].forEach((id) => {
+    const select = document.getElementById(id);
+    if (select) select.value = value;
+  });
 }
 
 function taskGroupKey(task) {
@@ -3139,6 +3589,7 @@ function moveTaskToIndex(taskId, newIndex) {
 }
 
 function canReorderTasksInView() {
+  if (normalizeTaskSort(state.taskSort) !== 'custom') return false;
   if (currentView === 'lists') {
     return state.categoryFilter === 'all' && state.amsFilter === 'all';
   }
@@ -3779,7 +4230,10 @@ function saveState() {
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter,
-      amsFilter: state.amsFilter
+      amsFilter: state.amsFilter,
+      taskSort: state.taskSort,
+      quickAddSaveSettings: state.quickAddSaveSettings,
+      completionCommentPrompt: state.completionCommentPrompt
     }));
   } catch (e) {
     if (e.name === 'QuotaExceededError') {
@@ -4022,14 +4476,80 @@ function updateTask(id, patch) {
   return t;
 }
 
-function toggleTask(id) {
-  const t = state.tasks.find(t => t.id === id);
-  if (!t) return;
-  t.completed = !t.completed;
-  t.completedAt = t.completed ? new Date().toISOString() : null;
+function completeTask(id, comment) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t || t.completed) return;
+  t.completed = true;
+  t.completedAt = new Date().toISOString();
+  t.updatedAt = new Date().toISOString();
+  t.completionComment = (comment || '').trim();
+  assignTaskToGroupEnd(t);
+  saveState();
+}
+
+function uncompleteTask(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t || !t.completed) return;
+  t.completed = false;
+  t.completedAt = null;
   t.updatedAt = new Date().toISOString();
   assignTaskToGroupEnd(t);
   saveState();
+}
+
+function toggleTask(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t) return;
+  if (t.completed) uncompleteTask(id);
+  else completeTask(id, '');
+}
+
+function openCompletionModal(taskId) {
+  const t = state.tasks.find(function (x) { return x.id === taskId; });
+  if (!t || t.completed) return;
+  pendingCompletionTaskId = taskId;
+  const titleEl = document.getElementById('completionModalTaskTitle');
+  const input = document.getElementById('completionCommentInput');
+  if (titleEl) titleEl.textContent = t.title || 'Untitled task';
+  if (input) input.value = t.completionComment || '';
+  openModal('completionModal');
+  setTimeout(function () {
+    if (input) input.focus();
+  }, 100);
+}
+
+function closeCompletionModal() {
+  pendingCompletionTaskId = null;
+  closeModal('completionModal');
+}
+
+function confirmCompletionModal() {
+  if (!pendingCompletionTaskId) {
+    closeCompletionModal();
+    return;
+  }
+  const input = document.getElementById('completionCommentInput');
+  const comment = input ? input.value : '';
+  const id = pendingCompletionTaskId;
+  closeCompletionModal();
+  completeTask(id, comment);
+  render();
+}
+
+function handleTaskCheckClick(id) {
+  const t = state.tasks.find(function (x) { return x.id === id; });
+  if (!t) return;
+  if (t.completed) {
+    uncompleteTask(id);
+    render();
+    return;
+  }
+  if (state.completionCommentPrompt !== false) {
+    openCompletionModal(id);
+    return;
+  }
+  completeTask(id, '');
+  render();
 }
 
 function deleteTask(id) {
@@ -4422,8 +4942,32 @@ function renderTaskEditorCategories() {
   field.hidden = !getCategoriesForList(editingTaskDraft.listId).length && !selection.size;
 }
 
+function fillCategoryFilterChips(container, categories) {
+  if (!container) return;
+  container.innerHTML = '';
+  const chips = [{ id: 'all', name: 'All' }].concat(categories.map(function (cat) {
+    return { id: cat.id, name: cat.name };
+  }));
+  chips.forEach(function (chip) {
+    const selected = state.categoryFilter === chip.id;
+    const btn = el('button', {
+      type: 'button',
+      class: 'category-chip' + (selected ? ' selected' : ''),
+      text: chip.name,
+      'aria-pressed': selected ? 'true' : 'false'
+    });
+    btn.addEventListener('click', function () {
+      if (state.categoryFilter === chip.id) return;
+      state.categoryFilter = chip.id;
+      saveState();
+      render();
+    });
+    container.appendChild(btn);
+  });
+}
+
 function renderCategoryFilters() {
-  const selects = [
+  const chipRows = [
     document.getElementById('listCategoryFilter'),
     document.getElementById('inboxCategoryFilter')
   ];
@@ -4442,22 +4986,8 @@ function renderCategoryFilters() {
     state.categoryFilter = 'all';
     saveState();
   }
-  selects.forEach(select => {
-    if (!select) return;
-    select.innerHTML = '';
-    const allOpt = el('option', { value: 'all', text: 'All categories' });
-    if (state.categoryFilter === 'all') allOpt.selected = true;
-    select.appendChild(allOpt);
-    visibleCategories.forEach(cat => {
-      const opt = el('option', { value: cat.id, text: cat.name });
-      if (state.categoryFilter === cat.id) opt.selected = true;
-      select.appendChild(opt);
-    });
-    select.onchange = (e) => {
-      state.categoryFilter = e.target.value;
-      saveState();
-      render();
-    };
+  chipRows.forEach(function (row) {
+    fillCategoryFilterChips(row, visibleCategories);
   });
   renderAmsFilter();
   syncListToolbar();
@@ -4497,9 +5027,9 @@ function syncListToolbar() {
   const toolbar = document.getElementById('listToolbar');
   if (!toolbar) return;
   const hasTasks = state.tasks.some(t => t.listId === state.activeListId);
-  const printerList = isPrinterList(state.activeListId);
-  const hasCategories = getCategoriesForList(state.activeListId).length > 0;
-  toolbar.hidden = !(currentView === 'lists' && (hasTasks || printerList || hasCategories));
+  const tagBtn = document.getElementById('bulkTagListBtn');
+  if (tagBtn) tagBtn.hidden = !hasTasks;
+  toolbar.hidden = false;
 }
 
 function appendTaskRowMarks(parent, task) {
@@ -4562,7 +5092,317 @@ function taskHasSecondaryMeta(task, opts) {
   if (task.subtasks && task.subtasks.length) return true;
   if (task.hasPhoto) return true;
   if (getTaskLinkUrl(task)) return true;
+  if (task.completed && task.completionComment) return true;
   return false;
+}
+
+function ensureSubtaskSortOrders(task) {
+  if (!task || !Array.isArray(task.subtasks)) return;
+  task.subtasks.forEach(function (s, i) {
+    if (typeof s.sortOrder !== 'number') s.sortOrder = i;
+  });
+}
+
+function getSortedSubtasks(task) {
+  if (!task || !Array.isArray(task.subtasks)) return [];
+  ensureSubtaskSortOrders(task);
+  return task.subtasks.slice().sort(function (a, b) {
+    return a.sortOrder - b.sortOrder;
+  });
+}
+
+function toggleTaskSubtasksExpanded(taskId) {
+  if (expandedTaskSubtasks.has(taskId)) expandedTaskSubtasks.delete(taskId);
+  else expandedTaskSubtasks.add(taskId);
+  render();
+}
+
+function addSubtasksToTask(taskId, titles) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task) return;
+  if (!Array.isArray(task.subtasks)) task.subtasks = [];
+  ensureSubtaskSortOrders(task);
+  let next = task.subtasks.length;
+  titles.forEach(function (title) {
+    const t = (title || '').trim();
+    if (!t) return;
+    task.subtasks.push({ id: uid(), title: t, done: false, sortOrder: next++ });
+  });
+  expandedTaskSubtasks.add(taskId);
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function toggleSubtaskOnTask(taskId, subId) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  const sub = task.subtasks.find(function (s) { return s.id === subId; });
+  if (!sub) return;
+  sub.done = !sub.done;
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function deleteSubtaskFromTask(taskId, subId) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  task.subtasks = task.subtasks.filter(function (s) { return s.id !== subId; });
+  ensureSubtaskSortOrders(task);
+  task.subtasks.forEach(function (s, i) { s.sortOrder = i; });
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function moveSubtaskToIndex(taskId, subId, newIndex) {
+  const task = state.tasks.find(function (t) { return t.id === taskId; });
+  if (!task || !task.subtasks) return;
+  const subs = getSortedSubtasks(task);
+  const idx = subs.findIndex(function (s) { return s.id === subId; });
+  if (idx < 0 || newIndex < 0 || newIndex >= subs.length || newIndex === idx) return;
+  const moved = subs.splice(idx, 1)[0];
+  subs.splice(newIndex, 0, moved);
+  subs.forEach(function (s, i) { s.sortOrder = i; });
+  task.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+}
+
+function taskExpandChevronSvg() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', 'M6 9l6 6 6-6');
+  svg.appendChild(path);
+  return svg;
+}
+
+function renderInlineSubtaskRow(taskId, sub) {
+  const row = el('div', {
+    class: 'task-subtask-row' + (sub.done ? ' done' : ''),
+    dataset: { subtaskRow: sub.id }
+  });
+  const handle = el('div', {
+    class: 'task-subtask-drag',
+    dataset: { subtaskDragHandle: sub.id },
+    'aria-label': 'Drag to reorder step'
+  });
+  for (let i = 0; i < 3; i++) handle.appendChild(el('span'));
+  row.appendChild(handle);
+  const check = el('div', {
+    class: 'subtask-check',
+    onClick: function (e) {
+      e.stopPropagation();
+      toggleSubtaskOnTask(taskId, sub.id);
+    }
+  });
+  check.appendChild(taskCheckmark());
+  row.appendChild(check);
+  row.appendChild(el('div', { class: 'subtask-title', text: sub.title }));
+  row.appendChild(el('button', {
+    type: 'button',
+    class: 'subtask-del',
+    'aria-label': 'Remove step',
+    html: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>',
+    onClick: function (e) {
+      e.stopPropagation();
+      deleteSubtaskFromTask(taskId, sub.id);
+    }
+  }));
+  return row;
+}
+
+function buildTaskSubtasksPanel(task) {
+  const panel = el('div', { class: 'task-subtasks-panel' });
+  panel.appendChild(el('div', { class: 'task-subtasks-heading', text: 'Steps to complete' }));
+  const sorted = getSortedSubtasks(task);
+  const list = el('div', {
+    class: 'task-subtasks-list' + (sorted.length ? ' task-subtasks-list-draggable' : ''),
+    dataset: { subtaskList: task.id }
+  });
+  sorted.forEach(function (sub) {
+    list.appendChild(renderInlineSubtaskRow(task.id, sub));
+  });
+  panel.appendChild(list);
+  if (sorted.length > 1) {
+    panel.appendChild(el('p', { class: 'task-subtasks-hint', text: 'Hold ≡ to reorder steps.' }));
+  }
+  const addWrap = el('div', { class: 'task-subtask-add' });
+  const input = el('input', {
+    type: 'text',
+    id: 'subtask-inline-input-' + task.id,
+    placeholder: 'Add step… (Enter for each; paste multiple lines)',
+    autocomplete: 'off'
+  });
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const raw = input.value;
+    if (!raw.trim()) return;
+    pendingSubtaskInputFocus = task.id;
+    addSubtasksToTask(task.id, [raw.trim()]);
+  });
+  input.addEventListener('paste', function (e) {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (!text || text.indexOf('\n') < 0) return;
+    e.preventDefault();
+    const lines = text.split(/\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!lines.length) return;
+    pendingSubtaskInputFocus = task.id;
+    addSubtasksToTask(task.id, lines);
+  });
+  addWrap.appendChild(input);
+  panel.appendChild(addWrap);
+  return panel;
+}
+
+function focusPendingSubtaskInput() {
+  if (!pendingSubtaskInputFocus) return;
+  const id = pendingSubtaskInputFocus;
+  pendingSubtaskInputFocus = null;
+  const input = document.getElementById('subtask-inline-input-' + id);
+  if (input) input.focus();
+}
+
+function bindSubtaskListDrag(listEl, taskId) {
+  if (!listEl || !taskId) return;
+  const rows = listEl.querySelectorAll('.task-subtask-row[data-subtask-row]');
+  if (!rows.length) return;
+  listEl.classList.add('task-subtasks-list-draggable');
+  let indicator = listEl.querySelector('.subtask-drop-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'subtask-drop-indicator';
+    listEl.insertBefore(indicator, listEl.firstChild);
+  }
+  let dragId = null;
+  let dragFromIdx = -1;
+  let holdTimer = null;
+  let dragging = false;
+  let dropIdx = -1;
+
+  function getRows() {
+    return Array.prototype.slice.call(listEl.querySelectorAll('.task-subtask-row[data-subtask-row]'));
+  }
+
+  function clearDragUi() {
+    dragging = false;
+    dragId = null;
+    dragFromIdx = -1;
+    dropIdx = -1;
+    document.body.classList.remove('task-drag-active');
+    indicator.classList.remove('on');
+    listEl.querySelectorAll('.drag-slot-glow, .dragging').forEach(function (el) {
+      el.classList.remove('drag-slot-glow', 'dragging');
+    });
+    document.removeEventListener('pointermove', onDocPointerMove);
+    document.removeEventListener('pointerup', onDocPointerUp);
+    document.removeEventListener('pointercancel', onDocPointerUp);
+  }
+
+  function updateDropUi(idx) {
+    dropIdx = idx;
+    const rowEls = getRows();
+    rowEls.forEach(function (el) { el.classList.remove('drag-slot-glow'); });
+    if (idx < 0 || idx > rowEls.length) {
+      indicator.classList.remove('on');
+      return;
+    }
+    const above = rowEls[Math.max(0, idx - 1)];
+    const below = rowEls[Math.min(rowEls.length - 1, idx)];
+    if (above) above.classList.add('drag-slot-glow');
+    if (below && below !== above) below.classList.add('drag-slot-glow');
+    const ref = rowEls[idx] || rowEls[rowEls.length - 1];
+    if (ref) {
+      const top = ref.offsetTop + (idx >= rowEls.length ? ref.offsetHeight : 0);
+      indicator.style.top = top + 'px';
+      indicator.classList.add('on');
+    }
+  }
+
+  function dropIndexFromY(clientY) {
+    const rowEls = getRows();
+    for (let i = 0; i < rowEls.length; i++) {
+      const rect = rowEls[i].getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (clientY < mid) return i;
+    }
+    return rowEls.length;
+  }
+
+  function startDrag(id) {
+    const rowEls = getRows();
+    dragId = id;
+    dragFromIdx = rowEls.findIndex(function (el) {
+      return el.getAttribute('data-subtask-row') === id;
+    });
+    dragging = true;
+    document.body.classList.add('task-drag-active');
+    rowEls.forEach(function (el) {
+      if (el.getAttribute('data-subtask-row') === id) el.classList.add('dragging');
+    });
+    document.addEventListener('pointermove', onDocPointerMove, { passive: false });
+    document.addEventListener('pointerup', onDocPointerUp);
+    document.addEventListener('pointercancel', onDocPointerUp);
+  }
+
+  function onMove(clientY) {
+    if (!dragging) return;
+    updateDropUi(dropIndexFromY(clientY));
+  }
+
+  function onDocPointerMove(e) {
+    if (!dragging) return;
+    e.preventDefault();
+    onMove(e.clientY);
+  }
+
+  function onDocPointerUp() {
+    onEnd();
+  }
+
+  function onEnd() {
+    clearTimeout(holdTimer);
+    if (!dragging || !dragId) {
+      clearDragUi();
+      return;
+    }
+    const target = dropIdx < 0 ? dragFromIdx : dropIdx;
+    const id = dragId;
+    const fromIdx = dragFromIdx;
+    clearDragUi();
+    if (target !== fromIdx) moveSubtaskToIndex(taskId, id, target);
+  }
+
+  listEl.querySelectorAll('[data-subtask-drag-handle]').forEach(function (handle) {
+    const id = handle.getAttribute('data-subtask-drag-handle');
+    handle.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(function () {
+        startDrag(id);
+        updateDropUi(dragFromIdx);
+      }, 250);
+    }, { passive: false });
+    handle.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      e.preventDefault();
+      onMove(e.clientY);
+    });
+    handle.addEventListener('pointerup', onEnd);
+    handle.addEventListener('pointercancel', onEnd);
+  });
+}
+
+function bindAllSubtaskListDrags(rootEl) {
+  if (!rootEl) return;
+  rootEl.querySelectorAll('[data-subtask-list]').forEach(function (listEl) {
+    bindSubtaskListDrag(listEl, listEl.getAttribute('data-subtask-list'));
+  });
 }
 
 function renderTaskRow(task, opts) {
@@ -4573,9 +5413,25 @@ function renderTaskRow(task, opts) {
     dataset: { id: task.id, taskRow: task.id }
   });
   appendTaskDragHandle(row, task);
+  const inlineSubtasks = !!opts.inlineSubtasks;
+  const subtasksExpanded = inlineSubtasks && expandedTaskSubtasks.has(task.id);
+  if (inlineSubtasks) {
+    const expandBtn = el('button', {
+      class: 'task-expand-btn' + (subtasksExpanded ? ' open' : ''),
+      type: 'button',
+      'aria-expanded': subtasksExpanded ? 'true' : 'false',
+      'aria-label': subtasksExpanded ? 'Hide steps to complete' : 'Show steps to complete',
+      onClick: function (e) {
+        e.stopPropagation();
+        toggleTaskSubtasksExpanded(task.id);
+      }
+    });
+    expandBtn.appendChild(taskExpandChevronSvg());
+    row.appendChild(expandBtn);
+  }
   const check = el('div', {
     class: 'task-check ' + priorityClass(task.priority),
-    onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
+    onClick: (e) => { e.stopPropagation(); handleTaskCheckClick(task.id); }
   });
   check.appendChild(taskCheckmark());
   row.appendChild(check);
@@ -4610,9 +5466,16 @@ function renderTaskRow(task, opts) {
   }
   appendTaskLinkPill(meta, task);
   if (meta.childNodes.length) body.appendChild(meta);
+  if (task.completed && task.completionComment) {
+    body.appendChild(el('div', { class: 'task-completion-note', text: task.completionComment }));
+  }
   row.appendChild(body);
   row.appendChild(taskEditButton('task-edit-btn', () => openTaskEditor(task.id)));
-  return row;
+  if (!inlineSubtasks) return row;
+  const block = el('div', { class: 'task-block' + (subtasksExpanded ? ' expanded' : '') });
+  block.appendChild(row);
+  if (subtasksExpanded) block.appendChild(buildTaskSubtasksPanel(task));
+  return block;
 }
 
 function emptyState(emoji, message) {
@@ -4631,6 +5494,7 @@ function render() {
   renderCategoryFilters();
   renderQuickAddCategories();
   renderQuickAddFilament();
+  syncTaskSortSelects();
   if (currentView === 'matrix') renderMatrix();
   else if (currentView === 'calendar') renderCalendar();
   else if (currentView === 'lists') renderListsView();
@@ -4754,7 +5618,7 @@ function renderMatrixTask(task) {
   });
   const check = el('div', {
     class: 'mtask-check ' + priorityClass(task.priority),
-    onClick: (e) => { e.stopPropagation(); toggleTask(task.id); render(); }
+    onClick: (e) => { e.stopPropagation(); handleTaskCheckClick(task.id); }
   });
   node.appendChild(check);
   if (task.ams) {
@@ -5008,16 +5872,17 @@ function renderListsView() {
     syncListToolbar();
     return;
   }
-  const open = sortTasksByOrder(tasks.filter(t => !t.completed));
-  const done = sortTasksByOrder(tasks.filter(t => t.completed));
+  const open = sortTasksForView(tasks.filter(t => !t.completed));
+  const done = sortTasksForView(tasks.filter(t => t.completed));
   if (canReorderTasksInView() && (open.length || done.length)) {
     container.appendChild(el('p', { class: 'task-reorder-hint', text: taskReorderHintText() }));
   }
   if (open.length) {
     const list = el('div', { class: 'task-list' });
-    open.forEach((t) => list.appendChild(renderTaskRow(t)));
+    open.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
     container.appendChild(list);
     bindTaskListDrag(list);
+    bindAllSubtaskListDrags(list);
   }
   if (done.length) {
     const summary = el("button", {
@@ -5034,11 +5899,13 @@ function renderListsView() {
     container.appendChild(summary);
     if (listsCompletedExpanded) {
       const list = el("div", { class: "task-list" });
-      done.forEach((t) => list.appendChild(renderTaskRow(t)));
+      done.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
       container.appendChild(list);
       bindTaskListDrag(list);
+      bindAllSubtaskListDrags(list);
     }
   }
+  focusPendingSubtaskInput();
   syncQuickAddPrinterControls();
   syncListToolbar();
 }
@@ -5065,10 +5932,12 @@ function renderInbox() {
     return;
   }
   const list = el('div', { class: 'task-list' });
-  const sorted = sortTasksByOrder(tasks);
-  sorted.forEach((t) => list.appendChild(renderTaskRow(t)));
+  const sorted = sortTasksForView(tasks);
+  sorted.forEach((t) => list.appendChild(renderTaskRow(t, { inlineSubtasks: true })));
   container.appendChild(list);
   bindTaskListDrag(list);
+  bindAllSubtaskListDrags(list);
+  focusPendingSubtaskInput();
 }
 
 function renderTaskCategorySelect() {
@@ -5165,7 +6034,9 @@ function openTaskEditor(taskId) {
 function renderSubtasks() {
   const list = document.getElementById('subtasksList');
   list.innerHTML = '';
-  editingTaskDraft.subtasks.forEach((sub, idx) => {
+  ensureSubtaskSortOrders(editingTaskDraft);
+  getSortedSubtasks(editingTaskDraft).forEach((sub) => {
+    const idx = editingTaskDraft.subtasks.findIndex(function (s) { return s.id === sub.id; });
     const row = el('div', { class: 'subtask' + (sub.done ? ' done' : '') });
     const check = el('div', {
       class: 'subtask-check',
@@ -5400,30 +6271,9 @@ function renderListsManager() {
     const row = el('div', { class: 'list-manage-row' });
     const labelCol = el('div', { style: 'flex:1;min-width:0;' });
     labelCol.appendChild(el('div', { class: 'settings-label', text: list.name }));
-    if (!list.system) {
-      labelCol.appendChild(el('div', {
-        class: 'settings-sub',
-        text: list.printer ? '3D Printer list · AMS & filament enabled' : 'Tap 3D Printer to enable AMS & filament'
-      }));
-    }
     row.appendChild(labelCol);
 
     const actions = el('div', { style: 'display:flex;align-items:center;gap:8px;flex-shrink:0;' });
-
-    if (!list.system) {
-      actions.appendChild(el('button', {
-        type: 'button',
-        class: 'btn' + (list.printer ? ' btn-primary' : ''),
-        style: 'padding: 6px 10px; min-height: 32px; font-size: 0.75rem; white-space: nowrap;',
-        text: list.printer ? '3D Printer ✓' : '3D Printer',
-        onClick: () => {
-          list.printer = !list.printer;
-          saveState();
-          renderListsManager();
-          render();
-        }
-      }));
-    }
 
     const reorder = el('div', { class: 'list-reorder' });
     const upBtn = el('button', {
@@ -5496,7 +6346,7 @@ function addList(name, opts) {
     return existing.id;
   }
   const id = 'l_' + Date.now().toString(36);
-  state.lists.push({ id, name, printer: isPrinterListName(name) });
+  state.lists.push({ id, name, printer: false });
   saveState();
   if (!opts.silent) showToast('Added list: ' + name);
   return id;
@@ -5805,7 +6655,8 @@ function exportBackup() {
       activeListId: state.activeListId,
       matrixFilter: state.matrixFilter,
       categoryFilter: state.categoryFilter,
-      amsFilter: state.amsFilter
+      amsFilter: state.amsFilter,
+      taskSort: state.taskSort
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -6659,10 +7510,12 @@ function wireNav() {
 }
 
 function wireQuickAdds() {
-  function wireQuickAdd(titleInputId, linkInputId, prioRowId, btnId, getListId, categoryUiKey) {
+  function wireQuickAdd(titleInputId, linkInputId, pasteBtnId, prioRowId, btnId, saveSettingsInputId, getListId, categoryUiKey) {
     const titleInput = document.getElementById(titleInputId);
     const linkInput = document.getElementById(linkInputId);
+    const pasteBtn = document.getElementById(pasteBtnId);
     const btn = document.getElementById(btnId);
+    const saveSettingsInput = document.getElementById(saveSettingsInputId);
     const prioRow = document.getElementById(prioRowId);
     const prioBtns = prioRow.querySelectorAll('.quick-prio-btn');
     const amsInput = prioRow.querySelector('.quick-ams-input');
@@ -6714,6 +7567,14 @@ function wireQuickAdds() {
       });
     });
 
+    if (saveSettingsInput) {
+      saveSettingsInput.checked = !!state.quickAddSaveSettings[categoryUiKey];
+      saveSettingsInput.addEventListener('change', () => {
+        state.quickAddSaveSettings[categoryUiKey] = saveSettingsInput.checked;
+        saveState();
+      });
+    }
+
     const submit = () => {
       const title = titleInput.value.trim();
       if (!title) return;
@@ -6737,22 +7598,30 @@ function wireQuickAdds() {
         filamentColorIds
       });
       filamentColorIds.forEach(id => recordFilamentColorUse(id));
+      const keepSettings = saveSettingsInput && saveSettingsInput.checked;
       titleInput.value = '';
       linkInput.value = '';
-      resetPrio();
-      resetAms();
-      resetPaid();
-      resetCategories();
-      resetFilament();
+      if (!keepSettings) {
+        resetPrio();
+        resetAms();
+        resetPaid();
+        resetCategories();
+        resetFilament();
+      }
       render();
     };
     btn.addEventListener('click', submit);
     titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
     linkInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+    if (pasteBtn) {
+      pasteBtn.addEventListener('click', function () {
+        pasteLinkInto(linkInput, titleInput);
+      });
+    }
   }
 
-  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickPriority', 'inboxQuickBtn', () => 'inbox', 'inbox');
-  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickPriority', 'listQuickBtn', () => state.activeListId, 'list');
+  wireQuickAdd('inboxQuickInput', 'inboxQuickLinkInput', 'inboxQuickLinkPaste', 'inboxQuickPriority', 'inboxQuickBtn', 'inboxQuickSaveSettings', () => 'inbox', 'inbox');
+  wireQuickAdd('listQuickInput', 'listQuickLinkInput', 'listQuickLinkPaste', 'listQuickPriority', 'listQuickBtn', 'listQuickSaveSettings', () => state.activeListId, 'list');
 }
 
 function wireDateNav() {
@@ -6917,7 +7786,8 @@ function wireTaskEditor() {
     if (e.key === 'Enter') {
       const v = subInput.value.trim();
       if (!v) return;
-      editingTaskDraft.subtasks.push({ id: uid(), title: v, done: false });
+      const next = editingTaskDraft.subtasks.length;
+      editingTaskDraft.subtasks.push({ id: uid(), title: v, done: false, sortOrder: next });
       subInput.value = '';
       renderSubtasks();
     }
@@ -6939,12 +7809,42 @@ function wireTaskEditor() {
   document.getElementById('taskPhotoRemoveBtn').addEventListener('click', removeTaskPhoto);
 }
 
+function wireCompletionModal() {
+  document.getElementById('completionModalClose').addEventListener('click', closeCompletionModal);
+  document.getElementById('completionCancelBtn').addEventListener('click', closeCompletionModal);
+  document.getElementById('completionConfirmBtn').addEventListener('click', confirmCompletionModal);
+  document.getElementById('completionModal').addEventListener('click', (e) => {
+    if (e.target.id === 'completionModal') closeCompletionModal();
+  });
+  const input = document.getElementById('completionCommentInput');
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        confirmCompletionModal();
+      }
+    });
+  }
+}
+
 function wireSettings() {
-  document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    const promptCb = document.getElementById('completionCommentPromptInput');
+    if (promptCb) promptCb.checked = state.completionCommentPrompt !== false;
+    openModal('settingsModal');
+  });
   document.getElementById('settingsModalClose').addEventListener('click', () => closeModal('settingsModal'));
   document.getElementById('settingsModal').addEventListener('click', (e) => {
     if (e.target.id === 'settingsModal') closeModal('settingsModal');
   });
+
+  const completionPromptCb = document.getElementById('completionCommentPromptInput');
+  if (completionPromptCb) {
+    completionPromptCb.addEventListener('change', () => {
+      state.completionCommentPrompt = completionPromptCb.checked;
+      saveState();
+    });
+  }
 
   document.getElementById('exportBtn').addEventListener('click', exportBackup);
   document.getElementById('exportBtn2').addEventListener('click', exportBackup);
@@ -7040,6 +7940,7 @@ function wireSettings() {
     state.activeListId = 'inbox';
     state.categoryFilter = 'all';
     state.amsFilter = 'all';
+    state.taskSort = 'custom';
     state.counters = [];
     state.counterLogs = {};
     state.compareHabitIds = [];
@@ -7088,6 +7989,18 @@ function purgeLegacyFitnessHabitStorage() {
   saveState();
 }
 
+function wireTaskSort() {
+  function onSortChange(e) {
+    state.taskSort = normalizeTaskSort(e.target.value);
+    saveState();
+    render();
+  }
+  const listSelect = document.getElementById('listSortSelect');
+  const inboxSelect = document.getElementById('inboxSortSelect');
+  if (listSelect) listSelect.addEventListener('change', onSortChange);
+  if (inboxSelect) inboxSelect.addEventListener('change', onSortChange);
+}
+
 function init() {
   loadState();
   ensureFilamentColors();
@@ -7096,6 +8009,7 @@ function init() {
   wireNav();
   wireQuickAdds();
   wireTaskEditor();
+  wireCompletionModal();
   wireSettings();
   wireBulkTag();
   wireCalendar();
@@ -7104,6 +8018,7 @@ function init() {
   wireDateNav();
   wireCounterEditor();
   wireHeatmap();
+  wireTaskSort();
   render();
 
   // Re-render at midnight so "today" rolls over correctly

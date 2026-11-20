@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Tracker Viewer icon">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="8" x2="162" y2="172" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#152030"/>
+      <stop offset="1" stop-color="#0b1016"/>
+    </linearGradient>
+    <linearGradient id="tank" x1="58" y1="36" x2="122" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3d9ee8"/>
+      <stop offset="1" stop-color="#1d6fb8"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="64" y1="88" x2="116" y2="140" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5ec8ff"/>
+      <stop offset="1" stop-color="#2a8fd4"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <!-- tank body -->
+  <rect x="56" y="42" width="68" height="96" rx="14" fill="url(#tank)"/>
+  <rect x="62" y="86" width="56" height="46" rx="10" fill="url(#liquid)"/>
+  <!-- lid -->
+  <rect x="50" y="34" width="80" height="16" rx="6" fill="#8ec8f4"/>
+  <rect x="82" y="24" width="16" height="16" rx="4" fill="#c5e4fa"/>
+  <!-- legs -->
+  <rect x="64" y="136" width="10" height="16" rx="3" fill="#3d9ee8"/>
+  <rect x="106" y="136" width="10" height="16" rx="3" fill="#3d9ee8"/>
+  <rect x="58" y="148" width="64" height="8" rx="4" fill="#2563a8"/>
+  <!-- sight glass -->
+  <rect x="84" y="58" width="12" height="28" rx="6" fill="#d7efff" opacity=".9"/>
+  <rect x="86" y="72" width="8" height="12" rx="4" fill="#1d6fb8"/>
+  <!-- view mark -->
+  <circle cx="132" cy="52" r="18" fill="#0f1419" stroke="#3d9ee8" stroke-width="4"/>
+  <circle cx="132" cy="52" r="7" fill="#3d9ee8"/>
+</svg>

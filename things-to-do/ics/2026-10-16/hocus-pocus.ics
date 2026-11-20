@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mathoose cursor-apps//Local Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Philly Friday Oct 16
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:hocus-pocus-20261016@mathoose-local-events
+DTSTAMP:20261016T120000Z
+DTSTART;TZID=America/New_York:20261016T173000
+DTEND;TZID=America/New_York:20261016T213000
+SUMMARY:Movies on the Mall: Hocus Pocus
+LOCATION:Independence Visitor Center\, 599 Market Street\, Philadelphia\, P
+ A 19106
+DESCRIPTION:Outdoor Hocus Pocus on Independence Mall. Screen faces Arch Str
+ eet.\nPrice: Free\nFree popcorn. Pre-show activities at 5:30\, movie at 7:
+ 00. Bring a blanket or chair. Registration is encouraged\; walk-ups are we
+ lcome.\nTickets: https://secure.qgiv.com/for/vpbqfa/event/moviesonthemall/
+ \nWebsite: https://inht.org/events-and-programs/\nSource: https://www.inst
+ agram.com/p/Deh6FJ3lD87/
+URL:https://inht.org/events-and-programs/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mathoose cursor-apps//Local Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Philly Friday Oct 16
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:fall-fest-20261016@mathoose-local-events
+DTSTAMP:20261016T120000Z
+DTSTART;TZID=America/New_York:20261016T170000
+DTEND;TZID=America/New_York:20261016T200000
+SUMMARY:Fall Fest
+LOCATION:Historic RittenhouseTown\, 208 Lincoln Drive\, Philadelphia\, PA 1
+ 9144
+DESCRIPTION:Pumpkins\, s’mores\, and costume contests.\nPrice: Pay what y
+ ou can\nOrganizer says pay what you can. Billy Penn lists it as free. Pump
+ kin patch 5–7\, painting\, s’mores\, games\, costume contests.\nTicket
+ s: https://www.eventbrite.com/e/fallfest-tickets-2003220397133\nWebsite: h
+ ttps://www.rittenhousetown.org/\nSource: https://www.instagram.com/p/Deh6F
+ J3lD87/
+URL:https://www.rittenhousetown.org/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

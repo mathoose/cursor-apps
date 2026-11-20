@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="3D printing library">
+  <defs>
+    <linearGradient id="bg" x1="20" y1="12" x2="160" y2="168" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0c4a6e"/>
+      <stop offset="1" stop-color="#082f49"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="38" fill="url(#bg)"/>
+  <rect x="32" y="44" width="116" height="28" rx="8" fill="url(#card)" opacity=".95"/>
+  <rect x="32" y="78" width="116" height="28" rx="8" fill="url(#card)" opacity=".88"/>
+  <rect x="32" y="112" width="116" height="28" rx="8" fill="url(#card)" opacity=".8"/>
+  <circle cx="48" cy="58" r="7" fill="#38bdf8"/>
+  <circle cx="48" cy="92" r="7" fill="#fb923c"/>
+  <circle cx="48" cy="126" r="7" fill="#a78bfa"/>
+  <path d="M68 58h64" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M68 92h48" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+  <path d="M68 126h56" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+</svg>

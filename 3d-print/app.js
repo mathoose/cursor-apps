@@ -12,9 +12,11 @@
   var STATUS_LABELS = {
     queued: 'To print',
     waitlisted: 'Waitlisted',
-    ready: 'Ready',
+    ready: 'On deck',
+    again: 'Will print again',
     done: 'Done'
   };
+  var OPEN_STATUS_ORDER = ['ready', 'queued', 'waitlisted', 'again'];
 
   var state = {
     version: SCHEMA_VERSION,
@@ -26,7 +28,11 @@
     filamentColors: [],
     filamentColorSortAt: 0,
     statusFilter: 'all',
-    categoryFilter: 'all'
+    categoryFilter: 'all',
+    keepAddSelections: false,
+    lastAddSelections: null,
+    itemSort: 'custom',
+    historySort: 'closed-newest'
   };
 
   var currentView = 'queue';
@@ -38,6 +44,14 @@
   var editingDraft = null;
   var editingPrinterId = null;
   var sendTargetItemId = null;
+  var pendingSliceItemId = null;
+  var pendingReprintItemId = null;
+  var pendingCloseOutItemId = null;
+  var pendingFinishedItemId = null;
+  var pendingFinishTimerContext = null;
+  var pendingRatingHistoryId = null;
+  var pendingRatingSelection = 0;
+  var pendingWouldPrintAgain = null;
   var fcpUiBound = false;
   var filamentPickerState = { h: 30, s: 1, v: 1, confirmLabel: 'Add color', onConfirm: null };
 
@@ -46,7 +60,10 @@
     categories: new Set(),
     filament: new Set(),
     categoryAdding: false,
-    plateCount: 1
+    plateCount: 1,
+    paid: false,
+    ams: false,
+    printerId: null
   };
   var editorCategoryAdding = false;
   var bulkPlateCategorySelected = new Set();
@@ -275,7 +292,8 @@
       estimatedMinutes: t.estimatedMinutes != null ? Math.max(0, parseInt(t.estimatedMinutes, 10) || 0) : null,
       sortOrder: typeof t.sortOrder === 'number' ? t.sortOrder : null,
       createdAt: t.createdAt || new Date().toISOString(),
-      updatedAt: t.updatedAt || new Date().toISOString()
+      updatedAt: t.updatedAt || new Date().toISOString(),
+      closedAt: t.closedAt || null
     };
   }
 
@@ -303,6 +321,11 @@
   }
 
   function normalizeHistory(h) {
+    var rating = null;
+    if (typeof h.rating === 'number') {
+      var r = Math.round(h.rating);
+      if (r >= 1 && r <= 5) rating = r;
+    }
     return {
       id: h.id || uid('hx'),
       printerId: h.printerId || null,
@@ -310,8 +333,19 @@
       itemTitle: h.itemTitle || 'Print',
       startedAt: h.startedAt || null,
       finishedAt: h.finishedAt || new Date().toISOString(),
-      durationMinutes: h.durationMinutes != null ? Math.max(0, parseInt(h.durationMinutes, 10) || 0) : null
+      durationMinutes: h.durationMinutes != null ? Math.max(0, parseInt(h.durationMinutes, 10) || 0) : null,
+      rating: rating,
+      comment: (h.comment || '').trim(),
+      wouldPrintAgain: h.wouldPrintAgain === true ? true : (h.wouldPrintAgain === false ? false : null)
     };
+  }
+
+  function formatStarRating(rating) {
+    if (!rating || rating < 1) return '';
+    var n = Math.min(5, Math.max(1, Math.round(rating)));
+    var out = '';
+    for (var i = 1; i <= 5; i++) out += i <= n ? '★' : '☆';
+    return out;
   }
 
   function normalizeCategory(c) {
@@ -425,6 +459,22 @@
     saveState();
   }
 
+  function normalizeItemSort(value) {
+    if (value === 'added-newest' || value === 'added-oldest') return value;
+    if (value === 'closed-newest' || value === 'closed-oldest') return value;
+    return 'custom';
+  }
+
+  function normalizeHistorySort(value) {
+    if (value === 'closed-oldest') return value;
+    return 'closed-newest';
+  }
+
+  function itemAddedMs(item) {
+    var t = Date.parse(item && item.createdAt ? item.createdAt : '');
+    return isNaN(t) ? 0 : t;
+  }
+
   function compareItemOrder(a, b) {
     var ao = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
     var bo = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
@@ -435,6 +485,43 @@
     var prio = b.priority - a.priority;
     if (prio) return prio;
     return a.createdAt < b.createdAt ? -1 : 1;
+  }
+
+  function compareItemsByTimeAdded(a, b, newestFirst) {
+    var diff = itemAddedMs(a) - itemAddedMs(b);
+    if (diff) return newestFirst ? -diff : diff;
+    if ((a.id || '') < (b.id || '')) return -1;
+    if ((a.id || '') > (b.id || '')) return 1;
+    return 0;
+  }
+
+  function itemClosedMs(item) {
+    var iso = item && item.closedAt ? item.closedAt : (item && item.status === 'done' ? item.updatedAt : '');
+    var t = Date.parse(iso || '');
+    return isNaN(t) ? 0 : t;
+  }
+
+  function compareItemsByClosedAt(a, b, newestFirst) {
+    var diff = itemClosedMs(a) - itemClosedMs(b);
+    if (diff) return newestFirst ? -diff : diff;
+    return compareItemsByTimeAdded(a, b, newestFirst);
+  }
+
+  function historyClosedMs(entry) {
+    var t = Date.parse(entry && entry.finishedAt ? entry.finishedAt : '');
+    return isNaN(t) ? 0 : t;
+  }
+
+  function sortHistoryForView(entries) {
+    var mode = normalizeHistorySort(state.historySort);
+    var newestFirst = mode !== 'closed-oldest';
+    return entries.slice().sort(function (a, b) {
+      var diff = historyClosedMs(a) - historyClosedMs(b);
+      if (diff) return newestFirst ? -diff : diff;
+      if ((a.id || '') < (b.id || '')) return -1;
+      if ((a.id || '') > (b.id || '')) return 1;
+      return 0;
+    });
   }
 
   function ensureItemSortOrders() {
@@ -454,6 +541,23 @@
   function sortItems(items) {
     ensureItemSortOrders();
     return items.slice().sort(compareItemOrder);
+  }
+
+  function sortItemsForView(items) {
+    var mode = normalizeItemSort(state.itemSort);
+    if (mode === 'added-newest') {
+      return items.slice().sort(function (a, b) { return compareItemsByTimeAdded(a, b, true); });
+    }
+    if (mode === 'added-oldest') {
+      return items.slice().sort(function (a, b) { return compareItemsByTimeAdded(a, b, false); });
+    }
+    if (mode === 'closed-newest') {
+      return items.slice().sort(function (a, b) { return compareItemsByClosedAt(a, b, true); });
+    }
+    if (mode === 'closed-oldest') {
+      return items.slice().sort(function (a, b) { return compareItemsByClosedAt(a, b, false); });
+    }
+    return sortItems(items);
   }
 
   function repositionItemByPriority(item) {
@@ -493,7 +597,11 @@
         filamentColors: state.filamentColors,
         filamentColorSortAt: state.filamentColorSortAt,
         statusFilter: state.statusFilter,
-        categoryFilter: state.categoryFilter
+        categoryFilter: state.categoryFilter,
+        itemSort: state.itemSort,
+        historySort: state.historySort,
+        keepAddSelections: !!state.keepAddSelections,
+        lastAddSelections: state.lastAddSelections
       }));
     } catch (e) {
       console.error(e);
@@ -521,6 +629,12 @@
       if (typeof parsed.filamentColorSortAt === 'number') state.filamentColorSortAt = parsed.filamentColorSortAt;
       if (typeof parsed.statusFilter === 'string') state.statusFilter = parsed.statusFilter;
       if (typeof parsed.categoryFilter === 'string') state.categoryFilter = parsed.categoryFilter;
+      state.itemSort = normalizeItemSort(parsed.itemSort);
+      state.historySort = normalizeHistorySort(parsed.historySort);
+      state.keepAddSelections = !!parsed.keepAddSelections;
+      if (parsed.lastAddSelections && typeof parsed.lastAddSelections === 'object') {
+        state.lastAddSelections = parsed.lastAddSelections;
+      }
       ensureItemSortOrders();
       ensureFilamentColors();
       maybeReorderFilamentColors();
@@ -543,7 +657,9 @@
       return existing.id;
     }
     var id = uid('cat');
-    state.categories.push(normalizeCategory({ id: id, name: trimmed }));
+    var cat = normalizeCategory({ id: id, name: trimmed });
+    if (opts.prepend) state.categories.unshift(cat);
+    else state.categories.push(cat);
     if (!opts.deferSave) saveState();
     if (!opts.silent) showToast('Added category: ' + trimmed);
     return id;
@@ -569,6 +685,24 @@
     arr[index] = arr[next];
     arr[next] = tmp;
     saveState();
+  }
+
+  /** Move recently used categories to the front of the picker list (order is persisted). */
+  function bumpCategoriesRecentlyUsed(ids) {
+    var used = normalizeCategoryIds(ids);
+    if (!used.length || !state.categories.length) return;
+    var usedSet = {};
+    used.forEach(function (id) { usedSet[id] = true; });
+    var front = [];
+    var rest = [];
+    used.forEach(function (id) {
+      var cat = getCategory(id);
+      if (cat) front.push(cat);
+    });
+    state.categories.forEach(function (cat) {
+      if (!usedSet[cat.id]) rest.push(cat);
+    });
+    state.categories = front.concat(rest);
   }
 
   function addBulkCategories(text) {
@@ -677,18 +811,305 @@
     saveState();
   }
 
+  function getRunningTimer(itemId) {
+    return state.timers.find(function (t) {
+      return t.status === 'running' && t.itemId === itemId;
+    }) || null;
+  }
+
+  function itemHasRunningTimer(itemId) {
+    return !!getRunningTimer(itemId);
+  }
+
+  function timerProgress(timer) {
+    var ends = new Date(timer.endsAt).getTime();
+    var starts = new Date(timer.startedAt).getTime();
+    var remaining = ends - Date.now();
+    var total = Math.max(ends - starts, 1);
+    return {
+      remaining: remaining,
+      progress: Math.max(0, Math.min(1, 1 - remaining / total))
+    };
+  }
+
   function toggleItemDone(id) {
     var item = getItem(id);
     if (!item) return;
     if (item.status === 'done') {
       item.status = 'queued';
-    } else {
-      item.status = 'done';
-      item.waitlistReason = '';
+      item.closedAt = null;
+      item.updatedAt = new Date().toISOString();
+      repositionItemByPriority(item);
+      saveState();
+      return;
     }
+    var runningTimer = getRunningTimer(id);
+    if (runningTimer) {
+      finishTimer(runningTimer.id, false);
+      return;
+    }
+    openCloseOutChoice(item);
+  }
+
+  function cloneItemForReprint(item) {
+    return {
+      title: item.title,
+      notes: item.notes || '',
+      link: item.link || '',
+      priority: item.priority || 0,
+      status: 'again',
+      paid: !!item.paid,
+      ams: !!item.ams,
+      filamentColorIds: (item.filamentColorIds || []).slice(),
+      categoryIds: (item.categoryIds || []).slice(),
+      plateCount: item.plateCount || 1,
+      plates: (item.plates || []).map(function (p) {
+        return normalizePlate({
+          name: p.name,
+          done: false,
+          categoryIds: p.categoryIds,
+          filamentColorIds: p.filamentColorIds
+        });
+      }),
+      printerId: item.printerId || null,
+      estimatedMinutes: item.estimatedMinutes
+    };
+  }
+
+  function markItemDone(item, closedAtIso) {
+    if (!item) return;
+    item.status = 'done';
+    item.waitlistReason = '';
+    item.closedAt = closedAtIso || new Date().toISOString();
     item.updatedAt = new Date().toISOString();
     repositionItemByPriority(item);
+    state.timers = state.timers.filter(function (t) {
+      return !(t.status === 'running' && t.itemId === item.id);
+    });
+  }
+
+  function dismissCloseOutChoice() {
+    pendingCloseOutItemId = null;
+    closeModal('closeOutModal');
+  }
+
+  function openCloseOutChoice(item) {
+    if (!item) return;
+    pendingCloseOutItemId = item.id;
+    var lead = document.getElementById('closeOutLead');
+    if (lead) lead.textContent = '“' + item.title + '” — printing or finished?';
+    openModal('closeOutModal');
+  }
+
+  function closeOutChoosePrinting() {
+    var itemId = pendingCloseOutItemId;
+    dismissCloseOutChoice();
+    if (!itemId) return;
+    openCloseOutPrinterModal(itemId);
+  }
+
+  function closeOutChooseFinished() {
+    var item = getItem(pendingCloseOutItemId);
+    dismissCloseOutChoice();
+    if (!item) return;
+    openPrintFinishedModal(item);
+  }
+
+  function dismissCloseOutPrinter() {
+    pendingCloseOutItemId = null;
+    closeModal('closeOutPrinterModal');
+  }
+
+  function openCloseOutPrinterModal(itemId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    if (!state.printers.length) {
+      showToast('Add a printer first', { error: true });
+      setView('printers');
+      openPrinterEditor(null);
+      return;
+    }
+    pendingCloseOutItemId = itemId;
+    var lead = document.getElementById('closeOutPrinterLead');
+    if (lead) lead.textContent = 'Which printer is printing “' + item.title + '”?';
+    var list = document.getElementById('closeOutPrinterList');
+    if (list) {
+      list.innerHTML = '';
+      state.printers.forEach(function (p) {
+        var current = item.printerId === p.id;
+        var btn = el('button', {
+          type: 'button',
+          class: 'slice-printer-btn' + (current ? ' current' : ''),
+          onClick: function () {
+            var targetId = pendingCloseOutItemId;
+            pendingCloseOutItemId = null;
+            var target = getItem(targetId);
+            if (target) target.printerId = p.id;
+            closeModal('closeOutPrinterModal');
+            saveState();
+            if (targetId) openStartPrintModal(targetId);
+            render();
+          }
+        });
+        btn.appendChild(el('span', { text: p.name }));
+        if (p.model) btn.appendChild(el('span', { class: 'slice-printer-meta', text: p.model }));
+        else if (current) btn.appendChild(el('span', { class: 'slice-printer-meta', text: 'Already planned' }));
+        list.appendChild(btn);
+      });
+    }
+    openModal('closeOutPrinterModal');
+  }
+
+  function resetPrintFinishedModal() {
+    pendingRatingSelection = 0;
+    pendingWouldPrintAgain = null;
+    pendingRatingHistoryId = null;
+    var comment = document.getElementById('printRatingComment');
+    if (comment) comment.value = '';
+    syncPrintRatingStars(0);
+    syncWouldPrintAgainButtons(null);
+    syncPrintFinishedContinue();
+  }
+
+  function dismissPrintFinishedModal() {
+    pendingFinishedItemId = null;
+    pendingFinishTimerContext = null;
+    resetPrintFinishedModal();
+    closeModal('printRatingModal');
+  }
+
+  function openPrintFinishedModal(item, context) {
+    if (!item) return;
+    pendingFinishedItemId = item.id;
+    pendingFinishTimerContext = context || null;
+    resetPrintFinishedModal();
+    var lead = document.getElementById('printRatingLead');
+    if (lead) lead.textContent = 'How did “' + item.title + '” turn out?';
+    openModal('printRatingModal');
+  }
+
+  function syncPrintRatingStars(n) {
+    pendingRatingSelection = n;
+    document.querySelectorAll('#printRatingStars .print-rating-star').forEach(function (btn) {
+      var v = parseInt(btn.dataset.stars, 10);
+      var on = n > 0 && v <= n;
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    syncPrintFinishedContinue();
+  }
+
+  function syncWouldPrintAgainButtons(value) {
+    pendingWouldPrintAgain = value === true ? true : (value === false ? false : null);
+    document.querySelectorAll('.print-again-btn').forEach(function (btn) {
+      var yes = btn.dataset.value === 'yes';
+      var on = pendingWouldPrintAgain === true && yes || pendingWouldPrintAgain === false && !yes;
+      btn.classList.toggle('selected', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    syncPrintFinishedContinue();
+  }
+
+  function syncPrintFinishedContinue() {
+    var hasAgain = pendingWouldPrintAgain === true || pendingWouldPrintAgain === false;
+    var cont = document.getElementById('printRatingContinue');
+    if (cont) cont.disabled = !(pendingRatingSelection >= 1 && hasAgain);
+    var skip = document.getElementById('printRatingSkip');
+    if (skip) skip.disabled = !hasAgain;
+  }
+
+  function applyPrintFinished(opts) {
+    opts = opts || {};
+    var item = getItem(pendingFinishedItemId);
+    if (!item) {
+      dismissPrintFinishedModal();
+      return;
+    }
+    var commentEl = document.getElementById('printRatingComment');
+    var comment = commentEl ? commentEl.value.trim() : '';
+    var rating = opts.skipRating ? null : (pendingRatingSelection >= 1 ? pendingRatingSelection : null);
+    if (!opts.skipRating && rating == null) {
+      showToast('Pick a rating or use Skip rating', { error: true });
+      return;
+    }
+    if (pendingWouldPrintAgain !== true && pendingWouldPrintAgain !== false) {
+      showToast('Choose whether you would print again', { error: true });
+      return;
+    }
+    var timerCtx = pendingFinishTimerContext;
+    var finishedAt = new Date().toISOString();
+    var entry = normalizeHistory({
+      printerId: (timerCtx && timerCtx.printerId) || item.printerId,
+      itemId: item.id,
+      itemTitle: item.title,
+      startedAt: timerCtx ? timerCtx.startedAt : null,
+      finishedAt: finishedAt,
+      durationMinutes: timerCtx ? timerCtx.durationMinutes : item.estimatedMinutes,
+      rating: rating,
+      comment: comment,
+      wouldPrintAgain: pendingWouldPrintAgain
+    });
+    state.history.unshift(entry);
+    markItemDone(item, finishedAt);
+    if (pendingWouldPrintAgain === true) {
+      addItem(cloneItemForReprint(item));
+      showToast('Added to Will print again');
+    }
+    dismissPrintFinishedModal();
     saveState();
+    render();
+    showToast('Print logged');
+  }
+
+  function skipPrintRating() {
+    applyPrintFinished({ skipRating: true });
+  }
+
+  function markSliced(itemId, printerId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    item.status = 'ready';
+    item.waitlistReason = '';
+    if (printerId) item.printerId = printerId;
+    item.updatedAt = new Date().toISOString();
+    saveState();
+    showToast('On deck');
+  }
+
+  function openSlicePrinterModal(itemId) {
+    var item = getItem(itemId);
+    if (!item) return;
+    if (!state.printers.length) {
+      showToast('Add a printer first', { error: true });
+      setView('printers');
+      openPrinterEditor(null);
+      return;
+    }
+    pendingSliceItemId = itemId;
+    var lead = document.getElementById('sliceModalLead');
+    if (lead) lead.textContent = 'Which printer will “' + item.title + '” print on?';
+    var list = document.getElementById('slicePrinterList');
+    if (list) {
+      list.innerHTML = '';
+      state.printers.forEach(function (p) {
+        var current = item.printerId === p.id;
+        var btn = el('button', {
+          type: 'button',
+          class: 'slice-printer-btn' + (current ? ' current' : ''),
+          onClick: function () {
+            markSliced(pendingSliceItemId, p.id);
+            pendingSliceItemId = null;
+            closeModal('sliceModal');
+            render();
+          }
+        });
+        btn.appendChild(el('span', { text: p.name }));
+        if (p.model) btn.appendChild(el('span', { class: 'slice-printer-meta', text: p.model }));
+        else if (current) btn.appendChild(el('span', { class: 'slice-printer-meta', text: 'Already planned' }));
+        list.appendChild(btn);
+      });
+    }
+    openModal('sliceModal');
   }
 
   function startTimer(opts) {
@@ -709,7 +1130,6 @@
     if (opts.itemId) {
       var item = getItem(opts.itemId);
       if (item) {
-        item.status = 'ready';
         item.printerId = opts.printerId || item.printerId;
         item.estimatedMinutes = minutes;
         item.updatedAt = new Date().toISOString();
@@ -722,47 +1142,33 @@
   function finishTimer(timerId, cancelled) {
     var timer = state.timers.find(function (t) { return t.id === timerId; });
     if (!timer) return;
-    timer.status = cancelled ? 'cancelled' : 'finished';
+    state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
+    saveState();
+    if (!cancelled && timer.itemId) {
+      var item = getItem(timer.itemId);
+      if (item && item.status !== 'done') {
+        openPrintFinishedModal(item, {
+          printerId: timer.printerId,
+          startedAt: timer.startedAt,
+          durationMinutes: timer.durationMinutes
+        });
+        render();
+        return;
+      }
+    }
     if (!cancelled) {
-      state.history.unshift(normalizeHistory({
+      var orphan = normalizeHistory({
         printerId: timer.printerId,
         itemId: timer.itemId,
-        itemTitle: timer.itemTitle || (getItem(timer.itemId) || {}).title || 'Print',
+        itemTitle: timer.itemTitle || 'Print',
         startedAt: timer.startedAt,
         finishedAt: new Date().toISOString(),
         durationMinutes: timer.durationMinutes
-      }));
-      if (timer.itemId) {
-        var item = getItem(timer.itemId);
-        if (item) {
-          item.status = 'done';
-          item.updatedAt = new Date().toISOString();
-          repositionItemByPriority(item);
-        }
-      }
-    }
-    state.timers = state.timers.filter(function (t) { return t.id !== timerId; });
-    saveState();
-  }
-
-  function markReadyAndMaybeTimer(opts) {
-    var item = getItem(opts.itemId);
-    if (!item) return;
-    item.status = 'ready';
-    item.waitlistReason = '';
-    item.printerId = opts.printerId || null;
-    item.estimatedMinutes = opts.durationMinutes || null;
-    item.updatedAt = new Date().toISOString();
-    if (opts.startTimer && opts.durationMinutes) {
-      startTimer({
-        printerId: opts.printerId,
-        itemId: item.id,
-        itemTitle: item.title,
-        durationMinutes: opts.durationMinutes
       });
-    } else {
+      state.history.unshift(orphan);
       saveState();
     }
+    render();
   }
 
   // ---- Filament color picker (HSV) ----
@@ -1056,22 +1462,6 @@
     var scroll = el('div', { class: 'category-chip-scroll' });
     var selection = getSelection();
 
-    state.categories.forEach(function (cat) {
-      var selected = selection.has(cat.id);
-      scroll.appendChild(el('button', {
-        type: 'button',
-        class: 'category-chip' + (selected ? ' selected' : ''),
-        text: cat.name,
-        'aria-pressed': selected ? 'true' : 'false',
-        onClick: function () {
-          if (selection.has(cat.id)) selection.delete(cat.id);
-          else selection.add(cat.id);
-          if (onUpdate) onUpdate();
-          renderCategoryChipRow(container, getSelection, isAdding, setAdding, onUpdate);
-        }
-      }));
-    });
-
     if (isAdding()) {
       var input = el('input', {
         type: 'text',
@@ -1084,7 +1474,7 @@
         var name = input.value.trim();
         setAdding(false);
         if (name) {
-          var id = addCategory(name, { silent: true });
+          var id = addCategory(name, { silent: true, prepend: true });
           if (id) {
             selection.add(id);
             if (onUpdate) onUpdate();
@@ -1117,8 +1507,155 @@
       }));
     }
 
+    state.categories.forEach(function (cat) {
+      var selected = selection.has(cat.id);
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip' + (selected ? ' selected' : ''),
+        text: cat.name,
+        'aria-pressed': selected ? 'true' : 'false',
+        onClick: function () {
+          if (selection.has(cat.id)) selection.delete(cat.id);
+          else selection.add(cat.id);
+          if (onUpdate) onUpdate();
+          renderCategoryChipRow(container, getSelection, isAdding, setAdding, onUpdate);
+        }
+      }));
+    });
+
     container.appendChild(label);
     container.appendChild(scroll);
+  }
+
+  function renderPrinterChipRow(container, getSelectedId, setSelectedId, onUpdate, opts) {
+    if (!container) return;
+    opts = opts || {};
+    container.innerHTML = '';
+    var labelText = opts.label;
+    if (labelText) {
+      container.appendChild(el('span', { class: 'quick-add-categories-label', text: labelText }));
+    }
+    var scroll = el('div', { class: 'category-chip-scroll' });
+    if (!state.printers.length) {
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip category-chip-add',
+        text: 'Add printer',
+        onClick: function () {
+          setView('printers');
+          openPrinterEditor(null);
+        }
+      }));
+      container.appendChild(scroll);
+      return;
+    }
+    var selected = getSelectedId();
+    state.printers.forEach(function (p) {
+      var on = selected === p.id;
+      scroll.appendChild(el('button', {
+        type: 'button',
+        class: 'category-chip' + (on ? ' selected' : ''),
+        text: p.name,
+        'aria-pressed': on ? 'true' : 'false',
+        onClick: function () {
+          setSelectedId(on ? null : p.id);
+          if (onUpdate) onUpdate();
+          renderPrinterChipRow(container, getSelectedId, setSelectedId, onUpdate, opts);
+        }
+      }));
+    });
+    container.appendChild(scroll);
+  }
+
+  function captureAddSelections() {
+    return {
+      priority: quickUi.priority || 0,
+      paid: !!quickUi.paid,
+      ams: !!quickUi.ams,
+      plateCount: Math.max(1, quickUi.plateCount || 1),
+      categoryIds: Array.from(quickUi.categories),
+      filamentColorIds: Array.from(quickUi.filament),
+      printerId: quickUi.printerId || null
+    };
+  }
+
+  function persistLastAddSelections() {
+    state.lastAddSelections = captureAddSelections();
+  }
+
+  function applyLastAddSelections() {
+    var sel = state.lastAddSelections;
+    if (!sel || typeof sel !== 'object') return;
+    quickUi.priority = [0, 1, 2, 3].indexOf(sel.priority) >= 0 ? sel.priority : 0;
+    quickUi.paid = !!sel.paid;
+    quickUi.ams = !!sel.ams;
+    quickUi.plateCount = Math.max(1, Math.min(99, parseInt(sel.plateCount, 10) || 1));
+    var cats = Array.isArray(sel.categoryIds) ? sel.categoryIds : [];
+    quickUi.categories = new Set(cats.filter(function (id) { return !!getCategory(id); }));
+    var fils = Array.isArray(sel.filamentColorIds) ? sel.filamentColorIds : [];
+    quickUi.filament = new Set(fils.filter(function (id) { return !!getFilamentColor(id); }));
+    quickUi.printerId = sel.printerId && getPrinter(sel.printerId) ? sel.printerId : null;
+  }
+
+  function resetQuickAddSelections() {
+    quickUi.priority = 0;
+    quickUi.paid = false;
+    quickUi.ams = false;
+    quickUi.categories.clear();
+    quickUi.filament.clear();
+    quickUi.plateCount = 1;
+    quickUi.categoryAdding = false;
+    quickUi.printerId = null;
+  }
+
+  /** After a quick add when Save settings is off: clear tag chips only; keep category & other fields. */
+  function resetQuickAddTagsAfterSubmit() {
+    quickUi.filament.clear();
+  }
+
+  function readQuickAddFormIntoUi() {
+    var paid = document.getElementById('quickPaid');
+    var ams = document.getElementById('quickAms');
+    if (paid) quickUi.paid = paid.checked;
+    if (ams) quickUi.ams = ams.checked;
+    var plate = document.getElementById('quickPlateCount');
+    if (plate) quickUi.plateCount = Math.max(1, Math.min(99, parseInt(plate.value, 10) || 1));
+  }
+
+  function setKeepAddSelections(on) {
+    state.keepAddSelections = !!on;
+    readQuickAddFormIntoUi();
+    if (state.keepAddSelections) persistLastAddSelections();
+    saveState();
+    syncKeepAddSelectionUi();
+  }
+
+  function syncKeepAddSelectionUi() {
+    var addBox = document.getElementById('keepAddSelections');
+    var setBox = document.getElementById('keepAddSelectionsSetting');
+    if (addBox) addBox.checked = !!state.keepAddSelections;
+    if (setBox) setBox.checked = !!state.keepAddSelections;
+  }
+
+  function syncQuickAddForm() {
+    document.querySelectorAll('#quickPriority .quick-prio-btn').forEach(function (b) {
+      var on = parseInt(b.dataset.prio, 10) === (quickUi.priority || 0);
+      b.classList.toggle('selected', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    var paid = document.getElementById('quickPaid');
+    var ams = document.getElementById('quickAms');
+    if (paid) paid.checked = !!quickUi.paid;
+    if (ams) ams.checked = !!quickUi.ams;
+    var plateInput = document.getElementById('quickPlateCount');
+    if (plateInput) plateInput.value = String(quickUi.plateCount || 1);
+    syncKeepAddSelectionUi();
+  }
+
+  function persistQuickAddIfKeeping() {
+    if (!state.keepAddSelections) return;
+    persistLastAddSelections();
+    saveState();
   }
 
   function renderQuickAddControls() {
@@ -1127,15 +1664,21 @@
       function () { return quickUi.categories; },
       function () { return quickUi.categoryAdding; },
       function (v) { quickUi.categoryAdding = v; },
-      function () {}
+      persistQuickAddIfKeeping
     );
     renderFilamentColorRow(
       document.getElementById('quickFilamentColors'),
       function () { return quickUi.filament; },
-      function () {}
+      persistQuickAddIfKeeping
     );
-    var plateInput = document.getElementById('quickPlateCount');
-    if (plateInput) plateInput.value = String(quickUi.plateCount);
+    renderPrinterChipRow(
+      document.getElementById('quickPrinters'),
+      function () { return quickUi.printerId; },
+      function (id) { quickUi.printerId = id || null; },
+      persistQuickAddIfKeeping,
+      { label: 'Print on' }
+    );
+    syncQuickAddForm();
   }
 
   function appendItemMarks(parent, item) {
@@ -1196,15 +1739,154 @@
     return svg;
   }
 
+  function itemReorderGroupKey(item) {
+    if (!item) return '';
+    if (itemHasRunningTimer(item.id)) return 'printing';
+    return item.status;
+  }
+
+  function itemsShareReorderGroup(a, b) {
+    return itemReorderGroupKey(a) === itemReorderGroupKey(b);
+  }
+
+  function getAllOpenItemsSorted() {
+    return sortItemsForView(state.items.filter(function (t) { return t.status !== 'done'; }));
+  }
+
+  function getViewOpenItems() {
+    return getAllOpenItemsSorted().filter(itemMatchesFilters);
+  }
+
+  function reorderOpenItem(draggedId, targetId) {
+    if (!draggedId || !targetId || draggedId === targetId) return false;
+    var dragged = getItem(draggedId);
+    var target = getItem(targetId);
+    if (!dragged || !target || !itemsShareReorderGroup(dragged, target)) return false;
+    var allOpen = getAllOpenItemsSorted();
+    var viewOpen = allOpen.filter(itemMatchesFilters);
+    var from = viewOpen.findIndex(function (t) { return t.id === draggedId; });
+    var to = viewOpen.findIndex(function (t) { return t.id === targetId; });
+    if (from < 0 || to < 0) return false;
+    var moved = viewOpen.splice(from, 1)[0];
+    viewOpen.splice(to, 0, moved);
+    var slots = [];
+    allOpen.forEach(function (t, idx) {
+      if (itemMatchesFilters(t)) slots.push(idx);
+    });
+    slots.forEach(function (slotIdx, i) {
+      allOpen[slotIdx] = viewOpen[i];
+    });
+    allOpen.forEach(function (t, i) { t.sortOrder = i; });
+    state.itemSort = 'custom';
+    saveState();
+    return true;
+  }
+
+  function attachItemListDragReorder(listEl) {
+    if (!listEl || listEl.dataset.dragBound === '1') return;
+    listEl.dataset.dragBound = '1';
+    var pressTimer = null;
+    var dragId = null;
+    var dragEl = null;
+    var activePointerId = null;
+
+    function clearPress() {
+      if (pressTimer) clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+
+    function resetDrag() {
+      clearPress();
+      if (dragEl) dragEl.classList.remove('item-lifted');
+      listEl.querySelectorAll('.item-drag-over').forEach(function (n) {
+        n.classList.remove('item-drag-over');
+      });
+      dragId = null;
+      dragEl = null;
+      activePointerId = null;
+    }
+
+    listEl.addEventListener('pointerdown', function (e) {
+      if (dragId) return;
+      var row = e.target.closest('.item');
+      if (!row || !listEl.contains(row)) return;
+      if (e.target.closest('.item-check, .item-action-btn, .item-edit-btn, .pill.link, a, button')) return;
+      if (!e.target.closest('.item-drag-handle, .item-body')) return;
+      var item = getItem(row.dataset.id);
+      if (!item || item.status === 'done') return;
+      clearPress();
+      activePointerId = e.pointerId;
+      pressTimer = setTimeout(function () {
+        pressTimer = null;
+        dragId = row.dataset.id;
+        dragEl = row;
+        row.classList.add('item-lifted');
+        try { row.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+      }, 380);
+    });
+
+    listEl.addEventListener('pointermove', function (e) {
+      if (pressTimer && e.pointerId === activePointerId) clearPress();
+      if (!dragId) return;
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      var row = hit && hit.closest ? hit.closest('.item') : null;
+      listEl.querySelectorAll('.item-drag-over').forEach(function (n) {
+        n.classList.remove('item-drag-over');
+      });
+      if (row && listEl.contains(row) && itemsShareReorderGroup(getItem(dragId), getItem(row.dataset.id))) {
+        row.classList.add('item-drag-over');
+      }
+    });
+
+    function endDrag(e) {
+      if (!dragId) {
+        clearPress();
+        return;
+      }
+      var hit = document.elementFromPoint(e.clientX, e.clientY);
+      var row = hit && hit.closest ? hit.closest('.item') : null;
+      var targetId = row && listEl.contains(row) ? row.dataset.id : null;
+      var fromId = dragId;
+      resetDrag();
+      if (targetId && reorderOpenItem(fromId, targetId)) {
+        render();
+      }
+    }
+
+    listEl.addEventListener('pointerup', endDrag);
+    listEl.addEventListener('pointercancel', resetDrag);
+  }
+
+  function appendItemList(parent, items) {
+    var list = el('div', { class: 'item-list' });
+    items.forEach(function (t) { list.appendChild(renderItemRow(t)); });
+    parent.appendChild(list);
+    if (items.length > 1) attachItemListDragReorder(list);
+    return list;
+  }
+
   function renderItemRow(item) {
+    var runningTimer = getRunningTimer(item.id);
+    var isPrinting = !!runningTimer;
     var row = el('div', {
-      class: 'item' +
+      class: 'item item-compact' +
         (item.status === 'done' ? ' done' : '') +
         itemRowPriorityClass(item.priority) +
-        (item.status === 'ready' ? ' status-ready' : '') +
-        (item.status === 'waitlisted' ? ' status-waitlisted' : ''),
+        (isPrinting ? ' status-printing' : '') +
+        (item.status === 'ready' && !isPrinting ? ' status-ready' : '') +
+        (item.status === 'waitlisted' ? ' status-waitlisted' : '') +
+        (item.status === 'again' ? ' status-again' : ''),
       dataset: { id: item.id }
     });
+
+    if (item.status !== 'done') {
+      var handle = el('div', {
+        class: 'item-drag-handle',
+        'aria-label': 'Hold and drag to reorder',
+        html: '<svg viewBox="0 0 24 24"><path d="M9 6h12M9 12h12M9 18h12M3 6h.01M3 12h.01M3 18h.01"/></svg>'
+      });
+      row.appendChild(handle);
+    }
 
     var check = el('div', {
       class: 'item-check ' + priorityClass(item.priority) + (item.status === 'done' ? ' checked' : ''),
@@ -1227,14 +1909,21 @@
     body.appendChild(titleRow);
 
     var meta = el('div', { class: 'item-meta' });
-    meta.appendChild(el('span', {
-      class: 'pill status-' + item.status,
-      text: STATUS_LABELS[item.status] || item.status
-    }));
+    var showStatusPill = isPrinting || item.status !== 'queued';
+    if (showStatusPill) {
+      if (isPrinting) {
+        meta.appendChild(el('span', { class: 'pill printing', text: 'Printing' }));
+      } else {
+        meta.appendChild(el('span', {
+          class: 'pill status-' + item.status,
+          text: STATUS_LABELS[item.status] || item.status
+        }));
+      }
+    }
     meta.appendChild(el('span', { class: 'pill', text: plateProgressText(item) }));
     if (item.printerId) {
       var pr = getPrinter(item.printerId);
-      if (pr) meta.appendChild(el('span', { class: 'pill', text: pr.name }));
+      if (pr) meta.appendChild(el('span', { class: 'pill printer', text: pr.name }));
     }
     (item.categoryIds || []).forEach(function (id) {
       var cat = getCategory(id);
@@ -1256,18 +1945,53 @@
       body.appendChild(el('div', { class: 'item-wait-reason', text: item.waitlistReason }));
     }
 
-    if (item.status !== 'done' && item.status !== 'ready') {
+    if (isPrinting) {
+      var stats = timerProgress(runningTimer);
+      var progressWrap = el('div', { class: 'item-print-progress' });
+      var progressTop = el('div', { class: 'item-print-progress-top' });
+      progressTop.appendChild(el('span', { class: 'item-print-label', text: 'Time left' }));
+      progressTop.appendChild(el('span', {
+        class: 'item-print-time' + (stats.remaining < 0 ? ' overdue' : ''),
+        text: stats.remaining < 0 ? '+' + formatDuration(-stats.remaining) : formatDuration(stats.remaining)
+      }));
+      progressWrap.appendChild(progressTop);
+      var bar = el('div', { class: 'timer-bar' });
+      bar.appendChild(el('span', { style: 'width:' + (stats.progress * 100) + '%' }));
+      progressWrap.appendChild(bar);
+      body.appendChild(progressWrap);
+      var printActions = el('div', { class: 'item-actions' });
+      printActions.appendChild(el('button', {
+        type: 'button',
+        class: 'item-action-btn primary',
+        text: 'Done',
+        onClick: function (e) {
+          e.stopPropagation();
+          finishTimer(runningTimer.id, false);
+        }
+      }));
+      printActions.appendChild(el('button', {
+        type: 'button',
+        class: 'item-action-btn',
+        text: 'Cancel',
+        onClick: function (e) {
+          e.stopPropagation();
+          finishTimer(runningTimer.id, true);
+          render();
+        }
+      }));
+      body.appendChild(printActions);
+    } else if (item.status !== 'done' && item.status !== 'ready') {
       var actions = el('div', { class: 'item-actions' });
       actions.appendChild(el('button', {
         type: 'button',
-        class: 'item-action-btn primary',
-        text: 'Sliced & sent',
+        class: 'item-action-btn',
+        text: 'Sliced',
         onClick: function (e) {
           e.stopPropagation();
-          openSendModal(item.id);
+          openSlicePrinterModal(item.id);
         }
       }));
-      if (item.status !== 'waitlisted') {
+      if (item.status !== 'waitlisted' && item.status !== 'again') {
         actions.appendChild(el('button', {
           type: 'button',
           class: 'item-action-btn',
@@ -1284,10 +2008,10 @@
       readyActions.appendChild(el('button', {
         type: 'button',
         class: 'item-action-btn primary',
-        text: 'Start timer',
+        text: 'Start print',
         onClick: function (e) {
           e.stopPropagation();
-          openSendModal(item.id, { timerOnly: true });
+          openStartPrintModal(item.id);
         }
       }));
       body.appendChild(readyActions);
@@ -1310,6 +2034,10 @@
   function itemMatchesFilters(item) {
     if (state.statusFilter === 'all') {
       if (item.status === 'done') return false;
+    } else if (state.statusFilter === 'printing') {
+      if (!itemHasRunningTimer(item.id)) return false;
+    } else if (state.statusFilter === 'ready') {
+      if (item.status !== 'ready' || itemHasRunningTimer(item.id)) return false;
     } else if (item.status !== state.statusFilter) {
       return false;
     }
@@ -1347,23 +2075,38 @@
     var statusFilter = document.getElementById('statusFilter');
     if (statusFilter) statusFilter.value = state.statusFilter;
 
+    var sortSelect = document.getElementById('itemSort');
+    if (sortSelect) sortSelect.value = normalizeItemSort(state.itemSort);
+
     var filtered = state.items.filter(itemMatchesFilters);
-    var open = sortItems(filtered.filter(function (t) { return t.status !== 'done'; }));
+    var open = sortItemsForView(filtered.filter(function (t) { return t.status !== 'done'; }));
     var done = state.statusFilter === 'done'
-      ? sortItems(state.items.filter(function (t) {
+      ? sortItemsForView(state.items.filter(function (t) {
         return t.status === 'done' && (state.categoryFilter === 'all' || (t.categoryIds || []).includes(state.categoryFilter));
       }))
-      : sortItems(state.items.filter(function (t) { return t.status === 'done'; }));
+      : sortItemsForView(state.items.filter(function (t) { return t.status === 'done'; }));
 
     if (!open.length && state.statusFilter !== 'done') {
       container.appendChild(el('div', {
         class: 'empty-state',
         html: '<p>Nothing in the queue yet.<br />Add a model above — high priority jumps to the top.</p>'
       }));
+    } else if (open.length && state.statusFilter === 'all') {
+      var printing = open.filter(function (t) { return itemHasRunningTimer(t.id); });
+      if (printing.length) {
+        container.appendChild(el('div', { class: 'queue-group-label', text: 'Printing' }));
+        appendItemList(container, printing);
+      }
+      OPEN_STATUS_ORDER.forEach(function (status) {
+        var group = open.filter(function (t) {
+          return t.status === status && !itemHasRunningTimer(t.id);
+        });
+        if (!group.length) return;
+        container.appendChild(el('div', { class: 'queue-group-label', text: STATUS_LABELS[status] }));
+        appendItemList(container, group);
+      });
     } else if (open.length) {
-      var list = el('div', { class: 'item-list' });
-      open.forEach(function (t) { list.appendChild(renderItemRow(t)); });
-      container.appendChild(list);
+      appendItemList(container, open);
     }
 
     if (state.statusFilter === 'all' && done.length) {
@@ -1379,9 +2122,7 @@
       summary.appendChild(el('span', { class: 'count', text: String(done.length) }));
       container.appendChild(summary);
       if (doneExpanded) {
-        var doneList = el('div', { class: 'item-list' });
-        done.forEach(function (t) { doneList.appendChild(renderItemRow(t)); });
-        container.appendChild(doneList);
+        appendItemList(container, done);
       }
     } else if (state.statusFilter === 'done') {
       if (!done.length) {
@@ -1390,9 +2131,7 @@
           html: '<p>No completed prints yet.</p>'
         }));
       } else {
-        var onlyDone = el('div', { class: 'item-list' });
-        done.forEach(function (t) { onlyDone.appendChild(renderItemRow(t)); });
-        container.appendChild(onlyDone);
+        appendItemList(container, done);
       }
     }
   }
@@ -1511,8 +2250,6 @@
             text: 'Done',
             onClick: function () {
               finishTimer(timer.id, false);
-              render();
-              showToast('Print logged');
             }
           }));
           side.appendChild(el('button', {
@@ -1539,19 +2276,25 @@
         if (historyEmpty) historyEmpty.hidden = false;
       } else {
         if (historyEmpty) historyEmpty.hidden = true;
-        state.history.slice(0, 40).forEach(function (h) {
+        var historySort = document.getElementById('historySort');
+        if (historySort) historySort.value = normalizeHistorySort(state.historySort);
+        sortHistoryForView(state.history).slice(0, 40).forEach(function (h) {
           var printer = getPrinter(h.printerId);
           var row = el('div', { class: 'history-row' });
           var info = el('div', { class: 'printer-info' });
           info.appendChild(el('div', { class: 'printer-name', text: h.itemTitle || 'Print' }));
-          info.appendChild(el('div', {
-            class: 'printer-meta',
-            text: [
-              printer ? printer.name : 'Unknown printer',
-              h.durationMinutes != null ? h.durationMinutes + ' min' : null,
-              formatWhen(h.finishedAt)
-            ].filter(Boolean).join(' · ')
-          }));
+          var stars = formatStarRating(h.rating);
+          var metaBits = [
+            printer ? printer.name : 'Unknown printer',
+            h.durationMinutes != null ? h.durationMinutes + ' min' : null,
+            stars || null,
+            h.wouldPrintAgain === true ? 'Print again' : (h.wouldPrintAgain === false ? 'No reprint' : null),
+            formatWhen(h.finishedAt)
+          ].filter(Boolean);
+          info.appendChild(el('div', { class: 'printer-meta', text: metaBits.join(' · ') }));
+          if (h.comment) {
+            info.appendChild(el('div', { class: 'history-comment', text: h.comment }));
+          }
           row.appendChild(info);
           historyList.appendChild(row);
         });
@@ -1609,6 +2352,7 @@
     syncWaitlistField();
     renderEditorFilament();
     renderEditorCategories();
+    renderEditorPrinters();
     renderEditorPlates();
     openModal('itemModal');
     if (opts.focusWaitlist) {
@@ -1632,11 +2376,24 @@
     document.querySelectorAll('#itemStatusPicker .status-btn').forEach(function (btn) {
       btn.classList.toggle('selected', btn.dataset.status === editingDraft.status);
     });
+    var box = document.getElementById('itemReadyActions');
+    if (box) box.hidden = editingDraft.status === 'ready' || editingDraft.status === 'done';
   }
 
   function syncWaitlistField() {
     var field = document.getElementById('waitlistReasonField');
     if (field) field.hidden = editingDraft.status !== 'waitlisted';
+  }
+
+  function renderEditorPrinters() {
+    if (!editingDraft) return;
+    renderPrinterChipRow(
+      document.getElementById('itemPrinters'),
+      function () { return editingDraft.printerId || null; },
+      function (id) { editingDraft.printerId = id || null; },
+      function () {},
+      { label: '' }
+    );
   }
 
   function renderEditorFilament() {
@@ -1723,8 +2480,7 @@
     });
   }
 
-  function openSendModal(itemId, opts) {
-    opts = opts || {};
+  function openStartPrintModal(itemId) {
     sendTargetItemId = itemId;
     var item = getItem(itemId);
     if (!item) return;
@@ -1742,11 +2498,7 @@
       select.appendChild(opt);
     });
     document.getElementById('sendDuration').value = item.estimatedMinutes || '';
-    document.getElementById('sendStartTimer').checked = !!opts.timerOnly || true;
-    document.getElementById('sendModalLead').textContent = opts.timerOnly
-      ? 'Start a timer for “‘ + item.title + ’”.'
-      : 'Mark “‘ + item.title + ’” as sliced & sent to a printer.';
-    document.getElementById('sendConfirm').textContent = opts.timerOnly ? 'Start timer' : 'Mark ready';
+    document.getElementById('sendModalLead').textContent = 'Begin “' + item.title + '” and start a timer.';
     openModal('sendModal');
   }
 
@@ -1912,6 +2664,12 @@
       state.filamentColors = Array.isArray(slice.filamentColors)
         ? slice.filamentColors.map(normalizeFilamentColorDef)
         : [];
+      if (typeof slice.itemSort === 'string') state.itemSort = normalizeItemSort(slice.itemSort);
+      if (typeof slice.keepAddSelections === 'boolean') state.keepAddSelections = slice.keepAddSelections;
+      if (slice.lastAddSelections && typeof slice.lastAddSelections === 'object') {
+        state.lastAddSelections = slice.lastAddSelections;
+      }
+      if (state.keepAddSelections) applyLastAddSelections();
     } else {
       var catMap = {};
       (slice.categories || []).forEach(function (c) {
@@ -2003,7 +2761,7 @@
 
   function importFocusData(parsed) {
     if (!parsed || !Array.isArray(parsed.tasks)) {
-      showToast('Not a Focus / ADHD tracker export', { error: true });
+      showToast('Not a Focus export', { error: true });
       return 0;
     }
     var extracted = getFocusPrinterTasks(parsed);
@@ -2124,7 +2882,7 @@
           }
         }
         if (!isFocusBackup(parsed)) {
-          showToast('Pick a Focus / ADHD tracker export JSON', { error: true });
+          showToast('Pick a Focus export JSON', { error: true });
           return;
         }
         var added = importFocusData(parsed);
@@ -2141,39 +2899,57 @@
   }
 
   function wireQuickAdd() {
-    var selectedPrio = 0;
     var prioBtns = document.querySelectorAll('#quickPriority .quick-prio-btn');
     prioBtns.forEach(function (btn) {
       btn.addEventListener('click', function () {
         var p = parseInt(btn.dataset.prio, 10);
         if (btn.classList.contains('selected')) {
-          selectedPrio = 0;
           quickUi.priority = 0;
-          prioBtns.forEach(function (b) {
-            b.classList.remove('selected');
-            b.setAttribute('aria-pressed', 'false');
-          });
-          return;
+        } else {
+          quickUi.priority = p;
         }
-        selectedPrio = p;
-        quickUi.priority = p;
-        prioBtns.forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('selected', on);
-          b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
+        syncQuickAddForm();
+        if (state.keepAddSelections) {
+          persistLastAddSelections();
+          saveState();
+        }
       });
     });
 
     function bumpPlates(delta) {
       quickUi.plateCount = Math.max(1, Math.min(99, (quickUi.plateCount || 1) + delta));
       document.getElementById('quickPlateCount').value = String(quickUi.plateCount);
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
     }
     document.getElementById('quickPlateMinus').addEventListener('click', function () { bumpPlates(-1); });
     document.getElementById('quickPlatePlus').addEventListener('click', function () { bumpPlates(1); });
     document.getElementById('quickPlateCount').addEventListener('change', function () {
       quickUi.plateCount = Math.max(1, Math.min(99, parseInt(this.value, 10) || 1));
       this.value = String(quickUi.plateCount);
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('quickPaid').addEventListener('change', function () {
+      quickUi.paid = this.checked;
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('quickAms').addEventListener('change', function () {
+      quickUi.ams = this.checked;
+      if (state.keepAddSelections) {
+        persistLastAddSelections();
+        saveState();
+      }
+    });
+    document.getElementById('keepAddSelections').addEventListener('change', function () {
+      setKeepAddSelections(this.checked);
     });
 
     function submit() {
@@ -2186,35 +2962,30 @@
         showToast('Link must be a valid http(s) URL', { error: true });
         return;
       }
+      readQuickAddFormIntoUi();
       var filamentColorIds = Array.from(quickUi.filament);
       var categoryIds = Array.from(quickUi.categories);
       var plateCount = quickUi.plateCount || 1;
-      var prio = selectedPrio;
+      var prio = quickUi.priority || 0;
       addItem({
         title: title,
         link: link,
         priority: prio,
-        paid: document.getElementById('quickPaid').checked,
-        ams: document.getElementById('quickAms').checked,
+        status: 'queued',
+        paid: !!quickUi.paid,
+        ams: !!quickUi.ams,
         filamentColorIds: filamentColorIds,
         categoryIds: categoryIds,
         plateCount: plateCount,
-        plates: makePlates(plateCount, categoryIds)
+        plates: makePlates(plateCount, categoryIds),
+        printerId: quickUi.printerId || null
       });
       filamentColorIds.forEach(recordFilamentColorUse);
+      if (categoryIds.length) bumpCategoriesRecentlyUsed(categoryIds);
       titleInput.value = '';
       linkInput.value = '';
-      selectedPrio = 0;
-      quickUi.priority = 0;
-      prioBtns.forEach(function (b) {
-        b.classList.remove('selected');
-        b.setAttribute('aria-pressed', 'false');
-      });
-      document.getElementById('quickPaid').checked = false;
-      document.getElementById('quickAms').checked = false;
-      quickUi.categories.clear();
-      quickUi.filament.clear();
-      quickUi.plateCount = 1;
+      persistLastAddSelections();
+      if (!state.keepAddSelections) resetQuickAddTagsAfterSubmit();
       saveState();
       render();
       showToast(prio >= 2 ? 'Added near the top' : 'Added');
@@ -2239,6 +3010,11 @@
 
     document.getElementById('statusFilter').addEventListener('change', function () {
       state.statusFilter = this.value;
+      saveState();
+      renderQueue();
+    });
+    document.getElementById('itemSort').addEventListener('change', function () {
+      state.itemSort = normalizeItemSort(this.value);
       saveState();
       renderQueue();
     });
@@ -2312,8 +3088,13 @@
         filamentColors: [],
         filamentColorSortAt: 0,
         statusFilter: 'all',
-        categoryFilter: 'all'
+        categoryFilter: 'all',
+        keepAddSelections: false,
+        lastAddSelections: null,
+        itemSort: 'custom',
+        historySort: 'closed-newest'
       };
+      resetQuickAddSelections();
       ensureFilamentColors();
       saveState();
       closeModal('settingsModal');
@@ -2458,9 +3239,11 @@
       renderEditorPlates();
       showToast('Added ' + names.length + ' plate' + (names.length === 1 ? '' : 's'));
     });
+    document.getElementById('keepAddSelectionsSetting').addEventListener('change', function () {
+      setKeepAddSelections(this.checked);
+    });
     document.getElementById('markReadyBtn').addEventListener('click', function () {
-      if (!editingItemId) return;
-      // Persist draft fields into draft object first
+      if (!editingItemId || !editingDraft) return;
       editingDraft.title = document.getElementById('itemTitle').value;
       editingDraft.link = document.getElementById('itemLink').value;
       editingDraft.notes = document.getElementById('itemNotes').value;
@@ -2469,7 +3252,7 @@
       editingDraft.ams = document.getElementById('itemAms').checked;
       if (!updateItemFromDraft()) return;
       closeModal('itemModal');
-      openSendModal(editingItemId);
+      openSlicePrinterModal(editingItemId);
     });
     document.getElementById('itemSaveBtn').addEventListener('click', function () {
       editingDraft.title = document.getElementById('itemTitle').value;
@@ -2503,24 +3286,97 @@
     document.getElementById('sendConfirm').addEventListener('click', function () {
       var printerId = document.getElementById('sendPrinterSelect').value;
       var minutes = parseInt(document.getElementById('sendDuration').value, 10);
-      var start = document.getElementById('sendStartTimer').checked;
+      var item = getItem(sendTargetItemId);
       if (!printerId) {
         showToast('Pick a printer', { error: true });
         return;
       }
-      if (start && (!minutes || minutes < 1)) {
+      if (!minutes || minutes < 1) {
         showToast('Enter print time in minutes', { error: true });
         return;
       }
-      markReadyAndMaybeTimer({
+      startTimer({
         itemId: sendTargetItemId,
+        itemTitle: item ? item.title : '',
         printerId: printerId,
-        durationMinutes: minutes || null,
-        startTimer: start && minutes > 0
+        durationMinutes: minutes
       });
       closeModal('sendModal');
       render();
-      showToast(start ? 'Ready — timer started' : 'Marked ready');
+      showToast('Print started');
+    });
+
+    function dismissSlicePrompt() {
+      pendingSliceItemId = null;
+      closeModal('sliceModal');
+    }
+    document.getElementById('sliceModalClose').addEventListener('click', dismissSlicePrompt);
+    document.getElementById('sliceCancel').addEventListener('click', dismissSlicePrompt);
+    document.getElementById('sliceModal').addEventListener('click', function (e) {
+      if (e.target.id === 'sliceModal') dismissSlicePrompt();
+    });
+
+    document.querySelectorAll('#printRatingStars .print-rating-star').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        syncPrintRatingStars(parseInt(btn.dataset.stars, 10));
+      });
+    });
+    document.getElementById('printAgainYesBtn').addEventListener('click', function () {
+      syncWouldPrintAgainButtons(true);
+    });
+    document.getElementById('printAgainNoBtn').addEventListener('click', function () {
+      syncWouldPrintAgainButtons(false);
+    });
+    document.getElementById('printRatingContinue').addEventListener('click', function () {
+      applyPrintFinished({ skipRating: false });
+    });
+    document.getElementById('printRatingSkip').addEventListener('click', skipPrintRating);
+    document.getElementById('printRatingModalClose').addEventListener('click', dismissPrintFinishedModal);
+    document.getElementById('printRatingModal').addEventListener('click', function (e) {
+      if (e.target.id === 'printRatingModal') dismissPrintFinishedModal();
+    });
+
+    document.getElementById('closeOutPrintingBtn').addEventListener('click', closeOutChoosePrinting);
+    document.getElementById('closeOutFinishedBtn').addEventListener('click', closeOutChooseFinished);
+    document.getElementById('closeOutCancel').addEventListener('click', dismissCloseOutChoice);
+    document.getElementById('closeOutModalClose').addEventListener('click', dismissCloseOutChoice);
+    document.getElementById('closeOutModal').addEventListener('click', function (e) {
+      if (e.target.id === 'closeOutModal') dismissCloseOutChoice();
+    });
+    document.getElementById('closeOutPrinterCancel').addEventListener('click', dismissCloseOutPrinter);
+    document.getElementById('closeOutPrinterModalClose').addEventListener('click', dismissCloseOutPrinter);
+    document.getElementById('closeOutPrinterModal').addEventListener('click', function (e) {
+      if (e.target.id === 'closeOutPrinterModal') dismissCloseOutPrinter();
+    });
+
+    var historySortEl = document.getElementById('historySort');
+    if (historySortEl) {
+      historySortEl.addEventListener('change', function () {
+        state.historySort = normalizeHistorySort(this.value);
+        saveState();
+        render();
+      });
+    }
+
+    function dismissReprintPrompt() {
+      pendingReprintItemId = null;
+      pendingRatingHistoryId = null;
+      closeModal('reprintModal');
+    }
+    document.getElementById('reprintModalClose').addEventListener('click', dismissReprintPrompt);
+    document.getElementById('reprintNoBtn').addEventListener('click', dismissReprintPrompt);
+    document.getElementById('reprintYesBtn').addEventListener('click', function () {
+      var item = getItem(pendingReprintItemId);
+      pendingReprintItemId = null;
+      if (item) {
+        addItem(cloneItemForReprint(item));
+        showToast('Added to Will print again');
+      }
+      closeModal('reprintModal');
+      render();
+    });
+    document.getElementById('reprintModal').addEventListener('click', function (e) {
+      if (e.target.id === 'reprintModal') dismissReprintPrompt();
     });
 
     // Printer modal
@@ -2600,13 +3456,14 @@
   function startTicker() {
     clearInterval(tickTimer);
     tickTimer = setInterval(function () {
-      if (currentView === 'printers' && state.timers.some(function (t) { return t.status === 'running'; })) {
-        renderPrinters();
-      }
+      if (!state.timers.some(function (t) { return t.status === 'running'; })) return;
+      if (currentView === 'printers') renderPrinters();
+      else renderQueue();
     }, 1000);
   }
 
   loadState();
+  if (state.keepAddSelections) applyLastAddSelections();
   wireUi();
   render();
   startTicker();

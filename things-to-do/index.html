@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Local Events</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Local Events" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#3b2416" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=7" />
+</head>
+<body>
+  <!-- build: local-events-v7 -->
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Local Events</h1>
+      <p id="headerSub">Pick events, add to Calendar</p>
+    </div>
+  </header>
+
+  <main class="main-panel">
+    <section class="day-intro" aria-labelledby="dayTitle">
+      <nav class="day-chips" id="dayChips" aria-label="Choose a day" hidden></nav>
+      <p class="kicker" id="dayKicker"></p>
+      <h2 class="day-title" id="dayTitle">Loading…</h2>
+      <p class="lede" id="dayLede"></p>
+    </section>
+
+    <div class="tools">
+      <label class="visually-hidden" for="q">Search events</label>
+      <input id="q" class="search" type="search" placeholder="Search title, place, price…" autocomplete="off" enterkeyhint="search" />
+      <div id="chips" class="chips" role="toolbar" aria-label="Filter by tag"></div>
+      <div id="areaChips" class="chips area-chips" role="toolbar" aria-label="Filter by neighborhood" hidden></div>
+      <div class="bar-actions">
+        <span id="count"></span>
+        <span>
+          <button type="button" class="text-btn" id="selectShown">Select shown</button>
+          ·
+          <button type="button" class="text-btn" id="clearBtn">Clear</button>
+        </span>
+      </div>
+    </div>
+
+    <div id="list" class="list" aria-live="polite"></div>
+
+    <p class="classic-link">Your saved Dates list is still here: <a href="../dates-classic/">open Dates classic</a>.</p>
+  </main>
+
+  <div class="bottom-dock">
+    <button type="button" class="add" id="addBtn" disabled>Add to Apple Calendar</button>
+    <p class="hint" id="hint">Check events, then tap the button. Calendar opens a preview for each one.</p>
+  </div>
+
+  <div class="overlay" id="calSheet" role="dialog" aria-modal="true" aria-labelledby="calSheetTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="calSheetTitle">Add to Apple Calendar</h2>
+      <p class="sheet-intro" id="calSheetIntro"></p>
+      <div class="cal-all-wrap" id="calSheetAll"></div>
+      <ul class="cal-list" id="calSheetList"></ul>
+      <p class="sheet-fine">Nothing opening from the Home Screen icon? Open this page in Safari and try again.</p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="calSheetShare">Save as one file</button>
+        <button type="button" class="btn btn-secondary" id="calSheetClose">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="ics.js?v=7"></script>
+  <script src="app.js?v=7"></script>
+</body>
+</html>

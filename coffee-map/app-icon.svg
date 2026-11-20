@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Coffee Map icon">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="8" x2="168" y2="172" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#bg)"/>
+  <circle cx="40" cy="36" r="34" fill="#fbbf24" opacity=".28"/>
+  <path d="M90 22c-28 0-50 22-50 50 0 36 50 86 50 86s50-50 50-86c0-28-22-50-50-50z" fill="#fff7ed"/>
+  <path d="M90 30c-23 0-41 18-41 42 0 30 41 74 41 74s41-44 41-74c0-24-18-42-41-42z" fill="#fff"/>
+  <path d="M72 78c0-10 8-18 18-18s18 8 18 18v10H72V78z" fill="#9a3412"/>
+  <path d="M108 82h8c6 0 10 5 10 11s-4 11-10 11h-8" fill="none" stroke="#9a3412" stroke-width="6" stroke-linecap="round"/>
+  <rect x="70" y="90" width="40" height="10" rx="3" fill="#7c2d12"/>
+  <path d="M82 48c0 6 4 8 4 14M90 46c0 7 5 9 5 16M98 48c0 6 3 8 3 13" fill="none" stroke="#c2410c" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

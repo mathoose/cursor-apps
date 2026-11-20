@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v52 -->
+  <!-- build: hj-today-version-v80 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -129,6 +129,31 @@
       color: var(--ink);
     }
     .nav-row { display: flex; align-items: center; gap: 6px; }
+    .settings-cog {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .settings-cog svg { width: 18px; height: 18px; }
+    .plot-default-habits {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 200px;
+      overflow: auto;
+      margin: 8px 0 12px;
+    }
+    .plot-default-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+    }
     .nav-btn {
       min-width: var(--tap);
       min-height: 36px;
@@ -677,7 +702,7 @@
     }
     .graph-chart-tooltip li {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 6px;
       font-size: 0.75rem;
       color: var(--ink);
@@ -722,6 +747,16 @@
       color: var(--ink);
       font-weight: 700;
     }
+    .graph-chart-tooltip-note {
+      display: block;
+      width: 100%;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: var(--muted);
+      line-height: 1.35;
+      white-space: normal;
+      margin-top: 2px;
+    }
     body.layout-modern .graph-chart-tooltip {
       background: #161a26;
       border-color: rgba(255, 255, 255, 0.2);
@@ -743,6 +778,9 @@
     }
     body.layout-modern .graph-chart-tooltip-metric b {
       color: #ffffff;
+    }
+    body.layout-modern .graph-chart-tooltip-note {
+      color: #c5cbe0;
     }
     #graphsBody.graph-inspecting,
     #graphsBody.graph-inspecting * {
@@ -856,9 +894,9 @@
       cursor: pointer;
     }
     .exclude-day-chip.on {
-      background: #d8d4cc;
-      border-color: #b8b4ac;
-      color: #6b6560;
+      background: #fdeaea;
+      border-color: var(--accent);
+      color: var(--accent-dark);
     }
     .exclude-days-hint {
       margin: 6px 0 0;
@@ -962,16 +1000,54 @@
       touch-action: manipulation;
       position: relative;
     }
+    .category-filters .chip-pack {
+      display: inline-flex;
+      align-items: stretch;
+      flex-shrink: 0;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    .category-filters .chip-pack .chip {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      padding: 8px 4px;
+      min-height: 36px;
+    }
+    .category-filters .cat-nudge {
+      flex-shrink: 0;
+      width: 30px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1.125rem;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .category-filters .cat-nudge:disabled {
+      opacity: 0.28;
+      cursor: default;
+    }
     .category-filters .chip[data-cat-filter]:not([data-cat-filter="all"]) {
       cursor: grab;
     }
     .category-filters.cat-reordering .chip[data-cat-filter]:not([data-cat-filter="all"]) {
       cursor: grabbing;
     }
-    .category-filters .chip.cat-dragging {
+    .category-filters .chip.cat-dragging,
+    .category-filters .chip-pack.cat-dragging {
       opacity: 0.45;
     }
-    .category-filters .chip.cat-drop-before::before {
+    .category-filters .chip.cat-drop-before::before,
+    .category-filters .chip-pack.cat-drop-before::before {
       content: "";
       position: absolute;
       left: -5px;
@@ -981,7 +1057,8 @@
       border-radius: 2px;
       background: var(--accent);
     }
-    .category-filters .chip.cat-drop-after::after {
+    .category-filters .chip.cat-drop-after::after,
+    .category-filters .chip-pack.cat-drop-after::after {
       content: "";
       position: absolute;
       right: -5px;
@@ -991,9 +1068,17 @@
       border-radius: 2px;
       background: var(--accent);
     }
-    .category-filters .chip.on {
+    .category-filters .chip.on,
+    .category-filters .chip-pack.on .chip {
       border-color: var(--accent);
       background: #fdeaea;
+      color: var(--accent-dark);
+    }
+    .category-filters .chip-pack.on {
+      border-color: var(--accent);
+      background: #fdeaea;
+    }
+    .category-filters .chip-pack.on .cat-nudge:not(:disabled) {
       color: var(--accent-dark);
     }
     .year-toolbar .btn[aria-pressed="true"] {
@@ -1279,6 +1364,38 @@
       font-size: 0.8125rem;
       color: var(--muted);
       font-weight: 600;
+    }
+    .habits-list-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 12px;
+      align-items: center;
+    }
+    .habits-list-filter input[type="search"] {
+      flex: 1 1 160px;
+      min-width: 0;
+      height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9375rem;
+      background: #fff;
+    }
+    .habits-list-filter select {
+      flex: 0 1 140px;
+      min-width: 120px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0 10px;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    .habits-filter-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: -4px 0 10px;
     }
     .habit-meta-row {
       display: flex;
@@ -2133,67 +2250,89 @@
     }
     #panelToday .today-hide-btn:active { color: var(--accent); }
     #panelToday .today-hidden-section {
-      margin-top: 6px;
-      padding-top: 4px;
-      border-top: 1px dashed var(--border);
+      margin-top: 12px;
+      padding: 10px 12px 12px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+    #panelToday .today-hidden-section[open] {
+      background: #fff;
+      box-shadow: 0 8px 20px rgba(44, 36, 25, 0.08);
     }
     .today-hidden-section summary {
-      font-size: 0.6875rem;
-      font-weight: 600;
-      color: var(--muted);
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--ink);
       cursor: pointer;
       list-style: none;
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 2px 0 4px;
+      gap: 6px;
+      padding: 4px 0 6px;
     }
     .today-hidden-section summary::-webkit-details-marker { display: none; }
     .today-hidden-section summary::before {
       content: "▶";
-      font-size: 0.625rem;
+      font-size: 0.7rem;
       color: var(--muted);
       transition: transform 0.15s ease;
     }
     .today-hidden-section[open] summary::before { transform: rotate(90deg); }
+    .today-hidden-section[open] summary {
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
     .today-hidden-list {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+    .today-hidden-cat {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 2px 2px;
+    }
+    .today-hidden-cat:first-child { padding-top: 2px; }
     .today-hidden-restore {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       width: 100%;
-      min-height: 36px;
-      padding: 6px 10px;
+      min-height: 44px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.92);
+      border-radius: 10px;
+      background: #fff;
       font: inherit;
       color: var(--ink);
       cursor: pointer;
       text-align: left;
+      box-shadow: 0 1px 4px rgba(44, 36, 25, 0.06);
     }
     .today-hidden-restore:active { background: #f5f0e8; }
     .today-hidden-restore-plus {
       flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
       background: var(--accent);
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.125rem;
       font-weight: 700;
-      line-height: 22px;
+      line-height: 26px;
       text-align: center;
     }
     .today-hidden-restore-name {
       flex: 1;
       min-width: 0;
-      font-size: 0.8125rem;
-      font-weight: 600;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--ink);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -2594,6 +2733,64 @@
       font-size: 0.75rem;
       font-weight: 700;
     }
+    .daily-prompt-sheet {
+      position: fixed;
+      inset: 0;
+      z-index: 75;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .daily-prompt-sheet[hidden] { display: none !important; }
+    .daily-prompt-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: min(52vh, 420px);
+      overflow-y: auto;
+      margin-bottom: 14px;
+    }
+    .daily-prompt-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .daily-prompt-copy {
+      flex: 1;
+      min-width: 0;
+    }
+    .daily-prompt-name {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .daily-prompt-cat {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .daily-prompt-row .cell {
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+    .daily-prompt-hide {
+      flex-shrink: 0;
+      min-height: 36px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
     .time-add-sheet {
       position: fixed;
       inset: 0;
@@ -2695,6 +2892,27 @@
       font-weight: 700;
       letter-spacing: 0.02em;
     }
+    .number-pad-key-dot {
+      grid-column: 2;
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    .number-pad-note {
+      width: 100%;
+      min-height: 52px;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.9375rem;
+      line-height: 1.35;
+      resize: none;
+    }
+    .number-pad-note::placeholder {
+      color: var(--muted);
+    }
     .time-pad-display {
       display: flex;
       gap: 10px;
@@ -2785,21 +3003,57 @@
     body.layout-modern .year-habit-card,
     body.layout-modern .habits-backup-row,
     body.layout-modern .month-hidden-section,
-    body.layout-modern .habits-hidden-section {
+    body.layout-modern .habits-hidden-section,
+    body.layout-modern #panelToday .today-hidden-section {
       background: var(--card);
       border-color: var(--border);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
       border-radius: 18px;
     }
-    body.layout-modern .chip {
+    body.layout-modern #panelToday .today-hidden-section[open] {
+      background: #222636;
+      border-color: rgba(139, 124, 247, 0.45);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+    }
+    body.layout-modern .today-hidden-section summary {
+      color: #f4f5f8;
+    }
+    body.layout-modern .today-hidden-section[open] summary {
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+    }
+    body.layout-modern .today-hidden-cat {
+      color: #c5cbe0;
+    }
+    body.layout-modern .today-hidden-restore {
+      background: #2a2f40;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #f4f5f8;
+      box-shadow: none;
+    }
+    body.layout-modern .today-hidden-restore:active {
+      background: #32384c;
+    }
+    body.layout-modern .today-hidden-restore-name {
+      color: #f4f5f8;
+    }
+    body.layout-modern .chip,
+    body.layout-modern .chip-pack {
       background: var(--card-2);
       border-color: var(--border);
       color: #e8ecf4;
     }
-    body.layout-modern .chip.on {
+    body.layout-modern .chip.on,
+    body.layout-modern .chip-pack.on,
+    body.layout-modern .chip-pack.on .chip {
       background: rgba(139, 124, 247, 0.28);
       border-color: rgba(139, 124, 247, 0.65);
       color: #fff;
+    }
+    body.layout-modern .chip-pack.on .cat-nudge:not(:disabled) {
+      color: #fff;
+    }
+    body.layout-modern .cat-nudge {
+      color: #c5cbe0;
     }
     body.layout-modern .habits-cat-toggle,
     body.layout-modern .habits-color-toggle,
@@ -2837,6 +3091,11 @@
     body.layout-modern .habits-color-toggle .habits-caret,
     body.layout-modern .habits-danger-toggle {
       color: #c5cbe0 !important;
+    }
+    body.layout-modern .exclude-day-chip.on {
+      background: rgba(139, 124, 247, 0.35) !important;
+      border-color: rgba(139, 124, 247, 0.75) !important;
+      color: #fff !important;
     }
     body.layout-modern .graph-habit-chip {
       background: #252a3a;
@@ -2967,8 +3226,20 @@
     }
     body.layout-modern .habit-edit-panel,
     body.layout-modern .import-panel,
-    body.layout-modern .time-add-panel {
+    body.layout-modern .time-add-panel,
+    body.layout-modern .daily-prompt-panel {
       background: #1a1d29;
+    }
+    body.layout-modern .daily-prompt-row {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    body.layout-modern .daily-prompt-name {
+      color: #f4f5f8;
+    }
+    body.layout-modern .daily-prompt-hide {
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #c5cbe0;
     }
     body.layout-modern .time-add-inputs input {
       background: #252a3a !important;
@@ -2990,6 +3261,11 @@
     }
     body.layout-modern .number-pad-key:active {
       background: #32384c;
+    }
+    body.layout-modern .number-pad-note {
+      background: #252a3a;
+      border-color: rgba(255, 255, 255, 0.16);
+      color: #fff;
     }
     body.layout-modern .time-pad-field {
       background: #252a3a;
@@ -3126,6 +3402,9 @@
     <div class="topbar-inner">
       <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
       <h1>Habit Journal</h1>
+      <button type="button" class="nav-btn settings-cog" id="appSettingsBtn" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <div class="nav-row" id="topNav"></div>
     </div>
   </header>
@@ -3163,6 +3442,23 @@
       <label class="habit-edit-field">
         <span>Category</span>
         <select id="habitEditCategory"></select>
+      </label>
+      <label class="habit-edit-field">
+        <span>Daily reminder</span>
+        <select id="habitEditDailyWhen">
+          <option value="">Off</option>
+          <option value="morning">Morning — first 3 opens</option>
+          <option value="night">Night — after 8 PM</option>
+        </select>
+        <p class="hint exclude-days-hint">Any category. Hide on the morning/night prompt to send them to Hidden for today.</p>
+      </label>
+      <label class="habit-edit-field">
+        <span>Stats plot scale</span>
+        <select id="habitEditPlotScale">
+          <option value="zero">From 0 to high</option>
+          <option value="min">Lowest entry = 0%</option>
+        </select>
+        <p class="hint exclude-days-hint">Use lowest for habits like Weight so the line uses the range you actually move in.</p>
       </label>
       <label class="habit-edit-field" id="habitEditStepWrap">
         <span>+ per tap</span>
@@ -3242,6 +3538,44 @@
     </div>
   </div>
 
+  <div class="habit-edit-sheet" id="plotSettingsSheet" hidden role="dialog" aria-modal="true" aria-labelledby="plotSettingsTitle">
+    <div class="habit-edit-backdrop" id="plotSettingsBackdrop"></div>
+    <div class="habit-edit-panel" style="max-height:88vh;overflow:auto">
+      <div class="habit-edit-head">
+        <h2 id="plotSettingsTitle">Settings</h2>
+        <button type="button" class="habit-edit-close" id="plotSettingsClose" aria-label="Close">×</button>
+      </div>
+      <p class="hint">Plot default is what Stats → Plot opens to each time you launch the app.</p>
+      <label class="habit-edit-field">
+        <span>Plot default · category</span>
+        <select id="plotDefaultCategory"></select>
+      </label>
+      <div class="habit-edit-field">
+        <span>Habits on the plot</span>
+        <div class="plot-default-habits" id="plotDefaultHabits"></div>
+      </div>
+      <label class="habit-edit-field">
+        <span>Range</span>
+        <select id="plotDefaultRange"></select>
+      </label>
+      <label class="habit-edit-field">
+        <span>Y-axis</span>
+        <select id="plotDefaultYaxis">
+          <option value="percent">Percent</option>
+          <option value="raw">Numbers</option>
+        </select>
+      </label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultDaily" /> Show daily line</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa5" /> 5-day average (dots)</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa15" /> 15-day average (short dashes)</label>
+      <label class="plot-default-check"><input type="checkbox" id="plotDefaultMa30" /> 30-day average (long dashes)</label>
+      <div class="habit-edit-actions">
+        <button type="button" class="btn btn-secondary btn-block" id="plotDefaultFromCurrent">Use what’s on the plot now</button>
+        <button type="button" class="btn btn-primary btn-block" id="plotDefaultSave">Save plot default</button>
+      </div>
+    </div>
+  </div>
+
   <div class="time-add-sheet" id="timeAddSheet" hidden role="dialog" aria-modal="true" aria-labelledby="timeAddTitle">
     <div class="time-add-backdrop" id="timeAddBackdrop"></div>
     <div class="time-add-panel">
@@ -3297,10 +3631,24 @@
         <button type="button" class="number-pad-key number-pad-key-action" data-num-clear="1">Clear</button>
         <button type="button" class="number-pad-key" data-num="0">0</button>
         <button type="button" class="number-pad-key number-pad-key-action" data-num-back="1" aria-label="Backspace">⌫</button>
+        <button type="button" class="number-pad-key number-pad-key-dot" data-num="." aria-label="Decimal point">.</button>
       </div>
+      <textarea id="numberPadNote" class="number-pad-note" rows="2" maxlength="160" placeholder="Optional note for this day" autocomplete="off"></textarea>
       <div class="time-add-actions">
         <button type="button" class="btn btn-secondary" id="numberPadCancel">Cancel</button>
         <button type="button" class="btn btn-primary" id="numberPadSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="daily-prompt-sheet" id="dailyPromptSheet" hidden role="dialog" aria-modal="true" aria-labelledby="dailyPromptTitle">
+    <div class="time-add-backdrop" id="dailyPromptBackdrop"></div>
+    <div class="time-add-panel daily-prompt-panel">
+      <h2 id="dailyPromptTitle">Morning daily</h2>
+      <p class="time-add-sub" id="dailyPromptSub">Unfinished for today</p>
+      <div class="daily-prompt-list" id="dailyPromptList"></div>
+      <div class="time-add-actions">
+        <button type="button" class="btn btn-secondary" id="dailyPromptLater">Not now</button>
       </div>
     </div>
   </div>
@@ -3322,7 +3670,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v66 · Aug 17, 2026";
+  let habitJournalVersionText = "v80 · Nov 19, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -3345,6 +3693,11 @@
   const STEPS_BASELINE = 5000;
   const STEPS_BASELINE_NAME = "Steps";
   const MAX_NUMBER_VALUE = 999999;
+  const DAILY_MORNING_OPENS = 3;
+  const DAILY_NIGHT_HOUR = 20;
+  const DAILY_OPEN_GAP_MS = 60 * 1000;
+  const MAX_NUMBER_DECIMALS = 2;
+  const MAX_CELL_NOTE = 160;
   const MAX_TIME_HOURS = 99;
   const MAX_TIME_MINUTES = 59;
   const MODERN_ACCENTS = ["#ff8a3d", "#4da3ff", "#3dcdc0", "#a78bfa", "#f5c542", "#f472b6", "#34d399", "#fb7185"];
@@ -3360,6 +3713,7 @@
   };
   const CUSTOM_CATEGORY_ACCENTS = ["#38bdf8", "#c084fc", "#4ade80", "#fb7185", "#22d3ee", "#e879f9", "#a3e635", "#f59e0b"];
   const GRAPH_MA_KEY = "habit-journal-graph-ma";
+  const PLOT_DEFAULT_KEY = "habit-journal-plot-default";
   let timeAddContext = null;
   let timePadField = "h";
   let timePadHours = "";
@@ -3380,9 +3734,11 @@
   }
 
   function clampNumberValue(n) {
-    const v = parseInt(n, 10);
+    const v = parseFloat(n);
     if (!isFinite(v) || v < 0) return 0;
-    return Math.min(MAX_NUMBER_VALUE, v);
+    const factor = Math.pow(10, MAX_NUMBER_DECIMALS);
+    const rounded = Math.round(v * factor) / factor;
+    return Math.min(MAX_NUMBER_VALUE, rounded);
   }
 
   function clampTimeStepSeconds(sec) {
@@ -3491,10 +3847,12 @@
       const raw = localStorage.getItem(GRAPH_MA_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
+      graphMa5 = !!parsed.ma5;
       graphMa15 = !!parsed.ma15;
       graphMa30 = !!parsed.ma30;
       graphHideDaily = !!parsed.hideDaily;
-      if (!graphMa15 && !graphMa30) graphHideDaily = false;
+      graphYAxisRaw = !!parsed.yRaw;
+      if (!graphAnyMovingAvg()) graphHideDaily = false;
     } catch (e) { /* ok */ }
   }
 
@@ -3503,12 +3861,205 @@
       localStorage.setItem(
         GRAPH_MA_KEY,
         JSON.stringify({
+          ma5: !!graphMa5,
           ma15: !!graphMa15,
           ma30: !!graphMa30,
-          hideDaily: !!(graphHideDaily && (graphMa15 || graphMa30)),
+          hideDaily: !!(graphHideDaily && graphAnyMovingAvg()),
+          yRaw: !!graphYAxisRaw,
         })
       );
     } catch (e) { /* ok */ }
+  }
+
+  function graphAnyMovingAvg() {
+    return !!(graphMa5 || graphMa15 || graphMa30);
+  }
+
+  function factoryPlotDefault() {
+    let yRaw = false;
+    try {
+      const old = JSON.parse(localStorage.getItem(GRAPH_MA_KEY) || "null");
+      if (old && old.yRaw) yRaw = true;
+    } catch (e) { /* ok */ }
+    return {
+      category: "fitness",
+      habitIds: [],
+      useNameMatch: true,
+      range: "30",
+      ma5: true,
+      ma15: true,
+      ma30: true,
+      showDaily: true,
+      yRaw: yRaw,
+      mode: "plot",
+    };
+  }
+
+  function readStoredPlotDefault() {
+    try {
+      const raw = localStorage.getItem(PLOT_DEFAULT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+      return parsed;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function resolvePlotCategory(id) {
+    if (!id || id === "all") return "all";
+    if (state.categories.some(function (c) { return c.id === id; })) return id;
+    return "all";
+  }
+
+  function isPushupOrSquatName(name) {
+    const n = String(name || "");
+    return /push[\s-]?ups?/i.test(n) || /squats?/i.test(n);
+  }
+
+  function resolvePlotDefaultHabitIds(def) {
+    const explicit = (def.habitIds || []).filter(function (id) {
+      return state.habits.some(function (h) { return h.id === id && !h.hidden; });
+    });
+    if (explicit.length && !def.useNameMatch) return explicit;
+    const cat = resolvePlotCategory(def.category);
+    let found = state.habits.filter(function (h) {
+      if (h.hidden || !isPushupOrSquatName(h.name)) return false;
+      return cat === "all" || h.category === cat;
+    });
+    if (!found.length) {
+      found = state.habits.filter(function (h) {
+        return !h.hidden && isPushupOrSquatName(h.name);
+      });
+    }
+    return found.map(function (h) { return h.id; });
+  }
+
+  function applyPlotDefault(def) {
+    const d = def || readStoredPlotDefault() || factoryPlotDefault();
+    graphCategory = resolvePlotCategory(d.category);
+    const ranges = graphRangeOptions();
+    graphRange = ranges.indexOf(d.range) >= 0 ? d.range : "30";
+    graphMa5 = d.ma5 !== false;
+    graphMa15 = !!d.ma15;
+    graphMa30 = !!d.ma30;
+    graphHideDaily = d.showDaily === false && graphAnyMovingAvg();
+    graphYAxisRaw = !!d.yRaw;
+    if (d.mode === "grid" || d.mode === "stats" || d.mode === "plot") graphsMode = d.mode;
+    graphSelectedIds = {};
+    resolvePlotDefaultHabitIds(d).forEach(function (id) {
+      graphSelectedIds[id] = true;
+      ensureGraphHabitColor(id);
+    });
+    graphUserToggled = true;
+  }
+
+  function plotDefaultFromForm() {
+    const catEl = document.getElementById("plotDefaultCategory");
+    const rangeEl = document.getElementById("plotDefaultRange");
+    const yEl = document.getElementById("plotDefaultYaxis");
+    const ids = [];
+    document.querySelectorAll("#plotDefaultHabits input[data-plot-default-habit]:checked").forEach(function (inp) {
+      ids.push(inp.getAttribute("data-plot-default-habit"));
+    });
+    return {
+      category: catEl ? catEl.value : "fitness",
+      habitIds: ids,
+      useNameMatch: false,
+      range: rangeEl ? rangeEl.value : "30",
+      ma5: !!(document.getElementById("plotDefaultMa5") && document.getElementById("plotDefaultMa5").checked),
+      ma15: !!(document.getElementById("plotDefaultMa15") && document.getElementById("plotDefaultMa15").checked),
+      ma30: !!(document.getElementById("plotDefaultMa30") && document.getElementById("plotDefaultMa30").checked),
+      showDaily: !!(document.getElementById("plotDefaultDaily") && document.getElementById("plotDefaultDaily").checked),
+      yRaw: !!(yEl && yEl.value === "raw"),
+      mode: "plot",
+    };
+  }
+
+  function fillPlotDefaultForm(def) {
+    const d = def || readStoredPlotDefault() || factoryPlotDefault();
+    const catEl = document.getElementById("plotDefaultCategory");
+    const rangeEl = document.getElementById("plotDefaultRange");
+    const yEl = document.getElementById("plotDefaultYaxis");
+    const habitsEl = document.getElementById("plotDefaultHabits");
+    if (catEl) {
+      let html = '<option value="all">All</option>';
+      state.categories.forEach(function (cat) {
+        html += '<option value="' + escapeHtml(cat.id) + '">' + escapeHtml(cat.label) + "</option>";
+      });
+      catEl.innerHTML = html;
+      catEl.value = resolvePlotCategory(d.category);
+    }
+    if (rangeEl) {
+      let html = "";
+      graphRangeOptions().forEach(function (range) {
+        html += '<option value="' + range + '">' + escapeHtml(graphRangeLabel(range)) + "</option>";
+      });
+      rangeEl.innerHTML = html;
+      rangeEl.value = graphRangeOptions().indexOf(d.range) >= 0 ? d.range : "30";
+    }
+    if (yEl) yEl.value = d.yRaw ? "raw" : "percent";
+    const daily = document.getElementById("plotDefaultDaily");
+    const ma5 = document.getElementById("plotDefaultMa5");
+    const ma15 = document.getElementById("plotDefaultMa15");
+    const ma30 = document.getElementById("plotDefaultMa30");
+    if (daily) daily.checked = d.showDaily !== false;
+    if (ma5) ma5.checked = d.ma5 !== false;
+    if (ma15) ma15.checked = !!d.ma15;
+    if (ma30) ma30.checked = !!d.ma30;
+    const selected = {};
+    resolvePlotDefaultHabitIds(d).forEach(function (id) { selected[id] = true; });
+    if (habitsEl) {
+      const cat = catEl ? catEl.value : "all";
+      let html = "";
+      state.habits.forEach(function (h) {
+        if (h.hidden) return;
+        if (cat && cat !== "all" && h.category !== cat) return;
+        html +=
+          '<label class="plot-default-check"><input type="checkbox" data-plot-default-habit="' +
+          escapeHtml(h.id) +
+          '"' +
+          (selected[h.id] ? " checked" : "") +
+          " />" +
+          escapeHtml(h.name) +
+          "</label>";
+      });
+      if (!html) html = '<p class="hint">No habits in this category.</p>';
+      habitsEl.innerHTML = html;
+    }
+  }
+
+  function openPlotSettings() {
+    fillPlotDefaultForm(readStoredPlotDefault() || factoryPlotDefault());
+    const sheet = document.getElementById("plotSettingsSheet");
+    if (sheet) sheet.hidden = false;
+    document.body.classList.add("habit-edit-open");
+  }
+
+  function closePlotSettings() {
+    const sheet = document.getElementById("plotSettingsSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("habit-edit-open");
+  }
+
+  function currentPlotAsDefault() {
+    const ids = [];
+    getGraphSelectedHabits(getPlotHabits()).forEach(function (h) {
+      ids.push(h.id);
+    });
+    return {
+      category: graphCategory || "all",
+      habitIds: ids,
+      useNameMatch: false,
+      range: graphRange,
+      ma5: !!graphMa5,
+      ma15: !!graphMa15,
+      ma30: !!graphMa30,
+      showDaily: !graphHideDaily,
+      yRaw: !!graphYAxisRaw,
+      mode: "plot",
+    };
   }
 
   function loadLayoutMode() {
@@ -3564,6 +4115,8 @@
   let monthGridScrollLeft = 0;
   let monthGridScrolledToToday = false;
   let todayViewOffset = 0;
+  let categoryFiltersScrollLeft = 0;
+  let todayHiddenSectionOpen = false;
   let yearFullscreenHabitId = null;
   let habitEditId = null;
   let habitsCatPanelOpen = false;
@@ -3573,6 +4126,7 @@
   let graphColorSlotNext = 0;
   let logGraphHabitId = null;
   let graphRange = "30";
+  let graphCategory = "fitness";
   let graphUserToggled = false;
   let graphsMode = "plot";
   let statsSelectedHabitIds = [];
@@ -3580,9 +4134,14 @@
   let habitsExpandedId = null;
   let habitsDangerOpen = false;
   let habitsColorPanelOpen = false;
+  let habitsListQuery = "";
+  let habitsListCategory = "all";
+  const HABITS_LIST_FILTER_KEY = "habit-journal-habits-list-filter";
+  let graphMa5 = false;
   let graphMa15 = false;
   let graphMa30 = false;
   let graphHideDaily = false;
+  let graphYAxisRaw = false;
 
   /** 0 = empty, 1–5 = light → dark (5 = all-time high) */
   const GRADIENT = ["#ffffff", "#f8e8f0", "#efb8d0", "#e080a8", "#c94d78", "#7a1f45"];
@@ -3624,7 +4183,9 @@
         },
       ],
       cells: {},
+      cellNotes: {},
       todayDismissed: {},
+      dailyPrompt: { date: "", opens: 0, lastOpenMs: 0 },
     };
   }
 
@@ -3773,7 +4334,7 @@
       html +=
         '<button type="button" class="exclude-day-chip' +
         (on ? " on" : "") +
-        '" data-exclude-day="' +
+        '" data-exclude-habit="' +
         escapeHtml(habit.id) +
         '" data-weekday="' +
         day +
@@ -3789,10 +4350,12 @@
 
   function bindExcludeDays(root) {
     if (!root) return;
-    root.querySelectorAll("[data-exclude-day]").forEach(function (btn) {
-      btn.onclick = function () {
+    root.querySelectorAll("[data-exclude-habit][data-weekday]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.stopPropagation();
+        e.preventDefault();
         const habit = state.habits.find(function (h) {
-          return h.id === btn.getAttribute("data-exclude-day");
+          return h.id === btn.getAttribute("data-exclude-habit");
         });
         if (!habit || habit.type !== "yesno") return;
         const day = parseInt(btn.getAttribute("data-weekday"), 10);
@@ -3803,9 +4366,54 @@
         habit.excludeDays = normalizeExcludeDays(habit.excludeDays);
         purgeExcludedCellMarks(habit.id);
         save();
-        render();
+        const on = habit.excludeDays.indexOf(day) >= 0;
+        btn.classList.toggle("on", on);
+        btn.setAttribute("aria-pressed", String(on));
+        if (activeTab === "habits") {
+          if (document.getElementById("habitsFilteredList")) refreshHabitsFilteredList();
+          else renderHabits();
+        } else render();
       };
     });
+  }
+
+  function loadHabitsListFilter() {
+    try {
+      const raw = localStorage.getItem(HABITS_LIST_FILTER_KEY);
+      if (!raw) return;
+      const p = JSON.parse(raw);
+      if (typeof p.query === "string") habitsListQuery = p.query;
+      if (typeof p.category === "string") habitsListCategory = p.category;
+      if (
+        habitsListCategory &&
+        habitsListCategory !== "all" &&
+        state.categories &&
+        state.categories.indexOf(habitsListCategory) < 0
+      ) {
+        habitsListCategory = "all";
+      }
+    } catch (e) { /* ok */ }
+  }
+
+  function persistHabitsListFilter() {
+    try {
+      localStorage.setItem(
+        HABITS_LIST_FILTER_KEY,
+        JSON.stringify({ query: habitsListQuery, category: habitsListCategory })
+      );
+    } catch (e) { /* ok */ }
+  }
+
+  function habitMatchesHabitsListFilter(habit) {
+    if (habitsListCategory && habitsListCategory !== "all" && habit.category !== habitsListCategory) {
+      return false;
+    }
+    const q = habitsListQuery.trim().toLowerCase();
+    if (!q) return true;
+    const name = String(habit.name || "").toLowerCase();
+    const cat = categoryLabel(habit.category).toLowerCase();
+    const type = habit.type === "yesno" ? "yes no" : habit.type || "";
+    return name.indexOf(q) >= 0 || cat.indexOf(q) >= 0 || type.indexOf(q) >= 0;
   }
 
   function renderHabitEditExcludeDays(habit) {
@@ -3849,6 +4457,56 @@
     });
   }
 
+  function normalizeDailyWhen(value) {
+    return value === "morning" || value === "night" ? value : "";
+  }
+
+  function applyDailyWhen(habit, source) {
+    const when = normalizeDailyWhen(source && source.dailyWhen);
+    if (when) habit.dailyWhen = when;
+    else delete habit.dailyWhen;
+    return habit;
+  }
+
+  function normalizePlotScale(value) {
+    return value === "min" ? "min" : "zero";
+  }
+
+  function applyPlotScale(habit, source) {
+    if (normalizePlotScale(source && source.plotScale) === "min") habit.plotScale = "min";
+    else delete habit.plotScale;
+    return habit;
+  }
+
+  function usesPlotMinScale(habit) {
+    return !!(habit && habit.plotScale === "min" && habit.type !== "yesno");
+  }
+
+  function dailyWhenLabel(when) {
+    if (when === "morning") return "Morning";
+    if (when === "night") return "Night";
+    return "";
+  }
+
+  function renderDailyWhenSelectHtml(id, selected, extraAttrs) {
+    const cur = normalizeDailyWhen(selected);
+    return (
+      '<select' +
+      (id ? ' id="' + id + '"' : "") +
+      (extraAttrs ? " " + extraAttrs : "") +
+      ' aria-label="Daily reminder">' +
+      '<option value=""' +
+      (!cur ? " selected" : "") +
+      ">Daily: off</option>" +
+      '<option value="morning"' +
+      (cur === "morning" ? " selected" : "") +
+      ">Daily morning</option>" +
+      '<option value="night"' +
+      (cur === "night" ? " selected" : "") +
+      ">Daily night</option></select>"
+    );
+  }
+
   function normalizeHabit(h, categories) {
     const base = {
       category: normalizeCategory(h.category, categories),
@@ -3875,7 +4533,7 @@
         const sd = parseIsoDateParts(h.statsStart);
         if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
       }
-      return out;
+      return applyPlotScale(applyDailyWhen(out, h), h);
     }
     if (h.type === "yesno" || h.type === "counter" || h.type === "time" || h.type === "number") {
       const type = h.type;
@@ -3899,7 +4557,7 @@
         const sd = parseIsoDateParts(h.statsStart);
         if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
       }
-      return out;
+      return applyPlotScale(applyDailyWhen(out, h), h);
     }
     const levels = Array.isArray(h.levels) ? h.levels : [];
     let type = "counter";
@@ -3922,7 +4580,7 @@
       const sd = parseIsoDateParts(h.statsStart);
       if (sd) out.statsStart = formatIsoDate(sd.y, sd.m, sd.d);
     }
-    return out;
+    return applyPlotScale(applyDailyWhen(out, h), h);
   }
 
   function setHabitHidden(habitId, hidden) {
@@ -3970,6 +4628,14 @@
     }
     state.prunedFactoryMeditation = true;
     save();
+  }
+
+  function getPlotHabits() {
+    return state.habits.filter(function (h) {
+      if (h.hidden) return false;
+      if (!graphCategory || graphCategory === "all") return true;
+      return h.category === graphCategory;
+    });
   }
 
   function getFilteredHabits(onlyVisible) {
@@ -4060,6 +4726,193 @@
     const parts = getTodayDateParts();
     const val = getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d));
     return val !== null && val !== undefined;
+  }
+
+  function isNumberMarkedToday(habit) {
+    if (habit.type !== "number") return false;
+    const parts = getTodayDateParts();
+    return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
+  }
+
+  function isTimeMarkedToday(habit) {
+    if (habit.type !== "time") return false;
+    const parts = getTodayDateParts();
+    return isCellFilled(habit, getCellValue(cellKey(habit.id, parts.y, parts.m, parts.d)));
+  }
+
+  function canHideFromToday(habit) {
+    return (
+      habit.type === "yesno" ||
+      isNumberMarkedToday(habit) ||
+      isTimeMarkedToday(habit) ||
+      !!normalizeDailyWhen(habit.dailyWhen)
+    );
+  }
+
+  function getActualTodayParts() {
+    const d = new Date();
+    return { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() };
+  }
+
+  function isDailyHabitHiddenToday(habit) {
+    if (!habit) return true;
+    if (isTodayDismissed(habit.id)) return true;
+    const parts = getActualTodayParts();
+    if (isDayExcluded(habit, parts.y, parts.m, parts.d)) return true;
+    return false;
+  }
+
+  function getUnfinishedDailyHabits(when) {
+    const want = normalizeDailyWhen(when);
+    if (!want) return [];
+    const parts = getActualTodayParts();
+    return state.habits.filter(function (h) {
+      if (h.hidden) return false;
+      if (normalizeDailyWhen(h.dailyWhen) !== want) return false;
+      if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
+      return !isDailyHabitHiddenToday(h);
+    });
+  }
+
+  function recordAppOpen() {
+    const key = todayDateKey();
+    if (!state.dailyPrompt || typeof state.dailyPrompt !== "object") {
+      state.dailyPrompt = { date: key, opens: 0, lastOpenMs: 0 };
+    }
+    if (state.dailyPrompt.date !== key) {
+      state.dailyPrompt = { date: key, opens: 0, lastOpenMs: 0 };
+    }
+    const now = Date.now();
+    if (now - (state.dailyPrompt.lastOpenMs || 0) < DAILY_OPEN_GAP_MS && state.dailyPrompt.opens > 0) {
+      return state.dailyPrompt.opens;
+    }
+    state.dailyPrompt.opens += 1;
+    state.dailyPrompt.lastOpenMs = now;
+    save();
+    return state.dailyPrompt.opens;
+  }
+
+  function currentDailyPromptWhen() {
+    return new Date().getHours() >= DAILY_NIGHT_HOUR ? "night" : "morning";
+  }
+
+  function closeDailyPrompt() {
+    const sheet = document.getElementById("dailyPromptSheet");
+    if (sheet) sheet.hidden = true;
+    document.body.classList.remove("daily-prompt-open");
+  }
+
+  function bindDailyPromptList(list) {
+    if (!list) return;
+    list.querySelectorAll("[data-daily-hide]").forEach(function (btn) {
+      btn.onclick = function () {
+        setTodayDismissed(btn.getAttribute("data-daily-hide"), true);
+        if (activeTab === "today") renderToday();
+        refreshDailyPrompt();
+        toast("Hidden for today");
+      };
+    });
+    list.querySelectorAll(".cell[data-key]").forEach(function (btn) {
+      let holdTimer = null;
+      let held = false;
+      btn.onclick = function () {
+        if (held) { held = false; return; }
+        if (btn.disabled || btn.classList.contains("cell-blocked")) return;
+        const p = btn.dataset.key.split("|");
+        tapCellToday(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+      };
+      if (btn.dataset.counter) {
+        btn.addEventListener(
+          "touchstart",
+          function () {
+            held = false;
+            holdTimer = setTimeout(function () {
+              held = true;
+              const p = btn.dataset.key.split("|");
+              decrementCell(p[0], parseInt(p[1], 10), parseInt(p[2], 10), parseInt(p[3], 10));
+            }, 450);
+          },
+          { passive: true }
+        );
+        btn.addEventListener("touchend", function () { clearTimeout(holdTimer); });
+        btn.addEventListener("touchcancel", function () { clearTimeout(holdTimer); });
+      }
+    });
+  }
+
+  function fillDailyPromptList(when, items) {
+    const list = document.getElementById("dailyPromptList");
+    const title = document.getElementById("dailyPromptTitle");
+    const sub = document.getElementById("dailyPromptSub");
+    const sheet = document.getElementById("dailyPromptSheet");
+    if (!list || !sheet) return;
+    sheet.setAttribute("data-when", when);
+    if (title) title.textContent = when === "night" ? "Nightly daily" : "Morning daily";
+    if (sub) {
+      sub.textContent =
+        when === "night"
+          ? "After 8 PM — tap to log, Hide when done"
+          : "First " + DAILY_MORNING_OPENS + " opens — tap to log, Hide when done";
+    }
+    const parts = getActualTodayParts();
+    let html = "";
+    items.forEach(function (habit) {
+      html += '<div class="daily-prompt-row">';
+      html += '<div class="daily-prompt-copy">';
+      html += '<div class="daily-prompt-name">' + escapeHtml(habit.name) + "</div>";
+      html +=
+        '<div class="daily-prompt-cat">' +
+        escapeHtml(categoryLabel(habit.category)) +
+        " · " +
+        escapeHtml(dailyWhenLabel(habit.dailyWhen)) +
+        "</div>";
+      html += "</div>";
+      html += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
+      html +=
+        '<button type="button" class="daily-prompt-hide" data-daily-hide="' +
+        escapeHtml(habit.id) +
+        '">Hide</button>';
+      html += "</div>";
+    });
+    list.innerHTML = html;
+    bindDailyPromptList(list);
+  }
+
+  function openDailyPrompt(when, items) {
+    const sheet = document.getElementById("dailyPromptSheet");
+    if (!sheet || !items.length) return;
+    fillDailyPromptList(when, items);
+    sheet.hidden = false;
+    document.body.classList.add("daily-prompt-open");
+  }
+
+  function refreshDailyPrompt() {
+    const sheet = document.getElementById("dailyPromptSheet");
+    if (!sheet || sheet.hidden) return;
+    const when = sheet.getAttribute("data-when") || currentDailyPromptWhen();
+    const items = getUnfinishedDailyHabits(when);
+    if (!items.length) {
+      closeDailyPrompt();
+      return;
+    }
+    fillDailyPromptList(when, items);
+  }
+
+  function maybeShowDailyPrompt(isAppOpen) {
+    const edit = document.getElementById("habitEditSheet");
+    if (edit && !edit.hidden) return;
+    if (typeof numberPadContext !== "undefined" && numberPadContext) return;
+    if (typeof timeAddContext !== "undefined" && timeAddContext) return;
+    const when = currentDailyPromptWhen();
+    let opens = state.dailyPrompt && state.dailyPrompt.date === todayDateKey() ? state.dailyPrompt.opens : 0;
+    if (isAppOpen) opens = recordAppOpen();
+    const items = getUnfinishedDailyHabits(when);
+    if (!items.length) {
+      closeDailyPrompt();
+      return;
+    }
+    if (when === "morning" && (opens < 1 || opens > DAILY_MORNING_OPENS)) return;
+    openDailyPrompt(when, items);
   }
 
   function getTodayHabitsForCategory(catId) {
@@ -4166,7 +5019,28 @@
     return save();
   }
 
-  function addHabitToState(name, category, step, type) {
+  function visibleFilterCategories(onlyVisible) {
+    return (state.categories || []).filter(function (cat) {
+      const count = state.habits.filter(function (h) {
+        if (onlyVisible && h.hidden) return false;
+        return h.category === cat.id;
+      }).length;
+      return count > 0 || state.categoryFilter === cat.id;
+    });
+  }
+
+  function nudgeVisibleCategory(catId, dir, onlyVisible) {
+    const vis = visibleFilterCategories(onlyVisible);
+    const idx = vis.findIndex(function (c) { return c.id === catId; });
+    if (idx < 0) return false;
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= vis.length) return false;
+    if (dir < 0) return reorderCategoryBefore(catId, vis[swapIdx].id);
+    const afterNext = vis[swapIdx + 1];
+    return reorderCategoryBefore(catId, afterNext ? afterNext.id : null);
+  }
+
+  function addHabitToState(name, category, step, type, dailyWhen) {
     const cat = normalizeCategory(category);
     const habitName = String(name || "New habit").trim().slice(0, 40) || "New habit";
     let habitType = type === "yesno" || type === "time" || type === "number" ? type : "counter";
@@ -4185,6 +5059,7 @@
       hidden: false,
     };
     if (habitType === "yesno") habit.excludeDays = [];
+    applyDailyWhen(habit, { dailyWhen: dailyWhen });
     state.habits.push(habit);
     logHabitChange(habit.id, "create");
     return save();
@@ -4269,6 +5144,7 @@
     });
     html += "</select>";
     html += renderHabitTypeSelectHtml("monthNewHabitType", "counter");
+    html += renderDailyWhenSelectHtml("monthNewHabitDailyWhen", "");
     html +=
       '<span class="add-habit-step-fields" id="monthCounterStepWrap">' +
       '<input type="number" id="monthNewHabitStep" min="1" max="' +
@@ -4393,11 +5269,13 @@
       const type = typeEl ? typeEl.value : "counter";
       let step = 1;
       if (type === "counter") step = stepEl ? stepEl.value : 1;
-      if (!addHabitToState(name, cat, step, type)) return;
+      const dailyEl = root.querySelector("#monthNewHabitDailyWhen");
+      if (!addHabitToState(name, cat, step, type, dailyEl ? dailyEl.value : "")) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
       if (stepMinEl) stepMinEl.value = "1";
       if (stepSecEl) stepSecEl.value = "0";
+      if (dailyEl) dailyEl.value = "";
       toast("Added " + name);
       render();
     }
@@ -4603,6 +5481,10 @@
       hideBtn.setAttribute("aria-pressed", String(!!habit.hidden));
       hideBtn.textContent = renderHabitHideBtnLabel(habit.hidden, true);
     }
+    const dailySel = document.getElementById("habitEditDailyWhen");
+    if (dailySel) dailySel.value = normalizeDailyWhen(habit.dailyWhen);
+    const plotScaleSel = document.getElementById("habitEditPlotScale");
+    if (plotScaleSel) plotScaleSel.value = normalizePlotScale(habit.plotScale);
     renderHabitEditChangeLog(habitId);
     document.getElementById("habitEditSheet").hidden = false;
     document.body.classList.add("habit-edit-open");
@@ -4626,6 +5508,8 @@
     const name = document.getElementById("habitEditName").value.trim() || "Habit";
     habit.name = name.slice(0, 40);
     habit.category = normalizeCategory(document.getElementById("habitEditCategory").value);
+    applyDailyWhen(habit, { dailyWhen: document.getElementById("habitEditDailyWhen").value });
+    applyPlotScale(habit, { plotScale: document.getElementById("habitEditPlotScale").value });
     if (habit.type === "counter") {
       habit.step = Math.min(
         MAX_STEP,
@@ -4644,32 +5528,63 @@
     toast("Updated " + savedName);
   }
 
-  function renderCategoryFiltersHtml(onlyVisible) {
-    let html = '<div class="category-filters" aria-label="Category filters. Hold a category to reorder.">';
+  function renderCategoryFiltersHtml(onlyVisible, activeOverride) {
+    const visibleCats = visibleFilterCategories(onlyVisible);
+    const active = activeOverride != null ? activeOverride : state.categoryFilter;
+    const plotScope = activeOverride != null;
+    let html =
+      '<div class="category-filters" data-only-visible="' +
+      (onlyVisible ? "1" : "0") +
+      (plotScope ? '" data-filter-scope="plot' : "") +
+      '" aria-label="Category filters. Use arrows or hold a category to reorder.">';
     html +=
       '<button type="button" class="chip' +
-      (state.categoryFilter === "all" ? " on" : "") +
+      (active === "all" ? " on" : "") +
       '" data-cat-filter="all">All</button>';
-    state.categories.forEach(function (cat) {
+    visibleCats.forEach(function (cat, idx) {
       const count = state.habits.filter(function (h) {
         if (onlyVisible && h.hidden) return false;
         return h.category === cat.id;
       }).length;
-      if (count === 0 && state.categoryFilter !== cat.id) return;
       const accent = categoryAccentColor(cat.id);
-      const on = state.categoryFilter === cat.id;
+      const on = active === cat.id;
+      const canLeft = idx > 0;
+      const canRight = idx < visibleCats.length - 1;
+      html +=
+        '<div class="chip-pack' +
+        (on ? " on" : "") +
+        '" data-cat-id="' +
+        escapeHtml(cat.id) +
+        '" title="Arrows or hold to reorder" style="border-color:' +
+        accent +
+        (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
+        '">';
+      html +=
+        '<button type="button" class="cat-nudge" data-cat-nudge="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="-1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' left"' +
+        (canLeft ? "" : " disabled") +
+        ">‹</button>";
       html +=
         '<button type="button" class="chip' +
         (on ? " on" : "") +
         '" data-cat-filter="' +
         escapeHtml(cat.id) +
-        '" title="Hold to reorder" style="border-color:' +
-        accent +
-        (on ? ";background:" + accent + ";color:#111827" : ";box-shadow:inset 3px 0 0 " + accent) +
         '">' +
         escapeHtml(cat.label) +
         (count ? " (" + count + ")" : "") +
         "</button>";
+      html +=
+        '<button type="button" class="cat-nudge" data-cat-nudge="' +
+        escapeHtml(cat.id) +
+        '" data-cat-dir="1" aria-label="Move ' +
+        escapeHtml(cat.label) +
+        ' right"' +
+        (canRight ? "" : " disabled") +
+        ">›</button>";
+      html += "</div>";
     });
     html += "</div>";
     return html;
@@ -4679,6 +5594,14 @@
     if (!root) return;
     const row = root.querySelector(".category-filters");
     if (!row) return;
+    row.scrollLeft = categoryFiltersScrollLeft;
+    row.addEventListener(
+      "scroll",
+      function () {
+        categoryFiltersScrollLeft = row.scrollLeft;
+      },
+      { passive: true }
+    );
 
     let suppressClick = false;
     let holdTimer = null;
@@ -4689,8 +5612,12 @@
     let startX = 0;
     let startY = 0;
 
-    function categoryChips() {
-      return Array.prototype.slice.call(row.querySelectorAll('[data-cat-filter]:not([data-cat-filter="all"])'));
+    function categoryPacks() {
+      return Array.prototype.slice.call(row.querySelectorAll(".chip-pack[data-cat-id]"));
+    }
+
+    function packId(pack) {
+      return pack ? pack.getAttribute("data-cat-id") : "";
     }
 
     function clearDropUi() {
@@ -4713,32 +5640,32 @@
     }
 
     function updateDropFromX(clientX) {
-      const chips = categoryChips().filter(function (el) {
-        return el.getAttribute("data-cat-filter") !== dragId;
+      const packs = categoryPacks().filter(function (el) {
+        return packId(el) !== dragId;
       });
       dropBeforeId = null;
       clearDropUi();
-      const dragEl = row.querySelector('[data-cat-filter="' + dragId + '"]');
+      const dragEl = row.querySelector('.chip-pack[data-cat-id="' + dragId + '"]');
       if (dragEl) dragEl.classList.add("cat-dragging");
-      if (!chips.length) return;
-      for (let i = 0; i < chips.length; i++) {
-        const rect = chips[i].getBoundingClientRect();
+      if (!packs.length) return;
+      for (let i = 0; i < packs.length; i++) {
+        const rect = packs[i].getBoundingClientRect();
         const mid = rect.left + rect.width / 2;
         if (clientX < mid) {
-          dropBeforeId = chips[i].getAttribute("data-cat-filter");
-          chips[i].classList.add("cat-drop-before");
+          dropBeforeId = packId(packs[i]);
+          packs[i].classList.add("cat-drop-before");
           return;
         }
       }
       dropBeforeId = null;
-      chips[chips.length - 1].classList.add("cat-drop-after");
+      packs[packs.length - 1].classList.add("cat-drop-after");
     }
 
     function startDrag(id) {
       dragging = true;
       dragId = id;
       row.classList.add("cat-reordering");
-      const dragEl = row.querySelector('[data-cat-filter="' + id + '"]');
+      const dragEl = row.querySelector('.chip-pack[data-cat-id="' + id + '"]');
       if (dragEl) dragEl.classList.add("cat-dragging");
     }
 
@@ -4747,6 +5674,11 @@
         if (suppressClick) {
           e.preventDefault();
           suppressClick = false;
+          return;
+        }
+        if (row.getAttribute("data-filter-scope") === "plot") {
+          graphCategory = btn.getAttribute("data-cat-filter") || "all";
+          renderGraphs();
           return;
         }
         state.categoryFilter = btn.getAttribute("data-cat-filter");
@@ -4772,7 +5704,7 @@
             } catch (err) { /* ok */ }
             startDrag(catId);
             updateDropFromX(startX);
-          }, 280);
+          }, 380);
         },
         { passive: true }
       );
@@ -4784,7 +5716,7 @@
             if (!holdTimer) return;
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
-            if (dx * dx + dy * dy > 36) {
+            if (dx * dx + dy * dy > 400) {
               clearTimeout(holdTimer);
               holdTimer = null;
             }
@@ -4829,6 +5761,22 @@
       },
       { passive: false }
     );
+
+    const onlyVisible = row.getAttribute("data-only-visible") !== "0";
+    row.querySelectorAll("[data-cat-nudge]").forEach(function (btn) {
+      btn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (btn.disabled) return;
+        const id = btn.getAttribute("data-cat-nudge");
+        const dir = parseInt(btn.getAttribute("data-cat-dir"), 10);
+        if (!id || !dir) return;
+        if (nudgeVisibleCategory(id, dir, onlyVisible)) {
+          render();
+          toast("Category order saved");
+        }
+      };
+    });
   }
 
   function yearHabitFullscreenTitle(habit) {
@@ -5107,6 +6055,13 @@
         });
       }
       s.migratedStepsDefault = !!p.migratedStepsDefault;
+      if (p.dailyPrompt && typeof p.dailyPrompt === "object") {
+        s.dailyPrompt = {
+          date: String(p.dailyPrompt.date || ""),
+          opens: Math.max(0, parseInt(p.dailyPrompt.opens, 10) || 0),
+          lastOpenMs: parseInt(p.dailyPrompt.lastOpenMs, 10) || 0,
+        };
+      }
       const legacyHabits = p.habits.slice();
       s.habits = legacyHabits.map(function (h) {
         return normalizeHabit(h, s.categories);
@@ -5114,6 +6069,15 @@
       if (!s.habits.length) s.habits = defaultState().habits;
       if (p.todayDismissed && typeof p.todayDismissed === "object") {
         s.todayDismissed = p.todayDismissed;
+      }
+      s.cellNotes = {};
+      if (p.cellNotes && typeof p.cellNotes === "object") {
+        Object.keys(p.cellNotes).forEach(function (k) {
+          const n = p.cellNotes[k];
+          if (typeof n === "string" && n.trim()) {
+            s.cellNotes[k] = n.trim().slice(0, MAX_CELL_NOTE);
+          }
+        });
       }
       const isLegacy = p.version !== 2 || legacyHabits.some(function (h) { return h && h.levels; });
       if (isLegacy) {
@@ -5499,6 +6463,45 @@
     return typeof v === "number" ? v : null;
   }
 
+  function ensureCellNotes() {
+    if (!state.cellNotes || typeof state.cellNotes !== "object") state.cellNotes = {};
+  }
+
+  function getCellNote(key) {
+    ensureCellNotes();
+    const n = state.cellNotes[key];
+    return typeof n === "string" && n.trim() ? n.trim() : "";
+  }
+
+  function setCellNote(key, text) {
+    ensureCellNotes();
+    const t = String(text || "").replace(/\s+/g, " ").trim().slice(0, MAX_CELL_NOTE);
+    if (t) state.cellNotes[key] = t;
+    else delete state.cellNotes[key];
+  }
+
+  function clearCellNote(key) {
+    ensureCellNotes();
+    delete state.cellNotes[key];
+  }
+
+  function deleteCellNotesForHabit(habitId) {
+    ensureCellNotes();
+    Object.keys(state.cellNotes).forEach(function (k) {
+      if (k.indexOf(habitId + "-") === 0) delete state.cellNotes[k];
+    });
+  }
+
+  function readNumberPadNote() {
+    const el = document.getElementById("numberPadNote");
+    return el ? el.value : "";
+  }
+
+  function writeNumberPadNote(text) {
+    const el = document.getElementById("numberPadNote");
+    if (el) el.value = text || "";
+  }
+
   function isCellFilled(habit, value) {
     if (value === null || value === undefined) return false;
     if (habit.type === "yesno") return value >= 1;
@@ -5646,9 +6649,13 @@
   }
 
   function formatCounterDisplay(value) {
-    const v = Math.round(value);
-    if (v >= 1000) return String(Math.round(v / 1000)) + "k";
-    return String(v);
+    const n = Number(value);
+    if (!isFinite(n)) return "0";
+    if (n >= 1000) return String(Math.round(n / 1000)) + "k";
+    const factor = Math.pow(10, MAX_NUMBER_DECIMALS);
+    const rounded = Math.round(n * factor) / factor;
+    if (Math.abs(rounded - Math.round(rounded)) < 1e-9) return String(Math.round(rounded));
+    return String(rounded);
   }
 
   function formatStepBracket(step) {
@@ -5671,9 +6678,13 @@
 
   function todayTileLabelHtml(habit) {
     const unit = todayHabitUnitParen(habit);
+    const daily = dailyWhenLabel(habit.dailyWhen);
     let html = '<span class="today-tile-label">' + escapeHtml(habit.name) + "</span>";
     if (unit) {
       html += '<span class="today-tile-unit">(' + escapeHtml(unit) + ")</span>";
+    }
+    if (daily) {
+      html += '<span class="today-tile-unit">· ' + escapeHtml(daily) + "</span>";
     }
     return html;
   }
@@ -5774,39 +6785,58 @@
 
   function getTodayDismissedHabits() {
     pruneTodayDismissed();
-    const list = state.todayDismissed[todayDateKey()] || [];
+    const parts = getTodayDateParts();
+    const dismissed = state.todayDismissed[todayDateKey()] || [];
     return state.habits.filter(function (h) {
-      if (h.hidden) return false;
-      if (list.indexOf(h.id) < 0) return false;
-      if (state.categoryFilter && state.categoryFilter !== "all" && h.category !== state.categoryFilter) {
-        return false;
-      }
-      const parts = getTodayDateParts();
       if (isDayExcluded(h, parts.y, parts.m, parts.d)) return false;
-      return true;
+      if (dismissed.indexOf(h.id) >= 0) return true;
+      if (h.hidden) return true;
+      return false;
     });
   }
 
   function renderTodayHiddenSectionHtml() {
-    const dismissed = getTodayDismissedHabits();
-    if (!dismissed.length) return "";
-    let html = '<details class="today-hidden-section">';
+    const hiddenHabits = getTodayDismissedHabits();
+    if (!hiddenHabits.length) return "";
+    let html = '<details class="today-hidden-section"' + (todayHiddenSectionOpen ? " open" : "") + ">";
     html +=
       "<summary>Hidden for today (" +
-      dismissed.length +
+      hiddenHabits.length +
       ")</summary>";
     html += '<div class="today-hidden-list">';
-    dismissed.forEach(function (habit) {
-      html +=
-        '<button type="button" class="today-hidden-restore" data-today-show="' +
-        escapeHtml(habit.id) +
-        '" aria-label="Show ' +
-        escapeHtml(habit.name) +
-        ' on Today">';
-      html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
-      html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
-      html += "</button>";
+    state.categories.forEach(function (cat) {
+      const inCat = hiddenHabits.filter(function (h) { return h.category === cat.id; });
+      if (!inCat.length) return;
+      html += '<div class="today-hidden-cat">' + escapeHtml(cat.label) + "</div>";
+      inCat.forEach(function (habit) {
+        html +=
+          '<button type="button" class="today-hidden-restore" data-today-show="' +
+          escapeHtml(habit.id) +
+          '" aria-label="Show ' +
+          escapeHtml(habit.name) +
+          ' on Today">';
+        html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
+        html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
+        html += "</button>";
+      });
     });
+    const knownCat = {};
+    state.categories.forEach(function (cat) { knownCat[cat.id] = true; });
+    const uncategorized = hiddenHabits.filter(function (h) { return !knownCat[h.category]; });
+    if (uncategorized.length) {
+      html += '<div class="today-hidden-cat">Other</div>';
+      uncategorized.forEach(function (habit) {
+        html +=
+          '<button type="button" class="today-hidden-restore" data-today-show="' +
+          escapeHtml(habit.id) +
+          '" aria-label="Show ' +
+          escapeHtml(habit.name) +
+          ' on Today">';
+        html += '<span class="today-hidden-restore-plus" aria-hidden="true">+</span>';
+        html += '<span class="today-hidden-restore-name">' + escapeHtml(habit.name) + "</span>";
+        html += "</button>";
+      });
+    }
     html += "</div></details>";
     return html;
   }
@@ -5894,10 +6924,6 @@
     if (activeTab === "stats" && graphsMode === "grid" && yearFullscreenHabitId) return;
     if (activeTab === "today") {
       renderToday();
-      return;
-    }
-    if (activeTab === "month") {
-      renderMonth();
       return;
     }
     if (activeTab === "stats") {
@@ -6152,7 +7178,8 @@
       const n = parseInt(next, 10);
       if (!isFinite(n) || n > MAX_TIME_HOURS) return;
       timePadHours = next;
-      if (timePadHours.length >= 2) timePadField = "m";
+      /* One hour digit then minutes (e.g. sleep 6h 30m); tap hours again to enter 10+ */
+      if (timePadHours.length >= 1) timePadField = "m";
     } else {
       let next = timePadMinutes === "0" ? "" : timePadMinutes;
       if (next.length >= 2) return;
@@ -6264,6 +7291,7 @@
     numberPadContext = { habitId: habitId, y: y, m: m, d: d };
     const current = getCellValue(cellKey(habitId, y, m, d));
     numberPadDigits = current !== null ? String(clampNumberValue(current)) : "";
+    writeNumberPadNote(getCellNote(cellKey(habitId, y, m, d)));
     const title = document.getElementById("numberPadTitle");
     const sub = document.getElementById("numberPadSub");
     if (title) title.textContent = habit.name;
@@ -6276,6 +7304,7 @@
   function closeNumberPad() {
     numberPadContext = null;
     numberPadDigits = "";
+    writeNumberPadNote("");
     const sheet = document.getElementById("numberPadSheet");
     if (sheet) sheet.hidden = true;
     document.body.classList.remove("number-pad-open");
@@ -6283,12 +7312,23 @@
 
   function appendNumberPadDigit(digit) {
     const d = String(digit);
+    if (d === ".") {
+      if (numberPadDigits.indexOf(".") !== -1) return;
+      numberPadDigits = numberPadDigits ? numberPadDigits + "." : "0.";
+      updateNumberPadDisplay();
+      return;
+    }
     if (!/^[0-9]$/.test(d)) return;
     let next = numberPadDigits;
     if (next === "0") next = "";
-    if (next.length >= String(MAX_NUMBER_VALUE).length) return;
+    const dot = next.indexOf(".");
+    if (dot === -1) {
+      if (next.length >= String(MAX_NUMBER_VALUE).length) return;
+    } else if (next.slice(dot + 1).length >= MAX_NUMBER_DECIMALS) {
+      return;
+    }
     next += d;
-    const n = parseInt(next, 10);
+    const n = parseFloat(next);
     if (!isFinite(n) || n > MAX_NUMBER_VALUE) return;
     numberPadDigits = next;
     updateNumberPadDisplay();
@@ -6310,7 +7350,7 @@
       closeNumberPad();
       return;
     }
-    if (!numberPadDigits) {
+    if (!numberPadDigits || numberPadDigits === ".") {
       toast("Enter a number");
       return;
     }
@@ -6318,6 +7358,7 @@
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
     state.cells[key] = n;
+    setCellNote(key, readNumberPadNote());
     const newValue = getCellValue(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
@@ -6342,9 +7383,11 @@
     }
     const key = cellKey(habitId, y, m, d);
     const oldValue = getCellValue(key);
+    const hadNote = !!getCellNote(key);
     closeNumberPad();
-    if (oldValue === null) return;
+    if (oldValue === null && !hadNote) return;
     delete state.cells[key];
+    clearCellNote(key);
     logHabitChange(habitId, "cell", {
       date: key.slice(habitId.length + 1),
       oldValue: oldValue,
@@ -6421,6 +7464,7 @@
       else delete state.cells[key];
     } else if (habit.type === "number" || habit.type === "time") {
       delete state.cells[key];
+      if (habit.type === "number") clearCellNote(key);
     } else {
       const step = habit.step || 1;
       const next = oldValue - step;
@@ -6723,6 +7767,12 @@
   }
 
   function bindTodayPanel(root) {
+    const hiddenSection = root.querySelector(".today-hidden-section");
+    if (hiddenSection) {
+      hiddenSection.addEventListener("toggle", function () {
+        todayHiddenSectionOpen = hiddenSection.open;
+      });
+    }
     root.querySelectorAll(".today-hide-btn").forEach(function (btn) {
       btn.onclick = function (e) {
         e.stopPropagation();
@@ -6733,7 +7783,13 @@
     });
     root.querySelectorAll("[data-today-show]").forEach(function (btn) {
       btn.onclick = function () {
-        setTodayDismissed(btn.getAttribute("data-today-show"), false);
+        const habitId = btn.getAttribute("data-today-show");
+        const habit = state.habits.find(function (h) { return h.id === habitId; });
+        setTodayDismissed(habitId, false);
+        if (habit && habit.hidden) {
+          habit.hidden = false;
+          save();
+        }
         renderToday();
         toast("Showing on Today");
       };
@@ -6796,7 +7852,7 @@
         gridHtml += '<div class="today-tile" data-habit-card="' + escapeHtml(habit.id) + '">';
         gridHtml += '<div class="today-cell-wrap">';
         gridHtml += renderTodayCellButton(habit, parts.y, parts.m, parts.d);
-        if (viewingToday && habit.type === "yesno") {
+        if (viewingToday && canHideFromToday(habit)) {
           gridHtml +=
             '<button type="button" class="today-hide-btn" data-today-hide="' +
             escapeHtml(habit.id) +
@@ -6837,7 +7893,7 @@
     html +=
       '<p class="hint">Tap a name to edit · Hide on each row · pick type when adding · hidden habits below.' +
       eraserNote +
-      " Hold a counter cell to subtract. Tap Number or Time cells to type that day’s value. Hold ≡ to drag habits. Hold a category chip to reorder filters.</p>";
+      " Hold a counter cell to subtract. Tap Number or Time cells to type that day’s value. Hold ≡ to drag habits. Use ‹ › on a category chip to reorder filters.</p>";
     html += renderMonthAddBarHtml();
     if (!filtered.length) {
       html +=
@@ -7621,31 +8677,50 @@
     return days;
   }
 
-  function graphNormPercent(habit, raw, maxRaw) {
+  function graphNormPercent(habit, raw, maxRaw, minRaw) {
     if (raw == null) return null;
     if (habit.type === "yesno") {
       if (raw >= 1) return 100;
       if (raw <= 0) return 0;
       return 50;
     }
+    if (usesPlotMinScale(habit)) {
+      const low = minRaw == null ? 0 : minRaw;
+      const span = maxRaw - low;
+      if (span <= 0) return 50;
+      return ((raw - low) / span) * 100;
+    }
     if (maxRaw <= 0) return null;
     return (raw / maxRaw) * 100;
   }
 
-  function buildGraphLogSeries(habit, logSeries) {
-    let maxRaw = 0;
-    logSeries.points.forEach(function (p) {
-      if (p.value != null && p.value > maxRaw) maxRaw = p.value;
+  function graphRawBounds(values) {
+    let maxRaw = null;
+    let minRaw = null;
+    values.forEach(function (raw) {
+      if (raw == null || !isFinite(raw)) return;
+      if (maxRaw == null || raw > maxRaw) maxRaw = raw;
+      if (minRaw == null || raw < minRaw) minRaw = raw;
     });
-    if (maxRaw <= 0) {
+    return { maxRaw: maxRaw, minRaw: minRaw };
+  }
+
+  function buildGraphLogSeries(habit, logSeries) {
+    const bounds = graphRawBounds(
+      logSeries.points.map(function (p) { return p.value; })
+    );
+    let maxRaw = bounds.maxRaw;
+    const minRaw = bounds.minRaw;
+    if (maxRaw == null || maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
     return {
       habit: habit,
       points: logSeries.points.map(function (p) {
-        return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw) };
+        return { ts: p.ts, raw: p.value, norm: graphNormPercent(habit, p.value, maxRaw, minRaw) };
       }),
       maxRaw: maxRaw,
+      minRaw: minRaw,
     };
   }
 
@@ -7659,6 +8734,7 @@
 
   function graphMaLookbackDays() {
     let days = 0;
+    if (graphMa5) days = Math.max(days, 5);
     if (graphMa15) days = Math.max(days, 15);
     if (graphMa30) days = Math.max(days, 30);
     return days;
@@ -7687,11 +8763,12 @@
       const raw = graphRawValue(habit, val);
       return { day: day, raw: raw, val: val };
     });
-    let maxRaw = 0;
-    for (let i = visibleStartIndex; i < points.length; i++) {
-      if (points[i].raw != null && points[i].raw > maxRaw) maxRaw = points[i].raw;
-    }
-    if (maxRaw <= 0) {
+    const bounds = graphRawBounds(
+      points.slice(visibleStartIndex).map(function (p) { return p.raw; })
+    );
+    let maxRaw = bounds.maxRaw;
+    const minRaw = bounds.minRaw;
+    if (maxRaw == null || maxRaw <= 0) {
       maxRaw = habit.type === "yesno" ? 1 : Math.max(habit.step || 1, 1);
     }
     return {
@@ -7701,16 +8778,27 @@
           day: p.day,
           raw: p.raw,
           val: p.val,
-          norm: graphNormPercent(habit, p.raw, maxRaw),
+          norm: graphNormPercent(habit, p.raw, maxRaw, minRaw),
         };
       }),
       maxRaw: maxRaw,
+      minRaw: minRaw,
       visibleStartIndex: visibleStartIndex,
     };
   }
 
-  function formatGraphHighLabel(habit, maxRaw) {
+  function formatGraphScaleNumber(habit, raw) {
+    if (raw == null || !isFinite(raw)) return "—";
+    if (habit.type === "time") return formatDuration(Math.round(raw));
+    if (raw >= 1000) return formatCounterDisplay(raw);
+    return formatCounterDisplay(raw);
+  }
+
+  function formatGraphHighLabel(habit, maxRaw, minRaw) {
     if (habit.type === "yesno") return "100% = Yes";
+    if (usesPlotMinScale(habit) && minRaw != null && maxRaw != null) {
+      return formatGraphScaleNumber(habit, minRaw) + "–" + formatGraphScaleNumber(habit, maxRaw);
+    }
     if (maxRaw >= 1000) return "high: " + Math.round(maxRaw).toLocaleString("en-US");
     return "high: " + Math.round(maxRaw);
   }
@@ -7718,6 +8806,104 @@
   function graphYForNorm(norm, plotH, padTop) {
     if (norm == null) return null;
     return padTop + plotH - (norm / 100) * plotH;
+  }
+
+  function graphUnifiedAxisBounds(seriesList, domainStartIndex) {
+    let axisMin = null;
+    let axisMax = null;
+    let hasMinScale = false;
+    seriesList.forEach(function (series) {
+      if (usesPlotMinScale(series.habit)) hasMinScale = true;
+      const from = Math.max(domainStartIndex || 0, series.visibleStartIndex || 0);
+      for (let i = from; i < series.points.length; i++) {
+        const raw = series.points[i].raw;
+        if (raw == null || !isFinite(raw)) continue;
+        if (axisMax == null || raw > axisMax) axisMax = raw;
+        if (axisMin == null || raw < axisMin) axisMin = raw;
+      }
+      if (usesPlotMinScale(series.habit)) {
+        if (series.minRaw != null) {
+          axisMin = axisMin == null ? series.minRaw : Math.min(axisMin, series.minRaw);
+        }
+        if (series.maxRaw != null) {
+          axisMax = axisMax == null ? series.maxRaw : Math.max(axisMax, series.maxRaw);
+        }
+      }
+    });
+    if (!hasMinScale) axisMin = 0;
+    if (axisMin == null) axisMin = 0;
+    if (axisMax == null || axisMax <= axisMin) axisMax = axisMin + 1;
+    return { axisMin: axisMin, axisMax: axisMax };
+  }
+
+  function graphRawToUnifiedNorm(raw, axisBounds) {
+    if (raw == null || !isFinite(raw)) return null;
+    const span = axisBounds.axisMax - axisBounds.axisMin;
+    if (span <= 0) return 50;
+    return ((raw - axisBounds.axisMin) / span) * 100;
+  }
+
+  function graphSeriesDrawNorm(series, pointIndex, axisBounds, rawMode) {
+    const p = series.points[pointIndex];
+    if (!p || p.raw == null) return null;
+    if (!rawMode) return p.norm;
+    return graphRawToUnifiedNorm(p.raw, axisBounds);
+  }
+
+  function graphMaDrawNorm(series, pointIndex, windowSize, axisBounds, rawMode) {
+    if (!rawMode) {
+      const norms = movingAverageNorms(series.points, windowSize);
+      return norms[pointIndex];
+    }
+    const rawMa = movingAverageRawAt(series.points, windowSize, pointIndex);
+    return graphRawToUnifiedNorm(rawMa, axisBounds);
+  }
+
+  function graphYAxisReferenceHabit(seriesList) {
+    for (let i = 0; i < seriesList.length; i++) {
+      if (seriesList[i].habit.type !== "yesno") return seriesList[i].habit;
+    }
+    return seriesList.length ? seriesList[0].habit : null;
+  }
+
+  function formatGraphYAxisTick(value, seriesList) {
+    const allYesNo = seriesList.every(function (s) {
+      return s.habit.type === "yesno";
+    });
+    if (allYesNo) return String(Math.round(value));
+    const habit = graphYAxisReferenceHabit(seriesList);
+    if (!habit) return String(Math.round(value));
+    return formatGraphScaleNumber(habit, value);
+  }
+
+  function drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, domainStartIndex) {
+    const rawMode = graphYAxisRaw;
+    const axisBounds =
+      rawMode && seriesList.length
+        ? graphUnifiedAxisBounds(seriesList, domainStartIndex || 0)
+        : null;
+    ctx.strokeStyle = "#e4ddd2";
+    ctx.lineWidth = 1;
+    for (let g = 0; g <= 4; g++) {
+      const gy = pad.top + (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, gy);
+      ctx.lineTo(w - pad.right, gy);
+      ctx.stroke();
+      ctx.fillStyle = "#6b7264";
+      ctx.font = "10px sans-serif";
+      ctx.textAlign = "right";
+      let label;
+      if (rawMode && axisBounds) {
+        const t = g / 4;
+        const v = axisBounds.axisMax - t * (axisBounds.axisMax - axisBounds.axisMin);
+        label = formatGraphYAxisTick(v, seriesList);
+      } else {
+        label = String(100 - g * 25) + "%";
+      }
+      ctx.fillText(label, pad.left - 6, gy + 3);
+    }
+    return axisBounds;
   }
 
   function formatGraphDayLabel(date) {
@@ -7915,6 +9101,7 @@
     ctx.save();
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
+    ctx.lineCap = (opts && opts.lineCap) || "butt";
     ctx.setLineDash(dashed || (dash && dash.length) ? dash : []);
     ctx.beginPath();
     let started = false;
@@ -7986,12 +9173,19 @@
 
   function graphPlotLayout(w) {
     const width = Math.max(w, 280);
+    const padLeft = graphYAxisRaw ? 46 : GRAPH_PLOT_PAD.left;
+    const pad = {
+      top: GRAPH_PLOT_PAD.top,
+      right: GRAPH_PLOT_PAD.right,
+      bottom: GRAPH_PLOT_PAD.bottom,
+      left: padLeft,
+    };
     return {
       w: width,
       h: GRAPH_PLOT_HEIGHT,
-      pad: GRAPH_PLOT_PAD,
-      plotW: width - GRAPH_PLOT_PAD.left - GRAPH_PLOT_PAD.right,
-      plotH: GRAPH_PLOT_HEIGHT - GRAPH_PLOT_PAD.top - GRAPH_PLOT_PAD.bottom,
+      pad: pad,
+      plotW: width - pad.left - pad.right,
+      plotH: GRAPH_PLOT_HEIGHT - pad.top - pad.bottom,
     };
   }
 
@@ -8040,7 +9234,7 @@
       return "In progress";
     }
     if (habit.type === "time") return formatDuration(Math.round(raw));
-    return formatCounterDisplay(Math.round(raw));
+    return formatCounterDisplay(raw);
   }
 
   function graphInspectMaLabel(habit, raw) {
@@ -8069,10 +9263,12 @@
       return {
         label: formatGraphInspectTime(ts),
         habits: meta.seriesList.map(function (series) {
+          const d = new Date(ts);
           return {
             habit: series.habit,
             color: plotColorFromMap(series.habit.id, meta.colorMap),
             value: graphInspectValueAtTime(series, ts, meta.start, meta.end),
+            day: { y: d.getFullYear(), m: d.getMonth(), d: d.getDate() },
           };
         }),
       };
@@ -8083,7 +9279,7 @@
     const pointIndex = meta.domainStartIndex + visibleIndex;
     const refPoint = meta.seriesList[0].points[pointIndex];
     const label = refPoint && refPoint.day ? formatGraphInspectDay(refPoint.day.date) : "";
-    const includeMa = !!(meta.showMa15 || meta.showMa30);
+    const includeMa = !!(meta.showMa5 || meta.showMa15 || meta.showMa30);
     return {
       label: label,
       habits: meta.seriesList.map(function (series) {
@@ -8092,8 +9288,12 @@
           habit: series.habit,
           color: plotColorFromMap(series.habit.id, meta.colorMap),
           value: p ? p.raw : null,
+          day: p && p.day ? p.day : null,
         };
         if (includeMa) {
+          if (meta.showMa5) {
+            row.ma5 = movingAverageRawAt(series.points, 5, pointIndex);
+          }
           if (meta.showMa15) {
             row.ma15 = movingAverageRawAt(series.points, 15, pointIndex);
           }
@@ -8157,13 +9357,20 @@
     tooltip.style.top = top + "px";
   }
 
+  function graphInspectNoteHtml(row) {
+    if (!row || !row.habit || row.habit.type !== "number" || !row.day) return "";
+    const note = getCellNote(cellKey(row.habit.id, row.day.y, row.day.m, row.day.d));
+    if (!note) return "";
+    return '<div class="graph-chart-tooltip-note">' + escapeHtml(note) + "</div>";
+  }
+
   function showGraphChartTooltip(canvas, overlay, tooltip, clientX, clientY) {
     const meta = canvas._graphInspect;
     if (!meta || !tooltip) return;
     const wrap = canvas.parentElement;
     if (!wrap) return;
     const info = graphInspectAtPlotX(meta, graphPlotXFromClient(canvas, clientX));
-    const showMaMetrics = !!(meta.showMa15 || meta.showMa30);
+    const showMaMetrics = !!(meta.showMa5 || meta.showMa15 || meta.showMa30);
     let html =
       '<div class="graph-chart-tooltip-date">' + escapeHtml(info.label) + "</div><ul>";
     info.habits.forEach(function (row) {
@@ -8180,6 +9387,12 @@
           '<span class="graph-chart-tooltip-metric">Day <b>' +
           escapeHtml(dayLabel) +
           "</b></span>";
+        if (meta.showMa5) {
+          html +=
+            '<span class="graph-chart-tooltip-metric">5d <b>' +
+            escapeHtml(graphInspectMaLabel(row.habit, row.ma5)) +
+            "</b></span>";
+        }
         if (meta.showMa15) {
           html +=
             '<span class="graph-chart-tooltip-metric">15d <b>' +
@@ -8192,14 +9405,16 @@
             escapeHtml(graphInspectMaLabel(row.habit, row.ma30)) +
             "</b></span>";
         }
-        html += "</span></div>";
+        html += "</span>" + graphInspectNoteHtml(row) + "</div>";
       } else {
         html +=
-          '<span class="graph-chart-tooltip-name">' +
+          '<div class="graph-chart-tooltip-habit"><span class="graph-chart-tooltip-name">' +
           escapeHtml(row.habit.name) +
           "</span><strong>" +
           escapeHtml(dayLabel) +
-          "</strong>";
+          "</strong>" +
+          graphInspectNoteHtml(row) +
+          "</div>";
       }
       html += "</li>";
     });
@@ -8361,19 +9576,7 @@
     ctx.fillStyle = "#faf8f4";
     ctx.fillRect(0, 0, w, h);
 
-    ctx.strokeStyle = "#e4ddd2";
-    ctx.lineWidth = 1;
-    for (let g = 0; g <= 4; g++) {
-      const gy = pad.top + (plotH * g) / 4;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, gy);
-      ctx.lineTo(w - pad.right, gy);
-      ctx.stroke();
-      ctx.fillStyle = "#6b7264";
-      ctx.font = "10px sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
-    }
+    const axisBounds = drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, 0);
 
     let mid = nextLocalMidnightAfter(start);
     while (mid < now) {
@@ -8413,13 +9616,14 @@
       ctx.lineWidth = 2;
       ctx.beginPath();
       let started = false;
-      series.points.forEach(function (p) {
-        if (p.norm == null || p.ts < start || p.ts > now) {
+      series.points.forEach(function (p, pointIndex) {
+        const norm = graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
+        if (norm == null || p.ts < start || p.ts > now) {
           started = false;
           return;
         }
         const x = pad.left + ((p.ts - start) / span) * plotW;
-        const y = graphYForNorm(p.norm, plotH, pad.top);
+        const y = graphYForNorm(norm, plotH, pad.top);
         if (!started) {
           ctx.moveTo(x, y);
           started = true;
@@ -8429,10 +9633,11 @@
       });
       ctx.stroke();
 
-      series.points.forEach(function (p) {
-        if (p.norm == null || p.ts < start || p.ts > now) return;
+      series.points.forEach(function (p, pointIndex) {
+        const norm = graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
+        if (norm == null || p.ts < start || p.ts > now) return;
         const x = pad.left + ((p.ts - start) / span) * plotW;
-        const y = graphYForNorm(p.norm, plotH, pad.top);
+        const y = graphYForNorm(norm, plotH, pad.top);
         ctx.beginPath();
         ctx.arc(x, y, dotR, 0, Math.PI * 2);
         ctx.fillStyle = color;
@@ -8493,19 +9698,7 @@
       return pad.left + (pointCount === 1 ? 0 : (plotW * domainIndex) / (pointCount - 1));
     }
 
-    ctx.strokeStyle = "#e4ddd2";
-    ctx.lineWidth = 1;
-    for (let g = 0; g <= 4; g++) {
-      const gy = pad.top + (plotH * g) / 4;
-      ctx.beginPath();
-      ctx.moveTo(pad.left, gy);
-      ctx.lineTo(w - pad.right, gy);
-      ctx.stroke();
-      ctx.fillStyle = "#6b7264";
-      ctx.font = "10px sans-serif";
-      ctx.textAlign = "right";
-      ctx.fillText(String(100 - g * 25) + "%", pad.left - 6, gy + 3);
-    }
+    const axisBounds = drawGraphYAxisGrid(ctx, w, pad, plotH, seriesList, domainStartIndex);
 
     const labelEvery = Math.max(1, Math.ceil(pointCount / 5));
     seriesList[0].points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
@@ -8526,20 +9719,22 @@
 
     seriesList.forEach(function (series) {
       const color = plotColorFromMap(series.habit.id, colorMap);
-      const norms = series.points.map(function (p) {
-        return p.norm;
+      const norms = series.points.map(function (p, pointIndex) {
+        return graphSeriesDrawNorm(series, pointIndex, axisBounds, graphYAxisRaw);
       });
       const hideDaily =
-        graphHideDaily && graphSupportsMovingAvg(range) && (graphMa15 || graphMa30);
+        graphHideDaily && graphSupportsMovingAvg(range) && graphAnyMovingAvg();
       if (!hideDaily) {
         strokeNormSeries(ctx, norms, domainStartIndex, graphXForIndex, plotH, pad.top, color, {
           lineWidth: 2,
         });
 
         series.points.slice(domainStartIndex).forEach(function (p, visibleIndex) {
-          if (p.norm == null) return;
-          const x = graphXForIndex(domainStartIndex + visibleIndex);
-          const y = graphYForNorm(p.norm, plotH, pad.top);
+          const pointIndex = domainStartIndex + visibleIndex;
+          const norm = norms[pointIndex];
+          if (norm == null) return;
+          const x = graphXForIndex(pointIndex);
+          const y = graphYForNorm(norm, plotH, pad.top);
           ctx.beginPath();
           ctx.arc(x, y, dotR, 0, Math.PI * 2);
           ctx.fillStyle = color;
@@ -8548,10 +9743,28 @@
       }
 
       if (graphSupportsMovingAvg(range)) {
-        if (graphMa15) {
+        if (graphMa5) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 5, axisBounds, graphYAxisRaw);
+          });
           strokeNormSeries(
             ctx,
-            movingAverageNorms(series.points, 15),
+            maNorms,
+            domainStartIndex,
+            graphXForIndex,
+            plotH,
+            pad.top,
+            shadeHexColor(color, 1.2),
+            { dashed: true, dash: [1.2, 3.2], lineWidth: 2.6, lineCap: "round" }
+          );
+        }
+        if (graphMa15) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 15, axisBounds, graphYAxisRaw);
+          });
+          strokeNormSeries(
+            ctx,
+            maNorms,
             domainStartIndex,
             graphXForIndex,
             plotH,
@@ -8561,9 +9774,12 @@
           );
         }
         if (graphMa30) {
+          const maNorms = series.points.map(function (p, pointIndex) {
+            return graphMaDrawNorm(series, pointIndex, 30, axisBounds, graphYAxisRaw);
+          });
           strokeNormSeries(
             ctx,
-            movingAverageNorms(series.points, 30),
+            maNorms,
             domainStartIndex,
             graphXForIndex,
             plotH,
@@ -8586,6 +9802,7 @@
       plotH: plotH,
       w: w,
       h: h,
+      showMa5: !!(graphSupportsMovingAvg(range) && graphMa5),
       showMa15: !!(graphSupportsMovingAvg(range) && graphMa15),
       showMa30: !!(graphSupportsMovingAvg(range) && graphMa30),
     });
@@ -8605,17 +9822,26 @@
     root.querySelectorAll("[data-graph-ma]").forEach(function (btn) {
       btn.onclick = function () {
         const days = btn.getAttribute("data-graph-ma");
+        if (days === "5") graphMa5 = !graphMa5;
         if (days === "15") graphMa15 = !graphMa15;
         if (days === "30") graphMa30 = !graphMa30;
-        if (!graphMa15 && !graphMa30) graphHideDaily = false;
+        if (!graphAnyMovingAvg()) graphHideDaily = false;
         persistGraphMaPrefs();
         renderGraphs();
       };
     });
     root.querySelectorAll("[data-graph-hide-daily]").forEach(function (btn) {
       btn.onclick = function () {
-        if (!graphMa15 && !graphMa30) return;
+        if (!graphAnyMovingAvg()) return;
         graphHideDaily = !graphHideDaily;
+        persistGraphMaPrefs();
+        renderGraphs();
+      };
+    });
+    root.querySelectorAll("[data-graph-y-axis]").forEach(function (btn) {
+      btn.onclick = function () {
+        const mode = btn.getAttribute("data-graph-y-axis");
+        graphYAxisRaw = mode === "raw";
         persistGraphMaPrefs();
         renderGraphs();
       };
@@ -8643,14 +9869,14 @@
   function renderGraph(targetRoot) {
     const root = targetRoot || document.getElementById("graphsBody");
     if (!root) return;
-    const habits = getFilteredHabits(true);
+    const habits = getPlotHabits();
     const selectedHabits = getGraphSelectedHabits(habits);
     const seriesList = selectedHabits.map(function (habit) {
       if (graphRange === "today") return buildGraphTodaySeries(habit);
       if (graphRange === "1") return buildGraph24hSeries(habit);
       const bounds = getGraphDateBounds(graphRange);
       const lookback =
-        graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)
+        graphSupportsMovingAvg(graphRange) && graphAnyMovingAvg()
           ? graphMaLookbackDays()
           : 0;
       return buildGraphSeries(habit, bounds.start, bounds.end, lookback);
@@ -8669,14 +9895,14 @@
           return false;
         });
 
-    let html = renderCategoryFiltersHtml(true);
+    let html = renderCategoryFiltersHtml(true, graphCategory);
     html +=
       '<p class="hint">' +
       (graphRange === "today"
         ? "Today uses activity log · each line scales to its own high since midnight · Yes/No habits use Yes as 100%."
         : graphRange === "1"
         ? "48h uses activity log · each line scales to its own high in the full 48 hours · Yes/No habits use Yes as 100%."
-        : "Select habits to compare · each line scales to its own high in the range · Yes/No habits use Yes as 100%.") +
+        : "Select habits to compare · each line scales to its own high in the range · set Lowest = 0% on a habit for Weight-style ranges · Yes/No habits use Yes as 100%.") +
       "</p>";
     html += '<div class="graph-range-row">';
     graphRangeOptions().forEach(function (range) {
@@ -8691,9 +9917,31 @@
     });
     html += "</div>";
 
+    html += '<div class="graph-ma-row" role="group" aria-label="Y axis scale">';
+    html += '<span class="graph-ma-label">Y-axis</span>';
+    html +=
+      '<button type="button" class="graph-range-btn graph-ma-btn' +
+      (!graphYAxisRaw ? " on" : "") +
+      '" data-graph-y-axis="percent" aria-pressed="' +
+      !graphYAxisRaw +
+      '">%</button>';
+    html +=
+      '<button type="button" class="graph-range-btn graph-ma-btn' +
+      (graphYAxisRaw ? " on" : "") +
+      '" data-graph-y-axis="raw" aria-pressed="' +
+      graphYAxisRaw +
+      '">Numbers</button>';
+    html += "</div>";
+
     if (graphSupportsMovingAvg(graphRange)) {
       html += '<div class="graph-ma-row" role="group" aria-label="Moving averages">';
       html += '<span class="graph-ma-label">Moving avg</span>';
+      html +=
+        '<button type="button" class="graph-range-btn graph-ma-btn' +
+        (graphMa5 ? " on" : "") +
+        '" data-graph-ma="5" aria-pressed="' +
+        graphMa5 +
+        '">5-day</button>';
       html +=
         '<button type="button" class="graph-range-btn graph-ma-btn' +
         (graphMa15 ? " on" : "") +
@@ -8706,7 +9954,7 @@
         '" data-graph-ma="30" aria-pressed="' +
         graphMa30 +
         '">30-day</button>';
-      if (graphMa15 || graphMa30) {
+      if (graphAnyMovingAvg()) {
         html +=
           '<button type="button" class="graph-range-btn graph-ma-btn' +
           (graphHideDaily ? " on" : "") +
@@ -8772,21 +10020,22 @@
           '"></span><span>' +
           escapeHtml(series.habit.name) +
           '</span><span class="graph-legend-meta">' +
-          escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw)) +
+          escapeHtml(formatGraphHighLabel(series.habit, series.maxRaw, series.minRaw)) +
           "</span></div>";
       });
-      if (graphSupportsMovingAvg(graphRange) && (graphMa15 || graphMa30)) {
+      if (graphSupportsMovingAvg(graphRange) && graphAnyMovingAvg()) {
         html += '<p class="graph-ma-legend hint" style="margin:8px 0 0">';
-        if (graphMa15 && graphMa30) {
-          html +=
-            "15-day: short dashes · 30-day: longer, darker dashes";
-        } else if (graphMa15) {
-          html += "Short dashes: 15-day moving average";
-        } else {
-          html += "Longer darker dashes: 30-day moving average";
-        }
+        const maBits = [];
+        if (graphMa5) maBits.push("5-day: dots");
+        if (graphMa15) maBits.push("15-day: short dashes");
+        if (graphMa30) maBits.push("30-day: longer, darker dashes");
+        html += maBits.join(" · ");
         if (graphHideDaily) html += " · daily hidden";
         html += "</p>";
+      }
+      if (graphYAxisRaw) {
+        html +=
+          '<p class="graph-ma-legend hint" style="margin:8px 0 0">Y-axis uses one shared number scale for all selected habits.</p>';
       }
       html += "</div>";
     }
@@ -8814,7 +10063,14 @@
     if (habit.type === "counter") type = "Counter +" + formatStepBracket(habit.step);
     else if (habit.type === "number") type = "Number";
     else if (habit.type === "time") type = "Time";
-    return categoryLabel(habit.category) + " · " + type + (habit.pinned ? " · ★" : "");
+    const daily = dailyWhenLabel(habit.dailyWhen);
+    return (
+      categoryLabel(habit.category) +
+      " · " +
+      type +
+      (daily ? " · " + daily : "") +
+      (habit.pinned ? " · ★" : "")
+    );
   }
 
   function bindDataActions(root) {
@@ -8858,6 +10114,337 @@
         toast("Reset complete");
       };
     }
+  }
+
+  function renderHabitCompactRow(habit, isHiddenSection) {
+    const expanded = habitsExpandedId === habit.id;
+    const accent = habitAccentColor(habit);
+    let row =
+      '<div class="habit-compact-row' +
+      (habit.hidden ? " is-hidden-row" : "") +
+      '" data-habit="' +
+      habit.id +
+      '" style="--habit-accent:' +
+      accent +
+      '">';
+    row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
+    row +=
+      '<span class="habit-compact-swatch" aria-hidden="true" style="background:' +
+      accent +
+      '"></span>';
+    row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
+    row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
+    row +=
+      '<button type="button" class="habit-compact-chevron" data-habit-toggle="' +
+      habit.id +
+      '" aria-label="Expand ' +
+      escapeHtml(habit.name) +
+      '">' +
+      (expanded ? "▲" : "▼") +
+      "</button>";
+    row += "</div>";
+    row += '<div class="habit-compact-body"' + (expanded ? "" : " hidden") + ">";
+    row += '<div class="habit-row">';
+    row +=
+      '<input type="text" value="' +
+      escapeHtml(habit.name) +
+      '" data-name="' +
+      habit.id +
+      '" maxlength="40" />';
+    row += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
+    row += '<div class="habit-meta-row">';
+    row += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
+    state.categories.forEach(function (cat) {
+      row +=
+        '<option value="' +
+        cat.id +
+        '"' +
+        (habit.category === cat.id ? " selected" : "") +
+        ">" +
+        escapeHtml(cat.label) +
+        "</option>";
+    });
+    row += "</select>";
+    row += renderDailyWhenSelectHtml("", habit.dailyWhen, 'class="habit-cat-select" data-daily-when="' + habit.id + '"');
+    row +=
+      '<button type="button" class="habit-pin-btn' +
+      (habit.pinned ? " on" : "") +
+      '" data-pin="' +
+      habit.id +
+      '">' +
+      (habit.pinned ? "★ Pinned" : "☆ Pin") +
+      "</button>";
+    row +=
+      '<button type="button" class="habit-hide-btn' +
+      (habit.hidden ? " on" : "") +
+      '" data-hide="' +
+      habit.id +
+      '" aria-pressed="' +
+      !!habit.hidden +
+      '">' +
+      (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
+      "</button>";
+    row += "</div>";
+    row +=
+      '<div class="plot-color-row"><span>Plot color</span><input type="color" value="' +
+      getGraphHabitColor(habit.id) +
+      '" data-plot-color="' +
+      habit.id +
+      '" aria-label="Plot color for ' +
+      escapeHtml(habit.name) +
+      '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
+      habit.id +
+      '">Auto</button></div>';
+    row +=
+      '<div class="plot-color-row"><span>Plot scale</span>' +
+      '<select class="habit-cat-select" data-plot-scale="' +
+      habit.id +
+      '">' +
+      '<option value="zero"' +
+      (habit.plotScale === "min" ? "" : " selected") +
+      ">From 0</option>" +
+      '<option value="min"' +
+      (habit.plotScale === "min" ? " selected" : "") +
+      ">Lowest = 0%</option></select></div>";
+    row += '<div class="habit-settings">';
+    row += '<div class="type-row">';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "counter" ? " on" : "") +
+      '" data-type="counter" data-hid="' +
+      habit.id +
+      '">Counter</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "number" ? " on" : "") +
+      '" data-type="number" data-hid="' +
+      habit.id +
+      '">Number</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "yesno" ? " on" : "") +
+      '" data-type="yesno" data-hid="' +
+      habit.id +
+      '">Yes / No</button>';
+    row +=
+      '<button type="button" class="type-pill' +
+      (habit.type === "time" ? " on" : "") +
+      '" data-type="time" data-hid="' +
+      habit.id +
+      '">Time</button>';
+    row += "</div>";
+    if (habit.type === "counter") {
+      row +=
+        '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
+        MAX_STEP +
+        '" value="' +
+        habit.step +
+        '" data-step="' +
+        habit.id +
+        '" /><span class="hint" style="margin:0">max ' +
+        MAX_STEP +
+        "</span></div>";
+      if (isStepsHabitName(habit.name)) {
+        row +=
+          '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
+      }
+    } else if (habit.type === "yesno") {
+      row += renderExcludeDaysHtml(habit);
+    }
+    row += '<div class="legend">' + renderLegend(habit) + "</div>";
+    row += "</div></div></div>";
+    return row;
+  }
+
+  function buildHabitsFilteredListHtml() {
+    const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
+    const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
+    const filteredVisible = visibleHabits.filter(habitMatchesHabitsListFilter);
+    const filteredHidden = hiddenHabits.filter(habitMatchesHabitsListFilter);
+    const filterActive =
+      habitsListQuery.trim() !== "" || (habitsListCategory && habitsListCategory !== "all");
+    let html = "";
+    if (filterActive) {
+      html +=
+        '<p class="habits-filter-meta">Showing ' +
+        (filteredVisible.length + filteredHidden.length) +
+        " of " +
+        state.habits.length +
+        " habits</p>";
+    }
+    filteredVisible.forEach(function (habit) {
+      html += renderHabitCompactRow(habit, false);
+    });
+    if (!filteredVisible.length && !filteredHidden.length && state.habits.length) {
+      html += '<p class="hint">No habits match your search — try another name or category.</p>';
+    }
+    if (filteredHidden.length) {
+      html += '<div class="habits-hidden-section">';
+      html +=
+        '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
+        filteredHidden.length +
+        ")</p>";
+      filteredHidden.forEach(function (habit) {
+        html += renderHabitCompactRow(habit, true);
+      });
+      html += "</div>";
+    }
+    return html;
+  }
+
+  function bindHabitsCompactRowInteractions(scope) {
+    if (!scope) return;
+    bindExcludeDays(scope);
+    scope.querySelectorAll("[data-habit-toggle]").forEach(function (el) {
+      el.onclick = function (e) {
+        e.stopPropagation();
+        const id = el.getAttribute("data-habit-toggle");
+        habitsExpandedId = habitsExpandedId === id ? null : id;
+        refreshHabitsFilteredList();
+      };
+    });
+    scope.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.onclick = function () {
+        if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
+        if (!confirm("Remove this habit and all its dots?")) return;
+        const id = btn.dataset.del;
+        logHabitChange(id, "delete");
+        state.habits = state.habits.filter(function (h) { return h.id !== id; });
+        Object.keys(state.cells).forEach(function (k) {
+          if (k.indexOf(id + "-") === 0) delete state.cells[k];
+        });
+        deleteCellNotesForHabit(id);
+        save(); render();
+      };
+    });
+    scope.querySelectorAll("[data-name]").forEach(function (inp) {
+      function syncName() {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
+        if (h) { h.name = inp.value.trim() || "Habit"; save(); }
+      }
+      inp.onchange = syncName;
+      inp.onblur = syncName;
+    });
+    scope.querySelectorAll(".type-pill").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
+        if (!h) return;
+        const prevType = h.type;
+        h.type = btn.dataset.type;
+        if (h.type === "counter") {
+          if (prevType === "time" || prevType === "number" || !h.step) {
+            h.step = 1;
+          }
+          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
+          delete h.excludeDays;
+        } else if (h.type === "number") {
+          h.step = 1;
+          delete h.excludeDays;
+        } else if (h.type === "time") {
+          h.step = 1;
+          delete h.excludeDays;
+        } else if (h.type === "yesno") {
+          if (!h.excludeDays) h.excludeDays = [];
+        }
+        save(); render();
+      };
+    });
+    scope.querySelectorAll("[data-step]").forEach(function (inp) {
+      inp.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
+        if (!h) return;
+        h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
+        save();
+        render();
+      };
+    });
+    function syncTimeStepInputs(habitId) {
+      const h = state.habits.find(function (x) { return x.id === habitId; });
+      if (!h || h.type !== "time") return;
+      const minInp = scope.querySelector('[data-step-min="' + habitId + '"]');
+      const secInp = scope.querySelector('[data-step-sec="' + habitId + '"]');
+      h.step = readTimeStepFromFields(minInp, secInp);
+      save();
+      render();
+    }
+    scope.querySelectorAll("[data-step-min]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-min"));
+      };
+    });
+    scope.querySelectorAll("[data-step-sec]").forEach(function (inp) {
+      inp.onchange = function () {
+        syncTimeStepInputs(inp.getAttribute("data-step-sec"));
+      };
+    });
+    scope.querySelectorAll("[data-cat]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.dataset.cat; });
+        if (h) {
+          h.category = normalizeCategory(sel.value);
+          save(); render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-daily-when]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-daily-when"); });
+        if (h) {
+          applyDailyWhen(h, { dailyWhen: sel.value });
+          save();
+          render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-pin]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.pin; });
+        if (h) {
+          h.pinned = !h.pinned;
+          save(); render();
+        }
+      };
+    });
+    scope.querySelectorAll("[data-hide]").forEach(function (btn) {
+      btn.onclick = function () {
+        const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
+        if (h) setHabitHidden(h.id, !h.hidden);
+      };
+    });
+    scope.querySelectorAll("[data-plot-color]").forEach(function (inp) {
+      inp.onchange = function () {
+        const id = inp.getAttribute("data-plot-color");
+        if (!setHabitPlotColor(id, inp.value)) return;
+        render();
+      };
+    });
+    scope.querySelectorAll("[data-plot-color-reset]").forEach(function (btn) {
+      btn.onclick = function () {
+        const id = btn.getAttribute("data-plot-color-reset");
+        if (!setHabitPlotColor(id, null)) return;
+        toast("Plot color set to auto");
+        render();
+      };
+    });
+    scope.querySelectorAll("[data-plot-scale]").forEach(function (sel) {
+      sel.onchange = function () {
+        const h = state.habits.find(function (x) { return x.id === sel.getAttribute("data-plot-scale"); });
+        if (!h) return;
+        applyPlotScale(h, { plotScale: sel.value });
+        save();
+        render();
+      };
+    });
+  }
+
+  function refreshHabitsFilteredList() {
+    const mount = document.getElementById("habitsFilteredList");
+    if (!mount) {
+      if (activeTab === "habits") renderHabits();
+      return;
+    }
+    mount.innerHTML = buildHabitsFilteredListHtml();
+    bindHabitsCompactRowInteractions(mount);
   }
 
   function renderHabits() {
@@ -8956,7 +10543,29 @@
       '<div class="add-cat-row"><input type="text" id="newCategoryName" placeholder="New category" maxlength="32" />' +
       '<button type="button" class="btn btn-primary" id="addCategory">Add</button></div></div>';
     html +=
-      '<p class="hint">Hold a category chip on Month/Stats to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
+      '<p class="hint">Use ‹ › on a Month or Stats category chip to reorder filters. Habits: hold ≡ on Month. Hide habits you don’t track daily.</p>';
+
+    html += '<div class="habits-list-filter">';
+    html +=
+      '<input type="search" id="habitsListSearch" placeholder="Search habits" value="' +
+      escapeHtml(habitsListQuery) +
+      '" autocomplete="off" aria-label="Search habits" />';
+    html += '<select id="habitsListCategory" aria-label="Filter habits by category">';
+    html +=
+      '<option value="all"' +
+      (habitsListCategory === "all" ? " selected" : "") +
+      ">All categories</option>";
+    state.categories.forEach(function (cat) {
+      html +=
+        '<option value="' +
+        escapeHtml(cat.id) +
+        '"' +
+        (habitsListCategory === cat.id ? " selected" : "") +
+        ">" +
+        escapeHtml(cat.label) +
+        "</option>";
+    });
+    html += "</select></div>";
 
     html += '<div class="add-habit-row add-habit-row-top" style="flex-wrap:wrap">';
     html += '<input type="text" id="newHabitName" placeholder="New habit name" maxlength="40" />';
@@ -8977,6 +10586,7 @@
     });
     html += "</select>";
     html += renderHabitTypeSelectHtml("newHabitType", "counter");
+    html += renderDailyWhenSelectHtml("newHabitDailyWhen", "");
     html +=
       '<span class="add-habit-step-fields" id="habitsCounterStepWrap">' +
       '<input type="number" id="newHabitStep" min="1" max="' +
@@ -8989,152 +10599,7 @@
     html +=
       '<button type="button" class="btn btn-primary add-habit-plus-btn" id="addHabit" aria-label="Add habit">+</button></div>';
 
-    function renderHabitCompactRow(habit, isHiddenSection) {
-      const expanded = habitsExpandedId === habit.id;
-      const accent = habitAccentColor(habit);
-      let row =
-        '<div class="habit-compact-row' +
-        (habit.hidden ? " is-hidden-row" : "") +
-        '" data-habit="' +
-        habit.id +
-        '" style="--habit-accent:' +
-        accent +
-        '">';
-      row += '<div class="habit-compact-head" data-habit-toggle="' + habit.id + '">';
-      row +=
-        '<span class="habit-compact-swatch" aria-hidden="true" style="background:' +
-        accent +
-        '"></span>';
-      row += '<span class="habit-compact-name">' + escapeHtml(habit.name) + "</span>";
-      row += '<span class="habit-compact-meta">' + escapeHtml(habitCompactMeta(habit)) + "</span>";
-      row +=
-        '<button type="button" class="habit-compact-chevron" data-habit-toggle="' +
-        habit.id +
-        '" aria-label="Expand ' +
-        escapeHtml(habit.name) +
-        '">' +
-        (expanded ? "▲" : "▼") +
-        "</button>";
-      row += "</div>";
-      row += '<div class="habit-compact-body"' + (expanded ? "" : " hidden") + ">";
-      row += '<div class="habit-row">';
-      row +=
-        '<input type="text" value="' +
-        escapeHtml(habit.name) +
-        '" data-name="' +
-        habit.id +
-        '" maxlength="40" />';
-      row += '<button type="button" class="btn btn-danger" data-del="' + habit.id + '">Remove</button></div>';
-      row += '<div class="habit-meta-row">';
-      row += '<select class="habit-cat-select" data-cat="' + habit.id + '">';
-      state.categories.forEach(function (cat) {
-        row +=
-          '<option value="' +
-          cat.id +
-          '"' +
-          (habit.category === cat.id ? " selected" : "") +
-          ">" +
-          escapeHtml(cat.label) +
-          "</option>";
-      });
-      row += "</select>";
-      row +=
-        '<button type="button" class="habit-pin-btn' +
-        (habit.pinned ? " on" : "") +
-        '" data-pin="' +
-        habit.id +
-        '">' +
-        (habit.pinned ? "★ Pinned" : "☆ Pin") +
-        "</button>";
-      row +=
-        '<button type="button" class="habit-hide-btn' +
-        (habit.hidden ? " on" : "") +
-        '" data-hide="' +
-        habit.id +
-        '" aria-pressed="' +
-        !!habit.hidden +
-        '">' +
-        (isHiddenSection ? "Show" : renderHabitHideBtnLabel(habit.hidden)) +
-        "</button>";
-      row += "</div>";
-      row +=
-        '<div class="plot-color-row"><span>Plot color</span><input type="color" value="' +
-        getGraphHabitColor(habit.id) +
-        '" data-plot-color="' +
-        habit.id +
-        '" aria-label="Plot color for ' +
-        escapeHtml(habit.name) +
-        '" /><button type="button" class="btn btn-secondary" data-plot-color-reset="' +
-        habit.id +
-        '">Auto</button></div>';
-      row += '<div class="habit-settings">';
-      row += '<div class="type-row">';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "counter" ? " on" : "") +
-        '" data-type="counter" data-hid="' +
-        habit.id +
-        '">Counter</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "number" ? " on" : "") +
-        '" data-type="number" data-hid="' +
-        habit.id +
-        '">Number</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "yesno" ? " on" : "") +
-        '" data-type="yesno" data-hid="' +
-        habit.id +
-        '">Yes / No</button>';
-      row +=
-        '<button type="button" class="type-pill' +
-        (habit.type === "time" ? " on" : "") +
-        '" data-type="time" data-hid="' +
-        habit.id +
-        '">Time</button>';
-      row += "</div>";
-      if (habit.type === "counter") {
-        row +=
-          '<div class="step-row"><span>+ per tap</span><input type="number" min="1" max="' +
-          MAX_STEP +
-          '" value="' +
-          habit.step +
-          '" data-step="' +
-          habit.id +
-          '" /><span class="hint" style="margin:0">max ' +
-          MAX_STEP +
-          "</span></div>";
-        if (isStepsHabitName(habit.name)) {
-          row +=
-            '<p class="hint" style="margin:0 0 8px">Starts at 5,000 — you can lower to 1,000 or any amount.</p>';
-        }
-      } else if (habit.type === "yesno") {
-        row += renderExcludeDaysHtml(habit);
-      }
-      row += '<div class="legend">' + renderLegend(habit) + "</div>";
-      row += "</div></div></div>";
-      return row;
-    }
-
-    const visibleHabits = state.habits.filter(function (h) { return !h.hidden; });
-    const hiddenHabits = state.habits.filter(function (h) { return h.hidden; });
-
-    visibleHabits.forEach(function (habit) {
-      html += renderHabitCompactRow(habit, false);
-    });
-
-    if (hiddenHabits.length) {
-      html += '<div class="habits-hidden-section">';
-      html +=
-        '<p class="habits-hidden-heading">Hidden from Month &amp; Stats (' +
-        hiddenHabits.length +
-        ")</p>";
-      hiddenHabits.forEach(function (habit) {
-        html += renderHabitCompactRow(habit, true);
-      });
-      html += "</div>";
-    }
+    html += '<div id="habitsFilteredList">' + buildHabitsFilteredListHtml() + "</div>";
 
     html += '<div class="habits-danger-bar">';
     html +=
@@ -9152,7 +10617,25 @@
     root.innerHTML = html;
 
     bindDataActions(root);
-    bindExcludeDays(root);
+    const habitsListMount = document.getElementById("habitsFilteredList");
+    if (habitsListMount) bindHabitsCompactRowInteractions(habitsListMount);
+
+    const habitsSearchInp = document.getElementById("habitsListSearch");
+    if (habitsSearchInp) {
+      habitsSearchInp.oninput = function () {
+        habitsListQuery = habitsSearchInp.value;
+        persistHabitsListFilter();
+        refreshHabitsFilteredList();
+      };
+    }
+    const habitsCatFil = document.getElementById("habitsListCategory");
+    if (habitsCatFil) {
+      habitsCatFil.onchange = function () {
+        habitsListCategory = habitsCatFil.value || "all";
+        persistHabitsListFilter();
+        refreshHabitsFilteredList();
+      };
+    }
 
     const layoutToggle = document.getElementById("layoutToggle");
     if (layoutToggle) {
@@ -9174,15 +10657,6 @@
         renderHabits();
       };
     }
-
-    root.querySelectorAll("[data-habit-toggle]").forEach(function (el) {
-      el.onclick = function (e) {
-        e.stopPropagation();
-        const id = el.getAttribute("data-habit-toggle");
-        habitsExpandedId = habitsExpandedId === id ? null : id;
-        renderHabits();
-      };
-    });
 
     document.getElementById("habitsCatToggle").onclick = function () {
       habitsCatPanelOpen = !habitsCatPanelOpen;
@@ -9211,21 +10685,6 @@
         delete state.categoryColors[id];
         if (!save()) return;
         toast("Reset " + categoryLabel(id) + " color");
-        render();
-      };
-    });
-    root.querySelectorAll("[data-plot-color]").forEach(function (inp) {
-      inp.onchange = function () {
-        const id = inp.getAttribute("data-plot-color");
-        if (!setHabitPlotColor(id, inp.value)) return;
-        render();
-      };
-    });
-    root.querySelectorAll("[data-plot-color-reset]").forEach(function (btn) {
-      btn.onclick = function () {
-        const id = btn.getAttribute("data-plot-color-reset");
-        if (!setHabitPlotColor(id, null)) return;
-        toast("Plot color set to auto");
         render();
       };
     });
@@ -9320,13 +10779,15 @@
       const stepSecEl = document.getElementById("newHabitStepSec");
       const cat = catEl ? normalizeCategory(catEl.value) : "general";
       const type = typeEl ? typeEl.value : "counter";
+      const dailyEl = document.getElementById("newHabitDailyWhen");
       let step = 1;
       if (type === "counter") step = stepEl ? stepEl.value : 1;
-      if (!addHabitToState(name, cat, step, type)) return;
+      if (!addHabitToState(name, cat, step, type, dailyEl ? dailyEl.value : "")) return;
       if (inp) inp.value = "";
       if (stepEl) stepEl.value = "1";
       if (stepMinEl) stepMinEl.value = "1";
       if (stepSecEl) stepSecEl.value = "0";
+      if (dailyEl) dailyEl.value = "";
       toast("Added " + name);
       render();
     }
@@ -9338,112 +10799,6 @@
         if (e.key === "Enter") { e.preventDefault(); addNewHabit(); }
       };
     }
-
-    root.querySelectorAll("[data-del]").forEach(function (btn) {
-      btn.onclick = function () {
-        if (state.habits.length <= 1) { toast("Keep at least one habit"); return; }
-        if (!confirm("Remove this habit and all its dots?")) return;
-        const id = btn.dataset.del;
-        logHabitChange(id, "delete");
-        state.habits = state.habits.filter(function (h) { return h.id !== id; });
-        Object.keys(state.cells).forEach(function (k) {
-          if (k.indexOf(id + "-") === 0) delete state.cells[k];
-        });
-        save(); render();
-      };
-    });
-
-    root.querySelectorAll("[data-name]").forEach(function (inp) {
-      function syncName() {
-        const h = state.habits.find(function (x) { return x.id === inp.dataset.name; });
-        if (h) { h.name = inp.value.trim() || "Habit"; save(); }
-      }
-      inp.onchange = syncName;
-      inp.onblur = syncName;
-    });
-
-    root.querySelectorAll(".type-pill").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.hid; });
-        if (!h) return;
-        const prevType = h.type;
-        h.type = btn.dataset.type;
-        if (h.type === "counter") {
-          if (prevType === "time" || prevType === "number" || !h.step) {
-            h.step = 1;
-          }
-          h.step = Math.min(MAX_STEP, Math.max(1, parseInt(h.step, 10) || 1));
-          delete h.excludeDays;
-        } else if (h.type === "number") {
-          h.step = 1;
-          delete h.excludeDays;
-        } else if (h.type === "time") {
-          h.step = 1;
-          delete h.excludeDays;
-        } else if (h.type === "yesno") {
-          if (!h.excludeDays) h.excludeDays = [];
-        }
-        save(); render();
-      };
-    });
-
-    root.querySelectorAll("[data-step]").forEach(function (inp) {
-      inp.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === inp.dataset.step; });
-        if (!h) return;
-        h.step = Math.min(MAX_STEP, Math.max(1, parseInt(inp.value, 10) || 1));
-        save();
-        render();
-      };
-    });
-
-    function syncTimeStepInputs(habitId) {
-      const h = state.habits.find(function (x) { return x.id === habitId; });
-      if (!h || h.type !== "time") return;
-      const minInp = root.querySelector('[data-step-min="' + habitId + '"]');
-      const secInp = root.querySelector('[data-step-sec="' + habitId + '"]');
-      h.step = readTimeStepFromFields(minInp, secInp);
-      save();
-      render();
-    }
-
-    root.querySelectorAll("[data-step-min]").forEach(function (inp) {
-      inp.onchange = function () {
-        syncTimeStepInputs(inp.getAttribute("data-step-min"));
-      };
-    });
-    root.querySelectorAll("[data-step-sec]").forEach(function (inp) {
-      inp.onchange = function () {
-        syncTimeStepInputs(inp.getAttribute("data-step-sec"));
-      };
-    });
-
-    root.querySelectorAll("[data-cat]").forEach(function (sel) {
-      sel.onchange = function () {
-        const h = state.habits.find(function (x) { return x.id === sel.dataset.cat; });
-        if (h) {
-          h.category = normalizeCategory(sel.value);
-          save(); render();
-        }
-      };
-    });
-
-    root.querySelectorAll("[data-pin]").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.pin; });
-        if (h) {
-          h.pinned = !h.pinned;
-          save(); render();
-        }
-      };
-    });
-
-    root.querySelectorAll("[data-hide]").forEach(function (btn) {
-      btn.onclick = function () {
-        const h = state.habits.find(function (x) { return x.id === btn.dataset.hide; });
-        if (h) setHabitHidden(h.id, !h.hidden);
-      };
-    });
   }
 
   function renderLog() {
@@ -9758,6 +11113,7 @@
         month: typeof p.month === "number" ? p.month : new Date().getMonth(),
         habits: p.habits,
         cells: p.cells || {},
+        cellNotes: p.cellNotes || {},
         categories: Array.isArray(p.categories) && p.categories.length ? p.categories : cloneDefaultCategories(),
         categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
         migratedStepsDefault: !!p.migratedStepsDefault,
@@ -9774,6 +11130,7 @@
         month: state.month,
         habits: state.habits.slice(),
         cells: Object.assign({}, state.cells),
+        cellNotes: Object.assign({}, state.cellNotes || {}),
         categories: state.categories.slice(),
         categoryFilter: state.categoryFilter,
         migratedStepsDefault: state.migratedStepsDefault,
@@ -9783,6 +11140,10 @@
       });
       Object.keys(p.cells || {}).forEach(function (k) {
         if (!merged.cells[k]) merged.cells[k] = p.cells[k];
+      });
+      Object.keys(p.cellNotes || {}).forEach(function (k) {
+        if (!merged.cellNotes) merged.cellNotes = {};
+        if (!merged.cellNotes[k]) merged.cellNotes[k] = p.cellNotes[k];
       });
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
@@ -9864,6 +11225,13 @@
   document.getElementById("yearFullscreen").addEventListener("click", function (e) {
     if (e.target.id === "yearFullscreen") closeYearFullscreen();
   });
+
+  (function bindDailyPromptSheet() {
+    const later = document.getElementById("dailyPromptLater");
+    const backdrop = document.getElementById("dailyPromptBackdrop");
+    if (later) later.onclick = closeDailyPrompt;
+    if (backdrop) backdrop.onclick = closeDailyPrompt;
+  })();
 
   document.getElementById("habitEditClose").addEventListener("click", closeHabitEdit);
   document.getElementById("habitEditBackdrop").addEventListener("click", closeHabitEdit);
@@ -9981,16 +11349,20 @@
     }
     document.addEventListener("keydown", function (e) {
       if (!numberPadContext) return;
+      const inNote = e.target && e.target.id === "numberPadNote";
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closeNumberPad();
+        return;
+      }
+      if (inNote) return;
       if (e.key === "Enter") {
         e.preventDefault();
         confirmNumberPad();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
-        closeNumberPad();
       } else if (e.key === "Backspace") {
         e.preventDefault();
         backspaceNumberPad();
-      } else if (/^[0-9]$/.test(e.key)) {
+      } else if (/^[0-9]$/.test(e.key) || e.key === ".") {
         e.preventDefault();
         appendNumberPadDigit(e.key);
       }
@@ -10026,8 +11398,44 @@
     }
   }
 
+  function bindPlotSettings() {
+    const openBtn = document.getElementById("appSettingsBtn");
+    if (openBtn) openBtn.onclick = openPlotSettings;
+    const closeBtn = document.getElementById("plotSettingsClose");
+    if (closeBtn) closeBtn.onclick = closePlotSettings;
+    const backdrop = document.getElementById("plotSettingsBackdrop");
+    if (backdrop) backdrop.onclick = closePlotSettings;
+    const catEl = document.getElementById("plotDefaultCategory");
+    if (catEl) {
+      catEl.onchange = function () {
+        fillPlotDefaultForm(plotDefaultFromForm());
+      };
+    }
+    const fromCurrent = document.getElementById("plotDefaultFromCurrent");
+    if (fromCurrent) {
+      fromCurrent.onclick = function () {
+        fillPlotDefaultForm(currentPlotAsDefault());
+      };
+    }
+    const saveBtn = document.getElementById("plotDefaultSave");
+    if (saveBtn) {
+      saveBtn.onclick = function () {
+        const def = plotDefaultFromForm();
+        try {
+          localStorage.setItem(PLOT_DEFAULT_KEY, JSON.stringify(def));
+        } catch (e) { /* ok */ }
+        applyPlotDefault(def);
+        persistGraphMaPrefs();
+        closePlotSettings();
+        render();
+        toast("Plot default saved");
+      };
+    }
+  }
+
   loadLayoutMode();
-  loadGraphMaPrefs();
+  applyPlotDefault();
+  bindPlotSettings();
   storageOk = storageAvailable();
   if (!storageOk) {
     showStorageBanner("Data won't save in Private Browsing. Use Safari normal mode and always open the same URL (mathoose.github.io).");
@@ -10040,6 +11448,7 @@
     else if (document.visibilityState === "visible") {
       pruneTodayDismissed();
       if (activeTab === "today") renderToday();
+      maybeShowDailyPrompt(true);
     }
   });
   window.addEventListener("pagehide", flushSave);
@@ -10049,7 +11458,9 @@
 
   try {
     loadHabitJournalVersion();
+    loadHabitsListFilter();
     render();
+    maybeShowDailyPrompt(true);
     if (window.__hjRecoveredFrom) {
       toast("Restored your data from automatic backup");
       window.__hjRecoveredFrom = null;

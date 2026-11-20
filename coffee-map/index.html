@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!-- build: coffee-map-v15 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Coffee Map</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Coffee Map" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#9a3412" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=9" />
+</head>
+<body class="view-map">
+  <header class="topbar">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="topbar-titles">
+      <h1>Coffee Map</h1>
+      <p class="sub" id="headerSub">Cafes to try &amp; rate</p>
+    </div>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <div class="filter-bar" id="filterBar" role="tablist" aria-label="Filter places">
+    <button type="button" class="chip on" data-filter="all">All</button>
+    <button type="button" class="chip" data-filter="want">Want to go</button>
+    <button type="button" class="chip" data-filter="been">Been</button>
+  </div>
+
+  <main>
+    <div id="map" class="map" role="application" aria-label="Philadelphia coffee map"></div>
+    <button type="button" class="here-btn" id="hereBtn" aria-label="Where am I">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+      <span>Where am I</span>
+    </button>
+    <div class="here-bar" id="hereBar" hidden>
+      <div class="here-bar-top">
+        <p class="here-label" id="hereLabel">~800 m · 10 min walk</p>
+        <button type="button" class="text-btn" id="hereClearBtn">Clear</button>
+      </div>
+      <label class="here-slider-label">
+        <span>Walk</span>
+        <input type="range" id="hereSlider" min="5" max="25" step="1" value="10" />
+        <span id="hereMinutes">10 min</span>
+      </label>
+      <p class="here-count" id="hereCount"></p>
+    </div>
+    <section class="list-view" id="listView" hidden>
+      <div class="list-toolbar">
+        <span id="listCount">0 places</span>
+        <label class="sort-label">Sort
+          <select id="listSort">
+            <option value="name">Name</option>
+            <option value="rating">Rating</option>
+            <option value="priceLevel">Price level</option>
+            <option value="price">Spend</option>
+            <option value="added">Newest</option>
+          </select>
+        </label>
+      </div>
+      <div class="place-list" id="placeList"></div>
+      <div class="empty-state" id="listEmpty" hidden>
+        <p>No cafes yet.<br />Paste an Instagram reel to pin one.</p>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="fab" id="addFab" aria-label="Add a cafe">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <nav class="bottom-nav" role="tablist" aria-label="Views">
+    <button type="button" class="nav-btn active" data-view="map" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24"><path d="M12 21s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>
+      <span>Map</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="list" role="tab" aria-selected="false">
+      <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span>List</span>
+    </button>
+  </nav>
+
+  <div class="overlay" id="addOverlay" role="dialog" aria-modal="true" aria-labelledby="addTitle" hidden>
+    <div class="sheet sheet-add">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="addTitle">Add a cafe</h2>
+        <button type="button" class="text-btn" id="addCloseBtn">Close</button>
+      </div>
+      <p class="hint">Paste an Instagram reel or post. We’ll guess the name and search Philadelphia.</p>
+      <div class="url-row">
+        <input type="url" id="igUrlInput" placeholder="instagram.com/reel/…" inputmode="url" autocomplete="off" enterkeyhint="go" />
+        <button type="button" class="btn btn-secondary" id="pasteBtn">Paste</button>
+      </div>
+      <p class="meta-snippet" id="metaSnippet" hidden></p>
+      <label class="field-label" for="placeNameInput">Cafe name</label>
+      <div class="url-row">
+        <input type="text" id="placeNameInput" placeholder="e.g. La Colombe" autocomplete="off" enterkeyhint="search" />
+        <button type="button" class="btn btn-primary" id="searchBtn">Search</button>
+      </div>
+      <p class="status-line" id="addStatus" hidden></p>
+      <div class="candidate-list" id="candidateList"></div>
+      <p class="hint tiny">Or long-press the map to drop a pin, then save.</p>
+      <button type="button" class="btn btn-secondary" id="saveDroppedBtn" hidden>Save dropped pin</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="detailOverlay" role="dialog" aria-modal="true" aria-labelledby="detailName" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <h2 class="sheet-title" id="detailName">Cafe</h2>
+        <button type="button" class="text-btn" id="detailCloseBtn">Close</button>
+      </div>
+      <p class="detail-address" id="detailAddress"></p>
+      <p class="detail-hours" id="detailHours"></p>
+      <div class="status-toggle" role="group" aria-label="Visit status">
+        <button type="button" class="status-btn" data-status="want" id="statusWant">Want to go</button>
+        <button type="button" class="status-btn" data-status="been" id="statusBeen">Been here</button>
+      </div>
+      <p class="field-label">Rating</p>
+      <div class="stars" id="starRow" role="radiogroup" aria-label="Rating"></div>
+      <p class="field-label">Price level</p>
+      <div class="dollars" id="dollarRow" role="radiogroup" aria-label="Price level 1 to 5 dollars"></div>
+      <p class="field-label">Extra for add-ons</p>
+      <div class="addon-chips" id="addonExtras" role="group" aria-label="Add-ons that cost extra"></div>
+      <p class="field-label">What you ordered</p>
+      <div class="orders-list" id="ordersList"></div>
+      <button type="button" class="btn btn-secondary orders-add-btn" id="addOrderBtn">Add item</button>
+      <label class="field-label" for="notesInput">Note</label>
+      <textarea id="notesInput" rows="3" maxlength="400" placeholder="The vibe, barista tip…"></textarea>
+      <div class="detail-actions">
+        <div class="detail-links">
+          <a class="ig-btn" id="openIgBtn" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+              <circle cx="17.2" cy="6.8" r="1.15" fill="currentColor"/>
+            </svg>
+          </a>
+          <a class="btn btn-secondary" id="openSiteBtn" target="_blank" rel="noopener" hidden>Official site</a>
+          <a class="btn btn-secondary" id="openMapsBtn" target="_blank" rel="noopener" hidden>Directions</a>
+        </div>
+        <button type="button" class="btn btn-danger" id="deletePlaceBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2 class="sheet-title" id="settingsTitle">Settings</h2>
+      <div class="settings-section">
+        <h3>Backup</h3>
+        <div class="settings-btns">
+          <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+          <label class="btn btn-secondary import-label">
+            Import JSON
+            <input type="file" id="importJsonFile" accept=".json,application/json" />
+          </label>
+        </div>
+        <p class="settings-note">Your ratings, notes, and prices stay on this device — the shared cafe list stays plain for everyone. Import is additive — existing cafes stay, new ones are added.</p>
+      </div>
+      <div class="settings-section">
+        <h3>From Instagram</h3>
+        <p class="settings-note">In Instagram, tap <strong>Copy link</strong>, then Paste here. Optional iOS Shortcut: open <code>?add=</code> with the reel URL.</p>
+      </div>
+      <button type="button" class="btn btn-secondary" id="settingsCloseBtn" style="width:100%;margin-top:8px">Close</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
+  <script src="app.js?v=17"></script>
+</body>
+</html>

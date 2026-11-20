@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Local Events icon">
+  <defs>
+    <linearGradient id="bg" x1="20" y1="8" x2="160" y2="172" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c2410c"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#bg)"/>
+  <rect x="32" y="40" width="116" height="110" rx="18" fill="#fffaf3"/>
+  <path d="M32 58a18 18 0 0 1 18-18h80a18 18 0 0 1 18 18v12H32z" fill="#3b2416"/>
+  <rect x="58" y="28" width="10" height="26" rx="5" fill="#f3eadb"/>
+  <rect x="112" y="28" width="10" height="26" rx="5" fill="#f3eadb"/>
+  <rect x="46" y="84" width="20" height="16" rx="4" fill="#efe4d2"/>
+  <rect x="80" y="84" width="20" height="16" rx="4" fill="#efe4d2"/>
+  <rect x="114" y="84" width="20" height="16" rx="4" fill="#efe4d2"/>
+  <rect x="46" y="112" width="20" height="16" rx="4" fill="#efe4d2"/>
+  <rect x="80" y="112" width="20" height="16" rx="4" fill="#efe4d2"/>
+  <circle cx="124" cy="120" r="22" fill="#14532d"/>
+  <path d="M113 120l8 8 14-16" fill="none" stroke="#dcfce7" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,6 +1,6 @@
 {
   "title": "Mathoose's apps",
-  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book"],
+  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board", "philly-dates", "coffee-map", "aruba-packing", "shopping-list", "times-tables", "body-journal", "done-today", "dates-classic"],
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
@@ -18,6 +18,7 @@
       "process-guide": { "storageKey": "process-guide-v1" },
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" },
+      "shared-lists": { "storageKey": "shared-lists-v1" },
       "times-tables": { "storageKey": "times-tables-v1" },
       "things-book": { "storageKey": "things-book-v1" },
       "stride-flow": { "storageKey": "stride-flow-v1" },
@@ -25,7 +26,14 @@
       "idea-notes": { "storageKey": "idea-notes-v1" },
       "stitch-grid": { "storageKey": "stitch-grid-v1" },
       "photo-calendar": { "storageKey": "photo-calendar-v1" },
-      "3d-print": { "storageKey": "3d-print-v1" }
+      "3d-print": { "storageKey": "3d-print-v1" },
+      "draft-board": { "storageKey": "draft-board-v1" },
+      "index-card-planner": { "storageKey": "index-card-planner-v1" },
+      "fantasy-hub": { "storageKey": "fantasy-hub-v1" },
+      "coffee-map": { "storageKey": "coffee-map-v1" },
+      "city-axes": { "storageKey": "city-axes-v1" },
+      "done-today": { "storageKey": "done-today-v1" },
+      "things-to-do": { "storageKey": "things-to-do-v1" }
     }
   },
   "apps": [
@@ -56,7 +64,7 @@
     {
       "id": "adhd-task-tracker",
       "name": "Focus",
-      "subtitle": "ADHD tasks & habits",
+      "subtitle": "Tasks & habits",
       "storageKey": "adhd-tracker-v1"
     },
     {
@@ -64,6 +72,29 @@
       "name": "Philly Dates",
       "subtitle": "Happy hours & menus",
       "storageKey": "philly-dates-v2"
+    },
+    {
+      "id": "things-to-do",
+      "name": "Local Events",
+      "subtitle": "Pick & add to Calendar",
+      "storageKey": "things-to-do-v1"
+    },
+    {
+      "id": "coffee-map",
+      "name": "Coffee Map",
+      "subtitle": "Cafes to try & rate",
+      "storageKey": "coffee-map-v1"
+    },
+    {
+      "id": "coffee-drinks-map",
+      "name": "Coffee & Drinks",
+      "subtitle": "Philly cafes, food & bars"
+    },
+    {
+      "id": "city-axes",
+      "name": "City Axes",
+      "subtitle": "Broad & Market from City Hall",
+      "storageKey": "city-axes-v1"
     },
     {
       "id": "world-cup-2026",
@@ -102,6 +133,12 @@
       "storageKey": "shopping-list-v1"
     },
     {
+      "id": "shared-lists",
+      "name": "Our Lists",
+      "subtitle": "Shared checklists",
+      "storageKey": "shared-lists-v1"
+    },
+    {
       "id": "times-tables",
       "name": "Times Tables",
       "subtitle": "Calculator drill",
@@ -132,6 +169,33 @@
       "storageKey": "3d-print-v1"
     },
     {
+      "id": "3d-printing-library",
+      "name": "3d print hub",
+      "subtitle": "Designers & STL library"
+    },
+    {
+      "id": "draft-board",
+      "name": "Draft Board",
+      "subtitle": "ADP + draft settings",
+      "storageKey": "draft-board-v1"
+    },
+    {
+      "id": "fantasy-hub",
+      "name": "Fantasy Hub",
+      "subtitle": "Sleeper & ESPN scores",
+      "storageKey": "fantasy-hub-v1"
+    },
+    {
+      "id": "dynasty-board",
+      "name": "Dynasty Board",
+      "subtitle": "SF ranks · 5 sources"
+    },
+    {
+      "id": "mobile-viewer",
+      "name": "Tracker Viewer",
+      "subtitle": "Read-only tank exports"
+    },
+    {
       "id": "stride-flow",
       "name": "StrideFlow",
       "subtitle": "Weekly plans & goals",
@@ -142,6 +206,18 @@
       "name": "Things Book",
       "subtitle": "Photo collections & tags",
       "storageKey": "things-book-v1"
+    },
+    {
+      "id": "index-card-planner",
+      "name": "Card Box",
+      "subtitle": "Index card planner",
+      "storageKey": "index-card-planner-v1"
+    },
+    {
+      "id": "done-today",
+      "name": "Done Today",
+      "subtitle": "Journal & day timeline",
+      "storageKey": "done-today-v1"
     }
   ]
 }

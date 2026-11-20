@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Done Today icon">
+  <defs>
+    <linearGradient id="bg" x1="12" y1="8" x2="168" y2="172" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="55%" stop-color="#115e59"/>
+      <stop offset="100%" stop-color="#134e4a"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="42" y1="0" x2="138" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#99f6e4"/>
+      <stop offset="100%" stop-color="#5eead4"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#bg)"/>
+  <circle cx="38" cy="40" r="36" fill="#2dd4bf" opacity=".22"/>
+  <circle cx="148" cy="132" r="42" fill="#042f2e" opacity=".28"/>
+  <rect x="34" y="48" width="112" height="84" rx="18" fill="#ecfdf5"/>
+  <rect x="46" y="64" width="88" height="8" rx="4" fill="#99f6e4" opacity=".7"/>
+  <rect x="46" y="84" width="64" height="22" rx="11" fill="url(#bar)"/>
+  <circle cx="52" cy="95" r="7" fill="#134e4a"/>
+  <circle cx="104" cy="95" r="7" fill="#134e4a"/>
+  <path d="M54 128l12 10 28-28" fill="none" stroke="#0f766e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -30,6 +30,14 @@
     "photo-calendar": "Photo Calendar",
     "stride-flow": "StrideFlow",
     "3d-print": "3D Print",
+    "draft-board": "Draft Board",
+    "index-card-planner": "Card Box",
+    "fantasy-hub": "Fantasy Hub",
+    "coffee-map": "Coffee Map",
+    "city-axes": "City Axes",
+    "done-today": "Done Today",
+    "things-to-do": "Dates",
+    "shared-lists": "Our Lists",
   };
 
   var PHOTO_DATABASES = [
@@ -48,6 +56,66 @@
     "habit-journal": ["habit-journal-meta-v1", "habit-journal-local-v1"],
   };
 
+  function newerSharedStamp(a, b) {
+    var ta = Date.parse((a && a.updatedAt) || "") || 0;
+    var tb = Date.parse((b && b.updatedAt) || "") || 0;
+    return ta >= tb ? a : b;
+  }
+
+  function mergeSharedItems(aItems, bItems) {
+    var map = {};
+    function take(it) {
+      if (!it || !it.id) return;
+      map[it.id] = newerSharedStamp(map[it.id], it);
+    }
+    (aItems || []).forEach(take);
+    (bItems || []).forEach(take);
+    return Object.keys(map).map(function (id) { return map[id]; });
+  }
+
+  function mergeSharedData(a, b) {
+    var map = {};
+    function take(list) {
+      if (!list || !list.id) return;
+      if (!map[list.id]) {
+        map[list.id] = list;
+        return;
+      }
+      var shell = newerSharedStamp(map[list.id], list);
+      map[list.id] = Object.assign({}, shell, {
+        items: mergeSharedItems(map[list.id].items, list.items),
+      });
+    }
+    ((a && a.lists) || []).forEach(take);
+    ((b && b.lists) || []).forEach(take);
+    return { lists: Object.keys(map).map(function (id) { return map[id]; }) };
+  }
+
+  function mergeSharedCache(existing, incoming) {
+    if (!incoming) return existing;
+    if (!existing) return incoming;
+    var rooms = Object.assign({}, existing.rooms || {});
+    Object.keys(incoming.rooms || {}).forEach(function (code) {
+      var a = rooms[code];
+      var b = incoming.rooms[code];
+      if (!b) return;
+      if (!a) {
+        rooms[code] = b;
+        return;
+      }
+      rooms[code] = {
+        pin: b.pin || a.pin || "",
+        revision: Math.max(Number(a.revision) || 0, Number(b.revision) || 0),
+        data: mergeSharedData(a.data, b.data),
+      };
+    });
+    return {
+      version: 1,
+      activeCode: existing.activeCode || incoming.activeCode || "",
+      rooms: rooms,
+    };
+  }
+
   var APP_REGISTRY = {
     "habit-journal": {
       storageKey: "habit-journal-v2",
@@ -64,6 +132,7 @@
             month: p.month,
             habits: p.habits,
             cells: p.cells || {},
+            cellNotes: p.cellNotes || {},
             categories: Array.isArray(p.categories) ? p.categories : undefined,
             categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : undefined,
           };
@@ -79,6 +148,7 @@
           month: typeof slice.month === "number" ? slice.month : new Date().getMonth(),
           habits: slice.habits,
           cells: slice.cells || {},
+          cellNotes: slice.cellNotes || {},
         };
         if (Array.isArray(slice.categories) && slice.categories.length) {
           out.categories = slice.categories;
@@ -104,6 +174,7 @@
           month: typeof existing.month === "number" ? existing.month : new Date().getMonth(),
           habits: (existing.habits || []).slice(),
           cells: Object.assign({}, existing.cells || {}),
+          cellNotes: Object.assign({}, existing.cellNotes || {}),
           categories: (existing.categories || []).slice(),
           categoryFilter: existing.categoryFilter || "all",
         };
@@ -117,6 +188,9 @@
         });
         Object.keys(incoming.cells || {}).forEach(function (k) {
           if (!out.cells[k]) out.cells[k] = incoming.cells[k];
+        });
+        Object.keys(incoming.cellNotes || {}).forEach(function (k) {
+          if (!out.cellNotes[k]) out.cellNotes[k] = incoming.cellNotes[k];
         });
         var catIds = {};
         out.categories.forEach(function (c) { catIds[c.id] = true; });
@@ -1093,6 +1167,65 @@
         return incoming || existing;
       },
     },
+    "draft-board": {
+      storageKey: "draft-board-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("draft-board-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || (!Array.isArray(p.starred) && !p.settings)) return null;
+          return {
+            version: p.version || 2,
+            starred: Array.isArray(p.starred)
+              ? p.starred.filter(function (id) { return typeof id === "string"; })
+              : [],
+            settings: p.settings && typeof p.settings === "object" ? p.settings : undefined,
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || (!Array.isArray(slice.starred) && !slice.settings)) return false;
+        var out = {
+          version: 2,
+          starred: Array.isArray(slice.starred)
+            ? slice.starred.filter(function (id) { return typeof id === "string"; })
+            : [],
+        };
+        if (slice.settings && typeof slice.settings === "object") out.settings = slice.settings;
+        return writeKey("draft-board-v1", JSON.stringify(out));
+      },
+      isLegacy: function (obj) {
+        return obj && (Array.isArray(obj.starred) || obj.settings) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.starred ? slice.starred.length : 0;
+        var s = slice.settings;
+        var league = s && s.teams ? s.teams + "-team · pick " + (s.pick || "?") : "";
+        return (league ? league + "; " : "") + n + " starred";
+      },
+      mergeSlice: function (existing, incoming) {
+        var ids = {};
+        var out = [];
+        function add(list) {
+          (list || []).forEach(function (id) {
+            if (!id || ids[id]) return;
+            ids[id] = true;
+            out.push(id);
+          });
+        }
+        add(existing && existing.starred);
+        add(incoming && incoming.starred);
+        return {
+          version: 2,
+          starred: out,
+          settings: (incoming && incoming.settings) || (existing && existing.settings) || undefined,
+        };
+      },
+    },
     "3d-print": {
       storageKey: "3d-print-v1",
       legacyKeys: [],
@@ -1113,6 +1246,9 @@
             filamentColorSortAt: typeof p.filamentColorSortAt === "number" ? p.filamentColorSortAt : 0,
             statusFilter: typeof p.statusFilter === "string" ? p.statusFilter : "all",
             categoryFilter: typeof p.categoryFilter === "string" ? p.categoryFilter : "all",
+            itemSort: typeof p.itemSort === "string" ? p.itemSort : "custom",
+            keepAddSelections: !!p.keepAddSelections,
+            lastAddSelections: p.lastAddSelections && typeof p.lastAddSelections === "object" ? p.lastAddSelections : null,
           };
         } catch (e) {
           return null;
@@ -1133,6 +1269,9 @@
             filamentColorSortAt: typeof slice.filamentColorSortAt === "number" ? slice.filamentColorSortAt : 0,
             statusFilter: typeof slice.statusFilter === "string" ? slice.statusFilter : "all",
             categoryFilter: typeof slice.categoryFilter === "string" ? slice.categoryFilter : "all",
+            itemSort: typeof slice.itemSort === "string" ? slice.itemSort : "custom",
+            keepAddSelections: !!slice.keepAddSelections,
+            lastAddSelections: slice.lastAddSelections && typeof slice.lastAddSelections === "object" ? slice.lastAddSelections : null,
           })
         );
       },
@@ -1158,6 +1297,9 @@
           filamentColorSortAt: existing.filamentColorSortAt || 0,
           statusFilter: existing.statusFilter || "all",
           categoryFilter: existing.categoryFilter || "all",
+          itemSort: existing.itemSort || incoming.itemSort || "custom",
+          keepAddSelections: !!(existing.keepAddSelections || incoming.keepAddSelections),
+          lastAddSelections: existing.lastAddSelections || incoming.lastAddSelections || null,
         };
         var itemIds = {};
         out.items.forEach(function (it) { itemIds[it.id] = true; });
@@ -1197,9 +1339,467 @@
         return out;
       },
     },
+    "index-card-planner": {
+      storageKey: "index-card-planner-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("index-card-planner-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.cards)) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.cards)) return false;
+        return writeKey("index-card-planner-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.cards) && Array.isArray(obj.tabs) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.cards ? slice.cards.length : 0;
+        return n + " card" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          lastOpenDate: existing.lastOpenDate || incoming.lastOpenDate,
+          tabs: Array.isArray(existing.tabs) && existing.tabs.length ? existing.tabs.slice() : (incoming.tabs || []).slice(),
+          cards: (existing.cards || []).slice(),
+        };
+        var ids = {};
+        out.cards.forEach(function (c) {
+          if (c && c.id) ids[c.id] = true;
+        });
+        (incoming.cards || []).forEach(function (c) {
+          if (!c || !c.id || !c.title || ids[c.id]) return;
+          out.cards.push(c);
+          ids[c.id] = true;
+        });
+        return out;
+      },
+    },
+    "fantasy-hub": {
+      storageKey: "fantasy-hub-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("fantasy-hub-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object") return null;
+          if (!p.sleeper && !p.espn && !p.demo && !p.snapshot) return null;
+          return p;
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice !== "object") return false;
+        if (!slice.sleeper && !slice.espn && !slice.demo && !slice.snapshot) return false;
+        return writeKey("fantasy-hub-v1", JSON.stringify(slice));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && (obj.sleeper || obj.espn || obj.demo || obj.snapshot));
+      },
+      summarize: function (slice) {
+        var sl = slice.sleeper && Array.isArray(slice.sleeper.leagues) ? slice.sleeper.leagues.length : 0;
+        var es = slice.espn && Array.isArray(slice.espn.leagues) ? slice.espn.leagues.length : 0;
+        var n = sl + es;
+        if (slice.demo && !n) return "sample board";
+        return n + " league" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        function mergeLeagues(a, b) {
+          var out = Array.isArray(a) ? a.slice() : [];
+          var seen = {};
+          out.forEach(function (l) {
+            if (l && l.id) seen[String(l.id) + "|" + String(l.season || "")] = true;
+          });
+          (b || []).forEach(function (l) {
+            if (!l || !l.id) return;
+            var key = String(l.id) + "|" + String(l.season || "");
+            if (seen[key]) return;
+            out.push(l);
+            seen[key] = true;
+          });
+          return out;
+        }
+        var out = {
+          version: 1,
+          demo: !!(existing.demo || incoming.demo),
+          includeBench: incoming.includeBench != null ? incoming.includeBench : existing.includeBench,
+          weekOverride: incoming.weekOverride != null ? incoming.weekOverride : existing.weekOverride,
+          lastSync: incoming.lastSync || existing.lastSync,
+          snapshot: incoming.snapshot || existing.snapshot,
+          sleeper: {
+            username: (incoming.sleeper && incoming.sleeper.username) || (existing.sleeper && existing.sleeper.username) || "",
+            userId: (incoming.sleeper && incoming.sleeper.userId) || (existing.sleeper && existing.sleeper.userId) || "",
+            displayName: (incoming.sleeper && incoming.sleeper.displayName) || (existing.sleeper && existing.sleeper.displayName) || "",
+            leagues: mergeLeagues(existing.sleeper && existing.sleeper.leagues, incoming.sleeper && incoming.sleeper.leagues)
+          },
+          espn: {
+            leagues: mergeLeagues(existing.espn && existing.espn.leagues, incoming.espn && incoming.espn.leagues)
+          }
+        };
+        return out;
+      },
+    },
+    "coffee-map": {
+      storageKey: "coffee-map-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("coffee-map-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.places)) return null;
+          return {
+            version: p.version || 1,
+            places: p.places,
+            hiddenSeedIds: Array.isArray(p.hiddenSeedIds) ? p.hiddenSeedIds : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.places)) return false;
+        return writeKey(
+          "coffee-map-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            places: slice.places,
+            hiddenSeedIds: Array.isArray(slice.hiddenSeedIds) ? slice.hiddenSeedIds : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return obj && Array.isArray(obj.places) && obj.format !== FORMAT;
+      },
+      summarize: function (slice) {
+        var n = slice.places ? slice.places.length : 0;
+        return n + " cafe" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          places: (existing.places || []).slice(),
+          hiddenSeedIds: (existing.hiddenSeedIds || []).slice(),
+        };
+        var ids = {};
+        out.places.forEach(function (p) {
+          if (p && p.id) ids[p.id] = true;
+        });
+        (incoming.places || []).forEach(function (p) {
+          if (!p || !p.id || !p.name) return;
+          if (ids[p.id]) return;
+          out.places.push(p);
+          ids[p.id] = true;
+        });
+        var hidden = {};
+        out.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+        (incoming.hiddenSeedIds || []).forEach(function (id) {
+          if (!id || hidden[id]) return;
+          out.hiddenSeedIds.push(id);
+          hidden[id] = true;
+        });
+        return out;
+      },
+    },
+    "done-today": {
+      storageKey: "done-today-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("done-today-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || (!Array.isArray(p.catalog) && !Array.isArray(p.pending) && !Array.isArray(p.entries))) return null;
+          return {
+            version: p.version || 1,
+            catalog: Array.isArray(p.catalog) ? p.catalog : [],
+            pending: Array.isArray(p.pending) ? p.pending : [],
+            entries: Array.isArray(p.entries) ? p.entries : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || (!Array.isArray(slice.catalog) && !Array.isArray(slice.pending) && !Array.isArray(slice.entries))) return false;
+        return writeKey(
+          "done-today-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            catalog: Array.isArray(slice.catalog) ? slice.catalog : [],
+            pending: Array.isArray(slice.pending) ? slice.pending : [],
+            entries: Array.isArray(slice.entries) ? slice.entries : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && (Array.isArray(obj.catalog) || Array.isArray(obj.pending) || Array.isArray(obj.entries)));
+      },
+      summarize: function (slice) {
+        var c = slice.catalog ? slice.catalog.length : 0;
+        var e = slice.entries ? slice.entries.length : 0;
+        var p = slice.pending ? slice.pending.length : 0;
+        var running = (slice.pending || []).filter(function (item) { return item && item.timerStartedAt; }).length;
+        return c + " task" + (c === 1 ? "" : "s") + ", " + e + " done, " + p + " open" + (running ? ", " + running + " running" : "");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          catalog: (existing.catalog || []).slice(),
+          pending: (existing.pending || []).slice(),
+          entries: (existing.entries || []).slice(),
+        };
+        var catIds = {};
+        var catKeys = {};
+        out.catalog.forEach(function (c) {
+          if (!c) return;
+          if (c.id) catIds[c.id] = true;
+          if (c.title) catKeys[String(c.title).toLowerCase()] = c;
+        });
+        (incoming.catalog || []).forEach(function (c) {
+          if (!c || !c.title) return;
+          var key = String(c.title).toLowerCase();
+          if (catKeys[key]) {
+            var cur = catKeys[key];
+            if ((c.doneCount || 0) > (cur.doneCount || 0)) cur.doneCount = c.doneCount;
+            if (c.lastDoneDate && (!cur.lastDoneDate || c.lastDoneDate > cur.lastDoneDate)) {
+              cur.lastDoneDate = c.lastDoneDate;
+              cur.lastDoneAt = c.lastDoneAt;
+            }
+            return;
+          }
+          if (c.id && catIds[c.id]) return;
+          out.catalog.push(c);
+          if (c.id) catIds[c.id] = true;
+          catKeys[key] = c;
+        });
+        var pendingIds = {};
+        out.pending.forEach(function (p) { if (p && p.id) pendingIds[p.id] = true; });
+        (incoming.pending || []).forEach(function (p) {
+          if (!p || !p.id || pendingIds[p.id]) return;
+          out.pending.push(p);
+          pendingIds[p.id] = true;
+        });
+        var entryIds = {};
+        out.entries.forEach(function (e) { if (e && e.id) entryIds[e.id] = true; });
+        (incoming.entries || []).forEach(function (e) {
+          if (!e || !e.id || entryIds[e.id]) return;
+          out.entries.push(e);
+          entryIds[e.id] = true;
+        });
+        return out;
+      },
+    },
+    "things-to-do": {
+      storageKey: "things-to-do-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("things-to-do-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.events)) return null;
+          return {
+            version: p.version || 1,
+            events: p.events,
+            overrides: p.overrides && typeof p.overrides === "object" ? p.overrides : {},
+            hiddenSeedIds: Array.isArray(p.hiddenSeedIds) ? p.hiddenSeedIds : [],
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.events)) return false;
+        return writeKey(
+          "things-to-do-v1",
+          JSON.stringify({
+            version: slice.version || 1,
+            events: slice.events,
+            overrides: slice.overrides && typeof slice.overrides === "object" ? slice.overrides : {},
+            hiddenSeedIds: Array.isArray(slice.hiddenSeedIds) ? slice.hiddenSeedIds : [],
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && Array.isArray(obj.events));
+      },
+      summarize: function (slice) {
+        var n = slice.events ? slice.events.length : 0;
+        var hidden = slice.hiddenSeedIds ? slice.hiddenSeedIds.length : 0;
+        return n + " event" + (n === 1 ? "" : "s") + (hidden ? ", " + hidden + " hidden" : "");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var out = {
+          version: 1,
+          events: (existing.events || []).slice(),
+          overrides: Object.assign({}, existing.overrides || {}),
+          hiddenSeedIds: (existing.hiddenSeedIds || []).slice(),
+        };
+        var ids = {};
+        out.events.forEach(function (event) {
+          if (event && event.id) ids[event.id] = event;
+        });
+        (incoming.events || []).forEach(function (event) {
+          if (!event || !event.id) return;
+          if (ids[event.id]) {
+            if (new Date(event.updatedAt || 0) > new Date(ids[event.id].updatedAt || 0)) {
+              Object.assign(ids[event.id], event);
+            }
+            return;
+          }
+          out.events.push(event);
+          ids[event.id] = event;
+        });
+        Object.keys(incoming.overrides || {}).forEach(function (id) {
+          var cur = out.overrides[id];
+          var next = incoming.overrides[id];
+          if (!next) return;
+          if (!cur || new Date(next.updatedAt || 0) > new Date(cur.updatedAt || 0)) {
+            out.overrides[id] = next;
+          }
+        });
+        var hidden = {};
+        out.hiddenSeedIds.forEach(function (id) { hidden[id] = true; });
+        (incoming.hiddenSeedIds || []).forEach(function (id) {
+          if (!id || hidden[id]) return;
+          out.hiddenSeedIds.push(id);
+          hidden[id] = true;
+        });
+        return out;
+      },
+    },
+    "city-axes": {
+      storageKey: "city-axes-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("city-axes-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object") return null;
+          if (!p.start && !p.end && p.xFirst !== false && !(p.layers && (p.layers.cafes || p.layers.dates || p.layers.landmarks === false))) {
+            return null;
+          }
+          return {
+            version: 1,
+            xFirst: p.xFirst !== false,
+            start: p.start || null,
+            end: p.end || null,
+            layers: {
+              landmarks: !p.layers || p.layers.landmarks !== false,
+              cafes: !!(p.layers && p.layers.cafes),
+              dates: !!(p.layers && p.layers.dates),
+            },
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || typeof slice !== "object") return false;
+        return writeKey(
+          "city-axes-v1",
+          JSON.stringify({
+            version: 1,
+            xFirst: slice.xFirst !== false,
+            start: slice.start || null,
+            end: slice.end || null,
+            layers: {
+              landmarks: !slice.layers || slice.layers.landmarks !== false,
+              cafes: !!(slice.layers && slice.layers.cafes),
+              dates: !!(slice.layers && slice.layers.dates),
+            },
+          })
+        );
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && obj.version === 1 && !Array.isArray(obj.places) && !Array.isArray(obj.events) && (obj.start || obj.end || typeof obj.xFirst === "boolean"));
+      },
+      summarize: function (slice) {
+        var bits = [];
+        if (slice.start) bits.push("start");
+        if (slice.end) bits.push("end");
+        if (!bits.length) return "Axis preference saved";
+        return "Saved " + bits.join(" and ");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        return {
+          version: 1,
+          xFirst: typeof incoming.xFirst === "boolean" ? incoming.xFirst : existing.xFirst !== false,
+          start: incoming.start || existing.start || null,
+          end: incoming.end || existing.end || null,
+          layers: {
+            landmarks: incoming.layers ? incoming.layers.landmarks !== false : existing.layers ? existing.layers.landmarks !== false : true,
+            cafes: incoming.layers ? !!incoming.layers.cafes : !!(existing.layers && existing.layers.cafes),
+            dates: incoming.layers ? !!incoming.layers.dates : !!(existing.layers && existing.layers.dates),
+          },
+        };
+      },
+    },
+    "shared-lists": {
+      storageKey: "shared-lists-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("shared-lists-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !p.rooms || typeof p.rooms !== "object" || !Object.keys(p.rooms).length) return null;
+          return { version: 1, activeCode: p.activeCode || "", rooms: p.rooms };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !slice.rooms || typeof slice.rooms !== "object") return false;
+        return writeKey("shared-lists-v1", JSON.stringify({
+          version: 1,
+          activeCode: slice.activeCode || "",
+          rooms: slice.rooms,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.rooms && typeof obj.rooms === "object" && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var codes = Object.keys(slice.rooms || {});
+        var lists = 0;
+        codes.forEach(function (code) {
+          var room = slice.rooms[code];
+          var rows = room && room.data && room.data.lists;
+          if (!Array.isArray(rows)) return;
+          rows.forEach(function (list) { if (list && !list.deletedAt) lists += 1; });
+        });
+        return codes.length + " room" + (codes.length === 1 ? "" : "s") + ", " + lists + " list" + (lists === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        return mergeSharedCache(existing, incoming);
+      },
+    },
   };
-
-  /** Wardrobe metadata — photos live in IndexedDB (aruba-pack-photos-v1), never exported. */
   function sanitizeArubaSlice(slice) {
     var out = {
       version: slice.version || 6,

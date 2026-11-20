@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Draft Board</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Draft Board" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1f14" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=6" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Draft Board</h1>
+      <p id="headerSub">Loading…</p>
+    </div>
+  </header>
+
+  <nav class="tabbar" role="tablist">
+    <button type="button" class="tab active" data-tab="plan">Plan</button>
+    <button type="button" class="tab" data-tab="targets">Targets</button>
+    <button type="button" class="tab" data-tab="board">Board</button>
+    <button type="button" class="tab" data-tab="settings">Settings</button>
+  </nav>
+
+  <main>
+    <section class="view active" id="viewPlan" data-view="plan">
+      <div class="card hero">
+        <p class="eyebrow">Your league</p>
+        <h2 id="rosterLine">1 QB · 2 RB · 2 WR · FLEX · TE · K · DST</h2>
+        <p class="muted tight" id="strategyProfile"></p>
+        <p class="muted" id="adpNote">Newest BDGE video wins when takes conflict. ADP is Fantasy Football Calculator PPR with ESPN overlay.</p>
+        <button type="button" class="btn-link" data-goto="settings">Edit draft settings</button>
+      </div>
+
+      <div class="card">
+        <h3>Your snake picks</h3>
+        <p class="muted tight" id="pickHint">You pick twice in a row at every turn after round 1 when you’re on an edge.</p>
+        <div class="pick-grid" id="pickGrid"></div>
+      </div>
+
+      <div class="card do-card">
+        <h3>Do</h3>
+        <ul class="rules" id="doRules"></ul>
+      </div>
+
+      <div class="card dont-card">
+        <h3>Don’t</h3>
+        <ul class="rules" id="dontRules"></ul>
+      </div>
+
+      <div class="card">
+        <h3>Round-by-round cheat sheet</h3>
+        <ol class="rounds" id="roundSheet"></ol>
+      </div>
+
+      <div class="card">
+        <h3>Videos (newest first)</h3>
+        <ol class="videos" id="videoList"></ol>
+      </div>
+    </section>
+
+    <section class="view" id="viewTargets" data-view="targets">
+      <div class="card">
+        <p class="eyebrow">Click list</p>
+        <h3>Targets by turn</h3>
+        <p class="muted tight" id="targetsProfile">4–6 names to prioritize at each of your pick windows.</p>
+      </div>
+      <div class="turn-chips" id="turnChips"></div>
+      <div id="targetTurns" class="target-turns"></div>
+    </section>
+
+    <section class="view" id="viewBoard" data-view="board">
+      <div class="filters">
+        <input type="search" id="search" placeholder="Search player, team…" autocomplete="off" />
+        <div class="chips" id="posChips"></div>
+        <div class="chips" id="verdictChips"></div>
+        <label class="toggle">
+          <input type="checkbox" id="windowOnly" />
+          My pick windows only
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="notesOnly" checked />
+          Has BDGE note
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="starredOnly" />
+          Starred
+        </label>
+      </div>
+      <p class="count" id="count"></p>
+      <div id="playerList" class="player-list"></div>
+    </section>
+
+    <section class="view" id="viewSettings" data-view="settings">
+      <div class="card">
+        <h3>Draft size</h3>
+        <p class="muted tight">Changes your pick numbers and board window badges. Saved on this phone.</p>
+        <label class="field-label" for="teamsSelect">Teams</label>
+        <div class="chips" id="teamsChips"></div>
+        <label class="field-label" for="pickSelect">Your draft slot</label>
+        <select id="pickSelect" class="select"></select>
+        <label class="field-label" for="roundsSelect">Rounds</label>
+        <select id="roundsSelect" class="select"></select>
+      </div>
+
+      <div class="card">
+        <h3>Roster (display)</h3>
+        <p class="muted tight">Used on the Plan tab label. Doesn’t change ADP.</p>
+        <div class="roster-grid">
+          <label>QB <input type="number" id="setQb" min="0" max="3" inputmode="numeric" /></label>
+          <label>RB <input type="number" id="setRb" min="0" max="4" inputmode="numeric" /></label>
+          <label>WR <input type="number" id="setWr" min="0" max="5" inputmode="numeric" /></label>
+          <label>FLEX <input type="number" id="setFlex" min="0" max="3" inputmode="numeric" /></label>
+          <label>TE <input type="number" id="setTe" min="0" max="2" inputmode="numeric" /></label>
+          <label>K <input type="number" id="setK" min="0" max="1" inputmode="numeric" /></label>
+          <label>DST <input type="number" id="setDst" min="0" max="1" inputmode="numeric" /></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Preview</h3>
+        <p class="muted" id="settingsPreview"></p>
+        <button type="button" class="btn-primary" id="resetSettings">Reset to 10-team · 1.09</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=6"></script>
+</body>
+</html>
