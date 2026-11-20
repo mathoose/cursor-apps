@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Stock Purchases icon">
+  <defs>
+    <linearGradient id="bg" x1="20" y1="12" x2="160" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#065f46"/>
+      <stop offset="1" stop-color="#022c22"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="42" fill="url(#bg)"/>
+  <circle cx="146" cy="38" r="34" fill="#34d399" opacity=".18"/>
+  <path d="M34 128h112" stroke="#a7f3d0" stroke-opacity=".35" stroke-width="6" stroke-linecap="round"/>
+  <path d="M40 118l28-22 24 14 46-58" fill="none" stroke="#6ee7b7" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="138" cy="52" r="14" fill="#fbbf24"/>
+  <circle cx="68" cy="96" r="7" fill="#ecfdf5"/>
+</svg>

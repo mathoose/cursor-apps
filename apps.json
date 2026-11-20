@@ -35,7 +35,8 @@
       "coffee-map": { "storageKey": "coffee-map-v1" },
       "city-axes": { "storageKey": "city-axes-v1" },
       "done-today": { "storageKey": "done-today-v1" },
-      "things-to-do": { "storageKey": "things-to-do-v1" }
+      "things-to-do": { "storageKey": "things-to-do-v1" },
+      "stock-purchases": { "storageKey": "stock-purchases-v1" }
     }
   },
   "apps": [
@@ -232,6 +233,12 @@
       "name": "Done Today",
       "subtitle": "Journal & day timeline",
       "storageKey": "done-today-v1"
+    },
+    {
+      "id": "stock-purchases",
+      "name": "Stock Purchases",
+      "subtitle": "Buys, value, and dividends",
+      "storageKey": "stock-purchases-v1"
     }
   ]
 }
