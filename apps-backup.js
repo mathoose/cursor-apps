@@ -39,6 +39,7 @@
     "things-to-do": "Dates",
     "shared-lists": "Our Lists",
     "stock-purchases": "Stock Purchases",
+    "trip-packing": "Packing",
   };
 
   var PHOTO_DATABASES = [
@@ -1859,6 +1860,48 @@
           hideDividends: typeof incoming.hideDividends === "boolean" ? incoming.hideDividends : !!existing.hideDividends,
           purchases: purchases,
         };
+      },
+    },
+    "trip-packing": {
+      storageKey: "trip-packing-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("trip-packing-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !p.rooms || typeof p.rooms !== "object" || !Object.keys(p.rooms).length) return null;
+          return { version: 1, activeCode: p.activeCode || "", rooms: p.rooms };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !slice.rooms || typeof slice.rooms !== "object") return false;
+        return writeKey("trip-packing-v1", JSON.stringify({
+          version: 1,
+          activeCode: slice.activeCode || "",
+          rooms: slice.rooms,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.rooms && typeof obj.rooms === "object" && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var codes = Object.keys(slice.rooms || {});
+        var trips = 0;
+        codes.forEach(function (code) {
+          var room = slice.rooms[code];
+          var rows = room && room.data && room.data.lists;
+          if (!Array.isArray(rows)) return;
+          rows.forEach(function (list) {
+            if (list && !list.deletedAt && list.category === "packing") trips += 1;
+          });
+        });
+        return codes.length + " list code" + (codes.length === 1 ? "" : "s") + ", " + trips + " trip" + (trips === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        return mergeSharedCache(existing, incoming);
       },
     },
   };
