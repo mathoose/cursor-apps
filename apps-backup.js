@@ -38,6 +38,7 @@
     "done-today": "Done Today",
     "things-to-do": "Dates",
     "shared-lists": "Our Lists",
+    "step-target": "Steps",
   };
 
   var PHOTO_DATABASES = [
@@ -1799,7 +1800,112 @@
         return mergeSharedCache(existing, incoming);
       },
     },
+    "step-target": {
+      storageKey: "step-target-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("step-target-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || typeof p !== "object" || !p.asOf) return null;
+          return cleanStepTargetSlice(p);
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        var clean = cleanStepTargetSlice(slice);
+        if (!clean) return false;
+        return writeKey("step-target-v1", JSON.stringify(clean));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.format !== FORMAT && obj.asOf && obj.targets && typeof obj.targets === "object");
+      },
+      summarize: function (slice) {
+        var days = slice && slice.days ? Object.keys(slice.days).length : 0;
+        var period = slice && (slice.period === "week" || slice.period === "month") ? slice.period : "year";
+        var target = slice && slice.targets ? slice.targets[period] : null;
+        var summary = days + " logged day" + (days === 1 ? "" : "s");
+        if (target != null) summary += ", " + period + " target " + target;
+        return summary;
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return cleanStepTargetSlice(incoming);
+        var base = cleanStepTargetSlice(existing);
+        var next = cleanStepTargetSlice(incoming);
+        if (!base) return next;
+        if (!next) return base;
+        function prefer(a, b) { return b != null ? b : a; }
+        var days = Object.assign({}, base.days || {});
+        Object.keys(next.days || {}).forEach(function (iso) {
+          days[iso] = next.days[iso];
+        });
+        return {
+          version: 1,
+          asOf: next.asOf || base.asOf,
+          period: next.period || base.period,
+          baselines: {
+            week: prefer(base.baselines.week, next.baselines.week),
+            month: prefer(base.baselines.month, next.baselines.month),
+            year: prefer(base.baselines.year, next.baselines.year),
+          },
+          targets: {
+            week: prefer(base.targets.week, next.targets.week),
+            month: prefer(base.targets.month, next.targets.month),
+            year: prefer(base.targets.year, next.targets.year),
+          },
+          days: days,
+          calMonth: next.calMonth || base.calMonth,
+        };
+      },
+    },
   };
+
+  function cleanStepCount(value) {
+    if (value == null || value === "") return null;
+    var raw = typeof value === "string" ? value.replace(/,/g, "").trim() : value;
+    if (raw === "") return null;
+    var n = Number(raw);
+    if (!isFinite(n) || n < 0 || n > 250000) return null;
+    return Math.round(n);
+  }
+
+  function cleanStepTargetSlice(p) {
+    if (!p || typeof p !== "object") return null;
+    var period = p.period === "week" || p.period === "month" || p.period === "year" ? p.period : "year";
+    var asOf = /^\d{4}-\d{2}-\d{2}$/.test(p.asOf || "") ? p.asOf : "2026-11-20";
+    var baselines = p.baselines && typeof p.baselines === "object" ? p.baselines : {};
+    var targets = p.targets && typeof p.targets === "object" ? p.targets : {};
+    var days = {};
+    if (p.days && typeof p.days === "object") {
+      Object.keys(p.days).forEach(function (iso) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return;
+        var steps = cleanStepCount(p.days[iso]);
+        if (steps == null) return;
+        days[iso] = steps;
+      });
+    }
+    var calMonth = /^\d{4}-\d{2}$/.test(p.calMonth || "") ? p.calMonth : asOf.slice(0, 7);
+    return {
+      version: 1,
+      asOf: asOf,
+      period: period,
+      baselines: {
+        week: cleanStepCount(baselines.week),
+        month: cleanStepCount(baselines.month),
+        year: cleanStepCount(baselines.year),
+      },
+      targets: {
+        week: cleanStepCount(targets.week),
+        month: cleanStepCount(targets.month),
+        year: cleanStepCount(targets.year),
+      },
+      days: days,
+      calMonth: calMonth,
+    };
+  }
   function sanitizeArubaSlice(slice) {
     var out = {
       version: slice.version || 6,
