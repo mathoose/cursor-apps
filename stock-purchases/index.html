@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Stock Purchases</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stocks" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#022c22" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <!-- build: stock-purchases-v1 -->
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Stock Purchases</h1>
+      <p>Buys, value, and dividends</p>
+    </div>
+    <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh prices">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L4 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L20 8"/><path d="M21 4v4h-4"/><path d="M3 20v-4h4"/></svg>
+    </button>
+    <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <p class="status" id="status" aria-live="polite">Add a purchase to load prices.</p>
+
+    <section class="summary" id="summary" aria-label="Portfolio summary"></section>
+
+    <label class="check-row">
+      <input type="checkbox" id="hideDividends" />
+      <span>Hide dividends</span>
+    </label>
+    <p class="fine-print">Dividends are cash received, not extra shares. Hiding them takes that cash out of the totals, the chart, and each purchase.</p>
+
+    <div class="windows" id="windows" role="tablist" aria-label="Time window">
+      <button type="button" role="tab" data-window="1M">1M</button>
+      <button type="button" role="tab" data-window="3M">3M</button>
+      <button type="button" role="tab" data-window="YTD">YTD</button>
+      <button type="button" role="tab" data-window="1Y">1Y</button>
+      <button type="button" role="tab" data-window="5Y">5Y</button>
+      <button type="button" role="tab" data-window="all" aria-selected="true">All</button>
+    </div>
+    <div class="chips" id="symbolChips" aria-label="Stocks to include"></div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Value over time</h2>
+      </div>
+      <p class="card-note" id="valueHint">Market value of shares you already held, starting at each purchase.</p>
+      <div class="graph-canvas-wrap" id="valuePlot">
+        <canvas id="graphCanvas" width="320" height="260" draggable="false" aria-label="Value of purchases over time"></canvas>
+        <div id="graphChartTouch" aria-hidden="true"></div>
+        <canvas id="graphChartOverlay" width="320" height="260" draggable="false" aria-hidden="true"></canvas>
+        <div class="graph-chart-tooltip" id="graphChartTooltip" hidden></div>
+      </div>
+      <div class="legend" id="valueLegend"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Purchase dates</h2>
+        <span class="card-count" id="stemCount"></span>
+      </div>
+      <p class="card-note">Each stem is one buy in this window. Taller means more cash spent.</p>
+      <div class="graph-canvas-wrap stem-wrap">
+        <canvas id="stemCanvas" width="320" height="200" draggable="false" aria-label="Dates purchases were made"></canvas>
+      </div>
+      <p class="card-note" id="stemEmpty" hidden>No purchases in this window.</p>
+    </section>
+
+    <section class="card lots-card">
+      <div class="card-head">
+        <h2>Purchases</h2>
+        <button type="button" class="btn btn-primary" id="addBtn">Add purchase</button>
+      </div>
+      <div id="lotList"></div>
+      <div class="empty-state" id="emptyState">
+        <p>No purchases yet. Add a buy and this page looks up the price, dividends, and history for that symbol only.</p>
+        <button type="button" class="btn btn-primary" id="emptyAddBtn">Add purchase</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="formOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="formTitle">Add purchase</h2>
+      <label class="field-label" for="symbolInput">Symbol</label>
+      <input type="text" id="symbolInput" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="AAPL" />
+      <p class="symbol-name" id="symbolName"></p>
+      <div class="suggestions" id="suggestions"></div>
+      <div class="field-row">
+        <div>
+          <label class="field-label" for="purchaseDate">Date</label>
+          <input type="date" id="purchaseDate" required />
+        </div>
+        <div>
+          <label class="field-label" for="sharesInput">Shares</label>
+          <input type="number" id="sharesInput" inputmode="decimal" min="0" step="any" placeholder="10" />
+        </div>
+      </div>
+      <label class="field-label" for="priceInput">Price you paid, per share</label>
+      <input type="number" id="priceInput" inputmode="decimal" min="0" step="any" placeholder="150.00" />
+      <p class="price-hint" id="priceHint"></p>
+      <label class="field-label" for="noteInput">Note</label>
+      <input type="text" id="noteInput" maxlength="200" placeholder="Optional" />
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-primary" id="saveBtn">Save</button>
+        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="deleteBtn" hidden>Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="settingsOverlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="settingsTitle">Settings</h2>
+      <p class="fine-print">Purchases stay on this phone. Price history is cached here and left out of backups. Export JSON to keep a copy.</p>
+      <div class="sheet-actions">
+        <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
+        <label class="btn btn-secondary import-label">
+          Import JSON
+          <input type="file" id="importJsonFile" accept=".json,application/json" />
+        </label>
+        <button type="button" class="btn btn-secondary" id="settingsCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="calc.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
