@@ -1,0 +1,3715 @@
+[
+  {
+    "id": "tiffin-indian-cuisine",
+    "name": "Tiffin Indian cuisine",
+    "neighborhood": "Bella Vista",
+    "address": "1100 Federal St, Philadelphia, PA 19147",
+    "lat": 39.933255,
+    "lng": -75.16274,
+    "website": "https://www.tiffin.com/",
+    "instagramUrl": "https://www.instagram.com/tiffinindian/",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon\u2013Fri 11:30am\u201310pm \u00b7 Sat\u2013Sun noon\u201310pm (Apple Maps / listings); confirm on Instagram",
+    "description": "South Philly outpost of Munish Narula's mini-chain: North Indian curries, tandoor, naan, and chaats. BYO wine with corkage.",
+    "meal": "both"
+  },
+  {
+    "id": "saigon-grace-cafe",
+    "name": "Saigon Grace Cafe",
+    "neighborhood": "Graduate Hospital",
+    "address": "1516 South St, Philadelphia, PA 19146",
+    "lat": 39.9438,
+    "lng": -75.1678,
+    "website": "https://saigongracecafe.com/",
+    "instagramUrl": "https://www.instagram.com/saigongracecafe/",
+    "hours": {
+      "Monday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:30 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue closed \u00b7 Mon/Wed\u2013Fri 8:30am\u20137pm \u00b7 Sat\u2013Sun 8:30am\u20134pm",
+    "description": "Vietnamese coffee (salt foam) and Viet-Mexican cafe food from Khai Tran, Trinh Nguyen, and Fernando Cristobol. Listed in drinks as Saigon Cafe.",
+    "meal": "both"
+  },
+  {
+    "id": "pine-street-grill",
+    "name": "Pine Street Grill",
+    "cuisine": "American grill",
+    "neighborhood": "Graduate Hospital",
+    "address": "2227 Pine St, Philadelphia, PA 19103",
+    "lat": 39.947399,
+    "lng": -75.179196,
+    "website": "https://www.pinestreetgrill.com/",
+    "instagramUrl": "https://www.instagram.com/pinestreetgrill.phl/",
+    "hours": {
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue closed. Dinner hours above; Sat\u2013Sun brunch 10:30am\u20132pm (not all-afternoon). Confirm on Instagram.",
+    "description": "Fitler Square neighborhood grill from Amanda Shulman and Alex Kemp (Her Place, My Loup): comfort classics, kids menu, weekend brunch.",
+    "meal": "both"
+  },
+  {
+    "id": "ambrosia",
+    "name": "Ambrosia",
+    "neighborhood": "Graduate Hospital",
+    "address": "231 S 24th St, Philadelphia, PA 19103",
+    "lat": 39.950009,
+    "lng": -75.179667,
+    "website": "https://www.ambrosiaphilly.com/",
+    "instagramUrl": "https://www.instagram.com/ambrosia_philly/",
+    "hours": {
+      "Monday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Tuesday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Wednesday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Thursday": {
+        "open": "11:30 AM",
+        "close": "10:30 PM"
+      },
+      "Friday": {
+        "open": "11:30 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:30 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Lunch and dinner seatings (afternoon gap). Last seating earlier than close. Wine welcome, no corkage.",
+    "description": "Casual Italian at 24th & Locust: homemade pasta, full bar; still no corkage if you bring wine.",
+    "meal": "both"
+  },
+  {
+    "id": "lorenzo-and-sons-pizza",
+    "name": "Lorenzo and Sons Pizza",
+    "neighborhood": "Queen Village",
+    "address": "305 South St, Philadelphia, PA 19147",
+    "lat": 39.941549,
+    "lng": -75.147882,
+    "website": "https://lorenzoandsons.com/",
+    "instagramUrl": "https://www.instagram.com/the_real_lorenzo_and_sons/",
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Monday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "3:00 AM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Sun\u2013Wed 11am\u20131am \u00b7 Thu\u2013Sat 11am\u20133am (Apple Maps). Cash-friendly giant slices.",
+    "description": "South Street institution: huge New York-style slices, late night. Cash only (ATM on site).",
+    "meal": "both"
+  },
+  {
+    "id": "cafe-y-chocolate",
+    "name": "Caf\u00e9 y Chocolate",
+    "neighborhood": "East Passyunk",
+    "address": "1532 Snyder Ave, Philadelphia, PA 19145",
+    "lat": 39.924649,
+    "lng": -75.172647,
+    "website": "https://www.cafeychocolatephilly.com/",
+    "instagramUrl": "https://www.instagram.com/cafeychocolatepa/",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Sun\u2013Thu 8am\u20135pm \u00b7 Fri\u2013Sat 8:30am\u20138pm on cafeychocolatephilly.com; summer brunch hours also posted \u2014 confirm on Instagram.",
+    "description": "Mexican cafe at Snyder & Passyunk: breakfast, moles, and Mexican hot chocolate.",
+    "meal": "both"
+  },
+  {
+    "id": "tesiny",
+    "name": "Tesiny",
+    "cuisine": "Seafood",
+    "neighborhood": "Bella Vista",
+    "address": "719 Dickinson St, Philadelphia, PA 19147",
+    "lat": 39.9308,
+    "lng": -75.1568,
+    "website": "https://www.tesiny.com/",
+    "instagramUrl": "https://www.instagram.com/tesinyphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Tue\u2013Sat 5\u201310pm \u00b7 Sun\u2013Mon closed",
+    "description": "South Philly seafood / cocktail room. Dinner only.",
+    "meal": "dinner"
+  },
+  {
+    "id": "agricola",
+    "name": "Agr\u00edcola",
+    "neighborhood": "Bella Vista",
+    "address": "1180 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.934683,
+    "lng": -75.160608,
+    "website": "https://order.toasttab.com/online/agricola",
+    "instagramUrl": "https://www.instagram.com/agricolaphl/",
+    "hours": {
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Sunday": {
+        "open": "2:00 PM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Thu\u2013Sat 4\u20139pm \u00b7 Sun 2\u20137pm \u00b7 Mon\u2013Wed closed (listings). Confirm on Instagram \u2014 hours are limited.",
+    "description": "Chef-y pizza at 10th & Federal: house-milled grain, farm pork, pizza classes. Look for the monkey over the door.",
+    "meal": "dinner"
+  },
+  {
+    "id": "casablanca",
+    "name": "Casablanca Mediterranean Grill",
+    "neighborhood": "East Passyunk",
+    "address": "947 Federal St, Philadelphia, PA 19147",
+    "lat": 39.934676,
+    "lng": -75.160296,
+    "website": "https://casablanca-grill.com/",
+    "instagramUrl": "https://www.instagram.com/casablancaphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "2:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Site: Tue\u2013Thu 2\u201310pm (kitchen earlier); Fri\u2013Sat prix fixe or a la carte. Open six days \u2014 confirm Monday on Instagram. Sun closed.",
+    "description": "Family Mediterranean grill with a full bar (no longer BYOB). Best of Philly Mediterranean.",
+    "meal": "both"
+  },
+  {
+    "id": "paffuto",
+    "name": "Paffuto",
+    "neighborhood": "Bella Vista",
+    "address": "1009 S 8th St, Philadelphia, PA 19147",
+    "lat": 39.936863,
+    "lng": -75.156505,
+    "website": "https://www.paffutophl.com/",
+    "instagramUrl": "https://www.instagram.com/paffutophilly/",
+    "hours": {
+      "Wednesday": {
+        "open": "8:30 AM",
+        "close": "12:00 PM"
+      },
+      "Thursday": {
+        "open": "8:30 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "8:30 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "8:30 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "8:30 AM",
+        "close": "2:30 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Tue closed. Daytime cafe + some dinner services; site and Cash App disagree on exact dinner nights \u2014 confirm on Instagram.",
+    "description": "Italian cafe/restaurant in the old Bibou space (CIA alums). Breakfast sandwiches by day, dinner some evenings.",
+    "meal": "both"
+  },
+  {
+    "id": "juana-tamale",
+    "name": "Juana Tamale",
+    "neighborhood": "East Passyunk",
+    "address": "1941 E Passyunk Ave, Philadelphia, PA 19148",
+    "lat": 39.925666,
+    "lng": -75.16843,
+    "website": "https://juana-tamale.square.site/",
+    "instagramUrl": "https://www.instagram.com/juanatamale/",
+    "hours": {
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Closed Mondays. ~11am\u201310pm other days (listings); birria often sells out \u2014 confirm on Instagram.",
+    "description": "Neon Mexican BYOB from Chef Jennifer Zavala: birria tacos and ramen, handmade tamales, vegan options.",
+    "meal": "both"
+  },
+  {
+    "id": "pho-75",
+    "name": "Pho 75",
+    "neighborhood": "Bella Vista",
+    "address": "1122 Washington Ave F, Philadelphia, PA 19147",
+    "lat": 39.933559,
+    "lng": -75.147816,
+    "website": "https://phillypho.com/",
+    "instagramUrl": "https://www.instagram.com/75pho/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      },
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "8:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Every day 9am\u20138pm. Cash-friendly pho shop in Wing Phat Plaza.",
+    "description": "South Philly's iconic pho: eye-round, brisket, tendon, tripe, meatballs. Look for the yellow banner.",
+    "meal": "both"
+  },
+  {
+    "id": "el-chingon",
+    "name": "El Chingon",
+    "neighborhood": "East Passyunk",
+    "address": "1524 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.930125,
+    "lng": -75.16161,
+    "website": "https://www.elchingonphilly.com/",
+    "instagramUrl": "https://www.instagram.com/elchingonphilly/",
+    "hours": {
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon closed \u00b7 Tue\u2013Thu & Sun 11am\u20139pm \u00b7 Fri\u2013Sat 11am\u201310pm",
+    "description": "Mexican restaurant on 10th Street \u2014 lunch through dinner.",
+    "meal": "both"
+  },
+  {
+    "id": "mawn",
+    "name": "Mawn",
+    "cuisine": "Cambodian noodles",
+    "neighborhood": "Bella Vista",
+    "address": "764 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.9398,
+    "lng": -75.1582,
+    "website": "https://mawnphilly.com/",
+    "instagramUrl": "https://www.instagram.com/mawnphilly/",
+    "hours": {
+      "Wednesday": {
+        "open": "4:30 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Dinner Wed\u2013Sat 4:30\u20139pm (reservations). Walk-in lunch Thu\u2013Sat 11am\u20132:30pm. Afternoon gap. Confirm on Instagram.",
+    "description": "James Beard Cambodian noodle house on 9th Street. Tiny BYOB; dinner books out \u2014 lunch is the walk-in play.",
+    "meal": "both"
+  },
+  {
+    "id": "fiorella",
+    "name": "Fiorella",
+    "cuisine": "Pasta",
+    "neighborhood": "Bella Vista",
+    "address": "817 Christian St, Philadelphia, PA 19147",
+    "lat": 39.938899,
+    "lng": -75.156876,
+    "website": "https://fiorellaphilly.com/",
+    "instagramUrl": "https://www.instagram.com/fiorellaphilly/",
+    "hours": {
+      "Sunday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "4:00 PM",
+        "close": "10:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Sun\u2013Thu 4\u20139pm \u00b7 Fri\u2013Sat 4\u201310pm",
+    "description": "Marc Vetri pasta restaurant on Christian Street. Dinner only.",
+    "meal": "dinner"
+  },
+  {
+    "id": "the-dutch",
+    "name": "The Dutch",
+    "cuisine": "Brunch",
+    "neighborhood": "East Passyunk",
+    "address": "1537 S 11th Street, Philadelphia, PA 19147",
+    "lat": 39.929865,
+    "lng": -75.162992,
+    "website": "https://thedutchphilly.com/",
+    "instagramUrl": "https://www.instagram.com/thedutchphilly/",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Brunch Mon\u2013Fri 8am\u20133pm \u00b7 Sat\u2013Sun 8am\u20132pm (walk-in)",
+    "description": "Pennsylvania Dutch-inspired scratch kitchen and bar; sister to Fond. Brunch / lunch hours.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cilantro",
+    "name": "Cilantro",
+    "neighborhood": "Queen Village",
+    "address": "613 S 4th St, Philadelphia, PA 19147",
+    "lat": 39.941,
+    "lng": -75.1488,
+    "website": "https://www.cilantromediterraneancuisine.com/",
+    "instagramUrl": "https://www.instagram.com/cilantromediterraneancuisine/",
+    "hours": {
+      "Monday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "12:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon\u2013Thu & Sat\u2013Sun noon\u201311pm \u00b7 Fri noon\u2013midnight (dine-in). Carryout ends 30 min earlier.",
+    "description": "Halal Egyptian / Mediterranean on 4th Street: shawarma, hawawshi, falafel platters.",
+    "meal": "both"
+  },
+  {
+    "id": "amerithai-bistro",
+    "name": "Ameri Thai Bistro",
+    "neighborhood": "East Passyunk",
+    "address": "1244 Snyder Ave, Philadelphia, PA 19148",
+    "lat": 39.923917,
+    "lng": -75.167515,
+    "website": "https://amerithaitogo.com/",
+    "instagramUrl": "https://www.instagram.com/amerithai.bistro/",
+    "hours": {
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "official",
+    "hoursNote": "Mon closed \u00b7 Tue\u2013Thu 4\u20139pm \u00b7 Fri\u2013Sat 11am\u201310pm \u00b7 Sun 11am\u20139pm",
+    "description": "Neighborhood Thai on Snyder: curries, boat noodles, mango sticky rice. Lunch Fri\u2013Sun; dinner Tue\u2013Sun.",
+    "meal": "both"
+  },
+  {
+    "id": "the-bakery",
+    "name": "The Bakery",
+    "neighborhood": "Pennsport",
+    "address": "2300 S 3rd St, Philadelphia, PA 19148",
+    "lat": 39.919489,
+    "lng": -75.152295,
+    "website": "https://www.instagram.com/thebakery.phl/",
+    "instagramUrl": "https://www.instagram.com/thebakery.phl/",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "instagram",
+    "hoursNote": "Handle is @thebakery.phl (not .ph). Mon\u2013Fri 7am\u20132pm \u00b7 Sat\u2013Sun 8am\u20132pm. Friday pizza nights / After Hours dinners \u2014 confirm on Instagram.",
+    "description": "3rd & Wolf donuts, coffee, and breakfast sandwiches. Rocco Weiss revived a century-old cake-donut recipe; pizza nights via IG.",
+    "meal": "lunch"
+  },
+  {
+    "id": "horseman-wellness-club",
+    "name": "Horseman Wellness Club",
+    "neighborhood": "Pennsport",
+    "address": "1801 S 4th St, Philadelphia, PA 19148",
+    "lat": 39.925792,
+    "lng": -75.152491,
+    "website": "https://horsemanwellnessclub.com/",
+    "instagramUrl": "https://www.instagram.com/horsemanwellnessclub/",
+    "hours": {
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon\u2013Tue closed \u00b7 Wed\u2013Sat 8am\u20134pm \u00b7 Sun 8am\u20133pm (listings). Confirm on Instagram.",
+    "description": "Whole-food cafe / meal-prep shop: grass-fed cooking, breakfast and lunch. Closed early week.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cafe-tinto-olney",
+    "name": "Caf\u00e9 Tinto (Olney)",
+    "neighborhood": "Olney",
+    "address": "143 E Wyoming Ave, Philadelphia, PA 19120",
+    "lat": 40.021566,
+    "lng": -75.122583,
+    "website": "https://www.cafetinto.online/",
+    "instagramUrl": "https://www.instagram.com/cafetinto.co/",
+    "hours": {
+      "Monday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "5:30 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon\u2013Sat 5:30am\u20132pm \u00b7 Sunday closed (family day). Confirm on Instagram.",
+    "description": "Original Colombian cafe: coffee, empanadas, breakfast platters. Owner Giselle Poveda / Daniela Garcia.",
+    "meal": "lunch"
+  },
+  {
+    "id": "cafe-tinto-fishtown",
+    "name": "Caf\u00e9 Tinto (Fishtown)",
+    "neighborhood": "Fishtown",
+    "address": "1701 N Front St, Philadelphia, PA 19122",
+    "lat": 39.975094,
+    "lng": -75.134192,
+    "website": "https://www.cafetinto.online/",
+    "instagramUrl": "https://www.instagram.com/cafetinto.co/",
+    "hours": {
+      "Monday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "6:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Mon\u2013Sat ~6am\u20133pm \u00b7 Sunday typically closed. Location also posts as @cafetinto.fishtown; occasional 3\u20136pm happy hour \u2014 confirm on IG.",
+    "description": "Fishtown panader\u00eda: Colombian pastries, empanadas, arepas, breakfast. Separate pin from the Olney original.",
+    "meal": "lunch"
+  },
+  {
+    "id": "angelos-pizzeria",
+    "name": "Angelo's Pizzeria",
+    "neighborhood": "Bella Vista",
+    "address": "736 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.940697,
+    "lng": -75.157578,
+    "website": "https://www.angelospizzeriasouthphiladelphia.com/",
+    "instagramUrl": "https://www.instagram.com/angelos_pizzeria_south_philly/",
+    "hours": {
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Wed\u2013Sun 11am\u20137pm \u00b7 Mon\u2013Tue closed. Lines are the point \u2014 confirm on Instagram.",
+    "description": "Italian Market pizza, cheesesteaks, and roast pork. Dough mixed by hand, mozzarella pulled fresh.",
+    "meal": "both"
+  },
+  {
+    "id": "south-philly-barbacoa",
+    "name": "South Philly Barbacoa",
+    "cuisine": "Barbacoa tacos",
+    "neighborhood": "Bella Vista",
+    "address": "1134 S 9th St, Philadelphia, PA 19147",
+    "lat": 39.935512,
+    "lng": -75.158757,
+    "website": "https://www.instagram.com/southphillybarbacoa_/",
+    "instagramUrl": "https://www.instagram.com/southphillybarbacoa_/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "10:00 AM",
+        "close": "9:00 PM"
+      },
+      "Thursday": {
+        "open": "10:00 AM",
+        "close": "9:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Saturday": {
+        "open": "6:00 AM",
+        "close": "9:00 PM"
+      },
+      "Sunday": {
+        "open": "6:00 AM",
+        "close": "9:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Weekend mornings from 6am; weekdays 9 or 10am\u20139pm (listings). Chef Cristina Martinez also @barbacoachef. Confirm on Instagram \u2014 they can sell out.",
+    "description": "James Beard barbacoa and handmade tortillas on 9th Street (Chef\u2019s Table). Weekend mornings are the move.",
+    "meal": "both"
+  },
+  {
+    "id": "quality-taste-jamaican",
+    "name": "Quality Taste Jamaican Restaurant",
+    "neighborhood": "Mantua",
+    "address": "4002 Lancaster Ave, Philadelphia, PA 19104",
+    "lat": 39.963141,
+    "lng": -75.202682,
+    "website": "https://www.instagram.com/qualitytastejamaicanrestaurant/",
+    "instagramUrl": "https://www.instagram.com/qualitytastejamaicanrestaurant/",
+    "hours": {
+      "Monday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "9:00 AM",
+        "close": "9:00 PM"
+      },
+      "Wednesday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "10:00 AM",
+        "close": "7:00 PM"
+      }
+    },
+    "hoursSource": "listings",
+    "hoursNote": "Yelp: Mon/Wed\u2013Sat 9am\u201311pm \u00b7 Tue 9am\u20139pm \u00b7 Sun 10am\u20137pm. Confirm on Instagram.",
+    "description": "Lancaster Avenue jerk, curry goat, and oxtail \u2014 West Philly away from campus / Clark Park.",
+    "meal": "both"
+  },
+  {
+    "id": "little-water",
+    "name": "Little Water",
+    "cuisine": "Seafood",
+    "neighborhood": "Rittenhouse",
+    "address": "2049, East Hagert Street, Philadelphia, PA, 19125",
+    "lat": 39.983981,
+    "lng": -75.12803,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "vernick-food-drink",
+    "name": "Vernick Food & Drink",
+    "cuisine": "New American",
+    "neighborhood": "Rittenhouse",
+    "address": "2031, Walnut Street, Philadelphia, PA, 19103",
+    "lat": 39.950806,
+    "lng": -75.174892,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "parc",
+    "name": "Parc",
+    "cuisine": "French brasserie",
+    "neighborhood": "Rittenhouse",
+    "address": "225, South 18th Street, Philadelphia, Pennsylvania, 19103",
+    "lat": 39.94923,
+    "lng": -75.170265,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "la-jefa",
+    "name": "La Jefa",
+    "cuisine": "Mexican cafe",
+    "neighborhood": "Rittenhouse",
+    "address": "1605, Latimer Street, Philadelphia, Pennsylvania, 19103",
+    "lat": 39.948237,
+    "lng": -75.168075,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "dizengoff",
+    "name": "Dizengoff",
+    "cuisine": "Hummus",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "zama",
+    "name": "Zama",
+    "cuisine": "Sushi",
+    "neighborhood": "Rittenhouse",
+    "address": "128, South 19th Street, Philadelphia, PA, 19103",
+    "lat": 39.950891,
+    "lng": -75.172244,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "k-far",
+    "name": "K'Far",
+    "cuisine": "Israeli bakery",
+    "neighborhood": "Rittenhouse",
+    "address": "110, South 19th Street, Philadelphia, PA, 19103",
+    "lat": 39.951492,
+    "lng": -75.172134,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "el-merkury",
+    "name": "El Merkury",
+    "cuisine": "Central American",
+    "neighborhood": "Rittenhouse",
+    "address": "2104, Chestnut Street, Philadelphia, PA, 19103",
+    "lat": 39.952206,
+    "lng": -75.175732,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "malai",
+    "name": "Malai",
+    "cuisine": "Ice cream",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "my-loup",
+    "name": "My Loup",
+    "cuisine": "French",
+    "neighborhood": "Rittenhouse",
+    "address": "104, South 20th Street, Philadelphia, PA, 19103",
+    "lat": 39.951869,
+    "lng": -75.173604,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jj-thai-cuisine",
+    "name": "JJ Thai Cuisine",
+    "neighborhood": "Rittenhouse",
+    "address": "2028, Chestnut Street, Philadelphia, PA, 19103",
+    "lat": 39.952115,
+    "lng": -75.174673,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "bottega-rittenhouse",
+    "name": "Bottega Rittenhouse",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "uchi-philadelphia",
+    "name": "Uchi Philadelphia",
+    "cuisine": "Sushi",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "bar-cicci",
+    "name": "Bar Cicci",
+    "neighborhood": "Rittenhouse",
+    "address": "1510, Sansom Street, Philadelphia, Pennsylvania, 19102",
+    "lat": 39.950308,
+    "lng": -75.166395,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "weckerly-s-ice-cream",
+    "name": "Weckerly's Ice Cream",
+    "neighborhood": "Rittenhouse",
+    "address": "1600, Spruce Street, Philadelphia, PA, 19106",
+    "lat": 39.947322,
+    "lng": -75.168179,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "river-twice",
+    "name": "River Twice",
+    "cuisine": "New American",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "laurel",
+    "name": "Laurel",
+    "cuisine": "French-American",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "townsend",
+    "name": "Townsend",
+    "cuisine": "French",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "hardena",
+    "name": "Hardena",
+    "cuisine": "Indonesian",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "noord",
+    "name": "Noord",
+    "cuisine": "Northern European",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "dumpling-daughter",
+    "name": "Dumpling Daughter",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "brigantessa",
+    "name": "Brigantessa",
+    "cuisine": "Italian",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "won-jung-gak",
+    "name": "Won Jung Gak",
+    "neighborhood": "East Passyunk",
+    "address": "1526, East Passyunk Avenue, Philadelphia, PA, 19147",
+    "lat": 39.930427,
+    "lng": -75.163148,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "cafe-nhan",
+    "name": "Cafe Nhan",
+    "cuisine": "Vietnamese",
+    "neighborhood": "East Passyunk",
+    "address": "1919, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.926101,
+    "lng": -75.16769,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "francesca",
+    "name": "Francesca",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "a-mano",
+    "name": "A Mano",
+    "cuisine": "Italian",
+    "neighborhood": "East Passyunk",
+    "address": "Philadelphia, Pennsylvania",
+    "lat": 39.922329,
+    "lng": -75.198713,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jezabel-cafe",
+    "name": "Jezabel Cafe",
+    "cuisine": "Argentine",
+    "neighborhood": "East Passyunk",
+    "address": "206-208, South 45th Street, Philadelphia, PA, 19104",
+    "lat": 39.954933,
+    "lng": -75.21186,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "barbuzzo",
+    "name": "Barbuzzo",
+    "cuisine": "Mediterranean",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "angelina",
+    "name": "Angelina",
+    "neighborhood": "East Passyunk",
+    "address": "1430, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.931738,
+    "lng": -75.162649,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pop-s-homemade-water-ice",
+    "name": "Pop's Homemade Water Ice",
+    "neighborhood": "East Passyunk",
+    "address": "1337, Oregon Avenue, Philadelphia, PA, 19148",
+    "lat": 39.916871,
+    "lng": -75.170453,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "essen-bakery",
+    "name": "Essen Bakery",
+    "cuisine": "Jewish bakery",
+    "neighborhood": "East Passyunk",
+    "address": "1437, East Passyunk Avenue, Philadelphia, PA, 19147",
+    "lat": 39.931041,
+    "lng": -75.161843,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "sabrina-s-cafe",
+    "name": "Sabrina's Cafe",
+    "cuisine": "Brunch",
+    "neighborhood": "East Passyunk",
+    "address": "910, Christian Street, Philadelphia, PA, 19147",
+    "lat": 39.938968,
+    "lng": -75.158269,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in East Passyunk. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "greenstreet-coffee-co",
+    "name": "Greenstreet Coffee Co.",
+    "neighborhood": "East Passyunk",
+    "address": "1205 South 15th Street, Philadelphia, PA 19146",
+    "lat": 39.935481,
+    "lng": -75.168924,
+    "website": "https://greenstreetcoffee.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Su 07:30-15:00",
+    "description": "Listed in East Passyunk (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "ground-up-caf-coffee",
+    "name": "Ground Up Caf\u00e9 & Coffee",
+    "neighborhood": "East Passyunk",
+    "address": "1926 East Passyunk Avenue, Philadelphia, PA 19148",
+    "lat": 39.926063,
+    "lng": -75.168123,
+    "website": "https://groundupcafeandcoffee.com",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Sa 08:00-15:00",
+    "description": "Listed in East Passyunk (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "cj-d-s-trenton-tomato-pies",
+    "name": "CJ & D's Trenton Tomato Pies",
+    "neighborhood": "East Passyunk",
+    "address": "1326 East Passyunk Avenue, Philadelphia, PA 19147",
+    "lat": 39.932695,
+    "lng": -75.160251,
+    "website": "https://www.instagram.com/cjdtomatopies/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Tu off; We 17:00-20:00; Th off; Fr 17:00-21:00; Sa off; Su 13:00-19:00",
+    "description": "Listed in East Passyunk (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "dmitri-s",
+    "name": "Dmitri's",
+    "cuisine": "Greek seafood",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "popi-s-italian-restaurant",
+    "name": "Popi's Italian Restaurant",
+    "neighborhood": "Pennsport",
+    "address": "1549, South 13th Street, Philadelphia, PA, 19147",
+    "lat": 39.930272,
+    "lng": -75.165973,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "marra-s",
+    "name": "Marra's",
+    "cuisine": "Italian",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "marrakesh",
+    "name": "Marrakesh",
+    "cuisine": "Moroccan",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "johnny-chang-s",
+    "name": "Johnny Chang's",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pennsport-pizza",
+    "name": "Pennsport Pizza",
+    "neighborhood": "Pennsport",
+    "address": "833, Wharton Street, Philadelphia, PA, 19147",
+    "lat": 39.933244,
+    "lng": -75.15896,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "mifflin-tavern",
+    "name": "Mifflin Tavern",
+    "neighborhood": "Pennsport",
+    "address": "1900, South Water Street, Philadelphia, PA, 19148",
+    "lat": 39.9237,
+    "lng": -75.14701,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "royal-boucherie",
+    "name": "Royal Boucherie",
+    "cuisine": "French brasserie",
+    "neighborhood": "Pennsport",
+    "address": "52, South 2nd Street, Philadelphia, PA, 19106",
+    "lat": 39.948715,
+    "lng": -75.144134,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "famous-4th-street-delicatessen",
+    "name": "Famous 4th Street Delicatessen",
+    "cuisine": "Jewish deli",
+    "neighborhood": "Pennsport",
+    "address": "1136, Arch Street, Philadelphia, PA, 19107",
+    "lat": 39.953069,
+    "lng": -75.159416,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jim-s-south-st",
+    "name": "Jim's South St",
+    "cuisine": "Cheesesteaks",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "dalessandro-s-steaks",
+    "name": "Dalessandro's Steaks",
+    "neighborhood": "Pennsport",
+    "address": "600, Wendover Street, Philadelphia, PA, 19128",
+    "lat": 40.029488,
+    "lng": -75.206008,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "john-s-roast-pork",
+    "name": "John's Roast Pork",
+    "cuisine": "Roast pork sandwiches",
+    "neighborhood": "Pennsport",
+    "address": "14, East Snyder Avenue, Philadelphia, PA, 19148",
+    "lat": 39.921045,
+    "lng": -75.144995,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pat-s-king-of-steaks",
+    "name": "Pat's King of Steaks",
+    "neighborhood": "Pennsport",
+    "address": "1237, East Passyunk Avenue, Philadelphia, PA, 19148",
+    "lat": 39.933222,
+    "lng": -75.159241,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "geno-s-steaks",
+    "name": "Geno's Steaks",
+    "neighborhood": "Pennsport",
+    "address": "1219, South 9th Street, Philadelphia, PA, 19147",
+    "lat": 39.933792,
+    "lng": -75.158848,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pennsport-beer-boutique",
+    "name": "Pennsport Beer Boutique",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, Pennsylvania, 19147",
+    "lat": 39.931792,
+    "lng": -75.149729,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "moonshine-philly",
+    "name": "Moonshine Philly",
+    "neighborhood": "Pennsport",
+    "address": "Philadelphia, PA, 19147",
+    "lat": 39.927671,
+    "lng": -75.14689,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Pennsport. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "rebel-and-wolf-cafe",
+    "name": "Rebel and Wolf Cafe",
+    "neighborhood": "Pennsport",
+    "address": "1700 East Moyamensing Avenue, Philadelphia, PA",
+    "lat": 39.926922,
+    "lng": -75.151458,
+    "website": "http://rebelandwolf.com",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 06:30-17:00; Sa 07:30-17:00; Su 07:30-16:00",
+    "description": "Listed in Pennsport (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "longhorn-steakhouse",
+    "name": "LongHorn Steakhouse",
+    "neighborhood": "Pennsport",
+    "address": "2120 South Christopher Columbus Boulevard, Philadelphia, PA 19148",
+    "lat": 39.919417,
+    "lng": -75.141212,
+    "website": "https://longhornsteakhouse.com/locations/pa/philadelphia/philadelphia-south-philadelphia/5235",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Th,Su 11:00-22:00; Fr-Sa 11:00-23:00",
+    "description": "Listed in Pennsport (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "miller-s-ale-house",
+    "name": "Miller's Ale House",
+    "neighborhood": "Pennsport",
+    "address": "2100 South Christopher Columbus Boulevard, Philadelphia, PA 19148",
+    "lat": 39.92024,
+    "lng": -75.141731,
+    "website": "https://millersalehouse.com/locations/south-philadelphia/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Th,Su 11:00-23:00; Fr-Sa 11:00-24:00",
+    "description": "Listed in Pennsport (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "grindcore-house",
+    "name": "Grindcore House",
+    "neighborhood": "Pennsport",
+    "address": "1515 South 4th Street, Philadelphia, PA 19147",
+    "lat": 39.929033,
+    "lng": -75.151862,
+    "website": "https://www.grindcorehouse.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 06:30-20:00; Sa-Su 08:00-20:00",
+    "description": "Listed in Pennsport (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "tacos-don-memo",
+    "name": "Tacos Don Memo",
+    "neighborhood": "Point Breeze",
+    "address": "2011, Reed Street, Philadelphia, PA, 19146",
+    "lat": 39.934312,
+    "lng": -75.177744,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "d-angelo-s-seafood",
+    "name": "D'Angelo's Seafood",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "dook-s",
+    "name": "Dook's",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "dutch-co",
+    "name": "Dutch & Co",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "sate-kampar",
+    "name": "Sate Kampar",
+    "cuisine": "Malaysian",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "tiffin",
+    "name": "Tiffin",
+    "cuisine": "Indian",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "goldie",
+    "name": "Goldie",
+    "cuisine": "Falafel",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "mood-cafe",
+    "name": "Mood Cafe",
+    "cuisine": "Chaat & lassi",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "sylvia",
+    "name": "Sylvia",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "aksum-cafe",
+    "name": "Aksum Cafe",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "le-viet",
+    "name": "Le Viet",
+    "cuisine": "Vietnamese",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "d-emilio-s",
+    "name": "D'Emilio's",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "d-angelo-s",
+    "name": "D'Angelo's",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "martha",
+    "name": "Martha",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jim-s-steaks",
+    "name": "Jim's Steaks",
+    "neighborhood": "South Street",
+    "address": "400, South Street, Philadelphia, Pennsylvania, 19147",
+    "lat": 39.941548,
+    "lng": -75.149304,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "lorenzo-s-pizza",
+    "name": "Lorenzo's Pizza",
+    "neighborhood": "South Street",
+    "address": "900, Christian Street, Philadelphia, PA, 19146",
+    "lat": 39.938917,
+    "lng": -75.157943,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "johnny-brenda-s",
+    "name": "Johnny Brenda's",
+    "cuisine": "Bar & music venue",
+    "neighborhood": "South Street",
+    "address": "1201, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.969072,
+    "lng": -75.134261,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "milkboy",
+    "name": "Milkboy",
+    "cuisine": "Bar & music venue",
+    "neighborhood": "South Street",
+    "address": "401, South Street, Philadelphia, Pennsylvania, 19147",
+    "lat": 39.941702,
+    "lng": -75.149245,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "flannel",
+    "name": "Flannel",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "nomad-pizza",
+    "name": "Nomad Pizza",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "effie-s-restaurant",
+    "name": "Effie's Restaurant",
+    "cuisine": "Greek",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "angelina-s",
+    "name": "Angelina's",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "creperie-beau-monde",
+    "name": "Creperie Beau Monde",
+    "neighborhood": "South Street",
+    "address": "100, South 21st Street, Philadelphia, PA, 19103",
+    "lat": 39.95197,
+    "lng": -75.175619,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "south-street-souvlaki",
+    "name": "South Street Souvlaki",
+    "neighborhood": "South Street",
+    "address": "509, South Street, Philadelphia, PA, 19147",
+    "lat": 39.941966,
+    "lng": -75.151079,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pho-ha-saigon",
+    "name": "Pho Ha Saigon",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "federal-donuts",
+    "name": "Federal Donuts",
+    "cuisine": "Donuts & fried chicken",
+    "neighborhood": "South Street",
+    "address": "540, South Street, Philadelphia, Pennsylvania, 19146",
+    "lat": 39.941895,
+    "lng": -75.152241,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jack-s-firehouse",
+    "name": "Jack's Firehouse",
+    "cuisine": "BBQ",
+    "neighborhood": "Fairmount",
+    "address": "2130, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.967131,
+    "lng": -75.173274,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "london-grill",
+    "name": "London Grill",
+    "neighborhood": "Fairmount",
+    "address": "2533, Poplar Street, Philadelphia, PA, 19130",
+    "lat": 39.972752,
+    "lng": -75.178976,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "kensington-quarters",
+    "name": "Kensington Quarters",
+    "neighborhood": "Fairmount",
+    "address": "1310, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.970579,
+    "lng": -75.134562,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "prohibition-taproom",
+    "name": "Prohibition Taproom",
+    "neighborhood": "Fairmount",
+    "address": "501, North 13th Street, Philadelphia, PA, 19123",
+    "lat": 39.96073,
+    "lng": -75.159457,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "urban-saloon",
+    "name": "Urban Saloon",
+    "neighborhood": "Fairmount",
+    "address": "2120, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.967062,
+    "lng": -75.172938,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "kite-key",
+    "name": "Kite & Key",
+    "cuisine": "Beer bar",
+    "neighborhood": "Fairmount",
+    "address": "1836, Callowhill Street, Philadelphia, PA, 19130",
+    "lat": 39.960396,
+    "lng": -75.169629,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "zorba-s-taverna",
+    "name": "Zorba's Taverna",
+    "neighborhood": "Fairmount",
+    "address": "2230, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.967108,
+    "lng": -75.174889,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "figs",
+    "name": "Figs",
+    "cuisine": "Mediterranean",
+    "neighborhood": "Fairmount",
+    "address": "Philadelphia, Pennsylvania, 19130",
+    "lat": 39.972335,
+    "lng": -75.181012,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "honey-s-sit-n-eat",
+    "name": "Honey's Sit N Eat",
+    "cuisine": "Brunch",
+    "neighborhood": "Fairmount",
+    "address": "800, North 4th Street, Philadelphia, PA, 19123",
+    "lat": 39.963898,
+    "lng": -75.144526,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "kensington-fish-chips",
+    "name": "Kensington Fish & Chips",
+    "neighborhood": "Fairmount",
+    "address": "Philadelphia, Pennsylvania, 19104",
+    "lat": 39.967507,
+    "lng": -75.188247,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "billy-murphy-s-irish-saloon",
+    "name": "Billy Murphy's Irish Saloon",
+    "neighborhood": "Fairmount",
+    "address": "3335, Conrad Street, Philadelphia, PA, 19129",
+    "lat": 40.010817,
+    "lng": -75.187673,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "eulogy-belgian-tavern",
+    "name": "Eulogy Belgian Tavern",
+    "cuisine": "Belgian beer bar",
+    "neighborhood": "Fairmount",
+    "address": "1700, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.966939,
+    "lng": -75.165519,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "bar-hygge",
+    "name": "Bar Hygge",
+    "cuisine": "Brewpub",
+    "neighborhood": "Fairmount",
+    "address": "1720, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.967025,
+    "lng": -75.166228,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "bufad",
+    "name": "Bufad",
+    "cuisine": "Pizza",
+    "neighborhood": "Fairmount",
+    "address": "Philadelphia, Pennsylvania, 19130",
+    "lat": 39.972335,
+    "lng": -75.181012,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jack-mcshea-s",
+    "name": "Jack McShea's",
+    "neighborhood": "Fairmount",
+    "address": "2130, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.967131,
+    "lng": -75.173274,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "the-belgian-cafe",
+    "name": "The Belgian Cafe",
+    "cuisine": "Belgian beer bar",
+    "neighborhood": "Fairmount",
+    "address": "1700, Fairmount Avenue, Philadelphia, PA, 19130",
+    "lat": 39.966939,
+    "lng": -75.165519,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "urban-farmer",
+    "name": "Urban Farmer",
+    "cuisine": "Steakhouse",
+    "neighborhood": "Fairmount",
+    "address": "700, North 22nd Street, Philadelphia, Pennsylvania, 19130",
+    "lat": 39.967558,
+    "lng": -75.174033,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "the-couch-tomato-cafe",
+    "name": "The Couch Tomato Cafe",
+    "cuisine": "Pizza & salads",
+    "neighborhood": "Fairmount",
+    "address": "102, Rector Street, Philadelphia, Pennsylvania, 19127",
+    "lat": 40.024741,
+    "lng": -75.221267,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "rybrew",
+    "name": "Rybrew",
+    "cuisine": "Sandwiches & craft beer",
+    "neighborhood": "Fairmount",
+    "address": "2600, West Girard Avenue, Philadelphia, PA, 19121",
+    "lat": 39.973844,
+    "lng": -75.179022,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "north-third",
+    "name": "North Third",
+    "neighborhood": "Northern Liberties",
+    "address": "801, North 3rd Street, Philadelphia, PA, 19123",
+    "lat": 39.963457,
+    "lng": -75.1427,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pizzeria-beddia",
+    "name": "Pizzeria Beddia",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "libertine",
+    "name": "Libertine",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "jerry-s-bar",
+    "name": "Jerry's Bar",
+    "neighborhood": "Northern Liberties",
+    "address": "129, West Laurel Street, Philadelphia, PA, 19123",
+    "lat": 39.96515,
+    "lng": -75.138885,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "cafe-la-maude",
+    "name": "Cafe La Maude",
+    "cuisine": "Brunch",
+    "neighborhood": "Northern Liberties",
+    "address": "816, North 4th Street, Philadelphia, PA, 19123",
+    "lat": 39.964263,
+    "lng": -75.144516,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "silk-city-diner",
+    "name": "Silk City Diner",
+    "cuisine": "Diner & bar",
+    "neighborhood": "Northern Liberties",
+    "address": "435, Spring Garden Street, Philadelphia, PA, 19123",
+    "lat": 39.961356,
+    "lng": -75.146105,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "yards-brewing",
+    "name": "Yards Brewing",
+    "neighborhood": "Northern Liberties",
+    "address": "500, Spring Garden Street, Philadelphia, PA, 19123",
+    "lat": 39.960644,
+    "lng": -75.147227,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "urban-village-brewing",
+    "name": "Urban Village Brewing",
+    "neighborhood": "Northern Liberties",
+    "address": "1001, North 2nd Street, Philadelphia, PA, 19123",
+    "lat": 39.96705,
+    "lng": -75.139846,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "wm-mulherin-s-sons",
+    "name": "Wm. Mulherin's Sons",
+    "cuisine": "Italian",
+    "neighborhood": "Northern Liberties",
+    "address": "1355, North Front Street, Philadelphia, PA, 19122",
+    "lat": 39.971722,
+    "lng": -75.135052,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "stock",
+    "name": "Stock",
+    "cuisine": "Southeast Asian",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "winkel",
+    "name": "Winkel",
+    "cuisine": "Dutch brunch",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "cafe-ole",
+    "name": "Cafe Ole",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "one-shot-coffee",
+    "name": "One Shot Coffee",
+    "neighborhood": "Northern Liberties",
+    "address": "217, West George Street, Philadelphia, PA, 19123",
+    "lat": 39.967654,
+    "lng": -75.140695,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "la-colombe-coffee",
+    "name": "La Colombe Coffee",
+    "neighborhood": "Northern Liberties",
+    "address": "1335, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.971229,
+    "lng": -75.134283,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "spot-gourmet-burger",
+    "name": "SpOt Gourmet Burger",
+    "neighborhood": "Northern Liberties",
+    "address": "2821, West Girard Avenue, Philadelphia, PA, 19130",
+    "lat": 39.974578,
+    "lng": -75.182596,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "pizza-brain",
+    "name": "Pizza Brain",
+    "neighborhood": "Northern Liberties",
+    "address": "Philadelphia, Pennsylvania, 19123",
+    "lat": 39.965049,
+    "lng": -75.141855,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "2nd-story-brewing",
+    "name": "2nd Story Brewing",
+    "neighborhood": "Northern Liberties",
+    "address": "1001, North 2nd Street, Philadelphia, PA, 19123",
+    "lat": 39.96705,
+    "lng": -75.139846,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Northern Liberties. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "suraya",
+    "name": "Suraya",
+    "cuisine": "Lebanese",
+    "neighborhood": "Fishtown",
+    "address": "1528, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.973728,
+    "lng": -75.133906,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "riverwards-produce",
+    "name": "Riverwards Produce",
+    "neighborhood": "Fishtown",
+    "address": "2200, East Norris Street, Philadelphia, PA, 19125",
+    "lat": 39.978086,
+    "lng": -75.129941,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "cheu-fishtown",
+    "name": "Cheu Fishtown",
+    "cuisine": "Ramen & noodles",
+    "neighborhood": "Fishtown",
+    "address": "1416, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.972264,
+    "lng": -75.134614,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "fette-sau",
+    "name": "Fette Sau",
+    "cuisine": "BBQ",
+    "neighborhood": "Fishtown",
+    "address": "Frankford Avenue, Philadelphia, Pennsylvania, 19125",
+    "lat": 39.969279,
+    "lng": -75.134655,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "memphis-taproom",
+    "name": "Memphis Taproom",
+    "neighborhood": "Fishtown",
+    "address": "Philadelphia, Pennsylvania, 19125",
+    "lat": 39.979365,
+    "lng": -75.125134,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "evil-genius-beer-company",
+    "name": "Evil Genius Beer Company",
+    "neighborhood": "Fishtown",
+    "address": "1727, North Front Street, Philadelphia, PA, 19125",
+    "lat": 39.975748,
+    "lng": -75.133873,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "frankford-hall",
+    "name": "Frankford Hall",
+    "cuisine": "Beer garden",
+    "neighborhood": "Fishtown",
+    "address": "1524, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.973591,
+    "lng": -75.133936,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "blue-catfish",
+    "name": "Blue Catfish",
+    "neighborhood": "Fishtown",
+    "address": "1526, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.973667,
+    "lng": -75.133981,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "little-baby-s-ice-cream",
+    "name": "Little Baby's Ice Cream",
+    "neighborhood": "Fishtown",
+    "address": "2309, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.980655,
+    "lng": -75.128245,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "reanimator-coffee",
+    "name": "ReAnimator Coffee",
+    "neighborhood": "Fishtown",
+    "address": "1523, East Susquehanna Avenue, Philadelphia, PA, 19125",
+    "lat": 39.97649,
+    "lng": -75.127022,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "el-compadre",
+    "name": "El Compadre",
+    "cuisine": "Mexican",
+    "neighborhood": "Fishtown",
+    "address": "1431, Frankford Avenue, Philadelphia, PA, 19125",
+    "lat": 39.973131,
+    "lng": -75.133764,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "sally",
+    "name": "Sally",
+    "cuisine": "Pizza",
+    "neighborhood": "Fishtown",
+    "address": "Philadelphia, Pennsylvania, 19125",
+    "lat": 39.973256,
+    "lng": -75.130408,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fishtown. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "la-colombe-coffee-roasters",
+    "name": "La Colombe Coffee Roasters",
+    "neighborhood": "Fishtown",
+    "address": "1335 Frankford Avenue, Philadelphia, PA 19125",
+    "lat": 39.971229,
+    "lng": -75.134283,
+    "website": "https://www.lacolombe.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Su-Th 07:00-19:00, Fr-Sa 07:00-21:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "love-honey-fried-chicken",
+    "name": "Love & Honey Fried Chicken",
+    "neighborhood": "Fishtown",
+    "address": "1100 North Front Street, Philadelphia, PA 19123",
+    "lat": 39.967412,
+    "lng": -75.136905,
+    "website": "https://www.loveandhoneyfriedchicken.com/northern-liberties-philly",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Su 11:00-21:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "moustaki-authentic-gyros",
+    "name": "Moustaki Authentic Gyros",
+    "neighborhood": "Fishtown",
+    "address": "335 East Girard Avenue, Philadelphia, PA 19125",
+    "lat": 39.97033,
+    "lng": -75.130661,
+    "website": "https://www.moustakigyro.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Su 11:00-21:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "sanctuary-the-saint",
+    "name": "Sanctuary @ the Saint",
+    "neighborhood": "Fishtown",
+    "address": "102 West Girard Avenue, Philadelphia, PA",
+    "lat": 39.968695,
+    "lng": -75.136441,
+    "website": "https://www.facebook.com/Sanctuary215",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 00:00-02:00,14:00-24:00; Sa,Su 00:00-03:30,14:00-24:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "philly-style-bagels",
+    "name": "Philly Style Bagels",
+    "neighborhood": "Fishtown",
+    "address": "Philly Style Bagels, Philadelphia, PA",
+    "lat": 39.974454,
+    "lng": -75.132646,
+    "website": "https://www.phillystylebagels.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo, We-Fr 07:00-13:00; Sa-Su 08:00-14:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "persimmon-coffee",
+    "name": "Persimmon Coffee",
+    "neighborhood": "Fishtown",
+    "address": "11 West Girard Avenue, Philadelphia, PA 19123",
+    "lat": 39.968885,
+    "lng": -75.134859,
+    "website": "http://persimmoncoffee.com",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 08:00-15:00; Sa-Su 08:00-16:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "pasha-s-halal-food",
+    "name": "Pasha's Halal Food",
+    "neighborhood": "Fishtown",
+    "address": "Pasha's Halal Food, Philadelphia, PA",
+    "lat": 39.976107,
+    "lng": -75.138299,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Sa 10:00-22:00",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "cedar-point-bar-kitchen",
+    "name": "Cedar Point Bar & Kitchen",
+    "neighborhood": "Fishtown",
+    "address": "2370 East Norris Street, Philadelphia, PA 19125-1970",
+    "lat": 39.97688,
+    "lng": -75.127701,
+    "website": "https://www.cedarpointbarandkitchen.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Listed in Fishtown (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "kura-revolving-sushi-bar",
+    "name": "Kura Revolving Sushi Bar",
+    "neighborhood": "Rittenhouse",
+    "address": "1721, Chestnut Street, Philadelphia, Pennsylvania, 19103",
+    "lat": 39.951821,
+    "lng": -75.169598,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "tria-rittenhouse",
+    "name": "Tria Rittenhouse",
+    "cuisine": "Wine bar",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "buena-onda",
+    "name": "Buena Onda",
+    "cuisine": "Tacos",
+    "neighborhood": "Rittenhouse",
+    "address": "1901, Callowhill Street, Philadelphia, PA, 19130",
+    "lat": 39.960806,
+    "lng": -75.170792,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "huda",
+    "name": "Huda",
+    "cuisine": "Sandwiches",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "tequilas",
+    "name": "Tequilas",
+    "cuisine": "Mexican",
+    "neighborhood": "Rittenhouse",
+    "address": "1800, Market Street, Philadelphia, PA, 19103",
+    "lat": 39.952834,
+    "lng": -75.170303,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "isgro-pastries",
+    "name": "Isgro Pastries",
+    "cuisine": "Italian bakery",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "termini-brothers-bakery",
+    "name": "Termini Brothers Bakery",
+    "cuisine": "Italian bakery",
+    "neighborhood": "South Street",
+    "address": "1523-25, South 8th Street, Philadelphia, PA, 19147",
+    "lat": 39.929827,
+    "lng": -75.158049,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "buddakan",
+    "name": "Buddakan",
+    "cuisine": "Pan-Asian",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "morimoto",
+    "name": "Morimoto",
+    "cuisine": "Sushi",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "ralph-s-italian-restaurant",
+    "name": "Ralph's Italian Restaurant",
+    "neighborhood": "South Street",
+    "address": "760, South 9th Street, Philadelphia, PA, 19147",
+    "lat": 39.940255,
+    "lng": -75.157648,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "penang",
+    "name": "Penang",
+    "cuisine": "Malaysian",
+    "neighborhood": "South Street",
+    "address": "1020, South Street, Philadelphia, PA, 19147",
+    "lat": 39.942768,
+    "lng": -75.159409,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in South Street. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "the-couch-tomato-cafe-fairmount",
+    "name": "The Couch Tomato Cafe Fairmount",
+    "cuisine": "Pizza & salads",
+    "neighborhood": "Fairmount",
+    "address": "102, Rector Street, Philadelphia, Pennsylvania, 19127",
+    "lat": 40.024741,
+    "lng": -75.221267,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Fairmount. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "ken-shin-asian-diner",
+    "name": "Ken Shin Asian Diner",
+    "neighborhood": "Northern Liberties",
+    "address": "301 Spring Garden Street, Philadelphia, PA 19123",
+    "lat": 39.961044,
+    "lng": -75.143538,
+    "website": "https://www.kenshinpa.comer.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 11:00-22:00; Sa 12:00-23:00; Su off",
+    "description": "Listed in Northern Liberties (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "d-oliva-evoo-pizza-grill",
+    "name": "D\u2019Oliva evoo Pizza & Grill",
+    "neighborhood": "Northern Liberties",
+    "address": "1009 North Bodine Street, Philadelphia, PA 19123",
+    "lat": 39.967259,
+    "lng": -75.141431,
+    "website": "https://dolivapizza.com",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Th 10:00-22:00, Fr-Sa 10:00-23:00, Su 12:00-22:00",
+    "description": "Listed in Northern Liberties (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "urban-village-brewing-company",
+    "name": "Urban Village Brewing Company",
+    "neighborhood": "Northern Liberties",
+    "address": "1001 North 2nd Street, Philadelphia, PA 19123",
+    "lat": 39.96705,
+    "lng": -75.139846,
+    "website": "https://www.urbanvillagebrewing.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Su 11:00-02:00",
+    "description": "Listed in Northern Liberties (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "booker-s-restaurant",
+    "name": "Booker's Restaurant",
+    "cuisine": "Southern",
+    "neighborhood": "Point Breeze",
+    "address": "5021, Baltimore Avenue, Philadelphia, PA, 19143",
+    "lat": 39.94799,
+    "lng": -75.224253,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "african-small-pot",
+    "name": "African Small Pot",
+    "cuisine": "West African",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "the-side-stall",
+    "name": "The Side Stall",
+    "neighborhood": "Point Breeze",
+    "address": "1348, South Bouvier Street, Philadelphia, Pennsylvania",
+    "lat": 39.933986,
+    "lng": -75.173742,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "essen-bakery-point-breeze",
+    "name": "Essen Bakery Point Breeze",
+    "cuisine": "Jewish bakery",
+    "neighborhood": "Point Breeze",
+    "address": "Philadelphia, Pennsylvania, 19146",
+    "lat": 39.933446,
+    "lng": -75.177956,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Popular pick in Point Breeze. Verify hours before visiting.",
+    "meal": "both"
+  },
+  {
+    "id": "lazaro-s-pizzeria-grill",
+    "name": "Lazaro's Pizzeria & Grill",
+    "neighborhood": "South Street",
+    "address": "1743 South Street, Philadelphia, PA 19146",
+    "lat": 39.944506,
+    "lng": -75.171726,
+    "website": "https://www.lazarospizzeriagrill.com",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Th 11:00-20:45; Fr-Sa 11:00-21:45; Su 12:00-20:45",
+    "description": "Listed in South Street (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "rival-bros-coffee-bar",
+    "name": "Rival Bros Coffee Bar",
+    "neighborhood": "South Street",
+    "address": "2400 Lombard Street, Philadelphia, PA 19146",
+    "lat": 39.946485,
+    "lng": -75.180673,
+    "website": "https://www.rivalbros.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 07:00-17:00; Sa,Su 08:00-17:00",
+    "description": "Listed in South Street (OpenStreetMap / local picks). Verify hours and menu.",
+    "meal": "both"
+  },
+  {
+    "id": "green-eggs-cafe-point-breeze",
+    "name": "Green Eggs Cafe",
+    "neighborhood": "Point Breeze",
+    "address": "Dickinson St, Philadelphia, PA",
+    "lat": 39.931364,
+    "lng": -75.166443,
+    "website": "https://greeneggsnham.com/",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "listings",
+    "hoursNote": "Hours unconfirmed \u2014 check website before visiting.",
+    "description": "Brunch-heavy cafe in Point Breeze (popular pancakes and benedicts).",
+    "meal": "lunch"
+  },
+  {
+    "id": "starbucks-39-947882",
+    "name": "Starbucks",
+    "neighborhood": "Rittenhouse",
+    "address": "1801 Spruce Street, Philadelphia, PA 19103",
+    "lat": 39.947882,
+    "lng": -75.171278,
+    "website": "https://www.starbucks.com/store-locator/store/90334/18th-spruce-1801-spruce-street-philadelphia-pa-191035803-us",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: 05:30-20:00",
+    "description": "Starbucks (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "starbucks-39-952529",
+    "name": "Starbucks",
+    "neighborhood": "Rittenhouse",
+    "address": "1500 Market Street, Philadelphia, PA 19102",
+    "lat": 39.952529,
+    "lng": -75.166717,
+    "website": "https://www.starbucks.com/store-locator/store/17702/16th-market-1500-market-street-suite-465-philadelphia-pa-19102",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 06:00-18:00; Sa 07:00-17:00; Su 06:30-15:30",
+    "description": "Starbucks (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "starbucks-39-94965",
+    "name": "Starbucks",
+    "neighborhood": "Rittenhouse",
+    "address": "1528 Walnut Street, Philadelphia, PA 19102",
+    "lat": 39.94965,
+    "lng": -75.167432,
+    "website": "https://www.starbucks.com/store-locator/store/15881",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 05:00-20:00; Sa-Su 06:00-20:00",
+    "description": "Starbucks (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "starbucks-39-95193",
+    "name": "Starbucks",
+    "neighborhood": "Rittenhouse",
+    "address": "1 South 15th Street, Philadelphia, PA 19102",
+    "lat": 39.95193,
+    "lng": -75.16473,
+    "website": "https://www.starbucks.com/store-locator/store/1025027/dilworth-park-1-s-15th-street-philadelphia-pa-19102-us",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 07:00-17:00; Sa-Su 09:00-17:00",
+    "description": "Starbucks (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "chipotle-39-94956",
+    "name": "Chipotle",
+    "neighborhood": "Rittenhouse",
+    "address": "1512 Walnut Street, Philadelphia, PA 19103",
+    "lat": 39.94956,
+    "lng": -75.166659,
+    "website": "https://locations.chipotle.com/pa/philadelphia/1512-walnut-street",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: 10:45-23:00",
+    "description": "Chipotle (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "chipotle-39-9523",
+    "name": "Chipotle",
+    "neighborhood": "Rittenhouse",
+    "address": "1625 Chestnut Street, Philadelphia, PA 19103",
+    "lat": 39.9523,
+    "lng": -75.168384,
+    "website": "https://locations.chipotle.com/pa/philadelphia/1625-chestnut-st",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 11:00-18:00; Sa 11:00-19:00; Su 12:00-18:00",
+    "description": "Chipotle (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-951218",
+    "name": "Dunkin'",
+    "neighborhood": "Rittenhouse",
+    "address": "1509 Chestnut Street, Philadelphia, PA 19102",
+    "lat": 39.951218,
+    "lng": -75.166002,
+    "website": "https://locations.dunkindonuts.com/en/pa/philadelphia/1509-chestnut-st/353149",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Sa 05:00-19:00; Su 06:00-17:30",
+    "description": "Dunkin' (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-950575",
+    "name": "Dunkin'",
+    "neighborhood": "Rittenhouse",
+    "address": "117 South 16th Street, Philadelphia, PA 19102",
+    "lat": 39.950575,
+    "lng": -75.167227,
+    "website": "https://locations.dunkindonuts.com/en/pa/philadelphia/117-south-16th-street/301935",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Fr 05:00-19:00; Sa 05:30-18:00; Su 05:00-18:00",
+    "description": "Dunkin' (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "starbucks-39-945633",
+    "name": "Starbucks",
+    "neighborhood": "Rittenhouse",
+    "address": "337-341 South Broad Street, Philadelphia, PA 19107",
+    "lat": 39.945633,
+    "lng": -75.16483,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Starbucks (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "taco-bell-39-951258",
+    "name": "Taco Bell",
+    "neighborhood": "Rittenhouse",
+    "address": "Taco Bell, Philadelphia, PA",
+    "lat": 39.951258,
+    "lng": -75.167886,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Taco Bell (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-952179",
+    "name": "Dunkin'",
+    "neighborhood": "Rittenhouse",
+    "address": "Dunkin', Philadelphia, PA",
+    "lat": 39.952179,
+    "lng": -75.173575,
+    "website": "",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Dunkin' (Rittenhouse). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-931602",
+    "name": "Dunkin'",
+    "neighborhood": "East Passyunk",
+    "address": "1401 South 10th Street, Philadelphia, PA 19147",
+    "lat": 39.931602,
+    "lng": -75.16073,
+    "website": "https://locations.dunkindonuts.com/en/pa/philadelphia/1401-s-10th-st/300898",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: 24/7",
+    "description": "Dunkin' (East Passyunk). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-92481",
+    "name": "Dunkin'",
+    "neighborhood": "East Passyunk",
+    "address": "2025 South Broad Street, Philadelphia, PA 19148",
+    "lat": 39.92481,
+    "lng": -75.169201,
+    "website": "https://locations.dunkindonuts.com/en/pa/philadelphia/2025-s.-broad-st/304485",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Dunkin' (East Passyunk). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "domino-s-39-962273",
+    "name": "Domino's",
+    "neighborhood": "Fairmount",
+    "address": "401 North 21st Street, Philadelphia, PA 19130",
+    "lat": 39.962273,
+    "lng": -75.172794,
+    "website": "https://pizza.dominos.com/pennsylvania/philadelphia/401-north-21st--street",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo-Th 10:00-03:00; Fr-Sa 10:00-04:00; Su 10:00-03:00",
+    "description": "Domino's (Fairmount). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "starbucks-39-960895",
+    "name": "Starbucks",
+    "neighborhood": "Fairmount",
+    "address": "1945 Callowhill Street, Philadelphia, PA 19130",
+    "lat": 39.960895,
+    "lng": -75.171446,
+    "website": "https://www.starbucks.com/store-locator/store/8981/callowhill-street-1945-callowhill-street-philadelphia-pa-191304171-u",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
+    "description": "Starbucks (Fairmount). Chain location from OpenStreetMap.",
+    "meal": "both"
+  },
+  {
+    "id": "dunkin-39-96134",
+    "name": "Dunkin'",
+    "neighborhood": "Northern Liberties",
+    "address": "329 Spring Garden Street, Philadelphia, PA 19123",
+    "lat": 39.96134,
+    "lng": -75.144386,
+    "website": "https://locations.dunkindonuts.com/en/pa/philadelphia/329-spring-garden/343026",
+    "instagramUrl": "",
+    "hours": {},
+    "hoursSource": "osm",
+    "hoursNote": "OSM hours: Mo 06:00-19:00; Tu-Fr 05:30-19:00; Sa-Su 06:00-15:00",
+    "description": "Dunkin' (Northern Liberties). Chain location from OpenStreetMap.",
+    "meal": "both"
+  }
+]

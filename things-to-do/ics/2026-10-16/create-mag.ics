@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//mathoose cursor-apps//Local Events//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Philly Friday Oct 16
+BEGIN:VTIMEZONE
+TZID:America/New_York
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0400
+TZNAME:EDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0400
+TZOFFSETTO:-0500
+TZNAME:EST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:create-mag-20261016@mathoose-local-events
+DTSTAMP:20261016T120000Z
+DTSTART;TZID=America/New_York:20261016T180000
+DTEND;TZID=America/New_York:20261016T200000
+SUMMARY:Create! Magazine Turns 10
+LOCATION:Paradigm Gallery + Studio\, 12 N 3rd Street\, Philadelphia\, PA 19
+ 106
+DESCRIPTION:Tenth-anniversary pop-up with PxP Contemporary.\nPrice: Free\nF
+ ree pop-up and meet-up. RSVP required for capacity. Optional donation on t
+ he Eventbrite page.\nTickets: https://www.eventbrite.com/e/create-magazine
+ -turns-10-pop-up-show-meet-up-tickets-2001784728008\nWebsite: https://www.
+ paradigmarts.org/\nSource: https://www.instagram.com/p/Deh6FJ3lD87/
+URL:https://www.paradigmarts.org/
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

@@ -2,8 +2,8 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "4 · Aug 30, 2026";
-  var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html.";
+  var APP_VERSION = "7 · Oct 28, 2026";
+  var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html or tank tracker v2.";
   var BACKUP_KEYS = [
     "tanks",
     "tasks",
@@ -13,6 +13,13 @@
     "seriesProfiles",
     "drbEntries",
     "drbNotes",
+    "emails",
+    "mailItems",
+    "mailLinks",
+    "outlookMessages",
+    "activity",
+    "productLines",
+    "results",
   ];
   var LARGE_BYTES = 150 * 1024 * 1024;
   var IDB_NAME = "trackerViewer";
@@ -32,6 +39,7 @@
   var detailId = null;
   var returnTab = null;
   var searches = { todo: "", processes: "", projects: "", batches: "", drb: "" };
+  var selectedBatchKey = "";
   var pendingFile = null;
   var toastTimer = null;
 
@@ -159,14 +167,38 @@
     return firstText(tank, ["stage", "status"]);
   }
 
+  function batchIsActive(tank) {
+    if (!tank) return false;
+    if (tank.active === false || tank.isActive === false || tank.live === false) return false;
+    if (tank.active === true || tank.live === true) return true;
+    if (text(tank.dateFinished)) return false;
+    var status = text(tank.status).toLowerCase();
+    if (/^(closed|complete|completed|archived|finished|done|shipped|inactive)$/.test(status)) return false;
+    return true;
+  }
+
+  function batchOptionLabel(tank) {
+    var parts = [];
+    var lot = usawLabel(tank);
+    if (lot) parts.push(lot);
+    else parts.push("Tank " + (tank.tankNumber || "—"));
+    var product = batchProduct(tank);
+    if (product) parts.push(product);
+    var stage = batchStage(tank);
+    if (stage) parts.push(stage);
+    if (tank.tankNumber && lot) parts.push("Tank " + tank.tankNumber);
+    return parts.join(" · ");
+  }
+
   function lastCommentText(tank) {
-    var comments = sortByCreatedDesc(tank && tank.comments);
-    for (var i = 0; i < comments.length; i++) {
-      if (text(comments[i] && comments[i].text)) return text(comments[i].text);
-    }
-    var adjs = sortByCreatedDesc(tank && tank.adjustments);
-    for (var j = 0; j < adjs.length; j++) {
-      var note = firstText(adjs[j], ["note", "commentAfter", "commentBefore"]);
+    var acts = collectTankActivity(tank);
+    for (var i = acts.length - 1; i >= 0; i--) {
+      var raw = acts[i].raw || {};
+      if (acts[i].kind === "email") {
+        var sub = firstText(raw, ["subject", "title"]);
+        if (sub) return sub;
+      }
+      var note = firstText(raw, ["text", "note", "commentAfter", "commentBefore", "preview"]);
       if (note) return note;
     }
     return "";
@@ -765,6 +797,356 @@
       : '<span class="check off" aria-hidden="true">☐</span>';
   }
 
+  function stripHtml(value) {
+    return String(value == null ? "" : value)
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function eventTime(item) {
+    if (!item || typeof item !== "object") return "";
+    return (
+      item.createdAt ||
+      item.receivedTime ||
+      item.receivedAt ||
+      item.sentTime ||
+      item.sentAt ||
+      item.date ||
+      item.timestamp ||
+      item.when ||
+      item.updatedAt ||
+      ""
+    );
+  }
+
+  function extractOutlookItemId(mail, web) {
+    var keys = ["immutableId", "graphId", "outlookItemId", "itemId", "entryId", "restId"];
+    var i;
+    for (i = 0; i < keys.length; i++) {
+      var v = text(mail && mail[keys[i]]);
+      if (v && v.length > 16 && !/^mail-?\d+$/i.test(v) && !/^email-?\d+$/i.test(v)) return v;
+    }
+    var url = String(web || "");
+    var m = url.match(/deeplink\/read\/([^/?#]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    m = url.match(/\/mail\/(?:inbox\/)?id\/([^/?#]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    m = url.match(/[?&](?:itemid|ItemID|restid)=([^&]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    return "";
+  }
+
+  function outlookHref(mail) {
+    if (!mail) return "";
+    var web = firstText(mail, [
+      "webLink",
+      "webUrl",
+      "outlookWebLink",
+      "owaUrl",
+      "owaLink",
+      "deeplink",
+      "deepLink",
+      "outlookUrl",
+      "officeUrl",
+      "url",
+      "href",
+      "link",
+    ]);
+    if (/^ms-outlook:/i.test(web)) return web;
+    var iid = firstText(mail, ["internetMessageId", "internetMessageID", "rfc822Id", "rfc822MessageId", "messageId"]);
+    if (iid && /@/.test(iid)) {
+      return "ms-outlook://emails/message/" + encodeURIComponent(iid.replace(/^<|>$/g, ""));
+    }
+    var itemId = extractOutlookItemId(mail, web);
+    if (itemId) {
+      return "ms-outlook://emails/message/" + encodeURIComponent(itemId);
+    }
+    return "";
+  }
+
+  function emailBodyText(mail) {
+    var body = firstText(mail, ["bodyText", "body", "preview", "snippet", "text", "summary"]);
+    if (body) return body;
+    if (mail && mail.bodyHtml) return stripHtml(mail.bodyHtml);
+    if (mail && mail.html) return stripHtml(mail.html);
+    return "";
+  }
+
+  function activityKind(item, fallback) {
+    if (!item || typeof item !== "object") return fallback || "comment";
+    var t = text(item.type || item.kind || item.entryType || item.category || item.eventType || fallback).toLowerCase();
+    if (
+      /email|mail|outlook|message/.test(t) ||
+      item.subject ||
+      item.internetMessageId ||
+      item.webLink ||
+      item.bodyText
+    ) {
+      if (item.subject || item.internetMessageId || item.webLink || /email|mail|outlook/.test(t)) return "email";
+    }
+    if (/result|reading|measurement|lab|viscosity|solids|spc|qc\b/.test(t)) return "result";
+    if (item.chemLines || item.totalAdjustmentKg != null || /adjust|addition|ps\b|chem/.test(t)) return "adjustment";
+    if (/comment|note|log/.test(t)) return "comment";
+    if (fallback) return fallback;
+    if (item.commentBefore || item.commentAfter || item.startingValue != null) return "adjustment";
+    return "comment";
+  }
+
+  function looksLikeEmail(item) {
+    return activityKind(item, "") === "email";
+  }
+
+  function allEmails() {
+    var d = dataOf();
+    var out = [];
+    ["emails", "mailItems", "mailLinks", "outlookMessages", "linkedEmails"].forEach(function (k) {
+      asArray(d[k]).forEach(function (m) {
+        if (m) out.push(m);
+      });
+    });
+    asArray(d.projects).forEach(function (proj) {
+      asArray(proj && proj.mailLinks).forEach(function (m) {
+        if (m) out.push(m);
+      });
+    });
+    asArray(d.tanks).forEach(function (tank) {
+      ["emails", "mailLinks", "linkedEmails", "outlookMessages", "mailItems"].forEach(function (k) {
+        asArray(tank && tank[k]).forEach(function (m) {
+          if (m) out.push(m);
+        });
+      });
+    });
+    return out;
+  }
+
+  function emailDedupeKey(mail) {
+    return (
+      firstText(mail, ["id", "internetMessageId", "webLink", "itemId", "graphId"]) ||
+      [firstText(mail, ["subject"]), eventTime(mail), firstText(mail, ["senderName", "from"])].join("|")
+    );
+  }
+
+  function lotish(value) {
+    return normalizeLot(value);
+  }
+
+  function emailsForTank(tank) {
+    if (!tank) return [];
+    var tankId = itemId(tank, "");
+    var lot = lotish(tank.usawLot || tank.lotNumber || tank.lot);
+    var product = normalizeLot(batchProduct(tank) || tank.productLine || tank.materialSeries);
+    var tankNo = text(tank.tankNumber);
+    var seen = {};
+    var out = [];
+    allEmails().forEach(function (mail) {
+      if (!looksLikeEmail(mail) && !mail.subject && !mail.webLink) return;
+      var key = emailDedupeKey(mail);
+      if (seen[key]) return;
+      var match = false;
+      if (tankId && String(mail.tankId || mail.batchId || mail.tank) === tankId) match = true;
+      if (!match && tankNo && String(mail.tankNumber || "") === tankNo) match = true;
+      var mailLot = lotish(mail.lot || mail.lotNumber || mail.usawLot || mail.usaw);
+      if (!match && lot && mailLot && lotsMatch(lot, mailLot)) match = true;
+      var mailProd = normalizeLot(mail.product || mail.productLine || mail.materialSeries || mail.series);
+      if (!match && product && mailProd && mailProd === product) match = true;
+      if (!match) return;
+      seen[key] = 1;
+      out.push(mail);
+    });
+    return out;
+  }
+
+  function collectTankActivity(tank) {
+    if (!tank) return [];
+    var items = [];
+    var seen = {};
+    function push(kind, raw) {
+      if (!raw || typeof raw !== "object") return;
+      var key =
+        (raw.id != null ? String(raw.id) : "") ||
+        kind + ":" + eventTime(raw) + ":" + firstText(raw, ["subject", "text", "type", "title", "note"]);
+      if (seen[key]) return;
+      seen[key] = 1;
+      items.push({
+        kind: activityKind(raw, kind),
+        raw: raw,
+        at: eventTime(raw),
+      });
+    }
+    ["activity", "timeline", "events", "history"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (ev) {
+        push((ev && (ev.kind || ev.type)) || "comment", ev);
+      });
+    });
+    asArray(tank.adjustments).forEach(function (a) {
+      push("adjustment", a);
+    });
+    ["results", "labResults", "measurements", "readings", "spcResults", "qcResults"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (r) {
+        push("result", r);
+      });
+    });
+    ["emails", "mailLinks", "linkedEmails", "outlookMessages", "mailItems"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (m) {
+        push("email", m);
+      });
+    });
+    asArray(tank.comments).forEach(function (c) {
+      push("comment", c);
+    });
+    emailsForTank(tank).forEach(function (m) {
+      push("email", m);
+    });
+    function pushFixed(kind, raw) {
+      if (!raw || typeof raw !== "object") return;
+      var key =
+        "fixed:" +
+        kind +
+        ":" +
+        (raw.id != null ? String(raw.id) : eventTime(raw) + firstText(raw, ["title", "text", "materialName", "subject"]));
+      if (seen[key]) return;
+      seen[key] = 1;
+      items.push({ kind: kind, raw: raw, at: eventTime(raw) || raw.date || raw.dueDate || "" });
+    }
+    var tankId = itemId(tank, "");
+    asArray(lists().drb).forEach(function (entry) {
+      if (lotsMatch(tank.usawLot, entry.lotNumber) || (tankId && String(entry.tankId || "") === tankId)) {
+        pushFixed("drb", entry);
+      }
+    });
+    asArray(lists().tasks).forEach(function (task) {
+      var hit =
+        (tankId && String(task.tankId || "") === tankId) ||
+        (text(tank.tankNumber) && String(task.tankNumber || "") === text(tank.tankNumber));
+      if (hit) pushFixed("task", task);
+    });
+    items.sort(function (a, b) {
+      return new Date(a.at || 0) - new Date(b.at || 0);
+    });
+    return items;
+  }
+
+  function resultSummary(item) {
+    var label = firstText(item, ["type", "kind", "title", "name", "test", "parameter", "metric"]) || "Result";
+    var value = firstText(item, ["value", "reading", "result", "actual", "actualResult", "measured"]);
+    var unit = firstText(item, ["unit", "units"]);
+    if (value && unit && value.indexOf(unit) === -1) value = value + " " + unit;
+    if (value && label) return label + " · " + value;
+    return value || label;
+  }
+
+  function emailCardHtml(mail) {
+    var href = outlookHref(mail);
+    var subject = firstText(mail, ["subject", "title", "name"]) || "(no subject)";
+    var from = firstText(mail, ["senderName", "fromName", "from", "fromAddress", "sender", "fromEmail"]);
+    var when = formatDateTime(eventTime(mail));
+    var body = emailBodyText(mail);
+    var html = '<div class="activity-card kind-email">';
+    html += '<div class="activity-kind">Email</div>';
+    html += '<div class="activity-title">' + esc(subject) + "</div>";
+    html += '<div class="entry-time">' + esc([from, when].filter(Boolean).join(" · ")) + "</div>";
+    if (body) html += '<div class="activity-body">' + nl(clip(body, 1600)) + "</div>";
+    if (href) {
+      html +=
+        '<a class="outlook-link" href="' +
+        esc(href) +
+        '">Open in Outlook</a>';
+    } else {
+      html += '<div class="muted activity-missing-link">No Outlook link in this export</div>';
+    }
+    html += "</div>";
+    return html;
+  }
+
+  function activityCardHtml(entry) {
+    var kind = entry.kind;
+    var raw = entry.raw;
+    if (kind === "email") return emailCardHtml(raw);
+    if (kind === "adjustment") {
+      var htmlAdj = '<div class="activity-card kind-adjustment">';
+      htmlAdj += '<div class="activity-kind">Adjustment</div>';
+      htmlAdj += "<strong>" + esc(firstText(raw, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
+      if (entry.at) htmlAdj += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+      htmlAdj += recordFieldsHtml(raw, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
+      htmlAdj += photoHtml(raw.imageData, raw.imageName, raw.imageName ? "Photo — " + raw.imageName : "Photo — adjustment");
+      htmlAdj += "</div>";
+      return htmlAdj;
+    }
+    if (kind === "result") {
+      var htmlRes = '<div class="activity-card kind-result">';
+      htmlRes += '<div class="activity-kind">Result</div>';
+      htmlRes += "<strong>" + esc(resultSummary(raw)) + "</strong>";
+      if (entry.at) htmlRes += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+      htmlRes += recordFieldsHtml(raw, {
+        id: 1,
+        type: 1,
+        kind: 1,
+        title: 1,
+        name: 1,
+        createdAt: 1,
+        imageName: 1,
+        value: 1,
+        reading: 1,
+        result: 1,
+        unit: 1,
+        units: 1,
+      });
+      htmlRes += photoHtml(raw.imageData, raw.imageName, "Photo — result");
+      htmlRes += "</div>";
+      return htmlRes;
+    }
+    if (kind === "drb") {
+      var htmlDrb = '<div class="activity-card kind-drb">';
+      htmlDrb += '<div class="activity-kind">DRB</div>';
+      htmlDrb += "<strong>" + esc(drbMaterialTitle(raw)) + "</strong>";
+      if (entry.at) htmlDrb += '<div class="entry-time">' + esc(formatDate(entry.at) || formatDateTime(entry.at)) + "</div>";
+      if (text(raw.issue || raw.classification)) {
+        htmlDrb += "<div>" + esc([raw.classification, raw.issue].filter(Boolean).join(" · ")) + "</div>";
+      }
+      htmlDrb += "</div>";
+      return htmlDrb;
+    }
+    if (kind === "task") {
+      var htmlTask = '<div class="activity-card kind-task">';
+      htmlTask += '<div class="activity-kind">Linked to-do</div>';
+      htmlTask += "<strong>" + esc(firstText(raw, ["title", "text", "name", "waitingFor"]) || "Task") + "</strong>";
+      if (entry.at) htmlTask += '<div class="entry-time">' + esc(formatDate(entry.at) || formatDateTime(entry.at)) + "</div>";
+      htmlTask += "</div>";
+      return htmlTask;
+    }
+    var htmlNote = '<div class="activity-card kind-comment">';
+    htmlNote += '<div class="activity-kind">Note</div>';
+    if (entry.at) htmlNote += '<div class="entry-time">' + esc(formatDateTime(entry.at)) + "</div>";
+    if (text(raw.text || raw.note || raw.comment)) htmlNote += "<div>" + nl(raw.text || raw.note || raw.comment) + "</div>";
+    htmlNote += photoHtml(raw.imageData, raw.imageName, "Photo — comment");
+    htmlNote += "</div>";
+    return htmlNote;
+  }
+
+  function activityColumnHtml(entries) {
+    var html = '<section class="detail-section activity-col"><h3>Activity</h3>';
+    html +=
+      '<div class="activity-legend" aria-hidden="true">' +
+      '<span class="leg kind-result">Result</span>' +
+      '<span class="leg kind-adjustment">Adjustment</span>' +
+      '<span class="leg kind-email">Email</span>' +
+      '<span class="leg kind-drb">DRB</span>' +
+      "</div>";
+    if (!entries.length) {
+      html += '<p class="muted">No activity on this product line.</p></section>';
+      return html;
+    }
+    html += '<div class="activity-column">';
+    entries.forEach(function (entry) {
+      html += activityCardHtml(entry);
+    });
+    html += "</div></section>";
+    return html;
+  }
+
   function photoHtml(src, alt, caption) {
     if (!src) return "";
     var cap = caption ? "<figcaption>" + esc(caption) + "</figcaption>" : "";
@@ -947,6 +1329,14 @@
     asArray(tank.adjustments).forEach(function (a) {
       collectRecordText(a, parts);
     });
+    ["results", "labResults", "measurements", "readings", "activity", "emails", "mailLinks"].forEach(function (k) {
+      asArray(tank[k]).forEach(function (item) {
+        collectRecordText(item, parts);
+      });
+    });
+    emailsForTank(tank).forEach(function (m) {
+      parts.push(m.subject, m.senderName, m.bodyText, m.lot);
+    });
     return blob(parts);
   }
 
@@ -1065,14 +1455,30 @@
       items.push({
         section: waiting ? "waiting" : "todo",
         title: firstText(task, ["title", "text", "name", "waitingFor"]) || "Task",
-        source: firstText(task, ["projectTitle", "source", "tankNumber"]) || "Task",
+        source: firstText(task, ["projectTitle", "source", "tankNumber", "series", "materialSeries"]) || "Task",
         kind: waiting ? "waiting" : "task",
         when: task.dueDate || task.reminderDate || task.createdAt,
         tab: tab,
         id: id,
+        series: firstText(task, ["series", "materialSeries", "productLine", "family"]),
       });
     });
+    items.forEach(function (item) {
+      item.origin = todoOriginFrom(item);
+    });
     return items;
+  }
+
+  function todoOriginFrom(item) {
+    var src = text(item && item.source);
+    var kind = text(item && item.kind);
+    var series = text(item && item.series);
+    var blob = [src, kind, item && item.title, series].join(" ").toLowerCase();
+    if (item && item.tab === "batches") return "batch";
+    if (item && item.tab === "drb") return "drb";
+    if ((item && item.tab === "projects") || /\blinked\b/.test(blob) || /email|mail/.test(blob)) return "project";
+    if (series || /series|family/.test(blob)) return "series";
+    return "task";
   }
 
   function filtered(tab) {
@@ -1230,12 +1636,16 @@
       if (!raw) return;
       var parsed = JSON.parse(raw);
       if (parsed && parsed.uiVersion >= 2 && TAB_LABELS[parsed.tab]) currentTab = parsed.tab;
+      if (parsed && parsed.batchKey) selectedBatchKey = String(parsed.batchKey);
     } catch (e) {}
   }
 
   function writeUi() {
     try {
-      localStorage.setItem(UI_KEY, JSON.stringify({ tab: currentTab, uiVersion: 2 }));
+      localStorage.setItem(
+        UI_KEY,
+        JSON.stringify({ tab: currentTab, batchKey: selectedBatchKey, uiVersion: 3 })
+      );
     } catch (e) {}
   }
 
@@ -1444,6 +1854,20 @@
     parseAndLoad(file, false);
   }
 
+  function openDriveSheet() {
+    var sheet = $("driveSheet");
+    if (sheet) sheet.hidden = false;
+  }
+
+  function closeDriveSheet() {
+    var sheet = $("driveSheet");
+    if (sheet) sheet.hidden = true;
+  }
+
+  function openGoogleDrive() {
+    window.location.href = "googledrive://";
+  }
+
   function showLoad(keepSummary) {
     document.body.classList.remove("app-mode");
     els.loadScreen.hidden = false;
@@ -1492,6 +1916,7 @@
   function headerForTab() {
     els.headerTitle.textContent = TAB_LABELS[currentTab] || "Tracker Viewer";
     if (currentTab === "todo") els.headerSub.textContent = "Waiting & open items";
+    else if (currentTab === "batches") els.headerSub.textContent = "One column for the batch you pick";
     else els.headerSub.textContent = snapshot && snapshot.textOnly ? "Text-only snapshot" : "Read-only snapshot";
   }
 
@@ -1522,7 +1947,7 @@
       todo: "Search waiting & to-dos…",
       processes: "Search title, tags, steps…",
       projects: "Search title, tags, notes…",
-      batches: "Search tank, lot, product…",
+      batches: "Search tank, lot, product, email…",
       drb: "Search lot, product, issue…",
     };
     els.searchInput.placeholder = placeholders[currentTab] || "Search";
@@ -1539,9 +1964,91 @@
     els.backToList.textContent = backLabels[currentTab] || "← All items";
   }
 
+  function batchChoices() {
+    var tanks = lists().batches;
+    var q = (searches.batches || "").trim().toLowerCase();
+    var rows = [];
+    tanks.forEach(function (tank) {
+      if (q && tankSearchBlob(tank).indexOf(q) === -1) return;
+      rows.push({ tank: tank, key: rowKey("batches", tank, tanks), active: batchIsActive(tank) });
+    });
+    rows.sort(function (a, b) {
+      if (a.active !== b.active) return a.active ? -1 : 1;
+      var da = new Date(a.tank.dateStarted || a.tank.updatedAt || 0).getTime();
+      var db = new Date(b.tank.dateStarted || b.tank.updatedAt || 0).getTime();
+      return db - da;
+    });
+    return rows;
+  }
+
+  function renderBatchPicker() {
+    var bar = $("batchBar");
+    var sel = $("batchSelect");
+    if (!bar || !sel) return;
+    var show = currentTab === "batches" && !detailId;
+    bar.hidden = !show;
+    if (!show) return;
+    var rows = batchChoices();
+    var known = {};
+    rows.forEach(function (r) {
+      known[r.key] = 1;
+    });
+    if (!selectedBatchKey || !known[selectedBatchKey]) {
+      var firstActive = null;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].active) {
+          firstActive = rows[i];
+          break;
+        }
+      }
+      selectedBatchKey = (firstActive || rows[0] || {}).key || "";
+    }
+    var html = "";
+    var group = "";
+    rows.forEach(function (r) {
+      var g = r.active ? "Active" : "Finished";
+      if (g !== group) {
+        if (group) html += "</optgroup>";
+        group = g;
+        html += '<optgroup label="' + esc(g) + '">';
+      }
+      html +=
+        '<option value="' +
+        esc(r.key) +
+        '"' +
+        (r.key === selectedBatchKey ? " selected" : "") +
+        ">" +
+        esc(batchOptionLabel(r.tank)) +
+        "</option>";
+    });
+    if (group) html += "</optgroup>";
+    if (!rows.length) html = '<option value="">No batches</option>';
+    sel.innerHTML = html;
+  }
+
+  function renderBatchLive() {
+    var rows = batchChoices();
+    var chosen = null;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].key === selectedBatchKey) chosen = rows[i].tank;
+    }
+    if (!chosen && rows.length) chosen = rows[0].tank;
+    if (!chosen) {
+      var q = (searches.batches || "").trim();
+      els.main.innerHTML =
+        '<p class="empty">' + (q ? "No batches match that search." : "No batches in this snapshot.") + "</p>";
+      return;
+    }
+    els.main.innerHTML = batchDetail(chosen);
+  }
+
   function renderList() {
     if (currentTab === "todo") {
       renderTodoList();
+      return;
+    }
+    if (currentTab === "batches") {
+      renderBatchLive();
       return;
     }
     var items = filtered(currentTab);
@@ -1593,13 +2100,16 @@
       html += '<section class="detail-section"><h3>' + esc(title) + "</h3><div class='list'>";
       rows.forEach(function (item) {
         var canOpen = item.tab && item.tab !== "todo" && item.id;
+        var originClass = " origin-" + (item.origin || "task");
         html += canOpen
-          ? '<button type="button" class="list-item" data-open-tab="' +
+          ? '<button type="button" class="list-item' +
+            originClass +
+            '" data-open-tab="' +
             esc(item.tab) +
             '" data-open="' +
             esc(item.id) +
             '">'
-          : '<div class="list-item">';
+          : '<div class="list-item' + originClass + '">';
         html += todoRowHtml(item);
         html += canOpen ? "</button>" : "</div>";
       });
@@ -1611,14 +2121,20 @@
   }
 
   function todoRowHtml(item) {
-    var kindLabel = item.kind === "drb" ? "DRB" : item.kind || "to-do";
+    var origin = item.origin || "task";
+    var kindLabel =
+      item.section === "waiting" ? "Waiting" : item.kind === "drb" ? "DRB" : item.kind || "to-do";
     return (
       '<div class="title">' +
       esc(item.title) +
       "</div>" +
-      '<div class="meta"><span class="badge">' +
+      '<div class="meta"><span class="badge origin-' +
+      esc(origin) +
+      '">' +
       esc(kindLabel) +
-      "</span><span>" +
+      '</span><span class="origin-tag origin-' +
+      esc(origin) +
+      '">' +
       esc(item.source) +
       "</span>" +
       (item.when ? "<span>" + esc(formatDate(item.when) || item.when) + "</span>" : "") +
@@ -1836,17 +2352,11 @@
     var mail = asArray(proj.mailLinks);
     if (mail.length) {
       html += '<section class="detail-section"><h3>Mail</h3>';
+      html += '<div class="activity-column">';
       mail.forEach(function (m) {
-        html += '<div class="entry">';
-        html += "<strong>" + esc(m.subject || "(no subject)") + "</strong>";
-        html +=
-          '<div class="entry-time">' +
-          esc([m.senderName, formatDateTime(m.receivedTime), m.lot].filter(Boolean).join(" · ")) +
-          "</div>";
-        if (text(m.bodyText)) html += "<div>" + nl(m.bodyText) + "</div>";
-        html += "</div>";
+        html += emailCardHtml(m);
       });
-      html += "</section>";
+      html += "</div></section>";
     }
     var entries = asArray(proj.entries).slice().sort(function (a, b) {
       return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
@@ -1886,37 +2396,8 @@
       ["Date finished", formatDate(tank.dateFinished) || tank.dateFinished],
     ]);
     html += "</section>";
-    var adjs = asArray(tank.adjustments).slice().sort(function (a, b) {
-      return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
-    });
-    html += '<section class="detail-section"><h3>Adjustments</h3>';
-    if (!adjs.length) html += '<p class="muted">None.</p>';
-    else {
-      adjs.forEach(function (a) {
-        html += '<div class="adjust">';
-        html += "<strong>" + esc(firstText(a, ["type", "kind", "title"]) || "Adjustment") + "</strong>";
-        if (a.createdAt) html += '<div class="entry-time">' + esc(formatDateTime(a.createdAt)) + "</div>";
-        html += recordFieldsHtml(a, { id: 1, type: 1, kind: 1, title: 1, createdAt: 1, imageName: 1 });
-        html += photoHtml(a.imageData, a.imageName, a.imageName ? "Photo — " + a.imageName : "Photo — adjustment");
-        html += "</div>";
-      });
-    }
-    html += "</section>";
-    var comments = asArray(tank.comments).slice().sort(function (a, b) {
-      return new Date(a && a.createdAt ? a.createdAt : 0) - new Date(b && b.createdAt ? b.createdAt : 0);
-    });
-    html += '<section class="detail-section"><h3>Comments</h3>';
-    if (!comments.length) html += '<p class="muted">None.</p>';
-    else {
-      comments.forEach(function (c) {
-        html += '<div class="comment">';
-        html += '<div class="entry-time">' + esc(formatDateTime(c.createdAt)) + "</div>";
-        if (text(c.text)) html += "<div>" + nl(c.text) + "</div>";
-        html += photoHtml(c.imageData, c.imageName, "Photo — comment");
-        html += "</div>";
-      });
-    }
-    html += "</section></article>";
+    html += activityColumnHtml(collectTankActivity(tank));
+    html += "</article>";
     return html;
   }
 
@@ -1992,7 +2473,9 @@
     renderBanner();
     renderTabCounts();
     renderSearch();
-    if (detailId && currentTab !== "todo") renderDetail();
+    renderBatchPicker();
+    if (currentTab === "batches" && !detailId) renderBatchLive();
+    else if (detailId && currentTab !== "todo") renderDetail();
     else renderList();
   }
 
@@ -2148,9 +2631,27 @@
   }
 
   function onMainClick(e) {
+    var outlook = e.target.closest("a.outlook-link");
+    if (outlook) {
+      var href = outlook.getAttribute("href") || "";
+      if (/^https?:/i.test(href)) e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     var openBtn = e.target.closest("[data-open]");
     if (openBtn) {
       var tab = openBtn.getAttribute("data-open-tab");
+      var dest = tab && TAB_LABELS[tab] ? tab : currentTab;
+      if (dest === "batches") {
+        if (tab && tab !== currentTab) currentTab = tab;
+        selectedBatchKey = openBtn.getAttribute("data-open") || selectedBatchKey;
+        detailId = null;
+        returnTab = null;
+        writeUi();
+        renderAll();
+        window.scrollTo(0, 0);
+        return;
+      }
       if (tab && TAB_LABELS[tab] && tab !== currentTab) {
         returnTab = currentTab === "todo" ? "todo" : null;
         currentTab = tab;
@@ -2247,7 +2748,29 @@
 
     els.searchInput.addEventListener("input", function () {
       searches[currentTab] = els.searchInput.value || "";
+      if (currentTab === "batches" && !detailId) {
+        renderBatchPicker();
+        renderBatchLive();
+        return;
+      }
       if (!detailId) renderList();
+    });
+    $("batchSelect").addEventListener("change", function () {
+      selectedBatchKey = $("batchSelect").value || "";
+      writeUi();
+      renderBatchLive();
+      window.scrollTo(0, 0);
+    });
+    $("btnDrive").addEventListener("click", openDriveSheet);
+    $("btnDriveLoad").addEventListener("click", openDriveSheet);
+    $("btnOpenDrive").addEventListener("click", openGoogleDrive);
+    $("btnPickExport").addEventListener("click", function () {
+      closeDriveSheet();
+      if (els.fileInput) els.fileInput.click();
+    });
+    $("btnDriveClose").addEventListener("click", closeDriveSheet);
+    $("driveSheet").addEventListener("click", function (e) {
+      if (e.target === $("driveSheet")) closeDriveSheet();
     });
     els.backToList.addEventListener("click", function () {
       if (returnTab) {

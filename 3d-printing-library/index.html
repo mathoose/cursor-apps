@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>3d print hub</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="3d print hub" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#efeae2" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=5" />
+  <!-- build: 3d-printing-library-v5 -->
+</head>
+<body>
+  <div class="lib-top">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+  </div>
+
+  <header class="hero">
+    <p class="kicker">Mathoose's apps</p>
+    <h1>3d print hub</h1>
+    <p class="lead">Parametric designers with live sliders, plus ready-made STLs from the repo.</p>
+  </header>
+
+  <section class="hub-section" aria-labelledby="etsyHeading">
+    <div class="section-head">
+      <h2 id="etsyHeading">Etsy</h2>
+    </div>
+    <div class="etsy-placeholder" id="etsyBlock">
+      <p class="etsy-title">Etsy shop</p>
+      <p class="etsy-note">Mathoose3Dprints on Etsy</p>
+    </div>
+  </section>
+
+  <section class="hub-section" aria-labelledby="projectsHeading">
+    <div class="section-head">
+      <h2 id="projectsHeading">All projects</h2>
+      <p class="section-lead">Open the designer, adjust parameters, then download your STL.</p>
+    </div>
+    <div class="grid" id="designerGrid"></div>
+  </section>
+
+  <section class="hub-section" aria-labelledby="stlHeading">
+    <div class="section-head">
+      <h2 id="stlHeading">STL library</h2>
+      <p class="section-lead">Default exports on <code>public-playground</code> main. Tap to download; use a designer above for custom sizes.</p>
+    </div>
+    <div class="stl-list" id="stlList"></div>
+    <p class="stl-meta">
+      <a href="https://github.com/mathoose/public-playground/tree/main/3d-printing" rel="noopener">3d-printing library folder on GitHub</a>
+    </p>
+  </section>
+
+  <footer class="lib-footer">
+    <p>Designers open via htmlpreview on GitHub <code>main</code> (not a CDN file listing). The lithophane sample opens a model viewer hosted here.</p>
+    <p><a class="private-link" id="privateLink" rel="noopener" aria-label="Private models (PIN)" title="Private">🔒</a></p>
+  </footer>
+
+  <script>
+    var PP = "mathoose/public-playground";
+    var CDN = "https://cdn.jsdelivr.net/gh/" + PP + "@main";
+    var ETSY_SHOP_URL = "https://www.etsy.com/shop/Mathoose3Dprints";
+
+    function designerUrl(folder, branch) {
+      branch = branch || "main";
+      return "https://htmlpreview.github.io/?https://github.com/" + PP + "/blob/" + branch + "/" + folder + "/index.html";
+    }
+
+    function stlUrl(path) {
+      return CDN + "/" + path;
+    }
+
+    var projects = [
+      {
+        id: "bubble-frame",
+        title: "Bubble frame",
+        blurb: "Hemisphere bead frame around a photo, back plate with hanging holes, and a stand behind the beads.",
+        thumb: { type: "beads" }
+      },
+      {
+        id: "postit-wall-clip",
+        title: "Post-it clip",
+        blurb: "Wall clip for a Post-it pad. Print on its side — chamfered putty slot along the back.",
+        thumb: { type: "img", src: CDN + "/postit-wall-clip/postit-wall-clip-iso.png" }
+      },
+      {
+        id: "striped-frame",
+        title: "Striped frame",
+        blurb: "Alternating color bands along the frame path (2–4 colors). Per-color thickness and layer height.",
+        thumb: { type: "stripes" }
+      },
+      {
+        id: "photive-snap-box",
+        title: "Photive snap box",
+        blurb: "Tray + snap lid for the 6-port Photive brick and USB spacer comb. Sliders for fit and cord slot.",
+        thumb: { type: "img", src: CDN + "/photive-snap-box/iso.png" }
+      },
+      {
+        id: "power-bank-wrap",
+        title: "Power bank wrap",
+        blurb: "Slide-on sleeve for the mint SYJ-F37F with cord wrap lanes and elastic clip pockets.",
+        thumb: { type: "img", src: CDN + "/power-bank-wrap/iso.png" }
+      },
+      {
+        id: "henson-razor-tool",
+        title: "Henson razor tool",
+        blurb: "Cradle for the AL13 / Ti22 head by the cap; optional knurled handle grip sleeve.",
+        thumb: { type: "img", src: CDN + "/henson-razor-tool/iso.png" }
+      },
+      {
+        id: "poop-bag-holder",
+        title: "Poop bag holder",
+        blurb: "Screw cap dispenser with S-slot split rim and keyring tab. Preview until PR #27 lands on main.",
+        branch: "cursor/poop-bag-holder-a333",
+        badge: "Preview",
+        thumb: { type: "img", src: "https://cdn.jsdelivr.net/gh/" + PP + "@cursor/poop-bag-holder-a333/poop-bag-holder/iso.png" }
+      },
+      {
+        id: "lithophane-ornament",
+        title: "Lithophane ornament (sample)",
+        blurb: "80 mm photo disc with a rim and hanging loop. Spin it in 3D, switch on a simulated backlight to see the picture, and download the STL.",
+        thumb: { type: "img", src: "lithophane/card-thumb.jpg" },
+        href: "lithophane.html",
+        cta: "Open viewer"
+      }
+    ];
+
+    var stlLibrary = [
+      {
+        group: "Bubble frame",
+        files: [
+          { label: "Frame (4×6 default)", path: "bubble-frame/bubble-frame-4x6in-frame.stl" },
+          { label: "Back plate", path: "bubble-frame/bubble-frame-4x6in-back.stl" },
+          { label: "Stand", path: "bubble-frame/bubble-frame-4x6in-stand.stl" }
+        ]
+      },
+      {
+        group: "Post-it clip",
+        files: [
+          { label: "Clip v3", path: "postit-wall-clip/postit-wall-clip-v3.stl" },
+          { label: "Clip wide v3", path: "postit-wall-clip/postit-wall-clip-wide-v3.stl" },
+          { label: "Clip v2", path: "postit-wall-clip/postit-wall-clip-v2.stl" },
+          { label: "Clip wide v2", path: "postit-wall-clip/postit-wall-clip-wide-v2.stl" }
+        ]
+      },
+      {
+        group: "Striped frame",
+        files: [
+          { label: "Frame (4×6 default)", path: "striped-frame/striped-frame-4x6in-frame.stl" },
+          { label: "Back plate", path: "striped-frame/striped-frame-4x6in-back.stl" },
+          { label: "Stand", path: "striped-frame/striped-frame-4x6in-stand.stl" }
+        ]
+      },
+      {
+        group: "Photive snap box",
+        files: [
+          { label: "Base tray", path: "photive-snap-box/photive-snap-box-base.stl" },
+          { label: "Snap lid", path: "photive-snap-box/photive-snap-box-lid.stl" },
+          { label: "USB spacer comb", path: "photive-snap-box/photive-snap-box-usb-spacer.stl" }
+        ]
+      },
+      {
+        group: "Power bank wrap",
+        files: [
+          { label: "Wrap v7", path: "power-bank-wrap/power-bank-wrap-v7.stl" }
+        ]
+      },
+      {
+        group: "Henson razor tool",
+        files: [
+          { label: "Head cradle v1", path: "henson-razor-tool/henson-head-cradle-v1.stl" },
+          { label: "Handle grip v1", path: "henson-razor-tool/henson-handle-grip-v1.stl" }
+        ]
+      },
+      {
+        group: "Lithophane ornament (sample)",
+        files: [
+          { label: "Tree ornament, 80 mm", href: "lithophane/lithophane-ornament-sample.stl" }
+        ]
+      }
+    ];
+
+    function renderProjectCard(p) {
+      var a = document.createElement("a");
+      a.className = "card";
+      a.href = p.href || designerUrl(p.id, p.branch);
+      if (!p.href) a.setAttribute("rel", "noopener");
+
+      var thumb;
+      if (p.thumb.type === "img") {
+        thumb = document.createElement("img");
+        thumb.className = "thumb";
+        thumb.src = p.thumb.src;
+        thumb.alt = "";
+        thumb.loading = "lazy";
+      } else {
+        thumb = document.createElement("div");
+        thumb.className = "thumb " + p.thumb.type;
+        thumb.setAttribute("aria-hidden", "true");
+      }
+      a.appendChild(thumb);
+
+      var body = document.createElement("div");
+      body.className = "body";
+      var h2 = document.createElement("h2");
+      h2.textContent = p.title;
+      if (p.badge) {
+        var tag = document.createElement("span");
+        tag.className = "badge";
+        tag.textContent = p.badge;
+        h2.appendChild(document.createTextNode(" "));
+        h2.appendChild(tag);
+      }
+      var para = document.createElement("p");
+      para.textContent = p.blurb;
+      var go = document.createElement("span");
+      go.className = "go";
+      go.textContent = p.cta || "Open designer";
+      body.appendChild(h2);
+      body.appendChild(para);
+      body.appendChild(go);
+      a.appendChild(body);
+      return a;
+    }
+
+    function renderStlGroup(group) {
+      var wrap = document.createElement("div");
+      wrap.className = "stl-group";
+      var title = document.createElement("h3");
+      title.className = "stl-group-title";
+      title.textContent = group.group;
+      wrap.appendChild(title);
+      group.files.forEach(function (f) {
+        var row = document.createElement("a");
+        row.className = "stl-row";
+        row.href = f.href || stlUrl(f.path);
+        if (!f.href) row.setAttribute("rel", "noopener");
+        row.setAttribute("download", "");
+        var name = document.createElement("span");
+        name.className = "stl-name";
+        name.textContent = f.label;
+        var dl = document.createElement("span");
+        dl.className = "stl-dl";
+        dl.textContent = "Download STL";
+        row.appendChild(name);
+        row.appendChild(dl);
+        wrap.appendChild(row);
+      });
+      return wrap;
+    }
+
+    var grid = document.getElementById("designerGrid");
+    projects.forEach(function (p) {
+      grid.appendChild(renderProjectCard(p));
+    });
+
+    var stlList = document.getElementById("stlList");
+    stlLibrary.forEach(function (g) {
+      stlList.appendChild(renderStlGroup(g));
+    });
+
+    // Private, PIN-locked models (encrypted in public-playground/private/vault).
+    // Points at the feature branch until public-playground PR is merged; then drop branch + badge.
+    var privateEntry = { id: "private", branch: "cursor/private-models-a7fd", badge: "Preview" };
+    var privateLink = document.getElementById("privateLink");
+    privateLink.href = designerUrl(privateEntry.id, privateEntry.branch);
+    if (privateEntry.badge) {
+      var pb = document.createElement("span");
+      pb.className = "badge";
+      pb.textContent = privateEntry.badge;
+      privateLink.appendChild(document.createTextNode(" "));
+      privateLink.appendChild(pb);
+    }
+
+    if (ETSY_SHOP_URL) {
+      var block = document.getElementById("etsyBlock");
+      block.className = "etsy-card";
+      block.innerHTML = "";
+      var link = document.createElement("a");
+      link.className = "etsy-link";
+      link.href = ETSY_SHOP_URL;
+      link.rel = "noopener";
+      link.textContent = "Open Mathoose3Dprints on Etsy";
+      link.target = "_blank";
+      block.appendChild(link);
+    }
+  </script>
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

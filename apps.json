@@ -1,6 +1,6 @@
 {
   "title": "Mathoose's apps",
-  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board"],
+  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board", "philly-dates", "coffee-map", "aruba-packing", "shopping-list", "times-tables", "body-journal", "done-today", "dates-classic"],
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
@@ -18,6 +18,7 @@
       "process-guide": { "storageKey": "process-guide-v1" },
       "media-shelf": { "storageKey": "media-shelf-v1" },
       "shopping-list": { "storageKey": "shopping-list-v1" },
+      "shared-lists": { "storageKey": "shared-lists-v1" },
       "times-tables": { "storageKey": "times-tables-v1" },
       "things-book": { "storageKey": "things-book-v1" },
       "stride-flow": { "storageKey": "stride-flow-v1" },
@@ -63,7 +64,7 @@
     {
       "id": "adhd-task-tracker",
       "name": "Focus",
-      "subtitle": "ADHD tasks & habits",
+      "subtitle": "Tasks & habits",
       "storageKey": "adhd-tracker-v1"
     },
     {
@@ -74,8 +75,8 @@
     },
     {
       "id": "things-to-do",
-      "name": "Things To Do",
-      "subtitle": "File upcoming events",
+      "name": "Local Events",
+      "subtitle": "Pick & add to Calendar",
       "storageKey": "things-to-do-v1"
     },
     {
@@ -83,6 +84,11 @@
       "name": "Coffee Map",
       "subtitle": "Cafes to try & rate",
       "storageKey": "coffee-map-v1"
+    },
+    {
+      "id": "coffee-drinks-map",
+      "name": "Coffee & Drinks",
+      "subtitle": "Philly cafes, food & bars"
     },
     {
       "id": "city-axes",
@@ -127,6 +133,12 @@
       "storageKey": "shopping-list-v1"
     },
     {
+      "id": "shared-lists",
+      "name": "Our Lists",
+      "subtitle": "Shared checklists",
+      "storageKey": "shared-lists-v1"
+    },
+    {
       "id": "times-tables",
       "name": "Times Tables",
       "subtitle": "Calculator drill",
@@ -155,6 +167,11 @@
       "name": "3D Print",
       "subtitle": "Queue, plates & printers",
       "storageKey": "3d-print-v1"
+    },
+    {
+      "id": "3d-printing-library",
+      "name": "3d print hub",
+      "subtitle": "Designers & STL library"
     },
     {
       "id": "draft-board",

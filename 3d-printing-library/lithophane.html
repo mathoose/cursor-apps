@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Lithophane ornament (sample) · 3d print hub</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="3d print hub" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#efeae2" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <!-- build: 3d-printing-library-v4 -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="lib-top">
+    <a href="./" class="apps-home-back" aria-label="Back to 3d print hub">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+  </div>
+
+  <header class="hero">
+    <p class="kicker">3d print hub · Sample model</p>
+    <h1>Lithophane ornament</h1>
+    <p class="lead">An 80&nbsp;mm photo disc with a rim and hanging loop. Thicker plastic blocks more light, so the picture appears when it's lit from behind.</p>
+  </header>
+
+  <main class="viewer-page">
+    <section class="viewer-card">
+      <div class="viewer" id="viewer" data-mode="plastic">
+        <div class="viewer-status" id="viewerStatus" role="status">Loading model…</div>
+      </div>
+      <div class="viewer-bar">
+        <div class="seg" role="group" aria-label="Lighting">
+          <button type="button" id="modePlastic" class="is-on" aria-pressed="true">Plastic</button>
+          <button type="button" id="modeLit" aria-pressed="false">Backlit</button>
+        </div>
+        <div class="view-btns" role="group" aria-label="Camera">
+          <button type="button" data-view="front">Front</button>
+          <button type="button" data-view="back">Back</button>
+          <button type="button" data-view="reset">Reset</button>
+        </div>
+      </div>
+      <label class="light-row" id="lightRow" hidden>
+        <span>Light</span>
+        <input type="range" id="lightLevel" min="0.5" max="2" step="0.05" value="1.1" />
+      </label>
+      <p class="viewer-hint">Drag to rotate · pinch to zoom · two fingers (or right-drag) to pan</p>
+    </section>
+
+    <section class="info-card">
+      <a class="dl-btn" id="downloadBtn" href="lithophane/lithophane-ornament-sample.stl" download="lithophane-ornament-sample.stl">Download STL</a>
+      <p class="dl-meta">80 × 87.7 × 3.6&nbsp;mm · 80K triangles · 4.0&nbsp;MB binary STL</p>
+      <dl class="specs">
+        <div><dt>Shape</dt><dd>Circle, 80&nbsp;mm</dd></div>
+        <div><dt>Thickness</dt><dd>0.8 (light) – 3.0&nbsp;mm (dark)</dd></div>
+        <div><dt>Rim</dt><dd>3&nbsp;mm wide, 3.6&nbsp;mm tall</dd></div>
+        <div><dt>Print</dt><dd>White PLA, upright, 100% infill, 0.12&nbsp;mm layers</dd></div>
+      </dl>
+      <p class="info-note">The flat side is the front. The textured side faces the light.</p>
+    </section>
+
+    <figure class="preview-fig">
+      <img src="lithophane/sample-preview.png" alt="Simulated backlit view of the ornament next to its thickness map" loading="lazy" />
+      <figcaption>Backlit simulation (left) and thickness map of the textured side (right).</figcaption>
+    </figure>
+
+    <p class="src-note">
+      Made with <a href="lithophane/make_lithophane.py">make_lithophane.py</a> from
+      <a href="lithophane/test-image.png">this test image</a>
+      (<code>--shape circle --size 80 --tmin 0.8 --tmax 3.0 --rim 3</code>), generated at 0.25&nbsp;mm and decimated for the web.
+    </p>
+  </main>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { STLLoader } from "three/addons/loaders/STLLoader.js";
+
+    window.__lithoBooted = true;
+
+    var STL_URL = "lithophane/lithophane-ornament-sample.stl";
+    var T_MIN = 0.8;
+    var Z_RANGE = 8.0;
+
+    var host = document.getElementById("viewer");
+    var statusEl = document.getElementById("viewerStatus");
+    var btnPlastic = document.getElementById("modePlastic");
+    var btnLit = document.getElementById("modeLit");
+    var lightRow = document.getElementById("lightRow");
+    var lightLevel = document.getElementById("lightLevel");
+
+    var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x000000, 0);
+    host.appendChild(renderer.domElement);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(35, 1, 1, 2000);
+    scene.add(camera);
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xb9ae9f, 1.1));
+    var key = new THREE.DirectionalLight(0xffffff, 1.9);
+    key.position.set(-110, 130, 45);
+    camera.add(key);
+    var fill = new THREE.DirectionalLight(0xfff4e6, 0.45);
+    fill.position.set(110, -40, 60);
+    camera.add(fill);
+
+    var controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.09;
+    controls.screenSpacePanning = true;
+    controls.minDistance = 35;
+    controls.maxDistance = 600;
+
+    var plasticMat = new THREE.MeshStandardMaterial({ color: 0xf3efe7, roughness: 0.55, metalness: 0 });
+
+    var litUniforms = {
+      thick: { value: null },
+      box: { value: new THREE.Vector4(0, 0, 1, 1) },
+      tMin: { value: T_MIN },
+      zRange: { value: Z_RANGE },
+      absorb: { value: 1.25 },
+      level: { value: parseFloat(lightLevel.value) },
+      bulbC: { value: new THREE.Vector2(0, 0) },
+      bulbR: { value: 55 }
+    };
+    var litMat = new THREE.ShaderMaterial({
+      uniforms: litUniforms,
+      side: THREE.DoubleSide,
+      vertexShader: [
+        "varying vec3 vPos;",
+        "varying vec3 vN;",
+        "varying vec3 vV;",
+        "void main() {",
+        "  vPos = position;",
+        "  vN = normalize(normalMatrix * normal);",
+        "  vec4 mv = modelViewMatrix * vec4(position, 1.0);",
+        "  vV = normalize(-mv.xyz);",
+        "  gl_Position = projectionMatrix * mv;",
+        "}"
+      ].join("\n"),
+      fragmentShader: [
+        "precision highp float;",
+        "uniform sampler2D thick;",
+        "uniform vec4 box;",
+        "uniform float tMin, zRange, absorb, level, bulbR;",
+        "uniform vec2 bulbC;",
+        "varying vec3 vPos;",
+        "varying vec3 vN;",
+        "varying vec3 vV;",
+        "void main() {",
+        "  vec4 c = texture2D(thick, (vPos.xy - box.xy) / box.zw);",
+        "  float t = (floor(c.r * 255.0 + 0.5) * 256.0 + floor(c.g * 255.0 + 0.5)) / 65535.0 * zRange;",
+        "  float tr = exp(-absorb * max(t - tMin, 0.0));",
+        "  float bulb = mix(1.0, 0.62, smoothstep(0.0, 1.0, length(vPos.xy - bulbC) / bulbR));",
+        "  vec3 col = vec3(1.0, 0.93, 0.8) * tr * bulb * level;",
+        "  col += vec3(0.05, 0.045, 0.04) * abs(dot(normalize(vN), normalize(vV)));",
+        "  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);",
+        "}"
+      ].join("\n")
+    });
+
+    var mesh = null;
+    var fitDist = 200;
+    var mode = "plastic";
+    var tween = null;
+
+    function resize() {
+      var w = host.clientWidth, h = host.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(host);
+    resize();
+
+    // Renders the top-surface height (z) of the panel into a texture, 16-bit packed in R/G,
+    // so the backlit shader can look up plastic thickness at any (x, y) from either side.
+    function bakeThickness(geometry, bb) {
+      var sx = bb.max.x - bb.min.x, sy = bb.max.y - bb.min.y;
+      var W = 1536, H = Math.round(W * sy / sx);
+      var rt = new THREE.WebGLRenderTarget(W, H, {
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        generateMipmaps: false,
+        depthBuffer: true
+      });
+      var hScene = new THREE.Scene();
+      var hMat = new THREE.ShaderMaterial({
+        uniforms: { zRange: { value: Z_RANGE } },
+        side: THREE.DoubleSide,
+        vertexShader: "varying float vZ; void main(){ vZ = position.z; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+        fragmentShader: [
+          "precision highp float;",
+          "uniform float zRange;",
+          "varying float vZ;",
+          "void main(){",
+          "  float x = floor(clamp(vZ / zRange, 0.0, 1.0) * 65535.0 + 0.5);",
+          "  float hi = floor(x / 256.0);",
+          "  gl_FragColor = vec4(hi / 255.0, (x - hi * 256.0) / 255.0, 0.0, 1.0);",
+          "}"
+        ].join("\n")
+      });
+      hScene.add(new THREE.Mesh(geometry, hMat));
+      var cam = new THREE.OrthographicCamera(bb.min.x, bb.max.x, bb.max.y, bb.min.y, 0.1, 200);
+      cam.position.set(0, 0, 100);
+      cam.lookAt(0, 0, 0);
+      var prevClear = renderer.getClearColor(new THREE.Color()), prevAlpha = renderer.getClearAlpha();
+      renderer.setRenderTarget(rt);
+      renderer.setClearColor(0xffffff, 1);
+      renderer.clear();
+      renderer.render(hScene, cam);
+      renderer.setRenderTarget(null);
+      renderer.setClearColor(prevClear, prevAlpha);
+      hMat.dispose();
+      litUniforms.thick.value = rt.texture;
+      litUniforms.box.value.set(bb.min.x, bb.min.y, sx, sy);
+      litUniforms.bulbC.value.set(0, bb.min.y + sx / 2);
+    }
+
+    function viewAngles(name) {
+      if (name === "front") return { theta: 0, phi: Math.PI / 2 };
+      if (name === "back") return { theta: Math.PI, phi: Math.PI / 2 };
+      if (name === "lit") return { theta: 0.32, phi: Math.PI / 2 - 0.14 };
+      return { theta: Math.PI - 0.6, phi: Math.PI / 2 - 0.3 };
+    }
+
+    function goTo(name, animate) {
+      var a = viewAngles(name);
+      var to = { theta: a.theta, phi: a.phi, r: fitDist };
+      var off = camera.position.clone().sub(controls.target);
+      var s = new THREE.Spherical().setFromVector3(off);
+      var from = { theta: s.theta, phi: s.phi, r: s.radius, tx: controls.target.clone() };
+      var d = to.theta - from.theta;
+      while (d > Math.PI) d -= 2 * Math.PI;
+      while (d < -Math.PI) d += 2 * Math.PI;
+      to.theta = from.theta + d;
+      if (!animate) {
+        controls.target.set(0, 0, 0);
+        camera.position.setFromSpherical(new THREE.Spherical(to.r, to.phi, to.theta));
+        controls.update();
+        return;
+      }
+      tween = { from: from, to: to, t0: performance.now(), dur: 650 };
+    }
+
+    function stepTween(now) {
+      if (!tween) return;
+      var k = Math.min(1, (now - tween.t0) / tween.dur);
+      var e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      var f = tween.from, t = tween.to;
+      controls.target.copy(f.tx).lerp(new THREE.Vector3(0, 0, 0), e);
+      var sph = new THREE.Spherical(
+        f.r + (t.r - f.r) * e,
+        f.phi + (t.phi - f.phi) * e,
+        f.theta + (t.theta - f.theta) * e
+      );
+      camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(sph));
+      if (k >= 1) tween = null;
+    }
+
+    function setMode(next, moveCamera) {
+      mode = next;
+      var lit = mode === "lit";
+      host.dataset.mode = mode;
+      btnPlastic.classList.toggle("is-on", !lit);
+      btnLit.classList.toggle("is-on", lit);
+      btnPlastic.setAttribute("aria-pressed", String(!lit));
+      btnLit.setAttribute("aria-pressed", String(lit));
+      lightRow.hidden = !lit;
+      if (mesh) mesh.material = lit ? litMat : plasticMat;
+      if (lit && moveCamera && mesh) {
+        var dir = camera.position.clone().sub(controls.target);
+        if (dir.z < 0) goTo("lit", true);
+      }
+    }
+
+    btnPlastic.addEventListener("click", function () { setMode("plastic", true); });
+    btnLit.addEventListener("click", function () { setMode("lit", true); });
+    lightLevel.addEventListener("input", function () { litUniforms.level.value = parseFloat(lightLevel.value); });
+    document.querySelectorAll("[data-view]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (mesh) goTo(b.getAttribute("data-view"), true);
+      });
+    });
+    controls.addEventListener("start", function () { tween = null; });
+
+    function mb(n) { return (n / 1048576).toFixed(1); }
+
+    new STLLoader().load(
+      STL_URL,
+      function (geometry) {
+        geometry.computeBoundingBox();
+        var bb0 = geometry.boundingBox;
+        var cx = (bb0.min.x + bb0.max.x) / 2, cy = (bb0.min.y + bb0.max.y) / 2;
+        geometry.translate(-cx, -cy, -bb0.min.z);
+        geometry.computeBoundingBox();
+        var bb = geometry.boundingBox;
+        bakeThickness(geometry, bb);
+
+        // Flip so the flat (front) face points at +z and the photo reads correctly from the front.
+        mesh = new THREE.Mesh(geometry, mode === "lit" ? litMat : plasticMat);
+        mesh.rotation.y = Math.PI;
+        mesh.position.z = (bb.max.z - bb.min.z) / 2;
+        scene.add(mesh);
+
+        var r = Math.hypot(bb.max.x - bb.min.x, bb.max.y - bb.min.y) / 2;
+        fitDist = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.08;
+        goTo(mode === "lit" ? "lit" : "reset", false);
+        statusEl.hidden = true;
+        host.classList.add("is-ready");
+      },
+      function (xhr) {
+        if (xhr.lengthComputable && xhr.total) {
+          statusEl.textContent = "Loading model… " + mb(xhr.loaded) + " / " + mb(xhr.total) + " MB";
+        } else if (xhr.loaded) {
+          statusEl.textContent = "Loading model… " + mb(xhr.loaded) + " MB";
+        }
+      },
+      function () {
+        statusEl.textContent = "Couldn't load the model. You can still download the STL below.";
+        host.classList.add("is-error");
+      }
+    );
+
+    var params = new URLSearchParams(location.search);
+    if (params.get("mode") === "backlit" || params.get("mode") === "lit") setMode("lit", false);
+
+    renderer.setAnimationLoop(function (now) {
+      stepTween(now);
+      controls.update();
+      renderer.render(scene, camera);
+    });
+  </script>
+  <script>
+    setTimeout(function () {
+      if (window.__lithoBooted) return;
+      var s = document.getElementById("viewerStatus");
+      if (s) s.textContent = "The 3D viewer couldn't start on this browser. You can still download the STL below.";
+    }, 12000);
+  </script>
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
