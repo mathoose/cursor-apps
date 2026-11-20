@@ -38,6 +38,7 @@
     "done-today": "Done Today",
     "things-to-do": "Dates",
     "shared-lists": "Our Lists",
+    "stock-purchases": "Stock Purchases",
     "trip-packing": "Packing",
   };
 
@@ -1798,6 +1799,67 @@
       },
       mergeSlice: function (existing, incoming) {
         return mergeSharedCache(existing, incoming);
+      },
+    },
+    "stock-purchases": {
+      storageKey: "stock-purchases-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("stock-purchases-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.purchases) || !p.purchases.length) return null;
+          return {
+            version: p.version || 1,
+            hideDividends: !!p.hideDividends,
+            purchases: p.purchases,
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.purchases)) return false;
+        return writeKey("stock-purchases-v1", JSON.stringify({
+          version: 1,
+          hideDividends: !!slice.hideDividends,
+          purchases: slice.purchases,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && Array.isArray(obj.purchases) && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var n = slice.purchases ? slice.purchases.length : 0;
+        return n + " purchase" + (n === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        if (!incoming) return existing;
+        if (!existing) return incoming;
+        var purchases = (existing.purchases || []).slice();
+        var byId = {};
+        purchases.forEach(function (lot) {
+          if (lot && lot.id) byId[lot.id] = lot;
+        });
+        (incoming.purchases || []).forEach(function (lot) {
+          if (!lot || !lot.id) return;
+          if (!byId[lot.id]) {
+            purchases.push(lot);
+            byId[lot.id] = lot;
+            return;
+          }
+          if (String(lot.updatedAt || "") > String(byId[lot.id].updatedAt || "")) {
+            var idx = purchases.indexOf(byId[lot.id]);
+            if (idx >= 0) purchases[idx] = lot;
+            byId[lot.id] = lot;
+          }
+        });
+        return {
+          version: 1,
+          hideDividends: typeof incoming.hideDividends === "boolean" ? incoming.hideDividends : !!existing.hideDividends,
+          purchases: purchases,
+        };
       },
     },
     "trip-packing": {
