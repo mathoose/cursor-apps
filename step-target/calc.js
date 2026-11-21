@@ -296,26 +296,28 @@
     };
   }
 
-  function daysWithout(days, iso) {
+  function daysAsOf(days, iso) {
     var out = {};
     if (!days) return out;
     Object.keys(days).forEach(function (key) {
-      if (key !== iso) out[key] = days[key];
+      if (key < iso) out[key] = days[key];
     });
     return out;
   }
 
-  /* The story for one calendar day.
+  /* The story for one calendar day, as it stood then.
+     Logs after that date are left out, so the pace is not today's pace.
      `steps` is that day's count, or null when it is still blank.
      goal is the pace that day was aiming at before this count.
-     remainPace is the new pace for the days still open after it. */
+     remainPace is the pace the days after it needed once this count is in. */
   function storyFor(input, iso, steps) {
     input = input || {};
     steps = cleanSteps(steps);
     var blank = steps == null;
-    var before = compute(copyInput(input, daysWithout(input.days, iso)));
-    var afterDays = daysWithout(input.days, iso);
+    var beforeDays = daysAsOf(input.days, iso);
+    var afterDays = daysAsOf(input.days, iso);
     if (!blank) afterDays[iso] = steps;
+    var before = compute(copyInput(input, beforeDays));
     var after = compute(copyInput(input, afterDays));
     var bounds = before.bounds;
     var inPeriod = !!(bounds && isRealISO(iso) && iso >= bounds.start && iso <= bounds.end);
