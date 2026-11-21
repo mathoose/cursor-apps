@@ -70,7 +70,7 @@
       <button type="button" class="home-btn home-btn-saved" id="pick-saved">
         <span class="home-btn-icon" aria-hidden="true">★</span>
         <span class="home-btn-label">Places to try</span>
-        <span class="home-btn-hint" id="home-count-saved">Favorites &amp; want to try</span>
+        <span class="home-btn-hint" id="home-count-saved">Favorites &amp; want to go</span>
       </button>
       <button type="button" class="home-btn home-btn-decide" id="pick-decide">
         <span class="home-btn-icon" aria-hidden="true">✦</span>
@@ -102,6 +102,7 @@
         <div class="place-list" data-list></div>
       </div>
     </main>
+    <p class="pin-legend"><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
     <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
     <div class="here-bar" data-here-bar hidden>
       <div class="here-bar-top">
@@ -154,6 +155,7 @@
         <div class="place-list" data-list></div>
       </div>
     </main>
+    <p class="pin-legend"><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
     <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
     <div class="here-bar" data-here-bar hidden>
       <div class="here-bar-top">
@@ -182,11 +184,11 @@
       </button>
       <div class="page-titles">
         <h1>Places to try</h1>
-        <p class="sub" id="saved-sub">Favorites and places you want to try</p>
+        <p class="sub" id="saved-sub">Favorites and places you want to go</p>
       </div>
     </header>
     <div class="page-body">
-      <div class="chip-row" id="saved-filters" role="tablist" aria-label="Show"></div>
+      <div class="chip-row wrap" id="saved-filters" role="tablist" aria-label="Show"></div>
       <div class="place-list" id="saved-list"></div>
     </div>
   </section>
@@ -299,9 +301,19 @@
         <span class="rate-label">Your rating</span>
         <div class="stars" id="detail-stars" role="group" aria-label="Your rating"></div>
       </div>
-      <div class="mark-row" id="detail-marks">
-        <button type="button" class="mark-btn" id="mark-favorite" aria-pressed="false">Favorite</button>
-        <button type="button" class="mark-btn" id="mark-want" aria-pressed="false">Want to try</button>
+      <div class="mark-row" id="detail-marks" role="group" aria-label="Map tags">
+        <button type="button" class="mark-btn" id="mark-favorite" data-bucket="fav" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">⭐</span>
+          <span class="mark-label">Favorite</span>
+        </button>
+        <button type="button" class="mark-btn" id="mark-want" data-bucket="want" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">👀</span>
+          <span class="mark-label">Want to go</span>
+        </button>
+        <button type="button" class="mark-btn" id="mark-nope" data-bucket="nope" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">💩</span>
+          <span class="mark-label">Nope</span>
+        </button>
       </div>
       <button type="button" class="btn-here" id="detail-here">
         <span class="here-now-dot" aria-hidden="true"></span>I’m here · log my order
