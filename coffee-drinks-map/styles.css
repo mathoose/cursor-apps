@@ -301,6 +301,8 @@ button { touch-action: manipulation; cursor: pointer; }
   color: var(--ink);
   text-align: left;
 }
+a.pill { text-decoration: none; }
+.pill-feature { background: #fff7ed; border-color: #fdba74; color: var(--accent-dark); }
 .pill-hh { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
 .pill-hh.on { background: var(--hh); border-color: var(--hh); color: #fff; }
 .pill-open { background: var(--drinks-soft); color: var(--drinks); }
