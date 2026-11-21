@@ -286,6 +286,95 @@
     return { result: result, buckets: buckets };
   }
 
+  function copyInput(input, days) {
+    return {
+      period: input.period,
+      asOf: input.asOf,
+      baseline: input.baseline,
+      target: input.target,
+      days: days,
+    };
+  }
+
+  function daysWithout(days, iso) {
+    var out = {};
+    if (!days) return out;
+    Object.keys(days).forEach(function (key) {
+      if (key !== iso) out[key] = days[key];
+    });
+    return out;
+  }
+
+  /* The story for one calendar day.
+     `steps` is that day's count, or null when it is still blank.
+     goal is the pace that day was aiming at before this count.
+     remainPace is the new pace for the days still open after it. */
+  function storyFor(input, iso, steps) {
+    input = input || {};
+    steps = cleanSteps(steps);
+    var blank = steps == null;
+    var before = compute(copyInput(input, daysWithout(input.days, iso)));
+    var afterDays = daysWithout(input.days, iso);
+    if (!blank) afterDays[iso] = steps;
+    var after = compute(copyInput(input, afterDays));
+    var bounds = before.bounds;
+    var inPeriod = !!(bounds && isRealISO(iso) && iso >= bounds.start && iso <= bounds.end);
+    var goal = null;
+    var goalName = null;
+    if (inPeriod && before.target > 0) {
+      if (before.status === "need-pace" && before.paceSteps > 0) {
+        goal = before.paceSteps;
+        goalName = "pace";
+      } else {
+        goal = before.target;
+        goalName = "goal";
+      }
+    }
+    var from = null;
+    var to = bounds ? bounds.end : null;
+    if (bounds && before.asOf) {
+      from = shiftISO(iso > before.asOf ? iso : before.asOf, 1);
+    }
+    var openAfter = 0;
+    var loggedAfter = 0;
+    var holesBefore = 0;
+    if (bounds && from && from <= to) {
+      eachDay(bounds.start, to).forEach(function (day) {
+        if (day === iso) return;
+        var logged = loggedSteps(afterDays, day);
+        var open = logged == null && day > after.asOf;
+        if (day < from) {
+          if (open) holesBefore += 1;
+          return;
+        }
+        if (open) openAfter += 1;
+        else if (logged != null) loggedAfter += 1;
+      });
+    }
+    var remainPace = null;
+    if (!blank && inPeriod && after.target != null && after.covered) {
+      if (after.openCount === 0) remainPace = after.status === "done" || after.status === "ahead" ? 0 : null;
+      else remainPace = after.paceSteps;
+    }
+    return {
+      iso: iso,
+      steps: steps,
+      blank: blank,
+      inPeriod: inPeriod,
+      goal: goal,
+      goalName: goalName,
+      met: !blank && goal != null && steps >= goal,
+      from: from && to && from <= to ? from : null,
+      to: from && to && from <= to ? to : null,
+      openAfter: openAfter,
+      loggedAfter: loggedAfter,
+      holesBefore: holesBefore,
+      remainPace: remainPace,
+      after: after,
+      before: before,
+    };
+  }
+
   function niceMax(values) {
     var max = 0;
     values.forEach(function (value) {
@@ -312,6 +401,7 @@
     paceSteps: paceSteps,
     compute: compute,
     chartSeries: chartSeries,
+    storyFor: storyFor,
     niceMax: niceMax,
   };
 });

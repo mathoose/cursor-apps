@@ -197,7 +197,7 @@ button {
 .today-meter .meter-fill.met { background: #30d158; }
 .today-meter .meter-fill.short { background: #ff453a; }
 
-.hero, .chart-card, .cal-card, .stats {
+.hero, .cal-card, .stats {
   background: var(--card);
   border-radius: 18px;
 }
@@ -309,30 +309,12 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.chart-card, .cal-card {
+.cal-card {
   margin-top: 12px;
   padding: 14px 12px 12px;
 }
 
-.section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 0 4px;
-}
-
-.section-head h2 {
-  margin: 0;
-  font-size: 0.9375rem;
-  font-weight: 680;
-}
-
-.chart-wrap { margin-top: 8px; }
-
-.chart-wrap svg { display: block; width: 100%; height: auto; }
-
-.chart-caption, .legend {
+.legend {
   margin: 8px 4px 0;
   color: var(--muted);
   font-size: 0.75rem;
@@ -573,25 +555,6 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.62); }
   font-size: 0.8125rem;
 }
 
-.day-figure {
-  margin: 8px 0 0;
-  text-align: center;
-}
-
-.day-figure input {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  text-align: center;
-  font-size: 2.6rem;
-  font-weight: 720;
-  letter-spacing: -0.04em;
-  font-variant-numeric: tabular-nums;
-  padding: 8px 0;
-}
-
-.day-figure input:focus { outline: none; }
-
 .io-row {
   display: flex;
   gap: 8px;
@@ -628,6 +591,151 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.62); }
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
+dialog.story-dialog,
+dialog.story-dialog[open],
+dialog.story-dialog:modal {
+  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  transform: none;
+  border-radius: 0;
+  background: #c4161c;
+  color: #fff;
+  overflow: auto;
+}
+
+dialog.story-dialog::backdrop { background: #c4161c; }
+
+.story {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100%;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px calc(32px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.story-close {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 22px;
+  background: transparent;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.story-close svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.story-weekday {
+  margin: 36px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.story-date {
+  margin: 2px 0 0;
+  font-size: 2.75rem;
+  font-weight: 760;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.gauge {
+  width: min(100%, 440px);
+  margin-top: 4px;
+}
+
+.gauge svg { display: block; width: 100%; height: auto; }
+
+.story-steps {
+  width: 9ch;
+  margin-top: 2px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 760;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+
+.story-steps::placeholder { color: rgba(255, 255, 255, 0.55); }
+.story-steps:focus { outline: none; }
+
+.story-versus {
+  min-height: 1.3em;
+  margin: 4px 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.story-kicker {
+  margin: 28px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.story-kicker:empty { display: none; }
+
+.story-pace {
+  margin: 0;
+  font-size: 3.5rem;
+  font-weight: 780;
+  letter-spacing: -0.05em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.story-pace:empty { display: none; }
+
+.story-line {
+  max-width: 22rem;
+  margin: 10px 0 0;
+  font-size: 1.2rem;
+  font-weight: 680;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+
+.story .form-error { color: #fff3bf; }
+
+.story-clear {
+  margin-top: 22px;
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.875rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
 @media (min-width: 720px) {
   dialog[open],
   dialog:modal {
@@ -635,5 +743,18 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.62); }
     bottom: auto;
     border-radius: 18px;
     max-height: 80dvh;
+  }
+
+  dialog.story-dialog[open],
+  dialog.story-dialog:modal {
+    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
   }
 }

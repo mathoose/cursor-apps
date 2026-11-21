@@ -308,75 +308,164 @@
     els.targetLabel.textContent = noun.charAt(0).toUpperCase() + noun.slice(1) + " target, steps per day";
   }
 
-  function renderChart(model) {
-    var result = model.result;
-    var buckets = model.buckets;
-    els.chartTitle.textContent = result.period === "year"
-      ? (result.asOf ? result.asOf.slice(0, 4) : "Year")
-      : rangeLabel(result);
-    if (!buckets.length) {
-      els.chart.innerHTML = "";
-      els.chartCaption.textContent = "";
-      return;
-    }
-    var pace = result.status === "need-pace" ? result.paceSteps : null;
-    var max = C.niceMax(buckets.map(function (bucket) { return bucket.average; }).concat([result.target, pace]));
-    var width = 320;
-    var height = 172;
-    var left = 44;
-    var top = 12;
-    var plotW = 268;
-    var plotH = 128;
-    var parts = [];
-    parts.push('<svg viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="' + chartLabel(result, buckets) + '">');
-    [0, 0.5, 1].forEach(function (t) {
-      var value = max * t;
-      var y = top + plotH - plotH * t;
-      parts.push('<line x1="' + left + '" y1="' + y + '" x2="' + (left + plotW) + '" y2="' + y + '" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>');
-      parts.push('<text x="' + (left - 6) + '" y="' + (y + 3) + '" text-anchor="end" fill="#8e8e93" font-size="9">' + compactSteps(value) + "</text>");
-    });
-    function lineY(value) {
-      return top + plotH - (value / max) * plotH;
-    }
-    if (result.target > 0) {
-      var targetY = lineY(result.target);
-      parts.push('<line x1="' + left + '" y1="' + targetY + '" x2="' + (left + plotW) + '" y2="' + targetY + '" stroke="rgba(255,255,255,0.55)" stroke-dasharray="3 3" stroke-width="1.25"/>');
-    }
-    if (pace && result.target && Math.abs(pace - result.target) > result.target * 0.02) {
-      var paceY = lineY(pace);
-      parts.push('<line x1="' + left + '" y1="' + paceY + '" x2="' + (left + plotW) + '" y2="' + paceY + '" stroke="#ff6a00" stroke-dasharray="3 3" stroke-width="1.5"/>');
-    }
-    var slot = plotW / buckets.length;
-    buckets.forEach(function (bucket, index) {
-      var showLabel = result.period !== "month" || index === 0 || Number(bucket.label) % 5 === 0 || index === buckets.length - 1;
-      if (showLabel) {
-        parts.push('<text x="' + (left + slot * index + slot / 2) + '" y="' + (height - 4) + '" text-anchor="middle" fill="#8e8e93" font-size="10">' + bucket.label + "</text>");
-      }
-      if (bucket.average == null) return;
-      var barW = Math.max(2, Math.min(18, slot * 0.62));
-      var barH = Math.max(2, (bucket.average / max) * plotH);
-      var x = left + slot * index + (slot - barW) / 2;
-      var y = top + plotH - barH;
-      var fill = bucket.logged > 0 ? "#ff6a00" : "#7a3a12";
-      parts.push('<rect x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" width="' + barW.toFixed(2) + '" height="' + barH.toFixed(2) + '" rx="2" fill="' + fill + '"/>');
-    });
-    parts.push("</svg>");
-    els.chart.innerHTML = parts.join("");
-    var caption = "Bars are days you have logged.";
-    if (result.baseline != null) {
-      caption = "Dim bars use your average.";
-      if (result.target != null) caption += " White dashes are the " + formatSteps(result.target) + " target.";
-      if (pace && result.target && Math.abs(pace - result.target) > result.target * 0.02) {
-        caption += " Orange dashes are the " + formatSteps(pace) + " pace still needed.";
-      }
-    }
-    els.chartCaption.textContent = caption;
+  function ordinal(n) {
+    var teen = n % 100;
+    if (teen >= 11 && teen <= 13) return n + "th";
+    if (n % 10 === 1) return n + "st";
+    if (n % 10 === 2) return n + "nd";
+    if (n % 10 === 3) return n + "rd";
+    return n + "th";
   }
 
-  function chartLabel(result, buckets) {
-    var known = buckets.filter(function (bucket) { return bucket.average != null; });
-    if (!known.length) return "No steps charted yet";
-    return "Step averages for " + rangeLabel(result);
+  function prettyOrd(iso) {
+    var date = C.parseISO(iso);
+    if (!date) return iso || "";
+    return MONTHS_SHORT[date.getMonth()] + " " + ordinal(date.getDate());
+  }
+
+  function targetPhrase(result) {
+    var amount = compactSteps(result.target);
+    if (result.period === "year") return amount + " for " + result.bounds.start.slice(0, 4);
+    if (result.period === "month") return amount + " for " + MONTHS[C.parseISO(result.bounds.start).getMonth()];
+    return amount + " for this week";
+  }
+
+  function remainRange(story) {
+    var end = story.after.bounds ? story.after.bounds.end : story.to;
+    if (story.holesBefore > 0 || story.loggedAfter > 0 || !story.from) {
+      var count = story.after.openCount;
+      return "on the " + count + (count === 1 ? " day" : " days") + " still open through " + prettyOrd(end);
+    }
+    if (story.from === story.to) return "on " + prettyOrd(story.from);
+    return "from " + prettyOrd(story.from) + " to " + prettyOrd(story.to);
+  }
+
+  function storyCopy(story) {
+    var after = story.after;
+    if (!story.inPeriod) {
+      return {
+        kicker: "",
+        pace: "",
+        line: "This day sits outside the current " + periodNoun(state.period) + ". The number is saved, and it counts when that period includes it.",
+      };
+    }
+    if (after.target == null) {
+      return { kicker: "", pace: "", line: "Set a daily target in Settings to see the remaining pace." };
+    }
+    if (!after.covered) {
+      return { kicker: "", pace: "", line: "Set your average so far in Settings. Then this day can update the pace." };
+    }
+    if (story.blank) {
+      var waiting = story.from
+        ? "Add this day’s steps. The average from " + prettyOrd(story.from) + " to " + prettyOrd(story.to) + " updates from there."
+        : "Add this day’s steps to update what’s left.";
+      return { kicker: "", pace: "", line: waiting };
+    }
+    var phrase = targetPhrase(after);
+    if (after.status === "ahead" || after.status === "done" || story.remainPace === 0) {
+      var aheadLine = story.from
+        ? "From " + prettyOrd(story.from) + " to " + prettyOrd(story.to) + " you don’t have to make any of it up."
+        : "You don’t have to make any of it up on the days still open.";
+      return { kicker: "You’re already set", pace: "", line: "to average " + phrase + ". " + aheadLine };
+    }
+    if (story.remainPace == null) {
+      return { kicker: "Short", pace: "", line: "Every day is logged, and the average finished under " + phrase + "." };
+    }
+    return {
+      kicker: "You’ll need to average",
+      pace: formatSteps(story.remainPace),
+      line: "steps " + remainRange(story) + " to average " + phrase + ".",
+    };
+  }
+
+  function gaugeMax(goal, steps) {
+    var padded = Math.max(goal ? goal * 1.35 : 0, steps ? steps * 1.08 : 0, 10000);
+    var step = padded <= 80000 ? 10000 : 20000;
+    return Math.ceil((padded - 1e-6) / step) * step;
+  }
+
+  function gaugePoint(cx, cy, radius, t) {
+    var theta = Math.PI * (1 - t);
+    return [cx + radius * Math.cos(theta), cy - radius * Math.sin(theta)];
+  }
+
+  function gaugeArc(cx, cy, radius, t0, t1) {
+    var start = gaugePoint(cx, cy, radius, t0);
+    var commands = ["M " + start[0].toFixed(2) + " " + start[1].toFixed(2)];
+    var span = t1 - t0;
+    var steps = Math.max(1, Math.ceil(span / 0.45));
+    var i;
+    for (i = 1; i <= steps; i += 1) {
+      var end = gaugePoint(cx, cy, radius, t0 + span * (i / steps));
+      commands.push("A " + radius + " " + radius + " 0 0 1 " + end[0].toFixed(2) + " " + end[1].toFixed(2));
+    }
+    return commands.join(" ");
+  }
+
+  function renderGauge(steps, goal) {
+    var value = steps == null ? 0 : steps;
+    var max = gaugeMax(goal, value);
+    var width = 320;
+    var height = 196;
+    var cx = 160;
+    var cy = 168;
+    var radius = 126;
+    var tNeedle = Math.max(0, Math.min(1, value / max));
+    var tGoal = goal > 0 ? Math.max(0, Math.min(1, goal / max)) : null;
+    var label = steps == null ? "No steps yet" : formatSteps(steps) + " steps";
+    if (goal) label += ", goal " + formatSteps(goal);
+    var parts = [];
+    parts.push('<svg viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="' + label + '">');
+    parts.push('<path d="' + gaugeArc(cx, cy, radius, 0, 1) + '" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="18" stroke-linecap="round"/>');
+    if (tNeedle > 0.012) {
+      parts.push('<path d="' + gaugeArc(cx, cy, radius, 0, tNeedle) + '" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round"/>');
+    }
+    var tick;
+    for (tick = 0; tick <= 8; tick += 1) {
+      var outer = gaugePoint(cx, cy, radius - 16, tick / 8);
+      var inner = gaugePoint(cx, cy, radius - 28, tick / 8);
+      parts.push('<line x1="' + outer[0].toFixed(2) + '" y1="' + outer[1].toFixed(2) + '" x2="' + inner[0].toFixed(2) + '" y2="' + inner[1].toFixed(2) + '" stroke="rgba(255,255,255,0.9)" stroke-width="' + (tick % 2 ? 2 : 3) + '" stroke-linecap="round"/>');
+    }
+    if (tGoal != null) {
+      var markOut = gaugePoint(cx, cy, radius + 8, tGoal);
+      var markIn = gaugePoint(cx, cy, radius - 16, tGoal);
+      parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
+    }
+    var tip = gaugePoint(cx, cy, radius - 40, tNeedle);
+    parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(2) + '" y2="' + tip[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
+    parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="9" fill="#fff"/>');
+    parts.push("</svg>");
+    els.gauge.innerHTML = parts.join("");
+  }
+
+  function renderStory() {
+    if (!editingISO) return;
+    var date = C.parseISO(editingISO);
+    els.storyWeekday.textContent = date ? WEEKDAYS[date.getDay()] : "";
+    els.storyDate.textContent = date ? MONTHS_SHORT[date.getMonth()] + " " + date.getDate() + ", " + date.getFullYear() : "";
+    var read = readStepsField(els.daySteps.value);
+    var logged = Object.prototype.hasOwnProperty.call(state.days, editingISO);
+    var editing = document.activeElement === els.daySteps;
+    els.dayClear.hidden = !editing || (!logged && (read.empty || !!read.error));
+    if (read.error) {
+      setError(els.dayError, read.error);
+      return;
+    }
+    setError(els.dayError, "");
+    var story = C.storyFor(activeInput(), editingISO, read.steps);
+    var copy = storyCopy(story);
+    renderGauge(story.steps, story.goal);
+    if (story.blank || story.goal == null) {
+      els.storyVersus.textContent = story.goal ? "Goal " + formatSteps(story.goal) : "";
+    } else if (story.steps >= story.goal) {
+      var aheadBy = story.steps - story.goal;
+      els.storyVersus.textContent = aheadBy === 0 ? "Goal met" : formatSteps(aheadBy) + " ahead of " + formatSteps(story.goal);
+    } else {
+      els.storyVersus.textContent = "Short " + formatSteps(story.goal - story.steps) + " of " + formatSteps(story.goal);
+    }
+    els.storyKicker.textContent = copy.kicker;
+    els.storyPace.textContent = copy.pace;
+    els.storyLine.textContent = copy.line;
   }
 
   function inRange(iso, start, end) {
@@ -442,13 +531,13 @@
   }
 
   function render() {
-    var model = C.chartSeries(activeInput());
+    var result = C.compute(activeInput());
     renderPeriods();
-    renderToday(model.result);
-    renderHero(model.result);
-    renderStats(model.result);
-    renderChart(model);
-    renderCalendar(model.result);
+    renderToday(result);
+    renderHero(result);
+    renderStats(result);
+    renderCalendar(result);
+    if (els.dayDialog.open && editingISO) renderStory();
   }
 
   function setError(node, message) {
@@ -510,36 +599,33 @@
     if (els.settingsDialog.open) fillSettings();
   }
 
-  function dayNote(iso) {
-    var result = C.compute(activeInput());
-    var logged = Object.prototype.hasOwnProperty.call(state.days, iso);
-    if (!result.bounds || !inRange(iso, result.bounds.start, result.bounds.end)) {
-      return "Outside this " + periodNoun(state.period) + ". The number is saved, and it counts when that period includes this day.";
-    }
-    if (logged && iso <= state.asOf) return "Logged. This replaces your average for this day.";
-    if (logged) return "Logged. This day is no longer part of the remaining pace.";
-    if (iso <= state.asOf && result.baseline != null) {
-      return "Left blank, this day counts as " + formatSteps(result.baseline) + ", your average.";
-    }
-    if (iso <= state.asOf) return "This day is inside the average window. Log it, or set an average in Settings.";
-    return "Still ahead. Until you log it, this day is part of the pace.";
-  }
-
   function openDay(iso) {
     editingISO = iso;
-    els.dayTitle.textContent = prettyLong(iso);
-    els.dayNote.textContent = dayNote(iso);
     els.daySteps.value = Object.prototype.hasOwnProperty.call(state.days, iso) ? String(state.days[iso]) : "";
-    els.dayClear.hidden = !Object.prototype.hasOwnProperty.call(state.days, iso);
     setError(els.dayError, "");
     if (!els.dayDialog.open) els.dayDialog.showModal();
-    els.daySteps.focus();
-    els.daySteps.select();
+    renderStory();
+    if (!els.daySteps.value) els.daySteps.focus();
+  }
+
+  function commitDay() {
+    if (!editingISO) return true;
+    var read = readStepsField(els.daySteps.value);
+    if (read.error) {
+      setError(els.dayError, read.error);
+      return false;
+    }
+    if (read.empty) delete state.days[editingISO];
+    else state.days[editingISO] = read.steps;
+    save();
+    return true;
   }
 
   function closeDay() {
+    if (!commitDay()) return;
     editingISO = null;
     if (els.dayDialog.open) els.dayDialog.close();
+    render();
   }
 
   function saveToday(event) {
@@ -560,26 +646,17 @@
 
   function saveDay(event) {
     event.preventDefault();
-    if (!editingISO) return;
-    var read = readStepsField(els.daySteps.value);
-    if (read.empty) {
-      delete state.days[editingISO];
-    } else if (read.error) {
-      setError(els.dayError, read.error);
-      return;
-    } else {
-      state.days[editingISO] = read.steps;
-    }
-    save();
-    closeDay();
+    if (!commitDay()) return;
+    els.daySteps.blur();
     render();
   }
 
   function clearDay() {
     if (!editingISO) return;
+    els.daySteps.value = "";
     delete state.days[editingISO];
+    setError(els.dayError, "");
     save();
-    closeDay();
     render();
   }
 
@@ -656,12 +733,13 @@
       "todaySave", "todayError", "todayMeter", "todayFill", "todayStatus",
       "heroKicker", "heroNum", "heroSub", "avgNum", "avgSub", "meter", "meterNow",
       "meterGoal", "meterFill", "sentence", "statTarget", "statLeft", "statGap",
-      "statLogged", "chartTitle", "chart", "chartCaption", "calTitle", "calGrid",
+      "statLogged", "calTitle", "calGrid",
       "legend", "prevMonth", "nextMonth", "settingsDialog", "settingsForm",
       "settingsDone", "asOfInput", "useToday", "settingsPeriod", "weekHint",
       "baselineLabel", "baselineInput", "baselineHint", "targetLabel", "targetInput",
-      "settingsError", "exportBtn", "importFile", "dayDialog", "dayForm", "dayTitle",
-      "dayCancel", "dayNote", "daySteps", "dayError", "dayClear", "toast",
+      "settingsError", "exportBtn", "importFile", "dayDialog", "dayForm",
+      "storyWeekday", "storyDate", "gauge", "storyVersus", "storyKicker", "storyPace",
+      "storyLine", "dayCancel", "daySteps", "dayError", "dayClear", "toast",
     ].forEach(function (id) {
       els[id] = document.getElementById(id);
     });
@@ -699,6 +777,9 @@
       openDay(button.getAttribute("data-date"));
     });
     els.dayForm.addEventListener("submit", saveDay);
+    els.daySteps.addEventListener("input", renderStory);
+    els.daySteps.addEventListener("focus", renderStory);
+    els.daySteps.addEventListener("blur", renderStory);
     els.dayCancel.addEventListener("click", closeDay);
     els.dayClear.addEventListener("click", clearDay);
     els.exportBtn.addEventListener("click", exportJson);
@@ -713,7 +794,14 @@
       if (!commitSettings()) event.preventDefault();
     });
     els.dayDialog.addEventListener("click", function (event) {
-      if (event.target === els.dayDialog) els.dayDialog.close();
+      if (event.target === els.dayDialog) closeDay();
+    });
+    els.dayDialog.addEventListener("cancel", function (event) {
+      if (!commitDay()) event.preventDefault();
+      else editingISO = null;
+    });
+    els.dayDialog.addEventListener("close", function () {
+      if (!editingISO) render();
     });
   }
 

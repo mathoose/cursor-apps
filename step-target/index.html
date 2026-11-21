@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
-  <!-- build: step-target-v3 -->
+  <!-- build: step-target-v4 -->
   <div class="app">
     <header class="app-header">
       <div class="header-row">
@@ -100,14 +100,6 @@
         </div>
       </dl>
 
-      <section class="chart-card" aria-labelledby="chartTitle">
-        <div class="section-head">
-          <h2 id="chartTitle">This year</h2>
-        </div>
-        <div class="chart-wrap" id="chart"></div>
-        <p class="chart-caption" id="chartCaption"></p>
-      </section>
-
       <section class="cal-card" aria-labelledby="calTitle">
         <div class="cal-head">
           <button type="button" class="icon-btn" id="prevMonth" aria-label="Previous month">
@@ -171,20 +163,21 @@
     </form>
   </dialog>
 
-  <dialog id="dayDialog" aria-labelledby="dayTitle">
-    <form class="sheet" id="dayForm">
-      <div class="grabber" aria-hidden="true"></div>
-      <div class="sheet-head">
-        <h2 id="dayTitle">Day</h2>
-        <button type="button" class="text-btn" id="dayCancel">Close</button>
-      </div>
-      <p class="hint" id="dayNote"></p>
-      <div class="day-figure">
-        <input id="daySteps" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Steps" />
-      </div>
+  <dialog id="dayDialog" class="story-dialog" aria-labelledby="storyDate">
+    <form class="story" id="dayForm">
+      <button type="button" class="story-close" id="dayCancel" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <p class="story-weekday" id="storyWeekday"></p>
+      <h2 class="story-date" id="storyDate"></h2>
+      <div class="gauge" id="gauge"></div>
+      <input id="daySteps" class="story-steps" inputmode="numeric" autocomplete="off" enterkeyhint="done" placeholder="Steps" aria-label="Steps" />
+      <p class="story-versus" id="storyVersus"></p>
+      <p class="story-kicker" id="storyKicker"></p>
+      <p class="story-pace" id="storyPace"></p>
+      <p class="story-line" id="storyLine"></p>
       <p class="form-error" id="dayError" hidden></p>
-      <button type="submit" class="primary-btn">Save day</button>
-      <button type="button" class="ghost-btn" id="dayClear" hidden>Clear this day</button>
+      <button type="button" class="story-clear" id="dayClear" hidden>Clear this day</button>
     </form>
   </dialog>
 
@@ -192,8 +185,8 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
-  <script src="calc.js?v=3"></script>
-  <script src="app.js?v=3"></script>
+  <script src="calc.js?v=4"></script>
+  <script src="app.js?v=4"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
