@@ -211,31 +211,60 @@
     };
   }
 
-  function staleDays(result) {
-    var today = todayISO();
-    if (!result.bounds || today <= state.asOf) return [];
-    var end = today < result.bounds.end ? today : result.bounds.end;
-    if (end <= state.asOf) return [];
-    return C.eachDay(C.shiftISO(state.asOf, 1), end).filter(function (iso) {
-      return !Object.prototype.hasOwnProperty.call(state.days, iso);
-    });
+  function dayMark(result) {
+    if (result.status === "need-pace" && result.paceSteps > 0) {
+      return { steps: result.paceSteps, name: "pace" };
+    }
+    if (result.target > 0) return { steps: result.target, name: "goal" };
+    return null;
   }
 
-  function renderBanner(result) {
-    var missing = staleDays(result);
-    if (!missing.length) {
-      els.staleBanner.hidden = true;
+  function renderToday(result) {
+    var today = todayISO();
+    var logged = Object.prototype.hasOwnProperty.call(state.days, today);
+    var steps = logged ? state.days[today] : null;
+    var mark = dayMark(result);
+    els.todayDate.textContent = prettyLong(today);
+    els.todaySave.textContent = logged ? "Update" : "Save";
+    if (document.activeElement !== els.todaySteps) {
+      els.todaySteps.value = steps == null ? "" : String(steps);
+    }
+    els.todayCard.classList.remove("met", "short");
+    els.todayStatus.classList.remove("met", "short");
+    els.todayFill.classList.remove("met", "short");
+    if (!mark) {
+      els.todayMeter.hidden = true;
+      els.todayStatus.textContent = steps == null
+        ? "Enter today’s steps. Set a daily target to see if the day is on pace."
+        : formatSteps(steps) + " saved for today.";
       return;
     }
-    var today = todayISO();
-    els.staleText.textContent = "Today is " + pretty(today, true) +
-      ", and your average stops on " + pretty(state.asOf, true) + ". " +
-      dayCount(missing.length, "day", "days") +
-      " in between " + (missing.length === 1 ? "is" : "are") +
-      " not logged, so " + (missing.length === 1 ? "it is" : "they are") +
-      " still part of the pace. Log " + (missing.length === 1 ? "it" : "them") +
-      ", or move the current date and update the average.";
-    els.staleBanner.hidden = false;
+    els.todayMeter.hidden = false;
+    var ratio = steps == null ? 0 : steps / mark.steps;
+    var width = Math.max(0, Math.min(100, ratio * 100));
+    els.todayFill.style.width = width + "%";
+    var noun = mark.name === "pace" ? "pace" : "goal";
+    if (steps == null) {
+      els.todayStatus.textContent = "No steps yet. Today’s " + noun + " is " + formatSteps(mark.steps) + ".";
+      return;
+    }
+    var ahead = steps - mark.steps;
+    var pct = Math.round(ratio * 100);
+    if (ahead >= 0) {
+      els.todayCard.classList.add("met");
+      els.todayStatus.classList.add("met");
+      els.todayFill.classList.add("met");
+      var doneWord = ahead > 0
+        ? formatSteps(ahead) + " ahead."
+        : (mark.name === "pace" ? "On pace." : "Goal met.");
+      els.todayStatus.textContent = pct + "% of the " + formatSteps(mark.steps) + " " + noun + ". " + doneWord;
+      return;
+    }
+    els.todayCard.classList.add("short");
+    els.todayStatus.classList.add("short");
+    els.todayFill.classList.add("short");
+    els.todayStatus.textContent = formatSteps(steps) + " of " + formatSteps(mark.steps) +
+      " · " + pct + "% · short " + formatSteps(-ahead) + ".";
   }
 
   function renderHero(result) {
@@ -375,8 +404,11 @@
       if (!inMonth) button.classList.add("other-month");
       if (inPeriod) button.classList.add("in-period");
       else button.classList.add("outside");
-      if (logged) button.classList.add("logged");
-      else if (inPeriod && result.baseline != null && iso <= state.asOf) button.classList.add("assumed");
+      var mark = dayMark(result);
+      if (logged) {
+        button.classList.add("logged");
+        if (mark) button.classList.add(state.days[iso] >= mark.steps ? "met" : "short");
+      } else if (inPeriod && result.baseline != null && iso <= state.asOf) button.classList.add("assumed");
       if (iso === state.asOf) button.classList.add("asof");
       if (iso === today && iso !== state.asOf) button.classList.add("real-today");
 
@@ -390,19 +422,29 @@
       button.appendChild(steps);
 
       var label = prettyLong(iso);
-      if (logged) label += ", " + formatSteps(state.days[iso]) + " steps";
-      else if (button.classList.contains("assumed")) label += ", using your average";
+      if (logged) {
+        label += ", " + formatSteps(state.days[iso]) + " steps";
+        if (button.classList.contains("met")) label += ", met the day";
+        if (button.classList.contains("short")) label += ", short of the day";
+      } else if (button.classList.contains("assumed")) label += ", using your average";
       else label += ", not logged";
       button.setAttribute("aria-label", label);
       els.calGrid.appendChild(button);
     });
-    els.legend.innerHTML = "<strong>Orange number</strong> is a day you logged. A dot uses your average. The ring is the current date.";
+    var mark = dayMark(result);
+    if (!mark) {
+      els.legend.textContent = "Logged days show their step count. A dot uses your average. The ring is the average date.";
+    } else {
+      var noun = mark.name === "pace" ? "pace" : "goal";
+      els.legend.textContent = "Green met the " + formatSteps(mark.steps) + " " + noun +
+        ". Red is short of it. A dot uses your average. The ring is the average date.";
+    }
   }
 
   function render() {
     var model = C.chartSeries(activeInput());
     renderPeriods();
-    renderBanner(model.result);
+    renderToday(model.result);
     renderHero(model.result);
     renderStats(model.result);
     renderChart(model);
@@ -500,6 +542,22 @@
     if (els.dayDialog.open) els.dayDialog.close();
   }
 
+  function saveToday(event) {
+    event.preventDefault();
+    var today = todayISO();
+    var read = readStepsField(els.todaySteps.value);
+    if (read.error) {
+      setError(els.todayError, read.error);
+      return;
+    }
+    setError(els.todayError, "");
+    if (read.empty) delete state.days[today];
+    else state.days[today] = read.steps;
+    if (today.slice(0, 7) !== state.calMonth) state.calMonth = today.slice(0, 7);
+    save();
+    render();
+  }
+
   function saveDay(event) {
     event.preventDefault();
     if (!editingISO) return;
@@ -594,7 +652,8 @@
 
   function cacheEls() {
     [
-      "headerSub", "settingsBtn", "staleBanner", "staleText", "staleSettings",
+      "headerSub", "settingsBtn", "todayCard", "todayDate", "todayForm", "todaySteps",
+      "todaySave", "todayError", "todayMeter", "todayFill", "todayStatus",
       "heroKicker", "heroNum", "heroSub", "avgNum", "avgSub", "meter", "meterNow",
       "meterGoal", "meterFill", "sentence", "statTarget", "statLeft", "statGap",
       "statLogged", "chartTitle", "chart", "chartCaption", "calTitle", "calGrid",
@@ -610,7 +669,7 @@
 
   function wire() {
     els.settingsBtn.addEventListener("click", openSettings);
-    els.staleSettings.addEventListener("click", openSettings);
+    els.todayForm.addEventListener("submit", saveToday);
     els.settingsDone.addEventListener("click", function () {
       if (commitSettings()) els.settingsDialog.close();
     });
