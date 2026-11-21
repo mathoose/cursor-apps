@@ -4249,7 +4249,7 @@
   },
   {
     "id": "alchemy",
-    "name": "Alchemy Coffee",
+    "name": "Alchemy Coffee — 21st St",
     "neighborhood": "",
     "address": "119 South 21st Street",
     "lat": 39.9511208,
@@ -4668,16 +4668,45 @@
   },
   {
     "id": "greenline",
-    "name": "Green Line Cafe",
-    "neighborhood": "",
-    "address": "Baltimore Avenue",
+    "name": "Green Line Cafe — Baltimore Ave",
+    "neighborhood": "West Philadelphia",
+    "address": "4239 Baltimore Ave, Philadelphia, PA 19104",
     "lat": 39.9498428,
     "lng": -75.2090926,
-    "website": "",
+    "website": "https://www.greenlinecafe.com/",
     "instagramUrl": "",
-    "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed — verify before visiting.",
-    "hours": {}
+    "hoursSource": "official",
+    "hoursNote": "Mon–Sat 6:30am–6pm · Sun 8am–6pm",
+    "hours": {
+      "Monday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "6:30 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      }
+    }
   },
   {
     "id": "greenland",
@@ -5621,5 +5650,455 @@
     "description": "Grab-and-go biscuit sandwiches. The Gerritt Street bakery is the other Mighty Bread pin. On the pancakes.and.protein.shakes breakfast sandwich list.",
     "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
     "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "reanimator-west",
+    "name": "ReAnimator — West Philly",
+    "neighborhood": "West Philadelphia",
+    "address": "4705 Pine St, Philadelphia, PA 19143",
+    "lat": 39.952463,
+    "lng": -75.216675,
+    "website": "https://www.reanimatorcoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "reanimator-port-richmond",
+    "name": "ReAnimator — Port Richmond",
+    "neighborhood": "Port Richmond",
+    "address": "3118 Richmond St, Philadelphia, PA 19134",
+    "lat": 39.982236,
+    "lng": -75.103466,
+    "website": "https://www.reanimatorcoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7:30am–2:30pm · Sat–Sun 8am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "2:30 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "2:30 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "2:30 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "2:30 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "2:30 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "reanimator-mt-airy",
+    "name": "ReAnimator — Mt. Airy",
+    "neighborhood": "Mt. Airy",
+    "address": "6509 Germantown Ave, Philadelphia, PA 19119",
+    "lat": 40.048742,
+    "lng": -75.183429,
+    "website": "https://www.reanimatorcoffee.com/pages/locations",
+    "instagramUrl": "https://www.instagram.com/reanimatorcoffee/",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–3pm · Sat–Sun 8am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "alchemy-market",
+    "name": "Alchemy Coffee — Market St",
+    "neighborhood": "Center City",
+    "address": "2300 Market St, Philadelphia, PA 19103",
+    "lat": 39.954059,
+    "lng": -75.17834,
+    "website": "https://www.alchemycoffeephl.com/",
+    "instagramUrl": "",
+    "hoursSource": "osm",
+    "hoursNote": "Mon–Fri 7am–5pm · Sat 8am–5pm (OpenStreetMap)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "greenline-lancaster",
+    "name": "Green Line Cafe — Lancaster Ave",
+    "neighborhood": "Powelton Village",
+    "address": "3649 Lancaster Ave, Philadelphia, PA 19104",
+    "lat": 39.959406,
+    "lng": -75.19485,
+    "website": "https://www.greenlinecafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 8am–2pm · Sat–Sun 8am–3pm",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    }
+  },
+  {
+    "id": "greenline-locust",
+    "name": "Green Line Cafe — Locust St",
+    "neighborhood": "West Philadelphia",
+    "address": "4426 Locust St, Philadelphia, PA 19104",
+    "lat": 39.953978,
+    "lng": -75.211717,
+    "website": "https://www.greenlinecafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–5pm · Sat–Sun 8am–5pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "5:00 PM"
+      }
+    }
+  },
+  {
+    "id": "greenline-arch",
+    "name": "Green Line Cafe — Arch St",
+    "neighborhood": "Logan Square",
+    "address": "1650 Arch St, Philadelphia, PA 19103",
+    "lat": 39.954639,
+    "lng": -75.167695,
+    "website": "https://www.greenlinecafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 8am–4pm",
+    "hours": {
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    }
+  },
+  {
+    "id": "greenline-queen",
+    "name": "Green Line Cafe — Queen Village",
+    "neighborhood": "Queen Village",
+    "address": "518 S 4th St, Philadelphia, PA 19147",
+    "lat": 39.942111,
+    "lng": -75.149277,
+    "website": "https://www.greenlinecafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7:30am–6pm",
+    "hours": {
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      },
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "6:00 PM"
+      }
+    }
+  },
+  {
+    "id": "good-karma-fitler",
+    "name": "Good Karma Cafe — Fitler Square",
+    "neighborhood": "Fitler Square",
+    "address": "331 S 22nd St, Philadelphia, PA 19103",
+    "lat": 39.947374,
+    "lng": -75.178006,
+    "website": "https://thegoodkarmacafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Daily 7am–7pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      }
+    }
+  },
+  {
+    "id": "good-karma-wilma",
+    "name": "Good Karma Cafe — Wilma Theater",
+    "neighborhood": "Center City",
+    "address": "265 S Broad St, Philadelphia, PA 19107",
+    "lat": 39.947186,
+    "lng": -75.164304,
+    "website": "https://thegoodkarmacafe.com/",
+    "instagramUrl": "",
+    "hoursSource": "official",
+    "hoursNote": "Mon–Fri 7am–7pm · Sat–Sun 8am–7pm",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "7:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "7:00 PM"
+      },
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "7:00 PM"
+      }
+    }
+  },
+  {
+    "id": "haraz-university-city",
+    "name": "Haraz Coffee House — University City",
+    "neighborhood": "University City",
+    "address": "3421 Chestnut St, Philadelphia, PA 19104",
+    "lat": 39.954566,
+    "lng": -75.19236,
+    "website": "https://harazcoffeehouse.com/",
+    "instagramUrl": "",
+    "hoursSource": "listings",
+    "hoursNote": "Mon–Thu 7am–10pm · Fri–Sat 7am–11pm · Sun 7am–10pm (listings)",
+    "hours": {
+      "Monday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "7:00 AM",
+        "close": "11:00 PM"
+      },
+      "Saturday": {
+        "open": "7:00 AM",
+        "close": "11:00 PM"
+      },
+      "Sunday": {
+        "open": "7:00 AM",
+        "close": "10:00 PM"
+      }
+    }
   }
 ]

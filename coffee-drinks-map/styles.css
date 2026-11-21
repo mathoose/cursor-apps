@@ -1015,6 +1015,7 @@ body.sheet-open .pin-legend { display: none; }
 .tag-pin-face.tag-fav { background: #fff7e6; }
 .tag-pin-face.tag-want { background: #eef2ff; }
 .tag-pin-face.tag-nope { background: #f5f0eb; }
+.tag-pin-face.tag-cafe { background: #fff7ed; }
 .detail-meta:empty { display: none; }
 #detail-kinds { margin: 0 0 6px; }
 #detail-kinds:empty { display: none; }

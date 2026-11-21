@@ -538,13 +538,17 @@
   function addPlacePin(latlng, opts) {
     opts = opts || {};
     var tag = opts.place ? mapTag(opts.place) : '';
-    if (!tag || typeof L === 'undefined') return PhillyWalkMap.addCirclePin(latlng, opts);
+    var cafeMug = !tag && opts.cafeMug && opts.place && opts.place.kinds && opts.place.kinds.coffee &&
+      !opts.place.kinds.food && !opts.place.kinds.drinks;
+    if ((!tag && !cafeMug) || typeof L === 'undefined') return PhillyWalkMap.addCirclePin(latlng, opts);
+    var emoji = cafeMug ? '☕' : MAP_TAGS[tag].emoji;
+    var face = cafeMug ? 'cafe' : tag;
     var size = opts.big ? 42 : 34;
     var marker = L.marker(latlng, {
       icon: L.divIcon({
         className: 'philly-pin-icon tag-pin',
-        html: '<div class="tag-pin-face tag-' + tag + '" style="width:' + size + 'px;height:' + size + 'px;font-size:' +
-          (opts.big ? 26 : 22) + 'px" aria-hidden="true">' + MAP_TAGS[tag].emoji + '</div>',
+        html: '<div class="tag-pin-face tag-' + face + '" style="width:' + size + 'px;height:' + size + 'px;font-size:' +
+          (opts.big ? 26 : 22) + 'px" aria-hidden="true">' + emoji + '</div>',
         iconSize: [size, size],
         iconAnchor: [size / 2, size / 2]
       }),
@@ -878,6 +882,7 @@
         var dim = active && !mode.here.isWithin(p.lat, p.lng);
         var pin = addPlacePin([p.lat, p.lng], {
           place: p,
+          cafeMug: !!cfg.cafeMug,
           fillColor: cfg.pinColor(p),
           dim: dim,
           label: p.name,
@@ -1309,7 +1314,7 @@
       ? saved + ' saved · ' + store.visits.length + ' order' + (store.visits.length === 1 ? '' : 's') + ' logged'
       : 'Favorites & want to go';
     $('home-count-coffee').textContent = placesOf('coffee').length + ' cafes & roasters';
-    $('home-count-eat').textContent = eatPlaces().length + ' restaurants & bars';
+    $('home-count-eat').textContent = eatPlaces().length + ' restaurants, bars & cafes';
     $('home-status').textContent = allPlaces.length + ' places · ' + hhRestaurants.length + ' with happy hours';
   }
 
@@ -1332,7 +1337,7 @@
   }
 
   function eatPlaces() {
-    return allPlaces.filter(function (p) { return p.kinds.food || p.kinds.drinks; });
+    return allPlaces.filter(function (p) { return p.kinds.food || p.kinds.drinks || p.kinds.coffee; });
   }
 
   /* ---------- "I'm here": find the place, then log the order ---------- */
@@ -2385,9 +2390,11 @@
       screenId: 'screen-eat',
       mapId: 'map-eat',
       getPlaces: eatPlaces,
+      cafeMug: true,
       filter: function (p, f) {
         if (f === 'food') return !!p.kinds.food;
         if (f === 'drinks') return !!p.kinds.drinks;
+        if (f === 'coffee') return !!p.kinds.coffee;
         if (f === 'hh') return hasSchedule(p);
         if (f === 'lunch' || f === 'dinner') return !!p.kinds.food && matchesMeal(p, f);
         return true;
@@ -2491,7 +2498,7 @@
 
   function loadCatalog() {
     return Promise.all([
-      fetch('coffee.json?v=3').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('coffee.json?v=4').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('drinks.json?v=11').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('food.json?v=12').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {

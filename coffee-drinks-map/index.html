@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-drinks-map-v25 -->
+<!-- build: coffee-drinks-map-v26 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=16" />
+  <link rel="stylesheet" href="styles.css?v=17" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -65,7 +65,7 @@
       <button type="button" class="home-btn home-btn-food" id="pick-eat">
         <span class="home-btn-icon" aria-hidden="true">🍽️</span>
         <span class="home-btn-label">Food &amp; Drinks</span>
-        <span class="home-btn-hint" id="home-count-eat">Restaurants, bars &amp; happy hours</span>
+        <span class="home-btn-hint" id="home-count-eat">Restaurants, bars &amp; cafes</span>
       </button>
       <button type="button" class="home-btn home-btn-saved" id="pick-saved">
         <span class="home-btn-icon" aria-hidden="true">★</span>
@@ -138,13 +138,14 @@
     </header>
     <main>
       <label class="map-search-bar">
-        <span class="visually-hidden">Search restaurants and bars</span>
+        <span class="visually-hidden">Search restaurants, bars, and cafes</span>
         <input type="search" class="map-search" data-search placeholder="Search on map…" autocomplete="off" enterkeyhint="search" />
       </label>
       <div class="filter-chips" data-filter-chips role="tablist" aria-label="Show">
         <button type="button" class="chip active" data-filter="all" role="tab" aria-selected="true">All</button>
         <button type="button" class="chip" data-filter="food" role="tab" aria-selected="false">Food</button>
         <button type="button" class="chip" data-filter="drinks" role="tab" aria-selected="false">Drinks</button>
+        <button type="button" class="chip" data-filter="coffee" role="tab" aria-selected="false">Coffee</button>
         <button type="button" class="chip" data-filter="hh" role="tab" aria-selected="false">Happy hour</button>
         <button type="button" class="chip" data-filter="lunch" role="tab" aria-selected="false">Lunch</button>
         <button type="button" class="chip" data-filter="dinner" role="tab" aria-selected="false">Dinner</button>
@@ -155,7 +156,7 @@
         <div class="place-list" data-list></div>
       </div>
     </main>
-    <p class="pin-legend"><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
+    <p class="pin-legend"><span>☕ cafe</span><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
     <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
     <div class="here-bar" data-here-bar hidden>
       <div class="here-bar-top">
@@ -390,7 +391,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=16" defer></script>
+  <script src="app.js?v=17" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
