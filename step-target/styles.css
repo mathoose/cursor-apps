@@ -616,10 +616,11 @@ dialog.story-dialog::backdrop { background: #c4161c; }
   position: relative;
   box-sizing: border-box;
   min-height: 100%;
-  padding: calc(28px + env(safe-area-inset-top, 0px)) 24px calc(32px + env(safe-area-inset-bottom, 0px));
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
 }
 
@@ -649,24 +650,24 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 }
 
 .story-weekday {
-  margin: 36px 0 0;
-  font-size: 0.8125rem;
+  margin: 0;
+  font-size: 0.6875rem;
   font-weight: 750;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .story-date {
-  margin: 2px 0 0;
-  font-size: 2.75rem;
+  margin: 0;
+  font-size: 1.85rem;
   font-weight: 760;
   letter-spacing: -0.045em;
   line-height: 1.05;
 }
 
 .gauge {
-  width: min(100%, 440px);
-  margin-top: 4px;
+  width: min(64%, 260px);
+  margin-top: 0;
 }
 
 .gauge svg { display: block; width: 100%; height: auto; }
@@ -678,7 +679,7 @@ dialog.story-dialog::backdrop { background: #c4161c; }
   background: transparent;
   color: #fff;
   text-align: center;
-  font-size: 3rem;
+  font-size: 2.05rem;
   font-weight: 760;
   letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
@@ -690,15 +691,15 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 
 .story-versus {
   min-height: 1.3em;
-  margin: 2px 0 0;
-  font-size: 1.75rem;
+  margin: 0;
+  font-size: 1.25rem;
   font-weight: 760;
   letter-spacing: -0.03em;
 }
 
 .story-kicker {
-  margin: 28px 0 0;
-  font-size: 1.2rem;
+  margin: 6px 0 0;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -707,7 +708,7 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 
 .story-pace {
   margin: 0;
-  font-size: 3.5rem;
+  font-size: 2.15rem;
   font-weight: 780;
   letter-spacing: -0.05em;
   line-height: 1.05;
@@ -717,11 +718,11 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 .story-pace:empty { display: none; }
 
 .story-line {
-  max-width: 22rem;
-  margin: 10px 0 0;
-  font-size: 1.2rem;
+  max-width: 20rem;
+  margin: 2px 0 0;
+  font-size: 0.95rem;
   font-weight: 680;
-  line-height: 1.35;
+  line-height: 1.25;
   letter-spacing: -0.02em;
 }
 

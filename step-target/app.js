@@ -187,6 +187,12 @@
       ". To finish the " + noun + " at " + target + ", the next " + open + " to average " + pace + "." + loggedAhead;
   }
 
+  function todayStory() {
+    var today = todayISO();
+    var steps = Object.prototype.hasOwnProperty.call(state.days, today) ? state.days[today] : null;
+    return C.storyFor(activeInput(), today, steps);
+  }
+
   function heroBits(result) {
     if (result.status === "need-target") {
       return { kicker: "Set a target", num: "—", sub: "Choose a daily average" };
@@ -204,10 +210,16 @@
     if (result.status === "ahead") {
       return { kicker: "Needed each day", num: "0", sub: "Target already reached" };
     }
+    var story = todayStory();
+    var todayTarget = story.goal > 0 ? story.goal : result.paceSteps;
+    var sub = "next " + dayCount(result.openCount, "day", "days");
+    if (story.steps != null && story.remainPace != null) {
+      sub = formatSteps(story.remainPace) + " for the next " + dayCount(result.openCount, "day", "days");
+    }
     return {
-      kicker: "Needed each day",
-      num: formatSteps(result.paceSteps),
-      sub: "next " + dayCount(result.openCount, "day", "days"),
+      kicker: "Today's target",
+      num: formatSteps(todayTarget),
+      sub: sub,
     };
   }
 
@@ -223,7 +235,8 @@
     var today = todayISO();
     var logged = Object.prototype.hasOwnProperty.call(state.days, today);
     var steps = logged ? state.days[today] : null;
-    var mark = dayMark(result);
+    var story = todayStory();
+    var mark = story.goal > 0 ? { steps: story.goal, name: story.goalName || "pace" } : dayMark(result);
     els.todayDate.textContent = prettyLong(today);
     els.todaySave.textContent = logged ? "Update" : "Save";
     if (document.activeElement !== els.todaySteps) {
@@ -519,10 +532,14 @@
       if (!inMonth) button.classList.add("other-month");
       if (inPeriod) button.classList.add("in-period");
       else button.classList.add("outside");
-      var mark = dayMark(result);
+      var dayGoal = null;
+      if (logged) {
+        var dayStory = iso === today ? todayStory() : C.storyFor(activeInput(), iso, state.days[iso]);
+        if (dayStory.goal > 0) dayGoal = dayStory.goal;
+      }
       if (logged) {
         button.classList.add("logged");
-        if (mark) button.classList.add(state.days[iso] >= mark.steps ? "met" : "short");
+        if (dayGoal != null) button.classList.add(state.days[iso] >= dayGoal ? "met" : "short");
       } else if (inPeriod && result.baseline != null && iso <= state.asOf) button.classList.add("assumed");
       if (iso === state.asOf) button.classList.add("asof");
       if (iso === today && iso !== state.asOf) button.classList.add("real-today");
@@ -546,13 +563,10 @@
       button.setAttribute("aria-label", label);
       els.calGrid.appendChild(button);
     });
-    var mark = dayMark(result);
-    if (!mark) {
+    if (result.status === "need-target" || result.status === "need-baseline") {
       els.legend.textContent = "Logged days show their step count. A dot uses your average. The ring is the average date.";
     } else {
-      var noun = mark.name === "pace" ? "pace" : "goal";
-      els.legend.textContent = "Green met the " + formatSteps(mark.steps) + " " + noun +
-        ". Red is short of it. A dot uses your average. The ring is the average date.";
+      els.legend.textContent = "Green met that day's target. Red is short of it. A dot uses your average. The ring is the average date.";
     }
   }
 
