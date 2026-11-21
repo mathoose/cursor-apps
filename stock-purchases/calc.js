@@ -126,6 +126,128 @@
     return (quotes && quotes[symbol]) || { bars: [], dividends: [], splits: [] };
   }
 
+  function txSide(lot) {
+    var side = lot && lot.side;
+    if (side === "sell" || side === "dividend" || side === "split") return side;
+    return "buy";
+  }
+
+  function cashAmount(lot) {
+    var amount = asNumber(lot && lot.amount);
+    if (amount != null) return Math.abs(amount);
+    var shares = Number(lot && lot.shares);
+    var price = Number(lot && lot.price);
+    if (isFinite(shares) && isFinite(price)) return Math.abs(shares * price);
+    return 0;
+  }
+
+  function orderedLots(lots) {
+    return (lots || []).slice().sort(function (a, b) {
+      if (!a || !b) return 0;
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      var seq = (Number(a.seq) || 0) - (Number(b.seq) || 0);
+      if (seq) return seq;
+      return String(a.id || "") < String(b.id || "") ? -1 : 1;
+    });
+  }
+
+  function splitsFor(lots, quote) {
+    var byDate = {};
+    ((quote && quote.splits) || []).forEach(function (split) {
+      if (split && split.date) byDate[split.date] = split;
+    });
+    (lots || []).forEach(function (lot) {
+      if (txSide(lot) !== "split" || !lot.date || byDate[lot.date]) return;
+      byDate[lot.date] = {
+        date: lot.date,
+        numerator: Number(lot.numerator) || 1,
+        denominator: Number(lot.denominator) || 1,
+      };
+    });
+    return Object.keys(byDate).sort().map(function (date) { return byDate[date]; });
+  }
+
+  function hasImportedDividends(lots) {
+    return (lots || []).some(function (lot) { return txSide(lot) === "dividend"; });
+  }
+
+  function signedShares(lot, splits) {
+    var side = txSide(lot);
+    if (side === "dividend" || side === "split") return 0;
+    var sign = side === "sell" ? -1 : 1;
+    return sign * adjustedShares(lot.shares, splits, lot.date);
+  }
+
+  function sharesHeld(lots, splits, asOf, strictBefore) {
+    var held = 0;
+    orderedLots(lots).forEach(function (lot) {
+      if (!lot || !lot.date) return;
+      if (strictBefore ? !(lot.date < asOf) : lot.date > asOf) return;
+      held += signedShares(lot, splits);
+    });
+    if (Math.abs(held) < 1e-6) return 0;
+    return held;
+  }
+
+  function positionAt(lots, quote, asOf) {
+    var splits = splitsFor(lots, quote);
+    var held = 0;
+    var basis = 0;
+    var bought = 0;
+    var sold = 0;
+    var importedDiv = 0;
+    orderedLots(lots).forEach(function (lot) {
+      if (!lot || lot.date > asOf) return;
+      var side = txSide(lot);
+      if (side === "split") return;
+      if (side === "dividend") {
+        importedDiv += cashAmount(lot);
+        return;
+      }
+      var adj = Math.abs(signedShares(lot, splits));
+      var cash = cashAmount(lot);
+      if (side === "sell") {
+        sold += cash;
+        if (held > 1e-8) basis -= basis * Math.min(1, adj / held);
+        held -= adj;
+        if (held < 1e-6) {
+          held = 0;
+          basis = 0;
+        }
+        return;
+      }
+      bought += cash;
+      held += adj;
+      basis += cash;
+    });
+    var price = null;
+    if (quote) {
+      var live = asNumber(quote.regularMarketPrice);
+      if (live != null && asOf >= (quote.liveDate || "9999-99-99")) price = live;
+      if (price == null) price = closeOn(quote.bars, asOf);
+    }
+    var dividends = importedDiv;
+    if (!hasImportedDividends(lots) && quote) {
+      dividends = 0;
+      (quote.dividends || []).forEach(function (div) {
+        if (!div || div.date > asOf || !isFinite(Number(div.amount))) return;
+        dividends += sharesHeld(lots, splits, div.date, true) * Number(div.amount);
+      });
+    }
+    var value = null;
+    if (held === 0) value = 0;
+    else if (price != null) value = held * price;
+    return {
+      shares: held,
+      basis: basis,
+      bought: bought,
+      sold: sold,
+      dividends: dividends,
+      price: price,
+      value: value,
+    };
+  }
+
   function lotValue(lot, quote, date) {
     if (!lot || lot.date > date) return null;
     var shares = adjustedShares(lot.shares, quote.splits, lot.date);
@@ -137,14 +259,28 @@
     return shares * price;
   }
 
+  function symbolsOf(lots) {
+    var seen = {};
+    var list = [];
+    (lots || []).forEach(function (lot) {
+      if (!lot || !lot.symbol || seen[lot.symbol]) return;
+      seen[lot.symbol] = true;
+      list.push(lot.symbol);
+    });
+    return list;
+  }
+
   function buildValueSeries(lots, quotes, start, end) {
     var dates = {};
+    var first = "";
     (lots || []).forEach(function (lot) {
-      if (!lot) return;
+      if (!lot || txSide(lot) === "split") return;
+      if (!first || lot.date < first) first = lot.date;
       if (lot.date >= start && lot.date <= end) dates[lot.date] = true;
-      var bars = quoteFor(quotes, lot.symbol).bars || [];
-      bars.forEach(function (bar) {
-        if (!bar || bar.date < start || bar.date > end || bar.date < lot.date) return;
+    });
+    symbolsOf(lots).forEach(function (symbol) {
+      (quoteFor(quotes, symbol).bars || []).forEach(function (bar) {
+        if (!bar || bar.date < start || bar.date > end || (first && bar.date < first)) return;
         dates[bar.date] = true;
       });
     });
@@ -154,24 +290,23 @@
       var cost = 0;
       var haveValue = false;
       var rows = [];
-      (lots || []).forEach(function (lot) {
-        if (!lot || lot.date > date) return;
-        var quote = quoteFor(quotes, lot.symbol);
-        var shares = adjustedShares(lot.shares, quote.splits, lot.date);
-        var lotMarket = lotValue(lot, quote, date);
-        var div = dividendsThrough(shares, quote.dividends, lot.date, date);
-        if (lotMarket != null) {
-          value += lotMarket;
+      symbolsOf(lots).forEach(function (symbol) {
+        var symbolLots = (lots || []).filter(function (lot) { return lot && lot.symbol === symbol; });
+        var quote = quoteFor(quotes, symbol);
+        var pos = positionAt(symbolLots, quote, date);
+        if (pos.value != null) {
+          value += pos.value;
           haveValue = true;
         }
-        dividends += div;
-        cost += Number(lot.shares) * Number(lot.price);
+        dividends += pos.dividends;
+        cost += pos.basis;
         rows.push({
-          id: lot.id,
-          symbol: lot.symbol,
-          date: lot.date,
-          value: lotMarket,
-          dividends: div,
+          id: symbol,
+          symbol: symbol,
+          date: date,
+          shares: pos.shares,
+          value: pos.value,
+          dividends: pos.dividends,
         });
       });
       return {
@@ -185,39 +320,47 @@
   }
 
   function summarize(lots, quotes, asOf) {
-    var cost = 0;
-    var pricedCost = 0;
+    var bought = 0;
+    var sold = 0;
+    var basis = 0;
     var value = 0;
     var dividends = 0;
-    var priced = 0;
+    var shares = 0;
+    var haveValue = false;
+    var missingPrice = false;
     var currencies = {};
     var active = 0;
-    (lots || []).forEach(function (lot) {
-      if (!lot || lot.date > asOf) return;
-      active += 1;
-      var lotCost = Number(lot.shares) * Number(lot.price);
-      cost += lotCost;
-      var quote = quotes && quotes[lot.symbol];
-      if (!quote) return;
-      currencies[quote.currency || "USD"] = true;
-      var shares = adjustedShares(lot.shares, quote.splits, lot.date);
-      var live = asNumber(quote.regularMarketPrice);
-      var price = live != null ? live : closeOn(quote.bars, asOf);
-      if (price == null) return;
-      value += shares * price;
-      pricedCost += lotCost;
-      priced += 1;
-      dividends += dividendsThrough(shares, quote.dividends, lot.date, asOf);
+    symbolsOf(lots).forEach(function (symbol) {
+      var symbolLots = (lots || []).filter(function (lot) { return lot && lot.symbol === symbol && lot.date <= asOf; });
+      if (!symbolLots.length) return;
+      active += symbolLots.length;
+      var quote = quotes && quotes[symbol];
+      if (quote) currencies[quote.currency || "USD"] = true;
+      var pos = positionAt(symbolLots, quote, asOf);
+      bought += pos.bought;
+      sold += pos.sold;
+      basis += pos.basis;
+      dividends += pos.dividends;
+      shares += pos.shares;
+      if (pos.shares > 1e-6 && pos.price == null) missingPrice = true;
+      if (pos.value != null) {
+        value += pos.value;
+        haveValue = true;
+      }
     });
     var currencyKeys = Object.keys(currencies);
+    var openValue = haveValue && !missingPrice ? value : (haveValue && missingPrice ? null : (shares === 0 ? 0 : null));
     return {
-      cost: cost,
-      pricedCost: pricedCost,
-      value: priced ? value : null,
+      cost: basis,
+      pricedCost: basis,
+      bought: bought,
+      sold: sold,
+      shares: shares,
+      value: openValue,
       dividends: dividends,
-      priced: priced,
+      priced: missingPrice ? 0 : 1,
       active: active,
-      currency: currencyKeys.length === 1 ? currencyKeys[0] : null,
+      currency: currencyKeys.length === 1 ? currencyKeys[0] : (currencyKeys.length ? null : "USD"),
       mixed: currencyKeys.length > 1,
     };
   }
@@ -304,6 +447,9 @@
     windowBounds: windowBounds,
     splitFactor: splitFactor,
     adjustedShares: adjustedShares,
+    txSide: txSide,
+    positionAt: positionAt,
+    cashAmount: cashAmount,
     dividendsThrough: dividendsThrough,
     closeOn: closeOn,
     lastBarOn: lastBarOn,

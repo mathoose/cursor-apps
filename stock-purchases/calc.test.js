@@ -134,6 +134,31 @@ function live() {
     });
 }
 
+var roundTrip = [
+  { id: "b1", symbol: "TEST", date: "2026-01-02", side: "buy", shares: 10, price: 10, amount: 100 },
+  { id: "s1", symbol: "TEST", date: "2026-01-05", side: "sell", shares: 10, price: 12, amount: 120, seq: 1 },
+];
+var flat = calc.positionAt(roundTrip, { bars: [], splits: [], dividends: [] }, "2026-01-05");
+assert.strictEqual(flat.shares, 0);
+assert.strictEqual(flat.basis, 0);
+approx(flat.bought, 100);
+approx(flat.sold, 120);
+approx(flat.value, 0);
+var closed = calc.buildValueSeries(roundTrip, { TEST: { bars: [], splits: [], dividends: [] } }, "2026-01-01", "2026-01-06");
+var closedDay = closed.filter(function (p) { return p.date === "2026-01-05"; })[0];
+approx(closedDay.value, 0);
+approx(closedDay.cost, 0);
+
+var splitLots = [
+  { id: "b", symbol: "TEST", date: "2026-02-01", side: "buy", shares: 10, price: 5, amount: 50 },
+  { id: "sp", symbol: "TEST", date: "2026-02-10", side: "split", numerator: 1, denominator: 5 },
+  { id: "d", symbol: "TEST", date: "2026-02-15", side: "dividend", amount: 2 },
+];
+var afterSplit = calc.positionAt(splitLots, { bars: [], splits: [], dividends: [] }, "2026-02-15");
+approx(afterSplit.shares, 2);
+approx(afterSplit.dividends, 2);
+approx(afterSplit.bought, 50);
+
 live().then(function () {
   console.log("calc.test.js ok");
 }).catch(function (err) {

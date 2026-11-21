@@ -17,7 +17,7 @@
   var data = { version: 1, hideDividends: false, purchases: [] };
   var quotes = {};
   var quoteErrors = {};
-  var ui = { loading: false, windowId: "all", hiddenSymbols: {}, editingId: null };
+  var ui = { loading: false, windowId: "all", hiddenSymbols: {}, editingId: null, formSide: "buy" };
   var pendingName = "";
   var pickedSymbol = "";
   var deleteArmed = false;
@@ -58,22 +58,45 @@
     if (!raw || typeof raw !== "object") return null;
     var symbol = normalizeSymbol(raw.symbol);
     var date = String(raw.date || "");
+    var side = raw.side === "sell" || raw.side === "dividend" || raw.side === "split" ? raw.side : "buy";
     var shares = Number(raw.shares);
     var price = Number(raw.price);
+    var amount = Number(raw.amount);
     if (!validSymbol(symbol)) return null;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-    if (!isFinite(shares) || shares <= 0) return null;
-    if (!isFinite(price) || price < 0) return null;
-    return {
+    var numerator = Number(raw.numerator);
+    var denominator = Number(raw.denominator);
+    if (side === "dividend") {
+      if (!isFinite(amount) || amount === 0) return null;
+      shares = 0;
+      price = 0;
+    } else if (side === "split") {
+      if (!isFinite(numerator) || !isFinite(denominator) || numerator <= 0 || denominator <= 0) return null;
+      shares = 0;
+      price = 0;
+    } else {
+      if (!isFinite(shares) || shares <= 0) return null;
+      if (!isFinite(price) || price < 0) return null;
+    }
+    var lot = {
       id: String(raw.id || newId()),
       symbol: symbol,
       name: String(raw.name || "").slice(0, 80),
       date: date,
+      side: side,
       shares: shares,
       price: price,
       note: String(raw.note || "").slice(0, 200),
       updatedAt: raw.updatedAt || new Date().toISOString(),
     };
+    if (side === "dividend" || (isFinite(amount) && amount !== 0)) lot.amount = Math.abs(amount);
+    if (raw.orderType === "market" || raw.orderType === "limit") lot.orderType = raw.orderType;
+    if (side === "split") {
+      lot.numerator = numerator;
+      lot.denominator = denominator;
+    }
+    if (isFinite(Number(raw.seq))) lot.seq = Number(raw.seq);
+    return lot;
   }
 
   function normalizeData(raw) {
@@ -197,7 +220,7 @@
   }
 
   function formatShares(n) {
-    return Number(n).toLocaleString("en-US", { maximumFractionDigits: 4 });
+    return Number(n).toLocaleString("en-US", { maximumFractionDigits: 6 });
   }
 
   function symbolColor(symbol) {
@@ -253,20 +276,6 @@
     var prev = bars[bars.length - 2].close;
     if (!isFinite(last) || !isFinite(prev) || !prev) return null;
     return { last: last, pct: (last - prev) / prev };
-  }
-
-  function splitNote(lot) {
-    var quote = quotes[lot.symbol];
-    if (!quote) return "";
-    var factor = StockCalc.splitFactor(quote.splits, lot.date);
-    if (Math.abs(factor - 1) < 0.0001) return "";
-    var after = (quote.splits || []).filter(function (split) {
-      return split.date > lot.date && split.denominator;
-    });
-    var label = after.length === 1
-      ? "the " + after[0].numerator + "-for-" + after[0].denominator + " split"
-      : "later splits";
-    return formatShares(lot.shares * factor) + " shares after " + label;
   }
 
   function yahoo(path) {
@@ -435,14 +444,15 @@
     var currency = sum.currency || "USD";
     var gain = null;
     if (sum.value != null) {
-      gain = sum.value - sum.pricedCost;
+      gain = sum.value + sum.sold - sum.bought;
       if (!data.hideDividends) gain += sum.dividends;
     }
     var gainClass = gain > 0 ? "up" : gain < 0 ? "down" : "";
     var html = "";
-    html += stat("Invested", money(sum.cost, currency), "");
-    html += stat("Value", sum.value == null ? "—" : money(sum.value, currency), sum.priced < sum.active ? "Partial" : "");
-    html += stat(data.hideDividends ? "Gain" : "Gain + dividends", signedMoney(gain, currency), formatPct(gain, sum.pricedCost), gainClass);
+    html += stat("Bought", money(sum.bought, currency), "");
+    if (sum.sold > 0) html += stat("Sold", money(sum.sold, currency), "Cash received");
+    html += stat("Value", sum.value == null ? "—" : money(sum.value, currency), sum.value == null ? "Partial" : "");
+    html += stat(data.hideDividends ? "Gain" : "Gain + dividends", signedMoney(gain, currency), formatPct(gain, sum.bought), gainClass);
     if (!data.hideDividends) html += stat("Dividends", money(sum.dividends, currency), "Cash received");
     els.summary.innerHTML = html;
   }
@@ -490,13 +500,19 @@
     var html = "";
     symbols.forEach(function (symbol) {
       var lots = data.purchases.filter(function (lot) { return lot.symbol === symbol; })
-        .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+        .sort(function (a, b) {
+          if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+          return (Number(b.seq) || 0) - (Number(a.seq) || 0);
+        });
       var quote = quotes[symbol];
       var currency = quoteCurrency(symbol);
-      var name = (lots[0] && lots[0].name) || (quote && quote.shortName) || "";
+      var name = "";
+      lots.forEach(function (lot) { if (!name && lot.name) name = lot.name; });
+      if (!name && quote && quote.shortName) name = quote.shortName;
       var move = dayMove(quote);
       var bars = (quote && quote.bars) || [];
       var price = quote && isNum(quote.regularMarketPrice) ? quote.regularMarketPrice : (bars.length ? bars[bars.length - 1].close : null);
+      var pos = StockCalc.positionAt(lots, quote, asOf);
       html += '<section class="group">';
       html += '<div class="group-head"><h3>' + escapeHtml(symbol) + (name ? "<small>" + escapeHtml(name) + "</small>" : "") + "</h3>";
       html += '<div class="group-price">';
@@ -509,28 +525,21 @@
         }
       }
       html += "</div></div>";
+      html += '<p class="group-hold">' + escapeHtml(formatShares(pos.shares) + " shares held" +
+        (pos.value != null && pos.shares > 0 ? " · " + money(pos.value, currency) : "")) + "</p>";
       if (quoteErrors[symbol]) html += '<p class="group-error">' + escapeHtml(quoteErrors[symbol]) + "</p>";
       lots.forEach(function (lot) {
-        var shares = quote ? StockCalc.adjustedShares(lot.shares, quote.splits, lot.date) : lot.shares;
-        var market = quote && isNum(quote.regularMarketPrice) ? shares * quote.regularMarketPrice : null;
-        if (market == null && quote) {
-          var close = StockCalc.closeOn(quote.bars, asOf);
-          if (close != null) market = shares * close;
-        }
-        var div = quote ? StockCalc.dividendsThrough(shares, quote.dividends, lot.date, asOf) : 0;
-        var cost = lot.shares * lot.price;
-        var gain = market == null ? null : market - cost + (data.hideDividends ? 0 : div);
-        var gainClass = gain > 0 ? "up" : gain < 0 ? "down" : "";
+        var side = StockCalc.txSide(lot);
+        if (data.hideDividends && side === "dividend") return;
+        var cash = StockCalc.cashAmount(lot);
+        var signed = side === "buy" ? -cash : cash;
+        var cashClass = side === "sell" || side === "dividend" ? "up" : side === "buy" ? "down" : "";
+        var cashText = side === "split" ? (lot.numerator || 1) + ":" + (lot.denominator || 1) : signedMoney(signed, currency);
         html += '<button type="button" class="lot' + (ui.hiddenSymbols[symbol] ? " dim" : "") + '" data-id="' + escapeHtml(lot.id) + '">';
-        html += '<div class="lot-top"><span>' + escapeHtml(formatDate(lot.date)) + "</span><span>" +
-          escapeHtml(market == null ? "Waiting for price" : money(market, currency)) + "</span></div>";
-        html += '<div class="lot-line"><span>' + escapeHtml(formatShares(lot.shares) + " shares at " + money(lot.price, currency)) +
-          "</span><span class=\"" + gainClass + "\">" + escapeHtml(signedMoney(gain, currency) + (formatPct(gain, cost) ? " " + formatPct(gain, cost) : "")) + "</span></div>";
-        var splitText = splitNote(lot);
-        if (splitText) html += '<div class="lot-line"><span>' + escapeHtml(splitText) + "</span></div>";
-        if (!data.hideDividends) {
-          html += '<div class="lot-line"><span>Dividends</span><span>' + escapeHtml(money(div, currency)) + "</span></div>";
-        }
+        html += '<div class="lot-top"><span>' + escapeHtml(formatDate(lot.date)) + "</span><span class=\"" + cashClass + "\">" +
+          escapeHtml(cashText) + "</span></div>";
+        html += '<div class="lot-line"><span>' + escapeHtml(activityTitle(lot)) + "</span><span>" +
+          escapeHtml(activityDetail(lot, currency)) + "</span></div>";
         if (lot.note) html += '<p class="lot-note">' + escapeHtml(lot.note) + "</p>";
         html += "</button>";
       });
@@ -540,16 +549,25 @@
   }
 
   function symbolValue(symbol, asOf) {
-    var total = 0;
-    data.purchases.forEach(function (lot) {
-      if (lot.symbol !== symbol || lot.date > asOf) return;
-      var quote = quotes[symbol];
-      if (!quote) return;
-      var shares = StockCalc.adjustedShares(lot.shares, quote.splits, lot.date);
-      var price = isNum(quote.regularMarketPrice) ? quote.regularMarketPrice : StockCalc.closeOn(quote.bars, asOf);
-      if (price != null) total += shares * price;
-    });
-    return total;
+    var lots = data.purchases.filter(function (lot) { return lot.symbol === symbol; });
+    var pos = StockCalc.positionAt(lots, quotes[symbol], asOf);
+    return pos.value || 0;
+  }
+
+  function activityTitle(lot) {
+    var side = StockCalc.txSide(lot);
+    if (side === "dividend") return "Dividend";
+    if (side === "split") return (Number(lot.numerator) < Number(lot.denominator) ? "Reverse split" : "Split");
+    var order = lot.orderType === "limit" ? "Limit " : lot.orderType === "market" ? "Market " : "";
+    return order + (side === "sell" ? "sell" : "buy");
+  }
+
+  function activityDetail(lot, currency) {
+    var side = StockCalc.txSide(lot);
+    if (side === "split") return (lot.numerator || 1) + "-for-" + (lot.denominator || 1);
+    if (side === "dividend") return "Cash dividend";
+    var count = Number(lot.shares);
+    return formatShares(count) + (count === 1 ? " share at " : " shares at ") + money(lot.price, currency);
   }
 
   function sizeCanvas(canvas, cssHeight) {
@@ -611,7 +629,7 @@
     canvas._inspect = meta;
     els.valueLegend.innerHTML = "";
     if (!data.purchases.length) {
-      els.valueHint.textContent = "The line starts when you add a purchase.";
+      els.valueHint.textContent = "The line starts when you add a buy.";
       return;
     }
     if (!model.lots.length || model.mixed) {
@@ -625,7 +643,7 @@
       els.valueHint.textContent = ui.loading || waiting ? "Updating prices…" : "No prices in this window yet.";
       return;
     }
-    els.valueHint.textContent = "Press and hold the chart to read a date. Dots are purchase dates.";
+    els.valueHint.textContent = "Press and hold the chart to read a date. Dots are buys and sells. The line is shares still held.";
     var domain = yDomain(priced);
     drawGrid(ctx, meta, domain, model.currency);
     strokeSeries(ctx, meta, priced, function (point) { return point.cost; }, LINE_COST, [5, 4]);
@@ -764,6 +782,8 @@
     var domain = yDomain(meta.points.filter(function (point) { return point.value != null; }));
     ctx.save();
     lots.forEach(function (lot) {
+      var side = StockCalc.txSide(lot);
+      if (side !== "buy" && side !== "sell") return;
       if (lot.date < meta.start || lot.date > meta.end) return;
       var point = null;
       meta.points.forEach(function (candidate) {
@@ -790,12 +810,14 @@
     ctx.clearRect(0, 0, sized.w, sized.h);
     var lots = selectedLots();
     var bounds = activeBounds();
-    var buys = lots.filter(function (lot) { return lot.date >= bounds.start && lot.date <= bounds.end; })
-      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var buys = lots.filter(function (lot) {
+      var side = StockCalc.txSide(lot);
+      return (side === "buy" || side === "sell") && lot.date >= bounds.start && lot.date <= bounds.end;
+    }).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     els.stemCount.textContent = buys.length ? String(buys.length) : "";
     els.stemEmpty.hidden = buys.length > 0 || !data.purchases.length;
     if (!buys.length) {
-      canvas.setAttribute("aria-label", "No purchases in this window");
+      canvas.setAttribute("aria-label", "No buys or sells in this window");
       return;
     }
     var pad = { l: 54, r: 12, t: 22, b: 28 };
@@ -808,7 +830,7 @@
     };
     var maxCost = 0;
     buys.forEach(function (lot) {
-      var cost = lot.shares * lot.price;
+      var cost = StockCalc.cashAmount(lot);
       if (cost > maxCost) maxCost = cost;
     });
     if (!maxCost) maxCost = 1;
@@ -827,29 +849,36 @@
     Object.keys(groups).forEach(function (date) {
       var group = groups[date];
       group.forEach(function (lot, index) {
-        var cost = lot.shares * lot.price;
+        var cost = StockCalc.cashAmount(lot);
         var x = xForDate(date, meta) + (index - (group.length - 1) / 2) * 12;
         var y = yFor(cost, domain, meta);
-        ctx.strokeStyle = symbolColor(lot.symbol);
+        var color = StockCalc.txSide(lot) === "sell" ? "#fb7185" : "#34d399";
+        ctx.strokeStyle = color;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x, baseline);
         ctx.lineTo(x, y);
         ctx.stroke();
-        ctx.fillStyle = symbolColor(lot.symbol);
+        ctx.fillStyle = color;
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fill();
-        if (buys.length <= 10) {
-          ctx.fillStyle = "#d1fae5";
+        if (buys.length <= 8) {
+          ctx.fillStyle = color;
           ctx.textAlign = "left";
           ctx.textBaseline = "middle";
-          ctx.fillText(lot.symbol, x + 8, y);
+          ctx.fillText(StockCalc.txSide(lot) === "sell" ? "Sell" : "Buy", x + 8, y);
         }
       });
     });
     ctx.restore();
-    canvas.setAttribute("aria-label", buys.length + " purchase" + (buys.length === 1 ? "" : "s") + " in this window");
+    var buyCount = 0;
+    var sellCount = 0;
+    buys.forEach(function (lot) {
+      if (StockCalc.txSide(lot) === "sell") sellCount += 1;
+      else buyCount += 1;
+    });
+    canvas.setAttribute("aria-label", buyCount + " buys and " + sellCount + " sells in this window");
   }
 
   function render() {
@@ -1008,13 +1037,16 @@
     deleteArmed = false;
     pendingName = lot ? lot.name : "";
     pickedSymbol = lot ? lot.symbol : "";
-    els.formTitle.textContent = lot ? "Edit purchase" : "Add purchase";
+    ui.formSide = lot ? StockCalc.txSide(lot) : "buy";
+    els.formTitle.textContent = lot ? "Edit activity" : "Add activity";
     els.symbolInput.value = lot ? lot.symbol : "";
     els.purchaseDate.value = lot ? lot.date : StockCalc.todayKey();
     els.purchaseDate.max = StockCalc.todayKey();
-    els.sharesInput.value = lot ? String(lot.shares) : "";
-    els.priceInput.value = lot ? String(lot.price) : "";
+    els.sharesInput.value = lot && lot.shares ? String(lot.shares) : "";
+    els.priceInput.value = lot && lot.price ? String(lot.price) : "";
+    els.amountInput.value = lot && lot.amount ? String(lot.amount) : "";
     els.noteInput.value = lot ? lot.note : "";
+    applyFormSide();
     els.symbolName.textContent = pendingName;
     els.deleteBtn.hidden = !lot;
     els.deleteBtn.textContent = "Delete";
@@ -1033,27 +1065,65 @@
     deleteArmed = false;
   }
 
+  function applyFormSide() {
+    var side = ui.formSide === "sell" || ui.formSide === "dividend" || ui.formSide === "split" ? ui.formSide : "buy";
+    ui.formSide = side;
+    var buttons = els.sideRow ? els.sideRow.querySelectorAll("[data-side]") : [];
+    for (var i = 0; i < buttons.length; i++) {
+      buttons[i].setAttribute("aria-selected", buttons[i].getAttribute("data-side") === side ? "true" : "false");
+    }
+    var dividend = side === "dividend";
+    var split = side === "split";
+    els.tradeFields.hidden = dividend || split;
+    els.dividendFields.hidden = !dividend;
+    els.sideRow.hidden = split;
+    els.splitNote.hidden = !split;
+    if (side === "sell") els.priceLabel.textContent = "Price you received, per share";
+    else els.priceLabel.textContent = "Price you paid, per share";
+  }
+
   function readForm() {
     var symbol = normalizeSymbol(els.symbolInput.value);
     var date = els.purchaseDate.value;
-    var shares = Number(els.sharesInput.value);
-    var price = Number(els.priceInput.value);
+    var side = ui.formSide;
     if (!validSymbol(symbol)) return "Enter a symbol like AAPL.";
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return "Choose a date.";
-    if (date > StockCalc.todayKey()) return "Purchase date can't be in the future.";
-    if (!isFinite(shares) || shares <= 0) return "Enter the number of shares.";
-    if (!isFinite(price) || price < 0) return "Enter the price you paid per share.";
+    if (date > StockCalc.todayKey()) return "Date can't be in the future.";
     var name = pendingName || ((quotes[symbol] && quotes[symbol].shortName) || "");
-    return {
+    var lot = {
       id: ui.editingId || newId(),
       symbol: symbol,
       name: String(name).slice(0, 80),
       date: date,
-      shares: shares,
-      price: price,
+      side: side,
+      shares: 0,
+      price: 0,
       note: els.noteInput.value.trim().slice(0, 200),
       updatedAt: new Date().toISOString(),
     };
+    if (side === "split") {
+      var current = null;
+      data.purchases.forEach(function (item) { if (item.id === ui.editingId) current = item; });
+      if (!current) return "A split is already recorded with the imported history.";
+      lot.numerator = current.numerator;
+      lot.denominator = current.denominator;
+      lot.seq = current.seq;
+      return lot;
+    }
+    if (side === "dividend") {
+      var amount = Number(els.amountInput.value);
+      if (!isFinite(amount) || amount === 0) return "Enter the cash dividend.";
+      lot.amount = Math.abs(amount);
+      return lot;
+    }
+    var shares = Number(els.sharesInput.value);
+    var price = Number(els.priceInput.value);
+    if (!isFinite(shares) || shares <= 0) return "Enter the number of shares.";
+    if (!isFinite(price) || price < 0) return side === "sell" ? "Enter the price you received per share." : "Enter the price you paid per share.";
+    lot.shares = shares;
+    lot.price = price;
+    lot.amount = Math.abs(shares * price);
+    return lot;
   }
 
   function saveForm() {
@@ -1252,7 +1322,7 @@
         closeSettings();
         render();
         refreshQuotes(false);
-        toast("Imported " + merged.purchases.length + " purchase" + (merged.purchases.length === 1 ? "" : "s"));
+        toast("Imported " + merged.purchases.length + " entries");
       } catch (e) {
         toast("That file isn't Stock Purchases JSON");
       } finally {
@@ -1269,6 +1339,12 @@
     els.exportJsonBtn.addEventListener("click", exportJson);
     els.importJsonFile.addEventListener("change", function () {
       importJsonFile(els.importJsonFile.files && els.importJsonFile.files[0]);
+    });
+    els.sideRow.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-side]");
+      if (!button) return;
+      ui.formSide = button.getAttribute("data-side");
+      applyFormSide();
     });
     els.addBtn.addEventListener("click", function () { openForm(null); });
     els.emptyAddBtn.addEventListener("click", function () { openForm(null); });
@@ -1350,7 +1426,8 @@
       "refreshBtn", "settingsBtn", "formOverlay", "formTitle", "symbolInput", "symbolName",
       "suggestions", "purchaseDate", "sharesInput", "priceInput", "noteInput", "priceHint",
       "saveBtn", "cancelBtn", "deleteBtn", "settingsOverlay", "exportJsonBtn", "importJsonFile",
-      "settingsCloseBtn", "toast",
+      "settingsCloseBtn", "toast", "sideRow", "tradeFields", "dividendFields", "amountInput",
+      "priceLabel", "splitNote",
     ].forEach(function (id) { els[id] = $(id); });
   }
 

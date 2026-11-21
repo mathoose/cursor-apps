@@ -12,17 +12,17 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
-  <!-- build: stock-purchases-v1 -->
+  <!-- build: stock-purchases-v3 -->
   <header class="app-header">
     <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
     </a>
     <div class="header-titles">
       <h1>Stock Purchases</h1>
-      <p>Buys, value, and dividends</p>
+      <p>Buys, sells, and dividends</p>
     </div>
     <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh prices">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.5 6.2L4 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L20 8"/><path d="M21 4v4h-4"/><path d="M3 20v-4h4"/></svg>
@@ -33,7 +33,7 @@
   </header>
 
   <main>
-    <p class="status" id="status" aria-live="polite">Add a purchase to load prices.</p>
+    <p class="status" id="status" aria-live="polite">Add a buy or sell to load prices.</p>
 
     <section class="summary" id="summary" aria-label="Portfolio summary"></section>
 
@@ -41,7 +41,7 @@
       <input type="checkbox" id="hideDividends" />
       <span>Hide dividends</span>
     </label>
-    <p class="fine-print">Dividends are cash received, not extra shares. Hiding them takes that cash out of the totals, the chart, and each purchase.</p>
+    <p class="fine-print">Dividends are cash received, not extra shares. Hiding them takes that cash out of the totals, the chart, and the activity list.</p>
 
     <div class="windows" id="windows" role="tablist" aria-label="Time window">
       <button type="button" role="tab" data-window="1M">1M</button>
@@ -57,7 +57,7 @@
       <div class="card-head">
         <h2>Value over time</h2>
       </div>
-      <p class="card-note" id="valueHint">Market value of shares you already held, starting at each purchase.</p>
+      <p class="card-note" id="valueHint">Market value of shares still held. A sale that closes the position brings the line to zero.</p>
       <div class="graph-canvas-wrap" id="valuePlot">
         <canvas id="graphCanvas" width="320" height="260" draggable="false" aria-label="Value of purchases over time"></canvas>
         <div id="graphChartTouch" aria-hidden="true"></div>
@@ -69,25 +69,25 @@
 
     <section class="card">
       <div class="card-head">
-        <h2>Purchase dates</h2>
+        <h2>Buys and sells</h2>
         <span class="card-count" id="stemCount"></span>
       </div>
-      <p class="card-note">Each stem is one buy in this window. Taller means more cash spent.</p>
+      <p class="card-note">Green stems are buys and red stems are sells. Taller means more cash.</p>
       <div class="graph-canvas-wrap stem-wrap">
         <canvas id="stemCanvas" width="320" height="200" draggable="false" aria-label="Dates purchases were made"></canvas>
       </div>
-      <p class="card-note" id="stemEmpty" hidden>No purchases in this window.</p>
+      <p class="card-note" id="stemEmpty" hidden>No buys or sells in this window.</p>
     </section>
 
     <section class="card lots-card">
       <div class="card-head">
-        <h2>Purchases</h2>
-        <button type="button" class="btn btn-primary" id="addBtn">Add purchase</button>
+        <h2>Activity</h2>
+        <button type="button" class="btn btn-primary" id="addBtn">Add</button>
       </div>
       <div id="lotList"></div>
       <div class="empty-state" id="emptyState">
-        <p>No purchases yet. Add a buy and this page looks up the price, dividends, and history for that symbol only.</p>
-        <button type="button" class="btn btn-primary" id="emptyAddBtn">Add purchase</button>
+        <p>No activity yet. Add a buy, or import a JSON file from Settings. What you add stays on this phone.</p>
+        <button type="button" class="btn btn-primary" id="emptyAddBtn">Add</button>
       </div>
     </section>
   </main>
@@ -95,23 +95,35 @@
   <div class="overlay" id="formOverlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
       <div class="sheet-handle"></div>
-      <h2 id="formTitle">Add purchase</h2>
+      <h2 id="formTitle">Add activity</h2>
+      <div class="side-row" id="sideRow" role="tablist" aria-label="Activity type">
+        <button type="button" role="tab" data-side="buy" aria-selected="true">Buy</button>
+        <button type="button" role="tab" data-side="sell">Sell</button>
+        <button type="button" role="tab" data-side="dividend">Dividend</button>
+      </div>
+      <p class="fine-print" id="splitNote" hidden>This split stays on the date it happened. Deleting it does not change the share count while Yahoo still reports that split.</p>
       <label class="field-label" for="symbolInput">Symbol</label>
       <input type="text" id="symbolInput" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="AAPL" />
       <p class="symbol-name" id="symbolName"></p>
       <div class="suggestions" id="suggestions"></div>
-      <div class="field-row">
-        <div>
-          <label class="field-label" for="purchaseDate">Date</label>
-          <input type="date" id="purchaseDate" required />
-        </div>
-        <div>
-          <label class="field-label" for="sharesInput">Shares</label>
-          <input type="number" id="sharesInput" inputmode="decimal" min="0" step="any" placeholder="10" />
+      <label class="field-label" for="purchaseDate">Date</label>
+      <input type="date" id="purchaseDate" required />
+      <div id="tradeFields">
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="sharesInput">Shares</label>
+            <input type="number" id="sharesInput" inputmode="decimal" min="0" step="any" placeholder="10" />
+          </div>
+          <div>
+            <label class="field-label" for="priceInput" id="priceLabel">Price you paid, per share</label>
+            <input type="number" id="priceInput" inputmode="decimal" min="0" step="any" placeholder="150.00" />
+          </div>
         </div>
       </div>
-      <label class="field-label" for="priceInput">Price you paid, per share</label>
-      <input type="number" id="priceInput" inputmode="decimal" min="0" step="any" placeholder="150.00" />
+      <div id="dividendFields" hidden>
+        <label class="field-label" for="amountInput">Cash received</label>
+        <input type="number" id="amountInput" inputmode="decimal" min="0" step="any" placeholder="25.00" />
+      </div>
       <p class="price-hint" id="priceHint"></p>
       <label class="field-label" for="noteInput">Note</label>
       <input type="text" id="noteInput" maxlength="200" placeholder="Optional" />
@@ -127,7 +139,7 @@
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
       <div class="sheet-handle"></div>
       <h2 id="settingsTitle">Settings</h2>
-      <p class="fine-print">Purchases stay on this phone. Price history is cached here and left out of backups. Export JSON to keep a copy.</p>
+      <p class="fine-print">Activity stays on this phone. It is not part of the website. Price history is cached here and left out of backups. Export JSON to keep a copy, or import a file you already have.</p>
       <div class="sheet-actions">
         <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
         <label class="btn btn-secondary import-label">
@@ -144,7 +156,7 @@
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="calc.js?v=1"></script>
-  <script src="app.js?v=1"></script>
+  <script src="calc.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
