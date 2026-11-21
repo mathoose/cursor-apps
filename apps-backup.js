@@ -1894,7 +1894,7 @@
       },
       summarize: function (slice) {
         var n = slice.purchases ? slice.purchases.length : 0;
-        return n + " purchase" + (n === 1 ? "" : "s");
+        return n + " entr" + (n === 1 ? "y" : "ies");
       },
       mergeSlice: function (existing, incoming) {
         if (!incoming) return existing;
