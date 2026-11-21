@@ -211,33 +211,6 @@
     };
   }
 
-  function staleDays(result) {
-    var today = todayISO();
-    if (!result.bounds || today <= state.asOf) return [];
-    var end = today < result.bounds.end ? today : result.bounds.end;
-    if (end <= state.asOf) return [];
-    return C.eachDay(C.shiftISO(state.asOf, 1), end).filter(function (iso) {
-      return !Object.prototype.hasOwnProperty.call(state.days, iso);
-    });
-  }
-
-  function renderBanner(result) {
-    var missing = staleDays(result);
-    if (!missing.length) {
-      els.staleBanner.hidden = true;
-      return;
-    }
-    var today = todayISO();
-    els.staleText.textContent = "Today is " + pretty(today, true) +
-      ", and your average stops on " + pretty(state.asOf, true) + ". " +
-      dayCount(missing.length, "day", "days") +
-      " in between " + (missing.length === 1 ? "is" : "are") +
-      " not logged, so " + (missing.length === 1 ? "it is" : "they are") +
-      " still part of the pace. Log " + (missing.length === 1 ? "it" : "them") +
-      ", or move the current date and update the average.";
-    els.staleBanner.hidden = false;
-  }
-
   function renderHero(result) {
     var bits = heroBits(result);
     els.heroKicker.textContent = bits.kicker;
@@ -402,7 +375,6 @@
   function render() {
     var model = C.chartSeries(activeInput());
     renderPeriods();
-    renderBanner(model.result);
     renderHero(model.result);
     renderStats(model.result);
     renderChart(model);
@@ -594,7 +566,7 @@
 
   function cacheEls() {
     [
-      "headerSub", "settingsBtn", "staleBanner", "staleText", "staleSettings",
+      "headerSub", "settingsBtn",
       "heroKicker", "heroNum", "heroSub", "avgNum", "avgSub", "meter", "meterNow",
       "meterGoal", "meterFill", "sentence", "statTarget", "statLeft", "statGap",
       "statLogged", "chartTitle", "chart", "chartCaption", "calTitle", "calGrid",
@@ -610,7 +582,6 @@
 
   function wire() {
     els.settingsBtn.addEventListener("click", openSettings);
-    els.staleSettings.addEventListener("click", openSettings);
     els.settingsDone.addEventListener("click", function () {
       if (commitSettings()) els.settingsDialog.close();
     });

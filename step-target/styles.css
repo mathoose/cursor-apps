@@ -129,35 +129,6 @@ button {
   padding: 4px 16px 24px;
 }
 
-.banner[hidden] { display: none; }
-
-.banner {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: 12px;
-  border-radius: 14px;
-  background: #2a1c08;
-  color: #ffd7ad;
-  font-size: 0.8125rem;
-  line-height: 1.4;
-}
-
-.banner p { margin: 0; }
-
-.banner button {
-  align-self: flex-start;
-  border: 0;
-  border-radius: 999px;
-  background: var(--orange);
-  color: #1a0c02;
-  font-weight: 700;
-  font-size: 0.8125rem;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
 .hero, .chart-card, .cal-card, .stats {
   background: var(--card);
   border-radius: 18px;
