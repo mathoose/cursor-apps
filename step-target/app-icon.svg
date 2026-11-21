@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Steps">
+  <defs>
+    <linearGradient id="bg" x1="18" y1="8" x2="162" y2="176" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ff7a1a"/>
+      <stop offset="100%" stop-color="#e23d00"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <rect x="32" y="104" width="24" height="40" rx="7" fill="#fff" opacity=".78"/>
+  <rect x="64" y="80" width="24" height="64" rx="7" fill="#fff" opacity=".9"/>
+  <rect x="96" y="56" width="24" height="88" rx="7" fill="#fff"/>
+  <rect x="128" y="34" width="24" height="110" rx="7" fill="#fff"/>
+  <circle cx="140" cy="28" r="8" fill="#1c0d05"/>
+</svg>
