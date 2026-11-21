@@ -489,6 +489,7 @@
     return {
       fav: plainObject(parsed.fav),
       want: plainObject(parsed.want),
+      nope: plainObject(parsed.nope),
       ratings: plainObject(parsed.ratings),
       visits: Array.isArray(parsed.visits) ? parsed.visits : [],
       extraCosts: plainObject(parsed.extraCosts)
@@ -503,13 +504,83 @@
     return p.keys.some(function (k) { return !!store[bucket][k]; });
   }
 
+  /* One emoji on the map. Nope wins, then a favorite, then someplace you want to go. */
+  var MAP_TAGS = {
+    nope: { emoji: '💩', label: 'Nope' },
+    fav: { emoji: '⭐', label: 'Favorite' },
+    want: { emoji: '👀', label: 'Want to go' }
+  };
+
+  function mapTag(p) {
+    if (!p) return '';
+    if (isMarked(p, 'nope')) return 'nope';
+    if (isMarked(p, 'fav')) return 'fav';
+    if (isMarked(p, 'want')) return 'want';
+    return '';
+  }
+
+  function setMark(p, bucket, on) {
+    p.keys.forEach(function (k) { delete store[bucket][k]; });
+    if (on) store[bucket][p.keys[0]] = { name: p.name || '', kind: primaryKind(p) };
+  }
+
   function toggleMark(p, bucket) {
-    if (isMarked(p, bucket)) {
-      p.keys.forEach(function (k) { delete store[bucket][k]; });
-    } else {
-      store[bucket][p.keys[0]] = { name: p.name || '', kind: primaryKind(p) };
+    var turningOn = !isMarked(p, bucket);
+    if (turningOn && bucket === 'nope') {
+      setMark(p, 'fav', false);
+      setMark(p, 'want', false);
     }
+    if (turningOn && (bucket === 'fav' || bucket === 'want')) setMark(p, 'nope', false);
+    setMark(p, bucket, turningOn);
     saveStore();
+  }
+
+  function addPlacePin(latlng, opts) {
+    opts = opts || {};
+    var tag = opts.place ? mapTag(opts.place) : '';
+    if (!tag || typeof L === 'undefined') return PhillyWalkMap.addCirclePin(latlng, opts);
+    var size = opts.big ? 42 : 34;
+    var marker = L.marker(latlng, {
+      icon: L.divIcon({
+        className: 'philly-pin-icon tag-pin',
+        html: '<div class="tag-pin-face tag-' + tag + '" style="width:' + size + 'px;height:' + size + 'px;font-size:' +
+          (opts.big ? 26 : 22) + 'px" aria-hidden="true">' + MAP_TAGS[tag].emoji + '</div>',
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2]
+      }),
+      pane: 'pins',
+      bubblingMouseEvents: false,
+      interactive: opts.interactive !== false,
+      opacity: opts.dim ? 0.35 : 1,
+      zIndexOffset: opts.big ? 800 : 500
+    });
+    if (opts.label) {
+      marker.bindTooltip(opts.label, {
+        permanent: true,
+        direction: 'right',
+        offset: [size / 2 - 2, 0],
+        className: 'philly-pin-label' + (opts.dim ? ' dim' : ''),
+        opacity: opts.dim ? 0.35 : 1,
+        interactive: !!opts.labelInteractive
+      });
+    }
+    if (opts.onClick) {
+      marker.on('click', opts.onClick);
+      if (opts.labelInteractive) {
+        marker.on('add', function () {
+          var tip = marker.getTooltip();
+          var tipEl = tip && tip.getElement();
+          if (!tipEl) return;
+          tipEl.style.pointerEvents = 'auto';
+          tipEl.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            opts.onClick(ev);
+          });
+        });
+      }
+    }
+    return marker;
   }
 
   function getRating(p) {
@@ -564,7 +635,7 @@
 
   /* Places the phone remembers that the catalog no longer (or never) had. */
   function looseKeyName(key) {
-    var rec = store.fav[key] || store.want[key];
+    var rec = store.fav[key] || store.want[key] || store.nope[key];
     if (rec && rec.name) return rec.name;
     for (var i = store.visits.length - 1; i >= 0; i--) {
       if (store.visits[i].key === key) return store.visits[i].name || '';
@@ -606,16 +677,13 @@
   var detailPlace = null;
 
   function refreshMarkButtons() {
-    var favBtn = $('mark-favorite');
-    var wantBtn = $('mark-want');
-    var favOn = !!(detailPlace && isMarked(detailPlace, 'fav'));
-    var wantOn = !!(detailPlace && isMarked(detailPlace, 'want'));
-    favBtn.classList.toggle('on', favOn);
-    wantBtn.classList.toggle('on', wantOn);
-    favBtn.setAttribute('aria-pressed', favOn ? 'true' : 'false');
-    wantBtn.setAttribute('aria-pressed', wantOn ? 'true' : 'false');
-    favBtn.textContent = favOn ? 'Favorited' : 'Favorite';
-    wantBtn.textContent = 'Want to try';
+    ['fav', 'want', 'nope'].forEach(function (bucket) {
+      var btn = document.querySelector('#detail-marks [data-bucket="' + bucket + '"]');
+      if (!btn) return;
+      var on = !!(detailPlace && isMarked(detailPlace, bucket));
+      btn.classList.toggle('on', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
   }
 
   function refreshDetailStars() {
@@ -709,10 +777,16 @@
   }
 
   /* Whatever is on screen behind a sheet may show marks, stars or orders that just changed. */
+  var refreshDecidePins = function () {};
+
   function refreshOpenViews() {
     Object.keys(modes).forEach(function (k) {
-      if (modes[k].view === 'list' && currentScreen === modes[k].cfg.screenId) modes[k].renderList();
+      var mode = modes[k];
+      if (currentScreen !== mode.cfg.screenId) return;
+      if (mode.renderPins) mode.renderPins();
+      if (mode.view === 'list' && mode.renderList) mode.renderList();
     });
+    if (currentScreen === 'screen-decide') refreshDecidePins();
     if (currentScreen === 'screen-saved') renderSaved();
     if (currentScreen === 'screen-home') renderHome();
   }
@@ -727,8 +801,9 @@
     var bits = '';
     var rating = getRating(p);
     if (rating) bits += '<span class="card-stars" aria-label="Rated ' + rating + ' of 5">' + starsText(rating) + '</span>';
-    if (isMarked(p, 'fav')) bits += '<span class="card-mark fav">Favorite</span>';
-    if (isMarked(p, 'want')) bits += '<span class="card-mark want">Want to try</span>';
+    if (isMarked(p, 'nope')) bits += '<span class="card-mark nope">💩 Nope</span>';
+    if (isMarked(p, 'fav')) bits += '<span class="card-mark fav">⭐ Favorite</span>';
+    if (isMarked(p, 'want')) bits += '<span class="card-mark want">👀 Want to go</span>';
     return bits ? '<span class="card-marks">' + bits + '</span>' : '';
   }
 
@@ -797,7 +872,8 @@
       var active = hereActive();
       filteredPlaces().forEach(function (p) {
         var dim = active && !mode.here.isWithin(p.lat, p.lng);
-        var pin = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
+        var pin = addPlacePin([p.lat, p.lng], {
+          place: p,
           fillColor: cfg.pinColor(p),
           dim: dim,
           label: p.name,
@@ -962,6 +1038,7 @@
 
     mode.show = show;
     mode.renderList = renderList;
+    mode.renderPins = renderPins;
     mode.setFilter = setFilter;
     return mode;
   }
@@ -1173,7 +1250,7 @@
     if (!picks.length) {
       var msg = pickFilter === 'hh'
         ? 'No happy hour is on right now.'
-        : (pickFilter === 'saved' ? 'Nothing on your list yet. Open a place and tap Favorite or Want to try.' : 'Nothing to suggest.');
+        : (pickFilter === 'saved' ? 'Nothing on your list yet. Open a place and tap ⭐ or 👀.' : 'Nothing to suggest.');
       track.innerHTML = '<div class="pick-card pick-empty"><p>' + msg + '</p>' +
         (pickFilter === 'hh' ? '<button type="button" class="btn-small" data-pick-schedule>See today’s happy hours</button>' : '') + '</div>';
       return;
@@ -1189,8 +1266,9 @@
       if (label) pills += '<span class="pill pill-cuisine">' + escapeHtml(label) + '</span>';
       var open = openBlurb(p);
       if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
-      if (isMarked(p, 'fav')) pills += '<span class="pill pill-saved">Favorite</span>';
-      else if (isMarked(p, 'want')) pills += '<span class="pill pill-saved">Want to try</span>';
+      if (isMarked(p, 'nope')) pills += '<span class="pill pill-nope">💩 Nope</span>';
+      if (isMarked(p, 'fav')) pills += '<span class="pill pill-saved">⭐ Favorite</span>';
+      else if (isMarked(p, 'want')) pills += '<span class="pill pill-saved">👀 Want to go</span>';
       var rating = getRating(p);
       if (rating) pills += '<span class="pill pill-stars">' + starsText(rating) + '</span>';
       var text = snippet(p, 130);
@@ -1221,7 +1299,7 @@
     var saved = savedCount();
     $('home-count-saved').textContent = saved
       ? saved + ' saved · ' + store.visits.length + ' order' + (store.visits.length === 1 ? '' : 's') + ' logged'
-      : 'Favorites & want to try';
+      : 'Favorites & want to go';
     $('home-count-coffee').textContent = placesOf('coffee').length + ' cafes & roasters';
     $('home-count-eat').textContent = eatPlaces().length + ' restaurants & bars';
     $('home-status').textContent = allPlaces.length + ' places · ' + hhRestaurants.length + ' with happy hours';
@@ -1764,11 +1842,12 @@
     var byPrimary = {};
     function entry(p) {
       var k = p.keys[0];
-      if (!byPrimary[k]) byPrimary[k] = { place: p, fav: false, want: false, visits: [] };
+      if (!byPrimary[k]) byPrimary[k] = { place: p, fav: false, want: false, nope: false, visits: [] };
       return byPrimary[k];
     }
     Object.keys(store.fav).forEach(function (k) { entry(resolvePlace(k)).fav = true; });
     Object.keys(store.want).forEach(function (k) { entry(resolvePlace(k)).want = true; });
+    Object.keys(store.nope).forEach(function (k) { entry(resolvePlace(k)).nope = true; });
     store.visits.forEach(function (v) { entry(resolvePlace(v.key)).visits.push(v); });
     return Object.keys(byPrimary).map(function (k) {
       var row = byPrimary[k];
@@ -1783,9 +1862,10 @@
       all: all.filter(function (r) { return r.fav || r.want; }).length,
       want: all.filter(function (r) { return r.want; }).length,
       fav: all.filter(function (r) { return r.fav; }).length,
-      visited: all.filter(function (r) { return r.visits.length; }).length
+      visited: all.filter(function (r) { return r.visits.length; }).length,
+      nope: all.filter(function (r) { return r.nope; }).length
     };
-    var labels = [['all', 'All'], ['want', 'Want to try'], ['fav', 'Favorites'], ['visited', 'Visited']];
+    var labels = [['all', 'All'], ['want', 'Want to go'], ['fav', 'Favorites'], ['nope', 'Nope'], ['visited', 'Visited']];
     $('saved-filters').innerHTML = labels.map(function (pair) {
       var on = pair[0] === savedFilter;
       return '<button type="button" class="chip' + (on ? ' active' : '') + '" data-saved-filter="' + pair[0] +
@@ -1795,6 +1875,7 @@
       if (savedFilter === 'want') return r.want;
       if (savedFilter === 'fav') return r.fav;
       if (savedFilter === 'visited') return r.visits.length > 0;
+      if (savedFilter === 'nope') return r.nope;
       return r.fav || r.want;
     });
     if (savedFilter === 'visited') {
@@ -1809,9 +1890,10 @@
       ' · ' + counts.visited + ' visited';
     if (!savedRows.length) {
       var empty = {
-        all: 'Nothing here yet. Open any place and tap Favorite or Want to try.',
-        want: 'No places to try yet. Open a place and tap Want to try.',
-        fav: 'No favorites yet. Open a place and tap Favorite.',
+        all: 'Nothing here yet. Open a place and tap ⭐ or 👀.',
+        want: 'Nothing you want to go to yet. Open a place and tap 👀.',
+        fav: 'No favorites yet. Open a place and tap ⭐.',
+        nope: 'No nopes yet. Open a place and tap 💩 for somewhere you would not recommend.',
         visited: 'No orders logged yet. Tap “I’m here right now” when you’re at a place.'
       };
       $('saved-list').innerHTML = '<p class="empty-state">' + empty[savedFilter] + '</p>';
@@ -1820,8 +1902,9 @@
     $('saved-list').innerHTML = savedRows.map(function (row, i) {
       var p = row.place;
       var pills = '';
-      if (row.want) pills += '<span class="pill pill-want">Want to try</span>';
-      if (row.fav) pills += '<span class="pill pill-saved">Favorite</span>';
+      if (row.nope) pills += '<span class="pill pill-nope">💩 Nope</span>';
+      if (row.want) pills += '<span class="pill pill-want">👀 Want to go</span>';
+      if (row.fav) pills += '<span class="pill pill-saved">⭐ Favorite</span>';
       if (hhNow(p)) pills += '<span class="pill pill-hh on">Happy hour now</span>';
       var open = openBlurb(p);
       if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
@@ -2061,7 +2144,9 @@
       lineLayer.clearLayers();
       var user = here && here.getState();
       results.forEach(function (p, i) {
-        var pin = PhillyWalkMap.addCirclePin([p.lat, p.lng], {
+        var pin = addPlacePin([p.lat, p.lng], {
+          place: p._place || p,
+          big: i === selected,
           fillColor: kindColor(p._kind),
           radius: i === selected ? 11 : 7,
           weight: i === selected ? 3 : 2,
@@ -2081,6 +2166,8 @@
         }));
       }
     }
+
+    refreshDecidePins = function () { renderPins(); };
 
     function fitAll(user) {
       if (!map || !results.length) return;
@@ -2344,15 +2431,12 @@
     $('schedule-back').addEventListener('click', function () { goScreen(scheduleReturn); });
     $('open-schedule').addEventListener('click', function () { openSchedule('screen-eat'); });
     $('detail-close').addEventListener('click', closeDetail);
-    $('mark-favorite').addEventListener('click', function () {
-      if (!detailPlace) return;
-      toggleMark(detailPlace, 'fav');
+    $('detail-marks').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-bucket]');
+      if (!btn || !detailPlace) return;
+      toggleMark(detailPlace, btn.getAttribute('data-bucket'));
       refreshMarkButtons();
-    });
-    $('mark-want').addEventListener('click', function () {
-      if (!detailPlace) return;
-      toggleMark(detailPlace, 'want');
-      refreshMarkButtons();
+      refreshOpenViews();
     });
     $('detail-hh-link').addEventListener('click', function () {
       var name = detailPlace ? detailPlace.name : '';
