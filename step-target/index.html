@@ -12,10 +12,10 @@
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=2" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
-  <!-- build: step-target-v2 -->
+  <!-- build: step-target-v3 -->
   <div class="app">
     <header class="app-header">
       <div class="header-row">
@@ -38,6 +38,24 @@
     </header>
 
     <main class="main-panel">
+      <section class="today-card" id="todayCard" aria-labelledby="todayTitle">
+        <div class="today-head">
+          <p class="kicker" id="todayTitle">Today</p>
+          <p class="today-date" id="todayDate"></p>
+        </div>
+        <form id="todayForm" class="today-row">
+          <input id="todaySteps" inputmode="numeric" autocomplete="off" enterkeyhint="done" placeholder="Steps so far" aria-label="Today's steps" />
+          <button type="submit" id="todaySave">Update</button>
+        </form>
+        <p class="form-error" id="todayError" hidden></p>
+        <div class="meter today-meter" id="todayMeter">
+          <div class="meter-track" aria-hidden="true">
+            <div class="meter-fill" id="todayFill"></div>
+          </div>
+        </div>
+        <p class="today-status" id="todayStatus"></p>
+      </section>
+
       <section class="hero" aria-labelledby="heroKicker">
         <div class="hero-grid">
           <div>
@@ -174,8 +192,8 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-photo-picker.js"></script>
-  <script src="calc.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="calc.js?v=3"></script>
+  <script src="app.js?v=3"></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
