@@ -1018,16 +1018,46 @@
     "name": "Little Water",
     "cuisine": "Seafood",
     "neighborhood": "Rittenhouse",
-    "address": "2049, East Hagert Street, Philadelphia, PA, 19125",
-    "lat": 39.983981,
-    "lng": -75.12803,
-    "website": "",
-    "instagramUrl": "",
-    "hours": {},
-    "hoursSource": "osm",
-    "hoursNote": "Hours unconfirmed \u2014 check website or Google before visiting.",
-    "description": "Popular pick in Rittenhouse. Verify hours before visiting.",
-    "meal": "both"
+    "address": "261 S 20th St, Philadelphia, PA 19103",
+    "lat": 39.948611,
+    "lng": -75.174016,
+    "website": "https://www.littlewaterphl.com/",
+    "instagramUrl": "https://www.instagram.com/littlewaterphl/",
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "5:00 PM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Tue\u2013Thu 5\u201310pm \u00b7 Fri\u2013Sat 11am\u20133pm and 5\u201310pm \u00b7 Sun 11am\u20132pm \u00b7 Mon closed (littlewaterphl.com). The pin follows the earlier hours on Fri\u2013Sat.",
+    "description": "The post calls the new breakfast sandwich fantastic. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "meal": "both",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "id": "vernick-food-drink",
@@ -3711,5 +3741,191 @@
     "hoursNote": "OSM hours: Mo 06:00-19:00; Tu-Fr 05:30-19:00; Sa-Su 06:00-15:00",
     "description": "Dunkin' (Northern Liberties). Chain location from OpenStreetMap.",
     "meal": "both"
+  },
+  {
+    "id": "manong",
+    "name": "Manong",
+    "neighborhood": "Fairmount",
+    "address": "1833 Fairmount Ave, Philadelphia, PA 19130",
+    "lat": 39.96747,
+    "lng": -75.168312,
+    "website": "https://www.manongphilly.com/",
+    "instagramUrl": "https://www.instagram.com/manongphilly/",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Morning service daily 8am\u20132pm (manongphilly.com). Dinner is also served; those hours are not listed on the site.",
+    "description": "Filipino breakfast sandwiches. The post says all of them are superb. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "meal": "both",
+    "cuisine": "Filipino",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "breakfast-at-sulimays",
+    "name": "Breakfast at Sulimay's",
+    "neighborhood": "Fishtown",
+    "address": "632 E Girard Ave, Philadelphia, PA 19125",
+    "lat": 39.971431,
+    "lng": -75.125848,
+    "website": "https://www.breakfastatsulimays.com/",
+    "instagramUrl": "https://www.instagram.com/breakfast.at.sulimays/",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Daily 8am-2pm (listings). The site also serves dinner; those hours are not spelled out there.",
+    "description": "Diner breakfast. The post ranks it in the top 3, with Mighty Bread. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "meal": "lunch",
+    "cuisine": "Diner",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "fiore-fine-foods",
+    "name": "Fiore",
+    "neighborhood": "Kensington",
+    "address": "2413 Frankford Ave, Philadelphia, PA 19125",
+    "lat": 39.981824,
+    "lng": -75.126993,
+    "website": "https://www.fiore-finefoods.com/",
+    "instagramUrl": "https://www.instagram.com/fiorefinefoods/",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Wed\u2013Mon 8am\u20134pm \u00b7 Tue closed (fiore-finefoods.com)",
+    "description": "Italian breakfast and lunch. The post ranks both sandwiches in the top 2. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "meal": "lunch",
+    "cuisine": "Italian",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "middle-child-clubhouse",
+    "name": "Middle Child Clubhouse",
+    "neighborhood": "Fishtown",
+    "address": "1232 N Front St, Philadelphia, PA 19122",
+    "lat": 39.969608,
+    "lng": -75.136109,
+    "website": "https://middlechildphilly.com/clubhouse/visit/",
+    "instagramUrl": "https://www.instagram.com/middlechildclubhouse/",
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "10:00 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Tue\u2013Thu 8am\u201310pm \u00b7 Fri 9am\u201312am \u00b7 Sat 9am\u201312am \u00b7 Sun 9am\u201310pm \u00b7 Mon closed. Kitchen closed 2\u20135pm (middlechildphilly.com).",
+    "description": "McGriddle-style breakfast sandwich. The post says to get the sauce on the side, and mentions the breakfast burrito. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "meal": "both",
+    "cuisine": "Sandwiches",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   }
 ]

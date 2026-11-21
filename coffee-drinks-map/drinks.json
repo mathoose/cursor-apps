@@ -6919,12 +6919,12 @@
   {
     "name": "Middle child",
     "cuisine": "Sandwiches",
-    "address": "248 S 11th St, Philadelphia, PA 19107 (Center City shop). Clubhouse is 1232 N Front St, Fishtown.",
+    "address": "248 S 11th St, Philadelphia, PA 19107",
     "neighborhood": "Midtown",
-    "description": "center city sandwich shop\n* https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
+    "description": "center city sandwich shop\n* https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy\n* Original egg sandwiches. On the pancakes.and.protein.shakes breakfast sandwich list.",
     "social": "https://www.instagram.com/reel/DWbXtl9jkjN/?igsh=ZngxZTFweTJ4dmhy",
     "hh_menu": "https://middlechildphilly.com/",
-    "instagram": "",
+    "instagram": "https://www.instagram.com/middlechildphiladelphia/",
     "schedule": {},
     "lat": 39.947181,
     "lng": -75.159472,
@@ -6957,7 +6957,9 @@
       }
     },
     "hoursSource": "osm",
-    "hoursNote": "OSM opening_hours for Middle Child (0 m): Tu-Fr 09:00-15:00; Sa-Su 08:00-15:00"
+    "hoursNote": "OSM opening_hours for Middle Child (0 m): Tu-Fr 09:00-15:00; Sa-Su 08:00-15:00",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "name": "Terra Grill",
@@ -7224,10 +7226,10 @@
     "name": "Griddle and rice",
     "address": "2151 S 22nd St, Philadelphia, PA 19145",
     "neighborhood": "South Philly",
-    "description": "MUST TRY SOON appears to be amazing breakfast food\n* https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
+    "description": "MUST TRY SOON appears to be amazing breakfast food\n* https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==\n* Breakfast sandwiches. The post calls it a best kept secret, on the pancakes.and.protein.shakes list.",
     "social": "https://www.instagram.com/reel/DU32IJgEe5J/?igsh=MWh3ZGFrdzJ6a3FxNw==",
     "hh_menu": "https://www.griddlericephilly.com/",
-    "instagram": "",
+    "instagram": "https://www.instagram.com/griddlerice/",
     "schedule": {},
     "lat": 39.924907,
     "lng": -75.182791,
@@ -7264,7 +7266,10 @@
       }
     },
     "hoursSource": "osm",
-    "hoursNote": "OSM opening_hours for Griddle & Rice (2 m): Mo-Su 07:00-19:00"
+    "hoursNote": "OSM opening_hours for Griddle & Rice (2 m): Mo-Su 07:00-19:00",
+    "cuisine": "Breakfast",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "name": "Rhythm and spirits",
@@ -10933,5 +10938,52 @@
     "hoursNote": "Site hours are the kitchen window; Graffiti Bar stays open one hour later every night.",
     "lat": 39.94945,
     "lng": -75.16232
+  },
+  {
+    "name": "Meetinghouse",
+    "address": "2331 E Cumberland St, Philadelphia, PA 19125",
+    "neighborhood": "Fishtown",
+    "description": "Breakfast handhelds the post calls slept on. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "social": "",
+    "hh_menu": "https://www.meetinghousebeer.com/",
+    "instagram": "https://www.instagram.com/meetinghousebeer/",
+    "schedule": {},
+    "hours": {
+      "Sunday": {
+        "open": "11:00 AM",
+        "close": "10:00 PM"
+      },
+      "Monday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Tuesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Wednesday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Thursday": {
+        "open": "4:00 PM",
+        "close": "11:00 PM"
+      },
+      "Friday": {
+        "open": "4:00 PM",
+        "close": "12:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Mon–Thu 4–11pm · Fri 4pm–12am · Sat 11am–12am · Sun 11am–10pm. Kitchen closes an hour before the bar (meetinghousebeer.com).",
+    "lat": 39.980383,
+    "lng": -75.123004,
+    "cuisine": "Beer bar",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   }
 ]

@@ -133,7 +133,7 @@
     "lat": 39.974777,
     "lng": -75.144451,
     "website": "https://bean2bean.com/",
-    "instagramUrl": "https://www.instagram.com/bean2beancoffee/",
+    "instagramUrl": "https://www.instagram.com/bean2beancoffeeco/",
     "hoursSource": "listing",
     "hoursNote": "Mon–Fri 8am–3pm · Sat–Sun closed",
     "hours": {
@@ -163,7 +163,11 @@
       "Sunday": {
         "closed": true
       }
-    }
+    },
+    "cuisine": "Bagels",
+    "description": "Bagel sandwiches inside Billy Penn Studios. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "id": "bennas-cafe",
@@ -454,7 +458,11 @@
         "open": "8:00 AM",
         "close": "3:00 PM"
       }
-    }
+    },
+    "cuisine": "Sandwiches",
+    "description": "Chinese-Cuban breakfast sandwiches. The post calls them slept on. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "id": "coffee-cream-and-dreams",
@@ -3300,8 +3308,8 @@
     "lng": -75.174044,
     "website": "https://schmaltzphilly.com/",
     "instagramUrl": "https://www.instagram.com/schmaltzphilly/",
-    "hoursSource": "official",
-    "hoursNote": "Fri–Mon 7am–2pm · Tue–Thu closed",
+    "hoursSource": "site",
+    "hoursNote": "Thu–Mon 7am–2pm · Tue–Wed closed (schmaltzphilly.com)",
     "hours": {
       "Monday": {
         "open": "7:00 AM",
@@ -3314,7 +3322,8 @@
         "closed": true
       },
       "Thursday": {
-        "closed": true
+        "open": "7:00 AM",
+        "close": "2:00 PM"
       },
       "Friday": {
         "open": "7:00 AM",
@@ -3328,7 +3337,11 @@
         "open": "7:00 AM",
         "close": "2:00 PM"
       }
-    }
+    },
+    "cuisine": "Deli",
+    "description": "Breakfast sandwich on an English muffin. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "id": "schmear-passyunk",
@@ -4898,7 +4911,7 @@
     "lat": 39.9321566,
     "lng": -75.1647381,
     "website": "https://www.mightybreadco.com/location/bakery-cafe/",
-    "instagramUrl": "",
+    "instagramUrl": "https://www.instagram.com/mightybreadco/",
     "hoursSource": "google",
     "hoursNote": "Monday, Wednesday–Friday 8am–6pm; Saturday–Sunday 9am–4pm; closed Tuesday (Google Maps / mightybreadco.com).",
     "hours": {
@@ -4926,7 +4939,11 @@
         "open": "9:00 AM",
         "close": "4:00 PM"
       }
-    }
+    },
+    "cuisine": "Biscuits",
+    "description": "Biscuit breakfast sandwiches at the Gerritt Street bakery. The post ranks them in the top 3. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   },
   {
     "id": "milkcratevinyl",
@@ -5264,13 +5281,345 @@
     "hoursSource": "listing",
     "hoursNote": "New cafe at 17th and Christian (Philadelphia Bucket List, Oct 24, 2026). Google Maps listing read Oct 15, 2026: daily 7:30 AM–5 PM. Another listing shows 4 PM. Seasonal drinks and fresh pastries. @auroracafephilly",
     "hours": {
-      "Sunday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Monday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Tuesday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Wednesday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Thursday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Friday": { "open": "7:30 AM", "close": "5:00 PM" },
-      "Saturday": { "open": "7:30 AM", "close": "5:00 PM" }
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "5:00 PM"
+      }
     }
+  },
+  {
+    "id": "barts-bagels-bella-vista",
+    "name": "Bart's Bagels (Bella Vista)",
+    "neighborhood": "Bella Vista",
+    "address": "769 S 10th St, Philadelphia, PA 19147",
+    "lat": 39.940298,
+    "lng": -75.159069,
+    "website": "https://bartsbagels.com/",
+    "instagramUrl": "https://www.instagram.com/bartsbagels/",
+    "hoursSource": "site",
+    "hoursNote": "Daily 7:30am–2pm (bartsbagels.com)",
+    "hours": {
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "cuisine": "Bagels",
+    "description": "Bacon, egg, and cheese, plus a long list of creative bagel sandwiches. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "barts-bagels-west-philly",
+    "name": "Bart's Bagels (West Philly)",
+    "neighborhood": "West Philly",
+    "address": "3945 Lancaster Ave, Philadelphia, PA 19104",
+    "lat": 39.962755,
+    "lng": -75.201235,
+    "website": "https://bartsbagels.com/",
+    "instagramUrl": "https://www.instagram.com/bartsbagels/",
+    "hoursSource": "site",
+    "hoursNote": "Daily 7:30am–2pm (bartsbagels.com)",
+    "hours": {
+      "Sunday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Monday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Tuesday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Wednesday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Thursday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Friday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      },
+      "Saturday": {
+        "open": "7:30 AM",
+        "close": "2:00 PM"
+      }
+    },
+    "cuisine": "Bagels",
+    "description": "Bacon, egg, and cheese, plus a long list of creative bagel sandwiches. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "cleo-bagels",
+    "name": "Cleo Bagels",
+    "neighborhood": "West Philly",
+    "address": "5013 Baltimore Ave, Philadelphia, PA 19143",
+    "lat": 39.948119,
+    "lng": -75.223996,
+    "website": "https://www.cleobagels.com/",
+    "instagramUrl": "https://www.instagram.com/cleobagels/",
+    "hoursSource": "site",
+    "hoursNote": "Sat–Sun 8am–3pm (cleobagels.com). The site lists weekends only.",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "closed": true
+      },
+      "Thursday": {
+        "closed": true
+      },
+      "Friday": {
+        "closed": true
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "cuisine": "Bagels",
+    "description": "Fluffy egg sandwich on a malt-boiled bagel. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "sunshine-sandwich",
+    "name": "Sunshine Sandwich Shop",
+    "neighborhood": "Roxborough",
+    "address": "5154 Ridge Ave, Philadelphia, PA 19128",
+    "lat": 40.017991,
+    "lng": -75.211447,
+    "website": "https://sunshinesandwichphilly.com/",
+    "instagramUrl": "https://www.instagram.com/sunshinesandwichphilly/",
+    "hoursSource": "site",
+    "hoursNote": "Tue–Sun 8am–3pm · Mon closed. Inside Lucky's Trading Co (sunshinesandwichphilly.com).",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "3:00 PM"
+      }
+    },
+    "cuisine": "Sandwiches",
+    "description": "Bacon, egg, and cheese on a Kaiser, bodega style. Salt, pepper, and ketchup if you want them. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "erbys-bakery",
+    "name": "Erby's Bakery",
+    "neighborhood": "East Passyunk",
+    "address": "1840 E Passyunk Ave, Philadelphia, PA 19148",
+    "lat": 39.926738,
+    "lng": -75.167366,
+    "website": "https://erbysbakery.com/",
+    "instagramUrl": "https://www.instagram.com/erbysbakery/",
+    "hoursSource": "site",
+    "hoursNote": "Thu–Sun 9am–3:30pm · Mon–Wed closed (erbysbakery.com)",
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "3:30 PM"
+      },
+      "Monday": {
+        "closed": true
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "closed": true
+      },
+      "Thursday": {
+        "open": "9:00 AM",
+        "close": "3:30 PM"
+      },
+      "Friday": {
+        "open": "9:00 AM",
+        "close": "3:30 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "3:30 PM"
+      }
+    },
+    "cuisine": "Bakery",
+    "description": "Bakery case and breakfast sandwiches. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "caphe-roasters",
+    "name": "Caphe Roasters",
+    "neighborhood": "Kensington",
+    "address": "3400 J St, Philadelphia, PA 19134",
+    "lat": 39.999551,
+    "lng": -75.108985,
+    "website": "https://capheroasters.com/",
+    "instagramUrl": "https://www.instagram.com/capheroasters/",
+    "hoursSource": "site",
+    "hoursNote": "Wed–Mon 8am–4pm · Tue closed. Kitchen closes at 3:20pm (capheroasters.com).",
+    "hours": {
+      "Sunday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      },
+      "Saturday": {
+        "open": "8:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "cuisine": "Coffee",
+    "description": "Càphê Roasters. Breakfast sandwiches with the coffee. The post says all of them are superb. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "id": "mighty-bread-pine",
+    "name": "Mighty Bread (Pine St)",
+    "neighborhood": "Rittenhouse",
+    "address": "1644 Pine St, Philadelphia, PA 19103",
+    "lat": 39.946036,
+    "lng": -75.169548,
+    "website": "https://www.mightybreadco.com/location/bakery-cafe/",
+    "instagramUrl": "https://www.instagram.com/mightybreadco/",
+    "hoursSource": "site",
+    "hoursNote": "Grab-and-go. Mon, Wed–Fri 8am–6pm · Sat–Sun 9am–4pm · Tue closed (mightybreadco.com).",
+    "hours": {
+      "Sunday": {
+        "open": "9:00 AM",
+        "close": "4:00 PM"
+      },
+      "Monday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Tuesday": {
+        "closed": true
+      },
+      "Wednesday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Thursday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Friday": {
+        "open": "8:00 AM",
+        "close": "6:00 PM"
+      },
+      "Saturday": {
+        "open": "9:00 AM",
+        "close": "4:00 PM"
+      }
+    },
+    "cuisine": "Biscuits",
+    "description": "Grab-and-go biscuit sandwiches. The Gerritt Street bakery is the other Mighty Bread pin. On the pancakes.and.protein.shakes breakfast sandwich list.",
+    "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
+    "featureLabel": "Breakfast sandwiches"
   }
 ]

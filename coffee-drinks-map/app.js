@@ -676,13 +676,17 @@
       hhRow.hidden = true;
     }
     renderHoursBlock(place.hours);
-    $('detail-desc').textContent = place.description || place.hoursNote || '';
+    var descParts = [];
+    if (place.description) descParts.push(place.description);
+    if (place.hoursNote && place.hoursNote !== place.description) descParts.push(place.hoursNote);
+    $('detail-desc').textContent = descParts.join('\n\n');
     var links = $('detail-links');
     links.innerHTML = '';
     var ig = place.instagram || place.instagramUrl;
     var site = place.website && place.website !== place.hh_menu ? place.website : '';
-    [[place.hh_menu, 'Menu'], [site, 'Website'], [ig, 'Instagram']].forEach(function (pair) {
-      if (!pair[0]) return;
+    var feature = place.featureUrl && place.featureUrl !== ig ? [place.featureUrl, place.featureLabel || 'Link'] : null;
+    [[place.hh_menu, 'Menu'], [site, 'Website'], [ig, 'Instagram'], feature].forEach(function (pair) {
+      if (!pair || !pair[0]) return;
       var a = document.createElement('a');
       a.href = pair[0];
       a.target = '_blank';
@@ -1187,6 +1191,10 @@
       }
       var label = cuisineLabel(p);
       if (label) pills += '<span class="pill pill-cuisine">' + escapeHtml(label) + '</span>';
+      if (p.featureUrl) {
+        pills += '<a class="pill pill-feature" href="' + escapeHtml(p.featureUrl) + '" target="_blank" rel="noopener">' +
+          escapeHtml(p.featureLabel || 'Link') + '</a>';
+      }
       var open = openBlurb(p);
       if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
       if (isMarked(p, 'fav')) pills += '<span class="pill pill-saved">Favorite</span>';
@@ -2026,6 +2034,9 @@
       var ig = p.instagramUrl || p.instagram;
       if (web) html += '<a href="' + escapeHtml(web) + '" target="_blank" rel="noopener">Website</a>';
       if (ig) html += '<a href="' + escapeHtml(ig) + '" target="_blank" rel="noopener">Instagram</a>';
+      if (p.featureUrl && p.featureUrl !== ig) {
+        html += '<a href="' + escapeHtml(p.featureUrl) + '" target="_blank" rel="noopener">' + escapeHtml(p.featureLabel || 'Link') + '</a>';
+      }
       return html;
     }
 
@@ -2396,9 +2407,9 @@
 
   function loadCatalog() {
     return Promise.all([
-      fetch('coffee.json?v=2').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('drinks.json?v=10').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('food.json?v=11').then(function (r) { return r.ok ? r.json() : []; })
+      fetch('coffee.json?v=3').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('drinks.json?v=11').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('food.json?v=12').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
       /* Drinks first, then coffee, then food: when one place is in two files, the hand-placed pin wins. */
       buildPlaces([
