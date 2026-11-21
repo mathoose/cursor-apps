@@ -690,9 +690,10 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 
 .story-versus {
   min-height: 1.3em;
-  margin: 4px 0 0;
-  font-size: 1.05rem;
-  font-weight: 700;
+  margin: 2px 0 0;
+  font-size: 1.75rem;
+  font-weight: 760;
+  letter-spacing: -0.03em;
 }
 
 .story-kicker {

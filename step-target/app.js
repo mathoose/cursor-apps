@@ -330,14 +330,17 @@
     return amount + " for this week";
   }
 
+  function rangePhrase(start, end, count) {
+    if (!start || !end || !(count > 0) || start > end) return "";
+    var noun = count === 1 ? "day" : "days";
+    var tally = "(" + count + "\u00a0" + noun + ")";
+    if (start === end) return "on " + prettyOrd(start) + " " + tally;
+    return "from " + prettyOrd(start) + " to " + prettyOrd(end) + " " + tally;
+  }
+
   function remainRange(story) {
-    var end = story.after.bounds ? story.after.bounds.end : story.to;
-    if (story.holesBefore > 0 || story.loggedAfter > 0 || !story.from) {
-      var count = story.after.openCount;
-      return "on the " + count + (count === 1 ? " day" : " days") + " still open through " + prettyOrd(end);
-    }
-    if (story.from === story.to) return "on " + prettyOrd(story.from);
-    return "from " + prettyOrd(story.from) + " to " + prettyOrd(story.to);
+    var count = story.blank ? story.openAfter + story.holesBefore : story.after.openCount;
+    return rangePhrase(story.from, story.to, count);
   }
 
   function storyCopy(story) {
@@ -356,15 +359,17 @@
       return { kicker: "", pace: "", line: "Set your average so far in Settings. Then this day can update the pace." };
     }
     if (story.blank) {
-      var waiting = story.from
-        ? "Add this day’s steps. The average from " + prettyOrd(story.from) + " to " + prettyOrd(story.to) + " updates from there."
+      var waitingRange = remainRange(story);
+      var waiting = waitingRange
+        ? "Add this day’s steps. The average " + waitingRange + " updates from there."
         : "Add this day’s steps to update what’s left.";
       return { kicker: "", pace: "", line: waiting };
     }
     var phrase = targetPhrase(after);
     if (after.status === "ahead" || after.status === "done" || story.remainPace === 0) {
-      var aheadLine = story.from
-        ? "From " + prettyOrd(story.from) + " to " + prettyOrd(story.to) + " you don’t have to make any of it up."
+      var aheadRange = remainRange(story);
+      var aheadLine = aheadRange
+        ? aheadRange.charAt(0).toUpperCase() + aheadRange.slice(1) + " you don’t have to make any of it up."
         : "You don’t have to make any of it up on the days still open.";
       return { kicker: "You’re already set", pace: "", line: "to average " + phrase + ". " + aheadLine };
     }
@@ -378,10 +383,28 @@
     };
   }
 
-  function gaugeMax(goal, steps) {
-    var padded = Math.max(goal ? goal * 1.35 : 0, steps ? steps * 1.08 : 0, 10000);
-    var step = padded <= 80000 ? 10000 : 20000;
-    return Math.ceil((padded - 1e-6) / step) * step;
+  function gaugeScale(goal, steps) {
+    var value = steps == null ? 0 : steps;
+    if (!(goal > 0)) {
+      return { max: Math.max(value, 10000), goalT: null, percent: null, endPercent: null };
+    }
+    var ratio = value / goal;
+    var percent = Math.round(ratio * 100);
+    if (ratio <= 1) {
+      return { max: goal, goalT: 1, percent: percent, endPercent: 100 };
+    }
+    var endPercent = Math.ceil((percent - 1e-9) / 10) * 10;
+    if (endPercent <= 100) endPercent = 110;
+    return {
+      max: goal * (endPercent / 100),
+      goalT: 100 / endPercent,
+      percent: percent,
+      endPercent: endPercent,
+    };
+  }
+
+  function formatPercent(percent) {
+    return percent + "%";
   }
 
   function gaugePoint(cx, cy, radius, t) {
@@ -404,16 +427,15 @@
 
   function renderGauge(steps, goal) {
     var value = steps == null ? 0 : steps;
-    var max = gaugeMax(goal, value);
+    var scale = gaugeScale(goal, value);
     var width = 320;
-    var height = 196;
+    var height = 214;
     var cx = 160;
-    var cy = 168;
-    var radius = 126;
-    var tNeedle = Math.max(0, Math.min(1, value / max));
-    var tGoal = goal > 0 ? Math.max(0, Math.min(1, goal / max)) : null;
+    var cy = 150;
+    var radius = 112;
+    var tNeedle = scale.max > 0 ? Math.max(0, Math.min(1, value / scale.max)) : 0;
     var label = steps == null ? "No steps yet" : formatSteps(steps) + " steps";
-    if (goal) label += ", goal " + formatSteps(goal);
+    if (scale.percent != null) label += ", " + formatPercent(scale.percent) + " of the goal";
     var parts = [];
     parts.push('<svg viewBox="0 0 ' + width + " " + height + '" role="img" aria-label="' + label + '">');
     parts.push('<path d="' + gaugeArc(cx, cy, radius, 0, 1) + '" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="18" stroke-linecap="round"/>');
@@ -426,16 +448,23 @@
       var inner = gaugePoint(cx, cy, radius - 28, tick / 8);
       parts.push('<line x1="' + outer[0].toFixed(2) + '" y1="' + outer[1].toFixed(2) + '" x2="' + inner[0].toFixed(2) + '" y2="' + inner[1].toFixed(2) + '" stroke="rgba(255,255,255,0.9)" stroke-width="' + (tick % 2 ? 2 : 3) + '" stroke-linecap="round"/>');
     }
-    if (tGoal != null) {
-      var markOut = gaugePoint(cx, cy, radius + 8, tGoal);
-      var markIn = gaugePoint(cx, cy, radius - 16, tGoal);
+    if (scale.goalT != null && scale.goalT < 0.98) {
+      var markOut = gaugePoint(cx, cy, radius + 8, scale.goalT);
+      var markIn = gaugePoint(cx, cy, radius - 18, scale.goalT);
       parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
+      var goalLabel = gaugePoint(cx, cy, radius + 24, scale.goalT);
+      parts.push('<text x="' + goalLabel[0].toFixed(1) + '" y="' + (goalLabel[1] + 4).toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">100%</text>');
+    }
+    var endText = scale.endPercent ? formatPercent(scale.endPercent) : "";
+    if (endText) {
+      parts.push('<text x="' + (cx + radius) + '" y="' + (cy + 28) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + endText + "</text>");
     }
     var tip = gaugePoint(cx, cy, radius - 40, tNeedle);
     parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(2) + '" y2="' + tip[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
     parts.push('<circle cx="' + cx + '" cy="' + cy + '" r="9" fill="#fff"/>');
     parts.push("</svg>");
     els.gauge.innerHTML = parts.join("");
+    return scale;
   }
 
   function renderStory() {
@@ -454,14 +483,11 @@
     setError(els.dayError, "");
     var story = C.storyFor(activeInput(), editingISO, read.steps);
     var copy = storyCopy(story);
-    renderGauge(story.steps, story.goal);
-    if (story.blank || story.goal == null) {
+    var scale = renderGauge(story.steps, story.goal);
+    if (story.blank || scale.percent == null) {
       els.storyVersus.textContent = story.goal ? "Goal " + formatSteps(story.goal) : "";
-    } else if (story.steps >= story.goal) {
-      var aheadBy = story.steps - story.goal;
-      els.storyVersus.textContent = aheadBy === 0 ? "Goal met" : formatSteps(aheadBy) + " ahead of " + formatSteps(story.goal);
     } else {
-      els.storyVersus.textContent = "Short " + formatSteps(story.goal - story.steps) + " of " + formatSteps(story.goal);
+      els.storyVersus.textContent = formatPercent(scale.percent);
     }
     els.storyKicker.textContent = copy.kicker;
     els.storyPace.textContent = copy.pace;
