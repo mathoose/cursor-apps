@@ -610,7 +610,14 @@ dialog.story-dialog:modal {
   overflow: auto;
 }
 
+dialog.story-dialog.met,
+dialog.story-dialog.met[open],
+dialog.story-dialog.met:modal {
+  background: #1b8f3c;
+}
+
 dialog.story-dialog::backdrop { background: #c4161c; }
+dialog.story-dialog.met::backdrop { background: #1b8f3c; }
 
 .story {
   position: relative;
@@ -703,6 +710,17 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 .story-steps:focus { outline: none; }
 
 .story-versus { display: none; }
+
+.story-result {
+  margin: 4px 0 10px;
+  font-size: 1.05rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  white-space: pre-line;
+}
+
+.story-result:empty { display: none; }
 
 .story-kicker {
   margin: 0;

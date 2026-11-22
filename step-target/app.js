@@ -396,6 +396,15 @@
     };
   }
 
+  function dayResult(story) {
+    if (story.blank || story.steps == null) return "";
+    var count = "You got " + formatSteps(story.steps) + " steps";
+    if (!(story.goal > 0)) return count + ".";
+    if (story.steps > story.goal) return count + "\nand beat your goal.";
+    if (story.steps === story.goal) return count + "\nand met your goal.";
+    return count + "\nand missed your goal.";
+  }
+
   function gaugeScale(goal, steps) {
     var value = steps == null ? 0 : steps;
     if (!(goal > 0)) {
@@ -468,27 +477,34 @@
     }
     if (goal > 0 && scale.goalT != null) {
       var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
-      var goalText = formatSteps(goal) + " steps";
       var goalAnchor = "middle";
       var goalX;
       var goalY;
+      var goalLines;
       if (goalWhere > 0.98) {
         var goalSpot = gaugePoint(cx, cy, radius + 28, 1);
         goalX = Math.max(70, Math.min(width - 70, goalSpot[0]));
-        goalY = cy + 22;
+        goalY = cy + 18;
+        goalLines = [formatSteps(goal) + " steps", "goal"];
       } else {
         var goalOuter = gaugePoint(cx, cy, radius + 18, goalWhere);
         goalAnchor = goalWhere < 0.5 ? "end" : "start";
         goalX = goalOuter[0] + (goalAnchor === "end" ? -4 : 6);
-        goalY = goalOuter[1] - 2;
+        goalY = goalOuter[1] - 16;
+        goalLines = ["goal", formatSteps(goal) + " steps"];
       }
-      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">' + goalText + "</text>");
+      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">');
+      goalLines.forEach(function (line, i) {
+        parts.push('<tspan x="' + goalX.toFixed(1) + '"' + (i ? ' dy="15"' : "") + ">" + line + "</tspan>");
+      });
+      parts.push("</text>");
     }
     if (steps != null && scale.percent != null) {
       var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
       var readAnchor = tNeedle < 0.4 ? "end" : "start";
       var readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
       var readY = Math.max(20, readSpot[1] - 4);
+      if (scale.goalT != null && scale.goalT < 0.98 && tNeedle > scale.goalT) readY += 8;
       parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
       parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
       parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
@@ -519,6 +535,8 @@
     var story = C.storyFor(activeInput(), editingISO, read.steps);
     var copy = storyCopy(story);
     renderGauge(story.steps, story.goal);
+    els.storyResult.textContent = dayResult(story);
+    els.dayDialog.classList.toggle("met", !!story.met);
     els.storyVersus.textContent = "";
     els.storyKicker.textContent = copy.kicker;
     els.storyPace.textContent = copy.pace;
@@ -796,7 +814,7 @@
       "settingsDone", "asOfInput", "useToday", "settingsPeriod", "weekHint",
       "baselineLabel", "baselineInput", "baselineHint", "targetLabel", "targetInput",
       "settingsError", "exportBtn", "importFile", "dayDialog", "dayForm",
-      "storyWeekday", "storyDate", "gauge", "storyVersus", "storyKicker", "storyPace",
+      "storyWeekday", "storyDate", "gauge", "storyResult", "storyVersus", "storyKicker", "storyPace",
       "storyLine", "dayCancel", "daySteps", "dayError", "dayClear", "toast",
     ].forEach(function (id) {
       els[id] = document.getElementById(id);
@@ -863,6 +881,7 @@
       else editingISO = null;
     });
     els.dayDialog.addEventListener("close", function () {
+      els.dayDialog.classList.remove("met");
       if (!editingISO) render();
     });
   }
