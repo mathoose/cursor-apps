@@ -448,11 +448,11 @@
   function renderGauge(steps, goal) {
     var value = steps == null ? 0 : steps;
     var scale = gaugeScale(goal, value);
-    var width = 400;
-    var height = 198;
-    var cx = 200;
-    var cy = 146;
-    var radius = 104;
+    var width = 460;
+    var height = 214;
+    var cx = 188;
+    var cy = 132;
+    var radius = 100;
     var tNeedle = scale.max > 0 ? Math.max(0, Math.min(1, value / scale.max)) : 0;
     var label = steps == null ? "No steps yet" : formatSteps(steps) + " steps";
     if (scale.percent != null) label += ", " + formatPercent(scale.percent) + " of the goal";
@@ -473,49 +473,46 @@
       var markIn = gaugePoint(cx, cy, radius - 18, scale.goalT);
       parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="rgba(0,0,0,0.55)" stroke-width="6" stroke-linecap="round"/>');
     }
-    if (goal > 0 && scale.goalT != null) {
-      var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
-      var goalAnchor = "middle";
-      var goalX;
-      var goalY;
-      var goalLines;
-      if (goalWhere > 0.98) {
-        var goalSpot = gaugePoint(cx, cy, radius + 28, 1);
-        goalX = Math.max(70, Math.min(width - 70, goalSpot[0]));
-        goalY = cy + 18;
-        goalLines = [formatSteps(goal) + " steps", "goal"];
-      } else {
-        var goalOuter = gaugePoint(cx, cy, radius + 18, goalWhere);
-        goalAnchor = goalWhere < 0.5 ? "end" : "start";
-        goalX = goalOuter[0] + (goalAnchor === "end" ? -4 : 6);
-        goalY = goalOuter[1] - 16;
-        goalLines = ["goal", formatSteps(goal) + " steps"];
-      }
-      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">');
-      goalLines.forEach(function (line, i) {
-        parts.push('<tspan x="' + goalX.toFixed(1) + '"' + (i ? ' dy="15"' : "") + ">" + line + "</tspan>");
+    function beside(t) {
+      var at = Math.max(0, Math.min(1, t));
+      var spot = gaugePoint(cx, cy, radius + 18, at);
+      var anchor = at < 0.4 ? "end" : "start";
+      return {
+        x: spot[0] + (anchor === "end" ? -6 : 6),
+        y: spot[1],
+        anchor: anchor,
+      };
+    }
+    function stackText(x, y, anchor, lines) {
+      parts.push('<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + anchor + '" fill="#fff" font-size="15" font-weight="700">');
+      lines.forEach(function (line, i) {
+        parts.push('<tspan x="' + x.toFixed(1) + '"' + (i ? ' dy="15"' : "") + ">" + line + "</tspan>");
       });
       parts.push("</text>");
     }
-    if (steps != null && scale.percent != null) {
-      var readAnchor = "start";
-      var readX;
-      var readY;
-      if (tNeedle > 0.96) {
-        var endSpot = gaugePoint(cx, cy, radius, 1);
-        readAnchor = "middle";
-        readX = endSpot[0];
-        readY = cy + 20;
-      } else {
-        var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
-        readAnchor = tNeedle < 0.4 ? "end" : "start";
-        readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
-        readY = Math.max(20, readSpot[1] - 4);
-      }
-      parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
-      parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
-      parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
-      parts.push("</text>");
+    function trophy(x, y) {
+      var top = y - 11;
+      parts.push('<path d="M' + (x - 8) + " " + (top + 2) + " c-5 0.4 -6.6 6.4 -1.4 7.8" + '" fill="none" stroke="#f6c445" stroke-width="2" stroke-linecap="round"/>');
+      parts.push('<path d="M' + (x + 8) + " " + (top + 2) + " c5 0.4 6.6 6.4 1.4 7.8" + '" fill="none" stroke="#f6c445" stroke-width="2" stroke-linecap="round"/>');
+      parts.push('<path d="M' + (x - 7.2) + " " + top + " h14.4 v5 c0 4.6 -3.2 8 -7.2 8 s-7.2 -3.4 -7.2 -8 z" + '" fill="#f6c445"/>');
+      parts.push('<rect x="' + (x - 1.6) + '" y="' + (top + 13.2) + '" width="3.2" height="3.2" fill="#f6c445"/>');
+      parts.push('<rect x="' + (x - 6) + '" y="' + (top + 16.2) + '" width="12" height="2.6" rx="0.6" fill="#f6c445"/>');
+    }
+    var goalWhere = scale.goalT == null ? null : (scale.goalT > 0.98 ? 1 : scale.goalT);
+    var goalSide = goalWhere == null ? null : beside(goalWhere);
+    var stepSide = steps != null && scale.percent != null ? beside(tNeedle) : null;
+    if (goalSide && stepSide && Math.abs(goalWhere - tNeedle) < 0.2) {
+      if (tNeedle >= goalWhere) stepSide.y += 22;
+      else goalSide.y += 22;
+    }
+    if (goal > 0 && goalSide) {
+      var medalX = goalSide.anchor === "start" ? goalSide.x + 10 : goalSide.x - 10;
+      var labelX = goalSide.anchor === "start" ? goalSide.x + 26 : goalSide.x - 26;
+      trophy(medalX, goalSide.y - 4);
+      stackText(labelX, goalSide.y - 2, goalSide.anchor, ["target", formatSteps(goal) + " steps"]);
+    }
+    if (stepSide) {
+      stackText(stepSide.x, stepSide.y - 6, stepSide.anchor, [formatSteps(steps) + " steps", formatPercent(scale.percent)]);
     }
     var tip = gaugePoint(cx, cy, radius - 40, tNeedle);
     parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(2) + '" y2="' + tip[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
