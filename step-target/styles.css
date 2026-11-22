@@ -670,7 +670,7 @@ dialog.story-dialog::backdrop { background: #c4161c; }
   margin-top: 0;
 }
 
-.gauge svg { display: block; width: 100%; height: auto; }
+.gauge svg { display: block; width: 100%; height: auto; overflow: visible; }
 
 .story-steps {
   position: absolute;
@@ -705,7 +705,7 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 .story-versus { display: none; }
 
 .story-kicker {
-  margin: 6px 0 0;
+  margin: 0;
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.02em;
