@@ -398,7 +398,7 @@
 
   function dayResult(story) {
     if (story.blank || story.steps == null) return "";
-    var count = "You got " + formatSteps(story.steps) + " steps";
+    var count = "You got " + formatSteps(story.steps) + " steps on " + prettyOrd(story.iso);
     if (!(story.goal > 0)) return count + ".";
     if (story.steps > story.goal) return count + "\nand beat your goal.";
     if (story.steps === story.goal) return count + "\nand met your goal.";
@@ -415,13 +415,11 @@
     if (ratio <= 1) {
       return { max: goal, goalT: 1, percent: percent, endPercent: 100 };
     }
-    var endPercent = Math.ceil((percent - 1e-9) / 10) * 10;
-    if (endPercent <= 100) endPercent = 110;
     return {
-      max: goal * (endPercent / 100),
-      goalT: 100 / endPercent,
+      max: value,
+      goalT: goal / value,
       percent: percent,
-      endPercent: endPercent,
+      endPercent: percent,
     };
   }
 
@@ -473,7 +471,7 @@
     if (scale.goalT != null && scale.goalT < 0.98) {
       var markOut = gaugePoint(cx, cy, radius + 8, scale.goalT);
       var markIn = gaugePoint(cx, cy, radius - 18, scale.goalT);
-      parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
+      parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="rgba(0,0,0,0.55)" stroke-width="6" stroke-linecap="round"/>');
     }
     if (goal > 0 && scale.goalT != null) {
       var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
@@ -500,11 +498,20 @@
       parts.push("</text>");
     }
     if (steps != null && scale.percent != null) {
-      var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
-      var readAnchor = tNeedle < 0.4 ? "end" : "start";
-      var readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
-      var readY = Math.max(20, readSpot[1] - 4);
-      if (scale.goalT != null && scale.goalT < 0.98 && tNeedle > scale.goalT) readY += 8;
+      var readAnchor = "start";
+      var readX;
+      var readY;
+      if (tNeedle > 0.96) {
+        var endSpot = gaugePoint(cx, cy, radius, 1);
+        readAnchor = "middle";
+        readX = endSpot[0];
+        readY = cy + 20;
+      } else {
+        var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
+        readAnchor = tNeedle < 0.4 ? "end" : "start";
+        readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
+        readY = Math.max(20, readSpot[1] - 4);
+      }
       parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
       parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
       parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
