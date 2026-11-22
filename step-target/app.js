@@ -477,27 +477,34 @@
     }
     if (goal > 0 && scale.goalT != null) {
       var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
-      var goalText = formatSteps(goal) + " steps";
       var goalAnchor = "middle";
       var goalX;
       var goalY;
+      var goalLines;
       if (goalWhere > 0.98) {
         var goalSpot = gaugePoint(cx, cy, radius + 28, 1);
         goalX = Math.max(70, Math.min(width - 70, goalSpot[0]));
-        goalY = cy + 22;
+        goalY = cy + 18;
+        goalLines = [formatSteps(goal) + " steps", "goal"];
       } else {
         var goalOuter = gaugePoint(cx, cy, radius + 18, goalWhere);
         goalAnchor = goalWhere < 0.5 ? "end" : "start";
         goalX = goalOuter[0] + (goalAnchor === "end" ? -4 : 6);
-        goalY = goalOuter[1] - 2;
+        goalY = goalOuter[1] - 16;
+        goalLines = ["goal", formatSteps(goal) + " steps"];
       }
-      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">' + goalText + "</text>");
+      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">');
+      goalLines.forEach(function (line, i) {
+        parts.push('<tspan x="' + goalX.toFixed(1) + '"' + (i ? ' dy="15"' : "") + ">" + line + "</tspan>");
+      });
+      parts.push("</text>");
     }
     if (steps != null && scale.percent != null) {
       var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
       var readAnchor = tNeedle < 0.4 ? "end" : "start";
       var readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
       var readY = Math.max(20, readSpot[1] - 4);
+      if (scale.goalT != null && scale.goalT < 0.98 && tNeedle > scale.goalT) readY += 8;
       parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
       parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
       parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
