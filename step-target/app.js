@@ -396,6 +396,15 @@
     };
   }
 
+  function dayResult(story) {
+    if (story.blank || story.steps == null) return "";
+    var count = "You got " + formatSteps(story.steps) + " steps";
+    if (!(story.goal > 0)) return count + ".";
+    if (story.steps > story.goal) return count + "\nand beat your goal.";
+    if (story.steps === story.goal) return count + "\nand met your goal.";
+    return count + "\nand missed your goal.";
+  }
+
   function gaugeScale(goal, steps) {
     var value = steps == null ? 0 : steps;
     if (!(goal > 0)) {
@@ -519,6 +528,8 @@
     var story = C.storyFor(activeInput(), editingISO, read.steps);
     var copy = storyCopy(story);
     renderGauge(story.steps, story.goal);
+    els.storyResult.textContent = dayResult(story);
+    els.dayDialog.classList.toggle("met", !!story.met);
     els.storyVersus.textContent = "";
     els.storyKicker.textContent = copy.kicker;
     els.storyPace.textContent = copy.pace;
@@ -796,7 +807,7 @@
       "settingsDone", "asOfInput", "useToday", "settingsPeriod", "weekHint",
       "baselineLabel", "baselineInput", "baselineHint", "targetLabel", "targetInput",
       "settingsError", "exportBtn", "importFile", "dayDialog", "dayForm",
-      "storyWeekday", "storyDate", "gauge", "storyVersus", "storyKicker", "storyPace",
+      "storyWeekday", "storyDate", "gauge", "storyResult", "storyVersus", "storyKicker", "storyPace",
       "storyLine", "dayCancel", "daySteps", "dayError", "dayClear", "toast",
     ].forEach(function (id) {
       els[id] = document.getElementById(id);
@@ -863,6 +874,7 @@
       else editingISO = null;
     });
     els.dayDialog.addEventListener("close", function () {
+      els.dayDialog.classList.remove("met");
       if (!editingISO) render();
     });
   }
