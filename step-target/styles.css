@@ -712,7 +712,7 @@ dialog.story-dialog.met::backdrop { background: #1b8f3c; }
 .story-versus { display: none; }
 
 .story-result {
-  margin: 4px 0 10px;
+  margin: 8px 0 0;
   font-size: 1.05rem;
   font-weight: 750;
   letter-spacing: -0.02em;
