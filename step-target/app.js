@@ -391,9 +391,18 @@
     }
     return {
       kicker: "You’ll need to average",
-      pace: formatSteps(story.remainPace),
-      line: "steps " + remainRange(story) + " to average " + phrase + ".",
+      pace: formatSteps(story.remainPace) + " steps",
+      line: remainRange(story) + " to average " + phrase + ".",
     };
+  }
+
+  function dayResult(story) {
+    if (story.blank || story.steps == null) return "";
+    var count = "You got " + formatSteps(story.steps) + " steps on " + prettyOrd(story.iso);
+    if (!(story.goal > 0)) return count + ".";
+    if (story.steps > story.goal) return count + "\nand beat your goal.";
+    if (story.steps === story.goal) return count + "\nand met your goal.";
+    return count + "\nand missed your goal.";
   }
 
   function gaugeScale(goal, steps) {
@@ -406,13 +415,11 @@
     if (ratio <= 1) {
       return { max: goal, goalT: 1, percent: percent, endPercent: 100 };
     }
-    var endPercent = Math.ceil((percent - 1e-9) / 10) * 10;
-    if (endPercent <= 100) endPercent = 110;
     return {
-      max: goal * (endPercent / 100),
-      goalT: 100 / endPercent,
+      max: value,
+      goalT: goal / value,
       percent: percent,
-      endPercent: endPercent,
+      endPercent: percent,
     };
   }
 
@@ -441,11 +448,11 @@
   function renderGauge(steps, goal) {
     var value = steps == null ? 0 : steps;
     var scale = gaugeScale(goal, value);
-    var width = 320;
-    var height = 214;
-    var cx = 160;
-    var cy = 150;
-    var radius = 112;
+    var width = 400;
+    var height = 198;
+    var cx = 200;
+    var cy = 146;
+    var radius = 104;
     var tNeedle = scale.max > 0 ? Math.max(0, Math.min(1, value / scale.max)) : 0;
     var label = steps == null ? "No steps yet" : formatSteps(steps) + " steps";
     if (scale.percent != null) label += ", " + formatPercent(scale.percent) + " of the goal";
@@ -464,13 +471,51 @@
     if (scale.goalT != null && scale.goalT < 0.98) {
       var markOut = gaugePoint(cx, cy, radius + 8, scale.goalT);
       var markIn = gaugePoint(cx, cy, radius - 18, scale.goalT);
-      parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
-      var goalLabel = gaugePoint(cx, cy, radius + 24, scale.goalT);
-      parts.push('<text x="' + goalLabel[0].toFixed(1) + '" y="' + (goalLabel[1] + 4).toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">100%</text>');
+      parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="rgba(0,0,0,0.55)" stroke-width="6" stroke-linecap="round"/>');
     }
-    var endText = scale.endPercent ? formatPercent(scale.endPercent) : "";
-    if (endText) {
-      parts.push('<text x="' + (cx + radius) + '" y="' + (cy + 28) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + endText + "</text>");
+    if (goal > 0 && scale.goalT != null) {
+      var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
+      var goalAnchor = "middle";
+      var goalX;
+      var goalY;
+      var goalLines;
+      if (goalWhere > 0.98) {
+        var goalSpot = gaugePoint(cx, cy, radius + 28, 1);
+        goalX = Math.max(70, Math.min(width - 70, goalSpot[0]));
+        goalY = cy + 18;
+        goalLines = [formatSteps(goal) + " steps", "goal"];
+      } else {
+        var goalOuter = gaugePoint(cx, cy, radius + 18, goalWhere);
+        goalAnchor = goalWhere < 0.5 ? "end" : "start";
+        goalX = goalOuter[0] + (goalAnchor === "end" ? -4 : 6);
+        goalY = goalOuter[1] - 16;
+        goalLines = ["goal", formatSteps(goal) + " steps"];
+      }
+      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">');
+      goalLines.forEach(function (line, i) {
+        parts.push('<tspan x="' + goalX.toFixed(1) + '"' + (i ? ' dy="15"' : "") + ">" + line + "</tspan>");
+      });
+      parts.push("</text>");
+    }
+    if (steps != null && scale.percent != null) {
+      var readAnchor = "start";
+      var readX;
+      var readY;
+      if (tNeedle > 0.96) {
+        var endSpot = gaugePoint(cx, cy, radius, 1);
+        readAnchor = "middle";
+        readX = endSpot[0];
+        readY = cy + 20;
+      } else {
+        var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
+        readAnchor = tNeedle < 0.4 ? "end" : "start";
+        readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
+        readY = Math.max(20, readSpot[1] - 4);
+      }
+      parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
+      parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
+      parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
+      parts.push("</text>");
     }
     var tip = gaugePoint(cx, cy, radius - 40, tNeedle);
     parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(2) + '" y2="' + tip[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
@@ -496,12 +541,10 @@
     setError(els.dayError, "");
     var story = C.storyFor(activeInput(), editingISO, read.steps);
     var copy = storyCopy(story);
-    var scale = renderGauge(story.steps, story.goal);
-    if (story.blank || scale.percent == null) {
-      els.storyVersus.textContent = story.goal ? "Goal " + formatSteps(story.goal) : "";
-    } else {
-      els.storyVersus.textContent = formatPercent(scale.percent);
-    }
+    renderGauge(story.steps, story.goal);
+    els.storyResult.textContent = dayResult(story);
+    els.dayDialog.classList.toggle("met", !!story.met);
+    els.storyVersus.textContent = "";
     els.storyKicker.textContent = copy.kicker;
     els.storyPace.textContent = copy.pace;
     els.storyLine.textContent = copy.line;
@@ -778,7 +821,7 @@
       "settingsDone", "asOfInput", "useToday", "settingsPeriod", "weekHint",
       "baselineLabel", "baselineInput", "baselineHint", "targetLabel", "targetInput",
       "settingsError", "exportBtn", "importFile", "dayDialog", "dayForm",
-      "storyWeekday", "storyDate", "gauge", "storyVersus", "storyKicker", "storyPace",
+      "storyWeekday", "storyDate", "gauge", "storyResult", "storyVersus", "storyKicker", "storyPace",
       "storyLine", "dayCancel", "daySteps", "dayError", "dayClear", "toast",
     ].forEach(function (id) {
       els[id] = document.getElementById(id);
@@ -817,6 +860,10 @@
       openDay(button.getAttribute("data-date"));
     });
     els.dayForm.addEventListener("submit", saveDay);
+    els.gauge.addEventListener("click", function () {
+      els.daySteps.focus();
+      els.daySteps.select();
+    });
     els.daySteps.addEventListener("input", renderStory);
     els.daySteps.addEventListener("focus", renderStory);
     els.daySteps.addEventListener("blur", renderStory);
@@ -841,6 +888,7 @@
       else editingISO = null;
     });
     els.dayDialog.addEventListener("close", function () {
+      els.dayDialog.classList.remove("met");
       if (!editingISO) render();
     });
   }
