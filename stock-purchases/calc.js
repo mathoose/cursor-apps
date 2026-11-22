@@ -240,12 +240,85 @@
     return {
       shares: held,
       basis: basis,
+      cashBasis: bought - sold,
       bought: bought,
       sold: sold,
       dividends: dividends,
       price: price,
       value: value,
     };
+  }
+
+  function attributeLots(lots, quote, asOf) {
+    var splits = splitsFor(lots, quote);
+    var days = {};
+    function day(date) {
+      if (!days[date]) days[date] = { divCash: 0, yahooPerShare: 0, trades: [] };
+      return days[date];
+    }
+    orderedLots(lots).forEach(function (lot) {
+      if (!lot || !lot.date || lot.date > asOf) return;
+      var side = txSide(lot);
+      if (side === "split") return;
+      if (side === "dividend") day(lot.date).divCash += cashAmount(lot);
+      else day(lot.date).trades.push(lot);
+    });
+    if (!hasImportedDividends(lots) && quote) {
+      (quote.dividends || []).forEach(function (div) {
+        if (!div || div.date > asOf || !isFinite(Number(div.amount))) return;
+        day(div.date).yahooPerShare += Number(div.amount);
+      });
+    }
+    var open = [];
+    var byId = {};
+    Object.keys(days).sort().forEach(function (date) {
+      var info = days[date];
+      var eligible = [];
+      var totalShares = 0;
+      open.forEach(function (row) {
+        if (row.remaining <= 1e-8) return;
+        eligible.push(row);
+        totalShares += row.remaining;
+      });
+      if (totalShares > 1e-8 && info.divCash) {
+        eligible.forEach(function (row) {
+          row.dividends += info.divCash * (row.remaining / totalShares);
+        });
+      }
+      if (totalShares > 1e-8 && info.yahooPerShare) {
+        eligible.forEach(function (row) {
+          row.dividends += row.remaining * info.yahooPerShare;
+        });
+      }
+      orderedLots(info.trades).forEach(function (lot) {
+        var adj = Math.abs(signedShares(lot, splits));
+        if (txSide(lot) === "buy") {
+          var row = { id: lot.id, adjusted: adj, remaining: adj, cost: cashAmount(lot), dividends: 0 };
+          open.push(row);
+          byId[lot.id] = row;
+          return;
+        }
+        var left = adj;
+        for (var i = 0; i < open.length && left > 1e-8; i++) {
+          if (open[i].remaining <= 1e-8) continue;
+          var take = Math.min(open[i].remaining, left);
+          open[i].remaining -= take;
+          left -= take;
+        }
+      });
+    });
+    var price = null;
+    if (quote) {
+      var live = asNumber(quote.regularMarketPrice);
+      if (live != null && asOf >= (quote.liveDate || "9999-99-99")) price = live;
+      if (price == null) price = closeOn(quote.bars, asOf);
+    }
+    Object.keys(byId).forEach(function (id) {
+      var row = byId[id];
+      if (row.remaining < 1e-6) row.remaining = 0;
+      row.value = price == null ? null : row.remaining * price;
+    });
+    return byId;
   }
 
   function lotValue(lot, quote, date) {
@@ -356,6 +429,7 @@
       bought: bought,
       sold: sold,
       shares: shares,
+      cashBasis: bought - sold,
       value: openValue,
       dividends: dividends,
       priced: missingPrice ? 0 : 1,
@@ -449,6 +523,7 @@
     adjustedShares: adjustedShares,
     txSide: txSide,
     positionAt: positionAt,
+    attributeLots: attributeLots,
     cashAmount: cashAmount,
     dividendsThrough: dividendsThrough,
     closeOn: closeOn,

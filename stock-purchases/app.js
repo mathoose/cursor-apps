@@ -442,17 +442,21 @@
       return;
     }
     var currency = sum.currency || "USD";
+    var cashBasis = sum.bought - sum.sold;
     var gain = null;
     if (sum.value != null) {
-      gain = sum.value + sum.sold - sum.bought;
+      gain = sum.value - cashBasis;
       if (!data.hideDividends) gain += sum.dividends;
     }
     var gainClass = gain > 0 ? "up" : gain < 0 ? "down" : "";
     var html = "";
     html += stat("Bought", money(sum.bought, currency), "");
-    if (sum.sold > 0) html += stat("Sold", money(sum.sold, currency), "Cash received");
+    if (sum.sold > 0) {
+      html += stat("Sold", money(sum.sold, currency), "Cash received");
+      html += stat("Basis", money(cashBasis, currency), "Buys minus sells");
+    }
     html += stat("Value", sum.value == null ? "—" : money(sum.value, currency), sum.value == null ? "Partial" : "");
-    html += stat(data.hideDividends ? "Gain" : "Gain + dividends", signedMoney(gain, currency), formatPct(gain, sum.bought), gainClass);
+    html += stat(data.hideDividends ? "Gain" : "Gain + dividends", signedMoney(gain, currency), cashBasis > 0 ? formatPct(gain, cashBasis) : "", gainClass);
     if (!data.hideDividends) html += stat("Dividends", money(sum.dividends, currency), "Cash received");
     els.summary.innerHTML = html;
   }
@@ -513,6 +517,7 @@
       var bars = (quote && quote.bars) || [];
       var price = quote && isNum(quote.regularMarketPrice) ? quote.regularMarketPrice : (bars.length ? bars[bars.length - 1].close : null);
       var pos = StockCalc.positionAt(lots, quote, asOf);
+      var attributed = StockCalc.attributeLots(lots, quote, asOf);
       html += '<section class="group">';
       html += '<div class="group-head"><h3>' + escapeHtml(symbol) + (name ? "<small>" + escapeHtml(name) + "</small>" : "") + "</h3>";
       html += '<div class="group-price">';
@@ -540,6 +545,15 @@
           escapeHtml(cashText) + "</span></div>";
         html += '<div class="lot-line"><span>' + escapeHtml(activityTitle(lot)) + "</span><span>" +
           escapeHtml(activityDetail(lot, currency)) + "</span></div>";
+        if (side === "buy" && attributed[lot.id]) {
+          var info = attributed[lot.id];
+          if (!data.hideDividends) {
+            html += '<div class="lot-line"><span>Dividends from this buy</span><span>' + escapeHtml(money(info.dividends, currency)) + "</span></div>";
+          }
+          var nowLabel = info.remaining <= 1e-6 ? "Sold" : formatShares(info.remaining) + (Math.abs(info.remaining - 1) < 1e-6 ? " share now" : " shares now");
+          var nowValue = info.value == null ? "Waiting for price" : money(info.value, currency);
+          html += '<div class="lot-line"><span>' + escapeHtml(nowLabel) + "</span><span>" + escapeHtml(nowValue) + "</span></div>";
+        }
         if (lot.note) html += '<p class="lot-note">' + escapeHtml(lot.note) + "</p>";
         html += "</button>";
       });
