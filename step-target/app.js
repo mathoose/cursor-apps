@@ -441,11 +441,11 @@
   function renderGauge(steps, goal) {
     var value = steps == null ? 0 : steps;
     var scale = gaugeScale(goal, value);
-    var width = 320;
-    var height = 214;
-    var cx = 160;
-    var cy = 150;
-    var radius = 112;
+    var width = 400;
+    var height = 230;
+    var cx = 200;
+    var cy = 146;
+    var radius = 104;
     var tNeedle = scale.max > 0 ? Math.max(0, Math.min(1, value / scale.max)) : 0;
     var label = steps == null ? "No steps yet" : formatSteps(steps) + " steps";
     if (scale.percent != null) label += ", " + formatPercent(scale.percent) + " of the goal";
@@ -465,12 +465,23 @@
       var markOut = gaugePoint(cx, cy, radius + 8, scale.goalT);
       var markIn = gaugePoint(cx, cy, radius - 18, scale.goalT);
       parts.push('<line x1="' + markOut[0].toFixed(2) + '" y1="' + markOut[1].toFixed(2) + '" x2="' + markIn[0].toFixed(2) + '" y2="' + markIn[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
-      var goalLabel = gaugePoint(cx, cy, radius + 24, scale.goalT);
-      parts.push('<text x="' + goalLabel[0].toFixed(1) + '" y="' + (goalLabel[1] + 4).toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">100%</text>');
     }
-    var endText = scale.endPercent ? formatPercent(scale.endPercent) : "";
-    if (endText) {
-      parts.push('<text x="' + (cx + radius) + '" y="' + (cy + 28) + '" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">' + endText + "</text>");
+    if (goal > 0 && scale.goalT != null) {
+      var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
+      var goalSpot = gaugePoint(cx, cy, radius + 28, goalWhere);
+      var goalX = Math.max(54, Math.min(width - 54, goalSpot[0]));
+      var goalY = goalWhere > 0.98 ? cy + 26 : goalSpot[1] + 4;
+      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">' + formatSteps(goal) + "</text>");
+    }
+    if (steps != null && scale.percent != null) {
+      var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
+      var readAnchor = tNeedle < 0.4 ? "end" : "start";
+      var readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
+      var readY = Math.max(20, readSpot[1] - 4);
+      parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
+      parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + "</tspan>");
+      parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
+      parts.push("</text>");
     }
     var tip = gaugePoint(cx, cy, radius - 40, tNeedle);
     parts.push('<line x1="' + cx + '" y1="' + cy + '" x2="' + tip[0].toFixed(2) + '" y2="' + tip[1].toFixed(2) + '" stroke="#fff" stroke-width="6" stroke-linecap="round"/>');
@@ -496,12 +507,8 @@
     setError(els.dayError, "");
     var story = C.storyFor(activeInput(), editingISO, read.steps);
     var copy = storyCopy(story);
-    var scale = renderGauge(story.steps, story.goal);
-    if (story.blank || scale.percent == null) {
-      els.storyVersus.textContent = story.goal ? "Goal " + formatSteps(story.goal) : "";
-    } else {
-      els.storyVersus.textContent = formatPercent(scale.percent);
-    }
+    renderGauge(story.steps, story.goal);
+    els.storyVersus.textContent = "";
     els.storyKicker.textContent = copy.kicker;
     els.storyPace.textContent = copy.pace;
     els.storyLine.textContent = copy.line;
@@ -817,6 +824,10 @@
       openDay(button.getAttribute("data-date"));
     });
     els.dayForm.addEventListener("submit", saveDay);
+    els.gauge.addEventListener("click", function () {
+      els.daySteps.focus();
+      els.daySteps.select();
+    });
     els.daySteps.addEventListener("input", renderStory);
     els.daySteps.addEventListener("focus", renderStory);
     els.daySteps.addEventListener("blur", renderStory);

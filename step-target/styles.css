@@ -666,16 +666,22 @@ dialog.story-dialog::backdrop { background: #c4161c; }
 }
 
 .gauge {
-  width: min(64%, 260px);
+  width: min(86%, 340px);
   margin-top: 0;
 }
 
 .gauge svg { display: block; width: 100%; height: auto; }
 
 .story-steps {
-  width: 9ch;
-  margin-top: 2px;
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 8ch;
+  margin: 0;
   border: 0;
+  border-radius: 10px;
   background: transparent;
   color: #fff;
   text-align: center;
@@ -683,19 +689,20 @@ dialog.story-dialog::backdrop { background: #c4161c; }
   font-weight: 760;
   letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
-  padding: 0;
+  padding: 4px 0;
+  opacity: 0;
+}
+
+.story-steps:focus {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.28);
+  outline: none;
 }
 
 .story-steps::placeholder { color: rgba(255, 255, 255, 0.55); }
 .story-steps:focus { outline: none; }
 
-.story-versus {
-  min-height: 1.3em;
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 760;
-  letter-spacing: -0.03em;
-}
+.story-versus { display: none; }
 
 .story-kicker {
   margin: 6px 0 0;
