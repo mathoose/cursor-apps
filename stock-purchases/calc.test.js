@@ -61,6 +61,12 @@ var sum = calc.summarize([lot, later], { AAPL: quote }, "2020-09-02");
 approx(sum.value, 42 * 131);
 approx(sum.cost, 5260);
 approx(sum.dividends, 8.2);
+var aaplLots = calc.attributeLots([lot, later], quote, "2020-09-02");
+approx(aaplLots.a.dividends, 8.2);
+approx(aaplLots.a.remaining, 40);
+approx(aaplLots.a.value, 40 * 131);
+approx(aaplLots.b.dividends, 0);
+approx(aaplLots.b.remaining, 2);
 assert.strictEqual(sum.currency, "USD");
 
 var noLive = {
@@ -158,6 +164,29 @@ var afterSplit = calc.positionAt(splitLots, { bars: [], splits: [], dividends: [
 approx(afterSplit.shares, 2);
 approx(afterSplit.dividends, 2);
 approx(afterSplit.bought, 50);
+approx(afterSplit.cashBasis, 50);
+
+var lotsForTrades = [
+  { id: "a", symbol: "TEST", date: "2026-01-01", side: "buy", shares: 10, price: 10, amount: 100, seq: 1 },
+  { id: "d1", symbol: "TEST", date: "2026-02-01", side: "dividend", amount: 10, seq: 1 },
+  { id: "s", symbol: "TEST", date: "2026-03-01", side: "sell", shares: 4, price: 12, amount: 48, seq: 1 },
+  { id: "b", symbol: "TEST", date: "2026-04-01", side: "buy", shares: 5, price: 8, amount: 40, seq: 1 },
+  { id: "d2", symbol: "TEST", date: "2026-05-01", side: "dividend", amount: 11, seq: 1 },
+];
+var tradeQuote = { bars: [], splits: [], dividends: [], regularMarketPrice: 20, liveDate: "2026-05-02", currency: "USD" };
+var attributed = calc.attributeLots(lotsForTrades, tradeQuote, "2026-05-02");
+approx(attributed.a.remaining, 6);
+approx(attributed.a.dividends, 16);
+approx(attributed.a.cost, 100);
+approx(attributed.a.value, 120);
+approx(attributed.b.remaining, 5);
+approx(attributed.b.dividends, 5);
+approx(attributed.b.cost, 40);
+approx(attributed.b.value, 100);
+var tradeSum = calc.summarize(lotsForTrades, { TEST: tradeQuote }, "2026-05-02");
+approx(tradeSum.cashBasis, 92);
+approx(tradeSum.value, 220);
+approx(tradeSum.dividends, 21);
 
 live().then(function () {
   console.log("calc.test.js ok");
