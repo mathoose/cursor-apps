@@ -391,8 +391,8 @@
     }
     return {
       kicker: "You’ll need to average",
-      pace: formatSteps(story.remainPace),
-      line: "steps " + remainRange(story) + " to average " + phrase + ".",
+      pace: formatSteps(story.remainPace) + " steps",
+      line: remainRange(story) + " to average " + phrase + ".",
     };
   }
 
@@ -442,7 +442,7 @@
     var value = steps == null ? 0 : steps;
     var scale = gaugeScale(goal, value);
     var width = 400;
-    var height = 230;
+    var height = 198;
     var cx = 200;
     var cy = 146;
     var radius = 104;
@@ -468,10 +468,21 @@
     }
     if (goal > 0 && scale.goalT != null) {
       var goalWhere = scale.goalT > 0.98 ? 1 : scale.goalT;
-      var goalSpot = gaugePoint(cx, cy, radius + 28, goalWhere);
-      var goalX = Math.max(54, Math.min(width - 54, goalSpot[0]));
-      var goalY = goalWhere > 0.98 ? cy + 26 : goalSpot[1] + 4;
-      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">' + formatSteps(goal) + "</text>");
+      var goalText = formatSteps(goal) + " steps";
+      var goalAnchor = "middle";
+      var goalX;
+      var goalY;
+      if (goalWhere > 0.98) {
+        var goalSpot = gaugePoint(cx, cy, radius + 28, 1);
+        goalX = Math.max(70, Math.min(width - 70, goalSpot[0]));
+        goalY = cy + 22;
+      } else {
+        var goalOuter = gaugePoint(cx, cy, radius + 18, goalWhere);
+        goalAnchor = goalWhere < 0.5 ? "end" : "start";
+        goalX = goalOuter[0] + (goalAnchor === "end" ? -4 : 6);
+        goalY = goalOuter[1] - 2;
+      }
+      parts.push('<text x="' + goalX.toFixed(1) + '" y="' + goalY.toFixed(1) + '" text-anchor="' + goalAnchor + '" fill="#fff" font-size="15" font-weight="700">' + goalText + "</text>");
     }
     if (steps != null && scale.percent != null) {
       var readSpot = gaugePoint(cx, cy, radius + 26, tNeedle);
@@ -479,7 +490,7 @@
       var readX = readSpot[0] + (readAnchor === "end" ? -2 : 2);
       var readY = Math.max(20, readSpot[1] - 4);
       parts.push('<text x="' + readX.toFixed(1) + '" y="' + readY.toFixed(1) + '" text-anchor="' + readAnchor + '" fill="#fff" font-size="15" font-weight="700">');
-      parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + "</tspan>");
+      parts.push('<tspan x="' + readX.toFixed(1) + '">' + formatSteps(steps) + " steps</tspan>");
       parts.push('<tspan x="' + readX.toFixed(1) + '" dy="16">' + formatPercent(scale.percent) + "</tspan>");
       parts.push("</text>");
     }
