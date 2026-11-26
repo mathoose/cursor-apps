@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Stamp Book</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Stamp Book" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#f3efe6" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <!-- build: stamp-book-v1 -->
+  <div class="app">
+    <header class="app-header" id="appHeader">
+      <div class="header-row">
+        <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <button type="button" class="page-switch" id="pageSwitch" aria-haspopup="dialog">
+          <span class="page-switch-kicker">Stamp Book</span>
+          <span class="page-switch-name">
+            <span id="pageName"></span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+        </button>
+        <button type="button" class="icon-btn" id="settingsBtn" aria-label="Settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.9-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-.9a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.9 2-3.4z"/></svg>
+        </button>
+      </div>
+      <div class="segment" id="viewTabs" role="tablist" aria-label="View">
+        <button type="button" role="tab" data-view="today" aria-selected="true">Today</button>
+        <button type="button" role="tab" data-view="month" aria-selected="false">Month</button>
+        <button type="button" role="tab" data-view="year" aria-selected="false">Year</button>
+      </div>
+    </header>
+
+    <main class="main-panel">
+      <section id="viewToday" aria-label="Today">
+        <div id="todayEditor"></div>
+      </section>
+
+      <section id="viewMonth" aria-label="Month" hidden>
+        <div class="nav-row">
+          <button type="button" class="icon-btn" id="prevMonth" aria-label="Previous month">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="nav-title">
+            <h2 id="monthTitle"></h2>
+            <p id="monthTotal"></p>
+          </div>
+          <button type="button" class="icon-btn" id="nextMonth" aria-label="Next month">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="weekdays" aria-hidden="true">
+          <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+        </div>
+        <div class="month-grid" id="monthGrid"></div>
+        <button type="button" class="jump-btn" id="monthJump" hidden>Back to this month</button>
+        <div class="key-block" id="monthKey"></div>
+      </section>
+
+      <section id="viewYear" aria-label="Year" hidden>
+        <div class="nav-row">
+          <button type="button" class="icon-btn" id="prevYear" aria-label="Previous year">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="nav-title">
+            <h2 id="yearTitle"></h2>
+            <p id="yearTotal"></p>
+          </div>
+          <button type="button" class="icon-btn" id="nextYear" aria-label="Next year">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <div class="year-grid" id="yearGrid"></div>
+        <button type="button" class="jump-btn" id="yearJump" hidden>Back to this year</button>
+        <div class="key-block" id="yearKey"></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="dayDialog" class="sheet-dialog tall" aria-labelledby="dayTitle">
+    <div class="sheet">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div class="day-nav">
+          <button type="button" class="icon-btn small" id="dayPrev" aria-label="Previous day">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h2 id="dayTitle"></h2>
+          <button type="button" class="icon-btn small" id="dayNext" aria-label="Next day">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+        <button type="button" class="text-btn" id="dayDone">Done</button>
+      </div>
+      <div id="dayEditor"></div>
+    </div>
+  </dialog>
+
+  <dialog id="pagesDialog" class="sheet-dialog" aria-labelledby="pagesTitle">
+    <div class="sheet">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <h2 id="pagesTitle">Pages</h2>
+        <button type="button" class="text-btn" id="pagesDone">Done</button>
+      </div>
+      <div class="page-list" id="pageList"></div>
+      <button type="button" class="primary-btn" id="newPageBtn">New page</button>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDialog" class="sheet-dialog tall" aria-labelledby="settingsTitle">
+    <div class="sheet">
+      <div class="grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <h2 id="settingsTitle">Settings</h2>
+        <button type="button" class="text-btn" id="settingsDone">Done</button>
+      </div>
+
+      <div class="field">
+        <label for="pageNameInput">Page name</label>
+        <input id="pageNameInput" type="text" maxlength="40" autocomplete="off" enterkeyhint="done" />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Shapes on this page</span>
+        <div class="shape-toggle-grid" id="shapeToggles"></div>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Colors on this page</span>
+        <div class="color-edit-grid" id="colorEdit"></div>
+        <p class="hint">Removing a color keeps the stamps you already made with it.</p>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Stamp descriptions</span>
+        <div class="legend-edit" id="legendEdit"></div>
+      </div>
+
+      <div class="field">
+        <label for="sizeInput">Stamp size <span class="field-value" id="sizeValue"></span></label>
+        <div class="size-row">
+          <input id="sizeInput" type="range" min="10" max="50" step="1" />
+          <div class="size-preview" id="sizePreview" aria-hidden="true"></div>
+        </div>
+        <p class="hint">The share of a day's box one stamp fills. It applies to every page.</p>
+      </div>
+
+      <div class="field">
+        <span class="field-label">Backup</span>
+        <div class="io-row">
+          <button type="button" id="exportBtn">Export JSON</button>
+          <label for="importFile">Import JSON
+            <input type="file" id="importFile" accept="application/json,.json" hidden />
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="danger-btn" id="deletePageBtn">Delete this page</button>
+    </div>
+  </dialog>
+
+  <dialog id="askDialog" class="ask-dialog" aria-labelledby="askTitle">
+    <form class="ask" id="askForm">
+      <div class="ask-preview" id="askPreview" hidden></div>
+      <h2 id="askTitle"></h2>
+      <p class="ask-body" id="askBody"></p>
+      <input id="askInput" type="text" autocomplete="off" enterkeyhint="done" />
+      <div class="ask-actions">
+        <button type="button" class="ghost-btn" id="askCancel">Cancel</button>
+        <button type="submit" class="primary-btn" id="askOk">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <p class="toast" id="toast" hidden role="status"></p>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="logic.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>

@@ -37,7 +37,8 @@
       "city-axes": { "storageKey": "city-axes-v1" },
       "done-today": { "storageKey": "done-today-v1" },
       "things-to-do": { "storageKey": "things-to-do-v1" },
-      "stock-purchases": { "storageKey": "stock-purchases-v1" }
+      "stock-purchases": { "storageKey": "stock-purchases-v1" },
+      "stamp-book": { "storageKey": "stamp-book-v1" }
     }
   },
   "apps": [
@@ -52,6 +53,12 @@
       "name": "Steps",
       "subtitle": "Pace to a daily target",
       "storageKey": "step-target-v1"
+    },
+    {
+      "id": "stamp-book",
+      "name": "Stamp Book",
+      "subtitle": "Year pages of stamps",
+      "storageKey": "stamp-book-v1"
     },
     {
       "id": "body-journal",
