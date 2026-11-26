@@ -110,7 +110,7 @@
     }
     el.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(hideToast, opts && opts.action ? 6000 : 2800);
+    toastTimer = setTimeout(hideToast, opts && opts.action ? 8000 : 2800);
   }
 
   // ---- alerts: timers, reminders, Shortcuts ----
@@ -457,6 +457,7 @@
       if (!parsed) return;
       var p = parsed;
       reset();
+      input.focus();
       if (p.suggestion.kind === "timer") startTimer(p.suggestion.minutes, p.text);
       else addReminderLine(p.text, p.suggestion.at, cfg.listId());
     }
@@ -478,6 +479,10 @@
     });
     cfg.form.addEventListener("click", function (e) {
       if (!e.target.closest("button")) input.focus();
+    });
+    // Keeps the cursor (and the phone keyboard) in the box while the chip is tapped.
+    box.addEventListener("mousedown", function (e) {
+      if (e.target.closest("[data-suggest]")) e.preventDefault();
     });
     box.addEventListener("click", function (e) {
       if (e.target.closest("[data-suggest]")) useSuggestion();
@@ -943,6 +948,10 @@
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && document.body.classList.contains("sheet-open")) closeSheets();
+    });
+    // A toast can sit over the last button on a short page, so a tap on it clears it.
+    $("toast").addEventListener("click", function (e) {
+      if (!e.target.closest(".toast-action")) hideToast();
     });
 
     $("newListForm").addEventListener("submit", function (e) {
