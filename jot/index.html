@@ -10,11 +10,11 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#14161c" media="(prefers-color-scheme: dark)" />
-  <!-- build: jot-v1 -->
+  <!-- build: jot-v2 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=2" />
 </head>
 <body>
   <header class="app-header">
@@ -45,6 +45,32 @@
         <div class="suggest" id="inboxSuggest" hidden></div>
       </div>
       <div id="inboxItems"></div>
+    </section>
+
+    <section id="viewNotes" aria-label="Notes" hidden>
+      <div class="capture-wrap">
+        <form class="capture" id="noteCapture" autocomplete="off">
+          <label class="sr-only" for="noteInput">Write a new sticky</label>
+          <textarea id="noteInput" rows="1" maxlength="4000" placeholder="New sticky…" enterkeyhint="done" autocapitalize="sentences"></textarea>
+          <button type="submit" class="capture-add" aria-label="Save sticky">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </form>
+      </div>
+      <div id="looseNotes" data-drop="loose"></div>
+      <div class="section-head">
+        <h2 class="section-title">Folders</h2>
+        <button type="button" class="link" id="newFolderBtn" aria-expanded="false" aria-controls="newFolderForm">New folder</button>
+      </div>
+      <form class="capture capture-small" id="newFolderForm" autocomplete="off" hidden>
+        <label class="sr-only" for="newFolderInput">Name a new folder</label>
+        <input id="newFolderInput" type="text" maxlength="80" placeholder="Name a new folder…" enterkeyhint="done" autocapitalize="sentences" />
+        <button type="submit" class="capture-add" aria-label="Create folder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </form>
+      <p class="fine" id="dragHint" hidden>Press and hold a sticky, then drag it onto a folder.</p>
+      <div id="folderList"></div>
     </section>
 
     <section id="viewLists" aria-label="Lists" hidden>
@@ -90,6 +116,10 @@
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13l2.5-8h11L20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 13h4.5a3.5 3.5 0 0 0 7 0H20"/></svg>
       <span class="nav-btn-label">Inbox</span>
     </button>
+    <button type="button" class="nav-btn" data-view="notes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v10l-5 6H5z"/><path d="M19 14h-5v6"/></svg>
+      <span class="nav-btn-label">Notes</span>
+    </button>
     <button type="button" class="nav-btn" data-view="lists">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>
       <span class="nav-btn-label">Lists</span>
@@ -99,6 +129,11 @@
   <div id="itemSheet" class="sheet" hidden>
     <button type="button" class="sheet-backdrop" data-close-sheet aria-label="Close"></button>
     <div class="sheet-card" id="itemSheetBody" role="dialog" aria-modal="true" aria-label="Edit"></div>
+  </div>
+
+  <div id="noteSheet" class="sheet" hidden>
+    <button type="button" class="sheet-backdrop" data-close-sheet aria-label="Close"></button>
+    <div class="sheet-card" id="noteSheetBody" role="dialog" aria-modal="true" aria-label="Edit"></div>
   </div>
 
   <div id="settingsSheet" class="sheet" hidden>
@@ -180,9 +215,9 @@
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
-  <script src="logic.js?v=1"></script>
+  <script src="logic.js?v=2"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

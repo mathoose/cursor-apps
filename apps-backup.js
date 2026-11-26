@@ -2039,6 +2039,8 @@
           version: 1,
           items: clean.items,
           lists: clean.lists,
+          notes: clean.notes,
+          folders: clean.folders,
           timers: timers,
           settings: clean.settings,
         }));
@@ -2049,7 +2051,9 @@
       summarize: function (slice) {
         var lines = slice && Array.isArray(slice.items) ? slice.items.length : 0;
         var lists = slice && Array.isArray(slice.lists) ? slice.lists.length : 0;
-        return lines + " jotted line" + (lines === 1 ? "" : "s") + ", " + lists + " list" + (lists === 1 ? "" : "s");
+        var notes = slice && Array.isArray(slice.notes) ? slice.notes.length : 0;
+        return lines + " jotted line" + (lines === 1 ? "" : "s") + ", " + lists + " list" + (lists === 1 ? "" : "s") +
+          (notes ? ", " + notes + (notes === 1 ? " sticky" : " stickies") : "");
       },
       mergeSlice: function (existing, incoming) {
         var mine = cleanJotSlice(existing);
@@ -2065,6 +2069,8 @@
           version: 1,
           items: union(mine.items, theirs.items),
           lists: union(mine.lists, theirs.lists),
+          notes: union(mine.notes, theirs.notes),
+          folders: union(mine.folders, theirs.folders),
           settings: mine.settings,
         };
       },
@@ -2155,11 +2161,20 @@
     var lists = p.lists.filter(function (l) {
       return l && typeof l.id === "string" && l.id;
     });
-    if (!items.length && !lists.length) return null;
+    // Stickies and folders came later, so an older backup has neither.
+    var notes = (Array.isArray(p.notes) ? p.notes : []).filter(function (n) {
+      return n && typeof n.id === "string" && n.id && typeof n.text === "string" && n.text;
+    });
+    var folders = (Array.isArray(p.folders) ? p.folders : []).filter(function (f) {
+      return f && typeof f.id === "string" && f.id;
+    });
+    if (!items.length && !lists.length && !notes.length && !folders.length) return null;
     return {
       version: 1,
       items: items,
       lists: lists,
+      notes: notes,
+      folders: folders,
       settings: p.settings && typeof p.settings === "object" ? p.settings : {},
     };
   }

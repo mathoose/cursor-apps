@@ -11,6 +11,8 @@
   var VERSION = 1;
   var MAX_TEXT = 2000;
   var MAX_NAME = 80;
+  var MAX_NOTE = 4000;
+  var NOTE_COLORS = ["yellow", "pink", "blue", "green", "orange", "purple"];
   var MAX_TIMER_MINUTES = 24 * 60;
   var DEFAULT_SETTINGS = {
     timerShortcut: "Jot Timer",
@@ -61,6 +63,16 @@
     return (prefix || "j") + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
   }
 
+  /** A sticky keeps its line breaks, unlike a jotted line. */
+  function cleanNote(value) {
+    return String(value == null ? "" : value)
+      .replace(/\r\n?/g, "\n")
+      .replace(/[ \t]+$/gm, "")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, MAX_NOTE);
+  }
+
   /** Pasted text can hold several lines; each becomes its own line in Jot. */
   function splitLines(text) {
     return String(text == null ? "" : text)
@@ -72,7 +84,7 @@
   // ---- state ----
 
   function emptyState() {
-    return { version: VERSION, items: [], lists: [], timers: [], settings: assign({}, DEFAULT_SETTINGS) };
+    return { version: VERSION, items: [], lists: [], notes: [], folders: [], timers: [], settings: assign({}, DEFAULT_SETTINGS) };
   }
 
   function normalizeSettings(raw) {
@@ -96,6 +108,38 @@
         id: l.id,
         name: cleanText(l.name, MAX_NAME) || "Untitled list",
         createdAt: isoOrNull(l.createdAt) || toIso(),
+        expanded: l.expanded === true,
+      });
+    });
+
+    var folders = [];
+    var folderIds = {};
+    (Array.isArray(src.folders) ? src.folders : []).forEach(function (f) {
+      if (!f || typeof f.id !== "string" || !f.id || folderIds[f.id]) return;
+      folderIds[f.id] = true;
+      folders.push({
+        id: f.id,
+        name: cleanText(f.name, MAX_NAME) || "Untitled folder",
+        createdAt: isoOrNull(f.createdAt) || toIso(),
+        collapsed: f.collapsed === true,
+      });
+    });
+
+    var notes = [];
+    var noteIds = {};
+    (Array.isArray(src.notes) ? src.notes : []).forEach(function (n) {
+      if (!n || typeof n.id !== "string" || !n.id || noteIds[n.id]) return;
+      var text = cleanNote(n.text);
+      if (!text) return;
+      noteIds[n.id] = true;
+      var createdAt = isoOrNull(n.createdAt) || toIso();
+      notes.push({
+        id: n.id,
+        text: text,
+        color: NOTE_COLORS.indexOf(n.color) >= 0 ? n.color : NOTE_COLORS[0],
+        folderId: typeof n.folderId === "string" && folderIds[n.folderId] ? n.folderId : null,
+        createdAt: createdAt,
+        updatedAt: isoOrNull(n.updatedAt) || createdAt,
       });
     });
 
@@ -137,7 +181,15 @@
       });
     });
 
-    return { version: VERSION, items: items, lists: lists, timers: timers, settings: normalizeSettings(src.settings) };
+    return {
+      version: VERSION,
+      items: items,
+      lists: lists,
+      notes: notes,
+      folders: folders,
+      timers: timers,
+      settings: normalizeSettings(src.settings),
+    };
   }
 
   function findItem(state, id) {
@@ -274,7 +326,7 @@
     opts = opts || {};
     var name = cleanText(opts.name, MAX_NAME);
     if (!name) return state;
-    var list = { id: opts.id || uid("l"), name: name, createdAt: toIso(opts.now) };
+    var list = { id: opts.id || uid("l"), name: name, createdAt: toIso(opts.now), expanded: false };
     return assign({}, state, { lists: [list].concat(state.lists) });
   }
 
@@ -321,6 +373,7 @@
       id: opts.id || uid("l"),
       name: cleanText(source.name + " copy", MAX_NAME),
       createdAt: now,
+      expanded: false,
     };
     var n = 0;
     var copies = state.items
@@ -361,6 +414,180 @@
       return assign({}, it, { done: true, doneAt: c.doneAt || toIso() });
     });
     return assign({}, state, { items: items });
+  }
+
+  /** Whether a list shows its lines on the Lists tab without being opened. */
+  function setListExpanded(state, id, expanded) {
+    var want = expanded === true;
+    var changed = false;
+    var lists = state.lists.map(function (l) {
+      if (l.id !== id || l.expanded === want) return l;
+      changed = true;
+      return assign({}, l, { expanded: want });
+    });
+    return changed ? assign({}, state, { lists: lists }) : state;
+  }
+
+  function setAllListsExpanded(state, expanded) {
+    var want = expanded === true;
+    var changed = false;
+    var lists = state.lists.map(function (l) {
+      if (l.expanded === want) return l;
+      changed = true;
+      return assign({}, l, { expanded: want });
+    });
+    return changed ? assign({}, state, { lists: lists }) : state;
+  }
+
+  // ---- stickies and folders ----
+
+  function findNote(state, id) {
+    for (var i = 0; i < state.notes.length; i++) if (state.notes[i].id === id) return state.notes[i];
+    return null;
+  }
+
+  function findFolder(state, id) {
+    for (var i = 0; i < state.folders.length; i++) if (state.folders[i].id === id) return state.folders[i];
+    return null;
+  }
+
+  function validFolderId(state, folderId) {
+    return folderId && findFolder(state, folderId) ? folderId : null;
+  }
+
+  /** The next sticky takes the color after the newest one, so neighbours differ. */
+  function nextNoteColor(state) {
+    if (!state.notes.length) return NOTE_COLORS[0];
+    return NOTE_COLORS[(NOTE_COLORS.indexOf(state.notes[0].color) + 1) % NOTE_COLORS.length];
+  }
+
+  function addNote(state, opts) {
+    opts = opts || {};
+    var text = cleanNote(opts.text);
+    if (!text) return state;
+    var now = toIso(opts.now);
+    var note = {
+      id: opts.id || uid("n"),
+      text: text,
+      color: NOTE_COLORS.indexOf(opts.color) >= 0 ? opts.color : nextNoteColor(state),
+      folderId: validFolderId(state, opts.folderId),
+      createdAt: now,
+      updatedAt: now,
+    };
+    return assign({}, state, { notes: [note].concat(state.notes) });
+  }
+
+  function updateNote(state, id, patch, now) {
+    patch = patch || {};
+    var changed = false;
+    var notes = state.notes.map(function (n) {
+      if (n.id !== id) return n;
+      var text = "text" in patch ? cleanNote(patch.text) || n.text : n.text;
+      var color = NOTE_COLORS.indexOf(patch.color) >= 0 ? patch.color : n.color;
+      if (text === n.text && color === n.color) return n;
+      changed = true;
+      return assign({}, n, { text: text, color: color, updatedAt: toIso(now) });
+    });
+    return changed ? assign({}, state, { notes: notes }) : state;
+  }
+
+  /** Files a sticky in a folder, or takes it out when folderId is empty. It lands first in its new place. */
+  function moveNote(state, id, folderId) {
+    var note = findNote(state, id);
+    if (!note) return state;
+    var target = validFolderId(state, folderId);
+    if (note.folderId === target) return state;
+    var moved = assign({}, note, { folderId: target });
+    var rest = state.notes.filter(function (n) { return n.id !== id; });
+    return assign({}, state, { notes: [moved].concat(rest) });
+  }
+
+  function takeNote(state, id) {
+    var index = -1;
+    state.notes.forEach(function (n, i) { if (n.id === id) index = i; });
+    if (index < 0) return { state: state, removed: null };
+    var notes = state.notes.filter(function (n) { return n.id !== id; });
+    return { state: assign({}, state, { notes: notes }), removed: { note: state.notes[index], index: index } };
+  }
+
+  function restoreNote(state, removed) {
+    if (!removed || !removed.note || findNote(state, removed.note.id)) return state;
+    var notes = state.notes.slice();
+    var note = assign({}, removed.note, { folderId: validFolderId(state, removed.note.folderId) });
+    notes.splice(Math.min(Math.max(removed.index, 0), notes.length), 0, note);
+    return assign({}, state, { notes: notes });
+  }
+
+  function notesIn(state, folderId) {
+    var target = folderId || null;
+    return state.notes.filter(function (n) { return (n.folderId || null) === target; });
+  }
+
+  function addFolder(state, opts) {
+    opts = opts || {};
+    var name = cleanText(opts.name, MAX_NAME);
+    if (!name) return state;
+    var folder = { id: opts.id || uid("f"), name: name, createdAt: toIso(opts.now), collapsed: false };
+    return assign({}, state, { folders: [folder].concat(state.folders) });
+  }
+
+  function mapFolder(state, id, fn) {
+    var changed = false;
+    var folders = state.folders.map(function (f) {
+      if (f.id !== id) return f;
+      var next = fn(f);
+      if (next !== f) changed = true;
+      return next;
+    });
+    return changed ? assign({}, state, { folders: folders }) : state;
+  }
+
+  function renameFolder(state, id, name) {
+    var clean = cleanText(name, MAX_NAME);
+    if (!clean) return state;
+    return mapFolder(state, id, function (f) {
+      return f.name === clean ? f : assign({}, f, { name: clean });
+    });
+  }
+
+  function setFolderCollapsed(state, id, collapsed) {
+    var want = collapsed === true;
+    return mapFolder(state, id, function (f) {
+      return f.collapsed === want ? f : assign({}, f, { collapsed: want });
+    });
+  }
+
+  /** Deleting a folder never deletes stickies: they go back to the loose pile. */
+  function removeFolder(state, id) {
+    var index = -1;
+    state.folders.forEach(function (f, i) { if (f.id === id) index = i; });
+    if (index < 0) return { state: state, folder: null, index: -1, noteIds: [] };
+    var noteIds = [];
+    var notes = state.notes.map(function (n) {
+      if (n.folderId !== id) return n;
+      noteIds.push(n.id);
+      return assign({}, n, { folderId: null });
+    });
+    var folders = state.folders.filter(function (f) { return f.id !== id; });
+    return {
+      state: assign({}, state, { folders: folders, notes: notes }),
+      folder: state.folders[index],
+      index: index,
+      noteIds: noteIds,
+    };
+  }
+
+  /** Puts a deleted folder back, with the stickies it held that have not been filed elsewhere since. */
+  function restoreFolder(state, snapshot) {
+    if (!snapshot || !snapshot.folder || findFolder(state, snapshot.folder.id)) return state;
+    var folders = state.folders.slice();
+    folders.splice(Math.min(Math.max(snapshot.index, 0), folders.length), 0, snapshot.folder);
+    var back = {};
+    (snapshot.noteIds || []).forEach(function (noteId) { back[noteId] = true; });
+    var notes = state.notes.map(function (n) {
+      return back[n.id] && !n.folderId ? assign({}, n, { folderId: snapshot.folder.id }) : n;
+    });
+    return assign({}, state, { folders: folders, notes: notes });
   }
 
   function addTimer(state, opts) {
@@ -417,6 +644,8 @@
       version: VERSION,
       lists: union(a.lists, b.lists),
       items: union(a.items, b.items),
+      folders: union(a.folders, b.folders),
+      notes: union(a.notes, b.notes),
       timers: a.timers,
       settings: a.settings,
     });
@@ -722,8 +951,10 @@
     STORAGE_KEY: STORAGE_KEY,
     VERSION: VERSION,
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
+    NOTE_COLORS: NOTE_COLORS,
     uid: uid,
     cleanText: cleanText,
+    cleanNote: cleanNote,
     splitLines: splitLines,
     emptyState: emptyState,
     normalizeState: normalizeState,
@@ -746,6 +977,21 @@
     duplicateList: duplicateList,
     uncheckAll: uncheckAll,
     recheck: recheck,
+    setListExpanded: setListExpanded,
+    setAllListsExpanded: setAllListsExpanded,
+    findNote: findNote,
+    findFolder: findFolder,
+    addNote: addNote,
+    updateNote: updateNote,
+    moveNote: moveNote,
+    takeNote: takeNote,
+    restoreNote: restoreNote,
+    notesIn: notesIn,
+    addFolder: addFolder,
+    renameFolder: renameFolder,
+    setFolderCollapsed: setFolderCollapsed,
+    removeFolder: removeFolder,
+    restoreFolder: restoreFolder,
     addTimer: addTimer,
     removeTimer: removeTimer,
     timerLeftMs: timerLeftMs,

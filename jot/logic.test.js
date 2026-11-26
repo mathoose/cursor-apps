@@ -342,4 +342,118 @@ assert.strictEqual(merged.lists.length, 2);
 assert.strictEqual(merged.settings.timerReady, false);
 assert.deepStrictEqual(J.mergeState(s, null), s);
 
+// stickies
+assert.strictEqual(J.cleanNote("  one  \r\ntwo\n\n\n\nthree \n"), "one\ntwo\n\nthree");
+assert.strictEqual(J.cleanNote(" \n \t "), "");
+var n = J.emptyState();
+assert.strictEqual(J.addNote(n, { text: "   " }), n, "a blank sticky is not saved");
+n = J.addNote(n, { id: "n1", text: "shelf for filament\nmaybe pegboard", now: t0 });
+n = J.addNote(n, { id: "n2", text: "gift ideas", now: t0 });
+n = J.addNote(n, { id: "n3", text: "blue one", color: "blue", now: t0 });
+assert.deepStrictEqual(n.notes.map(function (x) { return x.id; }), ["n3", "n2", "n1"], "newest sticky first");
+assert.strictEqual(J.findNote(n, "n1").text, "shelf for filament\nmaybe pegboard", "a sticky keeps its line breaks");
+assert.deepStrictEqual(n.notes.map(function (x) { return x.color; }), ["blue", "pink", "yellow"]);
+assert.strictEqual(J.addNote(n, { id: "n4", text: "x", color: "tartan" }).notes[0].color, "green", "an unknown color falls back to the next one");
+assert.strictEqual(J.findNote(n, "n1").folderId, null);
+
+var later = new Date(Date.parse(t0) + 60000);
+var edited = J.updateNote(n, "n2", { text: " gift ideas for mom " }, later);
+assert.strictEqual(J.findNote(edited, "n2").text, "gift ideas for mom");
+assert.strictEqual(J.findNote(edited, "n2").updatedAt, later.toISOString());
+assert.strictEqual(J.findNote(edited, "n2").createdAt, t0);
+assert.strictEqual(J.updateNote(n, "n2", { text: "gift ideas" }), n, "no change, same state");
+assert.strictEqual(J.updateNote(n, "n2", { text: "  " }), n, "a sticky cannot be edited down to nothing");
+assert.strictEqual(J.findNote(J.updateNote(n, "n2", { color: "purple" }), "n2").color, "purple");
+assert.strictEqual(J.updateNote(n, "n2", { color: "tartan" }), n);
+assert.strictEqual(J.updateNote(n, "missing", { text: "x" }), n);
+
+// folders
+assert.strictEqual(J.addFolder(n, { name: "  " }), n);
+n = J.addFolder(n, { id: "f1", name: " 3D  prints ", now: t0 });
+n = J.addFolder(n, { id: "f2", name: "House", now: t0 });
+assert.deepStrictEqual(n.folders.map(function (f) { return f.name; }), ["House", "3D prints"]);
+assert.strictEqual(J.findFolder(n, "f1").collapsed, false);
+var filed = J.moveNote(n, "n1", "f1");
+assert.strictEqual(J.findNote(filed, "n1").folderId, "f1");
+assert.strictEqual(filed.notes[0].id, "n1", "a moved sticky lands first");
+assert.strictEqual(J.moveNote(filed, "n1", "f1"), filed, "already there, same state");
+assert.strictEqual(J.moveNote(n, "n1", "no-such-folder"), n, "an unknown folder is the loose pile");
+assert.strictEqual(J.moveNote(n, "missing", "f1"), n);
+assert.strictEqual(J.findNote(J.moveNote(filed, "n1", null), "n1").folderId, null);
+filed = J.moveNote(filed, "n2", "f1");
+assert.deepStrictEqual(J.notesIn(filed, "f1").map(function (x) { return x.id; }), ["n2", "n1"]);
+assert.deepStrictEqual(J.notesIn(filed, null).map(function (x) { return x.id; }), ["n3"]);
+assert.strictEqual(J.addNote(filed, { id: "n9", text: "straight in", folderId: "f2" }).notes[0].folderId, "f2");
+
+assert.strictEqual(J.findFolder(J.renameFolder(filed, "f1", " Printer "), "f1").name, "Printer");
+assert.strictEqual(J.renameFolder(filed, "f1", ""), filed);
+assert.strictEqual(J.renameFolder(filed, "f1", "3D prints"), filed);
+var folded = J.setFolderCollapsed(filed, "f1", true);
+assert.strictEqual(J.findFolder(folded, "f1").collapsed, true);
+assert.strictEqual(J.setFolderCollapsed(folded, "f1", true), folded);
+assert.strictEqual(J.findFolder(J.setFolderCollapsed(folded, "f1", false), "f1").collapsed, false);
+
+// deleting a sticky and putting it back
+var takenNote = J.takeNote(filed, "n1");
+assert.strictEqual(J.findNote(takenNote.state, "n1"), null);
+assert.strictEqual(takenNote.removed.index, 1);
+assert.deepStrictEqual(J.restoreNote(takenNote.state, takenNote.removed), filed);
+assert.strictEqual(J.restoreNote(filed, takenNote.removed), filed, "restoring twice adds nothing");
+assert.strictEqual(J.takeNote(filed, "missing").removed, null);
+
+// deleting a folder keeps its stickies, and Undo files them again
+var goneFolder = J.removeFolder(filed, "f1");
+assert.strictEqual(J.findFolder(goneFolder.state, "f1"), null);
+assert.strictEqual(goneFolder.state.notes.length, 3, "no sticky is deleted with its folder");
+assert.deepStrictEqual(J.notesIn(goneFolder.state, null).map(function (x) { return x.id; }), ["n2", "n1", "n3"]);
+assert.deepStrictEqual(goneFolder.noteIds, ["n2", "n1"]);
+assert.deepStrictEqual(J.restoreFolder(goneFolder.state, goneFolder), filed);
+var refiled = J.moveNote(goneFolder.state, "n1", "f2");
+var backFolder = J.restoreFolder(refiled, goneFolder);
+assert.strictEqual(J.findNote(backFolder, "n1").folderId, "f2", "a sticky filed elsewhere since stays there");
+assert.strictEqual(J.findNote(backFolder, "n2").folderId, "f1");
+assert.strictEqual(J.removeFolder(filed, "missing").folder, null);
+var restoredInto = J.restoreNote(goneFolder.state, takenNote.removed);
+assert.strictEqual(restoredInto, goneFolder.state, "n1 is still there, so nothing is added");
+assert.strictEqual(J.restoreNote(J.takeNote(goneFolder.state, "n1").state, takenNote.removed).notes[1].folderId, null, "a sticky restored after its folder is gone comes back loose");
+
+// lists fold open and shut on the Lists tab
+var ex = J.addList(J.addList(J.emptyState(), { id: "la", name: "A", now: t0 }), { id: "lb", name: "B", now: t0 });
+assert.strictEqual(J.findList(ex, "la").expanded, false);
+var exA = J.setListExpanded(ex, "la", true);
+assert.strictEqual(J.findList(exA, "la").expanded, true);
+assert.strictEqual(J.findList(exA, "lb").expanded, false);
+assert.strictEqual(J.setListExpanded(exA, "la", true), exA);
+assert.strictEqual(J.setListExpanded(ex, "missing", true), ex);
+var exAll = J.setAllListsExpanded(exA, true);
+assert.deepStrictEqual(exAll.lists.map(function (l) { return l.expanded; }), [true, true]);
+assert.strictEqual(J.setAllListsExpanded(exAll, true), exAll);
+assert.deepStrictEqual(J.setAllListsExpanded(exAll, false).lists.map(function (l) { return l.expanded; }), [false, false]);
+assert.strictEqual(J.duplicateList(exAll, "la", { id: "lc", now: t0 }).lists[0].expanded, false);
+
+// stickies and folders through storage and a merge
+assert.deepStrictEqual(J.normalizeState(JSON.parse(JSON.stringify(folded))), folded, "stickies and folders read back unchanged");
+var old = J.normalizeState({ version: 1, items: [], lists: [{ id: "l1", name: "Old list" }], settings: {} });
+assert.deepStrictEqual(old.notes, [], "data saved before stickies existed still loads");
+assert.deepStrictEqual(old.folders, []);
+assert.strictEqual(old.lists[0].expanded, false);
+var messyNotes = J.normalizeState({
+  folders: [{ id: "f1", name: "" }, { id: "f1", name: "dupe" }, { name: "no id" }],
+  notes: [
+    { id: "a", text: "kept", folderId: "f1", color: "pink" },
+    { id: "b", text: "lost folder", folderId: "nope", color: "tartan" },
+    { id: "a", text: "dupe" },
+    { id: "c", text: "  " },
+  ],
+});
+assert.deepStrictEqual(messyNotes.folders.map(function (f) { return f.name; }), ["Untitled folder"]);
+assert.deepStrictEqual(messyNotes.notes.map(function (x) { return [x.id, x.folderId, x.color]; }), [["a", "f1", "pink"], ["b", null, "yellow"]]);
+var theirs = J.addNote(J.addFolder(J.emptyState(), { id: "f9", name: "Trips", now: t0 }), { id: "n9", text: "Lisbon", folderId: "f9", now: t0 });
+theirs = J.addNote(theirs, { id: "n1", text: "their version of n1", now: t0 });
+var both = J.mergeState(filed, theirs);
+assert.strictEqual(both.notes.length, filed.notes.length + 1);
+assert.strictEqual(J.findNote(both, "n1").text, "shelf for filament\nmaybe pegboard", "the sticky already on the phone wins");
+assert.strictEqual(J.findNote(both, "n9").folderId, "f9", "an imported sticky keeps its folder");
+assert.strictEqual(both.folders.length, 3);
+
 console.log("jot logic ok");
