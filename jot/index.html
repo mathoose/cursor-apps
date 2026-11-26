@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Jot</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Jot" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#f5f1e8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#14161c" media="(prefers-color-scheme: dark)" />
+  <!-- build: jot-v1 -->
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <header class="app-header">
+    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <div class="header-titles">
+      <h1>Jot</h1>
+      <p id="headerSub">Get it out of your head</p>
+    </div>
+    <button type="button" class="header-btn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+    </button>
+  </header>
+
+  <main>
+    <div id="nowArea" class="now" aria-live="polite" hidden></div>
+
+    <section id="viewInbox" aria-label="Inbox">
+      <div class="capture-wrap">
+        <form class="capture" id="inboxCapture" autocomplete="off">
+          <label class="sr-only" for="inboxInput">Jot something down</label>
+          <textarea id="inboxInput" rows="1" maxlength="4000" placeholder="Jot it down…" enterkeyhint="done" autocapitalize="sentences"></textarea>
+          <button type="submit" class="capture-add" aria-label="Save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </form>
+        <div class="suggest" id="inboxSuggest" hidden></div>
+      </div>
+      <div id="inboxItems"></div>
+    </section>
+
+    <section id="viewLists" aria-label="Lists" hidden>
+      <form class="capture" id="newListForm" autocomplete="off">
+        <label class="sr-only" for="newListInput">Name a new list</label>
+        <input id="newListInput" type="text" maxlength="80" placeholder="Name a new list…" enterkeyhint="done" autocapitalize="sentences" />
+        <button type="submit" class="capture-add" aria-label="Create list">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </form>
+      <div id="listCards"></div>
+    </section>
+
+    <section id="viewList" aria-label="List" hidden>
+      <button type="button" class="text-back" id="backLists">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        Lists
+      </button>
+      <label class="sr-only" for="listName">List name</label>
+      <input id="listName" class="list-title" type="text" maxlength="80" placeholder="List name" autocomplete="off" enterkeyhint="done" />
+      <p class="fine" id="listProgress"></p>
+      <div class="capture-wrap">
+        <form class="capture" id="listCapture" autocomplete="off">
+          <label class="sr-only" for="listInput">Add to this list</label>
+          <textarea id="listInput" rows="1" maxlength="4000" placeholder="Add to this list…" enterkeyhint="done" autocapitalize="sentences"></textarea>
+          <button type="submit" class="capture-add" aria-label="Add">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </form>
+        <div class="suggest" id="listSuggest" hidden></div>
+      </div>
+      <div id="listItems"></div>
+      <div class="list-actions">
+        <button type="button" class="btn btn-secondary" id="uncheckAllBtn">Uncheck all</button>
+        <button type="button" class="btn btn-secondary" id="duplicateBtn">Duplicate</button>
+        <button type="button" class="btn btn-quiet danger-text" id="deleteListBtn">Delete list</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Sections">
+    <button type="button" class="nav-btn active" data-view="inbox" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13l2.5-8h11L20 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 13h4.5a3.5 3.5 0 0 0 7 0H20"/></svg>
+      <span class="nav-btn-label">Inbox</span>
+    </button>
+    <button type="button" class="nav-btn" data-view="lists">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M3.5 6l1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>
+      <span class="nav-btn-label">Lists</span>
+    </button>
+  </nav>
+
+  <div id="itemSheet" class="sheet" hidden>
+    <button type="button" class="sheet-backdrop" data-close-sheet aria-label="Close"></button>
+    <div class="sheet-card" id="itemSheetBody" role="dialog" aria-modal="true" aria-label="Edit"></div>
+  </div>
+
+  <div id="settingsSheet" class="sheet" hidden>
+    <button type="button" class="sheet-backdrop" data-close-sheet aria-label="Close"></button>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet-handle"></div>
+      <h2 id="settingsTitle">Settings</h2>
+
+      <h3>Set up alerts</h3>
+      <p class="fine">Jot can’t buzz your phone once it’s closed. Build these two Shortcuts once and Jot hands timers to Clock and reminders to Apple Reminders, so they reach your lock screen. Until then, timers and reminders only show while Jot is open.</p>
+
+      <div class="setup-block">
+        <div class="setup-head">
+          <strong>Timers</strong>
+          <label class="switch">
+            <input type="checkbox" id="timerReady" />
+            <span class="switch-track" aria-hidden="true"></span>
+            <span class="switch-label">Send timers to Clock</span>
+          </label>
+        </div>
+        <details>
+          <summary>How to build the timer Shortcut</summary>
+          <ol>
+            <li>Open the <strong>Shortcuts</strong> app and tap <strong>+</strong>.</li>
+            <li>Tap the name at the top, choose Rename, and call it <strong>Jot Timer</strong>.</li>
+            <li>Search the actions for <strong>Start Timer</strong> and add it.</li>
+            <li>Tap the amount of time in that action and choose <strong>Shortcut Input</strong>. Leave the unit on minutes.</li>
+            <li>Tap Done.</li>
+          </ol>
+          <p class="fine">Jot sends one number: how many minutes.</p>
+        </details>
+        <label class="field-label" for="timerShortcut">Shortcut name</label>
+        <input id="timerShortcut" type="text" maxlength="60" autocomplete="off" autocapitalize="words" spellcheck="false" />
+        <button type="button" class="btn btn-secondary" id="testTimerBtn">Test: start a 1 minute timer</button>
+        <p class="fine">Your phone should jump to Shortcuts and Clock should start counting. If it does, switch this on. Then come back to Jot yourself.</p>
+      </div>
+
+      <div class="setup-block">
+        <div class="setup-head">
+          <strong>Reminders</strong>
+          <label class="switch">
+            <input type="checkbox" id="reminderReady" />
+            <span class="switch-track" aria-hidden="true"></span>
+            <span class="switch-label">Send reminders to Apple Reminders</span>
+          </label>
+        </div>
+        <details>
+          <summary>How to build the reminder Shortcut</summary>
+          <ol>
+            <li>In <strong>Shortcuts</strong>, tap <strong>+</strong> and name the new one <strong>Jot Reminder</strong>.</li>
+            <li>Add <strong>Split Text</strong>. Set the text to split to <strong>Shortcut Input</strong> and leave it on New Lines.</li>
+            <li>Add <strong>Get Item from List</strong>. Leave it on First Item. This is the note.</li>
+            <li>Add <strong>Get Item from List</strong> again. Change it to Last Item, then tap the list it reads from and choose <strong>Split Text</strong>. This is the time.</li>
+            <li>Add <strong>Add New Reminder</strong>. For the reminder’s name, choose the first Item from List.</li>
+            <li>Open that action’s extra options, turn on an alert at a time, and for the time choose the second Item from List.</li>
+            <li>Tap Done.</li>
+          </ol>
+          <p class="fine">Jot sends two lines: your note, then the time written like “November 26, 2026 at 9:00 AM”. The wording of these steps can differ a little between iOS versions.</p>
+        </details>
+        <label class="field-label" for="reminderShortcut">Shortcut name</label>
+        <input id="reminderShortcut" type="text" maxlength="60" autocomplete="off" autocapitalize="words" spellcheck="false" />
+        <button type="button" class="btn btn-secondary" id="testReminderBtn">Test: remind me in 2 minutes</button>
+        <p class="fine">A reminder called “Jot test” should appear in Reminders and alert you in 2 minutes. If it does, switch this on.</p>
+      </div>
+
+      <h3>Backup</h3>
+      <p class="fine">Everything in Jot stays on this phone. Export a copy to keep it safe or move it.</p>
+      <div class="row-btns">
+        <button type="button" class="btn btn-secondary" id="exportBtn">Export JSON</button>
+        <label class="btn btn-secondary import-label">
+          Import JSON
+          <input type="file" id="importFile" accept=".json,application/json" />
+        </label>
+      </div>
+
+      <button type="button" class="btn btn-primary" data-close-sheet>Close</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="logic.js?v=1"></script>
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-shell.js" defer></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
