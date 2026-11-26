@@ -2499,7 +2499,7 @@
   function loadCatalog() {
     return Promise.all([
       fetch('coffee.json?v=4').then(function (r) { return r.ok ? r.json() : []; }),
-      fetch('drinks.json?v=11').then(function (r) { return r.ok ? r.json() : []; }),
+      fetch('drinks.json?v=12').then(function (r) { return r.ok ? r.json() : []; }),
       fetch('food.json?v=12').then(function (r) { return r.ok ? r.json() : []; })
     ]).then(function (triple) {
       /* Drinks first, then coffee, then food: when one place is in two files, the hand-placed pin wins. */
