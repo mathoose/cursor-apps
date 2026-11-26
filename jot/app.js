@@ -9,7 +9,13 @@
     bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21h4"/>',
     timer: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 2M9.5 2.5h5"/>',
     chevron: '<path d="M9 6l6 6-6 6"/>',
+    folder: '<path d="M3 7.5a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+    more: '<path d="M5 12h.01M12 12h.01M19 12h.01"/>',
   };
+  var COLOR_NAMES = { yellow: "Yellow", pink: "Pink", blue: "Blue", green: "Green", orange: "Orange", purple: "Purple" };
+  var HOLD_MS = 320;
+  var HOLD_SLOP = 10;
+  var MOUSE_SLOP = 6;
 
   var state = load();
   var ui = {
@@ -20,8 +26,13 @@
     sheetItemId: null,
     sheetPickTime: false,
     sheetOtherTimer: false,
+    sheetNoteId: null,
+    sheetFolderId: null,
+    newFolder: false,
+    pendingNoteId: null,
     alertKey: "",
   };
+  var drag = { active: false, pending: null, quietUntil: 0 };
   var toastTimer = null;
   var captures = {};
 
@@ -57,7 +68,15 @@
   }
 
   function plural(n, word) {
-    return n + " " + word + (n === 1 ? "" : "s");
+    if (n === 1) return n + " " + word;
+    return n + " " + (/y$/.test(word) ? word.slice(0, -1) + "ies" : word + "s");
+  }
+
+  /** "2 lines, 1 list and 3 stickies", leaving out whatever there is none of. */
+  function countList(parts) {
+    var shown = parts.filter(function (p) { return p[0] > 0; }).map(function (p) { return plural(p[0], p[1]); });
+    if (shown.length < 2) return shown.join("");
+    return shown.slice(0, -1).join(", ") + " and " + shown[shown.length - 1];
   }
 
   // ---- storage ----
@@ -181,6 +200,7 @@
   }
 
   function tick() {
+    if (drag.active) return;
     var now = new Date();
     var key = alertKey(now);
     if (key !== ui.alertKey) {
@@ -252,14 +272,18 @@
     ]);
   }
 
-  function renderItems(container, listId) {
+  /** `inline` is a list shown folded open on the Lists tab, where there is no box to type in. */
+  function renderItems(container, listId, inline) {
     var now = new Date();
     var v = L.visibleItems(state, listId);
     clear(container);
     if (!v.open.length && !v.done.length) {
+      var how = "Type a thought above and hit return. Sort it later, or never.";
+      if (inline) how = "Tap its name to open it and add lines.";
+      else if (listId) how = "Type above and hit return. Paste a few lines to add them all at once.";
       container.appendChild(h("div", { class: "empty" }, [
         h("strong", { text: listId ? "Nothing on this list yet" : "Nothing here yet" }),
-        h("span", { text: listId ? "Type above and hit return. Paste a few lines to add them all at once." : "Type a thought above and hit return. Sort it later, or never." }),
+        h("span", { text: how }),
       ]));
       return;
     }
@@ -346,6 +370,12 @@
       ]));
       return;
     }
+    if (state.lists.length > 1) {
+      var allOpen = state.lists.every(function (l) { return l.expanded; });
+      box.appendChild(h("div", { class: "lists-tools" }, [
+        h("button", { type: "button", class: "link", "data-act": "lists-toggle-all", "data-open": String(!allOpen), text: allOpen ? "Collapse all" : "Expand all" }),
+      ]));
+    }
     state.lists.forEach(function (list) {
       var p = L.listProgress(state, list.id);
       var meter = null;
@@ -353,10 +383,93 @@
         meter = h("span", { class: "meter" }, [h("i")]);
         meter.firstChild.style.width = Math.round((p.done / p.total) * 100) + "%";
       }
-      box.appendChild(h("button", { type: "button", class: "list-card", "data-act": "open-list", "data-list": list.id }, [
-        h("strong", { text: list.name }),
-        h("span", { text: progressText(p) }),
-        meter,
+      var lines = null;
+      if (list.expanded) {
+        lines = h("div", { class: "list-card-lines" });
+        renderItems(lines, list.id, true);
+      }
+      box.appendChild(h("div", { class: "list-card" + (list.expanded ? " open" : ""), "data-scope": list.id }, [
+        h("div", { class: "list-card-head" }, [
+          h("button", {
+            type: "button",
+            class: "list-card-toggle",
+            "data-act": "list-toggle",
+            "data-list": list.id,
+            "aria-expanded": String(list.expanded),
+            "aria-label": (list.expanded ? "Hide the lines of " : "Show the lines of ") + list.name,
+          }, [icon("chevron")]),
+          h("button", { type: "button", class: "list-card-main", "data-act": "open-list", "data-list": list.id }, [
+            h("strong", { text: list.name }),
+            h("span", { text: progressText(p) }),
+            meter,
+          ]),
+        ]),
+        lines,
+      ]));
+    });
+  }
+
+  // ---- stickies and folders ----
+
+  function stickyCard(note) {
+    return h("button", {
+      type: "button",
+      class: "sticky sticky-" + note.color + (ui.fresh[note.id] ? " fresh" : ""),
+      "data-act": "open-note",
+      "data-note": note.id,
+    }, [h("span", { class: "sticky-text", text: note.text })]);
+  }
+
+  function stickyGrid(notes) {
+    var grid = h("div", { class: "sticky-grid" });
+    notes.forEach(function (note) {
+      grid.appendChild(stickyCard(note));
+    });
+    return grid;
+  }
+
+  function renderNotes() {
+    var loose = L.notesIn(state, null);
+    var box = $("looseNotes");
+    clear(box);
+    if (!state.notes.length) {
+      box.appendChild(h("div", { class: "empty" }, [
+        h("strong", { text: "No stickies yet" }),
+        h("span", { text: "Type above and hit return. One sticky per thought." }),
+      ]));
+    } else if (!loose.length) {
+      box.appendChild(h("p", { class: "fine loose-empty", text: "Every sticky is in a folder." }));
+    } else {
+      box.appendChild(stickyGrid(loose));
+    }
+
+    $("newFolderForm").hidden = !ui.newFolder;
+    $("newFolderBtn").setAttribute("aria-expanded", String(ui.newFolder));
+    $("newFolderBtn").textContent = ui.newFolder ? "Cancel" : "New folder";
+    $("newFolderInput").placeholder = ui.pendingNoteId ? "Name a folder for that sticky…" : "Name a new folder…";
+    $("dragHint").hidden = !state.notes.length || !state.folders.length;
+
+    var list = $("folderList");
+    clear(list);
+    if (!state.folders.length && !ui.newFolder) {
+      list.appendChild(h("p", { class: "fine", text: "No folders yet. Make one for each kind of thing: Ideas, House, 3D prints." }));
+    }
+    state.folders.forEach(function (folder) {
+      var notes = L.notesIn(state, folder.id);
+      var open = !folder.collapsed;
+      var inside = null;
+      if (open) inside = notes.length ? stickyGrid(notes) : h("p", { class: "fine folder-empty", text: "Empty. Drag a sticky here." });
+      list.appendChild(h("div", { class: "folder" + (open ? " open" : ""), "data-folder": folder.id, "data-drop": "folder:" + folder.id }, [
+        h("div", { class: "folder-head" }, [
+          h("button", { type: "button", class: "folder-toggle", "data-act": "folder-toggle", "aria-expanded": String(open) }, [
+            icon("chevron"),
+            icon("folder"),
+            h("span", { class: "folder-name", text: folder.name }),
+            h("span", { class: "folder-count", text: String(notes.length), "aria-label": plural(notes.length, "sticky") }),
+          ]),
+          h("button", { type: "button", class: "folder-more", "data-act": "folder-edit", "aria-label": "Rename or delete " + folder.name }, [icon("more")]),
+        ]),
+        inside,
       ]));
     });
   }
@@ -373,22 +486,30 @@
   }
 
   function render() {
+    // Redrawing would pull the sticky out from under the finger that is dragging it.
+    if (drag.active) {
+      drag.stale = true;
+      return;
+    }
     if (ui.view === "list" && !L.findList(state, ui.listId)) {
       ui.view = "lists";
       ui.listId = null;
     }
+    var tab = ui.view === "list" ? "lists" : ui.view;
     renderNow();
     $("viewInbox").hidden = ui.view !== "inbox";
+    $("viewNotes").hidden = ui.view !== "notes";
     $("viewLists").hidden = ui.view !== "lists";
     $("viewList").hidden = ui.view !== "list";
-    $("headerSub").textContent = ui.view === "inbox" ? "Get it out of your head" : "Packing, shopping, anything";
+    $("headerSub").textContent = { inbox: "Get it out of your head", notes: "Stickies and folders", lists: "Packing, shopping, anything" }[tab];
     Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (btn) {
-      var on = btn.getAttribute("data-view") === (ui.view === "inbox" ? "inbox" : "lists");
+      var on = btn.getAttribute("data-view") === tab;
       btn.classList.toggle("active", on);
       if (on) btn.setAttribute("aria-current", "page");
       else btn.removeAttribute("aria-current");
     });
     if (ui.view === "inbox") renderItems($("inboxItems"), null);
+    else if (ui.view === "notes") renderNotes();
     else if (ui.view === "lists") renderListCards();
     else renderListDetail();
     ui.fresh = {};
@@ -398,6 +519,8 @@
   function setView(view, listId) {
     ui.view = view;
     ui.listId = view === "list" ? listId : null;
+    ui.newFolder = false;
+    ui.pendingNoteId = null;
     render();
     window.scrollTo(0, 0);
   }
@@ -539,12 +662,34 @@
   }
 
   function onMainClick(e) {
+    // The click that ends a drag belongs to the drag, not to whatever is under it.
+    if (Date.now() < drag.quietUntil) return;
     var actEl = e.target.closest("[data-act]");
     if (!actEl) return;
     var row = actEl.closest("[data-id]");
     var id = row ? row.getAttribute("data-id") : null;
-    var listId = ui.view === "list" ? ui.listId : null;
+    var scope = actEl.closest("[data-scope]");
+    var listId = scope ? scope.getAttribute("data-scope") : ui.view === "list" ? ui.listId : null;
+    var folderEl = actEl.closest("[data-folder]");
+    var folderId = folderEl ? folderEl.getAttribute("data-folder") : null;
     switch (actEl.getAttribute("data-act")) {
+      case "open-note":
+        openNoteSheet(actEl.getAttribute("data-note"));
+        break;
+      case "folder-toggle":
+        var folder = L.findFolder(state, folderId);
+        if (folder) commit(L.setFolderCollapsed(state, folderId, !folder.collapsed));
+        break;
+      case "folder-edit":
+        openFolderSheet(folderId);
+        break;
+      case "list-toggle":
+        var list = L.findList(state, actEl.getAttribute("data-list"));
+        if (list) commit(L.setListExpanded(state, list.id, !list.expanded));
+        break;
+      case "lists-toggle-all":
+        commit(L.setAllListsExpanded(state, actEl.getAttribute("data-open") === "true"));
+        break;
       case "toggle":
         toggleLine(id);
         break;
@@ -585,6 +730,8 @@
   // ---- line sheet ----
 
   function showSheet(id) {
+    // A toast left over from the last action would sit on top of the sheet.
+    hideToast();
     $(id).hidden = false;
     document.body.classList.add("sheet-open");
   }
@@ -600,12 +747,16 @@
 
   function closeSheets() {
     if (!$("itemSheet").hidden) saveSheetText();
+    if (!$("noteSheet").hidden) saveNoteSheet();
     $("itemSheet").hidden = true;
+    $("noteSheet").hidden = true;
     $("settingsSheet").hidden = true;
     document.body.classList.remove("sheet-open");
     ui.sheetItemId = null;
     ui.sheetPickTime = false;
     ui.sheetOtherTimer = false;
+    ui.sheetNoteId = null;
+    ui.sheetFolderId = null;
     render();
   }
 
@@ -622,8 +773,9 @@
     return options;
   }
 
-  function sheetChip(label, action, data, pressed) {
-    var attrs = { type: "button", class: "chip quiet", "data-sheet": action, text: label };
+  function sheetChip(label, action, data, pressed, attr) {
+    var attrs = { type: "button", class: "chip quiet", text: label };
+    attrs[attr || "data-sheet"] = action;
     Object.keys(data || {}).forEach(function (k) { attrs["data-" + k] = data[k]; });
     if (pressed != null) attrs["aria-pressed"] = String(pressed);
     return h("button", attrs);
@@ -694,6 +846,7 @@
       chip.disabled = item.listId === list.id;
       moveRow.appendChild(chip);
     });
+    moveRow.appendChild(sheetChip("Make it a sticky", "to-note"));
     body.appendChild(moveRow);
     if (!state.lists.length) {
       body.appendChild(h("p", { class: "fine", text: "Make a list on the Lists tab and it shows up here." }));
@@ -766,6 +919,10 @@
         closeSheets();
         toast("Moved to " + (list ? list.name : "Inbox"));
         break;
+      case "to-note":
+        closeSheets();
+        lineToSticky(id);
+        break;
       case "delete":
         closeSheets();
         deleteLine(id);
@@ -774,6 +931,431 @@
         closeSheets();
         break;
     }
+  }
+
+  // ---- stickies ----
+
+  function bindNoteCapture() {
+    var form = $("noteCapture");
+    var input = $("noteInput");
+    var shiftReturn = false;
+
+    function grow() {
+      input.style.height = "auto";
+      input.style.height = input.scrollHeight + "px";
+    }
+
+    function saveNote() {
+      var id = L.uid("n");
+      var next = L.addNote(state, { id: id, text: input.value, now: new Date() });
+      input.value = "";
+      grow();
+      if (next !== state) {
+        ui.fresh[id] = true;
+        commit(next);
+      }
+      input.focus();
+    }
+
+    input.addEventListener("input", grow);
+    // Return saves, as in the Inbox. Shift+Return on a keyboard starts a new line in the same sticky.
+    input.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" || e.isComposing) return;
+      shiftReturn = e.shiftKey;
+      if (e.shiftKey) return;
+      e.preventDefault();
+      saveNote();
+    });
+    input.addEventListener("beforeinput", function (e) {
+      if (e.inputType !== "insertLineBreak") return;
+      var keep = shiftReturn;
+      shiftReturn = false;
+      if (keep) return;
+      e.preventDefault();
+      saveNote();
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      saveNote();
+    });
+    form.addEventListener("click", function (e) {
+      if (!e.target.closest("button")) input.focus();
+    });
+  }
+
+  function fileNote(noteId, folderId) {
+    var note = L.findNote(state, noteId);
+    if (!note) return;
+    var from = note.folderId;
+    var next = L.moveNote(state, noteId, folderId);
+    if (next === state) return;
+    commit(next);
+    var folder = L.findFolder(state, L.findNote(state, noteId).folderId);
+    toast(folder ? "Moved to " + folder.name : "Taken out of its folder", {
+      action: "Undo",
+      onAction: function () {
+        commit(L.moveNote(state, noteId, from));
+      },
+    });
+  }
+
+  function deleteNote(noteId) {
+    var taken = L.takeNote(state, noteId);
+    if (!taken.removed) return;
+    commit(taken.state);
+    toast("Sticky deleted", {
+      action: "Undo",
+      onAction: function () {
+        commit(L.restoreNote(state, taken.removed));
+      },
+    });
+  }
+
+  function lineToSticky(id) {
+    var item = L.findItem(state, id);
+    if (!item) return;
+    var taken = L.takeItems(state, function (it) { return it.id === id; });
+    var noteId = L.uid("n");
+    var next = L.addNote(taken.state, { id: noteId, text: item.text, now: new Date() });
+    if (next === taken.state) return;
+    commit(next);
+    var reminder = "";
+    if (item.remindAt && !item.done) reminder = hasAppleReminder(item) ? " Its reminder is still in Reminders." : " Its reminder was cleared.";
+    toast("Now a sticky on Notes." + reminder, {
+      action: "Undo",
+      onAction: function () {
+        commit(L.restoreItems(L.takeNote(state, noteId).state, taken.removed));
+      },
+    });
+  }
+
+  function openNewFolder() {
+    ui.newFolder = true;
+    render();
+    var input = $("newFolderInput");
+    input.focus();
+    input.scrollIntoView({ block: "center" });
+  }
+
+  function closeNewFolder() {
+    ui.newFolder = false;
+    ui.pendingNoteId = null;
+    $("newFolderInput").value = "";
+    render();
+  }
+
+  function createFolder() {
+    var input = $("newFolderInput");
+    var id = L.uid("f");
+    var next = L.addFolder(state, { id: id, name: input.value, now: new Date() });
+    if (next === state) {
+      input.focus();
+      return;
+    }
+    var waiting = ui.pendingNoteId && L.findNote(next, ui.pendingNoteId);
+    if (waiting) next = L.moveNote(next, waiting.id, id);
+    input.value = "";
+    ui.newFolder = false;
+    ui.pendingNoteId = null;
+    commit(next);
+    if (waiting) toast("Made " + L.findFolder(state, id).name + " and moved the sticky in");
+  }
+
+  function deleteFolder(folderId) {
+    var snapshot = L.removeFolder(state, folderId);
+    if (!snapshot.folder) return;
+    commit(snapshot.state);
+    toast("Deleted “" + snapshot.folder.name + "”." + (snapshot.noteIds.length ? " Its stickies are loose now." : ""), {
+      action: "Undo",
+      onAction: function () {
+        commit(L.restoreFolder(state, snapshot));
+      },
+    });
+  }
+
+  // ---- sticky and folder sheet ----
+
+  function saveNoteSheet() {
+    var next = state;
+    if (ui.sheetNoteId && $("noteText")) next = L.updateNote(next, ui.sheetNoteId, { text: $("noteText").value }, new Date());
+    if (ui.sheetFolderId && $("folderName")) next = L.renameFolder(next, ui.sheetFolderId, $("folderName").value);
+    if (next === state) return;
+    state = next;
+    save();
+  }
+
+  function sheetFoot(deleteLabel, deleteAction) {
+    return h("div", { class: "sheet-foot" }, [
+      h("button", { type: "button", class: "btn btn-quiet danger-text", "data-nsheet": deleteAction, text: deleteLabel }),
+      h("button", { type: "button", class: "btn btn-primary", "data-nsheet": "done", text: "Done" }),
+    ]);
+  }
+
+  function renderNoteSheet() {
+    var body = $("noteSheetBody");
+    var folder = ui.sheetFolderId ? L.findFolder(state, ui.sheetFolderId) : null;
+    var note = ui.sheetNoteId ? L.findNote(state, ui.sheetNoteId) : null;
+    if (!folder && !note) {
+      closeSheets();
+      return;
+    }
+    clear(body);
+    body.appendChild(h("div", { class: "sheet-handle" }));
+
+    if (folder) {
+      var held = L.notesIn(state, folder.id).length;
+      body.appendChild(h("label", { class: "sheet-label first", for: "folderName", text: "Folder name" }));
+      var nameField = h("input", { type: "text", id: "folderName", maxlength: "80", autocomplete: "off", enterkeyhint: "done" });
+      nameField.value = folder.name;
+      body.appendChild(nameField);
+      body.appendChild(h("p", { class: "fine sheet-note", text: held ? "Holds " + plural(held, "sticky") + ". Deleting the folder keeps them, loose." : "Nothing in this folder." }));
+      body.appendChild(sheetFoot("Delete folder", "delete-folder"));
+      return;
+    }
+
+    body.appendChild(h("label", { class: "sr-only", for: "noteText", text: "Edit this sticky" }));
+    var field = h("textarea", { id: "noteText", class: "sticky-" + note.color, rows: "6", maxlength: "4000" });
+    field.value = note.text;
+    body.appendChild(field);
+
+    body.appendChild(h("p", { class: "sheet-label", text: "Color" }));
+    var swatches = h("div", { class: "chip-row" });
+    L.NOTE_COLORS.forEach(function (color) {
+      swatches.appendChild(h("button", {
+        type: "button",
+        class: "swatch sticky-" + color,
+        "data-nsheet": "color",
+        "data-color": color,
+        "aria-pressed": String(note.color === color),
+        "aria-label": COLOR_NAMES[color],
+      }));
+    });
+    body.appendChild(swatches);
+
+    body.appendChild(h("p", { class: "sheet-label", text: "Folder" }));
+    var folderRow = h("div", { class: "chip-row" });
+    var none = sheetChip("No folder", "folder", { folder: "" }, !note.folderId, "data-nsheet");
+    none.disabled = !note.folderId;
+    folderRow.appendChild(none);
+    state.folders.forEach(function (f) {
+      var chip = sheetChip(f.name, "folder", { folder: f.id }, note.folderId === f.id, "data-nsheet");
+      chip.disabled = note.folderId === f.id;
+      folderRow.appendChild(chip);
+    });
+    body.appendChild(folderRow);
+    if (!state.folders.length) {
+      body.appendChild(h("p", { class: "fine sheet-note", text: "Make a folder on the Notes page and it shows up here." }));
+    }
+    body.appendChild(sheetFoot("Delete", "delete"));
+  }
+
+  function openNoteSheet(noteId) {
+    if (!L.findNote(state, noteId)) return;
+    ui.sheetNoteId = noteId;
+    ui.sheetFolderId = null;
+    renderNoteSheet();
+    showSheet("noteSheet");
+  }
+
+  function openFolderSheet(folderId) {
+    if (!L.findFolder(state, folderId)) return;
+    ui.sheetFolderId = folderId;
+    ui.sheetNoteId = null;
+    renderNoteSheet();
+    showSheet("noteSheet");
+  }
+
+  function onNoteSheetClick(e) {
+    var el = e.target.closest("[data-nsheet]");
+    if (!el) return;
+    var noteId = ui.sheetNoteId;
+    var folderId = ui.sheetFolderId;
+    saveNoteSheet();
+    switch (el.getAttribute("data-nsheet")) {
+      case "color":
+        commit(L.updateNote(state, noteId, { color: el.getAttribute("data-color") }, new Date()));
+        renderNoteSheet();
+        break;
+      case "folder":
+        closeSheets();
+        fileNote(noteId, el.getAttribute("data-folder") || null);
+        break;
+      case "delete":
+        closeSheets();
+        deleteNote(noteId);
+        break;
+      case "delete-folder":
+        closeSheets();
+        deleteFolder(folderId);
+        break;
+      case "done":
+        closeSheets();
+        break;
+    }
+  }
+
+  // ---- dragging a sticky onto a folder ----
+
+  function cancelPending() {
+    if (!drag.pending) return;
+    clearTimeout(drag.pending.timer);
+    drag.pending = null;
+  }
+
+  function onStickyDown(e) {
+    if (drag.active || drag.pending) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    var card = e.target.closest(".sticky");
+    if (!card) return;
+    var touch = e.pointerType !== "mouse";
+    drag.pending = {
+      id: card.getAttribute("data-note"),
+      card: card,
+      pointerId: e.pointerId,
+      touch: touch,
+      startX: e.clientX,
+      startY: e.clientY,
+      x: e.clientX,
+      y: e.clientY,
+      // A finger has to rest on the sticky first, so that a swipe still scrolls the page.
+      timer: touch ? setTimeout(beginDrag, HOLD_MS) : null,
+    };
+  }
+
+  /** The tray opens on the half of the screen the finger is not on, so it never covers the sticky being lifted. */
+  function dropTray(note, fingerY) {
+    var row = h("div", { class: "drop-row" });
+    state.folders.forEach(function (f) {
+      if (f.id === note.folderId) return;
+      row.appendChild(h("div", { class: "drop-chip", "data-drop": "folder:" + f.id }, [icon("folder"), h("span", { text: f.name })]));
+    });
+    if (note.folderId) row.appendChild(h("div", { class: "drop-chip", "data-drop": "loose" }, [h("span", { text: "No folder" })]));
+    row.appendChild(h("div", { class: "drop-chip drop-new", "data-drop": "new-folder" }, [h("span", { text: "+ New folder" })]));
+    return h("div", { class: "drop-tray " + (fingerY > window.innerHeight * 0.55 ? "at-top" : "at-bottom"), id: "dropTray" }, [
+      h("p", { class: "drop-title", text: "Drop it on a folder" }),
+      row,
+    ]);
+  }
+
+  function beginDrag() {
+    var p = drag.pending;
+    drag.pending = null;
+    if (!p) return;
+    clearTimeout(p.timer);
+    var note = L.findNote(state, p.id);
+    if (!note || !p.card.isConnected) return;
+    var rect = p.card.getBoundingClientRect();
+    var ghost = p.card.cloneNode(true);
+    ghost.className = p.card.className.replace(/\bfresh\b/, "") + " sticky-ghost";
+    ghost.removeAttribute("data-act");
+    ghost.style.width = rect.width + "px";
+    ghost.style.height = rect.height + "px";
+    hideToast();
+    document.body.appendChild(ghost);
+    document.body.appendChild(dropTray(note, p.y));
+    document.body.classList.add("dragging");
+    p.card.classList.add("lifted");
+    drag.active = true;
+    drag.stale = false;
+    drag.id = p.id;
+    drag.pointerId = p.pointerId;
+    drag.card = p.card;
+    drag.ghost = ghost;
+    drag.offX = p.x - rect.left;
+    drag.offY = p.y - rect.top;
+    drag.over = null;
+    moveDrag(p.x, p.y);
+    if (p.touch && navigator.vibrate) navigator.vibrate(12);
+  }
+
+  function moveDrag(x, y) {
+    drag.ghost.style.transform = "translate(" + Math.round(x - drag.offX) + "px, " + Math.round(y - drag.offY) + "px) rotate(4deg) scale(1.08)";
+    var under = document.elementFromPoint(x, y);
+    var target = under ? under.closest("[data-drop]") : null;
+    if (target === drag.over) return;
+    if (drag.over) drag.over.classList.remove("drop-over");
+    drag.over = target;
+    if (target) target.classList.add("drop-over");
+  }
+
+  function endDrag(drop) {
+    var target = drop && drag.over ? drag.over.getAttribute("data-drop") : null;
+    var noteId = drag.id;
+    if (drag.over) drag.over.classList.remove("drop-over");
+    if (drag.ghost.parentNode) drag.ghost.parentNode.removeChild(drag.ghost);
+    var tray = $("dropTray");
+    if (tray) tray.parentNode.removeChild(tray);
+    drag.card.classList.remove("lifted");
+    document.body.classList.remove("dragging");
+    drag.active = false;
+    drag.over = null;
+    drag.ghost = null;
+    drag.card = null;
+    drag.quietUntil = Date.now() + 300;
+    if (drag.stale) render();
+    if (!target) return;
+    if (target === "new-folder") {
+      ui.pendingNoteId = noteId;
+      openNewFolder();
+    } else if (target === "loose") {
+      fileNote(noteId, null);
+    } else {
+      fileNote(noteId, target.slice("folder:".length));
+    }
+  }
+
+  function onPointerMove(e) {
+    if (drag.active) {
+      if (e.pointerId === drag.pointerId) moveDrag(e.clientX, e.clientY);
+      return;
+    }
+    var p = drag.pending;
+    if (!p || e.pointerId !== p.pointerId) return;
+    p.x = e.clientX;
+    p.y = e.clientY;
+    var moved = Math.abs(p.x - p.startX) + Math.abs(p.y - p.startY);
+    if (p.touch) {
+      if (moved > HOLD_SLOP) cancelPending();
+    } else if (moved > MOUSE_SLOP) {
+      beginDrag();
+    }
+  }
+
+  function onPointerUp(e) {
+    if (drag.active) {
+      if (e.pointerId !== drag.pointerId) return;
+      moveDrag(e.clientX, e.clientY);
+      endDrag(true);
+      return;
+    }
+    cancelPending();
+  }
+
+  function onPointerCancel(e) {
+    if (drag.active) {
+      if (e.pointerId === drag.pointerId) endDrag(false);
+      return;
+    }
+    cancelPending();
+  }
+
+  function bindDrag() {
+    var notes = $("viewNotes");
+    notes.addEventListener("pointerdown", onStickyDown);
+    document.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("pointerup", onPointerUp);
+    document.addEventListener("pointercancel", onPointerCancel);
+    // Once a sticky is lifted the page must hold still under the finger.
+    document.addEventListener("touchmove", function (e) {
+      if (drag.active && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    notes.addEventListener("contextmenu", function (e) {
+      if (e.target.closest(".sticky")) e.preventDefault();
+    });
+    window.addEventListener("blur", function () {
+      if (drag.active) endDrag(false);
+      cancelPending();
+    });
   }
 
   // ---- lists ----
@@ -868,6 +1450,8 @@
       version: state.version,
       items: state.items,
       lists: state.lists,
+      notes: state.notes,
+      folders: state.folders,
       settings: state.settings,
     };
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -877,7 +1461,7 @@
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-    toast("Exported " + plural(state.items.length, "line"));
+    toast("Exported " + (countList([[state.items.length, "line"], [state.lists.length, "list"], [state.notes.length, "sticky"], [state.folders.length, "folder"]]) || "an empty backup"));
   }
 
   function importJson(file) {
@@ -906,10 +1490,14 @@
         return;
       }
       var next = L.mergeState(state, slice);
-      var lines = next.items.length - state.items.length;
-      var lists = next.lists.length - state.lists.length;
+      var added = countList([
+        [next.items.length - state.items.length, "line"],
+        [next.lists.length - state.lists.length, "list"],
+        [next.notes.length - state.notes.length, "sticky"],
+        [next.folders.length - state.folders.length, "folder"],
+      ]);
       commit(next);
-      toast(lines || lists ? "Added " + plural(lines, "line") + " and " + plural(lists, "list") : "Nothing new in that file");
+      toast(added ? "Added " + added : "Nothing new in that file");
     };
     reader.readAsText(file);
   }
@@ -928,6 +1516,23 @@
       input: $("listInput"),
       suggest: $("listSuggest"),
       listId: function () { return ui.listId; },
+    });
+
+    bindNoteCapture();
+    bindDrag();
+    $("newFolderBtn").addEventListener("click", function () {
+      if (ui.newFolder) closeNewFolder();
+      else openNewFolder();
+    });
+    $("newFolderForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      createFolder();
+    });
+    $("noteSheetBody").addEventListener("click", onNoteSheetClick);
+    $("noteSheetBody").addEventListener("keydown", function (e) {
+      if (e.target.id !== "folderName" || e.key !== "Enter" || e.isComposing) return;
+      e.preventDefault();
+      closeSheets();
     });
 
     document.querySelector("main").addEventListener("click", onMainClick);
