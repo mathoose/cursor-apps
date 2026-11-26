@@ -41,6 +41,7 @@
     "step-target": "Steps",
     "stock-purchases": "Stock Purchases",
     "trip-packing": "Packing",
+    "stamp-book": "Stamp Book",
   };
 
   var PHOTO_DATABASES = [
@@ -1966,7 +1967,129 @@
         return mergeSharedCache(existing, incoming);
       },
     },
+    "stamp-book": {
+      storageKey: "stamp-book-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("stamp-book-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.pages) || !p.pages.length) return null;
+          return {
+            version: 1,
+            stampSize: p.stampSize,
+            activePageId: p.activePageId,
+            pages: p.pages,
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.pages)) return false;
+        return writeKey("stamp-book-v1", JSON.stringify({
+          version: 1,
+          stampSize: slice.stampSize,
+          activePageId: slice.activePageId,
+          pages: slice.pages,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && Array.isArray(obj.pages) && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var pages = Array.isArray(slice.pages) ? slice.pages : [];
+        var stamps = 0;
+        pages.forEach(function (page) {
+          var days = page && page.days && typeof page.days === "object" ? page.days : {};
+          Object.keys(days).forEach(function (iso) {
+            if (Array.isArray(days[iso])) stamps += days[iso].length;
+          });
+        });
+        return pages.length + " page" + (pages.length === 1 ? "" : "s") + ", " + stamps + " stamp" + (stamps === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        return mergeStampBook(existing, incoming);
+      },
+    },
   };
+
+  function stampBookKey(stamp) {
+    return stamp ? [stamp.s, stamp.c, stamp.x, stamp.y].join("|") : "";
+  }
+
+  // Pages match by id. A matched page keeps every stamp from both copies, minus exact repeats.
+  function mergeStampBookPage(base, next) {
+    var days = {};
+    Object.keys(base.days || {}).forEach(function (iso) {
+      if (Array.isArray(base.days[iso])) days[iso] = base.days[iso].slice();
+    });
+    Object.keys(next.days || {}).forEach(function (iso) {
+      if (!Array.isArray(next.days[iso])) return;
+      var list = days[iso] || [];
+      var seen = {};
+      list.forEach(function (stamp) { seen[stampBookKey(stamp)] = true; });
+      next.days[iso].forEach(function (stamp) {
+        var key = stampBookKey(stamp);
+        if (!stamp || seen[key]) return;
+        seen[key] = true;
+        list.push(stamp);
+      });
+      days[iso] = list;
+    });
+
+    var legend = (Array.isArray(base.legend) ? base.legend : []).map(function (entry) {
+      return Object.assign({}, entry);
+    });
+    (Array.isArray(next.legend) ? next.legend : []).forEach(function (entry) {
+      if (!entry) return;
+      var match = null;
+      legend.forEach(function (have) {
+        if (have.shape === entry.shape && have.color === entry.color) match = have;
+      });
+      if (!match) legend.push(Object.assign({}, entry));
+      else if (entry.label) match.label = entry.label;
+    });
+
+    function union(a, b) {
+      var out = Array.isArray(a) ? a.slice() : [];
+      (Array.isArray(b) ? b : []).forEach(function (value) {
+        if (out.indexOf(value) < 0) out.push(value);
+      });
+      return out;
+    }
+
+    return Object.assign({}, base, {
+      name: next.name || base.name,
+      shapes: union(base.shapes, next.shapes),
+      colors: union(base.colors, next.colors),
+      sel: next.sel || base.sel,
+      legend: legend,
+      days: days,
+    });
+  }
+
+  function mergeStampBook(existing, incoming) {
+    if (!incoming || !Array.isArray(incoming.pages)) return existing;
+    if (!existing || !Array.isArray(existing.pages)) return incoming;
+    var pages = existing.pages.slice();
+    incoming.pages.forEach(function (page) {
+      if (!page || !page.id) return;
+      var at = -1;
+      pages.forEach(function (have, index) {
+        if (have && have.id === page.id) at = index;
+      });
+      if (at < 0) pages.push(page);
+      else pages[at] = mergeStampBookPage(pages[at], page);
+    });
+    return {
+      version: 1,
+      stampSize: incoming.stampSize != null ? incoming.stampSize : existing.stampSize,
+      activePageId: existing.activePageId || incoming.activePageId,
+      pages: pages,
+    };
+  }
 
   function cleanStepCount(value) {
     if (value == null || value === "") return null;
