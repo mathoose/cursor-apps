@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v80 -->
+  <!-- build: hj-today-version-v81 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -1248,6 +1248,105 @@
     .year-week-cell.is-today {
       outline: 1px solid var(--accent);
       outline-offset: 0;
+    }
+    .year-cal-board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px 8px;
+      width: 100%;
+    }
+    .year-cal-month {
+      background: #e7e4dc;
+      border-radius: 10px;
+      padding: 6px 4px 8px;
+    }
+    .year-cal-month-name {
+      margin: 0 0 4px;
+      text-align: center;
+      font-size: 0.5625rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #1a1a1a;
+    }
+    .year-cal-dows,
+    .year-cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+    .year-cal-dow {
+      text-align: center;
+      font-size: 0.5rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.2;
+    }
+    .year-cal-days { gap: 0; }
+    .year-cal-day {
+      aspect-ratio: 1;
+      box-sizing: border-box;
+      border: 1.5px solid #111;
+      background: #141414;
+      display: block;
+      padding: 0;
+      min-width: 0;
+    }
+    .year-cal-day.is-gap {
+      border-color: transparent;
+      background: transparent !important;
+    }
+    .year-cal-day.is-skip {
+      background: #d5d2cb !important;
+    }
+    .year-cal-day.is-today {
+      box-shadow: inset 0 0 0 2px #f5d76e;
+    }
+    button.year-cal-day {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .year-cal-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 14px;
+      margin: 4px 0 12px;
+    }
+    .year-cal-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .year-cal-legend-swatch {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid #111;
+      flex-shrink: 0;
+    }
+    .year-fs-layout.is-calendars {
+      overflow: hidden;
+    }
+    .year-fs-layout.is-calendars .year-fs-chart {
+      display: block;
+      overflow: auto;
+      min-height: 0;
+    }
+    .year-fs-layout.is-calendars .year-cal-board {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 12px;
+      padding: 4px 2px 12px;
+    }
+    .year-fs-layout.is-calendars .year-cal-month-name {
+      font-size: 0.75rem;
+    }
+    .year-fs-layout.is-calendars .year-cal-dow {
+      font-size: 0.625rem;
+    }
+    body.layout-modern .year-cal-legend-item {
+      color: #f4f5f8;
     }
     .year-grid-card {
       min-width: 0;
@@ -3670,7 +3769,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v80 · Nov 19, 2026";
+  let habitJournalVersionText = "v81 · Nov 26, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -5874,7 +5973,7 @@
       '" aria-label="Open ' +
       escapeHtml(habit.name) +
       ' full screen">';
-    html += buildYearWeekHeatmapHtml(habit);
+    html += buildYearCalendarHtml(habit, false);
     html += "</div></article>";
     return html;
   }
@@ -6855,6 +6954,22 @@
     const mo = parseInt(p[2], 10);
     const d = parseInt(p[3], 10);
     const todayCls = isTodayColumn(y, mo, d) ? " col-today" : "";
+    if (btn.classList.contains("year-cal-day")) {
+      const excluded = isDayExcluded(habit, y, mo, d);
+      const value = excluded ? null : getCellValue(cellKey(habit.id, y, mo, d));
+      btn.className =
+        "cell year-cal-day" +
+        (excluded ? " is-skip" : "") +
+        (isTodayColumn(y, mo, d) ? " is-today" : "");
+      btn.disabled = excluded;
+      btn.style.background = excluded ? "" : yearHeatColor(habit, value);
+      btn.textContent = "";
+      btn.setAttribute(
+        "aria-label",
+        habit.name + " " + (excluded ? "skipped" : value != null ? cellValueLabel(habit, value) : "empty")
+      );
+      return;
+    }
     const yearShade = btn.classList.contains("cell-year-shade") ? " cell-year-shade" : "";
     if (isDayExcluded(habit, y, mo, d)) {
       btn.className = ("cell cell-blocked" + yearShade + todayCls).trim();
@@ -6952,6 +7067,123 @@
     return html;
   }
 
+  const YEAR_HEAT_COLORS = ["#141414", "#5c1c18", "#a32e24", "#e23b2c", "#ff1a1a"];
+  const YEAR_HEAT_LABELS = ["0%", "25%", "50%", "75%", "100%"];
+
+  function yearHeatHigh(habit) {
+    if (!habit) return 1;
+    if (habit.type === "yesno") return 1;
+    let max = 0;
+    const prefix = habit.id + "-" + state.year + "-";
+    Object.keys(state.cells).forEach(function (k) {
+      if (k.indexOf(prefix) !== 0) return;
+      const v = state.cells[k];
+      if (typeof v === "number" && v > max) max = v;
+    });
+    return Math.max(max, 1);
+  }
+
+  function yearHeatIndex(habit, value) {
+    if (value == null || !isFinite(value) || value <= 0) return 0;
+    if (habit.type === "yesno") {
+      if (value >= 1) return 4;
+      if (value > 0) return 2;
+      return 0;
+    }
+    const high = yearHeatHigh(habit);
+    const ratio = Math.min(1, value / high);
+    if (ratio >= 1) return 4;
+    return Math.min(4, Math.max(1, Math.ceil(ratio * 4)));
+  }
+
+  function yearHeatColor(habit, value) {
+    return YEAR_HEAT_COLORS[yearHeatIndex(habit, value)];
+  }
+
+  function renderYearHeatLegendHtml() {
+    let html = '<div class="year-cal-legend" aria-label="Heatmap scale, black is 0 percent and red is 100 percent">';
+    YEAR_HEAT_COLORS.forEach(function (color, i) {
+      html +=
+        '<span class="year-cal-legend-item"><span class="year-cal-legend-swatch" style="background:' +
+        color +
+        '"></span>' +
+        YEAR_HEAT_LABELS[i] +
+        "</span>";
+    });
+    html += "</div>";
+    return html;
+  }
+
+  function buildYearCalendarHtml(habit, interactive) {
+    const year = state.year;
+    const tag = interactive ? "button" : "span";
+    let html =
+      '<div class="year-cal-board" role="img" aria-label="' +
+      escapeHtml(habit.name) +
+      " " +
+      year +
+      ' calendar">';
+    for (let m = 0; m < 12; m++) {
+      const dim = daysInMonth(year, m);
+      const firstDow = (new Date(year, m, 1).getDay() + 6) % 7;
+      html += '<section class="year-cal-month">';
+      html += '<h3 class="year-cal-month-name">' + MONTHS_FULL[m].toUpperCase() + "</h3>";
+      html += '<div class="year-cal-dows" aria-hidden="true">';
+      ["M", "T", "W", "T", "F", "S", "S"].forEach(function (letter) {
+        html += '<span class="year-cal-dow">' + letter + "</span>";
+      });
+      html += "</div><div class=\"year-cal-days\">";
+      for (let i = 0; i < firstDow; i++) {
+        html += '<span class="year-cal-day is-gap" aria-hidden="true"></span>';
+      }
+      for (let d = 1; d <= dim; d++) {
+        const excluded = isDayExcluded(habit, year, m, d);
+        const value = excluded ? null : getCellValue(cellKey(habit.id, year, m, d));
+        const today = isTodayColumn(year, m, d);
+        const cls =
+          "year-cal-day" +
+          (interactive ? " cell" : "") +
+          (excluded ? " is-skip" : "") +
+          (today ? " is-today" : "");
+        const bg = excluded ? "" : "background:" + yearHeatColor(habit, value) + ";";
+        if (interactive) {
+          const dataKey = habit.id + "|" + year + "|" + m + "|" + d;
+          const counterAttr = usesTapStep(habit) ? ' data-counter="1"' : "";
+          const timeAttr = habit.type === "time" ? ' data-time="1"' : "";
+          html +=
+            "<" +
+            tag +
+            ' type="button" class="' +
+            cls +
+            '" data-key="' +
+            dataKey +
+            '"' +
+            counterAttr +
+            timeAttr +
+            (excluded ? " disabled" : "") +
+            ' style="' +
+            bg +
+            '" aria-label="' +
+            escapeHtml(habit.name) +
+            " " +
+            MONTHS_FULL[m] +
+            " " +
+            d +
+            " " +
+            (excluded ? "skipped" : value != null ? escapeHtml(cellValueLabel(habit, value)) : "empty") +
+            '"></' +
+            tag +
+            ">";
+        } else {
+          html += '<span class="' + cls + '" style="' + bg + '"></span>';
+        }
+      }
+      html += "</div></section>";
+    }
+    html += "</div>";
+    return html;
+  }
+
   function buildYearWeekHeatmapHtml(habit) {
     const year = state.year;
     const jan1 = new Date(year, 0, 1);
@@ -7034,20 +7266,11 @@
   }
 
   function buildYearDetailHtml(habit) {
-    let html = '<div class="year-fs-layout">';
+    let html = '<div class="year-fs-layout is-calendars">';
+    html += renderYearHeatLegendHtml();
     html += '<div class="year-fs-chart">';
-    html += '<div class="year-fs-corner" aria-hidden="true"></div>';
-    html += '<div class="year-fs-months">';
-    MONTH_LETTERS.forEach(function (letter) {
-      html += '<span class="year-fs-month">' + letter + "</span>";
-    });
-    html += '</div><div class="year-fs-days">';
-    for (let d = 1; d <= 31; d++) {
-      html += '<span class="year-fs-day">' + d + "</span>";
-    }
-    html += '</div><div class="year-fs-cells">';
-    html += buildYearHeatmapCellsHtml(habit);
-    html += "</div></div>";
+    html += buildYearCalendarHtml(habit, true);
+    html += "</div>";
     html +=
       '<div class="year-fs-mode-bar" role="toolbar" aria-label="Mark or erase">' +
       '<button type="button" class="mode-btn' +
@@ -7060,7 +7283,6 @@
       '" data-mode-action="eraser" aria-pressed="' +
       eraserMode +
       '">Eraser</button></div>';
-    html += '<div class="year-fs-legend">' + renderLegendCompact(habit) + "</div>";
     html += "</div>";
     return html;
   }
@@ -8600,8 +8822,9 @@
     const filtered = getFilteredHabits(true);
     const eraserNote = eraserMode ? " Eraser on — tap cells to subtract or clear." : "";
     let html = renderCategoryFiltersHtml(true);
+    html += renderYearHeatLegendHtml();
     html +=
-      '<p class="hint">Tap a heatmap for the full-year editor · use the right button to mark today · Mark/Eraser below' +
+      '<p class="hint">Each month is a calendar · black is 0% · red is the high for the year · tap a habit to edit' +
       eraserNote +
       "</p>";
     html += renderYearGridHtml(filtered);
