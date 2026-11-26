@@ -41,6 +41,7 @@
     "step-target": "Steps",
     "stock-purchases": "Stock Purchases",
     "trip-packing": "Packing",
+    "jot": "Jot",
   };
 
   var PHOTO_DATABASES = [
@@ -1966,7 +1967,79 @@
         return mergeSharedCache(existing, incoming);
       },
     },
+    "jot": {
+      storageKey: "jot-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("jot-v1");
+        if (!raw) return null;
+        try {
+          return cleanJotSlice(JSON.parse(raw));
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        var clean = cleanJotSlice(slice);
+        if (!clean) return false;
+        // Backups leave timers out, so a timer running on this phone has to survive the write.
+        var timers = [];
+        try {
+          var current = JSON.parse(readKey("jot-v1") || "null");
+          if (current && Array.isArray(current.timers)) timers = current.timers;
+        } catch (e) {}
+        return writeKey("jot-v1", JSON.stringify({
+          version: 1,
+          items: clean.items,
+          lists: clean.lists,
+          timers: timers,
+          settings: clean.settings,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && obj.app === "jot" && Array.isArray(obj.items) && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var lines = slice && Array.isArray(slice.items) ? slice.items.length : 0;
+        var lists = slice && Array.isArray(slice.lists) ? slice.lists.length : 0;
+        return lines + " jotted line" + (lines === 1 ? "" : "s") + ", " + lists + " list" + (lists === 1 ? "" : "s");
+      },
+      mergeSlice: function (existing, incoming) {
+        var mine = cleanJotSlice(existing);
+        var theirs = cleanJotSlice(incoming);
+        if (!theirs) return existing;
+        if (!mine) return incoming;
+        function union(a, b) {
+          var have = {};
+          a.forEach(function (x) { have[x.id] = true; });
+          return a.concat(b.filter(function (x) { return !have[x.id]; }));
+        }
+        return {
+          version: 1,
+          items: union(mine.items, theirs.items),
+          lists: union(mine.lists, theirs.lists),
+          settings: mine.settings,
+        };
+      },
+    },
   };
+
+  function cleanJotSlice(p) {
+    if (!p || typeof p !== "object" || !Array.isArray(p.items) || !Array.isArray(p.lists)) return null;
+    var items = p.items.filter(function (it) {
+      return it && typeof it.id === "string" && it.id && typeof it.text === "string" && it.text;
+    });
+    var lists = p.lists.filter(function (l) {
+      return l && typeof l.id === "string" && l.id;
+    });
+    if (!items.length && !lists.length) return null;
+    return {
+      version: 1,
+      items: items,
+      lists: lists,
+      settings: p.settings && typeof p.settings === "object" ? p.settings : {},
+    };
+  }
 
   function cleanStepCount(value) {
     if (value == null || value === "") return null;
