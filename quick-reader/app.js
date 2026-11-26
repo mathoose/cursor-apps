@@ -8,11 +8,18 @@
   var MAX_WPM = 1000;
   var DEFAULT_WPM = 250;
 
+  var TESSERACT_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+  var PHOTO_HINT = "Pick one or more screenshots. Text lands in the box so you can fix it before reading.";
+  var PHOTO_MAX_EDGE = 1600;
+
   var state = loadData();
   var words = [];
   var readTimer = null;
   var toastTimer = null;
   var isReading = false;
+  var photoBusy = false;
+  var tesseractPromise = null;
+  var ocrWorkerPromise = null;
 
   var els = {};
 
@@ -505,6 +512,231 @@
     toast("Cleared.");
   }
 
+  function realWordCount(text) {
+    var words = String(text || "").match(/[A-Za-z]{3,}/g);
+    return words ? words.length : 0;
+  }
+
+  function isChromeLine(line) {
+    var text = String(line || "").trim();
+    if (!text) return false;
+    if (/^post your reply$/i.test(text)) return true;
+    if (/^\d{1,2}:\d{2}(\s*(am|pm))?$/i.test(text)) return true;
+    if (/^\d{1,2}:\d{2}\b/.test(text) && text.length < 28 && realWordCount(text) === 0) return true;
+    if (/^[\d\s.,]+$/.test(text) && text.replace(/\D/g, "").length <= 6) return true;
+    if (/^(5g|lte|wifi)$/i.test(text)) return true;
+    if (!/[A-Za-z]/.test(text) && text.length <= 16) return true;
+    if (text.length <= 40 && realWordCount(text) === 0 && /[\d|@¢$%]/.test(text)) return true;
+    if (text.length <= 28 && realWordCount(text) === 0) return true;
+    if (text.length <= 24 && realWordCount(text) <= 1 && (/[&@#]/.test(text) || /([A-Za-z])\1{2,}/.test(text))) return true;
+    return false;
+  }
+
+  function endsSentence(line) {
+    return /[.!?]["”']?$/.test(String(line || "").trim()) || /…$/.test(String(line || "").trim());
+  }
+
+  function tidyOcrLine(line) {
+    var text = String(line || "").replace(/[ \t]+/g, " ").trim();
+    text = text.replace(/(^|[\s“"(\[])[|¦∣](?=\s|$|[.,!?;:'’])/g, "$1I");
+    text = text.replace(/(^|[\s“"(\[])l(?=\s)/g, "$1I");
+    text = text.replace(/([.!?])(?:\s+[^A-Za-z0-9"“”']+|\s+[b-z]\b)+$/g, "$1");
+    return text.trim();
+  }
+
+  function cleanOcrText(raw) {
+    var lines = String(raw || "").replace(/\r\n/g, "\n").split("\n");
+    var paragraphs = [];
+    var current = "";
+
+    function flush() {
+      if (current) paragraphs.push(current);
+      current = "";
+    }
+
+    lines.forEach(function (line) {
+      var text = tidyOcrLine(line);
+      if (!text) {
+        flush();
+        return;
+      }
+      if (isChromeLine(text)) return;
+      if (!current) {
+        current = text;
+        return;
+      }
+      if (endsSentence(current)) {
+        flush();
+        current = text;
+        return;
+      }
+      if (/-$/.test(current) && /^[a-z]/.test(text)) {
+        current = current.replace(/-$/, "") + text;
+        return;
+      }
+      current += " " + text;
+    });
+    flush();
+    return normalizeText(paragraphs.join("\n\n"));
+  }
+
+  function isImageFile(file) {
+    if (!file) return false;
+    if (/^image\//.test(file.type || "")) return true;
+    return /\.(png|jpe?g|gif|webp|heic|heif|bmp)$/i.test(file.name || "");
+  }
+
+  function loadTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (tesseractPromise) return tesseractPromise;
+    tesseractPromise = new Promise(function (resolve, reject) {
+      var script = document.createElement("script");
+      script.src = TESSERACT_SRC;
+      script.async = true;
+      script.onload = function () {
+        if (window.Tesseract) resolve(window.Tesseract);
+        else {
+          tesseractPromise = null;
+          reject(new Error("Could not load the photo reader. Check your connection."));
+        }
+      };
+      script.onerror = function () {
+        tesseractPromise = null;
+        reject(new Error("Could not load the photo reader. Check your connection."));
+      };
+      document.head.appendChild(script);
+    });
+    return tesseractPromise;
+  }
+
+  function getOcrWorker() {
+    if (ocrWorkerPromise) return ocrWorkerPromise;
+    ocrWorkerPromise = loadTesseract().then(function (Tesseract) {
+      return Tesseract.createWorker("eng").then(function (worker) {
+        return worker.setParameters({
+          tessedit_pageseg_mode: "6",
+          preserve_interword_spaces: "1",
+        }).then(function () {
+          return worker;
+        });
+      });
+    }).catch(function (err) {
+      ocrWorkerPromise = null;
+      throw err;
+    });
+    return ocrWorkerPromise;
+  }
+
+  function fileToCanvas(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, PHOTO_MAX_EDGE / Math.max(img.naturalWidth || img.width, img.naturalHeight || img.height, 1));
+        var width = Math.max(1, Math.round((img.naturalWidth || img.width) * scale));
+        var height = Math.max(1, Math.round((img.naturalHeight || img.height) * scale));
+        var canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        var ctx = canvas.getContext("2d", { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        try {
+          var imageData = ctx.getImageData(0, 0, width, height);
+          var pixels = imageData.data;
+          var sum = 0;
+          var samples = 0;
+          var i;
+          for (i = 0; i < pixels.length; i += 64) {
+            sum += pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+            samples++;
+          }
+          if (samples && sum / samples < 140) {
+            for (i = 0; i < pixels.length; i += 4) {
+              pixels[i] = 255 - pixels[i];
+              pixels[i + 1] = 255 - pixels[i + 1];
+              pixels[i + 2] = 255 - pixels[i + 2];
+            }
+            ctx.putImageData(imageData, 0, 0);
+          }
+        } catch (e) {
+          // A tainted canvas cannot be inverted; recognition can still try the original.
+        }
+        resolve(canvas);
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Could not read that photo."));
+      };
+      img.src = url;
+    });
+  }
+
+  function setPhotoBusy(active, message) {
+    photoBusy = active;
+    if (els.photoInput) els.photoInput.disabled = active;
+    if (els.photoLabel) {
+      els.photoLabel.classList.toggle("is-disabled", active);
+      els.photoLabel.setAttribute("aria-busy", active ? "true" : "false");
+    }
+    if (els.photoHint) els.photoHint.textContent = message || PHOTO_HINT;
+  }
+
+  function insertPhotoText(addition, readCount, pickedCount) {
+    var existing = (els.textInput.value || "").replace(/\s+$/g, "");
+    els.textInput.value = existing ? existing + "\n\n" + addition : addition;
+    var message = "Added text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
+    if (readCount < pickedCount) message = "Added text from " + readCount + " of " + pickedCount + " photos.";
+    message += " Edit it, then tap Use this text.";
+    toast(message);
+    if (els.textInput.focus) els.textInput.focus();
+  }
+
+  function handlePhotoFiles(fileList) {
+    if (photoBusy) return;
+    var files = Array.prototype.filter.call(fileList || [], isImageFile);
+    if (!files.length) {
+      toast("Choose a photo.");
+      return;
+    }
+
+    var collected = [];
+    setPhotoBusy(true, "Preparing the photo reader…");
+
+    var chain = getOcrWorker();
+    files.forEach(function (file, index) {
+      chain = chain.then(function (worker) {
+        setPhotoBusy(true, "Reading photo " + (index + 1) + " of " + files.length + "…");
+        return fileToCanvas(file).then(function (canvas) {
+          return worker.recognize(canvas);
+        }).then(function (result) {
+          var text = cleanOcrText(result && result.data && result.data.text);
+          if (text) collected.push(text);
+          return worker;
+        }).catch(function () {
+          return getOcrWorker();
+        });
+      });
+    });
+
+    chain.then(function () {
+      if (!collected.length) {
+        toast(files.length > 1 ? "Could not find text in those photos." : "Could not find text in that photo.");
+        return;
+      }
+      insertPhotoText(collected.join("\n\n"), collected.length, files.length);
+    }).catch(function (err) {
+      if (!collected.length) {
+        toast(err && err.message ? err.message : "Could not read that photo.");
+      } else {
+        insertPhotoText(collected.join("\n\n"), collected.length, files.length);
+      }
+    }).then(function () {
+      setPhotoBusy(false);
+      if (els.photoInput) els.photoInput.value = "";
+    });
+  }
+
   function openSettings() {
     els.settingsOverlay.hidden = false;
   }
@@ -547,6 +779,9 @@
       importJsonFile(els.importJsonFile.files && els.importJsonFile.files[0]);
       els.importJsonFile.value = "";
     });
+    els.photoInput.addEventListener("change", function () {
+      handlePhotoFiles(els.photoInput.files);
+    });
   }
 
   function cacheElements() {
@@ -559,6 +794,9 @@
       "fetchBtn",
       "fetchHint",
       "textInput",
+      "photoLabel",
+      "photoInput",
+      "photoHint",
       "saveTextBtn",
       "clearBtn",
       "readerMeta",

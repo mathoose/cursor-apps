@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=3" />
 </head>
 <body>
   <header class="app-header">
@@ -33,7 +33,7 @@
       <div class="card-heading">
         <div>
           <h2 id="importTitle">Add text</h2>
-          <p>Paste text, or pull readable text from a page link.</p>
+          <p>Paste text, pull a page link, or read a photo.</p>
         </div>
       </div>
 
@@ -45,6 +45,14 @@
         </div>
         <p class="hint" id="fetchHint">Some news sites block extraction. If that happens, paste the article text below.</p>
       </form>
+
+      <div class="photo-row">
+        <label class="btn btn-secondary import-label photo-label" id="photoLabel">
+          From photo
+          <input type="file" id="photoInput" accept="image/*" multiple />
+        </label>
+        <p class="hint" id="photoHint">Pick one or more screenshots. Text lands in the box so you can fix it before reading.</p>
+      </div>
 
       <label class="field-label" for="textInput">Text</label>
       <textarea id="textInput" rows="8" placeholder="Paste anything you want to read quickly..."></textarea>
@@ -115,6 +123,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
