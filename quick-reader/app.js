@@ -218,7 +218,7 @@
     renderFullText();
   }
 
-  function setText(text, sourceUrl, title) {
+  function setText(text, sourceUrl, title, toastMessage) {
     var nextText = normalizeText(text);
     if (!nextText) {
       toast("Add some text first.");
@@ -232,7 +232,7 @@
     words = tokenize(state.text);
     saveData();
     renderAll();
-    toast("Loaded " + formatCount(words.length, "word") + ".");
+    toast(toastMessage || ("Loaded " + formatCount(words.length, "word") + "."));
     return true;
   }
 
@@ -669,23 +669,43 @@
 
   function insertPhotoText(addition, readCount, pickedCount, noun) {
     var existing = (els.textInput.value || "").replace(/\s+$/g, "");
-    els.textInput.value = existing ? existing + "\n\n" + addition : addition;
+    var combined = existing ? existing + "\n\n" + addition : addition;
     var message;
     if (noun === "highlight") {
       message = readCount < pickedCount
-        ? "Added text from " + readCount + " of " + pickedCount + " highlights."
-        : "Added the highlighted text.";
+        ? "Loaded text from " + readCount + " of " + pickedCount + " highlights."
+        : "Loaded the highlighted text.";
     } else if (noun === "page") {
       message = readCount < pickedCount
-        ? "Added text from " + readCount + " of " + pickedCount + " photos."
-        : (readCount === 1 ? "Added all the text from the photo." : "Added all the text from " + readCount + " photos.");
+        ? "Loaded text from " + readCount + " of " + pickedCount + " photos."
+        : (readCount === 1 ? "Loaded all the text from the photo." : "Loaded all the text from " + readCount + " photos.");
     } else {
-      message = "Added text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
-      if (readCount < pickedCount) message = "Added text from " + readCount + " of " + pickedCount + " photos.";
+      message = "Loaded text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
+      if (readCount < pickedCount) message = "Loaded text from " + readCount + " of " + pickedCount + " photos.";
     }
-    message += " Edit it, then tap Use this text.";
-    toast(message);
-    if (els.textInput.focus) els.textInput.focus();
+    if (!setText(combined, "", "", message)) {
+      els.textInput.value = combined;
+      return;
+    }
+    showReader();
+  }
+
+  function showReader() {
+    var reader = document.querySelector(".reader-card");
+    var main = document.querySelector(".main-panel");
+    if (!reader || !main) return;
+    var spacer = document.getElementById("readerSpacer");
+    if (!spacer) {
+      spacer = document.createElement("div");
+      spacer.id = "readerSpacer";
+      spacer.setAttribute("aria-hidden", "true");
+      main.appendChild(spacer);
+    }
+    spacer.style.height = "0px";
+    var top = reader.getBoundingClientRect().top + window.pageYOffset;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if (top > max) spacer.style.height = (top - max + 12) + "px";
+    window.scrollTo(0, Math.max(0, top));
   }
 
   function canvasForOcr(source) {
