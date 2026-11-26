@@ -9,8 +9,10 @@
   var DEFAULT_WPM = 250;
 
   var TESSERACT_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
-  var PHOTO_HINT = "Pick one or more screenshots. Text lands in the box so you can fix it before reading.";
+  var PHOTO_HINT = "Pick screenshots, highlight the words you want, then pull that text.";
+  var HIGHLIGHT_HINT = "Drag to highlight. Higher on the page is read first, then left to right. Use Move to scroll.";
   var PHOTO_MAX_EDGE = 1600;
+  var HIGHLIGHT_COLOR = "rgba(250, 204, 21, 0.45)";
 
   var state = loadData();
   var words = [];
@@ -20,6 +22,10 @@
   var photoBusy = false;
   var tesseractPromise = null;
   var ocrWorkerPromise = null;
+  var highlightPages = [];
+  var undoStack = [];
+  var currentStroke = null;
+  var highlightMode = "draw";
 
   var els = {};
 
@@ -641,27 +647,6 @@
         var ctx = canvas.getContext("2d", { willReadFrequently: true });
         ctx.drawImage(img, 0, 0, width, height);
         URL.revokeObjectURL(url);
-        try {
-          var imageData = ctx.getImageData(0, 0, width, height);
-          var pixels = imageData.data;
-          var sum = 0;
-          var samples = 0;
-          var i;
-          for (i = 0; i < pixels.length; i += 64) {
-            sum += pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
-            samples++;
-          }
-          if (samples && sum / samples < 140) {
-            for (i = 0; i < pixels.length; i += 4) {
-              pixels[i] = 255 - pixels[i];
-              pixels[i + 1] = 255 - pixels[i + 1];
-              pixels[i + 2] = 255 - pixels[i + 2];
-            }
-            ctx.putImageData(imageData, 0, 0);
-          }
-        } catch (e) {
-          // A tainted canvas cannot be inverted; recognition can still try the original.
-        }
         resolve(canvas);
       };
       img.onerror = function () {
@@ -682,37 +667,421 @@
     if (els.photoHint) els.photoHint.textContent = message || PHOTO_HINT;
   }
 
-  function insertPhotoText(addition, readCount, pickedCount) {
+  function insertPhotoText(addition, readCount, pickedCount, noun) {
     var existing = (els.textInput.value || "").replace(/\s+$/g, "");
     els.textInput.value = existing ? existing + "\n\n" + addition : addition;
-    var message = "Added text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
-    if (readCount < pickedCount) message = "Added text from " + readCount + " of " + pickedCount + " photos.";
+    var message;
+    if (noun === "highlight") {
+      message = readCount < pickedCount
+        ? "Added text from " + readCount + " of " + pickedCount + " highlights."
+        : "Added the highlighted text.";
+    } else {
+      message = "Added text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
+      if (readCount < pickedCount) message = "Added text from " + readCount + " of " + pickedCount + " photos.";
+    }
     message += " Edit it, then tap Use this text.";
     toast(message);
     if (els.textInput.focus) els.textInput.focus();
   }
 
-  function handlePhotoFiles(fileList) {
+  function canvasForOcr(source) {
+    var canvas = document.createElement("canvas");
+    canvas.width = source.width;
+    canvas.height = source.height;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(source, 0, 0);
+    try {
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var pixels = imageData.data;
+      var sum = 0;
+      var samples = 0;
+      var i;
+      for (i = 0; i < pixels.length; i += 64) {
+        sum += pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+        samples++;
+      }
+      if (samples && sum / samples < 140) {
+        for (i = 0; i < pixels.length; i += 4) {
+          pixels[i] = 255 - pixels[i];
+          pixels[i + 1] = 255 - pixels[i + 1];
+          pixels[i + 2] = 255 - pixels[i + 2];
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+    } catch (e) {
+      // A tainted canvas cannot be inverted; recognition can still try the original.
+    }
+    return canvas;
+  }
+
+  function brushBitmapSize(canvas) {
+    var css = Number(els.brushRange && els.brushRange.value);
+    if (!css) css = 36;
+    var rect = canvas.getBoundingClientRect();
+    var scale = rect.width ? canvas.width / rect.width : 1;
+    return Math.max(4, css * scale);
+  }
+
+  function drawStroke(ctx, stroke) {
+    if (!stroke.points.length) return;
+    ctx.lineWidth = stroke.size;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    if (stroke.points.length === 1) {
+      ctx.beginPath();
+      ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      return;
+    }
+    ctx.beginPath();
+    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+    for (var i = 1; i < stroke.points.length; i++) {
+      ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+    }
+    ctx.stroke();
+  }
+
+  function redrawStrokes(page) {
+    var ctx = page.draw.getContext("2d");
+    ctx.clearRect(0, 0, page.draw.width, page.draw.height);
+    ctx.strokeStyle = HIGHLIGHT_COLOR;
+    ctx.fillStyle = HIGHLIGHT_COLOR;
+    page.strokes.forEach(function (stroke) {
+      drawStroke(ctx, stroke);
+    });
+  }
+
+  function pointFromEvent(canvas, event) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: (event.clientX - rect.left) * canvas.width / (rect.width || canvas.width),
+      y: (event.clientY - rect.top) * canvas.height / (rect.height || canvas.height),
+    };
+  }
+
+  function setHighlightMode(mode) {
+    highlightMode = mode === "move" ? "move" : "draw";
+    if (els.highlightSheet) els.highlightSheet.classList.toggle("is-moving", highlightMode === "move");
+    if (els.highlightModeBtn) {
+      els.highlightModeBtn.classList.toggle("is-selected", highlightMode === "draw");
+      els.highlightModeBtn.setAttribute("aria-pressed", highlightMode === "draw" ? "true" : "false");
+    }
+    if (els.moveModeBtn) {
+      els.moveModeBtn.classList.toggle("is-selected", highlightMode === "move");
+      els.moveModeBtn.setAttribute("aria-pressed", highlightMode === "move" ? "true" : "false");
+    }
+    if (highlightMode === "move") currentStroke = null;
+  }
+
+  function setHighlightBusy(active, message) {
+    photoBusy = active;
+    ["highlightPullBtn", "highlightUndoBtn", "highlightClearBtn", "highlightCancelBtn", "brushRange", "highlightModeBtn", "moveModeBtn"].forEach(function (id) {
+      if (els[id]) els[id].disabled = active;
+    });
+    if (els.photoInput) els.photoInput.disabled = active;
+    if (els.highlightStatus) els.highlightStatus.textContent = message || HIGHLIGHT_HINT;
+  }
+
+  function closeHighlighter() {
+    currentStroke = null;
+    highlightPages = [];
+    undoStack = [];
+    if (els.highlightPages) els.highlightPages.innerHTML = "";
+    if (els.highlightOverlay) els.highlightOverlay.hidden = true;
+    document.body.classList.remove("is-highlighting");
+    setHighlightMode("draw");
+    setHighlightBusy(false);
+  }
+
+  function bindDrawCanvas(page) {
+    var canvas = page.draw;
+    canvas.addEventListener("pointerdown", function (event) {
+      if (highlightMode !== "draw" || photoBusy) return;
+      if (event.button != null && event.button !== 0) return;
+      if (event.preventDefault) event.preventDefault();
+      var stroke = {
+        points: [pointFromEvent(canvas, event)],
+        size: brushBitmapSize(canvas),
+      };
+      page.strokes.push(stroke);
+      undoStack.push(page);
+      currentStroke = stroke;
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch (e) {
+        // Capture is optional; the stroke still follows the pointer.
+      }
+      redrawStrokes(page);
+    });
+    canvas.addEventListener("pointermove", function (event) {
+      if (!currentStroke || highlightMode !== "draw") return;
+      if (event.preventDefault) event.preventDefault();
+      currentStroke.points.push(pointFromEvent(canvas, event));
+      redrawStrokes(page);
+    });
+    function endStroke() {
+      currentStroke = null;
+    }
+    canvas.addEventListener("pointerup", endStroke);
+    canvas.addEventListener("pointercancel", endStroke);
+  }
+
+  function openHighlighter(pages) {
+    highlightPages = pages;
+    undoStack = [];
+    currentStroke = null;
+    els.highlightPages.innerHTML = "";
+    pages.forEach(function (page, index) {
+      var figure = document.createElement("figure");
+      figure.className = "highlight-figure";
+      if (pages.length > 1) {
+        var label = document.createElement("p");
+        label.className = "highlight-page-label";
+        label.textContent = "Photo " + (index + 1) + " of " + pages.length;
+        figure.appendChild(label);
+      }
+      var frame = document.createElement("div");
+      frame.className = "highlight-page";
+      page.display.className = "highlight-photo";
+      page.draw = document.createElement("canvas");
+      page.draw.className = "highlight-draw";
+      page.draw.width = page.display.width;
+      page.draw.height = page.display.height;
+      page.draw.setAttribute("aria-label", "Highlight the words to read");
+      frame.appendChild(page.display);
+      frame.appendChild(page.draw);
+      figure.appendChild(frame);
+      els.highlightPages.appendChild(figure);
+      page.strokes = [];
+      bindDrawCanvas(page);
+    });
+    setHighlightMode("draw");
+    if (els.highlightStatus) els.highlightStatus.textContent = HIGHLIGHT_HINT;
+    els.highlightOverlay.hidden = false;
+    document.body.classList.add("is-highlighting");
+    if (els.highlightPages.scrollTo) els.highlightPages.scrollTo(0, 0);
+  }
+
+  function undoHighlight() {
+    currentStroke = null;
+    var page = undoStack.pop();
+    if (!page) return;
+    page.strokes.pop();
+    redrawStrokes(page);
+  }
+
+  function clearHighlights() {
+    undoStack = [];
+    currentStroke = null;
+    highlightPages.forEach(function (page) {
+      page.strokes = [];
+      redrawStrokes(page);
+    });
+  }
+
+  function centerY(box) {
+    return (box.minY + box.maxY) / 2;
+  }
+
+  function sameBand(a, b) {
+    var ah = Math.max(1, a.maxY - a.minY);
+    var bh = Math.max(1, b.maxY - b.minY);
+    return Math.abs(centerY(a) - centerY(b)) <= Math.min(ah, bh) * 0.6;
+  }
+
+  function readingOrder(boxes) {
+    var items = boxes.slice().sort(function (a, b) {
+      return centerY(a) - centerY(b) || a.minX - b.minX;
+    });
+    var rows = [];
+    items.forEach(function (box) {
+      var row = rows[rows.length - 1];
+      if (!row || !sameBand(row.anchor, box)) rows.push({ anchor: box, boxes: [box] });
+      else row.boxes.push(box);
+    });
+    return rows.map(function (row) {
+      row.boxes.sort(function (a, b) {
+        return a.minX - b.minX || a.minY - b.minY;
+      });
+      return row.boxes;
+    });
+  }
+
+  function dilateMask(mask, width, height, radius) {
+    var tmp = new Uint8Array(mask.length);
+    var out = new Uint8Array(mask.length);
+    var y, x, k, max, xx, yy;
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        max = 0;
+        for (k = -radius; k <= radius; k++) {
+          xx = x + k;
+          if (xx >= 0 && xx < width && mask[y * width + xx]) {
+            max = 1;
+            break;
+          }
+        }
+        tmp[y * width + x] = max;
+      }
+    }
+    for (y = 0; y < height; y++) {
+      for (x = 0; x < width; x++) {
+        max = 0;
+        for (k = -radius; k <= radius; k++) {
+          yy = y + k;
+          if (yy >= 0 && yy < height && tmp[yy * width + x]) {
+            max = 1;
+            break;
+          }
+        }
+        out[y * width + x] = max;
+      }
+    }
+    return out;
+  }
+
+  function strokesToMask(page) {
+    var width = page.display.width;
+    var height = page.display.height;
+    var canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    var ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = "#fff";
+    ctx.fillStyle = "#fff";
+    page.strokes.forEach(function (stroke) {
+      drawStroke(ctx, stroke);
+    });
+    var image = ctx.getImageData(0, 0, width, height);
+    var raw = new Uint8Array(width * height);
+    for (var i = 0; i < raw.length; i++) raw[i] = image.data[i * 4] > 127 ? 1 : 0;
+    return dilateMask(raw, width, height, 4);
+  }
+
+  function highlightBoxes(mask, width, height) {
+    var seen = new Uint8Array(mask.length);
+    var boxes = [];
+    var stack = [];
+    function consider(index) {
+      if (!mask[index] || seen[index]) return;
+      seen[index] = 1;
+      stack.push(index);
+    }
+    for (var y = 0; y < height; y++) {
+      for (var x = 0; x < width; x++) {
+        var start = y * width + x;
+        if (!mask[start] || seen[start]) continue;
+        var minX = x;
+        var maxX = x;
+        var minY = y;
+        var maxY = y;
+        var count = 0;
+        consider(start);
+        while (stack.length) {
+          var idx = stack.pop();
+          var cx = idx % width;
+          var cy = (idx - cx) / width;
+          count++;
+          if (cx < minX) minX = cx;
+          if (cx > maxX) maxX = cx;
+          if (cy < minY) minY = cy;
+          if (cy > maxY) maxY = cy;
+          if (cx > 0) consider(idx - 1);
+          if (cx + 1 < width) consider(idx + 1);
+          if (cy > 0) consider(idx - width);
+          if (cy + 1 < height) consider(idx + width);
+        }
+        if (count >= 80 && maxX - minX >= 8 && maxY - minY >= 8) {
+          boxes.push({ minX: minX, minY: minY, maxX: maxX + 1, maxY: maxY + 1 });
+        }
+      }
+    }
+    return boxes;
+  }
+
+  function cropForOcr(source, box) {
+    var pad = 8;
+    var x0 = Math.max(0, box.minX - pad);
+    var y0 = Math.max(0, box.minY - pad);
+    var x1 = Math.min(source.width, box.maxX + pad);
+    var y1 = Math.min(source.height, box.maxY + pad);
+    var w = Math.max(1, x1 - x0);
+    var h = Math.max(1, y1 - y0);
+    var canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    canvas.getContext("2d").drawImage(source, x0, y0, w, h, 0, 0, w, h);
+    return canvas;
+  }
+
+  function recognizeCrop(worker, canvas) {
+    return worker.recognize(canvas).then(function (result) {
+      return cleanOcrText(result && result.data && result.data.text);
+    });
+  }
+
+  function regionsForPage(page) {
+    if (!page.strokes.length) return [];
+    var width = page.display.width;
+    var height = page.display.height;
+    var mask = strokesToMask(page);
+    return readingOrder(highlightBoxes(mask, width, height)).map(function (row) {
+      return row.map(function (box) {
+        return cropForOcr(page.ocr, box);
+      });
+    });
+  }
+
+  function pullHighlightedText() {
     if (photoBusy) return;
-    var files = Array.prototype.filter.call(fileList || [], isImageFile);
-    if (!files.length) {
-      toast("Choose a photo.");
+    var marked = highlightPages.some(function (page) {
+      return page.strokes.length > 0;
+    });
+    if (!marked) {
+      toast("Highlight the words you want.");
       return;
     }
 
-    var collected = [];
-    setPhotoBusy(true, "Preparing the photo reader…");
+    setHighlightBusy(true, "Finding highlighted text…");
+    Promise.resolve().then(function () {
+      var jobs = [];
+      highlightPages.forEach(function (page) {
+        regionsForPage(page).forEach(function (row) {
+          if (row.length) jobs.push(row);
+        });
+      });
+      if (!jobs.length) {
+        toast("Highlight the words you want.");
+        setHighlightBusy(false);
+        return;
+      }
+      readHighlightJobs(jobs);
+    });
+  }
 
+  function readHighlightJobs(jobs) {
+    var collected = [];
+    var attempted = jobs.length;
+    setHighlightBusy(true, "Preparing the photo reader…");
     var chain = getOcrWorker();
-    files.forEach(function (file, index) {
+    jobs.forEach(function (row, index) {
       chain = chain.then(function (worker) {
-        setPhotoBusy(true, "Reading photo " + (index + 1) + " of " + files.length + "…");
-        return fileToCanvas(file).then(function (canvas) {
-          return worker.recognize(canvas);
-        }).then(function (result) {
-          var text = cleanOcrText(result && result.data && result.data.text);
-          if (text) collected.push(text);
-          return worker;
+        setHighlightBusy(true, "Reading highlight " + (index + 1) + " of " + jobs.length + "…");
+        var parts = [];
+        var step = Promise.resolve(worker);
+        row.forEach(function (canvas) {
+          step = step.then(function (current) {
+            return recognizeCrop(current, canvas).then(function (text) {
+              if (text) parts.push(text);
+              return current;
+            });
+          });
+        });
+        return step.then(function (current) {
+          if (parts.length) collected.push(parts.join(" "));
+          return current;
         }).catch(function () {
           return getOcrWorker();
         });
@@ -721,19 +1090,61 @@
 
     chain.then(function () {
       if (!collected.length) {
-        toast(files.length > 1 ? "Could not find text in those photos." : "Could not find text in that photo.");
+        toast("Could not find text in the highlight.");
+        setHighlightBusy(false);
         return;
       }
-      insertPhotoText(collected.join("\n\n"), collected.length, files.length);
+      var text = collected.join("\n\n");
+      closeHighlighter();
+      insertPhotoText(text, collected.length, attempted, "highlight");
     }).catch(function (err) {
       if (!collected.length) {
-        toast(err && err.message ? err.message : "Could not read that photo.");
-      } else {
-        insertPhotoText(collected.join("\n\n"), collected.length, files.length);
+        toast(err && err.message ? err.message : "Could not read that highlight.");
+        setHighlightBusy(false);
+        return;
       }
-    }).then(function () {
+      closeHighlighter();
+      insertPhotoText(collected.join("\n\n"), collected.length, attempted, "highlight");
+    });
+  }
+
+  function handlePhotoFiles(fileList) {
+    if (photoBusy) return;
+    if (els.highlightOverlay && !els.highlightOverlay.hidden) closeHighlighter();
+    var files = Array.prototype.filter.call(fileList || [], isImageFile);
+    if (!files.length) {
+      toast("Choose a photo.");
+      if (els.photoInput) els.photoInput.value = "";
+      return;
+    }
+
+    var loaded = [];
+    setPhotoBusy(true, "Opening photos…");
+    var chain = Promise.resolve();
+    files.forEach(function (file) {
+      chain = chain.then(function () {
+        return fileToCanvas(file).then(function (canvas) {
+          loaded.push({
+            display: canvas,
+            ocr: canvasForOcr(canvas),
+            strokes: [],
+          });
+        }).catch(function () {});
+      });
+    });
+
+    chain.then(function () {
       setPhotoBusy(false);
       if (els.photoInput) els.photoInput.value = "";
+      if (!loaded.length) {
+        toast(files.length > 1 ? "Could not open those photos." : "Could not open that photo.");
+        return;
+      }
+      openHighlighter(loaded);
+    }).catch(function (err) {
+      setPhotoBusy(false);
+      if (els.photoInput) els.photoInput.value = "";
+      toast(err && err.message ? err.message : "Could not open that photo.");
     });
   }
 
@@ -782,6 +1193,24 @@
     els.photoInput.addEventListener("change", function () {
       handlePhotoFiles(els.photoInput.files);
     });
+    els.brushRange.addEventListener("input", function () {
+      els.brushValue.textContent = els.brushRange.value;
+    });
+    els.highlightModeBtn.addEventListener("click", function () {
+      setHighlightMode("draw");
+    });
+    els.moveModeBtn.addEventListener("click", function () {
+      setHighlightMode("move");
+    });
+    els.highlightUndoBtn.addEventListener("click", undoHighlight);
+    els.highlightClearBtn.addEventListener("click", clearHighlights);
+    els.highlightCancelBtn.addEventListener("click", closeHighlighter);
+    els.highlightPullBtn.addEventListener("click", pullHighlightedText);
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      if (!els.highlightOverlay || els.highlightOverlay.hidden || photoBusy) return;
+      closeHighlighter();
+    });
   }
 
   function cacheElements() {
@@ -797,6 +1226,18 @@
       "photoLabel",
       "photoInput",
       "photoHint",
+      "highlightOverlay",
+      "highlightSheet",
+      "highlightPages",
+      "highlightStatus",
+      "brushRange",
+      "brushValue",
+      "highlightModeBtn",
+      "moveModeBtn",
+      "highlightUndoBtn",
+      "highlightClearBtn",
+      "highlightPullBtn",
+      "highlightCancelBtn",
       "saveTextBtn",
       "clearBtn",
       "readerMeta",

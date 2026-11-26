@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <header class="app-header">
@@ -33,7 +33,7 @@
       <div class="card-heading">
         <div>
           <h2 id="importTitle">Add text</h2>
-          <p>Paste text, pull a page link, or read a photo.</p>
+          <p>Paste text, pull a page link, or highlight a photo.</p>
         </div>
       </div>
 
@@ -51,7 +51,7 @@
           From photo
           <input type="file" id="photoInput" accept="image/*" multiple />
         </label>
-        <p class="hint" id="photoHint">Pick one or more screenshots. Text lands in the box so you can fix it before reading.</p>
+        <p class="hint" id="photoHint">Pick screenshots, highlight the words you want, then pull that text.</p>
       </div>
 
       <label class="field-label" for="textInput">Text</label>
@@ -119,10 +119,39 @@
     </div>
   </div>
 
+  <div class="overlay highlight-overlay" id="highlightOverlay" role="dialog" aria-modal="true" aria-labelledby="highlightTitle" hidden>
+    <div class="highlight-sheet" id="highlightSheet">
+      <div class="highlight-top">
+        <h2 id="highlightTitle">Highlight text</h2>
+      </div>
+      <div class="highlight-pages" id="highlightPages"></div>
+      <div class="highlight-controls">
+        <p class="hint" id="highlightStatus">Drag to highlight. Higher on the page is read first, then left to right. Use Move to scroll.</p>
+        <div class="speed-control highlight-thickness">
+          <div class="speed-label-row">
+            <label for="brushRange">Thickness</label>
+            <span id="brushValue">36</span>
+          </div>
+          <input type="range" id="brushRange" min="12" max="96" step="1" value="36" />
+        </div>
+        <div class="highlight-modes" role="group" aria-label="Marker tool">
+          <button type="button" id="highlightModeBtn" class="is-selected" aria-pressed="true">Highlight</button>
+          <button type="button" id="moveModeBtn" aria-pressed="false">Move</button>
+        </div>
+        <button type="button" class="btn btn-primary highlight-pull" id="highlightPullBtn">Pull highlighted text</button>
+        <div class="button-row">
+          <button type="button" class="btn btn-secondary" id="highlightUndoBtn">Undo</button>
+          <button type="button" class="btn btn-ghost" id="highlightClearBtn">Clear</button>
+          <button type="button" class="btn btn-secondary" id="highlightCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
