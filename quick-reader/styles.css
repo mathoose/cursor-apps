@@ -572,6 +572,10 @@ body.is-highlighting {
   pointer-events: none;
 }
 
+.highlight-sheet.is-erasing .highlight-draw {
+  cursor: cell;
+}
+
 .highlight-controls {
   flex: none;
   padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
@@ -585,7 +589,7 @@ body.is-highlighting {
 
 .highlight-modes {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
 }
 
@@ -604,9 +608,17 @@ body.is-highlighting {
   border-color: rgba(96, 165, 250, 0.72);
 }
 
-.highlight-pull {
-  width: 100%;
+.highlight-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   margin-top: 10px;
+}
+
+.highlight-actions .btn {
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .highlight-controls .button-row {
