@@ -13,6 +13,13 @@
     more: '<path d="M5 12h.01M12 12h.01M19 12h.01"/>',
   };
   var COLOR_NAMES = { yellow: "Yellow", pink: "Pink", blue: "Blue", green: "Green", orange: "Orange", purple: "Purple" };
+  // The four boxes of the matrix, in the order and wording of the Focus app.
+  var QUADRANTS = [
+    { priority: 3, label: "High", title: "Do first" },
+    { priority: 2, label: "Medium", title: "Schedule" },
+    { priority: 1, label: "Low", title: "When you can" },
+    { priority: 0, label: "None", title: "Someday" },
+  ];
   var HOLD_MS = 320;
   var HOLD_SLOP = 10;
   var MOUSE_SLOP = 6;
@@ -262,7 +269,7 @@
 
   function itemRow(item, now) {
     var meta = reminderMeta(item, now);
-    var cls = "item" + (item.done ? " done" : "") + (meta && meta.due ? " due" : "") + (ui.fresh[item.id] ? " fresh" : "");
+    var cls = "item p" + item.priority + (item.done ? " done" : "") + (meta && meta.due ? " due" : "") + (ui.fresh[item.id] ? " fresh" : "");
     return h("div", { class: cls, "data-id": item.id }, [
       checkButton(item),
       h("button", { type: "button", class: "item-body", "data-act": "open" }, [
@@ -409,6 +416,79 @@
     });
   }
 
+  // ---- matrix ----
+
+  function matrixCard(item, showList) {
+    var list = showList && item.listId ? L.findList(state, item.listId) : null;
+    return h("div", { class: "mcard", "data-id": item.id, "data-drag": "item" }, [
+      h("button", {
+        type: "button",
+        class: "mcheck",
+        role: "checkbox",
+        "aria-checked": "false",
+        "aria-label": "Check off: " + item.text,
+        "data-act": "toggle",
+      }, [h("span", { class: "check-ring" }, [icon("check")])]),
+      h("button", { type: "button", class: "mcard-body", "data-act": "open" }, [
+        h("span", { class: "mcard-text", text: item.text }),
+        list && h("span", { class: "mcard-meta", text: list.name }),
+      ]),
+    ]);
+  }
+
+  function renderMatrix() {
+    var filter = L.matrixFilter(state, state.settings.matrixFilter);
+    var filters = $("matrixFilters");
+    clear(filters);
+    [{ id: "all", name: "All" }, { id: "inbox", name: "Inbox" }].concat(state.lists).forEach(function (f) {
+      var n = L.openCount(state, f.id);
+      filters.appendChild(h("button", {
+        type: "button",
+        class: "chip quiet filter-chip",
+        "data-act": "matrix-filter",
+        "data-filter": f.id,
+        "aria-pressed": String(filter === f.id),
+      }, [h("span", { text: f.name }), n ? h("span", { class: "filter-count", text: String(n) }) : null]));
+    });
+
+    var groups = L.matrixItems(state, filter);
+    var grid = $("matrixGrid");
+    clear(grid);
+    QUADRANTS.forEach(function (q) {
+      var items = groups[q.priority];
+      var lines = h("div", { class: "quadrant-lines" });
+      if (!items.length) lines.appendChild(h("p", { class: "quadrant-empty", text: "Empty" }));
+      items.forEach(function (item) {
+        lines.appendChild(matrixCard(item, filter === "all"));
+      });
+      grid.appendChild(h("section", { class: "quadrant q" + q.priority, "data-drop": "q:" + q.priority, "aria-label": q.label + " importance" }, [
+        h("div", { class: "quadrant-head" }, [
+          h("span", { class: "quadrant-label", text: q.label }),
+          items.length ? h("span", { class: "quadrant-count", text: String(items.length) }) : null,
+        ]),
+        h("strong", { class: "quadrant-title", text: q.title }),
+        lines,
+      ]));
+    });
+    $("matrixHint").hidden = !L.openCount(state, filter);
+  }
+
+  function setImportance(id, priority) {
+    var item = L.findItem(state, id);
+    if (!item) return;
+    var before = item.priority;
+    var next = L.setPriority(state, id, priority);
+    if (next === state) return;
+    commit(next);
+    var q = QUADRANTS.filter(function (x) { return x.priority === L.findItem(state, id).priority; })[0];
+    toast("Moved to " + q.label + " · " + q.title, {
+      action: "Undo",
+      onAction: function () {
+        commit(L.setPriority(state, id, before));
+      },
+    });
+  }
+
   // ---- stickies and folders ----
 
   function stickyCard(note) {
@@ -417,6 +497,7 @@
       class: "sticky sticky-" + note.color + (ui.fresh[note.id] ? " fresh" : ""),
       "data-act": "open-note",
       "data-note": note.id,
+      "data-drag": "note",
     }, [h("span", { class: "sticky-text", text: note.text })]);
   }
 
@@ -499,9 +580,10 @@
     renderNow();
     $("viewInbox").hidden = ui.view !== "inbox";
     $("viewNotes").hidden = ui.view !== "notes";
+    $("viewMatrix").hidden = ui.view !== "matrix";
     $("viewLists").hidden = ui.view !== "lists";
     $("viewList").hidden = ui.view !== "list";
-    $("headerSub").textContent = { inbox: "Get it out of your head", notes: "Stickies and folders", lists: "Packing, shopping, anything" }[tab];
+    $("headerSub").textContent = { inbox: "Get it out of your head", notes: "Stickies and folders", lists: "Packing, shopping, anything", matrix: "What matters most" }[tab];
     Array.prototype.forEach.call(document.querySelectorAll(".nav-btn"), function (btn) {
       var on = btn.getAttribute("data-view") === tab;
       btn.classList.toggle("active", on);
@@ -510,6 +592,7 @@
     });
     if (ui.view === "inbox") renderItems($("inboxItems"), null);
     else if (ui.view === "notes") renderNotes();
+    else if (ui.view === "matrix") renderMatrix();
     else if (ui.view === "lists") renderListCards();
     else renderListDetail();
     ui.fresh = {};
@@ -620,7 +703,8 @@
     var item = L.findItem(state, id);
     if (!item) return;
     commit(L.toggleItem(state, id, new Date()));
-    if (item.done || item.listId) return;
+    // On a list the checked line stays in view. In the matrix it is gone, so it gets an Undo like the Inbox.
+    if (item.done || (item.listId && ui.view !== "matrix")) return;
     toast("Checked off", {
       action: "Undo",
       onAction: function () {
@@ -686,6 +770,9 @@
       case "list-toggle":
         var list = L.findList(state, actEl.getAttribute("data-list"));
         if (list) commit(L.setListExpanded(state, list.id, !list.expanded));
+        break;
+      case "matrix-filter":
+        commit(L.updateSettings(state, { matrixFilter: actEl.getAttribute("data-filter") }));
         break;
       case "lists-toggle-all":
         commit(L.setAllListsExpanded(state, actEl.getAttribute("data-open") === "true"));
@@ -797,6 +884,16 @@
     field.value = item.text;
     body.appendChild(field);
 
+    body.appendChild(h("p", { class: "sheet-label", text: "Importance" }));
+    var importanceRow = h("div", { class: "chip-row importance-row" });
+    QUADRANTS.forEach(function (q) {
+      var chip = sheetChip(q.label, "priority", { priority: q.priority }, item.priority === q.priority);
+      chip.classList.add("importance-chip", "p" + q.priority);
+      chip.insertBefore(h("span", { class: "importance-dot", "aria-hidden": "true" }), chip.firstChild);
+      importanceRow.appendChild(chip);
+    });
+    body.appendChild(importanceRow);
+
     body.appendChild(h("p", { class: "sheet-label", text: "Remind me" }));
     var meta = reminderMeta(item, now);
     if (meta) {
@@ -878,6 +975,10 @@
       return;
     }
     switch (el.getAttribute("data-sheet")) {
+      case "priority":
+        commit(L.setPriority(state, id, Number(el.getAttribute("data-priority"))));
+        renderItemSheet();
+        break;
       case "remind":
         setItemReminder(id, el.getAttribute("data-when"));
         break;
@@ -1194,7 +1295,7 @@
     }
   }
 
-  // ---- dragging a sticky onto a folder ----
+  // ---- dragging: a sticky onto a folder, a matrix line into another box ----
 
   function cancelPending() {
     if (!drag.pending) return;
@@ -1202,14 +1303,15 @@
     drag.pending = null;
   }
 
-  function onStickyDown(e) {
+  function onDragDown(e) {
     if (drag.active || drag.pending) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
-    var card = e.target.closest(".sticky");
+    var card = e.target.closest("[data-drag]");
     if (!card) return;
     var touch = e.pointerType !== "mouse";
     drag.pending = {
-      id: card.getAttribute("data-note"),
+      kind: card.getAttribute("data-drag"),
+      id: card.getAttribute("data-note") || card.getAttribute("data-id"),
       card: card,
       pointerId: e.pointerId,
       touch: touch,
@@ -1242,22 +1344,26 @@
     drag.pending = null;
     if (!p) return;
     clearTimeout(p.timer);
-    var note = L.findNote(state, p.id);
-    if (!note || !p.card.isConnected) return;
+    var note = p.kind === "note" ? L.findNote(state, p.id) : null;
+    var found = note || (p.kind === "item" && L.findItem(state, p.id));
+    if (!found || !p.card.isConnected) return;
     var rect = p.card.getBoundingClientRect();
     var ghost = p.card.cloneNode(true);
-    ghost.className = p.card.className.replace(/\bfresh\b/, "") + " sticky-ghost";
+    ghost.className = p.card.className.replace(/\bfresh\b/, "") + " drag-ghost";
     ghost.removeAttribute("data-act");
+    ghost.removeAttribute("data-drag");
     ghost.style.width = rect.width + "px";
     ghost.style.height = rect.height + "px";
     hideToast();
     document.body.appendChild(ghost);
-    document.body.appendChild(dropTray(note, p.y));
+    // Stickies get a panel of folders. A matrix line needs none: its four boxes are already on screen.
+    if (note) document.body.appendChild(dropTray(note, p.y));
     document.body.classList.add("dragging");
     p.card.classList.add("lifted");
     drag.active = true;
     drag.stale = false;
     drag.id = p.id;
+    drag.kind = p.kind;
     drag.pointerId = p.pointerId;
     drag.card = p.card;
     drag.ghost = ghost;
@@ -1284,6 +1390,7 @@
   function endDrag(drop) {
     var target = drop && drag.over ? drag.over.getAttribute("data-drop") : null;
     var noteId = drag.id;
+    var kind = drag.kind;
     if (drag.over) drag.over.classList.remove("drop-over");
     if (drag.ghost.parentNode) drag.ghost.parentNode.removeChild(drag.ghost);
     var tray = $("dropTray");
@@ -1297,6 +1404,11 @@
     drag.quietUntil = Date.now() + 300;
     if (drag.stale) render();
     if (!target) return;
+    if (kind === "item") {
+      if (target.indexOf("q:") === 0) setImportance(noteId, Number(target.slice(2)));
+      return;
+    }
+    if (target.indexOf("q:") === 0) return;
     if (target === "new-folder") {
       ui.pendingNoteId = noteId;
       openNewFolder();
@@ -1343,8 +1455,8 @@
   }
 
   function bindDrag() {
-    var notes = $("viewNotes");
-    notes.addEventListener("pointerdown", onStickyDown);
+    var main = document.querySelector("main");
+    main.addEventListener("pointerdown", onDragDown);
     document.addEventListener("pointermove", onPointerMove);
     document.addEventListener("pointerup", onPointerUp);
     document.addEventListener("pointercancel", onPointerCancel);
@@ -1352,8 +1464,8 @@
     document.addEventListener("touchmove", function (e) {
       if (drag.active && e.cancelable) e.preventDefault();
     }, { passive: false });
-    notes.addEventListener("contextmenu", function (e) {
-      if (e.target.closest(".sticky")) e.preventDefault();
+    main.addEventListener("contextmenu", function (e) {
+      if (e.target.closest("[data-drag]")) e.preventDefault();
     });
     window.addEventListener("blur", function () {
       if (drag.active) endDrag(false);
