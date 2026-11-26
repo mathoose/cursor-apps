@@ -572,14 +572,16 @@
 
   /* ---------- Pages ---------- */
 
+  // A page's row previews its named stamps, or its shapes while nothing is named yet.
   function pageGlyphs(page) {
-    var glyphs = page.legend.slice(0, 3).map(function (entry) {
-      return iconSvg(entry.shape, entry.color);
-    });
-    for (var i = 0; glyphs.length < 3 && i < page.shapes.length; i++) {
-      glyphs.push(iconSvg(page.shapes[i], page.colors[glyphs.length % page.colors.length]));
+    if (page.legend.length) {
+      return page.legend.slice(0, 4).map(function (entry) {
+        return iconSvg(entry.shape, entry.color);
+      }).join("");
     }
-    return glyphs.join("");
+    return page.shapes.slice(0, 4).map(function (shapeId) {
+      return iconSvg(shapeId, page.colors[0]);
+    }).join("");
   }
 
   function renderPages() {

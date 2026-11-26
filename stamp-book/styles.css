@@ -744,6 +744,7 @@ dialog.sheet-dialog.tall { max-height: 94dvh; }
 .page-row-glyphs {
   display: flex;
   gap: 3px;
+  min-width: 54px;
 }
 
 .page-row-glyphs .stamp-icon {
@@ -872,19 +873,24 @@ dialog.sheet-dialog.tall { max-height: 94dvh; }
   padding: 2px 4px;
 }
 
+.color-edit-grid .swatch {
+  width: 42px;
+  height: 42px;
+}
+
 .swatch.removable::after {
   content: "×";
   position: absolute;
-  top: -7px;
-  right: -7px;
-  width: 18px;
-  height: 18px;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--ink);
   color: var(--card);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
-  line-height: 17px;
+  line-height: 21px;
   text-align: center;
 }
 
