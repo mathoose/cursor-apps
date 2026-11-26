@@ -43,7 +43,8 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
-body { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+/* Room for the tab bar plus a toast, so the last button can always scroll clear of both. */
+body { padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 body.sheet-open { overflow: hidden; }
 
 [hidden] { display: none !important; }
@@ -218,6 +219,7 @@ p { margin: 0 0 12px; }
 }
 .now-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .now-row.alert .now-icon { background: var(--warn-soft); color: var(--warn); }
+.now-row .check { width: 36px; min-height: 44px; }
 .now-text { flex: 1; min-width: 0; text-align: left; }
 .now-text strong { display: block; overflow-wrap: anywhere; }
 .now-sub { display: block; color: var(--muted); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
@@ -354,6 +356,7 @@ input.list-title:focus { box-shadow: 0 2px 0 var(--accent); }
   font-weight: 700;
   text-align: center;
 }
+.btn:disabled { opacity: 0.45; }
 .btn-primary { background: var(--ink); color: var(--bg); }
 .btn-secondary { background: var(--surface); border: 1px solid var(--line); }
 .btn-quiet { color: var(--muted); font-weight: 600; }
