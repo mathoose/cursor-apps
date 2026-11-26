@@ -32,6 +32,7 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+html { scrollbar-gutter: stable; }
 html, body {
   margin: 0;
   min-height: 100%;
@@ -396,6 +397,8 @@ p { margin: 0 0 12px; }
   z-index: 100;
   margin: 0;
   pointer-events: none;
+  transform-origin: 50% 100%;
+  transition: top 0.14s ease-out;
   box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
 }
 .loose-empty { margin: 4px 0 0; padding: 10px 2px; }

@@ -446,7 +446,7 @@
     $("newFolderForm").hidden = !ui.newFolder;
     $("newFolderBtn").setAttribute("aria-expanded", String(ui.newFolder));
     $("newFolderBtn").textContent = ui.newFolder ? "Cancel" : "New folder";
-    $("newFolderInput").placeholder = ui.pendingNoteId ? "Name a folder for that sticky…" : "Name a new folder…";
+    $("newFolderInput").placeholder = ui.pendingNoteId ? "Name its new folder…" : "Name a new folder…";
     $("dragHint").hidden = !state.notes.length || !state.folders.length;
 
     var list = $("folderList");
@@ -1265,11 +1265,14 @@
     drag.offY = p.y - rect.top;
     drag.over = null;
     moveDrag(p.x, p.y);
+    // The sticky rises to sit just above the finger, so the folder under the finger stays in view.
+    ghost.getBoundingClientRect();
+    ghost.style.top = -Math.round(rect.height + 6 - drag.offY) + "px";
     if (p.touch && navigator.vibrate) navigator.vibrate(12);
   }
 
   function moveDrag(x, y) {
-    drag.ghost.style.transform = "translate(" + Math.round(x - drag.offX) + "px, " + Math.round(y - drag.offY) + "px) rotate(4deg) scale(1.08)";
+    drag.ghost.style.transform = "translate(" + Math.round(x - drag.offX) + "px, " + Math.round(y - drag.offY) + "px) rotate(4deg)";
     var under = document.elementFromPoint(x, y);
     var target = under ? under.closest("[data-drop]") : null;
     if (target === drag.over) return;
