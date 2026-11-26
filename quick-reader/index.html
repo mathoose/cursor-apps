@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <link rel="stylesheet" href="styles.css?v=5" />
 </head>
 <body>
   <header class="app-header">
@@ -33,7 +33,7 @@
       <div class="card-heading">
         <div>
           <h2 id="importTitle">Add text</h2>
-          <p>Paste text, or pull readable text from a page link.</p>
+          <p>Paste text, pull a page link, or read a photo.</p>
         </div>
       </div>
 
@@ -45,6 +45,14 @@
         </div>
         <p class="hint" id="fetchHint">Some news sites block extraction. If that happens, paste the article text below.</p>
       </form>
+
+      <div class="photo-row">
+        <label class="btn btn-secondary import-label photo-label" id="photoLabel">
+          From photo
+          <input type="file" id="photoInput" accept="image/*" multiple />
+        </label>
+        <p class="hint" id="photoHint">Pick screenshots. Read all of the text, or highlight just the words you want.</p>
+      </div>
 
       <label class="field-label" for="textInput">Text</label>
       <textarea id="textInput" rows="8" placeholder="Paste anything you want to read quickly..."></textarea>
@@ -111,10 +119,43 @@
     </div>
   </div>
 
+  <div class="overlay highlight-overlay" id="highlightOverlay" role="dialog" aria-modal="true" aria-labelledby="highlightTitle" hidden>
+    <div class="highlight-sheet" id="highlightSheet">
+      <div class="highlight-top">
+        <h2 id="highlightTitle">Photo text</h2>
+      </div>
+      <div class="highlight-pages" id="highlightPages"></div>
+      <div class="highlight-controls">
+        <p class="hint" id="highlightStatus">Read all takes the whole photo. Highlight and Erase choose part of it. Higher marks are read first.</p>
+        <div class="speed-control highlight-thickness">
+          <div class="speed-label-row">
+            <label for="brushRange">Thickness</label>
+            <span id="brushValue">36</span>
+          </div>
+          <input type="range" id="brushRange" min="12" max="96" step="1" value="36" />
+        </div>
+        <div class="highlight-modes" role="group" aria-label="Marker tool">
+          <button type="button" id="highlightModeBtn" class="is-selected" aria-pressed="true">Highlight</button>
+          <button type="button" id="eraseModeBtn" aria-pressed="false">Erase</button>
+          <button type="button" id="moveModeBtn" aria-pressed="false">Move</button>
+        </div>
+        <div class="highlight-actions">
+          <button type="button" class="btn btn-primary" id="readAllBtn">Read all</button>
+          <button type="button" class="btn btn-secondary" id="highlightPullBtn">Pull marks</button>
+        </div>
+        <div class="button-row">
+          <button type="button" class="btn btn-secondary" id="highlightUndoBtn">Undo</button>
+          <button type="button" class="btn btn-ghost" id="highlightClearBtn">Clear</button>
+          <button type="button" class="btn btn-secondary" id="highlightCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=1"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>
