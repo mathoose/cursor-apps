@@ -325,7 +325,7 @@ assert.ok(messy.items[0].doneAt);
 assert.deepStrictEqual(messy.lists.map(function (l) { return l.name; }), ["Untitled list"]);
 assert.deepStrictEqual(messy.timers.map(function (t) { return t.id + ":" + t.label; }), ["good:7"]);
 assert.deepStrictEqual(messy.settings, {
-  timerShortcut: "Jot Timer", reminderShortcut: "Jot Reminder", timerReady: false, reminderReady: true,
+  timerShortcut: "Jot Timer", reminderShortcut: "Jot Reminder", timerReady: false, reminderReady: true, matrixFilter: "all",
 });
 
 // merging an import
@@ -455,5 +455,43 @@ assert.strictEqual(both.notes.length, filed.notes.length + 1);
 assert.strictEqual(J.findNote(both, "n1").text, "shelf for filament\nmaybe pegboard", "the sticky already on the phone wins");
 assert.strictEqual(J.findNote(both, "n9").folderId, "f9", "an imported sticky keeps its folder");
 assert.strictEqual(both.folders.length, 3);
+
+// importance and the matrix
+var m = J.addList(J.emptyState(), { id: "trip", name: "Trip", now: t0 });
+m = J.addItem(m, { id: "m1", text: "renew passport", now: t0 });
+m = J.addItem(m, { id: "m2", text: "book the kennel", listId: "trip", now: t0 });
+m = J.addItem(m, { id: "m3", text: "buy sunscreen", listId: "trip", priority: 2, now: t0 });
+m = J.addItem(m, { id: "m4", text: "sort photos", priority: "urgent", now: t0 });
+assert.deepStrictEqual(m.items.map(function (it) { return it.priority; }), [0, 2, 0, 0], "a new line has no importance unless one is given");
+var ranked = J.setPriority(m, "m1", 3);
+assert.strictEqual(J.findItem(ranked, "m1").priority, 3);
+assert.strictEqual(J.setPriority(ranked, "m1", 3), ranked, "no change, same state");
+assert.strictEqual(J.setPriority(m, "missing", 3), m);
+assert.strictEqual(J.findItem(J.setPriority(ranked, "m1", 7), "m1").priority, 0, "an unknown importance clears it");
+ranked = J.setPriority(ranked, "m2", 1);
+var groups = J.matrixItems(ranked, "all");
+assert.deepStrictEqual(J.PRIORITIES, [3, 2, 1, 0]);
+assert.deepStrictEqual(J.PRIORITIES.map(function (p) { return groups[p].map(function (it) { return it.id; }); }), [["m1"], ["m3"], ["m2"], ["m4"]]);
+assert.strictEqual(J.openCount(ranked, "all"), 4);
+var inboxOnly = J.matrixItems(ranked, "inbox");
+assert.deepStrictEqual([inboxOnly[3].length, inboxOnly[2].length, inboxOnly[1].length, inboxOnly[0].length], [1, 0, 0, 1]);
+assert.strictEqual(J.openCount(ranked, "inbox"), 2);
+var tripOnly = J.matrixItems(ranked, "trip");
+assert.deepStrictEqual([tripOnly[3].length, tripOnly[2].length, tripOnly[1].length, tripOnly[0].length], [0, 1, 1, 0]);
+assert.strictEqual(J.matrixFilter(ranked, "trip"), "trip");
+assert.strictEqual(J.matrixFilter(ranked, "inbox"), "inbox");
+assert.strictEqual(J.matrixFilter(ranked, "deleted-list"), "all", "a filter on a list that is gone shows everything");
+assert.strictEqual(J.openCount(ranked, "deleted-list"), 4);
+var checked = J.toggleItem(ranked, "m1", t0);
+assert.deepStrictEqual(J.matrixItems(checked, "all")[3], [], "a checked line leaves the matrix");
+assert.strictEqual(J.findItem(J.toggleItem(checked, "m1", t0), "m1").priority, 3, "and keeps its importance when unchecked");
+assert.strictEqual(J.findItem(J.moveItem(ranked, "m1", "trip"), "m1").priority, 3, "moving a line keeps its importance");
+var tripCopy = J.duplicateList(ranked, "trip", { id: "trip2", now: t0 });
+assert.deepStrictEqual(tripCopy.items.filter(function (it) { return it.listId === "trip2"; }).map(function (it) { return it.priority; }), [2, 1], "a copied list keeps importance");
+assert.deepStrictEqual(J.normalizeState(JSON.parse(JSON.stringify(ranked))), ranked, "importance reads back unchanged");
+assert.deepStrictEqual(J.normalizeState({ items: [{ id: "x", text: "old line" }, { id: "y", text: "odd", priority: "3" }] }).items.map(function (it) { return it.priority; }), [0, 0], "lines saved before importance existed have none");
+assert.strictEqual(J.updateSettings(ranked, { matrixFilter: "trip" }).settings.matrixFilter, "trip");
+assert.strictEqual(J.updateSettings(ranked, { matrixFilter: "" }).settings.matrixFilter, "all");
+assert.strictEqual(J.updateSettings(ranked, { matrixFilter: 7 }).settings.matrixFilter, "all");
 
 console.log("jot logic ok");

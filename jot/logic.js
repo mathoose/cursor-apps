@@ -19,7 +19,10 @@
     reminderShortcut: "Jot Reminder",
     timerReady: false,
     reminderReady: false,
+    matrixFilter: "all",
   };
+  // Importance, as in the Focus app: 3 high, 2 medium, 1 low, 0 not set.
+  var PRIORITIES = [3, 2, 1, 0];
 
   var WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
   var WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -94,7 +97,13 @@
       reminderShortcut: cleanText(src.reminderShortcut, 60) || DEFAULT_SETTINGS.reminderShortcut,
       timerReady: src.timerReady === true,
       reminderReady: src.reminderReady === true,
+      // "all", "inbox" or a list id. A list that has since been deleted is treated as "all" when it is read.
+      matrixFilter: typeof src.matrixFilter === "string" && src.matrixFilter ? src.matrixFilter.slice(0, 80) : DEFAULT_SETTINGS.matrixFilter,
     };
+  }
+
+  function cleanPriority(value) {
+    return value === 1 || value === 2 || value === 3 ? value : 0;
   }
 
   function normalizeState(raw) {
@@ -161,6 +170,7 @@
         listId: typeof it.listId === "string" && listIds[it.listId] ? it.listId : null,
         remindAt: remindAt,
         handedOff: !!remindAt && it.handedOff === true,
+        priority: cleanPriority(it.priority),
       });
     });
 
@@ -232,8 +242,39 @@
       listId: validListId(state, opts.listId),
       remindAt: remindAt,
       handedOff: !!remindAt && opts.handedOff === true,
+      priority: cleanPriority(opts.priority),
     };
     return assign({}, state, { items: [item].concat(state.items) });
+  }
+
+  function setPriority(state, id, priority) {
+    var clean = cleanPriority(priority);
+    return mapItem(state, id, function (it) {
+      return it.priority === clean ? it : assign({}, it, { priority: clean });
+    });
+  }
+
+  /** "all", "inbox" or the id of a list that still exists. */
+  function matrixFilter(state, filter) {
+    if (filter === "inbox") return "inbox";
+    return validListId(state, filter) || "all";
+  }
+
+  /** Lines not yet checked off, grouped by importance for the matrix. */
+  function matrixItems(state, filter) {
+    var scope = matrixFilter(state, filter);
+    var groups = { 3: [], 2: [], 1: [], 0: [] };
+    state.items.forEach(function (it) {
+      if (it.done) return;
+      if (scope === "inbox" ? it.listId : scope !== "all" && it.listId !== scope) return;
+      groups[it.priority].push(it);
+    });
+    return groups;
+  }
+
+  function openCount(state, filter) {
+    var groups = matrixItems(state, filter);
+    return PRIORITIES.reduce(function (sum, p) { return sum + groups[p].length; }, 0);
   }
 
   function updateItemText(state, id, text) {
@@ -389,6 +430,7 @@
           listId: copy.id,
           remindAt: null,
           handedOff: false,
+          priority: it.priority,
         };
       });
     return assign({}, state, { lists: [copy].concat(state.lists), items: copies.concat(state.items) });
@@ -951,6 +993,7 @@
     STORAGE_KEY: STORAGE_KEY,
     VERSION: VERSION,
     DEFAULT_SETTINGS: DEFAULT_SETTINGS,
+    PRIORITIES: PRIORITIES,
     NOTE_COLORS: NOTE_COLORS,
     uid: uid,
     cleanText: cleanText,
@@ -966,6 +1009,10 @@
     setReminder: setReminder,
     clearReminder: clearReminder,
     moveItem: moveItem,
+    setPriority: setPriority,
+    matrixFilter: matrixFilter,
+    matrixItems: matrixItems,
+    openCount: openCount,
     takeItems: takeItems,
     restoreItems: restoreItems,
     visibleItems: visibleItems,
