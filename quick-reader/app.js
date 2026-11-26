@@ -9,8 +9,8 @@
   var DEFAULT_WPM = 250;
 
   var TESSERACT_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
-  var PHOTO_HINT = "Pick screenshots, highlight the words you want, then pull that text.";
-  var HIGHLIGHT_HINT = "Drag to highlight. Higher on the page is read first, then left to right. Use Move to scroll.";
+  var PHOTO_HINT = "Pick screenshots. Read all of the text, or highlight just the words you want.";
+  var HIGHLIGHT_HINT = "Read all takes the whole photo. Highlight and Erase choose part of it. Higher marks are read first.";
   var PHOTO_MAX_EDGE = 1600;
   var HIGHLIGHT_COLOR = "rgba(250, 204, 21, 0.45)";
 
@@ -675,6 +675,10 @@
       message = readCount < pickedCount
         ? "Added text from " + readCount + " of " + pickedCount + " highlights."
         : "Added the highlighted text.";
+    } else if (noun === "page") {
+      message = readCount < pickedCount
+        ? "Added text from " + readCount + " of " + pickedCount + " photos."
+        : (readCount === 1 ? "Added all the text from the photo." : "Added all the text from " + readCount + " photos.");
     } else {
       message = "Added text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
       if (readCount < pickedCount) message = "Added text from " + readCount + " of " + pickedCount + " photos.";
@@ -741,14 +745,26 @@
     ctx.stroke();
   }
 
+  function paintStrokes(ctx, strokes, markStyle) {
+    strokes.forEach(function (stroke) {
+      if (stroke.kind === "erase") {
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.strokeStyle = "rgba(0,0,0,1)";
+        ctx.fillStyle = "rgba(0,0,0,1)";
+      } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = markStyle;
+        ctx.fillStyle = markStyle;
+      }
+      drawStroke(ctx, stroke);
+    });
+    ctx.globalCompositeOperation = "source-over";
+  }
+
   function redrawStrokes(page) {
     var ctx = page.draw.getContext("2d");
     ctx.clearRect(0, 0, page.draw.width, page.draw.height);
-    ctx.strokeStyle = HIGHLIGHT_COLOR;
-    ctx.fillStyle = HIGHLIGHT_COLOR;
-    page.strokes.forEach(function (stroke) {
-      drawStroke(ctx, stroke);
-    });
+    paintStrokes(ctx, page.strokes, HIGHLIGHT_COLOR);
   }
 
   function pointFromEvent(canvas, event) {
@@ -760,22 +776,28 @@
   }
 
   function setHighlightMode(mode) {
-    highlightMode = mode === "move" ? "move" : "draw";
-    if (els.highlightSheet) els.highlightSheet.classList.toggle("is-moving", highlightMode === "move");
-    if (els.highlightModeBtn) {
-      els.highlightModeBtn.classList.toggle("is-selected", highlightMode === "draw");
-      els.highlightModeBtn.setAttribute("aria-pressed", highlightMode === "draw" ? "true" : "false");
+    highlightMode = mode === "move" || mode === "erase" ? mode : "draw";
+    currentStroke = null;
+    if (els.highlightSheet) {
+      els.highlightSheet.classList.toggle("is-moving", highlightMode === "move");
+      els.highlightSheet.classList.toggle("is-erasing", highlightMode === "erase");
     }
-    if (els.moveModeBtn) {
-      els.moveModeBtn.classList.toggle("is-selected", highlightMode === "move");
-      els.moveModeBtn.setAttribute("aria-pressed", highlightMode === "move" ? "true" : "false");
-    }
-    if (highlightMode === "move") currentStroke = null;
+    [
+      ["highlightModeBtn", "draw"],
+      ["eraseModeBtn", "erase"],
+      ["moveModeBtn", "move"],
+    ].forEach(function (pair) {
+      var button = els[pair[0]];
+      if (!button) return;
+      var selected = highlightMode === pair[1];
+      button.classList.toggle("is-selected", selected);
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
   }
 
   function setHighlightBusy(active, message) {
     photoBusy = active;
-    ["highlightPullBtn", "highlightUndoBtn", "highlightClearBtn", "highlightCancelBtn", "brushRange", "highlightModeBtn", "moveModeBtn"].forEach(function (id) {
+    ["readAllBtn", "highlightPullBtn", "highlightUndoBtn", "highlightClearBtn", "highlightCancelBtn", "brushRange", "highlightModeBtn", "eraseModeBtn", "moveModeBtn"].forEach(function (id) {
       if (els[id]) els[id].disabled = active;
     });
     if (els.photoInput) els.photoInput.disabled = active;
@@ -796,10 +818,11 @@
   function bindDrawCanvas(page) {
     var canvas = page.draw;
     canvas.addEventListener("pointerdown", function (event) {
-      if (highlightMode !== "draw" || photoBusy) return;
+      if ((highlightMode !== "draw" && highlightMode !== "erase") || photoBusy) return;
       if (event.button != null && event.button !== 0) return;
       if (event.preventDefault) event.preventDefault();
       var stroke = {
+        kind: highlightMode === "erase" ? "erase" : "mark",
         points: [pointFromEvent(canvas, event)],
         size: brushBitmapSize(canvas),
       };
@@ -814,7 +837,7 @@
       redrawStrokes(page);
     });
     canvas.addEventListener("pointermove", function (event) {
-      if (!currentStroke || highlightMode !== "draw") return;
+      if (!currentStroke || (highlightMode !== "draw" && highlightMode !== "erase")) return;
       if (event.preventDefault) event.preventDefault();
       currentStroke.points.push(pointFromEvent(canvas, event));
       redrawStrokes(page);
@@ -949,14 +972,14 @@
     var ctx = canvas.getContext("2d", { willReadFrequently: true });
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, width, height);
-    ctx.strokeStyle = "#fff";
-    ctx.fillStyle = "#fff";
-    page.strokes.forEach(function (stroke) {
-      drawStroke(ctx, stroke);
-    });
+    paintStrokes(ctx, page.strokes, "#fff");
     var image = ctx.getImageData(0, 0, width, height);
     var raw = new Uint8Array(width * height);
-    for (var i = 0; i < raw.length; i++) raw[i] = image.data[i * 4] > 127 ? 1 : 0;
+    var pixels = image.data;
+    for (var i = 0; i < raw.length; i++) {
+      var p = i * 4;
+      raw[i] = pixels[p + 3] > 127 && pixels[p] > 127 ? 1 : 0;
+    }
     return dilateMask(raw, width, height, 4);
   }
 
@@ -1022,8 +1045,14 @@
     });
   }
 
+  function pageHasMark(page) {
+    return page.strokes.some(function (stroke) {
+      return stroke.kind !== "erase";
+    });
+  }
+
   function regionsForPage(page) {
-    if (!page.strokes.length) return [];
+    if (!pageHasMark(page)) return [];
     var width = page.display.width;
     var height = page.display.height;
     var mask = strokesToMask(page);
@@ -1036,9 +1065,7 @@
 
   function pullHighlightedText() {
     if (photoBusy) return;
-    var marked = highlightPages.some(function (page) {
-      return page.strokes.length > 0;
-    });
+    var marked = highlightPages.some(pageHasMark);
     if (!marked) {
       toast("Highlight the words you want.");
       return;
@@ -1057,18 +1084,26 @@
         setHighlightBusy(false);
         return;
       }
-      readHighlightJobs(jobs);
+      readHighlightJobs(jobs, "highlight");
     });
   }
 
-  function readHighlightJobs(jobs) {
+  function pullAllText() {
+    if (photoBusy || !highlightPages.length) return;
+    readHighlightJobs(highlightPages.map(function (page) {
+      return [page.ocr];
+    }), "page");
+  }
+
+  function readHighlightJobs(jobs, noun) {
     var collected = [];
     var attempted = jobs.length;
     setHighlightBusy(true, "Preparing the photo reader…");
     var chain = getOcrWorker();
     jobs.forEach(function (row, index) {
       chain = chain.then(function (worker) {
-        setHighlightBusy(true, "Reading highlight " + (index + 1) + " of " + jobs.length + "…");
+        var label = noun === "page" ? "photo" : "highlight";
+        setHighlightBusy(true, "Reading " + label + " " + (index + 1) + " of " + jobs.length + "…");
         var parts = [];
         var step = Promise.resolve(worker);
         row.forEach(function (canvas) {
@@ -1090,21 +1125,21 @@
 
     chain.then(function () {
       if (!collected.length) {
-        toast("Could not find text in the highlight.");
+        toast(noun === "page" ? "Could not find text in the photo." : "Could not find text in the highlight.");
         setHighlightBusy(false);
         return;
       }
       var text = collected.join("\n\n");
       closeHighlighter();
-      insertPhotoText(text, collected.length, attempted, "highlight");
+      insertPhotoText(text, collected.length, attempted, noun || "highlight");
     }).catch(function (err) {
       if (!collected.length) {
-        toast(err && err.message ? err.message : "Could not read that highlight.");
+        toast(err && err.message ? err.message : (noun === "page" ? "Could not read that photo." : "Could not read that highlight."));
         setHighlightBusy(false);
         return;
       }
       closeHighlighter();
-      insertPhotoText(collected.join("\n\n"), collected.length, attempted, "highlight");
+      insertPhotoText(collected.join("\n\n"), collected.length, attempted, noun || "highlight");
     });
   }
 
@@ -1199,12 +1234,16 @@
     els.highlightModeBtn.addEventListener("click", function () {
       setHighlightMode("draw");
     });
+    els.eraseModeBtn.addEventListener("click", function () {
+      setHighlightMode("erase");
+    });
     els.moveModeBtn.addEventListener("click", function () {
       setHighlightMode("move");
     });
     els.highlightUndoBtn.addEventListener("click", undoHighlight);
     els.highlightClearBtn.addEventListener("click", clearHighlights);
     els.highlightCancelBtn.addEventListener("click", closeHighlighter);
+    els.readAllBtn.addEventListener("click", pullAllText);
     els.highlightPullBtn.addEventListener("click", pullHighlightedText);
     document.addEventListener("keydown", function (event) {
       if (event.key !== "Escape") return;
@@ -1233,7 +1272,9 @@
       "brushRange",
       "brushValue",
       "highlightModeBtn",
+      "eraseModeBtn",
       "moveModeBtn",
+      "readAllBtn",
       "highlightUndoBtn",
       "highlightClearBtn",
       "highlightPullBtn",
