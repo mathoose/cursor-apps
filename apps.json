@@ -38,7 +38,8 @@
       "done-today": { "storageKey": "done-today-v1" },
       "things-to-do": { "storageKey": "things-to-do-v1" },
       "stock-purchases": { "storageKey": "stock-purchases-v1" },
-      "stamp-book": { "storageKey": "stamp-book-v1" }
+      "stamp-book": { "storageKey": "stamp-book-v1" },
+      "dice-square": { "storageKey": "dice-square-v1" }
     }
   },
   "apps": [
@@ -253,6 +254,12 @@
       "name": "Stock Purchases",
       "subtitle": "Buys, value, and dividends",
       "storageKey": "stock-purchases-v1"
+    },
+    {
+      "id": "dice-square",
+      "name": "Dice Square",
+      "subtitle": "Roll, block & fill the grid",
+      "storageKey": "dice-square-v1"
     }
   ]
 }

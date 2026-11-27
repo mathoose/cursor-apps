@@ -43,6 +43,7 @@
     "trip-packing": "Packing",
     "stamp-book": "Stamp Book",
     "jot": "Jot",
+    "dice-square": "Dice Square",
   };
 
   var PHOTO_DATABASES = [
@@ -2075,7 +2076,73 @@
         };
       },
     },
+    "dice-square": {
+      storageKey: "dice-square-v1",
+      legacyKeys: [],
+      readSlice: function () {
+        var raw = readKey("dice-square-v1");
+        if (!raw) return null;
+        try {
+          var p = JSON.parse(raw);
+          if (!p || !Array.isArray(p.games) || !p.games.length) return null;
+          return { version: 1, currentId: p.currentId, games: p.games, stats: p.stats };
+        } catch (e) {
+          return null;
+        }
+      },
+      writeSlice: function (slice) {
+        if (!slice || !Array.isArray(slice.games)) return false;
+        return writeKey("dice-square-v1", JSON.stringify({
+          version: 1,
+          currentId: slice.currentId,
+          games: slice.games,
+          stats: slice.stats,
+        }));
+      },
+      isLegacy: function (obj) {
+        return !!(obj && Array.isArray(obj.games) && obj.stats && obj.format !== FORMAT);
+      },
+      summarize: function (slice) {
+        var games = slice && Array.isArray(slice.games) ? slice.games : [];
+        var solved = games.filter(function (g) { return g && g.solvedAt; }).length;
+        return games.length + " saved roll" + (games.length === 1 ? "" : "s") + ", " + solved + " solved";
+      },
+      mergeSlice: function (existing, incoming) {
+        return mergeDiceSquare(existing, incoming);
+      },
+    },
   };
+
+  // Saved rolls match by id; the copy changed most recently wins. The roll being played on
+  // this phone stays the one being played.
+  function mergeDiceSquare(existing, incoming) {
+    if (!incoming || !Array.isArray(incoming.games)) return existing;
+    if (!existing || !Array.isArray(existing.games)) return incoming;
+    var games = existing.games.slice();
+    incoming.games.forEach(function (game) {
+      if (!game || !game.id) return;
+      var at = -1;
+      games.forEach(function (have, index) {
+        if (have && have.id === game.id) at = index;
+      });
+      if (at < 0) games.push(game);
+      else if ((Number(game.updatedAt) || 0) > (Number(games[at].updatedAt) || 0)) games[at] = game;
+    });
+    var mine = existing.stats || {};
+    var theirs = incoming.stats || {};
+    var bests = [mine.bestMs, theirs.bestMs].filter(function (ms) {
+      return typeof ms === "number" && ms > 0;
+    });
+    return {
+      version: 1,
+      currentId: existing.currentId || incoming.currentId,
+      games: games,
+      stats: {
+        solved: Math.max(Number(mine.solved) || 0, Number(theirs.solved) || 0),
+        bestMs: bests.length ? Math.min.apply(null, bests) : null,
+      },
+    };
+  }
 
   function stampBookKey(stamp) {
     return stamp ? [stamp.s, stamp.c, stamp.x, stamp.y].join("|") : "";

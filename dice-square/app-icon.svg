@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Dice Square">
+  <rect width="180" height="180" rx="40" fill="#24262c"/>
+  <g fill="#31343c">
+    <rect x="25" y="25" width="40" height="40" rx="7"/>
+    <rect x="70" y="25" width="40" height="40" rx="7"/>
+    <rect x="115" y="25" width="40" height="40" rx="7"/>
+    <rect x="25" y="70" width="40" height="40" rx="7"/>
+    <rect x="70" y="70" width="40" height="40" rx="7"/>
+    <rect x="115" y="70" width="40" height="40" rx="7"/>
+    <rect x="25" y="115" width="40" height="40" rx="7"/>
+    <rect x="70" y="115" width="40" height="40" rx="7"/>
+    <rect x="115" y="115" width="40" height="40" rx="7"/>
+  </g>
+  <path d="M32 25h71a7 7 0 0 1 7 7v26a7 7 0 0 1-7 7H65v38a7 7 0 0 1-7 7H32a7 7 0 0 1-7-7V32a7 7 0 0 1 7-7Z" fill="#f28a1c"/>
+  <path d="M122 25h26a7 7 0 0 1 7 7v116a7 7 0 0 1-7 7h-26a7 7 0 0 1-7-7V32a7 7 0 0 1 7-7Z" fill="#31b4e4"/>
+  <path d="M32 115h71a7 7 0 0 1 7 7v26a7 7 0 0 1-7 7H32a7 7 0 0 1-7-7v-26a7 7 0 0 1 7-7Z" fill="#3cab47"/>
+  <path d="M65 25v40M25 65h40M115 70h40M115 110h40M65 115v40" fill="none" stroke="#000" stroke-opacity="0.16" stroke-width="2"/>
+  <rect x="71" y="71" width="38" height="38" rx="8" fill="#f6f3ea"/>
+  <g fill="#23252b">
+    <circle cx="80.5" cy="80.5" r="3.6"/>
+    <circle cx="99.5" cy="80.5" r="3.6"/>
+    <circle cx="90" cy="90" r="3.6"/>
+    <circle cx="80.5" cy="99.5" r="3.6"/>
+    <circle cx="99.5" cy="99.5" r="3.6"/>
+  </g>
+</svg>

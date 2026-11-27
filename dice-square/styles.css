@@ -1,0 +1,593 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f1ece2;
+  --card: #fffdf8;
+  --ink: #1f1c17;
+  --muted: #736d61;
+  --line: rgba(31, 28, 23, 0.16);
+  --chip: rgba(31, 28, 23, 0.08);
+  --primary: #1f1c17;
+  --primary-ink: #fffdf8;
+  --win: #1c7a3c;
+  --danger: #c0392b;
+  --frame: #24262c;
+  --well: #31343c;
+  --frame-ink: #b4b8c1;
+  --die: #f6f3ea;
+  --die-ink: #23252b;
+  /* app.js sets both from the screen size. */
+  --cell: 48px;
+  --tcell: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171b;
+    --card: #202228;
+    --ink: #f1ece2;
+    --muted: #a39d91;
+    --line: rgba(241, 236, 226, 0.18);
+    --chip: rgba(241, 236, 226, 0.1);
+    --primary: #f1ece2;
+    --primary-ink: #16171b;
+    --win: #72d290;
+    --danger: #ff7b6b;
+    --frame: #2b2d35;
+    --well: #1a1b20;
+    --frame-ink: #a3a7b1;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+body.dragging { cursor: grabbing; }
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+[hidden] { display: none !important; }
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Header */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
+}
+
+.app .apps-home-back {
+  background: var(--chip);
+  color: var(--ink);
+}
+
+.app-header h1 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clock {
+  margin: 0;
+  min-width: 3.4em;
+  text-align: right;
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.clock.done { color: var(--win); }
+
+.saves-btn {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--chip);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.saves-btn:active, .btn:active { opacity: 0.7; }
+
+.main-panel { padding: 2px 16px 8px; }
+
+/* The shared version line, with less padding so the page still fits one screen. */
+.app-version-footer {
+  margin: 0;
+  padding: 4px 16px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Board. The frame is 10px of padding plus a 22px gutter for the labels. */
+
+.board-frame {
+  display: grid;
+  grid-template-columns: 22px auto;
+  grid-template-rows: 22px auto;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 18px;
+  background: var(--frame);
+  box-shadow: 0 10px 24px rgba(31, 28, 23, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.col-labels, .row-labels {
+  display: flex;
+  color: var(--frame-ink);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.col-labels { grid-column: 2; }
+.row-labels { grid-row: 2; flex-direction: column; }
+
+.col-labels span, .row-labels span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.col-labels span { width: var(--cell); padding-bottom: 4px; }
+.row-labels span { height: var(--cell); padding-right: 4px; }
+
+.board {
+  --u: var(--cell);
+  --gap: 2px;
+  position: relative;
+  grid-column: 2;
+  grid-row: 2;
+  width: calc(var(--cell) * 6);
+  height: calc(var(--cell) * 6);
+}
+
+.wells {
+  display: grid;
+  grid-template-columns: repeat(6, var(--cell));
+  grid-template-rows: repeat(6, var(--cell));
+}
+
+.wells span {
+  margin: 2px;
+  border-radius: 14%;
+  background: var(--well);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.layer, .ghost {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ghost span {
+  position: absolute;
+  left: calc(var(--c) * var(--cell) + 3px);
+  top: calc(var(--r) * var(--cell) + 3px);
+  width: calc(var(--cell) - 6px);
+  height: calc(var(--cell) - 6px);
+  border-radius: 14%;
+  background: var(--pc);
+  opacity: 0.5;
+  box-shadow: 0 0 0 2px var(--pc);
+}
+
+/* Dice */
+
+.die {
+  position: absolute;
+  left: calc(var(--c) * var(--cell) + 3px);
+  top: calc(var(--r) * var(--cell) + 3px);
+  width: calc(var(--cell) - 6px);
+  height: calc(var(--cell) - 6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18%;
+  background: linear-gradient(150deg, #ffffff 0%, var(--die) 55%, #ddd8cb 100%);
+  color: var(--die-ink);
+  font-size: calc(var(--cell) * 0.36);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.13), 0 2px 3px rgba(0, 0, 0, 0.45);
+}
+
+.rolling .die { animation: jiggle 0.16s ease-in-out infinite alternate; }
+.rolling .die.landed, .die.landed { animation: land 0.26s ease-out; }
+
+@keyframes jiggle {
+  from { transform: rotate(-9deg) scale(1.06); }
+  to { transform: rotate(9deg) scale(1.06); }
+}
+
+@keyframes land {
+  from { transform: scale(1.28); }
+  to { transform: scale(1); }
+}
+
+/* Pieces. --u is the side of one block: a board square, or a smaller tray block. */
+
+.piece {
+  position: relative;
+  display: block;
+  width: calc(var(--w) * var(--u));
+  height: calc(var(--h) * var(--u));
+}
+
+.blk {
+  position: absolute;
+  left: calc(var(--bc) * var(--u));
+  top: calc(var(--br) * var(--u));
+  width: var(--u);
+  height: var(--u);
+}
+
+.blk::before {
+  content: "";
+  position: absolute;
+  inset: var(--gap);
+  border-radius: 18%;
+  background: var(--pc);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--pc) 82%, #fff) 0%, var(--pc) 50%, color-mix(in srgb, var(--pc) 84%, #000) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* A side that meets another block of the same piece runs to the edge, so the piece reads as one. */
+.blk.nt::before { top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+.blk.nr::before { right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.blk.nb::before { bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.blk.nl::before { left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+
+.board .piece {
+  position: absolute;
+  left: calc(var(--c) * var(--u));
+  top: calc(var(--r) * var(--u));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+}
+
+.board .blk {
+  pointer-events: auto;
+  touch-action: none;
+  cursor: grab;
+}
+
+.solved .board .blk { cursor: default; }
+
+/* Kept in the page while it is dragged, so the touch that started on it keeps reporting. */
+.board .piece.lifted { opacity: 0; }
+
+.piece.pop { animation: pop 0.2s ease-out; }
+.piece.cheer { animation: cheer 0.5s ease-in-out calc(var(--i) * 70ms) both; }
+
+@keyframes pop {
+  from { transform: scale(1.1); }
+  to { transform: scale(1); }
+}
+
+@keyframes cheer {
+  0% { transform: scale(1); filter: brightness(1) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4)); }
+  45% { transform: scale(1.07); filter: brightness(1.25) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4)); }
+  100% { transform: scale(1); filter: brightness(1) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4)); }
+}
+
+.piece.float {
+  --u: var(--cell);
+  --gap: 2px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
+  will-change: transform;
+}
+
+/* Status */
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6em;
+  margin: 8px 0 4px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.status.win {
+  color: var(--win);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* Tray. Each slot is a square big enough for its piece however it is turned. */
+
+.tray {
+  --u: var(--tcell);
+  --gap: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.tray-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 4px;
+}
+
+.slot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--n) * var(--tcell) + 8px);
+  min-width: 40px;
+  min-height: calc(var(--n) * var(--tcell) + 8px);
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  touch-action: none;
+  cursor: grab;
+}
+
+.slot.selected {
+  background: var(--chip);
+  box-shadow: inset 0 0 0 1.5px var(--line);
+}
+
+.slot .piece { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)); }
+
+.slot.away { cursor: default; }
+.slot.away .piece, .slot.lifted .piece { opacity: 0.16; filter: none; }
+
+/* Buttons */
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1.25fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--chip);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+.btn:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+/* Saves sheet */
+
+dialog {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+dialog::backdrop { background: rgba(15, 14, 12, 0.5); }
+
+/* Centered with auto margins, not a transform, so the toast can sit fixed inside the open sheet. */
+dialog.sheet-dialog {
+  position: fixed;
+  inset: auto 0 0 0;
+  margin: 0 auto;
+  width: min(480px, 100%);
+  max-width: 100%;
+  height: fit-content;
+  max-height: min(86dvh, 760px);
+  border-radius: 18px 18px 0 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.sheet { padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); }
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.sheet-head h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sheet-sub {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-head .btn { min-height: 44px; padding: 0 16px; }
+
+.sheet-note {
+  margin: 12px 2px 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.save-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.save {
+  display: flex;
+  align-items: stretch;
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.save.current { box-shadow: inset 0 0 0 2px var(--ink); }
+
+.save-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 4px 10px 10px;
+  border: 0;
+  border-radius: 14px 0 0 14px;
+  background: transparent;
+  text-align: left;
+}
+
+.save-open:active { background: var(--chip); }
+
+.thumb {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(6, 8px);
+  grid-template-rows: repeat(6, 8px);
+  gap: 1px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--frame);
+}
+
+.thumb i {
+  border-radius: 1.5px;
+  background: var(--well);
+}
+
+.thumb i.d { background: var(--die); }
+
+.save-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.save-roll {
+  font-size: 0.875rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.save-line {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.save.solved .save-line {
+  color: var(--win);
+  font-weight: 700;
+}
+
+.save-when {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.save-del {
+  flex: none;
+  min-width: 72px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 0 14px 14px 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.save-del.armed {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* Toast, at the top so it never covers the tray or the buttons. */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  top: calc(62px + env(safe-area-inset-top, 0px));
+  transform: translateX(-50%);
+  z-index: 60;
+  width: max-content;
+  max-width: min(420px, calc(100% - 32px));
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .die, .piece { animation: none !important; }
+}
