@@ -1406,6 +1406,54 @@ body.decide-open .app-version-footer { display: none; }
   font-size: 1.15rem;
   font-weight: 700;
 }
+.decide-choice-quiet {
+  padding: 12px 16px;
+  font-size: 1rem;
+  border-color: var(--border);
+  background: #fff;
+}
+.decide-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.35);
+}
+.decide-num.is-on {
+  width: 34px;
+  height: 34px;
+  background: #9a3412;
+  font-size: 1rem;
+}
+.decide-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  padding: 10px 4px;
+}
+.decide-row.is-on { background: #f0fdfa; }
+.decide-row-name {
+  flex: 1;
+  font-weight: 750;
+  font-size: 0.98rem;
+}
+.decide-row-walk {
+  flex: 0 0 auto;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: #0f766e;
+}
 .decide-back-step { margin-top: 14px; }
 .decide-next { width: 100%; border: none; margin-top: 16px; }
 .cuisine-checks {
