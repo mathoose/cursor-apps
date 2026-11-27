@@ -2025,9 +2025,22 @@
     return tags;
   }
 
+  function isBreakfastPlace(p) {
+    var text = ((p.name || '') + ' ' + (p.cuisine || '') + ' ' + (p.description || '') + ' ' +
+      (p.featureLabel || '') + ' ' + (p.hoursNote || '')).toLowerCase();
+    return /breakfast|bagel|brunch|biscuit|pancake|\bdiner\b/.test(text);
+  }
+
+  var DECIDE_INTENTS = {
+    coffee: 'Going for coffee',
+    breakfast: 'Going for breakfast',
+    drinks: 'Drinks + happy hours',
+    near: 'Places near'
+  };
+
   function initDecide() {
     var settings = loadDecideSettings();
-    var session = { service: 'dine', handoff: 'dine', nogo: {} };
+    var session = { service: 'dine', handoff: 'dine', nogo: {}, intent: '' };
     var results = [];
     var selected = 0;
     var map = null;
@@ -2047,7 +2060,7 @@
       $('decide-wizard').hidden = false;
       $('decide-results').hidden = true;
       var sub = $('decide-sub');
-      if (name === 'service') sub.textContent = 'Eat in or takeout';
+      if (name === 'service') sub.textContent = 'Pick a trip';
       else if (name === 'handoff') sub.textContent = 'Pickup or delivery';
       else sub.textContent = 'Skip anything you don\u2019t want';
     }
@@ -2128,49 +2141,48 @@
       return html;
     }
 
+    function walkMinutes(meters) {
+      if (meters == null) return null;
+      return Math.max(1, Math.round(meters / PhillyWalkMap.WALK_M_PER_MIN));
+    }
+
     function renderBubbles() {
       var el = $('decide-bubbles');
       if (!results.length) {
-        el.innerHTML = '<p class="decide-empty">Nothing matched nearby. Go back and uncheck a type, or try delivery for a wider area.</p>';
+        el.innerHTML = '<p class="decide-empty">Nothing matched nearby. Restart and try another trip, or a wider area.</p>';
         return;
       }
       el.innerHTML = results.map(function (p, i) {
-        var status = p._open ? 'Open now' : (p._hasHours ? 'Closed now' : 'Hours unknown');
-        var where = '';
-        if (!session.remote && p._meters != null) {
-          var dist = p._meters < 1000
-            ? Math.round(p._meters) + ' m'
-            : (p._meters / 1000).toFixed(1) + ' km';
-          var walk = Math.max(1, Math.round(p._meters / PhillyWalkMap.WALK_M_PER_MIN));
-          where = ' \u00b7 ' + dist + ' \u00b7 ~' + walk + ' min walk';
-        }
-        var desc = snippet(p, 140);
-        return '<article class="decide-bubble' + (i === selected ? ' is-on' : '') + '" data-pick="' + i + '">' +
-          '<div class="decide-bubble-top"><span class="decide-bubble-name">' + escapeHtml(p.name) + '</span>' +
-          '<button type="button" class="text-btn" data-details="' + i + '">Details</button></div>' +
-          '<p class="decide-bubble-meta">' + escapeHtml(kindLabel(p._kind) + ' \u00b7 ' + status) + where + '</p>' +
-          (desc ? '<p class="decide-bubble-desc">' + escapeHtml(desc) + '</p>' : '') +
-          '<div class="decide-bubble-links">' + siteButtons(p) + orderButtons(p) + '</div></article>';
+        var walk = walkMinutes(p._meters);
+        var walkLabel = walk != null ? (walk + ' min') : (p._open ? 'Open' : 'Walk n/a');
+        return '<button type="button" class="decide-row' + (i === selected ? ' is-on' : '') + '" data-pick="' + i + '">' +
+          '<span class="decide-num' + (i === selected ? ' is-on' : '') + '" aria-hidden="true">' + (i + 1) + '</span>' +
+          '<span class="decide-row-name">' + escapeHtml(p.name) + '</span>' +
+          '<span class="decide-row-walk">' + escapeHtml(walkLabel) + '</span></button>';
       }).join('');
     }
 
     function renderPins() {
-      if (!pinLayer) return;
+      if (!pinLayer || typeof L === 'undefined') return;
       pinLayer.clearLayers();
       lineLayer.clearLayers();
       var user = here && here.getState();
       results.forEach(function (p, i) {
-        var pin = addPlacePin([p.lat, p.lng], {
-          place: p._place || p,
-          big: i === selected,
-          fillColor: kindColor(p._kind),
-          radius: i === selected ? 11 : 7,
-          weight: i === selected ? 3 : 2,
-          label: p.name,
-          labelInteractive: true,
-          onClick: function () { selectResult(i, true); }
+        var on = i === selected;
+        var size = on ? 34 : 28;
+        var marker = L.marker([p.lat, p.lng], {
+          icon: L.divIcon({
+            className: 'philly-pin-icon decide-num-pin',
+            html: '<div class="decide-num' + (on ? ' is-on' : '') + '">' + (i + 1) + '</div>',
+            iconSize: [size, size],
+            iconAnchor: [size / 2, size / 2]
+          }),
+          pane: 'pins',
+          bubblingMouseEvents: false,
+          zIndexOffset: on ? 900 : 500
         });
-        if (pin) pinLayer.addLayer(pin);
+        marker.on('click', function () { selectResult(i, true); });
+        pinLayer.addLayer(marker);
       });
       var pick = results[selected];
       if (pick && user && user.active) {
@@ -2202,10 +2214,7 @@
       selected = i;
       renderBubbles();
       renderPins();
-      var user = here && here.getState();
-      if (user && user.active && PhillyWalkMap.contains(user.lat, user.lng)) fitPair(user, results[i]);
-      else if (map) map.setView([results[i].lat, results[i].lng], 16);
-      var card = document.querySelector('.decide-bubble[data-pick="' + i + '"]');
+      var card = document.querySelector('.decide-row[data-pick="' + i + '"]');
       if (card) card.scrollIntoView({ block: 'nearest' });
       if (openSheet) {
         openDetail(results[i]._place);
@@ -2222,17 +2231,26 @@
       return 2;
     }
 
+    function matchesIntent(p) {
+      if (session.intent === 'coffee') return !!p.kinds.coffee;
+      if (session.intent === 'breakfast') return isBreakfastPlace(p);
+      if (session.intent === 'drinks') return !!(p.kinds.drinks || hasSchedule(p));
+      return true;
+    }
+
     function gather(user) {
-      var limit = user ? (session.handoff === 'delivery' ? 8000 : 10 * PhillyWalkMap.WALK_M_PER_MIN) : Infinity;
+      var minutes = session.intent ? (session._radiusMin || 15) : (session.handoff === 'delivery' ? 100 : 10);
+      var limit = user ? (session.handoff === 'delivery' && !session.intent ? 8000 : minutes * PhillyWalkMap.WALK_M_PER_MIN) : Infinity;
       var seen = {};
       var list = [];
       allPlaces.forEach(function (p) {
         if (!hasCoords(p)) return;
+        if (!matchesIntent(p)) return;
         var key = nameKey(p.name);
         if (!key || seen[key]) return;
         var kind = primaryKind(p);
         var tags = placeTags(p, kind);
-        if (tags.some(function (t) { return session.nogo[t]; })) return;
+        if (!session.intent && tags.some(function (t) { return session.nogo[t]; })) return;
         var meters = user ? PhillyWalkMap.haversineMeters(user.lat, user.lng, p.lat, p.lng) : null;
         if (user && meters > limit) return;
         seen[key] = true;
@@ -2246,18 +2264,44 @@
         list.push(copy);
       });
       list.sort(function (a, b) {
+        if (session.intent === 'drinks') {
+          var ah = hhNow(a) ? 0 : (hasSchedule(a) ? 1 : 2);
+          var bh = hhNow(b) ? 0 : (hasSchedule(b) ? 1 : 2);
+          if (ah !== bh) return ah - bh;
+        }
+        if (session.intent && user && a._meters != null && b._meters != null && a._meters !== b._meters) {
+          return a._meters - b._meters;
+        }
         var rank = hoursRank(a) - hoursRank(b);
         if (rank) return rank;
         if (user && a._meters != null && b._meters != null && a._meters !== b._meters) return a._meters - b._meters;
         return a.name.localeCompare(b.name);
       });
-      return list.slice(0, 24);
+      return list.slice(0, 8);
+    }
+
+    function centerSnapshot(user) {
+      if (!map) return;
+      if (user && user.active) {
+        var far = 0;
+        results.forEach(function (p) { if (p._meters > far) far = p._meters; });
+        var zoom = far > 1400 ? 14 : 15;
+        map.setView([user.lat, user.lng], zoom);
+        return;
+      }
+      if (results.length) fitAll(null);
+      else map.setView([PhillyWalkMap.center.lat, PhillyWalkMap.center.lng], PhillyWalkMap.defaultZoom);
     }
 
     function buildResults(user) {
       session.remote = !user;
+      if (session.intent) session._radiusMin = 15;
       results = gather(user);
-      if (user && !results.length) {
+      if (user && session.intent && results.length < 4) {
+        session._radiusMin = 25;
+        results = gather(user);
+      }
+      if (user && !results.length && !session.intent) {
         session.remote = true;
         user = null;
         results = gather(null);
@@ -2266,18 +2310,21 @@
       ensureMap();
       $('decide-wizard').hidden = true;
       $('decide-results').hidden = false;
-      var label = session.service === 'dine' ? 'Eat in' : (session.handoff === 'delivery' ? 'Delivery' : 'Pickup');
-      var openN = results.filter(function (p) { return p._open; }).length;
+      var label = DECIDE_INTENTS[session.intent] ||
+        (session.service === 'dine' ? 'Eat in' : (session.handoff === 'delivery' ? 'Delivery' : 'Pickup'));
       $('decide-sub').textContent = session.remote
-        ? (label + ' \u00b7 ' + openN + ' open in Philly')
-        : (label + ' \u00b7 ' + results.length + ' nearby');
+        ? (label + ' \u00b7 open in Philly')
+        : (label + ' \u00b7 ' + results.length + ' around you');
+      var located = user;
+      if (here && located && located.active && session.handoff !== 'delivery') {
+        here.setMinutes(session._radiusMin || 10);
+      }
       setTimeout(function () {
         if (!map) return;
         map.invalidateSize();
         renderBubbles();
         renderPins();
-        if (results.length) fitAll(user && user.active ? user : null);
-        else map.setView([PhillyWalkMap.center.lat, PhillyWalkMap.center.lng], PhillyWalkMap.defaultZoom);
+        centerSnapshot(located && located.active ? located : null);
       }, 40);
     }
 
@@ -2308,7 +2355,7 @@
 
     function openDecide() {
       showScreen('screen-decide');
-      session = { service: 'dine', handoff: 'dine', nogo: {} };
+      session = { service: 'dine', handoff: 'dine', nogo: {}, intent: '' };
       results = [];
       box.querySelectorAll('input').forEach(function (input) { input.checked = false; });
       setStep('service');
@@ -2323,9 +2370,20 @@
     $('pick-decide').addEventListener('click', openDecide);
     $('eat-decide').addEventListener('click', openDecide);
     $('decide-back').addEventListener('click', openHome);
+    $('decide-restart').addEventListener('click', openDecide);
     document.querySelector('[data-decide-step="service"]').addEventListener('click', function (e) {
+      var intentBtn = e.target.closest('[data-intent]');
+      if (intentBtn) {
+        session.intent = intentBtn.getAttribute('data-intent');
+        session.service = 'dine';
+        session.handoff = 'dine';
+        session.nogo = {};
+        askLocation();
+        return;
+      }
       var btn = e.target.closest('[data-service]');
       if (!btn) return;
+      session.intent = '';
       session.service = btn.getAttribute('data-service');
       if (session.service === 'takeout') setStep('handoff');
       else {
@@ -2347,13 +2405,10 @@
     $('decide-nogo-next').addEventListener('click', askLocation);
     $('decide-bubbles').addEventListener('click', function (e) {
       if (e.target.closest('a')) return;
-      var details = e.target.closest('[data-details]');
-      if (details) {
-        selectResult(+details.getAttribute('data-details'), true);
-        return;
-      }
       var card = e.target.closest('[data-pick]');
-      if (card) selectResult(+card.getAttribute('data-pick'), false);
+      if (!card) return;
+      var i = +card.getAttribute('data-pick');
+      selectResult(i, selected === i);
     });
     $('decide-settings').addEventListener('click', function () {
       syncMemberInputs();

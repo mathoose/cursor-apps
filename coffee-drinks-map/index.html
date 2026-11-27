@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- build: coffee-drinks-map-v27 -->
+<!-- build: coffee-drinks-map-v28 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=17" />
+  <link rel="stylesheet" href="styles.css?v=18" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -239,15 +239,20 @@
         <h1>Help me decide</h1>
         <p class="sub" id="decide-sub">A few questions</p>
       </div>
+      <button type="button" class="text-btn" id="decide-restart">Restart</button>
       <button type="button" class="text-btn" id="decide-settings">Memberships</button>
     </header>
     <main class="decide-main">
       <div id="decide-wizard" class="decide-wizard">
         <div data-decide-step="service">
-          <h2>How do you want to eat?</h2>
+          <h2>What are you going for?</h2>
           <div class="decide-choices">
-            <button type="button" class="decide-choice" data-service="dine">Eat in</button>
-            <button type="button" class="decide-choice" data-service="takeout">Takeout</button>
+            <button type="button" class="decide-choice" data-intent="coffee">Going for coffee</button>
+            <button type="button" class="decide-choice" data-intent="breakfast">Going for breakfast</button>
+            <button type="button" class="decide-choice" data-intent="drinks">Drinks + happy hours</button>
+            <button type="button" class="decide-choice" data-intent="near">Places near</button>
+            <button type="button" class="decide-choice decide-choice-quiet" data-service="dine">Eat in</button>
+            <button type="button" class="decide-choice decide-choice-quiet" data-service="takeout">Takeout</button>
           </div>
         </div>
         <div data-decide-step="handoff" hidden>
@@ -391,7 +396,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=18" defer></script>
+  <script src="app.js?v=19" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
