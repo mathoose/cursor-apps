@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body>
   <header class="app-header">
@@ -80,6 +80,7 @@
           </div>
         </div>
         <input type="range" id="wpmRange" min="75" max="1000" step="5" />
+        <p class="hint speed-hint">Slide right while reading to go faster, and left to go slower.</p>
       </div>
 
       <button type="button" class="hold-zone" id="holdZone" aria-label="Hold to read">
@@ -90,6 +91,11 @@
 
       <div class="progress-wrap" aria-hidden="true">
         <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <div class="reader-jumps" role="group" aria-label="Jump back">
+        <button type="button" class="btn btn-secondary" id="sentenceBackBtn">Last sentence</button>
+        <button type="button" class="btn btn-secondary" id="wordsBackBtn">10 words</button>
       </div>
 
       <article class="full-text" id="fullText" aria-live="polite">
@@ -104,8 +110,23 @@
       <h2 class="sheet-title">Settings</h2>
 
       <div class="settings-section">
+        <h3>Default speed</h3>
+        <p class="settings-note">New text starts at this speed. Sliding while you read changes the speed for this text only.</p>
+        <div class="speed-control settings-speed">
+          <div class="speed-label-row">
+            <label for="defaultWpmRange">Speed</label>
+            <div class="wpm-entry">
+              <input type="number" id="defaultWpmNumber" min="75" max="1000" step="5" inputmode="numeric" />
+              <span>WPM</span>
+            </div>
+          </div>
+          <input type="range" id="defaultWpmRange" min="75" max="1000" step="5" />
+        </div>
+      </div>
+
+      <div class="settings-section">
         <h3>Backup</h3>
-        <p class="settings-note">Your current text, source URL, speed, and reading position are stored on this device.</p>
+        <p class="settings-note">Your current text, source URL, speed, default speed, and reading position are stored on this device.</p>
         <div class="settings-btns">
           <button type="button" class="btn btn-secondary" id="exportJsonBtn">Export JSON</button>
           <label class="btn btn-secondary import-label">
@@ -156,6 +177,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>

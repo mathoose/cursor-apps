@@ -831,7 +831,8 @@
             title: typeof p.title === "string" ? p.title : "",
             sourceUrl: typeof p.sourceUrl === "string" ? p.sourceUrl : "",
             text: p.text,
-            wpm: typeof p.wpm === "number" ? p.wpm : 250,
+            wpm: typeof p.wpm === "number" ? p.wpm : 300,
+            defaultWpm: typeof p.defaultWpm === "number" ? p.defaultWpm : 300,
             position: typeof p.position === "number" ? p.position : 0,
             updatedAt: p.updatedAt || new Date().toISOString(),
           };
@@ -848,7 +849,8 @@
             title: typeof slice.title === "string" ? slice.title : "",
             sourceUrl: typeof slice.sourceUrl === "string" ? slice.sourceUrl : "",
             text: slice.text,
-            wpm: typeof slice.wpm === "number" ? slice.wpm : 250,
+            wpm: typeof slice.wpm === "number" ? slice.wpm : 300,
+            defaultWpm: typeof slice.defaultWpm === "number" ? slice.defaultWpm : 300,
             position: typeof slice.position === "number" ? slice.position : 0,
             updatedAt: slice.updatedAt || new Date().toISOString(),
           })
