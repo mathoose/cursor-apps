@@ -6,7 +6,8 @@
   var EXPORT_FORMAT = "quick-reader-data";
   var MIN_WPM = 75;
   var MAX_WPM = 1000;
-  var DEFAULT_WPM = 250;
+  var DEFAULT_WPM = 300;
+  var WPM_PER_PIXEL = 1.5;
 
   var TESSERACT_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
   var PHOTO_HINT = "Pick screenshots. Read all of the text, or highlight just the words you want.";
@@ -19,6 +20,11 @@
   var readTimer = null;
   var toastTimer = null;
   var isReading = false;
+  var jumpedToWord = false;
+  var readPointerId = null;
+  var slideOriginX = 0;
+  var slideOriginWpm = DEFAULT_WPM;
+  var wordShownAt = 0;
   var photoBusy = false;
   var tesseractPromise = null;
   var ocrWorkerPromise = null;
@@ -36,6 +42,7 @@
       sourceUrl: "",
       text: "",
       wpm: DEFAULT_WPM,
+      defaultWpm: DEFAULT_WPM,
       position: 0,
       updatedAt: new Date().toISOString(),
     };
@@ -56,6 +63,17 @@
     return Math.min(max, Math.max(min, num));
   }
 
+  function snapWpm(value) {
+    var next = Math.round(clamp(value, MIN_WPM, MAX_WPM) / 5) * 5;
+    return clamp(next, MIN_WPM, MAX_WPM);
+  }
+
+  function migrateWpm(data) {
+    var saved = clamp(data && data.wpm || DEFAULT_WPM, MIN_WPM, MAX_WPM);
+    if (data && data.defaultWpm == null && saved === 250) return DEFAULT_WPM;
+    return snapWpm(saved);
+  }
+
   function normalizeData(raw) {
     var data = raw && typeof raw === "object" ? raw : defaultData();
     return {
@@ -63,7 +81,8 @@
       title: typeof data.title === "string" ? data.title.slice(0, 180) : "",
       sourceUrl: typeof data.sourceUrl === "string" ? data.sourceUrl.slice(0, 2000) : "",
       text: normalizeText(data.text),
-      wpm: clamp(data.wpm || DEFAULT_WPM, MIN_WPM, MAX_WPM),
+      wpm: migrateWpm(data),
+      defaultWpm: snapWpm(data.defaultWpm != null ? data.defaultWpm : DEFAULT_WPM),
       position: Math.max(0, Math.floor(Number(data.position) || 0)),
       updatedAt: data.updatedAt || new Date().toISOString(),
     };
@@ -152,14 +171,16 @@
       return;
     }
 
-    var lastReadIndex = state.position > 0 ? state.position - 1 : -1;
+    var cueIndex = -1;
+    if (jumpedToWord && state.position < words.length) cueIndex = state.position;
+    else if (state.position > 0) cueIndex = state.position - 1;
     var wordIndex = 0;
     var parts = text.match(/\S+|\s+/g) || [];
     var html = parts.map(function (part) {
       if (/^\s+$/.test(part)) return escapeHtml(part);
-      var isLast = wordIndex === lastReadIndex;
-      var out = '<span class="reader-word' + (isLast ? " is-last" : "") + '" data-word-index="' + wordIndex + '">';
-      out += isLast ? wordWithFocusHtml(part) : escapeHtml(part);
+      var isCue = wordIndex === cueIndex;
+      var out = '<span class="reader-word' + (isCue ? " is-start" : "") + '" data-word-index="' + wordIndex + '">';
+      out += isCue ? wordWithFocusHtml(part) : escapeHtml(part);
       out += "</span>";
       wordIndex++;
       return out;
@@ -167,8 +188,8 @@
 
     els.fullText.innerHTML = html;
 
-    if (lastReadIndex >= 0) {
-      var current = els.fullText.querySelector('[data-word-index="' + lastReadIndex + '"]');
+    if (cueIndex >= 0) {
+      var current = els.fullText.querySelector('[data-word-index="' + cueIndex + '"]');
       if (current && typeof current.scrollIntoView === "function") {
         current.scrollIntoView({ block: "center", inline: "nearest" });
       }
@@ -180,7 +201,7 @@
     if (!total) {
       els.readerMeta.textContent = "No text loaded yet";
       els.holdWord.textContent = "Ready";
-      els.holdHelp.textContent = "Lift your finger to pause and return to the full text.";
+      els.holdHelp.textContent = "Hold here to start reading.";
       els.progressBar.style.width = "0%";
       return;
     }
@@ -190,7 +211,10 @@
     els.readerMeta.textContent = displayTitle() + " - " + done + " / " + formatCount(total, "word");
     els.progressBar.style.width = pct + "%";
     if (!isReading) {
-      if (done >= total) {
+      if (jumpedToWord && done < total) {
+        els.holdWord.innerHTML = wordWithFocusHtml(words[done]);
+        els.holdHelp.textContent = "Hold to start here.";
+      } else if (done >= total) {
         els.holdWord.textContent = "Done";
         els.holdHelp.textContent = "Tap Restart to read this text again.";
       } else if (done > 0) {
@@ -198,14 +222,16 @@
         els.holdHelp.textContent = "Hold again to continue from the next word.";
       } else {
         els.holdWord.textContent = "Ready";
-        els.holdHelp.textContent = "Hold here to start reading.";
+        els.holdHelp.textContent = "Hold here to start. Tap a word below to start there.";
       }
     }
   }
 
   function renderSpeed() {
-    els.wpmRange.value = state.wpm;
-    els.wpmNumber.value = state.wpm;
+    if (els.wpmRange) els.wpmRange.value = state.wpm;
+    if (els.wpmNumber) els.wpmNumber.value = state.wpm;
+    if (els.defaultWpmRange) els.defaultWpmRange.value = state.defaultWpm;
+    if (els.defaultWpmNumber) els.defaultWpmNumber.value = state.defaultWpm;
   }
 
   function renderAll() {
@@ -229,6 +255,8 @@
     state.sourceUrl = sourceUrl || "";
     state.title = title || "";
     state.position = 0;
+    state.wpm = state.defaultWpm;
+    jumpedToWord = false;
     words = tokenize(state.text);
     saveData();
     renderAll();
@@ -236,10 +264,21 @@
     return true;
   }
 
-  function setWpm(value) {
-    state.wpm = clamp(value, MIN_WPM, MAX_WPM);
+  function setWpm(value, persist) {
+    var next = snapWpm(value);
+    var changed = next !== state.wpm;
+    state.wpm = next;
+    renderSpeed();
+    if (changed && isReading) scheduleNextWord();
+    if (persist !== false) saveData();
+  }
+
+  function setDefaultWpm(value) {
+    state.defaultWpm = snapWpm(value);
+    state.wpm = state.defaultWpm;
     saveData();
     renderSpeed();
+    if (isReading) scheduleNextWord();
   }
 
   function stopReading() {
@@ -249,14 +288,23 @@
     }
     if (!isReading) return;
     isReading = false;
+    readPointerId = null;
     document.body.classList.remove("is-reading");
     els.holdZone.classList.remove("is-active");
+    saveData();
     renderMeta();
     renderFullText();
   }
 
   function readingDelay() {
     return 60000 / clamp(state.wpm, MIN_WPM, MAX_WPM);
+  }
+
+  function scheduleNextWord() {
+    if (!isReading) return;
+    if (readTimer) clearTimeout(readTimer);
+    var remain = readingDelay() - (Date.now() - wordShownAt);
+    readTimer = setTimeout(showNextWord, Math.max(0, remain));
   }
 
   function showNextWord() {
@@ -275,10 +323,19 @@
     var word = words[state.position];
     els.holdWord.innerHTML = wordWithFocusHtml(word);
     state.position += 1;
+    jumpedToWord = false;
+    wordShownAt = Date.now();
     saveData();
     renderMeta();
+    scheduleNextWord();
+  }
 
-    readTimer = setTimeout(showNextWord, readingDelay());
+  function slideReadingSpeed(event) {
+    if (!isReading) return;
+    if (readPointerId != null && event.pointerId !== readPointerId) return;
+    var dx = event.clientX - slideOriginX;
+    if (Math.abs(dx) < 4) return;
+    setWpm(slideOriginWpm + dx * WPM_PER_PIXEL, false);
   }
 
   function startReading(event) {
@@ -295,9 +352,12 @@
     }
 
     isReading = true;
+    readPointerId = event && event.pointerId != null ? event.pointerId : null;
+    slideOriginX = event && event.clientX != null ? event.clientX : 0;
+    slideOriginWpm = state.wpm;
     document.body.classList.add("is-reading");
     els.holdZone.classList.add("is-active");
-    els.holdHelp.textContent = "Reading... lift to pause.";
+    els.holdHelp.textContent = "Slide right to go faster, left to go slower.";
 
     if (event && event.pointerId != null && els.holdZone.setPointerCapture) {
       try {
@@ -312,10 +372,62 @@
 
   function restartReading() {
     stopReading();
+    jumpedToWord = false;
     state.position = 0;
     saveData();
     renderAll();
     if (words.length) toast("Restarted.");
+  }
+
+  function jumpTo(index) {
+    if (!words.length) {
+      toast("Add text before reading.");
+      return;
+    }
+    stopReading();
+    var next = Math.max(0, Math.min(words.length, Math.floor(Number(index) || 0)));
+    state.position = next;
+    jumpedToWord = next < words.length;
+    saveData();
+    renderMeta();
+    renderFullText();
+  }
+
+  function isSentenceEnd(word) {
+    return /[.!?]["')\]]*$/.test(word);
+  }
+
+  function sentenceStart(index) {
+    var i = Math.min(index, words.length) - 1;
+    while (i >= 0 && !isSentenceEnd(words[i])) i--;
+    return i + 1;
+  }
+
+  function backOneSentence() {
+    if (!words.length) {
+      toast("Add text before reading.");
+      return;
+    }
+    var start = sentenceStart(state.position);
+    var next = state.position > start ? start : (start === 0 ? 0 : sentenceStart(start - 1));
+    if (next === state.position) {
+      toast("You're at the start.");
+      return;
+    }
+    jumpTo(next);
+  }
+
+  function backTenWords() {
+    if (!words.length) {
+      toast("Add text before reading.");
+      return;
+    }
+    var next = Math.max(0, state.position - 10);
+    if (next === state.position) {
+      toast("You're at the start.");
+      return;
+    }
+    jumpTo(next);
   }
 
   function cleanJinaText(text) {
@@ -511,7 +623,11 @@
 
   function clearAll() {
     stopReading();
+    var keptDefault = state.defaultWpm;
+    jumpedToWord = false;
     state = defaultData();
+    state.defaultWpm = snapWpm(keptDefault);
+    state.wpm = state.defaultWpm;
     words = [];
     saveData();
     renderAll();
@@ -1218,6 +1334,15 @@
     });
     els.clearBtn.addEventListener("click", clearAll);
     els.restartBtn.addEventListener("click", restartReading);
+    els.sentenceBackBtn.addEventListener("click", backOneSentence);
+    els.wordsBackBtn.addEventListener("click", backTenWords);
+    els.fullText.addEventListener("click", function (event) {
+      var node = event.target && event.target.closest ? event.target.closest(".reader-word") : null;
+      if (!node || !els.fullText.contains(node)) return;
+      var index = Number(node.getAttribute("data-word-index"));
+      if (!Number.isFinite(index)) return;
+      jumpTo(index);
+    });
 
     els.wpmRange.addEventListener("input", function () {
       setWpm(els.wpmRange.value);
@@ -1225,8 +1350,15 @@
     els.wpmNumber.addEventListener("change", function () {
       setWpm(els.wpmNumber.value);
     });
+    els.defaultWpmRange.addEventListener("input", function () {
+      setDefaultWpm(els.defaultWpmRange.value);
+    });
+    els.defaultWpmNumber.addEventListener("change", function () {
+      setDefaultWpm(els.defaultWpmNumber.value);
+    });
 
     els.holdZone.addEventListener("pointerdown", startReading);
+    els.holdZone.addEventListener("pointermove", slideReadingSpeed);
     els.holdZone.addEventListener("pointerup", stopReading);
     els.holdZone.addEventListener("pointercancel", stopReading);
     els.holdZone.addEventListener("lostpointercapture", stopReading);
@@ -1303,8 +1435,12 @@
       "clearBtn",
       "readerMeta",
       "restartBtn",
+      "sentenceBackBtn",
+      "wordsBackBtn",
       "wpmRange",
       "wpmNumber",
+      "defaultWpmRange",
+      "defaultWpmNumber",
       "holdZone",
       "holdWord",
       "holdHelp",

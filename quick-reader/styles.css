@@ -418,11 +418,34 @@ input[type="range"] {
 .reader-word {
   border-radius: 7px;
   padding: 1px 2px;
+  cursor: pointer;
 }
 
+.reader-word.is-start,
 .reader-word.is-last {
   background: rgba(96, 165, 250, 0.2);
   box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
+}
+
+.speed-hint {
+  margin: 8px 0 0;
+}
+
+.reader-jumps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.reader-jumps .btn {
+  width: 100%;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.settings-speed {
+  margin: 12px 0 0;
 }
 
 .empty-state {
