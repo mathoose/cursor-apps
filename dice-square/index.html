@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <title>Dice Square</title>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Dice Square" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#f1ece2" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#16171b" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="stylesheet" href="../apps-shell.css" />
+  <link rel="stylesheet" href="styles.css?v=1" />
+</head>
+<body>
+  <!-- build: dice-square-v1 -->
+  <div class="app">
+    <header class="app-header">
+      <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </a>
+      <h1>Dice Square</h1>
+      <p class="clock" id="clock" aria-label="Time on this roll">0:00</p>
+      <button type="button" class="saves-btn" id="savesBtn" aria-haspopup="dialog">Saves</button>
+    </header>
+
+    <main class="main-panel">
+      <div class="board-frame" id="boardFrame">
+        <div class="col-labels" aria-hidden="true"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
+        <div class="row-labels" aria-hidden="true"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span></div>
+        <div class="board" id="board" role="img" aria-label="Board"></div>
+      </div>
+
+      <p class="status" id="status" role="status"></p>
+
+      <div class="tray" id="tray" aria-label="Pieces"></div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="flipBtn">Flip</button>
+        <button type="button" class="btn" id="clearBtn">Clear board</button>
+        <button type="button" class="btn primary" id="rollBtn">Roll dice</button>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="savesDialog" class="sheet-dialog" aria-labelledby="savesTitle">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 id="savesTitle">Saved rolls</h2>
+          <p class="sheet-sub" id="savesStats"></p>
+        </div>
+        <button type="button" class="btn" id="savesClose">Done</button>
+      </div>
+      <ul class="save-list" id="saveList"></ul>
+      <p class="sheet-note" id="savesNote"></p>
+    </div>
+  </dialog>
+
+  <p class="toast" id="toast" hidden role="status"></p>
+
+  <script src="../apps-backup.js"></script>
+  <script src="../apps-photo-picker.js"></script>
+  <script src="logic.js?v=1"></script>
+  <script src="app.js?v=1"></script>
+  <script src="../apps-shell.js" defer></script>
+</body>
+</html>
