@@ -10985,5 +10985,65 @@
     "cuisine": "Beer bar",
     "featureUrl": "https://www.instagram.com/p/DfahF-UIwb7/",
     "featureLabel": "Breakfast sandwiches"
+  },
+  {
+    "name": "New Deck Tavern",
+    "cuisine": "Irish pub",
+    "address": "3408 Sansom St, Philadelphia, PA 19104",
+    "neighborhood": "University City",
+    "description": "Irish pub at 34th and Sansom.\n* Deals (Tue–Fri 4 PM–6 PM): $5 select beers, $7 house wine, $8 margaritas, $8 nachos, $8 chicken tenders (newdecktavern.com/specials). @happyhour.philly calls the nachos a must-try and the tenders huge.",
+    "social": "",
+    "website": "https://www.newdecktavern.com/",
+    "hh_menu": "https://www.newdecktavern.com/specials/",
+    "instagram": "https://www.instagram.com/newdecktavern/",
+    "schedule": {
+      "Tuesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Wednesday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Thursday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      },
+      "Friday": {
+        "start": "4:00 PM",
+        "end": "6:00 PM"
+      }
+    },
+    "hours": {
+      "Tuesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Wednesday": {
+        "open": "11:00 AM",
+        "close": "12:00 AM"
+      },
+      "Thursday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Friday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Saturday": {
+        "open": "11:00 AM",
+        "close": "1:00 AM"
+      },
+      "Sunday": {
+        "open": "12:00 PM",
+        "close": "11:00 PM"
+      }
+    },
+    "hoursSource": "site",
+    "hoursNote": "Mon closed · Tue–Wed 11am–12am · Thu–Sat 11am–1am · Sun 12pm–11pm (newdecktavern.com)",
+    "lat": 39.953463,
+    "lng": -75.192574,
+    "locationSource": "nominatim-address"
   }
 ]
