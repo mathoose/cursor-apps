@@ -194,16 +194,18 @@ button, a {
   pointer-events: none;
 }
 
+/* Where a dragged piece will land. The pale ring keeps the grey piece's squares from
+   blending into the board. */
 .ghost span {
   position: absolute;
-  left: calc(var(--c) * var(--cell) + 3px);
-  top: calc(var(--r) * var(--cell) + 3px);
-  width: calc(var(--cell) - 6px);
-  height: calc(var(--cell) - 6px);
+  left: calc(var(--c) * var(--cell) + 2px);
+  top: calc(var(--r) * var(--cell) + 2px);
+  width: calc(var(--cell) - 4px);
+  height: calc(var(--cell) - 4px);
   border-radius: 14%;
   background: var(--pc);
-  opacity: 0.5;
-  box-shadow: 0 0 0 2px var(--pc);
+  opacity: 0.62;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
 /* Dice */
@@ -318,11 +320,12 @@ button, a {
 
 /* Status */
 
+/* The height is in rem so the larger solved text does not push the tray down. */
 .status {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.6em;
+  min-height: 2.3rem;
   margin: 8px 0 4px;
   color: var(--muted);
   font-size: 0.875rem;
@@ -335,6 +338,8 @@ button, a {
   font-size: 1rem;
   font-weight: 800;
 }
+
+.status.covered { visibility: hidden; }
 
 /* Tray. Each slot is a square big enough for its piece however it is turned. */
 
@@ -568,24 +573,29 @@ dialog.sheet-dialog {
   color: #fff;
 }
 
-/* Toast, at the top so it never covers the tray or the buttons. */
+/* Toast. app.js sets top so it covers the status line, never the board or the title. */
 
 .toast {
   position: fixed;
   left: 50%;
-  top: calc(62px + env(safe-area-inset-top, 0px));
-  transform: translateX(-50%);
   z-index: 60;
   width: max-content;
   max-width: min(420px, calc(100% - 32px));
   margin: 0;
-  padding: 10px 14px;
+  padding: 7px 14px;
   border-radius: 12px;
   background: var(--primary);
   color: var(--primary-ink);
   font-size: 0.875rem;
   font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  transform: translate(-50%, -50%);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+dialog .toast {
+  transform: translateX(-50%);
 }
 
 @media (prefers-reduced-motion: reduce) {

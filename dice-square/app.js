@@ -90,10 +90,30 @@
     if (els.toast.parentNode !== host) host.appendChild(els.toast);
     els.toast.hidden = false;
     els.toast.textContent = message;
+    placeToast();
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () {
-      els.toast.hidden = true;
-    }, 2600);
+    toastTimer = setTimeout(hideToast, 2600);
+  }
+
+  function hideToast() {
+    els.toast.hidden = true;
+    els.status.classList.remove("covered");
+  }
+
+  // On the page the toast sits on the status line, which already holds a message. Inside the
+  // saves sheet it sits along the bottom.
+  function placeToast() {
+    if (els.toast.hidden) return;
+    var inSheet = els.savesDialog.open;
+    els.status.classList.toggle("covered", !inSheet);
+    if (inSheet) {
+      els.toast.style.top = "auto";
+      els.toast.style.bottom = "calc(14px + env(safe-area-inset-bottom, 0px))";
+      return;
+    }
+    var rect = els.status.getBoundingClientRect();
+    els.toast.style.bottom = "auto";
+    els.toast.style.top = rect.top + rect.height / 2 + "px";
   }
 
   /* Clock */
@@ -149,10 +169,12 @@
     setSizes(byWidth, width);
     var footer = document.querySelector(".app-version-footer");
     var used = els.header.offsetHeight + els.main.offsetHeight + (footer ? footer.offsetHeight : FOOTER_ROOM);
-    if (used <= window.innerHeight) return;
-    var trayRows = L.reach(TRAY_ROWS[0][0]) + L.reach(TRAY_ROWS[1][0]);
-    var fixed = used - L.SIZE * cell - trayRows * trayCell;
-    setSizes((window.innerHeight - fixed) / (L.SIZE + trayRows * TRAY_SCALE), width);
+    if (used > window.innerHeight) {
+      var trayRows = L.reach(TRAY_ROWS[0][0]) + L.reach(TRAY_ROWS[1][0]);
+      var fixed = used - L.SIZE * cell - trayRows * trayCell;
+      setSizes((window.innerHeight - fixed) / (L.SIZE + trayRows * TRAY_SCALE), width);
+    }
+    placeToast();
   }
 
   /* Drawing */
@@ -619,6 +641,7 @@
     tick();
     save();
     disarmDelete();
+    hideToast();
     renderSaves();
     els.savesDialog.showModal();
   }
