@@ -1,6 +1,6 @@
 {
   "title": "Mathoose's apps",
-  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board", "philly-dates", "coffee-map", "aruba-packing", "shopping-list", "times-tables", "body-journal", "done-today", "dates-classic"],
+  "launcherHidden": ["restaurant-notes", "stride-flow", "world-cup-2026", "things-book", "draft-board", "philly-dates", "coffee-map", "aruba-packing", "shopping-list", "times-tables", "body-journal", "done-today", "dates-classic", "trip-packing"],
   "backup": {
     "format": "cursor-apps-backup",
     "version": 1,
@@ -159,7 +159,7 @@
     {
       "id": "shared-lists",
       "name": "Our Lists",
-      "subtitle": "Shared checklists",
+      "subtitle": "Lists for the two of you",
       "storageKey": "shared-lists-v1"
     },
     {

@@ -66,17 +66,37 @@
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 280);
   }
 
+  function normalizeLink(value) {
+    var raw = String(value || "").trim();
+    if (!raw) return "";
+    if (!/^https?:\/\//i.test(raw)) {
+      if (/^[\w.-]+\.[a-z]{2,}([\/?#].*)?$/i.test(raw)) raw = "https://" + raw;
+      else return "";
+    }
+    try {
+      var url = new URL(raw);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+      return url.toString().slice(0, 500);
+    } catch (e) {
+      return "";
+    }
+  }
+
   function normalizeItemDetail(text) {
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 140);
   }
 
   function normalizeCardNoteEntry(entry, fallbackWhen) {
     if (!entry || !entry.id) return null;
+    var link = normalizeLink(entry.link);
     var text = normalizeCardNote(entry.text);
+    if (!text && link) text = link;
     if (!text) return null;
     return {
       id: String(entry.id),
       text: text,
+      link: link,
+      by: normalizeDisplayName(entry.by),
       createdAt: entry.createdAt || fallbackWhen || new Date().toISOString(),
     };
   }
@@ -605,13 +625,20 @@
     });
   }
 
-  function addCardNote(data, listId, text, now) {
+  function addCardNote(data, listId, text, now, opts) {
+    opts = opts || {};
     now = now || new Date().toISOString();
-    var note = normalizeCardNote(text);
-    if (!note) return normalizeData(data);
+    var entry = normalizeCardNoteEntry({
+      id: opts.id || uid(),
+      text: text,
+      link: opts.link,
+      by: opts.by,
+      createdAt: now,
+    }, now);
+    if (!entry) return normalizeData(data);
     return mapList(data, listId, function (list) {
       var notes = normalizeCardNotes(list);
-      notes.push({ id: uid(), text: note, createdAt: now });
+      notes.push(entry);
       list.cardNotes = notes;
       list.updatedAt = now;
       return list;
@@ -1083,6 +1110,7 @@
     normalizeActivity: normalizeActivity,
     activityForList: activityForList,
     normalizeCardNote: normalizeCardNote,
+    normalizeLink: normalizeLink,
     normalizeKey: normalizeKey,
     itemEmoji: itemEmoji,
     normalizeCode: normalizeCode,

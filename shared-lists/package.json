@@ -1,0 +1,12 @@
+{
+  "name": "our-lists",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node scripts/migrate.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "pg": "^8.16.3"
+  }
+}

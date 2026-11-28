@@ -28,12 +28,11 @@
 
   function $(id) { return document.getElementById(id); }
 
-  function config() {
-    var c = window.SHARED_LISTS_CONFIG || {};
-    var url = String(c.supabaseUrl || "").trim().replace(/\/$/, "");
-    var key = String(c.supabaseAnonKey || "").trim();
-    if (!url || !key) return null;
-    return { url: url, key: key };
+  function apiUrl(path) {
+    var configured = String(window.OUR_LISTS_API || "").trim().replace(/\/$/, "");
+    var rel = String(path || "").replace(/^\//, "");
+    if (!configured) return rel;
+    return configured + "/" + rel;
   }
 
   function esc(s) {
@@ -107,14 +106,14 @@
 
   function show(view) {
     state.view = view;
-    ["viewSetup", "viewJoin", "viewPin", "viewRoom", "viewList"].forEach(function (id) {
+    ["viewJoin", "viewRoom", "viewList"].forEach(function (id) {
       $(id).hidden = id !== "view" + view.charAt(0).toUpperCase() + view.slice(1);
     });
     $("roomsBtn").hidden = view !== "room" && view !== "list";
     var settingsBtn = $("settingsBtn");
     if (settingsBtn) settingsBtn.hidden = view !== "room" && view !== "list";
-    var sub = "Shared checklists";
-    if (view === "room" && state.code) sub = "Room " + state.code;
+    var sub = "Just the two of you";
+    if (view === "room" && state.code) sub = "Code " + state.code;
     if (view === "list") {
       var list = L.findList(state.data, state.listId);
       sub = list ? L.displayTitle(list) : "List";
@@ -129,22 +128,16 @@
     if (el) el.textContent = state.status;
   }
 
-  function rpc(name, body) {
-    var cfg = config();
-    if (!cfg) return Promise.reject(new Error("setup"));
-    return fetch(cfg.url + "/rest/v1/rpc/" + name, {
+  function rpc(path, body) {
+    return fetch(apiUrl(path), {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: cfg.key,
-        Authorization: "Bearer " + cfg.key,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }).then(function (res) {
       return res.text().then(function (text) {
         var payload = null;
-        try { payload = text ? JSON.parse(text) : null; } catch (e) { payload = text; }
-        if (!res.ok) {
+        try { payload = text ? JSON.parse(text) : null; } catch (e) { payload = null; }
+        if (!res.ok || !payload || typeof payload !== "object") {
           var err = new Error("sync");
           err.status = res.status;
           err.payload = payload;
@@ -156,12 +149,10 @@
   }
 
   function explainSyncError(err) {
-    var blob = JSON.stringify(err && err.payload || "");
-    if (err && err.status === 401) return "The anon key was rejected. Check config.js.";
-    if (err && (err.status === 404 || /PGRST202|function/i.test(blob))) {
-      return "Run shared-lists/supabase.sql in the Supabase SQL editor, then try again.";
+    if (err && err.status === 404) {
+      return "This page can’t start the shared list. Open Our Lists where the list server is running.";
     }
-    return "Can’t reach the shared room. Check your connection and try again.";
+    return "Can’t reach the shared list. Check your connection and try again.";
   }
 
   function applyRemote(remoteData, revision) {
@@ -182,15 +173,30 @@
 
   function pull() {
     if (!state.code || !state.pin || state.saving) return Promise.resolve();
-    return rpc("open_room", { p_code: state.code, p_pin: state.pin }).then(function (res) {
+    return rpc("api/open", { code: state.code, pin: state.pin }).then(function (res) {
       if (!res || res.status === "bad_pin") {
         rejectPin();
         return;
       }
       if (res.status === "new") {
-        toast("That room isn’t there anymore.");
-        showJoin();
-        return;
+        return rpc("api/join", {
+          code: state.code,
+          pin: state.pin,
+          confirm: state.pin,
+          data: state.data,
+        }).then(function (created) {
+          if (created && created.status === "ok") {
+            applyRemote(created.data || L.emptyData(), created.revision);
+            if (created.created) toast("Started this list");
+            return;
+          }
+          if (created && created.status === "bad_pin") {
+            rejectPin();
+            return;
+          }
+          toast("That list isn’t there anymore.");
+          showJoin();
+        });
       }
       if (res.status === "ok") applyRemote(res.data || L.emptyData(), res.revision);
     }).catch(function () {
@@ -212,11 +218,11 @@
     state.data = payload;
     state.saving = true;
     setStatus("Saving…");
-    rpc("save_room", {
-      p_code: code,
-      p_pin: pin,
-      p_data: payload,
-      p_revision: revision,
+    rpc("api/save", {
+      code: code,
+      pin: pin,
+      data: payload,
+      revision: revision,
     }).then(function (res) {
       if (state.code !== code) return;
       if (res && res.status === "ok") {
@@ -315,8 +321,9 @@
     state.pin = "";
     state.dirty = false;
     stopPoll();
-    toast("That PIN doesn’t match this room.");
-    openPin("enter");
+    toast("That PIN doesn’t open this list.");
+    showJoin();
+    if ($("codeHint")) $("codeHint").textContent = "That PIN doesn’t open this list.";
   }
 
   function visibleItemCount(data) {
@@ -391,6 +398,10 @@
     if (state.view !== "room") return;
     $("codePill").textContent = state.code;
     $("roomSync").textContent = state.status;
+    var pastBtn = $("pastPackedBtn");
+    if (pastBtn && window.TripPackingLogic) {
+      pastBtn.hidden = !window.TripPackingLogic.pastPackedItems(state.data).length;
+    }
     var groups = L.groupLists(state.data);
     if (!groups.length) {
       $("roomLists").innerHTML = '<p class="empty">The desk is empty. Tap <strong>New list</strong> to tear off a note.</p>';
@@ -485,13 +496,26 @@
     syncPaperPopScrim();
   }
 
+  function linkify(text) {
+    return esc(text).replace(/https?:\/\/[^\s<]+/g, function (url) {
+      var clean = url.replace(/[),.;]+$/, "");
+      var tail = url.slice(clean.length);
+      return '<a href="' + clean + '" target="_blank" rel="noopener noreferrer">' + clean + "</a>" + tail;
+    });
+  }
+
   function cardNoteThreadHtml(list) {
     var notes = L.normalizeCardNotes(list);
     if (!notes.length) {
-      return '<p class="fine card-note-empty">No notes yet. Post one for everyone in the room.</p>';
+      return '<p class="fine card-note-empty">No comments yet. Post one, or add a link, and it shows on the other phone.</p>';
     }
     return notes.map(function (note) {
-      return '<article class="card-note-msg"><p class="card-note-text">' + esc(note.text) + '</p><p class="card-note-time">' + esc(L.formatLastChanged(note.createdAt)) + "</p></article>";
+      var body = linkify(note.text);
+      if (note.link && note.text !== note.link && note.text.indexOf(note.link) === -1) {
+        body += '<br><a href="' + esc(note.link) + '" target="_blank" rel="noopener noreferrer">' + esc(note.link) + "</a>";
+      }
+      var who = note.by ? note.by + " · " : "";
+      return '<article class="card-note-msg"><p class="card-note-text">' + body + '</p><p class="card-note-time">' + esc(who + L.formatLastChanged(note.createdAt)) + "</p></article>";
     }).join("");
   }
 
@@ -576,6 +600,11 @@
       html += "</div>";
     }
     $("itemList").innerHTML = html;
+    var addPast = $("addPastBtn");
+    if (addPast && window.TripPackingLogic) {
+      var missing = list.category === "packing" ? window.TripPackingLogic.missingPast(state.data, list.id) : [];
+      addPast.hidden = !missing.length;
+    }
     renderHistory(list);
   }
 
@@ -629,7 +658,7 @@
     openSheet({
       kind: "profile",
       required: !!required,
-      html: "<h2>Your name</h2><p>We use this on the activity feed when you change a list — for example removing an item.</p>"
+      html: "<h2>Your name</h2><p>This name shows on comments, so you can tell who wrote what.</p>"
         + '<label class="field-label" for="profileNameInput">Name</label>'
         + '<input id="profileNameInput" type="text" maxlength="32" autocomplete="name" placeholder="Alex" value="' + esc(current) + '" />'
         + '<button type="button" class="btn btn-primary" data-action="save-profile">Save name</button>'
@@ -642,9 +671,9 @@
   }
 
   function ensureProfile() {
-    if (!config()) return;
-    if (profileName()) return;
+    if (profileName()) return false;
     openProfileSheet(true);
+    return true;
   }
 
   function closeActivityPop() {
@@ -746,7 +775,7 @@
       days: [],
       html: "",
     };
-    sheet.html = "<h2>New note</h2>" + newListGroceryBlock() + '<label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="Groceries, weekend errands…" /><label class="field-label" for="newCardNote">First desk slip note (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Posted with a timestamp when you create the list"></textarea><p class="fine">Pick the note color after you open the list — tap the dot on the top right.</p>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button>';
+    sheet.html = "<h2>New list</h2>" + newListGroceryBlock() + '<label class="field-label" for="newTitle">Name</label><input id="newTitle" type="text" maxlength="80" placeholder="Weekend, groceries, Aruba…" /><label class="field-label" for="newCardNote">First comment (optional)</label><textarea id="newCardNote" rows="2" maxlength="280" placeholder="Shows with your name when you post it"></textarea>' + repeatStyleHtml(sheet, false) + '<button type="button" class="btn btn-primary" data-action="create-list">Create list</button><button type="button" class="btn btn-secondary" data-action="create-packing">Packing trip</button>';
     openSheet(sheet);
   }
 
@@ -809,7 +838,7 @@
       var room = loadCache().rooms[code];
       if (!room || !room.pin) return;
       enterRoom(code, room.pin, room.revision || 0, room.data);
-      setStatus("Checking room…");
+      setStatus("Checking list…");
       return;
     }
     if (action === "open-list") { openList(id); return; }
@@ -980,21 +1009,80 @@
       toast("Note removed");
       return;
     }
-    if (action === "create-list") {
+    if (action === "create-list" || action === "create-packing") {
       var title = $("newTitle") ? $("newTitle").value : "";
       var deskNote = $("newCardNote") ? $("newCardNote").value : "";
       var created = L.createList(state.data, {
-        category: "custom",
+        category: action === "create-packing" ? "packing" : "custom",
         customName: "",
         title: title,
         color: state.sheet.color,
         size: state.sheet.size,
         repeatDays: state.sheet.days,
-        cardNote: deskNote,
       });
+      if (L.normalizeCardNote(deskNote)) {
+        created.data = L.addCardNote(created.data, created.list.id, deskNote, undefined, { by: profileName() });
+        created.list = L.findList(created.data, created.list.id);
+      }
       closeSheet();
       show("list");
       mutate(created.data, created.list.id);
+      return;
+    }
+    if (action === "add-past-to-list") {
+      var missing = window.TripPackingLogic.missingPast(state.data, state.listId);
+      var pickRows = missing.map(function (row) {
+        return '<label class="check-row"><input type="checkbox" data-past-key="' + esc(row.key) + '" checked /> ' + esc(row.text) + ' <span class="fine">' + esc(window.TripPackingLogic.pastMeta(row)) + "</span></label>";
+      }).join("");
+      openSheet({
+        kind: "add-past",
+        html: "<h2>Past packed</h2><p>Add things from other trips that are not on this one yet.</p>" + pickRows + '<button type="button" class="btn btn-primary" data-action="add-selected-past">Add selected</button>',
+      });
+      return;
+    }
+    if (action === "add-selected-past") {
+      var pastKeys = [];
+      document.querySelectorAll("[data-past-key]").forEach(function (box) {
+        if (box.checked) pastKeys.push(box.getAttribute("data-past-key"));
+      });
+      if (!pastKeys.length) {
+        toast("Pick at least one thing");
+        return;
+      }
+      var addedPast = window.TripPackingLogic.addPastToTrip(state.data, state.listId, pastKeys);
+      closeSheet();
+      mutate(addedPast.data, state.listId);
+      toast("Added " + addedPast.added + " from past packed");
+      return;
+    }
+    if (action === "open-past-packed") {
+      var history = window.TripPackingLogic.pastPackedItems(state.data);
+      var rows = history.map(function (row) {
+        var selected = window.TripPackingLogic.defaultPastKeys(history).indexOf(row.key) !== -1;
+        return '<label class="check-row"><input type="checkbox" data-history-key="' + esc(row.key) + '"' + (selected ? " checked" : "") + " /> " + esc(row.text) + ' <span class="fine">' + esc(window.TripPackingLogic.pastMeta(row)) + "</span></label>";
+      }).join("");
+      openSheet({
+        kind: "past-packed",
+        html: "<h2>Past packed</h2><p>What you packed on other trips. Packed items start selected.</p>" + rows + '<label class="field-label" for="historyTitle">Trip name</label><input id="historyTitle" type="text" maxlength="80" placeholder="Next trip" /><button type="button" class="btn btn-primary" data-action="create-from-past">Start trip with selected</button>',
+      });
+      return;
+    }
+    if (action === "create-from-past") {
+      var keys = [];
+      document.querySelectorAll("[data-history-key]").forEach(function (box) {
+        if (box.checked) keys.push(box.getAttribute("data-history-key"));
+      });
+      if (!keys.length) {
+        toast("Pick at least one thing");
+        return;
+      }
+      var fromPast = window.TripPackingLogic.createTripFromPast(state.data, {
+        title: $("historyTitle") ? $("historyTitle").value : "",
+      }, keys);
+      closeSheet();
+      show("list");
+      mutate(fromPast.data, fromPast.list.id);
+      toast("Started with " + fromPast.added + " from past packed");
       return;
     }
     if (action === "copy-all") {
@@ -1035,66 +1123,45 @@
 
   $("joinForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    var code = L.normalizeCode($("codeInput").value);
-    var err = L.codeError(code);
-    $("codeHint").textContent = err || "4–12 letters or numbers.";
-    if (err || state.busy) return;
-    state.busy = true;
-    rpc("room_status", { p_code: code }).then(function (status) {
-      state.code = code;
-      if (status === "new") openPin("create");
-      else if (status === "exists") openPin("enter");
-      else $("codeHint").textContent = "Use 4–12 letters or numbers.";
-    }).catch(function (err2) {
-      $("codeHint").textContent = explainSyncError(err2);
-    }).then(function () { state.busy = false; });
-  });
-
-  $("pinForm").addEventListener("submit", function (e) {
-    e.preventDefault();
     if (state.busy) return;
+    var code = L.normalizeCode($("codeInput").value);
     var pin = L.normalizePin($("pinInput").value);
-    var err = L.pinError(pin);
-    if (err) {
-      $("pinHint").textContent = err;
-      return;
-    }
-    if (state.pinMode === "create" && pin !== L.normalizePin($("pinConfirm").value)) {
-      $("pinHint").textContent = "Those PINs don’t match.";
-      return;
-    }
+    var confirm = L.normalizePin($("pinConfirm").value);
+    var codeErr = L.codeError(code);
+    var pinErr = L.pinError(pin);
+    $("codeHint").textContent = codeErr || pinErr || "4–12 letters or numbers. PIN is 4–8 digits.";
+    if (codeErr || pinErr) return;
+    var cache = loadCache();
+    var cached = cache.rooms[code];
     state.busy = true;
-    $("pinHint").textContent = "";
-    var call = state.pinMode === "create"
-      ? rpc("create_room", { p_code: state.code, p_pin: pin, p_data: L.emptyData() })
-      : rpc("open_room", { p_code: state.code, p_pin: pin });
-    call.then(function (res) {
+    rpc("api/join", {
+      code: code,
+      pin: pin,
+      confirm: confirm || pin,
+      data: cached && cached.data ? cached.data : L.emptyData(),
+    }).then(function (res) {
       if (!res) return;
-      if (res.status === "exists") {
-        state.pinMode = "enter";
-        openPin("enter");
-        $("pinHint").textContent = "That code was just created. Enter its PIN.";
+      if (res.status === "pin_mismatch") {
+        $("codeHint").textContent = "Type the PIN the same way twice to start this list.";
         return;
       }
       if (res.status === "bad_pin") {
-        $("pinHint").textContent = "That PIN doesn’t match this room.";
+        $("codeHint").textContent = "That PIN doesn’t open this list.";
         return;
       }
-      if (res.status === "new") {
-        openPin("create");
+      if (res.status === "locked") {
+        $("codeHint").textContent = "Too many tries. Wait a few minutes.";
         return;
       }
-      if (res.status === "ok") enterRoom(state.code, pin, res.revision, res.data || L.emptyData());
-      else $("pinHint").textContent = "Couldn’t open the room.";
+      if (res.status === "ok") {
+        enterRoom(code, pin, res.revision, res.data || L.emptyData());
+        if (res.created) toast("Started this list");
+        return;
+      }
+      $("codeHint").textContent = "Couldn’t open the list.";
     }).catch(function (err2) {
-      $("pinHint").textContent = explainSyncError(err2);
+      $("codeHint").textContent = explainSyncError(err2);
     }).then(function () { state.busy = false; });
-  });
-
-  $("pinBack").addEventListener("click", function () {
-    state.code = "";
-    showJoin();
-    $("codeInput").focus();
   });
 
   $("roomsBtn").addEventListener("click", showJoin);
@@ -1168,15 +1235,22 @@
   $("cardNoteForm").addEventListener("submit", function (e) {
     e.preventDefault();
     if (state.view !== "list" || !state.listId) return;
+    if (ensureProfile()) return;
     var draft = $("cardNoteDraft");
+    var linkInput = $("cardNoteLink");
     var text = draft.value;
-    if (!L.normalizeCardNote(text)) {
-      toast("Write something to post");
+    var link = linkInput ? linkInput.value : "";
+    if (!L.normalizeCardNote(text) && !L.normalizeLink(link)) {
+      toast("Write a comment or add a link");
       return;
     }
-    mutate(L.addCardNote(state.data, state.listId, text), state.listId);
+    mutate(L.addCardNote(state.data, state.listId, text, undefined, {
+      by: profileName(),
+      link: link,
+    }), state.listId);
     draft.value = "";
-    toast("Note posted");
+    if (linkInput) linkInput.value = "";
+    toast("Comment posted");
   });
 
   document.addEventListener("visibilitychange", function () {
@@ -1184,10 +1258,6 @@
   });
 
   function boot() {
-    if (!config()) {
-      show("setup");
-      return;
-    }
     var cache = loadCache();
     var code = cache.activeCode;
     var room = code && cache.rooms[code];
@@ -1199,7 +1269,7 @@
       show("room");
       render();
       startPoll();
-      setStatus("Checking room…");
+      setStatus("Checking list…");
       pull();
       return;
     }
@@ -1207,5 +1277,4 @@
   }
 
   boot();
-  ensureProfile();
 })();

@@ -1,6 +1,6 @@
 ---
 name: add-app
-description: Add a new app to mathoose/cursor-apps — folder scaffold, launcher entry, versions, backup wiring, and PNG home-screen icons that work when added to iOS/Android desktop. Use when creating a new app, scaffolding an app folder, or fixing missing/wrong add-to-home-screen icons.
+description: Add a new app to mathoose/cursor-apps — folder scaffold, launcher entry, versions, backup wiring, PNG home-screen icons, and an intent test that the page does what it was built to do. Use when creating a new app, scaffolding an app folder, fixing missing/wrong add-to-home-screen icons, or checking that an app works before a PR.
 ---
 
 # Add a new cursor-apps app
@@ -43,6 +43,20 @@ Match working apps (e.g. `photo-calendar`, `habit-journal`):
 ```
 
 3. Commit **both** files; HTML must point at the PNG.
+
+## Test the page with intent
+
+Before opening a PR, use the app the way a person would. Drive the real page (a browser, two if two people share data). A render of the first screen is not the test. Do the thing the app is for, and check the result on the screen.
+
+For a list two people share, open **two separate browser sessions** (separate profiles or contexts, so they do not share saved codes):
+
+1. On the first screen, start a list: enter a new code, set the PIN, and confirm it. The first use must **create** the list. It must not stop because that code was not found.
+2. On the second screen, enter the same code and PIN and open the list.
+3. On the first screen, create a list. Set the name in the **settings cog**. Add an item, a comment, and a link.
+4. On the second screen, see that list, item, comment, link, and name. Set a different name in the settings cog, then add a comment.
+5. On the first screen, see the second person’s comment with their name.
+
+Fix anything that fails and run the same path again.
 
 ### Checklist before opening the PR
 
