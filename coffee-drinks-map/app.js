@@ -504,11 +504,11 @@
     return p.keys.some(function (k) { return !!store[bucket][k]; });
   }
 
-  /* One emoji on the map. Nope wins, then a favorite, then someplace you want to go. */
+  /* One emoji on the map. Nope wins, then a favorite, then someplace you want to try. */
   var MAP_TAGS = {
     nope: { emoji: '💩', label: 'Nope' },
     fav: { emoji: '⭐', label: 'Favorite' },
-    want: { emoji: '👀', label: 'Want to go' }
+    want: { emoji: '👀', label: 'Want to try' }
   };
 
   function mapTag(p) {
@@ -538,11 +538,9 @@
   function addPlacePin(latlng, opts) {
     opts = opts || {};
     var tag = opts.place ? mapTag(opts.place) : '';
-    var cafeMug = !tag && opts.cafeMug && opts.place && opts.place.kinds && opts.place.kinds.coffee &&
-      !opts.place.kinds.food && !opts.place.kinds.drinks;
-    if ((!tag && !cafeMug) || typeof L === 'undefined') return PhillyWalkMap.addCirclePin(latlng, opts);
-    var emoji = cafeMug ? '☕' : MAP_TAGS[tag].emoji;
-    var face = cafeMug ? 'cafe' : tag;
+    if (!tag || typeof L === 'undefined') return PhillyWalkMap.addCirclePin(latlng, opts);
+    var emoji = MAP_TAGS[tag].emoji;
+    var face = tag;
     var size = opts.big ? 42 : 34;
     var marker = L.marker(latlng, {
       icon: L.divIcon({
@@ -680,14 +678,20 @@
 
   var detailPlace = null;
 
-  function refreshMarkButtons() {
+  function paintMarkRow(root, place) {
+    if (!root) return;
     ['fav', 'want', 'nope'].forEach(function (bucket) {
-      var btn = document.querySelector('#detail-marks [data-bucket="' + bucket + '"]');
+      var btn = root.querySelector('[data-bucket="' + bucket + '"]');
       if (!btn) return;
-      var on = !!(detailPlace && isMarked(detailPlace, bucket));
+      var on = !!(place && isMarked(place, bucket));
       btn.classList.toggle('on', on);
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
+  }
+
+  function refreshMarkButtons() {
+    paintMarkRow($('detail-marks'), detailPlace);
+    paintMarkRow($('log-marks'), logState && logState.place);
   }
 
   function refreshDetailStars() {
@@ -811,7 +815,7 @@
     if (rating) bits += '<span class="card-stars" aria-label="Rated ' + rating + ' of 5">' + starsText(rating) + '</span>';
     if (isMarked(p, 'nope')) bits += '<span class="card-mark nope">💩 Nope</span>';
     if (isMarked(p, 'fav')) bits += '<span class="card-mark fav">⭐ Favorite</span>';
-    if (isMarked(p, 'want')) bits += '<span class="card-mark want">👀 Want to go</span>';
+    if (isMarked(p, 'want')) bits += '<span class="card-mark want">👀 Want to try</span>';
     return bits ? '<span class="card-marks">' + bits + '</span>' : '';
   }
 
@@ -882,7 +886,6 @@
         var dim = active && !mode.here.isWithin(p.lat, p.lng);
         var pin = addPlacePin([p.lat, p.lng], {
           place: p,
-          cafeMug: !!cfg.cafeMug,
           fillColor: cfg.pinColor(p),
           dim: dim,
           label: p.name,
@@ -1281,7 +1284,7 @@
       if (open) pills += '<span class="pill ' + (open === 'Closed now' ? 'pill-closed' : 'pill-open') + '">' + escapeHtml(open) + '</span>';
       if (isMarked(p, 'nope')) pills += '<span class="pill pill-nope">💩 Nope</span>';
       if (isMarked(p, 'fav')) pills += '<span class="pill pill-saved">⭐ Favorite</span>';
-      else if (isMarked(p, 'want')) pills += '<span class="pill pill-saved">👀 Want to go</span>';
+      else if (isMarked(p, 'want')) pills += '<span class="pill pill-saved">👀 Want to try</span>';
       var rating = getRating(p);
       if (rating) pills += '<span class="pill pill-stars">' + starsText(rating) + '</span>';
       var text = snippet(p, 130);
@@ -1312,7 +1315,7 @@
     var saved = savedCount();
     $('home-count-saved').textContent = saved
       ? saved + ' saved · ' + store.visits.length + ' order' + (store.visits.length === 1 ? '' : 's') + ' logged'
-      : 'Favorites & want to go';
+      : 'Favorites & want to try';
     $('home-count-coffee').textContent = placesOf('coffee').length + ' cafes & roasters';
     $('home-count-eat').textContent = eatPlaces().length + ' restaurants, bars & cafes';
     $('home-status').textContent = allPlaces.length + ' places · ' + hhRestaurants.length + ' with happy hours';
@@ -1643,6 +1646,7 @@
     $('log-where').textContent = 'At ' + place.name + ' · ' + fmtWhen(new Date().toISOString());
     $('log-note').value = '';
     renderLogForm();
+    refreshMarkButtons();
     $('detail-overlay').hidden = true;
     $('here-overlay').hidden = true;
     $('log-overlay').hidden = false;
@@ -1844,6 +1848,13 @@
       if (addLogItem()) $('log-name').focus();
     });
     $('log-save').addEventListener('click', saveLog);
+    $('log-marks').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-bucket]');
+      if (!btn || !logState) return;
+      toggleMark(logState.place, btn.getAttribute('data-bucket'));
+      refreshMarkButtons();
+      refreshOpenViews();
+    });
   }
 
   /* ---------- Places to try ---------- */
@@ -1878,7 +1889,7 @@
       visited: all.filter(function (r) { return r.visits.length; }).length,
       nope: all.filter(function (r) { return r.nope; }).length
     };
-    var labels = [['all', 'All'], ['want', 'Want to go'], ['fav', 'Favorites'], ['nope', 'Nope'], ['visited', 'Visited']];
+    var labels = [['all', 'All'], ['want', 'Want to try'], ['fav', 'Favorites'], ['nope', 'Nope'], ['visited', 'Visited']];
     $('saved-filters').innerHTML = labels.map(function (pair) {
       var on = pair[0] === savedFilter;
       return '<button type="button" class="chip' + (on ? ' active' : '') + '" data-saved-filter="' + pair[0] +
@@ -1904,7 +1915,7 @@
     if (!savedRows.length) {
       var empty = {
         all: 'Nothing here yet. Open a place and tap ⭐ or 👀.',
-        want: 'Nothing you want to go to yet. Open a place and tap 👀.',
+        want: 'Nothing you want to try yet. Open a place and tap 👀.',
         fav: 'No favorites yet. Open a place and tap ⭐.',
         nope: 'No nopes yet. Open a place and tap 💩 for somewhere you would not recommend.',
         visited: 'No orders logged yet. Tap “I’m here right now” when you’re at a place.'
@@ -1916,7 +1927,7 @@
       var p = row.place;
       var pills = '';
       if (row.nope) pills += '<span class="pill pill-nope">💩 Nope</span>';
-      if (row.want) pills += '<span class="pill pill-want">👀 Want to go</span>';
+      if (row.want) pills += '<span class="pill pill-want">👀 Want to try</span>';
       if (row.fav) pills += '<span class="pill pill-saved">⭐ Favorite</span>';
       if (hhNow(p)) pills += '<span class="pill pill-hh on">Happy hour now</span>';
       var open = openBlurb(p);
@@ -2445,7 +2456,6 @@
       screenId: 'screen-eat',
       mapId: 'map-eat',
       getPlaces: eatPlaces,
-      cafeMug: true,
       filter: function (p, f) {
         if (f === 'food') return !!p.kinds.food;
         if (f === 'drinks') return !!p.kinds.drinks;

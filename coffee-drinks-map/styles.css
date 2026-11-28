@@ -955,6 +955,7 @@ body.sheet-open .here-bar { display: none; }
 .sheet-title { margin: 0; font-size: 1.15rem; min-width: 0; overflow-wrap: anywhere; }
 .detail-meta { margin: 0 0 8px; color: var(--muted); font-size: 0.85rem; }
 .mark-row { display: flex; gap: 8px; margin: 0 0 10px; }
+#log-marks { margin-top: 4px; }
 .mark-btn {
   flex: 1;
   display: flex;
@@ -996,6 +997,20 @@ body.sheet-open .here-bar { display: none; }
   font-weight: 750;
   box-shadow: 0 1px 4px rgba(44, 28, 18, 0.14);
 }
+.legend-swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 1px rgba(44, 28, 18, 0.18);
+  vertical-align: -1px;
+}
+.legend-swatch.open { background: #43a047; }
+.legend-swatch.closed { background: #c62828; }
+.legend-swatch.unknown { background: #9ca3af; }
+.legend-swatch.hh { background: #d97706; }
 .screen-map.view-list .pin-legend,
 .screen-map.here-open .pin-legend,
 body.sheet-open .pin-legend { display: none; }
@@ -1015,7 +1030,6 @@ body.sheet-open .pin-legend { display: none; }
 .tag-pin-face.tag-fav { background: #fff7e6; }
 .tag-pin-face.tag-want { background: #eef2ff; }
 .tag-pin-face.tag-nope { background: #f5f0eb; }
-.tag-pin-face.tag-cafe { background: #fff7ed; }
 .detail-meta:empty { display: none; }
 #detail-kinds { margin: 0 0 6px; }
 #detail-kinds:empty { display: none; }

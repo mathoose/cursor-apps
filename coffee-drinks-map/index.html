@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../apps-shell.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="../html-features/philly-walk-map/philly-walk-map.css?v=1" />
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
 </head>
 <body>
   <section id="screen-home" class="screen screen-home">
@@ -70,7 +70,7 @@
       <button type="button" class="home-btn home-btn-saved" id="pick-saved">
         <span class="home-btn-icon" aria-hidden="true">★</span>
         <span class="home-btn-label">Places to try</span>
-        <span class="home-btn-hint" id="home-count-saved">Favorites &amp; want to go</span>
+        <span class="home-btn-hint" id="home-count-saved">Favorites &amp; want to try</span>
       </button>
       <button type="button" class="home-btn home-btn-decide" id="pick-decide">
         <span class="home-btn-icon" aria-hidden="true">✦</span>
@@ -102,7 +102,7 @@
         <div class="place-list" data-list></div>
       </div>
     </main>
-    <p class="pin-legend"><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
+    <p class="pin-legend"><span><i class="legend-swatch open"></i> open</span><span><i class="legend-swatch closed"></i> closed</span><span><i class="legend-swatch unknown"></i> no hours</span><span>⭐ favorite</span><span>👀 want to try</span><span>💩 nope</span></p>
     <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
     <div class="here-bar" data-here-bar hidden>
       <div class="here-bar-top">
@@ -156,7 +156,7 @@
         <div class="place-list" data-list></div>
       </div>
     </main>
-    <p class="pin-legend"><span>☕ cafe</span><span>⭐ favorite</span><span>👀 want to go</span><span>💩 nope</span></p>
+    <p class="pin-legend"><span><i class="legend-swatch open"></i> open</span><span><i class="legend-swatch closed"></i> closed</span><span><i class="legend-swatch unknown"></i> no hours</span><span><i class="legend-swatch hh"></i> happy hour</span><span>⭐ favorite</span><span>👀 want to try</span><span>💩 nope</span></p>
     <button type="button" class="here-btn" data-here-btn aria-label="Where am I"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span>Where am I</span></button>
     <div class="here-bar" data-here-bar hidden>
       <div class="here-bar-top">
@@ -185,7 +185,7 @@
       </button>
       <div class="page-titles">
         <h1>Places to try</h1>
-        <p class="sub" id="saved-sub">Favorites and places you want to go</p>
+        <p class="sub" id="saved-sub">Favorites and places you want to try</p>
       </div>
     </header>
     <div class="page-body">
@@ -314,7 +314,7 @@
         </button>
         <button type="button" class="mark-btn" id="mark-want" data-bucket="want" aria-pressed="false">
           <span class="mark-emoji" aria-hidden="true">👀</span>
-          <span class="mark-label">Want to go</span>
+          <span class="mark-label">Want to try</span>
         </button>
         <button type="button" class="mark-btn" id="mark-nope" data-bucket="nope" aria-pressed="false">
           <span class="mark-emoji" aria-hidden="true">💩</span>
@@ -357,6 +357,20 @@
         <button type="button" class="text-btn" id="log-cancel">Cancel</button>
       </div>
       <p class="detail-meta" id="log-where"></p>
+      <div class="mark-row" id="log-marks" role="group" aria-label="How this place shows on the map">
+        <button type="button" class="mark-btn" data-bucket="fav" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">⭐</span>
+          <span class="mark-label">Favorite</span>
+        </button>
+        <button type="button" class="mark-btn" data-bucket="want" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">👀</span>
+          <span class="mark-label">Want to try</span>
+        </button>
+        <button type="button" class="mark-btn" data-bucket="nope" aria-pressed="false">
+          <span class="mark-emoji" aria-hidden="true">💩</span>
+          <span class="mark-label">Nope</span>
+        </button>
+      </div>
       <div class="log-items" id="log-items" hidden></div>
 
       <label class="field-label" for="log-name" id="log-name-label">What did you get?</label>
@@ -397,7 +411,7 @@
   <script src="../apps-backup.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="../html-features/philly-walk-map/philly-walk-map.js?v=5"></script>
-  <script src="app.js?v=19" defer></script>
+  <script src="app.js?v=20" defer></script>
   <script src="../apps-shell.js" defer></script>
 </body>
 </html>
