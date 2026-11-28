@@ -69,10 +69,13 @@ body.has-bottom-nav .app-version-footer {
   padding-bottom: 4px;
 }
 .apps-quick-export {
-  position: fixed;
+  position: absolute;
   left: 0;
   right: 0;
-  z-index: 64;
+  bottom: calc(100% + 2px);
+  z-index: 2;
+  display: block;
+  width: auto;
   margin: 0;
   padding: 0 12px;
   border: 0;
@@ -84,7 +87,13 @@ body.has-bottom-nav .app-version-footer {
   line-height: 1.15;
   text-align: center;
   cursor: pointer;
+  pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
+}
+.apps-quick-export.is-viewport {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 40;
 }
 
 /* Shared photo picker (apps-photo-picker.js) */

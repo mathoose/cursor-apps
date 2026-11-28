@@ -79,55 +79,81 @@
     return "Export · " + days + " days since last export";
   }
 
-  function dockOffset() {
-    var el = document.querySelector(".bottom-dock, .bottom-nav, .tabbar");
-    if (!el) return 0;
-    var rect = el.getBoundingClientRect();
-    if (rect.height < 8) return 0;
-    var fromBottom = window.innerHeight - rect.top;
-    if (fromBottom < 8 || fromBottom > window.innerHeight * 0.55) return 0;
-    return Math.round(fromBottom);
-  }
-
-  function placeQuickExport(btn) {
-    var offset = dockOffset();
-    btn.style.bottom = offset ? offset + "px" : "env(safe-area-inset-bottom, 0px)";
+  function chromeHosts() {
+    var docks = document.querySelectorAll(".bottom-dock, .bottom-nav");
+    if (docks.length) return Array.prototype.slice.call(docks);
+    return Array.prototype.slice.call(document.querySelectorAll(".tabbar"));
   }
 
   function mountQuickExport() {
     if (!window.AppsBackup || !AppsBackup.exportAll || !AppsBackup.downloadBundle) return;
     if (document.querySelector(".apps-quick-export")) return;
 
-    var btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "apps-quick-export";
-    btn.id = "appsQuickExport";
+    var hosts = chromeHosts();
+    var buttons = [];
+
+    function makeButton(extraClass) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "apps-quick-export" + (extraClass ? " " + extraClass : "");
+      btn.addEventListener("click", function () {
+        try {
+          AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
+          refresh();
+        } catch (e) { /* leave the label unchanged */ }
+      });
+      buttons.push(btn);
+      return btn;
+    }
+
+    if (!hosts.length) {
+      document.body.appendChild(makeButton("is-viewport"));
+    } else {
+      hosts.forEach(function (host) {
+        if (window.getComputedStyle(host).position === "static") host.style.position = "relative";
+        host.appendChild(makeButton(""));
+      });
+    }
 
     function refresh() {
       var label = exportLineLabel();
-      btn.textContent = label;
-      btn.setAttribute("aria-label", label);
+      buttons.forEach(function (btn) {
+        btn.textContent = label;
+        btn.setAttribute("aria-label", label);
+      });
+    }
+
+    function syncPad() {
+      var top = window.innerHeight;
+      buttons.forEach(function (btn) {
+        var rect = btn.getBoundingClientRect();
+        if (rect.height < 2) return;
+        if (rect.top < top) top = rect.top;
+      });
+      var needed = Math.ceil(window.innerHeight - top) + 2;
+      if (needed < 16) needed = 16;
+      document.body.style.paddingBottom = "";
+      var base = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
+      document.body.style.paddingBottom = Math.max(Math.ceil(base), needed) + "px";
     }
 
     refresh();
-    btn.addEventListener("click", function () {
-      try {
-        AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
-        refresh();
-      } catch (e) { /* leave the label unchanged */ }
-    });
-    document.body.appendChild(btn);
     document.body.classList.add("apps-has-quick-export");
-    placeQuickExport(btn);
-    if (!document.body.dataset.appsExportPad) {
-      document.body.dataset.appsExportPad = "1";
-      var extra = Math.ceil(btn.getBoundingClientRect().height) || 16;
-      var current = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
-      document.body.style.paddingBottom = current + extra + "px";
+    syncPad();
+
+    if (window.ResizeObserver) {
+      var observer = new ResizeObserver(function () { syncPad(); });
+      hosts.forEach(function (host) { observer.observe(host); });
+      buttons.forEach(function (btn) { observer.observe(btn); });
     }
-    window.addEventListener("resize", function () {
-      placeQuickExport(btn);
-    });
+    window.addEventListener("resize", syncPad);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", syncPad);
+    if (window.MutationObserver) {
+      new MutationObserver(function () { syncPad(); }).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    }
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible") refresh();
     });
