@@ -50,6 +50,10 @@ See [ADD_APP.md](ADD_APP.md#version-numbers). All display versions live in `vers
 - Habit data and other app data stay on the user's phone (`localStorage`); app updates do not erase it.
 - **Pages source must be GitHub Actions** (Settings → Pages → Build and deployment → Source: **GitHub Actions** → workflow **Deploy Pages**). Legacy “deploy from branch” conflicts with the Actions workflow and can wedge deploys.
 
+## Quick export line
+
+`apps-shell.js` pins a one-line Export control above the bottom bar on every app. It must not cover tabs, toolbars, or page content. Follow the **add-app** skill when adding or moving bottom chrome.
+
 ## UX changes — confirm first
 
 Before **removing or simplifying** an existing user-facing interaction (tap cycles, states like yes/no/in-progress, tabs, labels), **ask the user to confirm**. Do not skip steps in multi-state flows (e.g. yes/no **ongoing** ◐ → ✓ → ✗) unless they explicitly request a shorter flow.

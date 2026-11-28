@@ -1,6 +1,6 @@
 ---
 name: add-app
-description: Add a new app to mathoose/cursor-apps — folder scaffold, launcher entry, versions, backup wiring, and PNG home-screen icons that work when added to iOS/Android desktop. Use when creating a new app, scaffolding an app folder, or fixing missing/wrong add-to-home-screen icons.
+description: Add a new app to mathoose/cursor-apps — folder scaffold, launcher entry, versions, backup wiring, PNG home-screen icons, and a quick-export line that never covers tabs or page content. Use when creating a new app, scaffolding an app folder, or fixing missing/wrong add-to-home-screen icons.
 ---
 
 # Add a new cursor-apps app
@@ -50,6 +50,20 @@ Match working apps (e.g. `photo-calendar`, `habit-journal`):
 - [ ] `index.html` uses `app-icon.png` for `rel="icon"` and `rel="apple-touch-icon"`
 - [ ] `apple-mobile-web-app-title` matches the short name users see under the icon
 - [ ] Launcher discovers the app (folder + `index.html`)
+- [ ] The quick-export line sits in its own row and does not cover tabs, toolbars, or page content
+
+## Quick export line (required — do not cover it)
+
+`apps-shell.js` adds a one-line **Export** control on every app, including ones you are editing. It shows days since the last backup and downloads a full backup.
+
+The line hangs just above the bottom chrome (`.bottom-dock`, `.bottom-nav`, or `.tabbar`). It must never paint on top of tabs, Mark/Eraser bars, FABs, or the last row of content.
+
+- Put bottom tabs in one fixed bar. Do not add a second fixed strip that occupies the same space.
+- Bars that show and hide (mode bars, toolbars) belong **inside** that bottom chrome, so the export line stays above the whole stack.
+- Do not set `overflow: hidden` on the bottom chrome — that clips the export line.
+- Do not give `#appsQuickExport` / `.apps-quick-export` a new `position` or `z-index` that pulls it over other controls.
+- Leave room under the page content. The shell adds the line’s height to `body` padding; don’t freeze `padding-bottom` inline in a way that ignores a bar appearing later.
+- After any layout change, check a phone-width screen: the export text is fully above the tab bar, and the last card or row is fully above the export text.
 
 ## Scaffold workflow
 
@@ -91,6 +105,7 @@ Before `</body>`:
 - Point `apple-touch-icon` at `app-icon.svg`.
 - Skip `app-icon.png` because “the launcher can use SVG” — the launcher can, but **iOS home screen cannot**.
 - Forget `versions.json` or the PR summary table.
+- Let the export line overlap tabs, toolbars, or page content.
 
 ## Reference
 
