@@ -213,7 +213,9 @@ button { cursor: pointer; }
 .yesterday-btn:active { opacity: 0.65; }
 
 .pad-wrap {
-  width: min(100%, calc(50dvh - (var(--apps-export-offset, 0px) / 2)));
+  /* Leave room under the pad for the tray and the shared Export bar. */
+  width: min(100%, 40dvh, calc(100vw - 32px));
+  max-width: 320px;
   aspect-ratio: 1;
   margin: 0 auto;
   background: var(--paper);
