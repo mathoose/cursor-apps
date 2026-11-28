@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v81 -->
+  <!-- build: hj-today-version-v83 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -3769,7 +3769,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v81 · Nov 26, 2026";
+  let habitJournalVersionText = "v83 · Nov 27, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -10296,30 +10296,34 @@
     );
   }
 
+  function exportHabitBackup() {
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const d = new Date();
+    const stamp =
+      d.getFullYear() +
+      "-" +
+      String(d.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(d.getDate()).padStart(2, "0");
+    a.download = "habit-journal-backup-" + stamp + ".json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    try {
+      localStorage.setItem("habit-journal-last-export", String(Date.now()));
+    } catch (e) { /* ok */ }
+    if (window.AppsBackup && AppsBackup.recordLastExport) AppsBackup.recordLastExport();
+    if (window.AppsQuickExport) AppsQuickExport.refresh();
+    toast("Backup saved — keep the file somewhere safe");
+  }
+
   function bindDataActions(root) {
     const btnExport = root.querySelector("#btnExport");
     const btnImport = root.querySelector("#btnImport");
     const btnReset = root.querySelector("#btnReset");
     if (btnExport) {
-      btnExport.onclick = function () {
-        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        const d = new Date();
-        const stamp =
-          d.getFullYear() +
-          "-" +
-          String(d.getMonth() + 1).padStart(2, "0") +
-          "-" +
-          String(d.getDate()).padStart(2, "0");
-        a.download = "habit-journal-backup-" + stamp + ".json";
-        a.click();
-        URL.revokeObjectURL(a.href);
-        try {
-          localStorage.setItem("habit-journal-last-export", String(Date.now()));
-        } catch (e) { /* ok */ }
-        toast("Backup saved — keep the file somewhere safe");
-      };
+      btnExport.onclick = exportHabitBackup;
     }
     if (btnImport) {
       btnImport.onclick = function () {

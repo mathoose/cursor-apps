@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "7 · Oct 28, 2026";
+  var APP_VERSION = "8 · Nov 27, 2026";
   var REJECT_MSG = "This does not look like a tracker export. Use Export ZIP from daily-tank-tracker.html or tank tracker v2.";
   var BACKUP_KEYS = [
     "tanks",

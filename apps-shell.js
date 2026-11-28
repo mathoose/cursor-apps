@@ -70,6 +70,70 @@
     return true;
   }
 
+  function exportLineLabel() {
+    if (!window.AppsBackup || !AppsBackup.getDaysSinceLastExport) return "Export";
+    var days = AppsBackup.getDaysSinceLastExport();
+    if (days == null) return "Export · never exported";
+    if (days === 0) return "Export · 0 days since last export";
+    if (days === 1) return "Export · 1 day since last export";
+    return "Export · " + days + " days since last export";
+  }
+
+  function dockOffset() {
+    var el = document.querySelector(".bottom-dock, .bottom-nav, .tabbar");
+    if (!el) return 0;
+    var rect = el.getBoundingClientRect();
+    if (rect.height < 8) return 0;
+    var fromBottom = window.innerHeight - rect.top;
+    if (fromBottom < 8 || fromBottom > window.innerHeight * 0.55) return 0;
+    return Math.round(fromBottom);
+  }
+
+  function placeQuickExport(btn) {
+    var offset = dockOffset();
+    btn.style.bottom = offset ? offset + "px" : "env(safe-area-inset-bottom, 0px)";
+  }
+
+  function mountQuickExport() {
+    if (!window.AppsBackup || !AppsBackup.exportAll || !AppsBackup.downloadBundle) return;
+    if (document.querySelector(".apps-quick-export")) return;
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "apps-quick-export";
+    btn.id = "appsQuickExport";
+
+    function refresh() {
+      var label = exportLineLabel();
+      btn.textContent = label;
+      btn.setAttribute("aria-label", label);
+    }
+
+    refresh();
+    btn.addEventListener("click", function () {
+      try {
+        AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
+        refresh();
+      } catch (e) { /* leave the label unchanged */ }
+    });
+    document.body.appendChild(btn);
+    document.body.classList.add("apps-has-quick-export");
+    placeQuickExport(btn);
+    if (!document.body.dataset.appsExportPad) {
+      document.body.dataset.appsExportPad = "1";
+      var extra = Math.ceil(btn.getBoundingClientRect().height) || 16;
+      var current = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
+      document.body.style.paddingBottom = current + extra + "px";
+    }
+    window.addEventListener("resize", function () {
+      placeQuickExport(btn);
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") refresh();
+    });
+    window.AppsQuickExport = { refresh: refresh };
+  }
+
   function showAppVersion(versionText) {
     if (!versionText) return;
     if (document.querySelector(".app-version")) return;
@@ -99,6 +163,8 @@
     document.querySelectorAll("[data-apps-home]").forEach(function (el) {
       if (!el.getAttribute("href")) el.setAttribute("href", window.APPS_HOME_URL);
     });
+
+    mountQuickExport();
 
     var appId = getAppIdFromPath();
     if (!appId) return;
