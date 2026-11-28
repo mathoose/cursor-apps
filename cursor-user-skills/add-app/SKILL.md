@@ -54,9 +54,9 @@ Match working apps (e.g. `photo-calendar`, `habit-journal`):
 
 ## Quick export line (required — do not cover it)
 
-`apps-shell.js` adds a one-line **Export** control on every app, including ones you are editing. It shows days since the last backup and downloads a full backup.
+`apps-shell.js` adds a pill **Export** button on every app, including ones you are editing. It shows days since the last backup and downloads a full backup.
 
-The line hangs just above the bottom chrome (`.bottom-dock`, `.bottom-nav`, or `.tabbar`). It must never paint on top of tabs, Mark/Eraser bars, FABs, or the last row of content.
+The Export pill sits in a fixed bar just above the bottom chrome (`.bottom-dock`, `.bottom-nav`, or `.tabbar`). It must never paint on top of tabs, Mark/Eraser bars, FABs, or the last row of content.
 
 - Put bottom tabs in one fixed bar. Do not add a second fixed strip that occupies the same space.
 - Bars that show and hide (mode bars, toolbars) belong **inside** that bottom chrome, so the export line stays above the whole stack.

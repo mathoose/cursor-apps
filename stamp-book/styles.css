@@ -165,15 +165,24 @@ button { cursor: pointer; }
   box-shadow: 0 1px 3px rgba(31, 28, 23, 0.16);
 }
 
-.main-panel { padding: 6px 16px 8px; }
+.main-panel {
+  padding: 6px 16px 8px;
+  /* Keep the last tray / key above the shared Export bar. */
+  padding-bottom: max(8px, var(--apps-export-offset, 8px));
+}
 
 /* Day editor */
 
 .editor-head {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
   margin: 6px 2px 10px;
+}
+
+.editor-head-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .editor-head h2 {
@@ -190,8 +199,23 @@ button { cursor: pointer; }
   font-weight: 600;
 }
 
+.yesterday-btn {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.yesterday-btn:active { opacity: 0.65; }
+
 .pad-wrap {
-  width: min(100%, 50dvh);
+  /* Leave room under the pad for the tray and the shared Export bar. */
+  width: min(100%, 40dvh, calc(100vw - 32px));
+  max-width: 320px;
   aspect-ratio: 1;
   margin: 0 auto;
   background: var(--paper);
@@ -553,8 +577,9 @@ button.key-chip.active {
 .year-head { top: var(--header-h, 0px); }
 
 .year-foot {
-  bottom: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Sit above the shared Export bar so tallies are never covered. */
+  bottom: var(--apps-export-offset, 0px);
+  padding-bottom: 0;
 }
 
 .yr-paper { fill: var(--paper); }
@@ -1056,9 +1081,9 @@ dialog.ask-dialog {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(12px + var(--apps-export-offset, env(safe-area-inset-bottom, 0px)));
   transform: translateX(-50%);
-  z-index: 20;
+  z-index: 45;
   max-width: min(420px, calc(100% - 32px));
   margin: 0;
   padding: 10px 14px;

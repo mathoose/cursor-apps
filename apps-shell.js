@@ -85,56 +85,84 @@
     return Array.prototype.slice.call(document.querySelectorAll(".tabbar"));
   }
 
+  // How tall the fixed bottom chrome is, measured from the viewport bottom.
+  function dockLift() {
+    var lift = 0;
+    chromeHosts().forEach(function (host) {
+      var style = window.getComputedStyle(host);
+      if (style.display === "none" || style.visibility === "hidden") return;
+      var rect = host.getBoundingClientRect();
+      if (rect.height < 8) return;
+      var fromBottom = window.innerHeight - rect.top;
+      if (fromBottom < 8 || fromBottom > window.innerHeight * 0.55) return;
+      if (fromBottom > lift) lift = fromBottom;
+    });
+    return Math.round(lift);
+  }
+
   function mountQuickExport() {
     if (!window.AppsBackup || !AppsBackup.exportAll || !AppsBackup.downloadBundle) return;
-    if (document.querySelector(".apps-quick-export")) return;
+    if (document.querySelector(".apps-quick-export-bar")) return;
 
-    var hosts = chromeHosts();
-    var buttons = [];
+    var bar = document.createElement("div");
+    bar.className = "apps-quick-export-bar";
+    bar.setAttribute("data-apps-export-bar", "");
 
-    function makeButton(extraClass) {
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "apps-quick-export" + (extraClass ? " " + extraClass : "");
-      btn.addEventListener("click", function () {
-        try {
-          AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
-          refresh();
-        } catch (e) { /* leave the label unchanged */ }
-      });
-      buttons.push(btn);
-      return btn;
-    }
-
-    if (!hosts.length) {
-      document.body.appendChild(makeButton("is-viewport"));
-    } else {
-      hosts.forEach(function (host) {
-        if (window.getComputedStyle(host).position === "static") host.style.position = "relative";
-        host.appendChild(makeButton(""));
-      });
-    }
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "apps-quick-export";
+    btn.id = "appsQuickExport";
+    btn.addEventListener("click", function () {
+      try {
+        AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
+        refresh();
+      } catch (e) { /* leave the label unchanged */ }
+    });
+    bar.appendChild(btn);
+    document.body.appendChild(bar);
 
     function refresh() {
       var label = exportLineLabel();
-      buttons.forEach(function (btn) {
-        btn.textContent = label;
-        btn.setAttribute("aria-label", label);
-      });
+      btn.textContent = label;
+      btn.setAttribute("aria-label", label + ". Downloads a backup of all apps.");
+    }
+
+    function padTargets() {
+      var nodes = [];
+      function take(node) {
+        if (!node || nodes.indexOf(node) >= 0) return;
+        nodes.push(node);
+      }
+      take(document.querySelector(".app"));
+      take(document.querySelector("main"));
+      take(document.getElementById("app"));
+      // Apps with min-height: 100dvh need the clearance inside the root, not only on body.
+      if (!nodes.length) take(document.body);
+      return nodes;
     }
 
     function syncPad() {
-      var top = window.innerHeight;
-      buttons.forEach(function (btn) {
-        var rect = btn.getBoundingClientRect();
-        if (rect.height < 2) return;
-        if (rect.top < top) top = rect.top;
-      });
-      var needed = Math.ceil(window.innerHeight - top) + 2;
+      var lift = dockLift();
+      bar.classList.toggle("is-above-dock", lift > 0);
+      bar.style.bottom = lift ? lift + "px" : "0px";
+
+      var barRect = bar.getBoundingClientRect();
+      var barTop = barRect.height > 2 ? barRect.top : window.innerHeight - 44;
+      var needed = Math.ceil(window.innerHeight - barTop) + 2;
       if (needed < 16) needed = 16;
+
+      document.documentElement.style.setProperty("--apps-export-offset", needed + "px");
       document.body.style.paddingBottom = "";
-      var base = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
-      document.body.style.paddingBottom = Math.max(Math.ceil(base), needed) + "px";
+      var bodyBase = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
+      document.body.style.paddingBottom = Math.max(Math.ceil(bodyBase), needed) + "px";
+
+      padTargets().forEach(function (node) {
+        if (node === document.body) return;
+        node.style.paddingBottom = "";
+        var base = parseFloat(window.getComputedStyle(node).paddingBottom) || 0;
+        node.style.paddingBottom = Math.max(Math.ceil(base), needed) + "px";
+        node.style.boxSizing = "border-box";
+      });
     }
 
     refresh();
@@ -143,8 +171,9 @@
 
     if (window.ResizeObserver) {
       var observer = new ResizeObserver(function () { syncPad(); });
-      hosts.forEach(function (host) { observer.observe(host); });
-      buttons.forEach(function (btn) { observer.observe(btn); });
+      observer.observe(bar);
+      observer.observe(btn);
+      chromeHosts().forEach(function (host) { observer.observe(host); });
     }
     window.addEventListener("resize", syncPad);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", syncPad);
@@ -155,9 +184,12 @@
       });
     }
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === "visible") {
+        refresh();
+        syncPad();
+      }
     });
-    window.AppsQuickExport = { refresh: refresh };
+    window.AppsQuickExport = { refresh: refresh, syncPad: syncPad };
   }
 
   function showAppVersion(versionText) {

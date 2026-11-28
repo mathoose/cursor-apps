@@ -52,7 +52,7 @@ See [ADD_APP.md](ADD_APP.md#version-numbers). All display versions live in `vers
 
 ## Quick export line
 
-`apps-shell.js` pins a one-line Export control above the bottom bar on every app. It must not cover tabs, toolbars, or page content. Follow the **add-app** skill when adding or moving bottom chrome.
+`apps-shell.js` pins an Export pill above the bottom bar on every app. It must not cover tabs, toolbars, or page content. Follow the **add-app** skill when adding or moving bottom chrome.
 
 ## UX changes — confirm first
 

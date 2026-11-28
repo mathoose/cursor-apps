@@ -95,7 +95,7 @@ All version strings live in **`versions.json`**:
 
 Every app that includes `apps-shell.css` / `apps-shell.js` shows its version at the bottom of the screen. The launcher shows `launcher` at the bottom.
 
-The same shell adds a one-line **Export** control just above the bottom bar. It must sit in its own row: never on top of tabs, toolbars, or the last row of content. Keep show/hide bars inside `.bottom-dock` / `.bottom-nav` / `.tabbar`, and don’t set `overflow: hidden` on that bar. See the add-app skill.
+The same shell adds a pill **Export** button just above the bottom bar. It must sit in its own row: never on top of tabs, toolbars, or the last row of content. Keep show/hide bars inside `.bottom-dock` / `.bottom-nav` / `.tabbar`, and don’t set `overflow: hidden` on that bar. See the add-app skill.
 
 **When you change something, bump the matching version(s)** in `versions.json` (increment the number and update the date). Use the format `"N · Mon D, YYYY"`.
 
