@@ -2359,7 +2359,20 @@
 
   function getLastExportedAt() {
     var ts = readLauncherMeta().lastExportedAt;
-    return typeof ts === "string" ? ts : null;
+    var bestMs = 0;
+    var best = null;
+    if (typeof ts === "string") {
+      var parsed = Date.parse(ts);
+      if (!isNaN(parsed)) {
+        bestMs = parsed;
+        best = ts;
+      }
+    }
+    try {
+      var hj = parseInt(localStorage.getItem("habit-journal-last-export"), 10);
+      if (hj && hj > bestMs) best = new Date(hj).toISOString();
+    } catch (e) { /* ok */ }
+    return best;
   }
 
   var EXPORT_REMINDER_DAYS = 5;

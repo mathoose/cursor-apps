@@ -9,7 +9,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="theme-color" content="#12141c" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <!-- build: hj-today-version-v82 -->
+  <!-- build: hj-today-version-v83 -->
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
@@ -38,11 +38,11 @@
       background-image: radial-gradient(circle, var(--dot) 1px, transparent 1px);
       background-size: 18px 18px;
       padding-top: calc(60px + var(--safe-top));
-      padding-bottom: calc(82px + var(--safe-bottom));
+      padding-bottom: calc(64px + var(--safe-bottom));
       overscroll-behavior: none;
     }
     body.has-mode-bar {
-      padding-bottom: calc(146px + var(--safe-bottom));
+      padding-bottom: calc(128px + var(--safe-bottom));
     }
     body.tab-today {
       padding-top: calc(56px + var(--safe-top));
@@ -74,7 +74,7 @@
       font-size: 0.8125rem;
     }
     body.tab-today.has-mode-bar {
-      padding-bottom: calc(126px + var(--safe-bottom));
+      padding-bottom: calc(108px + var(--safe-bottom));
     }
     body.tab-today .mode-bar {
       padding: 5px 8px 3px;
@@ -2106,22 +2106,7 @@
     }
     .level-row input[type="color"] { width: 40px; height: 32px; border: none; padding: 0; }
     .level-row input[type="text"] { flex: 1; height: 36px; border: 1px solid var(--border); border-radius: 8px; padding: 0 8px; font-size: 0.875rem; }
-    .quick-export {
-      display: block;
-      width: 100%;
-      margin: 0;
-      padding: 1px 12px 2px;
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font: inherit;
-      font-size: 0.6875rem;
-      font-weight: 600;
-      line-height: 1.15;
-      min-height: 0;
-      text-align: center;
-      cursor: pointer;
-    }
+    .bottom-dock {
       position: fixed;
       left: 0;
       right: 0;
@@ -3410,10 +3395,6 @@
       border-color: #7f1d1d;
       color: #fda4a4;
     }
-    body.layout-modern .bottom-dock .quick-export {
-      color: #9aa3bd;
-      padding: 0 16px 2px;
-    }
     body.layout-modern .bottom-dock {
       background: transparent;
       border: none;
@@ -3613,7 +3594,6 @@
   </div>
 
   <div class="bottom-dock" id="bottomDock">
-    <button type="button" class="quick-export" id="quickExport">Export</button>
     <div class="mode-bar" id="modeBar" role="toolbar" aria-label="Mark or erase" hidden>
       <button type="button" class="mode-btn on" data-mode-action="mark" aria-pressed="true">Mark</button>
       <button type="button" class="mode-btn" data-mode-action="eraser" aria-pressed="false">Eraser</button>
@@ -3789,7 +3769,7 @@
   const CHANGELOG_TTL_MS = RECENT_LOG_HOURS * 60 * 60 * 1000;
   const STORAGE_KEY_LEGACY = "habit-journal-v1";
   let storageOk = true;
-  let habitJournalVersionText = "v82 · Nov 27, 2026";
+  let habitJournalVersionText = "v83 · Nov 27, 2026";
   let layoutMode = "modern";
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTH_LETTERS = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
@@ -10316,31 +10296,6 @@
     );
   }
 
-  function daysSinceLastExport() {
-    let last = 0;
-    try {
-      last = parseInt(localStorage.getItem("habit-journal-last-export"), 10) || 0;
-    } catch (e) { /* ok */ }
-    if (!last) return null;
-    return Math.max(0, Math.floor((Date.now() - last) / 86400000));
-  }
-
-  function quickExportLabel() {
-    const days = daysSinceLastExport();
-    if (days == null) return "Export · never exported";
-    if (days === 0) return "Export · 0 days since last export";
-    if (days === 1) return "Export · 1 day since last export";
-    return "Export · " + days + " days since last export";
-  }
-
-  function updateQuickExportLabel() {
-    const btn = document.getElementById("quickExport");
-    if (!btn) return;
-    const label = quickExportLabel();
-    btn.textContent = label;
-    btn.setAttribute("aria-label", label);
-  }
-
   function exportHabitBackup() {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
     const a = document.createElement("a");
@@ -10358,7 +10313,8 @@
     try {
       localStorage.setItem("habit-journal-last-export", String(Date.now()));
     } catch (e) { /* ok */ }
-    updateQuickExportLabel();
+    if (window.AppsBackup && AppsBackup.recordLastExport) AppsBackup.recordLastExport();
+    if (window.AppsQuickExport) AppsQuickExport.refresh();
     toast("Backup saved — keep the file somewhere safe");
   }
 
@@ -11651,7 +11607,6 @@
         eraserMode && (activeTab === "today" || activeTab === "month" || (activeTab === "stats" && graphsMode === "grid"))
       );
       updateModeBar();
-      updateQuickExportLabel();
       if (activeTab === "stats") clampStatsYearIfNeeded();
       renderTopNav();
       if (activeTab === "today") renderToday();
@@ -11731,9 +11686,6 @@
   try {
     loadHabitJournalVersion();
     loadHabitsListFilter();
-    const quickExportBtn = document.getElementById("quickExport");
-    if (quickExportBtn) quickExportBtn.onclick = exportHabitBackup;
-    updateQuickExportLabel();
     render();
     maybeShowDailyPrompt(true);
     if (window.__hjRecoveredFrom) {
