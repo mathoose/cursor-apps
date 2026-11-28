@@ -9,14 +9,14 @@
   <meta name="apple-mobile-web-app-title" content="Our Lists" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#5c3b22" />
-  <!-- build: shared-lists-v18 -->
+  <!-- build: shared-lists-v19 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
 </head>
 <body>
   <header class="app-header">
@@ -30,38 +30,28 @@
     <button type="button" class="header-btn header-icon-btn" id="settingsBtn" hidden aria-label="Settings">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
     </button>
-    <button type="button" class="header-btn" id="roomsBtn" hidden>Rooms</button>
+    <button type="button" class="header-btn" id="roomsBtn" hidden>Lists</button>
   </header>
 
   <main>
     <section id="viewJoin" hidden>
       <div class="card">
-        <p class="eyebrow">Private list</p>
-        <h2>Same list on both phones</h2>
-        <p>Enter a code and a PIN. The first time that code is used, this starts the list. After that, the same code and PIN opens it. The page does not show the list until the PIN matches.</p>
-        <form id="joinForm">
-          <label class="field-label" for="codeInput">List code</label>
-          <input id="codeInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="TRIPS" enterkeyhint="next" />
-          <label class="field-label" for="pinInput">PIN</label>
-          <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="next" />
-          <label class="field-label" for="pinConfirm">Confirm PIN <span class="fine">first time only</span></label>
-          <input id="pinConfirm" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
-          <p class="field-hint" id="codeHint">4–12 letters or numbers. PIN is 4–8 digits.</p>
-          <button type="submit" class="btn btn-primary">Open list</button>
-        </form>
+        <p class="eyebrow">Our list</p>
+        <h2>Packing, for the two of you</h2>
+        <p>Add what you’re bringing. On each thing, tap Where and say the last place you saw it. The other phone sees that comment.</p>
+        <p class="field-hint" id="codeHint">Opening the list…</p>
       </div>
-      <div id="savedRooms"></div>
     </section>
 
     <section id="viewRoom" hidden>
       <div class="room-bar">
-        <button type="button" class="code-pill" id="codePill"></button>
+        <button type="button" class="code-pill" id="codePill" hidden></button>
         <p class="sync" id="roomSync" aria-live="polite"></p>
       </div>
       <button type="button" class="btn btn-primary" id="newListBtn">New list</button>
       <button type="button" class="btn btn-secondary" id="pastPackedBtn" data-action="open-past-packed" hidden>Past packed</button>
       <div id="roomLists"></div>
-      <button type="button" class="btn btn-quiet danger-text" id="forgetBtn">Forget this room on this phone</button>
+      <button type="button" class="btn btn-quiet danger-text" id="forgetBtn">Clear the copy on this phone</button>
     </section>
 
     <section id="viewList" hidden>
@@ -112,11 +102,11 @@
     <div class="sheet-card" id="sheetBody" role="dialog" aria-modal="true"></div>
   </div>
   <div id="toast" class="toast" hidden></div>
-  <footer class="app-version-footer"><p class="app-version" aria-label="App version">v18 · Nov 28, 2026</p></footer>
+  <footer class="app-version-footer"><p class="app-version" aria-label="App version">v19 · Nov 28, 2026</p></footer>
 
-  <script src="logic.js?v=18"></script>
-  <script src="../trip-packing/logic.js?v=18"></script>
-  <script src="app.js?v=18"></script>
+  <script src="logic.js?v=19"></script>
+  <script src="../trip-packing/logic.js?v=19"></script>
+  <script src="app.js?v=19"></script>
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
 </body>

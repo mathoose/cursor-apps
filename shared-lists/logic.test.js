@@ -68,6 +68,12 @@ assert.deepStrictEqual(names, ["Eggs", "Bread", "Milk:done"]);
 
 var detailed = L.setItemDetail(seed(), "list-a", "milk", "Last seen in guest room", t2);
 assert.strictEqual(L.findList(detailed, "list-a").items.filter(function (it) { return it.id === "milk"; })[0].detail, "Last seen in guest room");
+var whereSam = L.addItemComment(detailed, "list-a", "milk", "Hall closet", t2, { by: "Sam", id: "where-sam" });
+var whereAlex = L.addItemComment(detailed, "list-a", "milk", "Blue suitcase", t2, { by: "Alex", id: "where-alex" });
+var whereMerged = L.mergeData(whereSam, whereAlex);
+var whereNotes = L.findList(whereMerged, "list-a").items.filter(function (it) { return it.id === "milk"; })[0].comments;
+assert.ok(whereNotes.some(function (note) { return note.text === "Hall closet" && note.by === "Sam"; }));
+assert.ok(whereNotes.some(function (note) { return note.text === "Blue suitcase" && note.by === "Alex"; }));
 var removed = L.removeItem(seed(), "list-a", "milk", t2);
 var removedNamed = L.removeItem(seed(), "list-a", "milk", t2, "Alex");
 var acts = L.activityForList(removedNamed, "list-a");

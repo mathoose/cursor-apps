@@ -54,15 +54,25 @@
   function loadCache() {
     try {
       var p = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
-      if (!p || typeof p !== "object" || !p.rooms || typeof p.rooms !== "object") {
-        return { version: 2, profile: { displayName: "" }, activeCode: "", rooms: {} };
+      if (!p || typeof p !== "object") {
+        return { version: 3, profile: { displayName: "" }, household: { revision: 0, data: L.emptyData() } };
       }
+      if (!p.rooms || typeof p.rooms !== "object") p.rooms = {};
       if (!p.profile || typeof p.profile !== "object") p.profile = { displayName: "" };
       p.profile.displayName = L.normalizeDisplayName(p.profile.displayName);
-      p.version = 2;
+      if (!p.household || typeof p.household !== "object") {
+        var carried = L.emptyData();
+        Object.keys(p.rooms || {}).forEach(function (code) {
+          if (p.rooms[code] && p.rooms[code].data) carried = L.mergeData(carried, p.rooms[code].data);
+        });
+        p.household = { revision: 0, data: carried };
+      }
+      p.rooms = {};
+      p.activeCode = "";
+      p.version = 3;
       return p;
     } catch (e) {
-      return { version: 2, profile: { displayName: "" }, activeCode: "", rooms: {} };
+      return { version: 3, profile: { displayName: "" }, household: { revision: 0, data: L.emptyData() } };
     }
   }
 
@@ -80,17 +90,13 @@
 
   function saveCache() {
     var cache = loadCache();
-    cache.version = 1;
-    if (state.code && state.pin) {
-      cache.activeCode = state.code;
-      cache.rooms[state.code] = {
-        pin: state.pin,
-        revision: state.revision || 0,
-        data: L.normalizeData(state.data),
-      };
-    } else if (!state.code) {
-      cache.activeCode = cache.activeCode || "";
-    }
+    cache.version = 3;
+    cache.household = {
+      revision: state.revision || 0,
+      data: L.normalizeData(state.data),
+    };
+    cache.rooms = {};
+    cache.activeCode = "";
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
   }
 
@@ -149,14 +155,38 @@
   }
 
   function explainSyncError(err) {
+    if (err && err.status === 401) return "Sign in with Cursor to open this list.";
+    if (err && err.status === 429) return "Too many tries. Wait a minute and try again.";
     if (err && err.status === 404) {
       return "This page can’t start the shared list. Open Our Lists where the list server is running.";
     }
     return "Can’t reach the shared list. Check your connection and try again.";
   }
 
+  function ensureEurope(data, revision) {
+    if (L.activeLists(data).length || Number(revision) > 1) return data;
+    return L.createList(data, { category: "packing", title: "Europe" }).data;
+  }
+
+  function showSignedOut(message) {
+    stopPoll();
+    show("join");
+    if ($("codeHint")) $("codeHint").textContent = message || "Sign in with Cursor to open this list.";
+  }
+
+  function showHousehold() {
+    var lists = L.activeLists(state.data);
+    if (state.view === "list" && L.findList(state.data, state.listId)) show("list");
+    else if (lists.length === 1) {
+      state.listId = lists[0].id;
+      show("list");
+    } else show("room");
+    render();
+    startPoll();
+  }
+
   function applyRemote(remoteData, revision) {
-    var merged = L.pruneData(L.mergeData(state.data, remoteData));
+    var merged = L.pruneData(L.mergeData(state.data, ensureEurope(remoteData, revision)));
     var aheadOfRemote = !L.sameData(merged, remoteData);
     state.data = merged;
     state.revision = Number(revision) || 0;
@@ -168,39 +198,28 @@
       setStatus("Synced");
     }
     saveCache();
-    render();
+    showHousehold();
   }
 
   function pull() {
-    if (!state.code || !state.pin || state.saving) return Promise.resolve();
-    return rpc("api/open", { code: state.code, pin: state.pin }).then(function (res) {
-      if (!res || res.status === "bad_pin") {
-        rejectPin();
+    if (state.saving) return Promise.resolve();
+    return rpc("api/open", {}).then(function (res) {
+      if (res && res.status === "ok") {
+        applyRemote(res.data || L.emptyData(), res.revision);
         return;
       }
-      if (res.status === "new") {
-        return rpc("api/join", {
-          code: state.code,
-          pin: state.pin,
-          confirm: state.pin,
-          data: state.data,
-        }).then(function (created) {
-          if (created && created.status === "ok") {
-            applyRemote(created.data || L.emptyData(), created.revision);
-            if (created.created) toast("Started this list");
-            return;
-          }
-          if (created && created.status === "bad_pin") {
-            rejectPin();
-            return;
-          }
-          toast("That list isn’t there anymore.");
-          showJoin();
-        });
+      setStatus("Saved on this phone");
+    }).catch(function (err) {
+      if (err && err.status === 401) {
+        showSignedOut(explainSyncError(err));
+        return;
       }
-      if (res.status === "ok") applyRemote(res.data || L.emptyData(), res.revision);
-    }).catch(function () {
-      setStatus(state.dirty ? "Offline — saved on this phone" : "Offline");
+      if (L.activeLists(state.data).length) {
+        showHousehold();
+        setStatus(state.dirty ? "Offline — saved on this phone" : "Offline");
+        return;
+      }
+      showSignedOut(explainSyncError(err));
     });
   }
 
@@ -209,7 +228,7 @@
       state.saveAgain = true;
       return;
     }
-    if (!state.dirty || !state.code || !state.pin) return;
+    if (!state.dirty) return;
     clearTimeout(state.saveTimer);
     var code = state.code;
     var pin = state.pin;
@@ -219,12 +238,9 @@
     state.saving = true;
     setStatus("Saving…");
     rpc("api/save", {
-      code: code,
-      pin: pin,
       data: payload,
       revision: revision,
     }).then(function (res) {
-      if (state.code !== code) return;
       if (res && res.status === "ok") {
         state.revision = Number(res.revision) || state.revision;
         if (!state.saveAgain) {
@@ -236,24 +252,21 @@
         state.revision = Number(res.revision) || state.revision;
         state.dirty = true;
         state.saveAgain = true;
-      } else if (res && res.status === "bad_pin") {
-        rejectPin();
       } else if (res && (res.status === "too_big" || res.status === "bad_data")) {
-        toast("This room is too large to save.");
+        toast("This list is too large to save.");
       } else {
         setStatus("Saved on this phone");
       }
-    }).catch(function () {
-      if (state.code === code) setStatus("Offline — saved on this phone");
+    }).catch(function (err) {
+      if (err && err.status === 401) showSignedOut(explainSyncError(err));
+      else setStatus("Offline — saved on this phone");
     }).then(function () {
       state.saving = false;
-      if (state.code === code) {
-        saveCache();
-        render();
-        if (state.saveAgain && state.dirty) {
-          state.saveAgain = false;
-          saveNow();
-        }
+      saveCache();
+      render();
+      if (state.saveAgain && state.dirty) {
+        state.saveAgain = false;
+        saveNow();
       }
     });
   }
@@ -378,7 +391,7 @@
         html += '<button type="button" class="saved-room" data-action="open-saved" data-code="' + esc(code) + '"><span><strong>' + esc(code) + '</strong><br><span class="fine">' + n + (n === 1 ? " list" : " lists") + '</span></span></button>';
       });
     }
-    $("savedRooms").innerHTML = html;
+    if ($("savedRooms")) $("savedRooms").innerHTML = html;
   }
 
   function noteCard(list) {
@@ -448,10 +461,11 @@
     var grocery = L.isGroceryList(list)
       ? stockBarHtml(listId, it) + usualHtml(listId, it)
       : "";
-    var detail = it.detail
-      ? '<p class="item-detail">' + esc(it.detail) + "</p>"
-      : "";
-    var noteLabel = it.detail ? "Edit note" : "Note";
+    var comments = (it.comments || []).map(function (note) {
+      var who = note.by ? note.by + ": " : "";
+      return '<p class="item-detail">' + esc(who + note.text) + "</p>";
+    }).join("");
+    var noteLabel = list.category === "packing" ? "Where" : ((it.comments && it.comments.length) ? "Comments" : "Note");
     var emoji = L.itemEmoji(it.text);
     var emojiHtml = emoji
       ? '<span class="item-emoji" aria-hidden="true">' + emoji + "</span>"
@@ -459,7 +473,7 @@
     return '<div class="item-row' + done + sometimes + '">'
       + '<button type="button" class="check' + on + '" data-action="toggle" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '" aria-label="' + (it.checked ? "Mark not done" : "Mark done") + '"></button>'
       + grocery
-      + '<div class="item-body">' + emojiHtml + '<div class="item-copy"><span class="item-text">' + esc(it.text) + "</span>" + detail + "</div></div>"
+      + '<div class="item-body">' + emojiHtml + '<div class="item-copy"><span class="item-text">' + esc(it.text) + "</span>" + comments + "</div></div>"
       + '<button type="button" class="item-note-btn" data-action="edit-item-note" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">' + noteLabel + "</button>"
       + '<button type="button" class="remove" data-action="remove" data-list="' + esc(listId) + '" data-id="' + esc(it.id) + '">Remove</button>'
       + "</div>";
@@ -720,15 +734,20 @@
       if (it.id === itemId && !it.deletedAt) item = it;
     });
     if (!item) return;
+    var packing = list.category === "packing";
+    var thread = (item.comments || []).map(function (note) {
+      var who = note.by ? note.by + " · " : "";
+      return '<article class="card-note-msg"><p class="card-note-text">' + esc(note.text) + '</p><p class="card-note-time">' + esc(who + L.formatLastChanged(note.createdAt)) + "</p></article>";
+    }).join("");
     openSheet({
       kind: "item-note",
       listId: listId,
       itemId: itemId,
-      html: "<h2>Note on “" + esc(item.text) + "”</h2><p class=\"fine\">Where it is, when you last saw it, etc.</p>"
-        + '<label class="field-label" for="itemNoteInput">Item note</label>'
-        + '<textarea id="itemNoteInput" rows="3" maxlength="140" placeholder="Last seen in guest room">' + esc(item.detail || "") + "</textarea>"
-        + '<button type="button" class="btn btn-primary" data-action="save-item-note" data-list="' + esc(listId) + '" data-id="' + esc(itemId) + '">Save note</button>'
-        + (item.detail ? '<button type="button" class="btn btn-quiet" data-action="clear-item-note" data-list="' + esc(listId) + '" data-id="' + esc(itemId) + '">Remove note</button>' : "")
+      html: "<h2>" + esc(item.text) + "</h2><p>" + (packing ? "Where did you last see it?" : "A note both of you can see.") + "</p>"
+        + '<div class="card-note-thread">' + (thread || '<p class="fine">No comments yet.</p>') + "</div>"
+        + '<label class="field-label" for="itemNoteInput">' + (packing ? "Last place you saw it" : "Comment") + "</label>"
+        + '<textarea id="itemNoteInput" rows="3" maxlength="280" placeholder="' + (packing ? "Hall closet, blue suitcase…" : "A note for both of you") + '"></textarea>'
+        + '<button type="button" class="btn btn-primary" data-action="add-item-comment" data-list="' + esc(listId) + '" data-id="' + esc(itemId) + '">Add comment</button>'
         + '<button type="button" class="btn btn-quiet" data-action="close-sheet">Cancel</button>',
     });
     setTimeout(function () {
@@ -804,7 +823,7 @@
   function forgetSheet() {
     openSheet({
       kind: "forget",
-      html: "<h2>Forget " + esc(state.code) + ' on this phone?</h2><p>The lists stay in the room. You can join again with the code and PIN.</p><button type="button" class="btn btn-primary" data-action="confirm-forget">Forget on this phone</button><button type="button" class="btn btn-quiet" data-action="close-sheet">Cancel</button>',
+      html: "<h2>Clear the copy on this phone?</h2><p>The shared list stays. This phone will load it again.</p><button type=\"button\" class=\"btn btn-primary\" data-action=\"confirm-forget\">Clear this phone</button><button type=\"button\" class=\"btn btn-quiet\" data-action=\"close-sheet\">Cancel</button>",
     });
   }
 
@@ -994,19 +1013,18 @@
       itemNoteSheet(btn.getAttribute("data-list"), id);
       return;
     }
-    if (action === "save-item-note") {
+    if (action === "add-item-comment") {
+      if (ensureProfile()) return;
       var noteList = btn.getAttribute("data-list");
       var noteId = btn.getAttribute("data-id");
       var noteText = $("itemNoteInput") ? $("itemNoteInput").value : "";
+      if (!L.normalizeCardNote(noteText)) {
+        toast("Write where you saw it");
+        return;
+      }
       closeSheet();
-      mutate(L.setItemDetail(state.data, noteList, noteId, noteText), noteList);
-      toast(noteText.trim() ? "Saved item note" : "Note cleared");
-      return;
-    }
-    if (action === "clear-item-note") {
-      closeSheet();
-      mutate(L.setItemDetail(state.data, btn.getAttribute("data-list"), btn.getAttribute("data-id"), ""), btn.getAttribute("data-list"));
-      toast("Note removed");
+      mutate(L.addItemComment(state.data, noteList, noteId, noteText, undefined, { by: profileName() }), noteList);
+      toast("Comment added");
       return;
     }
     if (action === "create-list" || action === "create-packing") {
@@ -1106,65 +1124,23 @@
       return;
     }
     if (action === "confirm-forget") {
-      var cache = loadCache();
-      delete cache.rooms[state.code];
-      if (cache.activeCode === state.code) cache.activeCode = "";
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cache));
-      state.code = "";
-      state.pin = "";
       state.data = L.emptyData();
+      state.revision = 0;
       state.dirty = false;
+      state.listId = "";
+      saveCache();
       closeSheet();
-      showJoin();
+      pull();
       return;
     }
     if (action === "close-sheet") closeSheet();
   });
 
-  $("joinForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    if (state.busy) return;
-    var code = L.normalizeCode($("codeInput").value);
-    var pin = L.normalizePin($("pinInput").value);
-    var confirm = L.normalizePin($("pinConfirm").value);
-    var codeErr = L.codeError(code);
-    var pinErr = L.pinError(pin);
-    $("codeHint").textContent = codeErr || pinErr || "4–12 letters or numbers. PIN is 4–8 digits.";
-    if (codeErr || pinErr) return;
-    var cache = loadCache();
-    var cached = cache.rooms[code];
-    state.busy = true;
-    rpc("api/join", {
-      code: code,
-      pin: pin,
-      confirm: confirm || pin,
-      data: cached && cached.data ? cached.data : L.emptyData(),
-    }).then(function (res) {
-      if (!res) return;
-      if (res.status === "pin_mismatch") {
-        $("codeHint").textContent = "Type the PIN the same way twice to start this list.";
-        return;
-      }
-      if (res.status === "bad_pin") {
-        $("codeHint").textContent = "That PIN doesn’t open this list.";
-        return;
-      }
-      if (res.status === "locked") {
-        $("codeHint").textContent = "Too many tries. Wait a few minutes.";
-        return;
-      }
-      if (res.status === "ok") {
-        enterRoom(code, pin, res.revision, res.data || L.emptyData());
-        if (res.created) toast("Started this list");
-        return;
-      }
-      $("codeHint").textContent = "Couldn’t open the list.";
-    }).catch(function (err2) {
-      $("codeHint").textContent = explainSyncError(err2);
-    }).then(function () { state.busy = false; });
+  $("roomsBtn").addEventListener("click", function () {
+    state.listId = "";
+    show("room");
+    render();
   });
-
-  $("roomsBtn").addEventListener("click", showJoin);
   $("settingsBtn").addEventListener("click", function () {
     openProfileSheet(false);
   });
@@ -1259,21 +1235,12 @@
 
   function boot() {
     var cache = loadCache();
-    var code = cache.activeCode;
-    var room = code && cache.rooms[code];
-    if (room && room.pin) {
-      state.code = code;
-      state.pin = room.pin;
-      state.revision = room.revision || 0;
-      state.data = L.normalizeData(room.data);
-      show("room");
-      render();
-      startPoll();
-      setStatus("Checking list…");
-      pull();
-      return;
+    if (cache.household && cache.household.data) {
+      state.data = L.normalizeData(cache.household.data);
+      state.revision = cache.household.revision || 0;
     }
-    showJoin();
+    showSignedOut("Opening the list…");
+    pull();
   }
 
   boot();

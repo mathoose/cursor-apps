@@ -1,6 +1,7 @@
 {
   "name": "our-lists",
   "private": true,
+  "type": "module",
   "scripts": {
     "start": "node server.mjs",
     "build": "node scripts/migrate.mjs"
