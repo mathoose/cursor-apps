@@ -273,7 +273,12 @@
   function createEditor(root, showHead) {
     root.innerHTML =
       '<div class="editor">' +
-        (showHead ? '<div class="editor-head"><h2 data-role="date"></h2><p data-role="weekday"></p></div>' : "") +
+        (showHead
+          ? '<div class="editor-head">' +
+              '<div class="editor-head-text"><h2 data-role="date"></h2><p data-role="weekday"></p></div>' +
+              '<button type="button" class="yesterday-btn" data-role="yesterday">Yesterday</button>' +
+            "</div>"
+          : "") +
         '<div class="pad-wrap" data-role="pad"></div>' +
         '<div class="pad-actions">' +
           '<p class="pad-count" data-role="count"></p>' +
@@ -366,6 +371,12 @@
       editor.erase = !editor.erase;
       editor.render();
     });
+
+    if (part.yesterday) {
+      part.yesterday.addEventListener("click", function () {
+        openDay(L.shiftISO(todayISO(), -1));
+      });
+    }
 
     root.addEventListener("click", function (event) {
       var shapeBtn = event.target.closest("[data-shape]");

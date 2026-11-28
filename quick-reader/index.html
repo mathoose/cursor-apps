@@ -9,10 +9,10 @@
   <meta name="apple-mobile-web-app-title" content="Quick Reader" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#111827" />
-  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="icon" href="app-icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="app-icon.png" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="styles.css?v=10" />
 </head>
 <body>
   <header class="app-header">
@@ -33,7 +33,7 @@
       <div class="card-heading">
         <div>
           <h2 id="importTitle">Add text</h2>
-          <p>Paste text, pull a page link, or read a photo.</p>
+          <p>Pull a page link, or read a photo.</p>
         </div>
       </div>
 
@@ -43,7 +43,7 @@
           <input type="url" id="urlInput" placeholder="https://en.wikipedia.org/wiki/..." inputmode="url" autocomplete="url" />
           <button type="submit" class="btn btn-secondary" id="fetchBtn">Pull text</button>
         </div>
-        <p class="hint" id="fetchHint">Some news sites block extraction. If that happens, paste the article text below.</p>
+        <p class="hint" id="fetchHint">Some news sites block extraction. If that happens, use From photo.</p>
       </form>
 
       <div class="photo-row">
@@ -56,13 +56,6 @@
         </div>
         <p class="hint" id="photoHint">Drop a screenshot on the page, or tap Last photo. Then read all of it, or highlight the words you want.</p>
       </div>
-
-      <label class="field-label" for="textInput">Text</label>
-      <textarea id="textInput" rows="8" placeholder="Paste anything you want to read quickly..."></textarea>
-      <div class="button-row">
-        <button type="button" class="btn btn-primary" id="saveTextBtn">Use this text</button>
-        <button type="button" class="btn btn-ghost" id="clearBtn">Clear</button>
-      </div>
     </section>
 
     <section class="reader-card" aria-labelledby="readerTitle">
@@ -71,7 +64,10 @@
           <h2 id="readerTitle">Reader</h2>
           <p id="readerMeta">No text loaded yet</p>
         </div>
-        <button type="button" class="text-btn" id="restartBtn">Restart</button>
+        <div class="reader-actions">
+          <button type="button" class="text-btn" id="clearBtn">Clear</button>
+          <button type="button" class="text-btn" id="restartBtn">Restart</button>
+        </div>
       </div>
 
       <div class="speed-control">
@@ -102,7 +98,7 @@
       </div>
 
       <article class="full-text" id="fullText" aria-live="polite">
-        <p class="empty-state">Paste text or pull an article link to begin.</p>
+        <p class="empty-state">Pull a link or read a photo to begin.</p>
       </article>
     </section>
   </main>
@@ -182,6 +178,6 @@
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

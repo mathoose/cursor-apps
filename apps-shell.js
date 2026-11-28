@@ -79,59 +79,117 @@
     return "Export · " + days + " days since last export";
   }
 
-  function dockOffset() {
-    var el = document.querySelector(".bottom-dock, .bottom-nav, .tabbar");
-    if (!el) return 0;
-    var rect = el.getBoundingClientRect();
-    if (rect.height < 8) return 0;
-    var fromBottom = window.innerHeight - rect.top;
-    if (fromBottom < 8 || fromBottom > window.innerHeight * 0.55) return 0;
-    return Math.round(fromBottom);
+  function chromeHosts() {
+    var docks = document.querySelectorAll(".bottom-dock, .bottom-nav");
+    if (docks.length) return Array.prototype.slice.call(docks);
+    return Array.prototype.slice.call(document.querySelectorAll(".tabbar"));
   }
 
-  function placeQuickExport(btn) {
-    var offset = dockOffset();
-    btn.style.bottom = offset ? offset + "px" : "env(safe-area-inset-bottom, 0px)";
+  // How tall the fixed bottom chrome is, measured from the viewport bottom.
+  function dockLift() {
+    var lift = 0;
+    chromeHosts().forEach(function (host) {
+      var style = window.getComputedStyle(host);
+      if (style.display === "none" || style.visibility === "hidden") return;
+      var rect = host.getBoundingClientRect();
+      if (rect.height < 8) return;
+      var fromBottom = window.innerHeight - rect.top;
+      if (fromBottom < 8 || fromBottom > window.innerHeight * 0.55) return;
+      if (fromBottom > lift) lift = fromBottom;
+    });
+    return Math.round(lift);
   }
 
   function mountQuickExport() {
     if (!window.AppsBackup || !AppsBackup.exportAll || !AppsBackup.downloadBundle) return;
-    if (document.querySelector(".apps-quick-export")) return;
+    if (document.querySelector(".apps-quick-export-bar")) return;
+
+    var bar = document.createElement("div");
+    bar.className = "apps-quick-export-bar";
+    bar.setAttribute("data-apps-export-bar", "");
 
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "apps-quick-export";
     btn.id = "appsQuickExport";
-
-    function refresh() {
-      var label = exportLineLabel();
-      btn.textContent = label;
-      btn.setAttribute("aria-label", label);
-    }
-
-    refresh();
     btn.addEventListener("click", function () {
       try {
         AppsBackup.downloadBundle(AppsBackup.exportAll(), AppsBackup.defaultFilename());
         refresh();
       } catch (e) { /* leave the label unchanged */ }
     });
-    document.body.appendChild(btn);
-    document.body.classList.add("apps-has-quick-export");
-    placeQuickExport(btn);
-    if (!document.body.dataset.appsExportPad) {
-      document.body.dataset.appsExportPad = "1";
-      var extra = Math.ceil(btn.getBoundingClientRect().height) || 16;
-      var current = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
-      document.body.style.paddingBottom = current + extra + "px";
+    bar.appendChild(btn);
+    document.body.appendChild(bar);
+
+    function refresh() {
+      var label = exportLineLabel();
+      btn.textContent = label;
+      btn.setAttribute("aria-label", label + ". Downloads a backup of all apps.");
     }
-    window.addEventListener("resize", function () {
-      placeQuickExport(btn);
-    });
+
+    function padTargets() {
+      var nodes = [];
+      function take(node) {
+        if (!node || nodes.indexOf(node) >= 0) return;
+        nodes.push(node);
+      }
+      take(document.querySelector(".app"));
+      take(document.querySelector("main"));
+      take(document.getElementById("app"));
+      // Apps with min-height: 100dvh need the clearance inside the root, not only on body.
+      if (!nodes.length) take(document.body);
+      return nodes;
+    }
+
+    function syncPad() {
+      var lift = dockLift();
+      bar.classList.toggle("is-above-dock", lift > 0);
+      bar.style.bottom = lift ? lift + "px" : "0px";
+
+      var barRect = bar.getBoundingClientRect();
+      var barTop = barRect.height > 2 ? barRect.top : window.innerHeight - 44;
+      var needed = Math.ceil(window.innerHeight - barTop) + 2;
+      if (needed < 16) needed = 16;
+
+      document.documentElement.style.setProperty("--apps-export-offset", needed + "px");
+      document.body.style.paddingBottom = "";
+      var bodyBase = parseFloat(window.getComputedStyle(document.body).paddingBottom) || 0;
+      document.body.style.paddingBottom = Math.max(Math.ceil(bodyBase), needed) + "px";
+
+      padTargets().forEach(function (node) {
+        if (node === document.body) return;
+        node.style.paddingBottom = "";
+        var base = parseFloat(window.getComputedStyle(node).paddingBottom) || 0;
+        node.style.paddingBottom = Math.max(Math.ceil(base), needed) + "px";
+        node.style.boxSizing = "border-box";
+      });
+    }
+
+    refresh();
+    document.body.classList.add("apps-has-quick-export");
+    syncPad();
+
+    if (window.ResizeObserver) {
+      var observer = new ResizeObserver(function () { syncPad(); });
+      observer.observe(bar);
+      observer.observe(btn);
+      chromeHosts().forEach(function (host) { observer.observe(host); });
+    }
+    window.addEventListener("resize", syncPad);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", syncPad);
+    if (window.MutationObserver) {
+      new MutationObserver(function () { syncPad(); }).observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    }
     document.addEventListener("visibilitychange", function () {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === "visible") {
+        refresh();
+        syncPad();
+      }
     });
-    window.AppsQuickExport = { refresh: refresh };
+    window.AppsQuickExport = { refresh: refresh, syncPad: syncPad };
   }
 
   function showAppVersion(versionText) {

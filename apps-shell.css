@@ -68,23 +68,91 @@
 body.has-bottom-nav .app-version-footer {
   padding-bottom: 4px;
 }
-.apps-quick-export {
+/* Fixed strip at the bottom of every app. --apps-export-offset is the clearance
+   from the viewport bottom through this bar (and any tab bar under it). */
+html {
+  scroll-padding-bottom: var(--apps-export-offset, 0px);
+}
+body.apps-has-quick-export {
+  scroll-padding-bottom: var(--apps-export-offset, 0px);
+}
+.apps-quick-export-bar {
   position: fixed;
   left: 0;
   right: 0;
-  z-index: 64;
-  margin: 0;
-  padding: 0 12px;
-  border: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 12px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+}
+@supports (background: light-dark(#fff, #000)) {
+  .apps-quick-export-bar {
+    background: light-dark(rgba(255, 255, 255, 0.92), rgba(28, 28, 30, 0.94));
+    border-top-color: light-dark(rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.1));
+  }
+}
+.apps-quick-export-bar.is-above-dock {
+  padding-bottom: 6px;
+  border-top: 0;
   background: transparent;
-  color: inherit;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.apps-quick-export {
+  pointer-events: auto;
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  max-width: min(420px, calc(100% - 8px));
+  margin: 0;
+  padding: 7px 16px;
+  border: 1.5px solid rgba(15, 23, 42, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
   font-family: inherit;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: 0.8125rem;
+  font-weight: 700;
   line-height: 1.15;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.14);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@supports (background: light-dark(#fff, #000)) {
+  .apps-quick-export {
+    background: light-dark(#fff, #2c2c2e);
+    color: light-dark(#0f172a, #f5f5f7);
+    border-color: light-dark(rgba(15, 23, 42, 0.18), rgba(255, 255, 255, 0.22));
+    box-shadow: light-dark(0 1px 3px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(0, 0, 0, 0.4));
+  }
+}
+.apps-quick-export::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  flex: none;
+  background: currentColor;
+  opacity: 0.72;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3v12'/><path d='M7 10l5 5 5-5'/><path d='M5 19h14'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3v12'/><path d='M7 10l5 5 5-5'/><path d='M5 19h14'/></svg>") center / contain no-repeat;
+}
+.apps-quick-export:active {
+  transform: scale(0.97);
+  opacity: 0.88;
 }
 
 /* Shared photo picker (apps-photo-picker.js) */

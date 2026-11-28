@@ -324,6 +324,13 @@ body.is-photo-drop .photo-drop {
   margin-bottom: 16px;
 }
 
+.reader-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
 .speed-control {
   background: rgba(15, 23, 42, 0.55);
   border: 1px solid var(--border);
@@ -395,11 +402,11 @@ input[type="range"] {
 
 .hold-word {
   width: 100%;
-  min-height: 1.2em;
-  font-size: clamp(2.9rem, 13vw, 6.5rem);
+  min-height: 1.15em;
+  font-size: clamp(3.4rem, 18vw, 8.5rem);
   font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -0.06em;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
   overflow-wrap: anywhere;
 }
 
@@ -436,8 +443,8 @@ input[type="range"] {
   border-radius: var(--radius-sm);
   background: rgba(15, 23, 42, 0.62);
   padding: 16px;
-  font-size: 1rem;
-  line-height: 1.75;
+  font-size: 1.22rem;
+  line-height: 1.7;
   white-space: pre-wrap;
 }
 

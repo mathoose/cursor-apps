@@ -169,7 +169,7 @@
     if (!els.fullText) return;
     var text = normalizeText(state.text);
     if (!text) {
-      els.fullText.innerHTML = '<p class="empty-state">Paste text or pull an article link to begin.</p>';
+      els.fullText.innerHTML = '<p class="empty-state">Pull a link or read a photo to begin.</p>';
       return;
     }
 
@@ -205,6 +205,7 @@
       els.holdWord.textContent = "Ready";
       els.holdHelp.textContent = "Hold here to start reading.";
       els.progressBar.style.width = "0%";
+      sizeHoldWord();
       return;
     }
 
@@ -227,6 +228,18 @@
         els.holdHelp.textContent = "Hold here to start. Tap a word below to start there.";
       }
     }
+    sizeHoldWord();
+  }
+
+  function sizeHoldWord() {
+    if (!els.holdWord) return;
+    var len = (els.holdWord.textContent || "").trim().length || 1;
+    var vw = 22;
+    if (len > 4) vw = 16;
+    if (len > 8) vw = 13;
+    if (len > 12) vw = 10;
+    if (len > 18) vw = 8;
+    els.holdWord.style.fontSize = "clamp(2.8rem, " + vw + "vw, 9rem)";
   }
 
   function renderSpeed() {
@@ -239,7 +252,6 @@
   function renderAll() {
     words = tokenize(state.text);
     if (state.position > words.length) state.position = words.length;
-    if (els.textInput && els.textInput.value !== state.text) els.textInput.value = state.text;
     if (els.urlInput && els.urlInput.value !== state.sourceUrl) els.urlInput.value = state.sourceUrl;
     renderSpeed();
     renderMeta();
@@ -547,7 +559,7 @@
   function setFetching(active) {
     els.fetchBtn.disabled = active;
     els.fetchBtn.textContent = active ? "Pulling..." : "Pull text";
-    els.fetchHint.textContent = active ? "Trying to extract a readable version of the page." : "Some news sites block extraction. If that happens, paste the article text below.";
+    els.fetchHint.textContent = active ? "Trying to extract a readable version of the page." : "Some news sites block extraction. If that happens, use From photo.";
   }
 
   function handleUrlSubmit(event) {
@@ -787,7 +799,7 @@
   }
 
   function insertPhotoText(addition, readCount, pickedCount, noun) {
-    var existing = (els.textInput.value || "").replace(/\s+$/g, "");
+    var existing = (state.text || "").replace(/\s+$/g, "");
     var combined = existing ? existing + "\n\n" + addition : addition;
     var message;
     if (noun === "highlight") {
@@ -802,10 +814,7 @@
       message = "Loaded text from " + readCount + " photo" + (readCount === 1 ? "" : "s") + ".";
       if (readCount < pickedCount) message = "Loaded text from " + readCount + " of " + pickedCount + " photos.";
     }
-    if (!setText(combined, "", "", message)) {
-      els.textInput.value = combined;
-      return;
-    }
+    if (!setText(combined, "", "", message)) return;
     showReader();
   }
 
@@ -1411,9 +1420,6 @@
 
   function bindEvents() {
     els.urlForm.addEventListener("submit", handleUrlSubmit);
-    els.saveTextBtn.addEventListener("click", function () {
-      setText(els.textInput.value, "", "");
-    });
     els.clearBtn.addEventListener("click", clearAll);
     els.restartBtn.addEventListener("click", restartReading);
     els.sentenceBackBtn.addEventListener("click", backOneSentence);
@@ -1539,7 +1545,6 @@
       "urlInput",
       "fetchBtn",
       "fetchHint",
-      "textInput",
       "photoLabel",
       "photoInput",
       "lastPhotoBtn",
@@ -1558,7 +1563,6 @@
       "highlightClearBtn",
       "highlightPullBtn",
       "highlightCancelBtn",
-      "saveTextBtn",
       "clearBtn",
       "readerMeta",
       "restartBtn",
