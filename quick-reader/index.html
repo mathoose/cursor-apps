@@ -12,7 +12,7 @@
   <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="app-icon.svg" />
   <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=7" />
+  <link rel="stylesheet" href="styles.css?v=8" />
 </head>
 <body>
   <header class="app-header">
@@ -47,11 +47,14 @@
       </form>
 
       <div class="photo-row">
-        <label class="btn btn-secondary import-label photo-label" id="photoLabel">
-          From photo
-          <input type="file" id="photoInput" accept="image/*" multiple />
-        </label>
-        <p class="hint" id="photoHint">Pick screenshots. Read all of the text, or highlight just the words you want.</p>
+        <div class="photo-actions">
+          <label class="btn btn-secondary import-label photo-label" id="photoLabel">
+            From photo
+            <input type="file" id="photoInput" accept="image/*" multiple />
+          </label>
+          <button type="button" class="btn btn-secondary" id="lastPhotoBtn">Last photo</button>
+        </div>
+        <p class="hint" id="photoHint">Drop a screenshot on the page, or tap Last photo. Then read all of it, or highlight the words you want.</p>
       </div>
 
       <label class="field-label" for="textInput">Text</label>
@@ -173,10 +176,12 @@
     </div>
   </div>
 
+  <div class="photo-drop" id="photoDrop">Drop screenshot</div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="../apps-backup.js"></script>
   <script src="../apps-shell.js" defer></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

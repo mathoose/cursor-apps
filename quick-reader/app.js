@@ -10,7 +10,9 @@
   var WPM_PER_PIXEL = 1.5;
 
   var TESSERACT_SRC = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
-  var PHOTO_HINT = "Pick screenshots. Read all of the text, or highlight just the words you want.";
+  var PHOTO_HINT = "Drop a screenshot on the page, or tap Last photo. Then read all of it, or highlight the words you want.";
+  var LAST_PHOTO_DB = "quick-reader-photos";
+  var LAST_PHOTO_STORE = "last";
   var HIGHLIGHT_HINT = "Read all takes the whole photo. Highlight and Erase choose part of it. Higher marks are read first.";
   var PHOTO_MAX_EDGE = 1600;
   var HIGHLIGHT_COLOR = "rgba(250, 204, 21, 0.45)";
@@ -780,6 +782,7 @@
       els.photoLabel.classList.toggle("is-disabled", active);
       els.photoLabel.setAttribute("aria-busy", active ? "true" : "false");
     }
+    if (els.lastPhotoBtn) els.lastPhotoBtn.disabled = active;
     if (els.photoHint) els.photoHint.textContent = message || PHOTO_HINT;
   }
 
@@ -937,6 +940,7 @@
       if (els[id]) els[id].disabled = active;
     });
     if (els.photoInput) els.photoInput.disabled = active;
+    if (els.lastPhotoBtn) els.lastPhotoBtn.disabled = active;
     if (els.highlightStatus) els.highlightStatus.textContent = message || HIGHLIGHT_HINT;
   }
 
@@ -1279,15 +1283,93 @@
     });
   }
 
+  function photoDatabase() {
+    return new Promise(function (resolve, reject) {
+      var request = indexedDB.open(LAST_PHOTO_DB, 1);
+      request.onupgradeneeded = function () {
+        var db = request.result;
+        if (!db.objectStoreNames.contains(LAST_PHOTO_STORE)) db.createObjectStore(LAST_PHOTO_STORE);
+      };
+      request.onsuccess = function () { resolve(request.result); };
+      request.onerror = function () { reject(request.error); };
+    });
+  }
+
+  function rememberPhotos(files) {
+    var records = files.map(function (file) {
+      return {
+        name: file.name || "photo",
+        type: file.type || "image/jpeg",
+        blob: file,
+      };
+    });
+    return photoDatabase().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(LAST_PHOTO_STORE, "readwrite");
+        tx.objectStore(LAST_PHOTO_STORE).put(records, "batch");
+        tx.oncomplete = function () { resolve(); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    }).catch(function () {});
+  }
+
+  function loadRememberedPhotos() {
+    return photoDatabase().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var request = db.transaction(LAST_PHOTO_STORE, "readonly").objectStore(LAST_PHOTO_STORE).get("batch");
+        request.onsuccess = function () { resolve(request.result || []); };
+        request.onerror = function () { reject(request.error); };
+      });
+    }).then(function (records) {
+      return records.map(function (record) {
+        var blob = record && (record.blob || record);
+        if (!blob) return null;
+        try {
+          return new File([blob], (record && record.name) || "photo", { type: (record && record.type) || blob.type || "image/jpeg" });
+        } catch (e) {
+          return blob;
+        }
+      }).filter(isImageFile);
+    });
+  }
+
+  function useLastPhoto() {
+    if (photoBusy) return;
+    loadRememberedPhotos().then(function (files) {
+      if (files.length) {
+        handlePhotoFiles(files);
+        return;
+      }
+      if (els.photoInput) els.photoInput.click();
+      else toast("Drop a screenshot first.");
+    }).catch(function () {
+      if (els.photoInput) els.photoInput.click();
+    });
+  }
+
+  function imageFilesFromList(fileList) {
+    return Array.prototype.filter.call(fileList || [], isImageFile);
+  }
+
+  function dragHasFiles(event) {
+    var types = event.dataTransfer && event.dataTransfer.types;
+    if (!types) return false;
+    for (var i = 0; i < types.length; i++) {
+      if (types[i] === "Files") return true;
+    }
+    return false;
+  }
+
   function handlePhotoFiles(fileList) {
     if (photoBusy) return;
     if (els.highlightOverlay && !els.highlightOverlay.hidden) closeHighlighter();
-    var files = Array.prototype.filter.call(fileList || [], isImageFile);
+    var files = imageFilesFromList(fileList);
     if (!files.length) {
       toast("Choose a photo.");
       if (els.photoInput) els.photoInput.value = "";
       return;
     }
+    rememberPhotos(files);
 
     var loaded = [];
     setPhotoBusy(true, "Opening photos…");
@@ -1380,6 +1462,50 @@
     els.photoInput.addEventListener("change", function () {
       handlePhotoFiles(els.photoInput.files);
     });
+    els.lastPhotoBtn.addEventListener("click", useLastPhoto);
+    var dragDepth = 0;
+    function clearPhotoDrop() {
+      dragDepth = 0;
+      document.body.classList.remove("is-photo-drop");
+    }
+    document.addEventListener("dragenter", function (event) {
+      if (!dragHasFiles(event) || photoBusy) return;
+      event.preventDefault();
+      dragDepth += 1;
+      document.body.classList.add("is-photo-drop");
+    });
+    document.addEventListener("dragover", function (event) {
+      if (!dragHasFiles(event)) return;
+      event.preventDefault();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = "copy";
+    });
+    document.addEventListener("dragleave", function (event) {
+      if (!dragHasFiles(event)) return;
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (!dragDepth) document.body.classList.remove("is-photo-drop");
+    });
+    document.addEventListener("drop", function (event) {
+      if (!dragHasFiles(event)) return;
+      event.preventDefault();
+      clearPhotoDrop();
+      var files = imageFilesFromList(event.dataTransfer && event.dataTransfer.files);
+      if (files.length) handlePhotoFiles(files);
+    });
+    document.addEventListener("dragend", clearPhotoDrop);
+    document.addEventListener("paste", function (event) {
+      if (photoBusy || !event.clipboardData) return;
+      var files = imageFilesFromList(event.clipboardData.files);
+      if (!files.length && event.clipboardData.items) {
+        Array.prototype.forEach.call(event.clipboardData.items, function (item) {
+          if (item.kind !== "file") return;
+          var file = item.getAsFile();
+          if (isImageFile(file)) files.push(file);
+        });
+      }
+      if (!files.length) return;
+      event.preventDefault();
+      handlePhotoFiles(files);
+    });
     els.brushRange.addEventListener("input", function () {
       els.brushValue.textContent = els.brushRange.value;
     });
@@ -1416,6 +1542,7 @@
       "textInput",
       "photoLabel",
       "photoInput",
+      "lastPhotoBtn",
       "photoHint",
       "highlightOverlay",
       "highlightSheet",
