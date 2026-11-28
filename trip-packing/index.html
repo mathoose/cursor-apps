@@ -2,137 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Packing</title>
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Packing" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#16324a" />
-  <!-- build: trip-packing-v1 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="icon" href="app-icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
-  <link rel="stylesheet" href="../apps-shell.css" />
-  <link rel="stylesheet" href="styles.css?v=1" />
+  <!-- build: trip-packing-v2 -->
+  <meta http-equiv="refresh" content="0; url=../shared-lists/" />
+  <script>location.replace("../shared-lists/");</script>
 </head>
 <body>
-  <header class="app-header">
-    <a href="https://mathoose.github.io/cursor-apps/" class="apps-home-back" data-apps-home aria-label="Back to Apps">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
-    </a>
-    <div class="header-titles">
-      <h1>Packing</h1>
-      <p id="headerSub">Trip lists &amp; past packed</p>
-    </div>
-    <button type="button" class="header-btn" id="codesBtn" hidden>Codes</button>
-  </header>
-
-  <main>
-    <section id="viewSetup" hidden>
-      <div class="card">
-        <p class="eyebrow">One-time setup</p>
-        <h2>Connect the shared list</h2>
-        <p>Packing uses the same private rooms as Our Lists. Add the project URL and anon key in <strong>shared-lists/config.js</strong>, and run <strong>shared-lists/supabase.sql</strong> once if you have not already.</p>
-      </div>
-    </section>
-
-    <section id="viewJoin" hidden>
-      <div class="card">
-        <p class="eyebrow">Private list</p>
-        <h2>Same list on both phones</h2>
-        <p>Pick a code you can say out loud, like TRIPS. The first time that code is used, you’ll set a PIN. Your wife enters the same code and PIN on her phone. Anyone without both only sees this screen.</p>
-        <form id="joinForm">
-          <label class="field-label" for="codeInput">List code</label>
-          <input id="codeInput" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="TRIPS" enterkeyhint="go" />
-          <p class="field-hint" id="codeHint">4–12 letters or numbers.</p>
-          <button type="submit" class="btn btn-primary">Continue</button>
-        </form>
-      </div>
-      <div id="savedRooms"></div>
-    </section>
-
-    <section id="viewPin" hidden>
-      <div class="card">
-        <p class="eyebrow" id="pinEyebrow">PIN</p>
-        <h2 id="pinTitle">Enter the PIN</h2>
-        <p id="pinCopy"></p>
-        <form id="pinForm">
-          <label class="field-label" for="pinInput" id="pinLabel">PIN</label>
-          <input id="pinInput" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
-          <div id="pinConfirmWrap" hidden>
-            <label class="field-label" for="pinConfirm">Confirm PIN</label>
-            <input id="pinConfirm" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" enterkeyhint="go" />
-          </div>
-          <p class="field-hint" id="pinHint"></p>
-          <button type="submit" class="btn btn-primary" id="pinSubmit">Open list</button>
-          <button type="button" class="btn btn-quiet" id="pinBack">Use a different code</button>
-        </form>
-      </div>
-    </section>
-
-    <section id="viewTrips" hidden>
-      <div class="room-bar">
-        <button type="button" class="code-pill" id="codePill"></button>
-        <p class="sync" id="roomSync" aria-live="polite"></p>
-      </div>
-      <button type="button" class="btn btn-primary" id="newTripBtn">New trip</button>
-      <button type="button" class="btn btn-secondary" id="pastPackedBtn">Past packed</button>
-      <p class="fine">Check off what you put in the bag. Next time, Past packed starts the list for you. Edits show up on both phones.</p>
-      <div id="tripList"></div>
-      <button type="button" class="btn btn-quiet danger-text" id="forgetBtn">Forget this list on this phone</button>
-    </section>
-
-    <section id="viewTrip" hidden>
-      <button type="button" class="text-back" id="backTrips">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        Trips
-      </button>
-      <label class="sr-only" for="tripTitle">Trip name</label>
-      <input id="tripTitle" class="trip-title" type="text" maxlength="80" placeholder="Trip name" autocomplete="off" />
-      <p class="fine" id="tripProgress"></p>
-      <p class="sync" id="tripSync" aria-live="polite"></p>
-      <form id="addForm" class="add-row">
-        <input id="addInput" type="text" maxlength="140" placeholder="Add something to bring" autocomplete="off" enterkeyhint="done" />
-        <button type="submit" class="add-btn" aria-label="Add item">+</button>
-      </form>
-      <div id="itemList"></div>
-      <button type="button" class="btn btn-secondary" id="addPastBtn">Add from past packed</button>
-      <button type="button" class="btn btn-quiet danger-text" id="deleteTripBtn">Delete trip</button>
-    </section>
-
-    <section id="viewPast" hidden>
-      <button type="button" class="text-back" id="pastBack">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        Back
-      </button>
-      <h2>Past packed</h2>
-      <p id="pastCopy"></p>
-      <div id="pastRows"></div>
-      <div class="past-actions">
-        <div id="pastNameWrap">
-          <label class="field-label" for="pastTitle">Trip name</label>
-          <input id="pastTitle" type="text" maxlength="80" placeholder="Aruba, weekend, Mom's" autocomplete="off" />
-        </div>
-        <button type="button" class="btn btn-primary" id="pastGo">Start trip with selected</button>
-        <button type="button" class="btn btn-secondary" id="pastUsual">Start with usual travel things</button>
-      </div>
-    </section>
-  </main>
-
-  <div id="sheet" class="sheet" hidden>
-    <button type="button" class="sheet-backdrop" id="sheetBackdrop" aria-label="Close"></button>
-    <div class="sheet-card" id="sheetBody" role="dialog" aria-modal="true"></div>
-  </div>
-  <div id="toast" class="toast" hidden></div>
-
-  <script src="../shared-lists/config.js?v=1"></script>
-  <script src="../shared-lists/logic.js?v=1"></script>
-  <script src="logic.js?v=1"></script>
-  <script src="app.js?v=1"></script>
-  <script src="../apps-backup.js"></script>
-  <script src="../apps-shell.js" defer></script>
+  <p><a href="../shared-lists/">Our Lists</a></p>
 </body>
 </html>

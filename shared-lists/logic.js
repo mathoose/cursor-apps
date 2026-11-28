@@ -66,17 +66,37 @@
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 280);
   }
 
+  function normalizeLink(value) {
+    var raw = String(value || "").trim();
+    if (!raw) return "";
+    if (!/^https?:\/\//i.test(raw)) {
+      if (/^[\w.-]+\.[a-z]{2,}([\/?#].*)?$/i.test(raw)) raw = "https://" + raw;
+      else return "";
+    }
+    try {
+      var url = new URL(raw);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+      return url.toString().slice(0, 500);
+    } catch (e) {
+      return "";
+    }
+  }
+
   function normalizeItemDetail(text) {
     return String(text || "").trim().replace(/\s+/g, " ").slice(0, 140);
   }
 
   function normalizeCardNoteEntry(entry, fallbackWhen) {
     if (!entry || !entry.id) return null;
+    var link = normalizeLink(entry.link);
     var text = normalizeCardNote(entry.text);
+    if (!text && link) text = link;
     if (!text) return null;
     return {
       id: String(entry.id),
       text: text,
+      link: link,
+      by: normalizeDisplayName(entry.by),
       createdAt: entry.createdAt || fallbackWhen || new Date().toISOString(),
     };
   }
@@ -327,6 +347,49 @@
     return "custom:" + (normalizeKey(list.category) || "other");
   }
 
+  function normalizeItemComment(entry, fallbackWhen) {
+    if (!entry || !entry.id) return null;
+    var text = normalizeCardNote(entry.text);
+    if (!text) return null;
+    return {
+      id: String(entry.id),
+      text: text,
+      by: normalizeDisplayName(entry.by),
+      createdAt: entry.createdAt || fallbackWhen || new Date().toISOString(),
+    };
+  }
+
+  function itemComments(it) {
+    var comments = [];
+    var seen = {};
+    (it && it.comments || []).forEach(function (entry) {
+      var row = normalizeItemComment(entry, it && it.updatedAt);
+      if (!row || seen[row.id]) return;
+      seen[row.id] = true;
+      comments.push(row);
+    });
+    if (!comments.length && it && normalizeItemDetail(it.detail)) {
+      comments.push({
+        id: String(it.id) + "-where",
+        text: normalizeItemDetail(it.detail),
+        by: "",
+        createdAt: it.updatedAt || it.createdAt || new Date().toISOString(),
+      });
+    }
+    comments.sort(function (a, b) { return stamp(a.createdAt) - stamp(b.createdAt); });
+    return comments;
+  }
+
+  function mergeItemComments(a, b) {
+    var map = {};
+    itemComments(a).concat(itemComments(b)).forEach(function (row) {
+      if (!map[row.id] || stamp(row.createdAt) >= stamp(map[row.id].createdAt)) map[row.id] = row;
+    });
+    return Object.keys(map).map(function (id) { return map[id]; }).sort(function (x, y) {
+      return stamp(x.createdAt) - stamp(y.createdAt);
+    });
+  }
+
   function normalizeItem(it) {
     if (!it || !it.id) return null;
     var text = normalizeText(it.text);
@@ -343,6 +406,7 @@
       checkedAt: checked ? (it.checkedAt || it.updatedAt || null) : null,
       deletedAt: it.deletedAt || null,
       detail: normalizeItemDetail(it.detail),
+      comments: itemComments(it),
     };
   }
 
@@ -605,13 +669,20 @@
     });
   }
 
-  function addCardNote(data, listId, text, now) {
+  function addCardNote(data, listId, text, now, opts) {
+    opts = opts || {};
     now = now || new Date().toISOString();
-    var note = normalizeCardNote(text);
-    if (!note) return normalizeData(data);
+    var entry = normalizeCardNoteEntry({
+      id: opts.id || uid(),
+      text: text,
+      link: opts.link,
+      by: opts.by,
+      createdAt: now,
+    }, now);
+    if (!entry) return normalizeData(data);
     return mapList(data, listId, function (list) {
       var notes = normalizeCardNotes(list);
-      notes.push({ id: uid(), text: note, createdAt: now });
+      notes.push(entry);
       list.cardNotes = notes;
       list.updatedAt = now;
       return list;
@@ -628,6 +699,30 @@
       list.items = list.items.map(function (it) {
         if (it.id !== itemId || it.deletedAt) return it;
         it.usual = normalizeUsual(usual);
+        it.updatedAt = now;
+        return it;
+      });
+      list.updatedAt = now;
+      return list;
+    });
+  }
+
+  function addItemComment(data, listId, itemId, text, now, opts) {
+    opts = opts || {};
+    now = now || new Date().toISOString();
+    var entry = normalizeItemComment({
+      id: opts.id || uid(),
+      text: text,
+      by: opts.by,
+      createdAt: now,
+    }, now);
+    if (!entry) return normalizeData(data);
+    return mapList(data, listId, function (list) {
+      list.items = list.items.map(function (it) {
+        if (it.id !== itemId || it.deletedAt) return it;
+        var comments = itemComments(it);
+        comments.push(entry);
+        it.comments = comments;
         it.updatedAt = now;
         return it;
       });
@@ -994,7 +1089,10 @@
     function take(it) {
       var row = normalizeItem(it);
       if (!row) return;
-      map[row.id] = pickNewer(map[row.id], row);
+      var prev = map[row.id];
+      var next = pickNewer(prev, row);
+      if (prev) next = Object.assign({}, next, { comments: mergeItemComments(prev, row) });
+      map[row.id] = next;
     }
     (aItems || []).forEach(take);
     (bItems || []).forEach(take);
@@ -1083,6 +1181,7 @@
     normalizeActivity: normalizeActivity,
     activityForList: activityForList,
     normalizeCardNote: normalizeCardNote,
+    normalizeLink: normalizeLink,
     normalizeKey: normalizeKey,
     itemEmoji: itemEmoji,
     normalizeCode: normalizeCode,
@@ -1109,6 +1208,7 @@
     normalizeCardNotes: normalizeCardNotes,
     latestCardNote: latestCardNote,
     addCardNote: addCardNote,
+    addItemComment: addItemComment,
     setListCardNote: setListCardNote,
     setItemDetail: setItemDetail,
     normalizeItemDetail: normalizeItemDetail,
